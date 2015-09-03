@@ -1,0 +1,23 @@
+1. medieval shield: http://allrpg.files.wordpress.com/2012/05/shield1.jpg
+
+2. cannon_ball: melhorar gráfico
+
+3. destrin_capsule_small: redesenhar
+
+4. destrin_ship: redesenhar
+
+5. destrin_tank: redesenhar
+
+6. destrin_tank_small: redesenhar
+
+7.fire_pump: separar projétil
+
+8. gigant_metool: redesenhar
+
+9. shocker: melhorar
+
+10. tank: redesenhar
+
+11. tech_circle: melhorar
+
+12. wood_shield: redesenhar

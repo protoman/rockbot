@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>armor_edit</class>
+ <widget class="QWidget" name="armor_edit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>554</width>
+    <height>365</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="2" column="3">
+    <widget class="QComboBox" name="p2_arm_comboBox"/>
+   </item>
+   <item row="4" column="5">
+    <widget class="QComboBox" name="p4_legs_comboBox"/>
+   </item>
+   <item row="3" column="5">
+    <widget class="QComboBox" name="p4_body_comboBox"/>
+   </item>
+   <item row="4" column="4">
+    <widget class="QComboBox" name="p3_legs_comboBox"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Arm:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QComboBox" name="p2_legs_comboBox"/>
+   </item>
+   <item row="3" column="3">
+    <widget class="QComboBox" name="p2_body_comboBox"/>
+   </item>
+   <item row="3" column="2">
+    <widget class="QComboBox" name="p1_body_comboBox"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QComboBox" name="p1_arm_comboBox"/>
+   </item>
+   <item row="1" column="4">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Player 3</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QComboBox" name="p3_body_comboBox"/>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Legs:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Player 2</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="5">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Player 4</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Body:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QComboBox" name="p3_arm_comboBox"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QComboBox" name="p1_legs_comboBox"/>
+   </item>
+   <item row="2" column="5">
+    <widget class="QComboBox" name="p4_arm_comboBox"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Player 1</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

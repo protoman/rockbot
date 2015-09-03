@@ -1,0 +1,15 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\editorarea.o
+./release\editortilepallete.o
+./release\mediator.o
+./release\addwizard.o
+./release\npcpreviewarea.o
+./release\moc_mainwindow.o
+./release\moc_editorarea.o
+./release\moc_editortilepallete.o
+./release\moc_addwizard.o
+./release\moc_npcpreviewarea.o
+./release\qrc_icons.o
+);
