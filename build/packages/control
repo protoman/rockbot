@@ -1,0 +1,12 @@
+Package: Rockbot
+Version: 1.0-a1
+Section: games
+Priority: optional
+Architecture: i386
+Depends: libsdl-image1.2 (>= 1.2.10-1), libsdl-mixer1.2 (>= 1.2.8-6), libsdl-ttf2.0-0 (>= 2.0.9-1), libsdl1.2debian (>= 1.2.14-4), libqtcore4 (>= 4.7.0), libqtgui4 (>= 4.7.0)
+Maintainer: Iuri Fiedoruk <protoman@upperland.net>
+Description: Rockbot is a game engine, similar to classical
+ (1 to 6, 9 and 10) Megaman (Rockman in Japan), programmed in C with the multi-platform library SDL,
+ counting also with a stage editor made in C++ with Qt library from Nokia.
+ Currently it have ports to Linux, Windows, Playstation 2 and Nintendo DS.
+.

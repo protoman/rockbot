@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="10.8" version="10.9" Modules="simple" RootPath="." Language="en" Id="{6EB39228-075B-46E8-B9DC-DA668AB8EE83}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="protoman@upperland.net"/>
+    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="ARPPRODUCTICON" Value="rockbot.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://rockbot.upperland.net/"/>
+    <ROW Property="Manufacturer" Value="Upperland Studios"/>
+    <ROW Property="ProductCode" Value="1033:{3C7CD209-6C83-411C-9467-853FD4D10742} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="Rockbot"/>
+    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{B0B39E81-66A6-4464-A022-D7A2DAF8985F}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="ProgramFilesFolder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~1|ProgramFilesFolder" IsPseudoRoot="1"/>
+    <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="animations_Dir" Directory_Parent="images_Dir" DefaultDir="ANIMAT~1|animations"/>
+    <ROW Directory="backgrounds_Dir" Directory_Parent="images_Dir" DefaultDir="BACKGR~1|backgrounds"/>
+    <ROW Directory="data_Dir" Directory_Parent="rockbot_Dir" DefaultDir="data"/>
+    <ROW Directory="enemies_Dir" Directory_Parent="sprites_Dir" DefaultDir="enemies"/>
+    <ROW Directory="faces_Dir" Directory_Parent="images_Dir" DefaultDir="faces"/>
+    <ROW Directory="fonts_Dir" Directory_Parent="data_Dir" DefaultDir="fonts"/>
+    <ROW Directory="images_Dir" Directory_Parent="data_Dir" DefaultDir="images"/>
+    <ROW Directory="map_backgrounds_Dir" Directory_Parent="images_Dir" DefaultDir="MAP_BA~1|map_backgrounds"/>
+    <ROW Directory="music_Dir" Directory_Parent="data_Dir" DefaultDir="music"/>
+    <ROW Directory="objects_Dir" Directory_Parent="sprites_Dir" DefaultDir="objects"/>
+    <ROW Directory="projectiles_Dir" Directory_Parent="images_Dir" DefaultDir="PROJEC~1|projectiles"/>
+    <ROW Directory="rockbot_Dir" Directory_Parent="ProgramFilesFolder" DefaultDir="rockbot"/>
+    <ROW Directory="scenes_Dir" Directory_Parent="images_Dir" DefaultDir="scenes"/>
+    <ROW Directory="sfx_Dir" Directory_Parent="data_Dir" DefaultDir="sfx"/>
+    <ROW Directory="sprites_Dir" Directory_Parent="images_Dir" DefaultDir="sprites"/>
+    <ROW Directory="tilesets_Dir" Directory_Parent="images_Dir" DefaultDir="tilesets"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="ProductInformation" ComponentId="{A0118247-1C77-463A-A4DA-7192B87FD7E1}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="QtCore4.dll" ComponentId="{05FA117C-0893-4398-ABB2-FE14FF6ADD7D}" Directory_="rockbot_Dir" Attributes="0" KeyPath="QtCore4.dll"/>
+    <ROW Component="QtGui4.dll" ComponentId="{7798385B-BF3E-4122-B1D8-B1ED0C397DC2}" Directory_="rockbot_Dir" Attributes="0" KeyPath="QtGui4.dll"/>
+    <ROW Component="SDL.dll" ComponentId="{4C131999-5C5F-4069-A34F-A49269A55811}" Directory_="rockbot_Dir" Attributes="0" KeyPath="SDL.dll"/>
+    <ROW Component="SDL_image.dll" ComponentId="{D4969709-60D7-4730-B7E1-307B26B47C19}" Directory_="rockbot_Dir" Attributes="0" KeyPath="SDL_image.dll"/>
+    <ROW Component="SDL_mixer.dll" ComponentId="{15FE20F4-D79E-40F8-A8F8-499662355AB2}" Directory_="rockbot_Dir" Attributes="0" KeyPath="SDL_mixer.dll"/>
+    <ROW Component="SDL_ttf.dll" ComponentId="{0BE6D2B7-27BE-4A7F-A4BB-E26A16FE29A6}" Directory_="rockbot_Dir" Attributes="0" KeyPath="SDL_ttf.dll"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{B729C612-6E82-4A60-A28D-4B8D856D8A5B}" Directory_="SHORTCUTDIR" Attributes="0"/>
+    <ROW Component="city_explosion_right.png" ComponentId="{28962757-E3FD-466A-B0B5-1F064C1687F4}" Directory_="animations_Dir" Attributes="0" KeyPath="city_explosion_right.png" Type="0"/>
+    <ROW Component="clouds_1.png" ComponentId="{9A8F2693-C5E7-4F2F-905E-CCB95707404B}" Directory_="map_backgrounds_Dir" Attributes="0" KeyPath="clouds_1.png" Type="0"/>
+    <ROW Component="desert_scorpion.png" ComponentId="{A1E379C6-E319-4DF3-A70A-446717EECDE8}" Directory_="projectiles_Dir" Attributes="0" KeyPath="desert_scorpion.png" Type="0"/>
+    <ROW Component="disappearing_block.png" ComponentId="{42FCF0AA-7120-48DD-BD56-6D0919EDE172}" Directory_="objects_Dir" Attributes="0" KeyPath="disappearing_block.png" Type="0"/>
+    <ROW Component="dlxfont.ttf" ComponentId="{08786937-0540-4A58-95F0-DF372E271C34}" Directory_="fonts_Dir" Attributes="0" Type="0"/>
+    <ROW Component="dr_kanotus.png" ComponentId="{EDBE1300-3ABB-4842-B4E0-C3A28308A9C1}" Directory_="faces_Dir" Attributes="0" KeyPath="dr_kanotus.png" Type="0"/>
+    <ROW Component="editor.exe" ComponentId="{55DA6C26-53F5-46AF-A0D0-0D7563FDD21E}" Directory_="rockbot_Dir" Attributes="0" KeyPath="editor.exe"/>
+    <ROW Component="icons.png" ComponentId="{464D5CA1-FE61-4113-8405-A7F338A1F18E}" Directory_="images_Dir" Attributes="0" KeyPath="icons.png" Type="0"/>
+    <ROW Component="lab_ending.png" ComponentId="{7F17E4D9-BBD9-4F39-826B-DC5F56E83EA1}" Directory_="scenes_Dir" Attributes="0" KeyPath="lab_ending.png" Type="0"/>
+    <ROW Component="libFLAC8.dll" ComponentId="{CAD78D48-77F6-43AE-833C-1FC534128D70}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libFLAC8.dll"/>
+    <ROW Component="libfreetype6.dll" ComponentId="{AA62FAD8-2784-4C3F-8D26-216FD45F36A5}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libfreetype6.dll"/>
+    <ROW Component="libgcc_s_dw21.dll" ComponentId="{43EE5CDF-2A54-46DE-BF5D-BF0148984A28}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libgcc_s_dw21.dll"/>
+    <ROW Component="libjpeg8.dll" ComponentId="{D6697FF0-A85E-4B7F-8E3F-40C87595DEDD}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libjpeg8.dll"/>
+    <ROW Component="libmikmod2.dll" ComponentId="{6E9F1994-CCA7-47B3-84BA-6B479DD94B32}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libmikmod2.dll"/>
+    <ROW Component="libogg0.dll" ComponentId="{7686C43F-76EF-4EC7-B5FA-E4A76D248C9E}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libogg0.dll"/>
+    <ROW Component="libpng1515.dll" ComponentId="{6452BC36-0E82-48E6-94CA-8D8A183328CA}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libpng1515.dll"/>
+    <ROW Component="libstdc6.dll" ComponentId="{A2C4FDB0-46BD-456F-906F-30C529AFB488}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libstdc6.dll"/>
+    <ROW Component="libtiff5.dll" ComponentId="{E69F14D2-7840-451A-B3F7-8C540D68EF46}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libtiff5.dll"/>
+    <ROW Component="libvorbis0.dll" ComponentId="{72E6DC0A-A32C-4E77-9BE9-90D97BBFF401}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libvorbis0.dll"/>
+    <ROW Component="libvorbisfile3.dll" ComponentId="{3C8E1B41-E92F-455D-9FF5-92740776F0D7}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libvorbisfile3.dll"/>
+    <ROW Component="libwebp2.dll" ComponentId="{A665D2E7-942F-4761-9760-FBCD8B73D2D2}" Directory_="rockbot_Dir" Attributes="0" KeyPath="libwebp2.dll"/>
+    <ROW Component="mingwm10.dll" ComponentId="{9A593DF5-4A36-4D99-8798-4314167C3841}" Directory_="rockbot_Dir" Attributes="0" KeyPath="mingwm10.dll"/>
+    <ROW Component="nes.gpl" ComponentId="{CE69AADB-D9B8-4652-B30D-F1FA33051367}" Directory_="data_Dir" Attributes="0" KeyPath="nes.gpl" Type="0"/>
+    <ROW Component="p2.png" ComponentId="{DA541F84-B136-4442-BD7D-5BE2F94FDFF5}" Directory_="sprites_Dir" Attributes="0" KeyPath="p2.png" Type="0"/>
+    <ROW Component="ride.mod" ComponentId="{0117EC3E-8829-45CA-AF4B-108BE9387AF2}" Directory_="music_Dir" Attributes="0" KeyPath="ride.mod" Type="0"/>
+    <ROW Component="rockbot.exe" ComponentId="{ADE111A8-CEB0-4A10-AB38-3806BCEF87FB}" Directory_="rockbot_Dir" Attributes="0" KeyPath="rockbot.exe"/>
+    <ROW Component="shocker.png" ComponentId="{5F65E2FB-B2EA-4664-B4C8-D650D3FE15B9}" Directory_="enemies_Dir" Attributes="0" KeyPath="shocker.png" Type="0"/>
+    <ROW Component="smpeg.dll" ComponentId="{D686ADF4-C5B5-4F8A-B837-637894A21515}" Directory_="rockbot_Dir" Attributes="0" KeyPath="smpeg.dll"/>
+    <ROW Component="stage_select_item.png" ComponentId="{45BFB305-EB46-4887-B1DD-934E6A0EC495}" Directory_="backgrounds_Dir" Attributes="0" KeyPath="stage_select_item.png" Type="0"/>
+    <ROW Component="train_chunk.wav" ComponentId="{3889E9C7-DA84-4B71-9D90-4EC3F020223F}" Directory_="sfx_Dir" Attributes="0" KeyPath="train_chunk.wav" Type="0"/>
+    <ROW Component="water_splash.png" ComponentId="{7C9183F1-63CD-42F4-AED0-B432E2377EC8}" Directory_="tilesets_Dir" Attributes="0" KeyPath="water_splash.png" Type="0"/>
+    <ROW Component="zlib1.dll" ComponentId="{C0F81C7B-6E76-4C13-BB4F-2F15B2544821}" Directory_="rockbot_Dir" Attributes="0" KeyPath="zlib1.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation QtCore4.dll QtGui4.dll SDL.dll SDL_image.dll SDL_mixer.dll SDL_ttf.dll SHORTCUTDIR city_explosion_right.png clouds_1.png desert_scorpion.png disappearing_block.png dlxfont.ttf dr_kanotus.png editor.exe icons.png lab_ending.png libFLAC8.dll libfreetype6.dll libgcc_s_dw21.dll libjpeg8.dll libmikmod2.dll libogg0.dll libpng1515.dll libstdc6.dll libtiff5.dll libvorbis0.dll libvorbisfile3.dll libwebp2.dll mingwm10.dll nes.gpl p2.png ride.mod rockbot.exe shocker.png smpeg.dll stage_select_item.png train_chunk.wav water_splash.png zlib1.dll"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="LICENSE.txt_1" Component_="ride.mod" FileName="LICENSE.txt" Attributes="0" SourcePath="E:\rockbot\data\music\LICENSE.txt" SelfReg="false" NextFile="castle5.mod"/>
+    <ROW File="OTHER.xm" Component_="ride.mod" FileName="OTHER.xm" Attributes="0" SourcePath="E:\rockbot\data\music\OTHER.xm" SelfReg="false" NextFile="menu.mod"/>
+    <ROW File="QtCore4.dll" Component_="QtCore4.dll" FileName="QtCore4.dll" Attributes="0" SourcePath="E:\rockbot\QtCore4.dll" SelfReg="false" NextFile="SDL.dll"/>
+    <ROW File="QtGui4.dll" Component_="QtGui4.dll" FileName="QtGui4.dll" Attributes="0" SourcePath="E:\rockbot\QtGui4.dll" SelfReg="false" NextFile="editor.exe"/>
+    <ROW File="SDL.dll" Component_="SDL.dll" FileName="SDL.dll" Attributes="0" SourcePath="E:\rockbot\SDL.dll" SelfReg="false" NextFile="libmikmod2.dll"/>
+    <ROW File="SDL_image.dll" Component_="SDL_image.dll" FileName="SDL_IM~1.DLL|SDL_image.dll" Attributes="0" SourcePath="E:\rockbot\SDL_image.dll" SelfReg="false" NextFile="libwebp2.dll"/>
+    <ROW File="SDL_mixer.dll" Component_="SDL_mixer.dll" FileName="SDL_MI~1.DLL|SDL_mixer.dll" Attributes="0" SourcePath="E:\rockbot\SDL_mixer.dll" SelfReg="false" NextFile="libfreetype6.dll"/>
+    <ROW File="SDL_ttf.dll" Component_="SDL_ttf.dll" FileName="SDL_ttf.dll" Attributes="0" SourcePath="E:\rockbot\SDL_ttf.dll" SelfReg="false" NextFile="libstdc6.dll"/>
+    <ROW File="UNKNOWN.xm" Component_="ride.mod" FileName="UNKNOWN.xm" Attributes="0" SourcePath="E:\rockbot\data\music\UNKNOWN.xm" SelfReg="false" NextFile="menu.xm"/>
+    <ROW File="android.png" Component_="shocker.png" FileName="android.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\android.png" SelfReg="false" NextFile="jet_beetle.png"/>
+    <ROW File="ape.mod" Component_="ride.mod" FileName="ape.mod" Attributes="0" SourcePath="E:\rockbot\data\music\ape.mod" SelfReg="false" NextFile="spike.mod"/>
+    <ROW File="apebot.png" Component_="shocker.png" FileName="apebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\apebot.png" SelfReg="false" NextFile="fire_pump.png"/>
+    <ROW File="apebot.png_1" Component_="dr_kanotus.png" FileName="apebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\apebot.png" SelfReg="false" NextFile="destrin.png_1"/>
+    <ROW File="background.png" Component_="dr_kanotus.png" FileName="BACKGR~1.PNG|background.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\background.png" SelfReg="false" NextFile="rockbot_betabot.png"/>
+    <ROW File="bat.png" Component_="shocker.png" FileName="bat.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\bat.png" SelfReg="false" NextFile="driller.png"/>
+    <ROW File="bee.png" Component_="shocker.png" FileName="bee.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\bee.png" SelfReg="false" NextFile="plug.png"/>
+    <ROW File="betabot.png" Component_="lab_ending.png" FileName="betabot.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\betabot.png" SelfReg="false" NextFile="rockbot_half_sleep.png"/>
+    <ROW File="betabot.png_1" Component_="dr_kanotus.png" FileName="betabot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\betabot.png" SelfReg="false" NextFile="rockbot_16.png"/>
+    <ROW File="betabot_16.png" Component_="dr_kanotus.png" FileName="BETABO~3.PNG|betabot_16.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\betabot_16.png" SelfReg="false" NextFile="dr_destrin.png"/>
+    <ROW File="betabot_eyes.png" Component_="dr_kanotus.png" FileName="BETABO~2.PNG|betabot_eyes.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\betabot_eyes.png" SelfReg="false" NextFile="kittybot.png_1"/>
+    <ROW File="betabot_no_eyes.png" Component_="dr_kanotus.png" FileName="BETABO~1.PNG|betabot_no_eyes.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\betabot_no_eyes.png" SelfReg="false" NextFile="seahorsebot.png_1"/>
+    <ROW File="bgmusic.mod" Component_="ride.mod" FileName="bgmusic.mod" Attributes="0" SourcePath="E:\rockbot\data\music\bgmusic.mod" SelfReg="false" NextFile="castle.mod"/>
+    <ROW File="big_boss_explosion.png" Component_="water_splash.png" FileName="BIG_BO~1.PNG|big_boss_explosion.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\big_boss_explosion.png" SelfReg="false" NextFile="bubble.png"/>
+    <ROW File="big_explosion.wav" Component_="train_chunk.wav" FileName="BIG_EX~1.WAV|big_explosion.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\big_explosion.wav" SelfReg="false" NextFile="player_hit.wav"/>
+    <ROW File="big_missile.png" Component_="desert_scorpion.png" FileName="BIG_MI~1.PNG|big_missile.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\big_missile.png" SelfReg="false" NextFile="magic_star.png"/>
+    <ROW File="big_rock.png" Component_="desert_scorpion.png" FileName="big_rock.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\big_rock.png" SelfReg="false" NextFile="charged_semi.png"/>
+    <ROW File="blocks_darkblue.png" Component_="clouds_1.png" FileName="BLOCKS~1.PNG|blocks_darkblue.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\blocks_darkblue.png" SelfReg="false" NextFile="clouds.png"/>
+    <ROW File="boss_battle.mod" Component_="ride.mod" FileName="BOSS_B~1.MOD|boss_battle.mod" Attributes="0" SourcePath="E:\rockbot\data\music\boss_battle.mod" SelfReg="false" NextFile="castle1.mod"/>
+    <ROW File="bosses.mod" Component_="ride.mod" FileName="8bosses.mod" Attributes="0" SourcePath="E:\rockbot\data\music\8bosses.mod" SelfReg="false" NextFile="ending.mod"/>
+    <ROW File="btn_a.png" Component_="stage_select_item.png" FileName="btn_a.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\btn_a.png" SelfReg="false" NextFile="weapon_menu.png"/>
+    <ROW File="bubble.png" Component_="water_splash.png" FileName="bubble.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\bubble.png" SelfReg="false" NextFile="explosion_32.png"/>
+    <ROW File="bulldog.png" Component_="shocker.png" FileName="bulldog.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\bulldog.png" SelfReg="false" NextFile="gambit.png"/>
+    <ROW File="bunny.png" Component_="shocker.png" FileName="bunny.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\bunny.png" SelfReg="false" NextFile="tank.png"/>
+    <ROW File="butterfly.png" Component_="shocker.png" FileName="BUTTER~1.PNG|butterfly.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\butterfly.png" SelfReg="false" NextFile="top_hat.png"/>
+    <ROW File="candybot.png" Component_="dr_kanotus.png" FileName="candybot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\candybot.png" SelfReg="false" NextFile="milonga.png_1"/>
+    <ROW File="candybot_ending.png" Component_="p2.png" FileName="CANDYB~1.PNG|candybot_ending.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\candybot_ending.png" SelfReg="false" NextFile="clouds_1.png"/>
+    <ROW File="cannon_ball.png" Component_="shocker.png" FileName="CANNON~1.PNG|cannon_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\cannon_ball.png" SelfReg="false" NextFile="classic_metool.png"/>
+    <ROW File="canotus.png" Component_="shocker.png" FileName="canotus.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\canotus.png" SelfReg="false" NextFile="bunny.png"/>
+    <ROW File="canotus.png_1" Component_="p2.png" FileName="canotus.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\canotus.png" SelfReg="false" NextFile="kittybot.png"/>
+    <ROW File="canotus_face.png" Component_="dr_kanotus.png" FileName="CANOTU~1.PNG|canotus_face.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\canotus_face.png" SelfReg="false" NextFile="candybot.png"/>
+    <ROW File="capsules.png" Component_="stage_select_item.png" FileName="capsules.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\capsules.png" SelfReg="false" NextFile="twilight.png"/>
+    <ROW File="castle.mod" Component_="ride.mod" FileName="castle.mod" Attributes="0" SourcePath="E:\rockbot\data\music\castle.mod" SelfReg="false" NextFile="train.mod"/>
+    <ROW File="castle1.mod" Component_="ride.mod" FileName="castle1.mod" Attributes="0" SourcePath="E:\rockbot\data\music\castle1.mod" SelfReg="false" NextFile="game_over.mod"/>
+    <ROW File="castle2.mod" Component_="ride.mod" FileName="castle2.mod" Attributes="0" SourcePath="E:\rockbot\data\music\castle2.mod" SelfReg="false" NextFile="ending_bosses.mod"/>
+    <ROW File="castle3.mod" Component_="ride.mod" FileName="castle3.mod" Attributes="0" SourcePath="E:\rockbot\data\music\castle3.mod" SelfReg="false" NextFile="opening.mod"/>
+    <ROW File="castle4.xm" Component_="ride.mod" FileName="castle4.xm" Attributes="0" SourcePath="E:\rockbot\data\music\castle4.xm" SelfReg="false" NextFile="castle3.mod"/>
+    <ROW File="castle5.mod" Component_="ride.mod" FileName="castle5.mod" Attributes="0" SourcePath="E:\rockbot\data\music\castle5.mod" SelfReg="false" NextFile="final_boss.mod"/>
+    <ROW File="castle_point.png" Component_="stage_select_item.png" FileName="CASTLE~1.PNG|castle_point.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\castle_point.png" SelfReg="false" NextFile="password.png"/>
+    <ROW File="castle_skull_point.png" Component_="stage_select_item.png" FileName="CASTLE~2.PNG|castle_skull_point.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\castle_skull_point.png" SelfReg="false" NextFile="password_blue_ball.png"/>
+    <ROW File="charged_card.png" Component_="desert_scorpion.png" FileName="CHARGE~1.PNG|charged_card.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\charged_card.png" SelfReg="false" NextFile="rainbow.png"/>
+    <ROW File="charged_semi.png" Component_="desert_scorpion.png" FileName="CHARGE~3.PNG|charged_semi.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\charged_semi.png" SelfReg="false" NextFile="dynamite.png"/>
+    <ROW File="charged_shot.png" Component_="desert_scorpion.png" FileName="CHARGE~2.PNG|charged_shot.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\charged_shot.png" SelfReg="false" NextFile="spiked_chain.png"/>
+    <ROW File="charged_shot.wav" Component_="train_chunk.wav" FileName="CHARGE~1.WAV|charged_shot.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\charged_shot.wav" SelfReg="false" NextFile="water_enter.wav"/>
+    <ROW File="charging1.wav" Component_="train_chunk.wav" FileName="CHARGI~1.WAV|charging1.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\charging1.wav" SelfReg="false" NextFile="got_item.wav"/>
+    <ROW File="charging2.wav" Component_="train_chunk.wav" FileName="CHARGI~2.WAV|charging2.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\charging2.wav" SelfReg="false" NextFile="disappearning_block.wav"/>
+    <ROW File="circuit_blue_bg.png" Component_="clouds_1.png" FileName="CIRCUI~2.PNG|circuit_blue_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\circuit_blue_bg.png" SelfReg="false" NextFile="full_moon.png"/>
+    <ROW File="circuit_darkblue_bg.png" Component_="clouds_1.png" FileName="CIRCUI~3.PNG|circuit_darkblue_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\circuit_darkblue_bg.png" SelfReg="false" NextFile="rocks.png"/>
+    <ROW File="circuit_darkred_bg.png" Component_="clouds_1.png" FileName="CIRCUI~5.PNG|circuit_darkred_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\circuit_darkred_bg.png" SelfReg="false" NextFile="clouds_2_beaten.png"/>
+    <ROW File="circuit_green_bg.png" Component_="clouds_1.png" FileName="CIRCUI~1.PNG|circuit_green_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\circuit_green_bg.png" SelfReg="false" NextFile="circuit_blue_bg.png"/>
+    <ROW File="circuit_red_bg.png" Component_="clouds_1.png" FileName="CIRCUI~4.PNG|circuit_red_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\circuit_red_bg.png" SelfReg="false" NextFile="red_skies.png"/>
+    <ROW File="city_bg.png" Component_="lab_ending.png" FileName="city_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\city_bg.png" SelfReg="false" NextFile="rockbot.png"/>
+    <ROW File="city_explosion_left.png" Component_="city_explosion_right.png" FileName="CITY_E~2.PNG|city_explosion_left.png" Attributes="0" SourcePath="E:\rockbot\data\images\animations\city_explosion_left.png" SelfReg="false" NextFile="stage_select_item.png"/>
+    <ROW File="city_explosion_right.png" Component_="city_explosion_right.png" FileName="CITY_E~1.PNG|city_explosion_right.png" Attributes="0" SourcePath="E:\rockbot\data\images\animations\city_explosion_right.png" SelfReg="false" NextFile="city_explosion_left.png"/>
+    <ROW File="city_night.png" Component_="clouds_1.png" FileName="CITY_N~1.PNG|city_night.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\city_night.png" SelfReg="false" NextFile="egypt.png"/>
+    <ROW File="classic_metool.png" Component_="shocker.png" FileName="CLASSI~1.PNG|classic_metool.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\classic_metool.png" SelfReg="false" NextFile="android.png"/>
+    <ROW File="clouds.png" Component_="clouds_1.png" FileName="clouds.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds.png" SelfReg="false" NextFile="stars_fullsize_beaten.png"/>
+    <ROW File="clouds_1.png" Component_="clouds_1.png" FileName="clouds_1.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_1.png" SelfReg="false" NextFile="circuit_green_bg.png"/>
+    <ROW File="clouds_2.png" Component_="clouds_1.png" FileName="clouds_2.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_2.png" SelfReg="false" NextFile="montains_rock.png"/>
+    <ROW File="clouds_2_beaten.png" Component_="clouds_1.png" FileName="CLOUDS~2.PNG|clouds_2_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_2_beaten.png" SelfReg="false" NextFile="stars_fullsize.png"/>
+    <ROW File="clouds_beaten.png" Component_="clouds_1.png" FileName="CLOUDS~3.PNG|clouds_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_beaten.png" SelfReg="false" NextFile="clouds_purple.png"/>
+    <ROW File="clouds_purple.png" Component_="clouds_1.png" FileName="CLOUDS~4.PNG|clouds_purple.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_purple.png" SelfReg="false" NextFile="mine_front.png"/>
+    <ROW File="clouds_savana.png" Component_="clouds_1.png" FileName="CLOUDS~1.PNG|clouds_savana.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\clouds_savana.png" SelfReg="false" NextFile="tech_station.png"/>
+    <ROW File="config.png" Component_="stage_select_item.png" FileName="config.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\config.png" SelfReg="false" NextFile="stage_select_darkned.png"/>
+    <ROW File="config_fg.png" Component_="stage_select_item.png" FileName="CONFIG~1.PNG|config_fg.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\config_fg.png" SelfReg="false" NextFile="castle_skull_point.png"/>
+    <ROW File="cursor.wav" Component_="train_chunk.wav" FileName="cursor.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\cursor.wav" SelfReg="false" NextFile="npc_killed.wav"/>
+    <ROW File="cyclone.png" Component_="desert_scorpion.png" FileName="cyclone.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\cyclone.png" SelfReg="false" NextFile="star_circle.png"/>
+    <ROW File="daisie.mod" Component_="ride.mod" FileName="daisie.mod" Attributes="0" SourcePath="E:\rockbot\data\music\daisie.mod" SelfReg="false" NextFile="seahorse.mod"/>
+    <ROW File="daisiebot.png" Component_="shocker.png" FileName="DAISIE~1.PNG|daisiebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\daisiebot.png" SelfReg="false" NextFile="tamandua.png"/>
+    <ROW File="daisiebot.png_1" Component_="dr_kanotus.png" FileName="DAISIE~1.PNG|daisiebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\daisiebot.png" SelfReg="false" NextFile="dynamitebot.png_1"/>
+    <ROW File="dark_castle.png" Component_="clouds_1.png" FileName="DARK_C~1.PNG|dark_castle.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\dark_castle.png" SelfReg="false" NextFile="red_castle.png"/>
+    <ROW File="dash_dust.png" Component_="water_splash.png" FileName="DASH_D~1.PNG|dash_dust.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\dash_dust.png" SelfReg="false" NextFile="default.png"/>
+    <ROW File="default.png" Component_="water_splash.png" FileName="default.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\default.png" SelfReg="false" NextFile="big_boss_explosion.png"/>
+    <ROW File="default_beaten.png" Component_="water_splash.png" FileName="DEFAUL~1.PNG|default_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\default_beaten.png" SelfReg="false" NextFile="hit.png"/>
+    <ROW File="default_new.png" Component_="water_splash.png" FileName="DEFAUL~2.PNG|default_new.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\default_new.png" SelfReg="false" NextFile="dash_dust.png"/>
+    <ROW File="desert_scorpion.png" Component_="desert_scorpion.png" FileName="DESERT~1.PNG|desert_scorpion.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\desert_scorpion.png" SelfReg="false" NextFile="flower.png"/>
+    <ROW File="destrin.png" Component_="p2.png" FileName="destrin.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\destrin.png" SelfReg="false" NextFile="p2_looking_up.png"/>
+    <ROW File="destrin.png_1" Component_="dr_kanotus.png" FileName="destrin.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\destrin.png" SelfReg="false" NextFile="canotus_face.png"/>
+    <ROW File="destrin_capsule_small.png" Component_="shocker.png" FileName="DESTRI~1.PNG|destrin_capsule_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\destrin_capsule_small.png" SelfReg="false" NextFile="seahorsebot.png"/>
+    <ROW File="destrin_ship.png" Component_="shocker.png" FileName="DESTRI~2.PNG|destrin_ship.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\destrin_ship.png" SelfReg="false" NextFile="dynamitebot.png"/>
+    <ROW File="destrin_ship.wav" Component_="train_chunk.wav" FileName="DESTRI~1.WAV|destrin_ship.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\destrin_ship.wav" SelfReg="false" NextFile="charged_shot.wav"/>
+    <ROW File="destrin_tank.png" Component_="shocker.png" FileName="DESTRI~3.PNG|destrin_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\destrin_tank.png" SelfReg="false" NextFile="bulldog.png"/>
+    <ROW File="destrin_tank_small.png" Component_="shocker.png" FileName="DESTRI~4.PNG|destrin_tank_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\destrin_tank_small.png" SelfReg="false" NextFile="multidrill.png"/>
+    <ROW File="dialog.png" Component_="stage_select_item.png" FileName="dialog.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\dialog.png" SelfReg="false" NextFile="ending_layer_background2.png"/>
+    <ROW File="disappearing_block.png" Component_="disappearing_block.png" FileName="DISAPP~1.PNG|disappearing_block.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\disappearing_block.png" SelfReg="false" NextFile="platform_up_down.png"/>
+    <ROW File="disappearing_block_blue.png" Component_="disappearing_block.png" FileName="DISAPP~4.PNG|disappearing_block_blue.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\disappearing_block_blue.png" SelfReg="false" NextFile="energy_pill_small.png"/>
+    <ROW File="disappearing_block_green.png" Component_="disappearing_block.png" FileName="DISAPP~3.PNG|disappearing_block_green.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\disappearing_block_green.png" SelfReg="false" NextFile="platform.png"/>
+    <ROW File="disappearing_block_orange.png" Component_="disappearing_block.png" FileName="DISAPP~2.PNG|disappearing_block_orange.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\disappearing_block_orange.png" SelfReg="false" NextFile="disappearing_block_green.png"/>
+    <ROW File="disappearing_block_purple.png" Component_="disappearing_block.png" FileName="DISAPP~5.PNG|disappearing_block_purple.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\disappearing_block_purple.png" SelfReg="false" NextFile="gray_weapons_tank.png"/>
+    <ROW File="disappearning_block.wav" Component_="train_chunk.wav" FileName="DISAPP~1.WAV|disappearning_block.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\disappearning_block.wav" SelfReg="false" NextFile="shot_reflected.wav"/>
+    <ROW File="dlxfont.ttf" Component_="dlxfont.ttf" FileName="dlxfont.ttf" Attributes="0" SourcePath="E:\rockbot\data\fonts\dlxfont.ttf" SelfReg="false" NextFile="pressstart2p.ttf"/>
+    <ROW File="door_open.wav" Component_="train_chunk.wav" FileName="DOOR_O~1.WAV|door_open.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\door_open.wav" SelfReg="false" NextFile="npc_hit.wav"/>
+    <ROW File="dr_destrin.png" Component_="dr_kanotus.png" FileName="DR_DES~1.PNG|dr_destrin.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\dr_destrin.png" SelfReg="false" NextFile="rockbot.png_1"/>
+    <ROW File="dr_kanotus.png" Component_="dr_kanotus.png" FileName="DR_KAN~1.PNG|dr_kanotus.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\dr_kanotus.png" SelfReg="false" NextFile="rockbot_eyes.png"/>
+    <ROW File="driller.png" Component_="shocker.png" FileName="driller.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\driller.png" SelfReg="false" NextFile="ema.png"/>
+    <ROW File="drop_bomb.png" Component_="desert_scorpion.png" FileName="DROP_B~1.PNG|drop_bomb.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\drop_bomb.png" SelfReg="false" NextFile="electric_bomb.png"/>
+    <ROW File="dynamite.mod" Component_="ride.mod" FileName="dynamite.mod" Attributes="0" SourcePath="E:\rockbot\data\music\dynamite.mod" SelfReg="false" NextFile="intro_stage.mod"/>
+    <ROW File="dynamite.png" Component_="desert_scorpion.png" FileName="dynamite.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\dynamite.png" SelfReg="false" NextFile="missile.png"/>
+    <ROW File="dynamitebot.png" Component_="shocker.png" FileName="DYNAMI~1.PNG|dynamitebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\dynamitebot.png" SelfReg="false" NextFile="flower_metool.png"/>
+    <ROW File="dynamitebot.png_1" Component_="dr_kanotus.png" FileName="DYNAMI~1.PNG|dynamitebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\dynamitebot.png" SelfReg="false" NextFile="apebot.png_1"/>
+    <ROW File="editor.exe" Component_="editor.exe" FileName="editor.exe" Attributes="0" SourcePath="E:\rockbot\editor.exe" SelfReg="false" NextFile="mingwm10.dll" DigSign="true"/>
+    <ROW File="egypt.png" Component_="clouds_1.png" FileName="egypt.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\egypt.png" SelfReg="false" NextFile="tiles_mosaic.png"/>
+    <ROW File="egypt_beaten.png" Component_="clouds_1.png" FileName="EGYPT_~1.PNG|egypt_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\egypt_beaten.png" SelfReg="false" NextFile="clouds_2.png"/>
+    <ROW File="egypt_bricks.png" Component_="clouds_1.png" FileName="EGYPT_~2.PNG|egypt_bricks.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\egypt_bricks.png" SelfReg="false" NextFile="blocks_darkblue.png"/>
+    <ROW File="electric_bomb.png" Component_="desert_scorpion.png" FileName="ELECTR~1.PNG|electric_bomb.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\electric_bomb.png" SelfReg="false" NextFile="plug.png_1"/>
+    <ROW File="ema.png" Component_="shocker.png" FileName="ema.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\ema.png" SelfReg="false" NextFile="bee.png"/>
+    <ROW File="empty.png" Component_="icons.png" FileName="empty.png" Attributes="0" SourcePath="E:\rockbot\data\images\empty.png" SelfReg="false" NextFile="logo.xcf"/>
+    <ROW File="ending.mod" Component_="ride.mod" FileName="ending.mod" Attributes="0" SourcePath="E:\rockbot\data\music\ending.mod" SelfReg="false" NextFile="castle4.xm"/>
+    <ROW File="ending_bosses.mod" Component_="ride.mod" FileName="ENDING~1.MOD|ending_bosses.mod" Attributes="0" SourcePath="E:\rockbot\data\music\ending_bosses.mod" SelfReg="false" NextFile="LICENSE.txt_1"/>
+    <ROW File="ending_layer_background.png" Component_="stage_select_item.png" FileName="ENDING~2.PNG|ending_layer_background.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\ending_layer_background.png" SelfReg="false" NextFile="ending_layer_bushes.png"/>
+    <ROW File="ending_layer_background2.png" Component_="stage_select_item.png" FileName="ENDING~1.PNG|ending_layer_background2.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\ending_layer_background2.png" SelfReg="false" NextFile="capsules.png"/>
+    <ROW File="ending_layer_bushes.png" Component_="stage_select_item.png" FileName="ENDING~3.PNG|ending_layer_bushes.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\ending_layer_bushes.png" SelfReg="false" NextFile="stage_select_highlighted.png"/>
+    <ROW File="ending_layer_fence.png" Component_="stage_select_item.png" FileName="ENDING~4.PNG|ending_layer_fence.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\ending_layer_fence.png" SelfReg="false" NextFile="menu.png"/>
+    <ROW File="ending_layer_train.png" Component_="stage_select_item.png" FileName="ENDING~5.PNG|ending_layer_train.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\ending_layer_train.png" SelfReg="false" NextFile="stage_select.png"/>
+    <ROW File="energy_balancer.png" Component_="disappearing_block.png" FileName="ENERGY~3.PNG|energy_balancer.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\energy_balancer.png" SelfReg="false" NextFile="fly_block.png"/>
+    <ROW File="energy_pill_big.png" Component_="disappearing_block.png" FileName="ENERGY~4.PNG|energy_pill_big.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\energy_pill_big.png" SelfReg="false" NextFile="platform_up.png"/>
+    <ROW File="energy_pill_small.png" Component_="disappearing_block.png" FileName="ENERGY~2.PNG|energy_pill_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\energy_pill_small.png" SelfReg="false" NextFile="energy_balancer.png"/>
+    <ROW File="energy_tank.png" Component_="disappearing_block.png" FileName="ENERGY~1.PNG|energy_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\energy_tank.png" SelfReg="false" NextFile="up_betabot.png"/>
+    <ROW File="explosion_16.png" Component_="water_splash.png" FileName="EXPLOS~1.PNG|explosion_16.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\explosion_16.png" SelfReg="false" NextFile="rain.png"/>
+    <ROW File="explosion_32.png" Component_="water_splash.png" FileName="EXPLOS~3.PNG|explosion_32.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\explosion_32.png" SelfReg="false" NextFile="ride.mod"/>
+    <ROW File="explosion_boss.png" Component_="water_splash.png" FileName="EXPLOS~2.PNG|explosion_boss.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\explosion_boss.png" SelfReg="false" NextFile="ready.png"/>
+    <ROW File="fall_block.png" Component_="disappearing_block.png" FileName="FALL_B~1.PNG|fall_block.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\fall_block.png" SelfReg="false" NextFile="platform_down.png"/>
+    <ROW File="final_boss.mod" Component_="ride.mod" FileName="FINAL_~1.MOD|final_boss.mod" Attributes="0" SourcePath="E:\rockbot\data\music\final_boss.mod" SelfReg="false" NextFile="ape.mod"/>
+    <ROW File="fire_pump.png" Component_="shocker.png" FileName="FIRE_P~1.PNG|fire_pump.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\fire_pump.png" SelfReg="false" NextFile="spinning_blade.png"/>
+    <ROW File="flower.png" Component_="desert_scorpion.png" FileName="flower.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\flower.png" SelfReg="false" NextFile="palometa_fish.png"/>
+    <ROW File="flower_metool.png" Component_="shocker.png" FileName="FLOWER~1.PNG|flower_metool.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\flower_metool.png" SelfReg="false" NextFile="apebot.png"/>
+    <ROW File="flower_vase.png" Component_="shocker.png" FileName="FLOWER~2.PNG|flower_vase.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\flower_vase.png" SelfReg="false" NextFile="bat.png"/>
+    <ROW File="fly_block.png" Component_="disappearing_block.png" FileName="FLY_BL~1.PNG|fly_block.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\fly_block.png" SelfReg="false" NextFile="gray_energy_tank.png"/>
+    <ROW File="full_moon.png" Component_="clouds_1.png" FileName="FULL_M~1.PNG|full_moon.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\full_moon.png" SelfReg="false" NextFile="circuit_darkblue_bg.png"/>
+    <ROW File="gambit.png" Component_="shocker.png" FileName="gambit.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\gambit.png" SelfReg="false" NextFile="mine_cart.png"/>
+    <ROW File="game_over.mod" Component_="ride.mod" FileName="GAME_O~1.MOD|game_over.mod" Attributes="0" SourcePath="E:\rockbot\data\music\game_over.mod" SelfReg="false" NextFile="monkeyrobots.mod"/>
+    <ROW File="game_v212.dat" Component_="nes.gpl" FileName="GAME_V~1.DAT|game_v212.dat" Attributes="0" SourcePath="E:\rockbot\data\game_v212.dat" SelfReg="false" NextFile="dlxfont.ttf"/>
+    <ROW File="ghost.png" Component_="shocker.png" FileName="ghost.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\ghost.png" SelfReg="false" NextFile="roof_shooter.png"/>
+    <ROW File="giant_bee.png" Component_="shocker.png" FileName="GIANT_~2.PNG|giant_bee.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\giant_bee.png" SelfReg="false" NextFile="flower_vase.png"/>
+    <ROW File="giant_dolphin.png" Component_="shocker.png" FileName="GIANT_~3.PNG|giant_dolphin.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\giant_dolphin.png" SelfReg="false" NextFile="ghost.png"/>
+    <ROW File="giant_metool.png" Component_="shocker.png" FileName="GIANT_~1.PNG|giant_metool.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\giant_metool.png" SelfReg="false" NextFile="spikebot.png"/>
+    <ROW File="glue_ball.png" Component_="shocker.png" FileName="GLUE_B~1.PNG|glue_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\glue_ball.png" SelfReg="false" NextFile="spinner_ball.png"/>
+    <ROW File="got_energy_pill.wav" Component_="train_chunk.wav" FileName="GOT_EN~1.WAV|got_energy_pill.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\got_energy_pill.wav" SelfReg="false" NextFile="big_explosion.wav"/>
+    <ROW File="got_item.wav" Component_="train_chunk.wav" FileName="got_item.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\got_item.wav" SelfReg="false" NextFile="charging2.wav"/>
+    <ROW File="got_weapon.mod" Component_="ride.mod" FileName="GOT_WE~1.MOD|got_weapon.mod" Attributes="0" SourcePath="E:\rockbot\data\music\got_weapon.mod" SelfReg="false" NextFile="game_v212.dat"/>
+    <ROW File="got_weapon.wav" Component_="train_chunk.wav" FileName="GOT_WE~1.WAV|got_weapon.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\got_weapon.wav" SelfReg="false" NextFile="zlib1.dll"/>
+    <ROW File="gray_energy_tank.png" Component_="disappearing_block.png" FileName="GRAY_E~1.PNG|gray_energy_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\gray_energy_tank.png" SelfReg="false" NextFile="fall_block.png"/>
+    <ROW File="gray_special_tank.png" Component_="disappearing_block.png" FileName="GRAY_S~1.PNG|gray_special_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\gray_special_tank.png" SelfReg="false" NextFile="item_jump.png"/>
+    <ROW File="gray_weapons_tank.png" Component_="disappearing_block.png" FileName="GRAY_W~1.PNG|gray_weapons_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\gray_weapons_tank.png" SelfReg="false" NextFile="p1_looking_up.png"/>
+    <ROW File="green_hills.png" Component_="clouds_1.png" FileName="GREEN_~1.PNG|green_hills.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\green_hills.png" SelfReg="false" NextFile="egypt_bricks.png"/>
+    <ROW File="ground_shooter.png" Component_="shocker.png" FileName="GROUND~1.PNG|ground_shooter.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\ground_shooter.png" SelfReg="false" NextFile="p2.png"/>
+    <ROW File="hit.png" Component_="water_splash.png" FileName="hit.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\hit.png" SelfReg="false" NextFile="explosion_16.png"/>
+    <ROW File="icons.png" Component_="icons.png" FileName="icons.png" Attributes="0" SourcePath="E:\rockbot\data\images\icons.png" SelfReg="false" NextFile="items.png"/>
+    <ROW File="icons_small.png" Component_="icons.png" FileName="ICONS_~1.PNG|icons_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\icons_small.png" SelfReg="false" NextFile="upperland.png"/>
+    <ROW File="implosion.wav" Component_="train_chunk.wav" FileName="IMPLOS~1.WAV|implosion.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\implosion.wav" SelfReg="false" NextFile="charging1.wav"/>
+    <ROW File="intro_stage.mod" Component_="ride.mod" FileName="INTRO_~1.MOD|intro_stage.mod" Attributes="0" SourcePath="E:\rockbot\data\music\intro_stage.mod" SelfReg="false" NextFile="mage.mod"/>
+    <ROW File="item_jet.png" Component_="disappearing_block.png" FileName="item_jet.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\item_jet.png" SelfReg="false" NextFile="disappearing_block_blue.png"/>
+    <ROW File="item_jump.png" Component_="disappearing_block.png" FileName="ITEM_J~1.PNG|item_jump.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\item_jump.png" SelfReg="false" NextFile="disappearing_block_purple.png"/>
+    <ROW File="items.png" Component_="icons.png" FileName="items.png" Attributes="0" SourcePath="E:\rockbot\data\images\items.png" SelfReg="false" NextFile="icons_small.png"/>
+    <ROW File="jet_beetle.png" Component_="shocker.png" FileName="JET_BE~1.PNG|jet_beetle.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\jet_beetle.png" SelfReg="false" NextFile="destrin_ship.png"/>
+    <ROW File="kanotus.png" Component_="lab_ending.png" FileName="kanotus.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\kanotus.png" SelfReg="false" NextFile="city_bg.png"/>
+    <ROW File="killer_fish.png" Component_="shocker.png" FileName="KILLER~1.PNG|killer_fish.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\killer_fish.png" SelfReg="false" NextFile="small_fish.png"/>
+    <ROW File="kittybot.png" Component_="p2.png" FileName="kittybot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\kittybot.png" SelfReg="false" NextFile="disappearing_block.png"/>
+    <ROW File="kittybot.png_1" Component_="dr_kanotus.png" FileName="kittybot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\kittybot.png" SelfReg="false" NextFile="rockbot_sad.png"/>
+    <ROW File="kongtext.ttf" Component_="dlxfont.ttf" FileName="kongtext.ttf" Attributes="0" SourcePath="E:\rockbot\data\fonts\kongtext.ttf" SelfReg="false" NextFile="license.txt_2"/>
+    <ROW File="lab_ending.png" Component_="lab_ending.png" FileName="LAB_EN~1.PNG|lab_ending.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\lab_ending.png" SelfReg="false" NextFile="lab_intro1.png"/>
+    <ROW File="lab_intro1.png" Component_="lab_ending.png" FileName="LAB_IN~1.PNG|lab_intro1.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\lab_intro1.png" SelfReg="false" NextFile="kanotus.png"/>
+    <ROW File="larva.png" Component_="shocker.png" FileName="larva.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\larva.png" SelfReg="false" NextFile="side_shooter.png"/>
+    <ROW File="libFLAC8.dll" Component_="libFLAC8.dll" FileName="LIBFLA~1.DLL|libFLAC-8.dll" Attributes="0" SourcePath="E:\rockbot\libFLAC-8.dll" SelfReg="false" NextFile="libogg0.dll"/>
+    <ROW File="libfreetype6.dll" Component_="libfreetype6.dll" FileName="LIBFRE~1.DLL|libfreetype-6.dll" Attributes="0" SourcePath="E:\rockbot\libfreetype-6.dll" SelfReg="false" NextFile="libpng1515.dll"/>
+    <ROW File="libgcc_s_dw21.dll" Component_="libgcc_s_dw21.dll" FileName="LIBGCC~1.DLL|libgcc_s_dw2-1.dll" Attributes="0" SourcePath="E:\rockbot\libgcc_s_dw2-1.dll" SelfReg="false" NextFile="libvorbis0.dll"/>
+    <ROW File="libjpeg8.dll" Component_="libjpeg8.dll" FileName="LIBJPE~1.DLL|libjpeg-8.dll" Attributes="0" SourcePath="E:\rockbot\libjpeg-8.dll" SelfReg="false" NextFile="libgcc_s_dw21.dll"/>
+    <ROW File="libmikmod2.dll" Component_="libmikmod2.dll" FileName="LIBMIK~1.DLL|libmikmod-2.dll" Attributes="0" SourcePath="E:\rockbot\libmikmod-2.dll" SelfReg="false" NextFile="SDL_ttf.dll"/>
+    <ROW File="libogg0.dll" Component_="libogg0.dll" FileName="libogg-0.dll" Attributes="0" SourcePath="E:\rockbot\libogg-0.dll" SelfReg="false" NextFile="smpeg.dll"/>
+    <ROW File="libpng1515.dll" Component_="libpng1515.dll" FileName="LIBPNG~1.DLL|libpng15-15.dll" Attributes="0" SourcePath="E:\rockbot\libpng15-15.dll" SelfReg="false" NextFile="QtCore4.dll"/>
+    <ROW File="libstdc6.dll" Component_="libstdc6.dll" FileName="LIBSTD~1.DLL|libstdc++-6.dll" Attributes="0" SourcePath="E:\rockbot\libstdc++-6.dll" SelfReg="false" NextFile="rockbot.exe"/>
+    <ROW File="libtiff5.dll" Component_="libtiff5.dll" FileName="LIBTIF~1.DLL|libtiff-5.dll" Attributes="0" SourcePath="E:\rockbot\libtiff-5.dll" SelfReg="false" NextFile="libFLAC8.dll"/>
+    <ROW File="libvorbis0.dll" Component_="libvorbis0.dll" FileName="LIBVOR~1.DLL|libvorbis-0.dll" Attributes="0" SourcePath="E:\rockbot\libvorbis-0.dll" SelfReg="false" NextFile="SDL_mixer.dll"/>
+    <ROW File="libvorbisfile3.dll" Component_="libvorbisfile3.dll" FileName="LIBVOR~2.DLL|libvorbisfile-3.dll" Attributes="0" SourcePath="E:\rockbot\libvorbisfile-3.dll" SelfReg="false" NextFile="QtGui4.dll"/>
+    <ROW File="libwebp2.dll" Component_="libwebp2.dll" FileName="LIBWEB~1.DLL|libwebp-2.dll" Attributes="0" SourcePath="E:\rockbot\libwebp-2.dll" SelfReg="false" NextFile="libvorbisfile3.dll"/>
+    <ROW File="license.txt" Component_="icons.png" FileName="license.txt" Attributes="0" SourcePath="E:\rockbot\data\images\license.txt" SelfReg="false" NextFile="water_splash.png"/>
+    <ROW File="license.txt_2" Component_="dlxfont.ttf" FileName="license.txt" Attributes="0" SourcePath="E:\rockbot\data\fonts\license.txt" SelfReg="false" NextFile="megaman_2.ttf"/>
+    <ROW File="lights.png" Component_="stage_select_item.png" FileName="lights.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\lights.png" SelfReg="false" NextFile="dialog.png"/>
+    <ROW File="logo.png" Component_="icons.png" FileName="logo.png" Attributes="0" SourcePath="E:\rockbot\data\images\logo.png" SelfReg="false" NextFile="title_betabot_face.png"/>
+    <ROW File="logo.xcf" Component_="icons.png" FileName="logo.xcf" Attributes="0" SourcePath="E:\rockbot\data\images\logo.xcf" SelfReg="false" NextFile="logo.png"/>
+    <ROW File="mage.mod" Component_="ride.mod" FileName="mage.mod" Attributes="0" SourcePath="E:\rockbot\data\music\mage.mod" SelfReg="false" NextFile="techno.mod"/>
+    <ROW File="magebot.png" Component_="shocker.png" FileName="magebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\magebot.png" SelfReg="false" NextFile="spinner_ball_red.png"/>
+    <ROW File="magebot.png_1" Component_="dr_kanotus.png" FileName="magebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\magebot.png" SelfReg="false" NextFile="desert_scorpion.png"/>
+    <ROW File="magic_star.png" Component_="desert_scorpion.png" FileName="MAGIC_~1.PNG|magic_star.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\magic_star.png" SelfReg="false" NextFile="cyclone.png"/>
+    <ROW File="megaman_2.ttf" Component_="dlxfont.ttf" FileName="MEGAMA~1.TTF|megaman_2.ttf" Attributes="0" SourcePath="E:\rockbot\data\fonts\megaman_2.ttf" SelfReg="false" NextFile="stages_v212.dat"/>
+    <ROW File="menu.mod" Component_="ride.mod" FileName="menu.mod" Attributes="0" SourcePath="E:\rockbot\data\music\menu.mod" SelfReg="false" NextFile="bgmusic.mod"/>
+    <ROW File="menu.png" Component_="stage_select_item.png" FileName="menu.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\menu.png" SelfReg="false" NextFile="ending_layer_train.png"/>
+    <ROW File="menu.xm" Component_="ride.mod" FileName="menu.xm" Attributes="0" SourcePath="E:\rockbot\data\music\menu.xm" SelfReg="false" NextFile="dynamite.mod"/>
+    <ROW File="metal_metool.png" Component_="shocker.png" FileName="METAL_~1.PNG|metal_metool.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\metal_metool.png" SelfReg="false" NextFile="ground_shooter.png"/>
+    <ROW File="metool_tophat.png" Component_="shocker.png" FileName="METOOL~1.PNG|metool_tophat.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\metool_tophat.png" SelfReg="false" NextFile="wheels_penguin.png"/>
+    <ROW File="milonga.png" Component_="shocker.png" FileName="milonga.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\milonga.png" SelfReg="false" NextFile="technobot.png"/>
+    <ROW File="milonga.png_1" Component_="dr_kanotus.png" FileName="milonga.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\milonga.png" SelfReg="false" NextFile="rockbot_no_eyes.png"/>
+    <ROW File="mine.png" Component_="clouds_1.png" FileName="mine.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\mine.png" SelfReg="false" NextFile="trees.png"/>
+    <ROW File="mine_beaten.png" Component_="clouds_1.png" FileName="MINE_B~1.PNG|mine_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\mine_beaten.png" SelfReg="false" NextFile="green_hills.png"/>
+    <ROW File="mine_cart.png" Component_="shocker.png" FileName="MINE_C~1.PNG|mine_cart.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\mine_cart.png" SelfReg="false" NextFile="destrin_tank_small.png"/>
+    <ROW File="mine_front.png" Component_="clouds_1.png" FileName="MINE_F~1.PNG|mine_front.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\mine_front.png" SelfReg="false" NextFile="stars_bg.png"/>
+    <ROW File="mingwm10.dll" Component_="mingwm10.dll" FileName="mingwm10.dll" Attributes="0" SourcePath="E:\rockbot\mingwm10.dll" SelfReg="false" NextFile="nes.gpl"/>
+    <ROW File="missile.png" Component_="desert_scorpion.png" FileName="missile.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\missile.png" SelfReg="false" NextFile="license.txt"/>
+    <ROW File="monkeyrobots.mod" Component_="ride.mod" FileName="MONKEY~1.MOD|monkeyrobots.mod" Attributes="0" SourcePath="E:\rockbot\data\music\monkeyrobots.mod" SelfReg="false" NextFile="daisie.mod"/>
+    <ROW File="montains_purple.png" Component_="clouds_1.png" FileName="MONTAI~1.PNG|montains_purple.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\montains_purple.png" SelfReg="false" NextFile="circuit_darkred_bg.png"/>
+    <ROW File="montains_rock.png" Component_="clouds_1.png" FileName="MONTAI~2.PNG|montains_rock.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\montains_rock.png" SelfReg="false" NextFile="city_night.png"/>
+    <ROW File="multidrill.png" Component_="shocker.png" FileName="MULTID~1.PNG|multidrill.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\multidrill.png" SelfReg="false" NextFile="wood_shield.png"/>
+    <ROW File="mummy.mod" Component_="ride.mod" FileName="mummy.mod" Attributes="0" SourcePath="E:\rockbot\data\music\mummy.mod" SelfReg="false" NextFile="castle2.mod"/>
+    <ROW File="mummybot.png" Component_="shocker.png" FileName="mummybot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\mummybot.png" SelfReg="false" NextFile="magebot.png"/>
+    <ROW File="mummybot.png_1" Component_="dr_kanotus.png" FileName="mummybot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\mummybot.png" SelfReg="false" NextFile="magebot.png_1"/>
+    <ROW File="nes.gpl" Component_="nes.gpl" FileName="nes.gpl" Attributes="0" SourcePath="E:\rockbot\data\nes.gpl" SelfReg="false" NextFile="icons.png"/>
+    <ROW File="night.png" Component_="stage_select_item.png" FileName="night.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\night.png" SelfReg="false" NextFile="castle_point.png"/>
+    <ROW File="npc_hit.wav" Component_="train_chunk.wav" FileName="npc_hit.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\npc_hit.wav" SelfReg="false" NextFile="water_leave.wav"/>
+    <ROW File="npc_killed.wav" Component_="train_chunk.wav" FileName="NPC_KI~1.WAV|npc_killed.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\npc_killed.wav" SelfReg="false" NextFile="got_weapon.wav"/>
+    <ROW File="opening.mod" Component_="ride.mod" FileName="opening.mod" Attributes="0" SourcePath="E:\rockbot\data\music\opening.mod" SelfReg="false" NextFile="OTHER.xm"/>
+    <ROW File="p1.png" Component_="p2.png" FileName="p1.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\p1.png" SelfReg="false" NextFile="candybot_ending.png"/>
+    <ROW File="p1_looking_up.png" Component_="p2.png" FileName="P1_LOO~1.PNG|p1_looking_up.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\p1_looking_up.png" SelfReg="false" NextFile="p1.png"/>
+    <ROW File="p2.png" Component_="p2.png" FileName="p2.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\p2.png" SelfReg="false" NextFile="destrin.png"/>
+    <ROW File="p2_looking_up.png" Component_="p2.png" FileName="P2_LOO~1.PNG|p2_looking_up.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\p2_looking_up.png" SelfReg="false" NextFile="teleport_small.png"/>
+    <ROW File="palometa_fish.png" Component_="desert_scorpion.png" FileName="PALOME~1.PNG|palometa_fish.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\palometa_fish.png" SelfReg="false" NextFile="sand_storm.png"/>
+    <ROW File="password.png" Component_="stage_select_item.png" FileName="password.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\password.png" SelfReg="false" NextFile="config_fg.png"/>
+    <ROW File="password_blue_ball.png" Component_="stage_select_item.png" FileName="PASSWO~3.PNG|password_blue_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\password_blue_ball.png" SelfReg="false" NextFile="ending_layer_fence.png"/>
+    <ROW File="password_red_ball.png" Component_="stage_select_item.png" FileName="PASSWO~1.PNG|password_red_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\password_red_ball.png" SelfReg="false" NextFile="password_selector.png"/>
+    <ROW File="password_selector.png" Component_="stage_select_item.png" FileName="PASSWO~2.PNG|password_selector.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\password_selector.png" SelfReg="false" NextFile="stage_select_highlighted_yellow.png"/>
+    <ROW File="platform.png" Component_="disappearing_block.png" FileName="platform.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\platform.png" SelfReg="false" NextFile="weapons_pill_big.png"/>
+    <ROW File="platform_disappear2x.png" Component_="disappearing_block.png" FileName="PLATFO~4.PNG|platform_disappear2x.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\platform_disappear2x.png" SelfReg="false" NextFile="weapons_tank.png"/>
+    <ROW File="platform_down.png" Component_="disappearing_block.png" FileName="PLATFO~2.PNG|platform_down.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\platform_down.png" SelfReg="false" NextFile="energy_pill_big.png"/>
+    <ROW File="platform_up.png" Component_="disappearing_block.png" FileName="PLATFO~3.PNG|platform_up.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\platform_up.png" SelfReg="false" NextFile="weapons_pill_small.png"/>
+    <ROW File="platform_up_down.png" Component_="disappearing_block.png" FileName="PLATFO~1.PNG|platform_up_down.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\platform_up_down.png" SelfReg="false" NextFile="disappearing_block_orange.png"/>
+    <ROW File="player_death.wav" Component_="train_chunk.wav" FileName="PLAYER~1.WAV|player_death.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\player_death.wav" SelfReg="false" NextFile="skull_castle_intro.wav"/>
+    <ROW File="player_hit.wav" Component_="train_chunk.wav" FileName="PLAYER~3.WAV|player_hit.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\player_hit.wav" SelfReg="false" NextFile="stage_selected.wav"/>
+    <ROW File="player_jump.wav" Component_="train_chunk.wav" FileName="PLAYER~2.WAV|player_jump.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\player_jump.wav" SelfReg="false" NextFile="got_energy_pill.wav"/>
+    <ROW File="player_select.png" Component_="stage_select_item.png" FileName="PLAYER~1.PNG|player_select.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\player_select.png" SelfReg="false" NextFile="night.png"/>
+    <ROW File="player_shot.wav" Component_="train_chunk.wav" FileName="PLAYER~4.WAV|player_shot.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\player_shot.wav" SelfReg="false" NextFile="cursor.wav"/>
+    <ROW File="plug.png" Component_="shocker.png" FileName="plug.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\plug.png" SelfReg="false" NextFile="giant_dolphin.png"/>
+    <ROW File="plug.png_1" Component_="desert_scorpion.png" FileName="plug.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\plug.png" SelfReg="false" NextFile="spiked_chain_diagonal.png"/>
+    <ROW File="presents.png" Component_="icons.png" FileName="presents.png" Attributes="0" SourcePath="E:\rockbot\data\images\presents.png" SelfReg="false" NextFile="city_explosion_right.png"/>
+    <ROW File="pressstart2p.ttf" Component_="dlxfont.ttf" FileName="PRESSS~1.TTF|pressstart2p.ttf" Attributes="0" SourcePath="E:\rockbot\data\fonts\pressstart2p.ttf" SelfReg="false" NextFile="kongtext.ttf"/>
+    <ROW File="projectile_normal.png" Component_="desert_scorpion.png" FileName="PROJEC~1.PNG|projectile_normal.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\projectile_normal.png" SelfReg="false" NextFile="charged_shot.png"/>
+    <ROW File="rain.png" Component_="water_splash.png" FileName="rain.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\rain.png" SelfReg="false" NextFile="explosion_boss.png"/>
+    <ROW File="rainbow.png" Component_="desert_scorpion.png" FileName="rainbow.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\rainbow.png" SelfReg="false" NextFile="sting.png"/>
+    <ROW File="ready.png" Component_="water_splash.png" FileName="ready.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\ready.png" SelfReg="false" NextFile="default_new.png"/>
+    <ROW File="red_castle.png" Component_="clouds_1.png" FileName="RED_CA~1.PNG|red_castle.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\red_castle.png" SelfReg="false" NextFile="tech_station_bg.png"/>
+    <ROW File="red_skies.png" Component_="clouds_1.png" FileName="RED_SK~1.PNG|red_skies.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\red_skies.png" SelfReg="false" NextFile="clouds_savana.png"/>
+    <ROW File="rhino.png" Component_="shocker.png" FileName="rhino.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\rhino.png" SelfReg="false" NextFile="killer_fish.png"/>
+    <ROW File="ride.mod" Component_="ride.mod" FileName="ride.mod" Attributes="0" SourcePath="E:\rockbot\data\music\ride.mod" SelfReg="false" NextFile="mummy.mod"/>
+    <ROW File="rock_metool.png" Component_="shocker.png" FileName="ROCK_M~1.PNG|rock_metool.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\rock_metool.png" SelfReg="false" NextFile="giant_bee.png"/>
+    <ROW File="rockbot.exe" Component_="rockbot.exe" FileName="rockbot.exe" Attributes="0" SourcePath="E:\rockbot\rockbot.exe" SelfReg="false" NextFile="SDL_image.dll" DigSign="true"/>
+    <ROW File="rockbot.png" Component_="lab_ending.png" FileName="rockbot.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\rockbot.png" SelfReg="false" NextFile="rockbot_full_sleep.png"/>
+    <ROW File="rockbot.png_1" Component_="dr_kanotus.png" FileName="rockbot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot.png" SelfReg="false" NextFile="background.png"/>
+    <ROW File="rockbot_16.png" Component_="dr_kanotus.png" FileName="ROCKBO~5.PNG|rockbot_16.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot_16.png" SelfReg="false" NextFile="mummybot.png_1"/>
+    <ROW File="rockbot_betabot.png" Component_="dr_kanotus.png" FileName="ROCKBO~4.PNG|rockbot_betabot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot_betabot.png" SelfReg="false" NextFile="betabot.png_1"/>
+    <ROW File="rockbot_eyes.png" Component_="dr_kanotus.png" FileName="ROCKBO~1.PNG|rockbot_eyes.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot_eyes.png" SelfReg="false" NextFile="betabot_no_eyes.png"/>
+    <ROW File="rockbot_full_sleep.png" Component_="lab_ending.png" FileName="ROCKBO~1.PNG|rockbot_full_sleep.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\rockbot_full_sleep.png" SelfReg="false" NextFile="betabot.png"/>
+    <ROW File="rockbot_half_sleep.png" Component_="lab_ending.png" FileName="ROCKBO~2.PNG|rockbot_half_sleep.png" Attributes="0" SourcePath="E:\rockbot\data\images\scenes\rockbot_half_sleep.png" SelfReg="false" NextFile="presents.png"/>
+    <ROW File="rockbot_no_eyes.png" Component_="dr_kanotus.png" FileName="ROCKBO~2.PNG|rockbot_no_eyes.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot_no_eyes.png" SelfReg="false" NextFile="technobot.png_1"/>
+    <ROW File="rockbot_sad.png" Component_="dr_kanotus.png" FileName="ROCKBO~3.PNG|rockbot_sad.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\rockbot_sad.png" SelfReg="false" NextFile="spikebot.png_1"/>
+    <ROW File="rocks.png" Component_="clouds_1.png" FileName="rocks.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\rocks.png" SelfReg="false" NextFile="trees_beaten.png"/>
+    <ROW File="roof_shooter.png" Component_="shocker.png" FileName="ROOF_S~1.PNG|roof_shooter.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\roof_shooter.png" SelfReg="false" NextFile="metool_tophat.png"/>
+    <ROW File="sand_storm.png" Component_="desert_scorpion.png" FileName="SAND_S~1.PNG|sand_storm.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\sand_storm.png" SelfReg="false" NextFile="big_missile.png"/>
+    <ROW File="scorpion.png" Component_="shocker.png" FileName="scorpion.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\scorpion.png" SelfReg="false" NextFile="butterfly.png"/>
+    <ROW File="seahorse.mod" Component_="ride.mod" FileName="seahorse.mod" Attributes="0" SourcePath="E:\rockbot\data\music\seahorse.mod" SelfReg="false" NextFile="got_weapon.mod"/>
+    <ROW File="seahorsebot.png" Component_="shocker.png" FileName="SEAHOR~1.PNG|seahorsebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\seahorsebot.png" SelfReg="false" NextFile="daisiebot.png"/>
+    <ROW File="seahorsebot.png_1" Component_="dr_kanotus.png" FileName="SEAHOR~1.PNG|seahorsebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\seahorsebot.png" SelfReg="false" NextFile="daisiebot.png_1"/>
+    <ROW File="shield.png" Component_="shocker.png" FileName="shield.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\shield.png" SelfReg="false" NextFile="giant_metool.png"/>
+    <ROW File="shock_ball.png" Component_="desert_scorpion.png" FileName="SHOCK_~1.PNG|shock_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\shock_ball.png" SelfReg="false" NextFile="big_rock.png"/>
+    <ROW File="shocker.png" Component_="shocker.png" FileName="shocker.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\shocker.png" SelfReg="false" NextFile="spiked_floor.png"/>
+    <ROW File="shot_reflected.wav" Component_="train_chunk.wav" FileName="SHOT_R~1.WAV|shot_reflected.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\shot_reflected.wav" SelfReg="false" NextFile="player_death.wav"/>
+    <ROW File="side_shooter.png" Component_="shocker.png" FileName="SIDE_S~1.PNG|side_shooter.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\side_shooter.png" SelfReg="false" NextFile="destrin_capsule_small.png"/>
+    <ROW File="skull_castle.png" Component_="stage_select_item.png" FileName="SKULL_~1.PNG|skull_castle.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\skull_castle.png" SelfReg="false" NextFile="password_red_ball.png"/>
+    <ROW File="skull_castle_intro.wav" Component_="train_chunk.wav" FileName="SKULL_~1.WAV|skull_castle_intro.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\skull_castle_intro.wav" SelfReg="false" NextFile="door_open.wav"/>
+    <ROW File="small_fish.png" Component_="shocker.png" FileName="SMALL_~1.PNG|small_fish.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\small_fish.png" SelfReg="false" NextFile="canotus.png"/>
+    <ROW File="smpeg.dll" Component_="smpeg.dll" FileName="smpeg.dll" Attributes="0" SourcePath="E:\rockbot\smpeg.dll" SelfReg="false" NextFile="libjpeg8.dll"/>
+    <ROW File="special_tank.png" Component_="disappearing_block.png" FileName="SPECIA~1.PNG|special_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\special_tank.png" SelfReg="false" NextFile="item_jet.png"/>
+    <ROW File="spike.mod" Component_="ride.mod" FileName="spike.mod" Attributes="0" SourcePath="E:\rockbot\data\music\spike.mod" SelfReg="false" NextFile="UNKNOWN.xm"/>
+    <ROW File="spikebot.png" Component_="shocker.png" FileName="spikebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spikebot.png" SelfReg="false" NextFile="rock_metool.png"/>
+    <ROW File="spikebot.png_1" Component_="dr_kanotus.png" FileName="spikebot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\spikebot.png" SelfReg="false" NextFile="betabot_16.png"/>
+    <ROW File="spiked_chain.png" Component_="desert_scorpion.png" FileName="SPIKED~1.PNG|spiked_chain.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\spiked_chain.png" SelfReg="false" NextFile="drop_bomb.png"/>
+    <ROW File="spiked_chain_diagonal.png" Component_="desert_scorpion.png" FileName="SPIKED~2.PNG|spiked_chain_diagonal.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\spiked_chain_diagonal.png" SelfReg="false" NextFile="shock_ball.png"/>
+    <ROW File="spiked_floor.png" Component_="shocker.png" FileName="SPIKED~1.PNG|spiked_floor.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spiked_floor.png" SelfReg="false" NextFile="glue_ball.png"/>
+    <ROW File="spinner_ball.png" Component_="shocker.png" FileName="SPINNE~1.PNG|spinner_ball.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spinner_ball.png" SelfReg="false" NextFile="larva.png"/>
+    <ROW File="spinner_ball_red.png" Component_="shocker.png" FileName="SPINNE~2.PNG|spinner_ball_red.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spinner_ball_red.png" SelfReg="false" NextFile="metal_metool.png"/>
+    <ROW File="spinning_blade.png" Component_="shocker.png" FileName="SPINNI~1.PNG|spinning_blade.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spinning_blade.png" SelfReg="false" NextFile="spinning_drill.png"/>
+    <ROW File="spinning_drill.png" Component_="shocker.png" FileName="SPINNI~2.PNG|spinning_drill.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\spinning_drill.png" SelfReg="false" NextFile="scorpion.png"/>
+    <ROW File="stage_boss_intro.png" Component_="stage_select_item.png" FileName="STAGE_~2.PNG|stage_boss_intro.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_boss_intro.png" SelfReg="false" NextFile="skull_castle.png"/>
+    <ROW File="stage_select.png" Component_="stage_select_item.png" FileName="STAGE_~5.PNG|stage_select.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_select.png" SelfReg="false" NextFile="config.png"/>
+    <ROW File="stage_select_darkned.png" Component_="stage_select_item.png" FileName="STAGE_~6.PNG|stage_select_darkned.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_select_darkned.png" SelfReg="false" NextFile="empty.png"/>
+    <ROW File="stage_select_highlighted.png" Component_="stage_select_item.png" FileName="STAGE_~4.PNG|stage_select_highlighted.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_select_highlighted.png" SelfReg="false" NextFile="player_select.png"/>
+    <ROW File="stage_select_highlighted_yellow.png" Component_="stage_select_item.png" FileName="STAGE_~3.PNG|stage_select_highlighted_yellow.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_select_highlighted_yellow.png" SelfReg="false" NextFile="lights.png"/>
+    <ROW File="stage_select_item.png" Component_="stage_select_item.png" FileName="STAGE_~1.PNG|stage_select_item.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\stage_select_item.png" SelfReg="false" NextFile="stage_boss_intro.png"/>
+    <ROW File="stage_selected.wav" Component_="train_chunk.wav" FileName="STAGE_~1.WAV|stage_selected.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\stage_selected.wav" SelfReg="false" NextFile="player_shot.wav"/>
+    <ROW File="stages_v212.dat" Component_="nes.gpl" FileName="STAGES~1.DAT|stages_v212.dat" Attributes="0" SourcePath="E:\rockbot\data\stages_v212.dat" SelfReg="false" NextFile="train_chunk.wav"/>
+    <ROW File="star_circle.png" Component_="desert_scorpion.png" FileName="STAR_C~1.PNG|star_circle.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\star_circle.png" SelfReg="false" NextFile="charged_card.png"/>
+    <ROW File="stars_bg.png" Component_="clouds_1.png" FileName="stars_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\stars_bg.png" SelfReg="false" NextFile="egypt_beaten.png"/>
+    <ROW File="stars_fullsize.png" Component_="clouds_1.png" FileName="STARS_~1.PNG|stars_fullsize.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\stars_fullsize.png" SelfReg="false" NextFile="clouds_beaten.png"/>
+    <ROW File="stars_fullsize_beaten.png" Component_="clouds_1.png" FileName="STARS_~2.PNG|stars_fullsize_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\stars_fullsize_beaten.png" SelfReg="false" NextFile="mine.png"/>
+    <ROW File="sting.png" Component_="desert_scorpion.png" FileName="sting.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\sting.png" SelfReg="false" NextFile="timer_bomb.png"/>
+    <ROW File="tamandua.png" Component_="shocker.png" FileName="tamandua.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\tamandua.png" SelfReg="false" NextFile="cannon_ball.png"/>
+    <ROW File="tank.png" Component_="shocker.png" FileName="tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\tank.png" SelfReg="false" NextFile="shield.png"/>
+    <ROW File="tech_circle.png" Component_="shocker.png" FileName="TECH_C~1.PNG|tech_circle.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\tech_circle.png" SelfReg="false" NextFile="mummybot.png"/>
+    <ROW File="tech_station.png" Component_="clouds_1.png" FileName="TECH_S~2.PNG|tech_station.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\tech_station.png" SelfReg="false" NextFile="montains_purple.png"/>
+    <ROW File="tech_station_bg.png" Component_="clouds_1.png" FileName="TECH_S~1.PNG|tech_station_bg.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\tech_station_bg.png" SelfReg="false" NextFile="circuit_red_bg.png"/>
+    <ROW File="techno.mod" Component_="ride.mod" FileName="techno.mod" Attributes="0" SourcePath="E:\rockbot\data\music\techno.mod" SelfReg="false" NextFile="bosses.mod"/>
+    <ROW File="technobot.png" Component_="shocker.png" FileName="TECHNO~1.PNG|technobot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\technobot.png" SelfReg="false" NextFile="rhino.png"/>
+    <ROW File="technobot.png_1" Component_="dr_kanotus.png" FileName="TECHNO~1.PNG|technobot.png" Attributes="0" SourcePath="E:\rockbot\data\images\faces\technobot.png" SelfReg="false" NextFile="betabot_eyes.png"/>
+    <ROW File="teleport.wav" Component_="train_chunk.wav" FileName="teleport.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\teleport.wav" SelfReg="false" NextFile="implosion.wav"/>
+    <ROW File="teleport_small.png" Component_="p2.png" FileName="TELEPO~1.PNG|teleport_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\teleport_small.png" SelfReg="false" NextFile="canotus.png_1"/>
+    <ROW File="tiles_mosaic.png" Component_="clouds_1.png" FileName="TILES_~2.PNG|tiles_mosaic.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\tiles_mosaic.png" SelfReg="false" NextFile="mine_beaten.png"/>
+    <ROW File="tiles_mosaic_beaten.png" Component_="clouds_1.png" FileName="TILES_~1.PNG|tiles_mosaic_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\tiles_mosaic_beaten.png" SelfReg="false" NextFile="dark_castle.png"/>
+    <ROW File="timer_bomb.png" Component_="desert_scorpion.png" FileName="TIMER_~1.PNG|timer_bomb.png" Attributes="0" SourcePath="E:\rockbot\data\images\projectiles\timer_bomb.png" SelfReg="false" NextFile="projectile_normal.png"/>
+    <ROW File="title_betabot_face.png" Component_="icons.png" FileName="TITLE_~1.PNG|title_betabot_face.png" Attributes="0" SourcePath="E:\rockbot\data\images\title_betabot_face.png" SelfReg="false" NextFile="dr_kanotus.png"/>
+    <ROW File="top_hat.png" Component_="shocker.png" FileName="top_hat.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\top_hat.png" SelfReg="false" NextFile="milonga.png"/>
+    <ROW File="train.mod" Component_="ride.mod" FileName="train.mod" Attributes="0" SourcePath="E:\rockbot\data\music\train.mod" SelfReg="false" NextFile="boss_battle.mod"/>
+    <ROW File="train_chunk.wav" Component_="train_chunk.wav" FileName="TRAIN_~1.WAV|train_chunk.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\train_chunk.wav" SelfReg="false" NextFile="destrin_ship.wav"/>
+    <ROW File="trees.png" Component_="clouds_1.png" FileName="trees.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\trees.png" SelfReg="false" NextFile="lab_ending.png"/>
+    <ROW File="trees_beaten.png" Component_="clouds_1.png" FileName="TREES_~1.PNG|trees_beaten.png" Attributes="0" SourcePath="E:\rockbot\data\images\map_backgrounds\trees_beaten.png" SelfReg="false" NextFile="tiles_mosaic_beaten.png"/>
+    <ROW File="twilight.png" Component_="stage_select_item.png" FileName="twilight.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\twilight.png" SelfReg="false" NextFile="btn_a.png"/>
+    <ROW File="up_betabot.png" Component_="disappearing_block.png" FileName="1UP_BE~1.PNG|1up_betabot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\1up_betabot.png" SelfReg="false" NextFile="special_tank.png"/>
+    <ROW File="up_rockbot.png" Component_="disappearing_block.png" FileName="1UP_RO~1.PNG|1up_rockbot.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\1up_rockbot.png" SelfReg="false" NextFile="vitoria_regia.png"/>
+    <ROW File="upperland.png" Component_="icons.png" FileName="UPPERL~1.PNG|upperland.png" Attributes="0" SourcePath="E:\rockbot\data\images\upperland.png" SelfReg="false" NextFile="shocker.png"/>
+    <ROW File="vitoria_regia.png" Component_="disappearing_block.png" FileName="VITORI~1.PNG|vitoria_regia.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\vitoria_regia.png" SelfReg="false" NextFile="platform_disappear2x.png"/>
+    <ROW File="water_enter.wav" Component_="train_chunk.wav" FileName="WATER_~1.WAV|water_enter.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\water_enter.wav" SelfReg="false" NextFile="teleport.wav"/>
+    <ROW File="water_leave.wav" Component_="train_chunk.wav" FileName="WATER_~2.WAV|water_leave.wav" Attributes="0" SourcePath="E:\rockbot\data\sfx\water_leave.wav" SelfReg="false" NextFile="player_jump.wav"/>
+    <ROW File="water_splash.png" Component_="water_splash.png" FileName="WATER_~1.PNG|water_splash.png" Attributes="0" SourcePath="E:\rockbot\data\images\tilesets\water_splash.png" SelfReg="false" NextFile="default_beaten.png"/>
+    <ROW File="weapon_menu.png" Component_="stage_select_item.png" FileName="WEAPON~1.PNG|weapon_menu.png" Attributes="0" SourcePath="E:\rockbot\data\images\backgrounds\weapon_menu.png" SelfReg="false" NextFile="ending_layer_background.png"/>
+    <ROW File="weapons_pill_big.png" Component_="disappearing_block.png" FileName="WEAPON~1.PNG|weapons_pill_big.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\weapons_pill_big.png" SelfReg="false" NextFile="energy_tank.png"/>
+    <ROW File="weapons_pill_small.png" Component_="disappearing_block.png" FileName="WEAPON~2.PNG|weapons_pill_small.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\weapons_pill_small.png" SelfReg="false" NextFile="up_rockbot.png"/>
+    <ROW File="weapons_tank.png" Component_="disappearing_block.png" FileName="WEAPON~3.PNG|weapons_tank.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\objects\weapons_tank.png" SelfReg="false" NextFile="gray_special_tank.png"/>
+    <ROW File="wheels_penguin.png" Component_="shocker.png" FileName="WHEELS~1.PNG|wheels_penguin.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\wheels_penguin.png" SelfReg="false" NextFile="destrin_tank.png"/>
+    <ROW File="wood_shield.png" Component_="shocker.png" FileName="WOOD_S~1.PNG|wood_shield.png" Attributes="0" SourcePath="E:\rockbot\data\images\sprites\enemies\wood_shield.png" SelfReg="false" NextFile="tech_circle.png"/>
+    <ROW File="zlib1.dll" Component_="zlib1.dll" FileName="zlib1.dll" Attributes="0" SourcePath="E:\rockbot\zlib1.dll" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="SetupTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SetupTypeDlg.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="204"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="TypicalButton" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="205"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="CompleteButton" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL AND InstallMode=InstallModeComplete" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL AND InstallMode=InstallModeCustom" Ordering="102"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeComplete" Ordering="202"/>
+    <ROW Dialog_="SetupTypeDlg" Control_="CustomButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeCustom" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeCustom" Ordering="2"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeCustom" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Type="1" Source="aicustact.dll" Target="GetLocalizedCredentials"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]\[ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="editor.exe" SourcePath="betabot.ico" Index="0"/>
+    <ROW Name="rockbot.exe" SourcePath="rockbot.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="52"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="Editor" Directory_="SHORTCUTDIR" Name="Editor" Component_="editor.exe" Target="[#editor.exe]" Description="Game data editing tool" Hotkey="0" Icon_="editor.exe" IconIndex="0" ShowCmd="1" WkDir="rockbot_Dir"/>
+    <ROW Shortcut="Rockbot" Directory_="SHORTCUTDIR" Name="Rockbot" Component_="rockbot.exe" Target="[#rockbot.exe]" Description="Retro game" Hotkey="0" Icon_="rockbot.exe" IconIndex="0" ShowCmd="1" WkDir="rockbot_Dir"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>

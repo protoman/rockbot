@@ -1,0 +1,209 @@
+﻿http://www.hardcoregaming101.net/megaman/megaman.htm
+
+
+
+SEQUENCE - Ape, Dynamite, Mage, Seahorse, Daisie, Techno, Mummy, Spike (Daisie, Seahorse, Ape x2, Spike)
+
+==>>>> NUNCA, MAIS, MUDAR, FORMATO, DE, ARQUIVO, DE, DADOS. NUNCA!! <<<<==
+
+
+===================================================================================================================================
+EDITOR-APENAS:
+===================================================================================================================================
+- estágios do skull castle devem ser homenagens a estágios clássicos (só visual/inimigos)
+    DONE - #1: fireman (mm1) - adicionar algumas telas de queda, estilo fase do flashman com um deathray horizontal mais fino e rápido
+    DONE - #2: danger room (mistura de napalm, flame e tomahawk - uma sala de bombas ou parecido) caixas (charge)
+    DONE - #3: pilhas, baterias e energia (magnet, spark, bright-mm4)
+    DONE - #4: skullman (mm4)
+    DONE - #5: blizzardman (mm 6)
+
+
+--------------------------
+VERSION 1.1.1
+--------------------------
+New glitch:  if you die during boss rush, you get stuck in the ceiling and can't get out.
+
+
+- deu pau no final do jogo. Som continuou, mas gráficos não:
+    process_special_map_points LEAVE #1
+    PAUSE - _paused_timer: 277398
+    horizontal_screen_move END
+    UNPAUSE - _paused_ticks: 8186, paused_ticks: 2268
+    process_special_map_points LEAVE #1
+    PAUSE - _paused_timer: 284890
+    horizontal_screen_move END
+    UNPAUSE - _paused_ticks: 10454, paused_ticks: 2428
+    game::map_present_boss::START
+    game::map_present_boss::PASS #1
+    ENDING::BOSS - game_save.selected_player: 1
+    PAUSE - _paused_timer: 352639
+    UNPAUSE - _paused_ticks: 12882, paused_ticks: 5067
+    PAUSE - _paused_timer: 357708
+    UNPAUSE - _paused_ticks: 17949, paused_ticks: 5024
+    PAUSE - _paused_timer: 362757
+    UNPAUSE - _paused_ticks: 22973, paused_ticks: 4775
+    PAUSE - _paused_timer: 367534
+    UNPAUSE - _paused_ticks: 27748, paused_ticks: 4673
+    PAUSE - _paused_timer: 372208
+    UNPAUSE - _paused_ticks: 32421, paused_ticks: 4417
+    ######### classPlayer::set_teleport_minimal_y - y: 148
+    PAUSE - _paused_timer: 378294
+    UNPAUSE - _paused_ticks: 36838, paused_ticks: 4859
+    PAUSE - _paused_timer: 383154
+    UNPAUSE - _paused_ticks: 41697, paused_ticks: 4683
+    PAUSE - _paused_timer: 387839
+    UNPAUSE - _paused_ticks: 46380, paused_ticks: 5185
+    PAUSE - _paused_timer: 393026
+    UNPAUSE - _paused_ticks: 51565, paused_ticks: 5125
+    PAUSE - _paused_timer: 398153
+    UNPAUSE - _paused_ticks: 56690, paused_ticks: 4798
+    PAUSE - _paused_timer: 402954
+    UNPAUSE - _paused_ticks: 61488, paused_ticks: 4867
+
+
+- ANDROID: ver se tem como colocar botão de escudo (Z) sem que ele apareça na tela por padrão
+
+- MANUAL:
+    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
+    - colocar comandos
+
+- (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
+- criar trajetória seno() para projéteis do Shocker
+- revisar AI de chefes
+- fix charged-shot forcing position
+
+
+****** Daniel Durda:
+Few more issues encountered.
+I was playing through and I encountered some pretty big bugs.
+
+2 of them in ape bots stage. And one in mummy bots stage. I got to the boss and died. The next life started in the hallway and I immediately fell through the floor.
+This also happened in mummy mans stage which I managed to take a picture of. *picture in the desert*
+
+The other issue was also in ape mans stage. He jumped at me and got stuck in the first pixel inside the wall and ape man fell through the floor and his health disappeared but the level didn't end. I was just stuck in game until I restarted the app. I did take a picture of this as well. *picture in the jungle*
+
+Would you like me to take a look St the code and see if I can find the issue that would be causing the floor glitch?
+***************************
+
+- fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
+    - usar mais disseppearing blocks
+    - usar mais plataformas move-left/right
+    - usar mais blocos explosivos
+- adicionar mais power-up items nas fases
+- trocar rock-metool por um metool normal e usar o slot para criar um inimigo novo
+- diferenciar melhor inimigos similares (flying ball e jumping ball)
+- criar sub-boss bumblebee para daisie
+- adicionar blocos mais claros para foreground e mais escuros para background nas torres do mage
+- tornar bem mais difícil não seguir a ordem certa (menos dano armas)
+- adicionar mais variação aos inimigos, principalmente quando o player está próximo (tipo, pular no jogador, ou dar um rush)
+
+
+--------------------------
+VERSION 1.2
+--------------------------
+- separar todos os diálogos em arquivos .ini individuais por intro/fim/jogo (https://github.com/benhoyt/inih)
+
+- fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
+
+- usar fundo UNUSED do gemini em algum estágio
+
+- projectile _target_position must take target width/heigth in account
+
+- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
+
+- não usar mais player como vetor, usar objeto diretamente
+    * não usar players(2, 3, etc) nas cutscenes
+
+- AI ACTIONS:
+    * add 4 types of jump in AI - short, medium, long, moonwalk
+    * add jump-up (and jump-down together) to AI (parameter for jump up is gravity level)
+
+- metool shooting only when attack animation ends
+    * EDITOR: adicionar checkox para indicar que aquele frame dispara ataque (deve ser único para cada tipo)
+    * revisar lógica de ataque para, caso exista um frame de ataque definido, usar ele e não o fim da animação
+
+- OSX port
+    * corrigir problema das transparências
+
+- PS2: add ISO/CD version
+
+- AI: when walk is blocked, check if hit a full-wall before jumping
+- EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
+- quando projétil estiver por refletir, usar um redutor para que o ele reflita o mais próximo possível do alvo
+- optimizar hit_ground() -> tive que tirar a verificação de última posição, pois estava retornando false sempre
+- separate move and draw logic
+- get some free sound effects to replace Capcom ones
+- different icons for items depending on player (change colors, etc)
+- tentar tornar o jogo independente de FPS. Calcular frames a serem movidos de acordo com o fps médio
+- desenhar circle-weapon com cada esfera individualmente e fazer "pulsar" (raio aumenta e diminui)
+- ask dreamcast and xbox porters to update and merge back their changes
+- logic to allow showing player even if stage/map are NULL
+- fundo de tela que se move sozinho (sem depender do scroll do jogador)
+
+- implement bolts and shop (https://www.facebook.com/photo.php?fbid=432642990156602&set=a.114335308654040.27951.114325318655039&type=1&relevant_count=1&ref=nf)
+- EDITOR: clean editor code (find slots that aren't used anymore)
+LOW - HP bars must not be drawn under 3rd level of tiles
+- move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
+OPTIMIZATION:
+        - OPTIMIZATION: use coverity
+        - OPTIMIZATION: use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
+        - Optimize editor: in editor_area, do not alloc pixmaps every time, only when changing beaten flag or stage
+        - check for ALL places in game that can use game_data directly instead of creating new instances
+                - refactor code, so that "game_npcs" do not replicate(copy) data from game_data
+                - refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
+        - use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
+
+
+************************************
+OPTIMIZATIONS
+************************************
+- do not load unecessary graphics for the player
+    * only rockbot should load the shield graphic
+    * only candy should have up and diagonal firing graphics
+- no not use short in file-format, to avoid endian issues (Wii)
+- determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
+
+
+- load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
+
+
+- all Megaman 2 features:
+    - 1/ballom item (slowly up)
+    - weapon that explodes releasing several NPCs (ave com ovo)
+    - dark room that is iluminated if a fire-NPC is on visible_screen (heat)
+        * a área pode ser definida por um objeto na tela ou não, mesmo que objeto fique escondido
+    - napalm projectile (heat)
+
+- all Megaman 3 features:
+    - guided projectile (hardman)
+    - AI: grab/release player (magnet)
+    - magnet projectile - fist follow horizontal, then vertical (magnet)
+    - NPC that darkens screen if visible (shadow)
+    - laser projectile (gemini)
+    - killing an NPC can activate/deactivate a list of objects (big-snake)
+
+- AI ACTIONS:
+    - drop shell/shield (will loose protection)
+
+
+--------------------------
+VERSION 1.3
+--------------------------
+- editable intro
+- editable ending
+- remove build warnings in PS2, PSP and Dingux
+- fix PSP build to use qmake
+- implement different frames size in game
+
+- all Megaman 4 features:
+    - stage with auto-scrolling
+	- background-image with auto-scrolling
+
+- all Megaman 5 features:
+    -
+
+- all Megaman 6 features:
+    -
+
+
+

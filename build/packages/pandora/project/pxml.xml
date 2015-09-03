@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PXML xmlns="http://openpandora.org/namespaces/PXML">
+	<package id="rockbot.rc.2">
+		<author name="Iuri Fiedoruk, ported by Sigmas.nl" website="http://rockbot.upperland.net/"/>
+		<version major="1" minor="0" release="rc2" build="0"/>
+		<titles>
+			<title lang="en_US">Rockbot 1.0 RC2</title>
+		</titles>
+		<descriptions>
+			<description lang="en_US">Rockbot is a Megaman Fan Game with level editor</description>
+		</descriptions>
+	</package>
+	<application id="rockbot" appdata="rockbot">
+		<exec command="game.sh"/>
+		<author name="Iuri Fiedoruk, ported by Sigmas.nl" website="http://rockbot.upperland.net/"/>
+		<previewpics>
+			<pic src="preview/rockbot1.jpg"/>
+			<pic src="preview/rockbot2.jpg"/>
+			<pic src="preview/rockbot3.jpg"/>
+		</previewpics>
+		<version major="1" minor="0" release="beta2" build="0"/>
+		<titles>
+			<title lang="en_US">Rockbot</title>
+		</titles>
+		<title lang="en_US">Rockbot</title>
+		<descriptions>
+			<description lang="en_US">Rockbot is a megaman Fan Game with level editor</description>
+		</descriptions>
+		<description lang="en_US">Rockbot is a megaman Fan Game with level editor</description>
+		<licenses>
+			<license name="License name"/>
+		</licenses>
+		<categories>
+			<category name="Game">
+				<subcategory name="ActionGame"/>
+			</category>
+		</categories>
+		<icon src="rockbot.png"/>
+		<info name="Rockbot Readme" type="text/plain" src="readme.txt"/>
+	</application>
+</PXML>
