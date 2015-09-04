@@ -24,6 +24,9 @@ VERSION 1.1.1
 New glitch:  if you die during boss rush, you get stuck in the ceiling and can't get out.
 
 
+- se pular de uma escada com baixo pressionado está pegando na escada de novo (checar função que testa se já atingiu o chão)
+- tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
+
 - deu pau no final do jogo. Som continuou, mas gráficos não:
     process_special_map_points LEAVE #1
     PAUSE - _paused_timer: 277398
@@ -48,20 +51,8 @@ New glitch:  if you die during boss rush, you get stuck in the ceiling and can't
     UNPAUSE - _paused_ticks: 32421, paused_ticks: 4417
     ######### classPlayer::set_teleport_minimal_y - y: 148
     PAUSE - _paused_timer: 378294
-    UNPAUSE - _paused_ticks: 36838, paused_ticks: 4859
-    PAUSE - _paused_timer: 383154
-    UNPAUSE - _paused_ticks: 41697, paused_ticks: 4683
-    PAUSE - _paused_timer: 387839
-    UNPAUSE - _paused_ticks: 46380, paused_ticks: 5185
-    PAUSE - _paused_timer: 393026
-    UNPAUSE - _paused_ticks: 51565, paused_ticks: 5125
-    PAUSE - _paused_timer: 398153
-    UNPAUSE - _paused_ticks: 56690, paused_ticks: 4798
-    PAUSE - _paused_timer: 402954
-    UNPAUSE - _paused_ticks: 61488, paused_ticks: 4867
 
 
-- ANDROID: ver se tem como colocar botão de escudo (Z) sem que ele apareça na tela por padrão
 
 - MANUAL:
     - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)

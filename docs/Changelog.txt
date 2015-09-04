@@ -11,6 +11,9 @@
 - se passar de 80% do pulo, largar o botão não deve interrompê-lo
 - esquema de 80% para o pulo não funciona direito na água (não considera a gravidade diferente no cálculo dos 80%)
 - criar novo tipo de objeto: cápsula chefe final. só apaqrece quando outras cápsulas forem derrotadas.
+- não poder pular se estiver em push-back
+- diminuir push-back quando atingido (ver bem quanto é no Megaman)
+- está sendo atingido quando animação de hit ainda está aparecendo (mas piscar já parou, a animação está com tempo diferente, maior)
 
 
 
