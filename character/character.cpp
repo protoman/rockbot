@@ -1404,6 +1404,11 @@ bool character::jump(int jumpCommandStage, st_position mapScrolling)
     if (jumpCommandStage == 0 && jump_button_released == false) {
         jump_button_released = true;
     }
+
+    if (state.animation_type == ANIM_TYPE_HIT) {
+        return false;
+    }
+
     if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
         //std::cout << "char::jump - button pressed" << std::endl;
 
@@ -2361,7 +2366,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         jump_button_released = false;
         if (is_player() == true) { /// @TODO - remove all animations when boss is defeated
             if (map != NULL) {
-                map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(0, 5), 150, 5, state.direction, st_size(24, 24));
+                map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(0, 5), 150, 4, state.direction, st_size(24, 24));
             }
         }
 	}
@@ -2749,7 +2754,7 @@ void character::cancel_slide()
 
 int character::get_hit_push_back_n()
 {
-    return TILESIZE*2;
+    return TILESIZE;
 }
 
 bool character::have_super_shot()
