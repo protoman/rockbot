@@ -15,6 +15,10 @@
 - diminuir push-back quando atingido (ver bem quanto é no Megaman)
 - está sendo atingido quando animação de hit ainda está aparecendo (mas piscar já parou, a animação está com tempo diferente, maior)
 
+- não fazer Dynamite dar dash ao ser atingido, pois torna muito desequilibrada a luta
+- projéteis do Shocker devem usar trajetória tipo senóide
+- abaixar 1 tile o chão do mummy no último estágio (está entrando no chão um pouco por ocnta do limite)
+
 
 
 **********************************************************************
