@@ -23,8 +23,8 @@ VERSION 1.1.1
 --------------------------
 New glitch:  if you die during boss rush, you get stuck in the ceiling and can't get out.
 
-
 - se pular de uma escada com baixo pressionado está pegando na escada de novo (checar função que testa se já atingiu o chão)
+    * ver como é no megaman, se tem que sair ou cair no chão para retomar escada, talvez seja no button release
 - tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
 
 - deu pau no final do jogo. Som continuou, mas gráficos não:
@@ -53,15 +53,7 @@ New glitch:  if you die during boss rush, you get stuck in the ceiling and can't
     PAUSE - _paused_timer: 378294
 
 
-
-- MANUAL:
-    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
-    - colocar comandos
-
 - (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
-- criar trajetória seno() para projéteis do Shocker
-- revisar AI de chefes
-- fix charged-shot forcing position
 
 
 ****** Daniel Durda:
@@ -76,6 +68,17 @@ The other issue was also in ape mans stage. He jumped at me and got stuck in the
 Would you like me to take a look St the code and see if I can find the issue that would be causing the floor glitch?
 ***************************
 
+--------------------------
+VERSION 1.1.2
+--------------------------
+- separar todos os diálogos/textos em arquivos XML
+- bugfixing
+
+--------------------------
+VERSION 1.1.3
+--------------------------
+- não tirar tiro carregado ao passar por uma porta
+    * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
     - usar mais disseppearing blocks
     - usar mais plataformas move-left/right
@@ -87,6 +90,11 @@ Would you like me to take a look St the code and see if I can find the issue tha
 - adicionar blocos mais claros para foreground e mais escuros para background nas torres do mage
 - tornar bem mais difícil não seguir a ordem certa (menos dano armas)
 - adicionar mais variação aos inimigos, principalmente quando o player está próximo (tipo, pular no jogador, ou dar um rush)
+- revisar AI de chefes
+- fix charged-shot forcing position
+- MANUAL:
+    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
+    - colocar comandos
 
 
 --------------------------
@@ -143,6 +151,9 @@ OPTIMIZATION:
                 - refactor code, so that "game_npcs" do not replicate(copy) data from game_data
                 - refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
         - use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
+
+
+
 
 
 ************************************
