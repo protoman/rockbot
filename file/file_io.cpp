@@ -1915,12 +1915,12 @@ namespace format_v_3_0_1 {
         //data_out.stages[DAISIEBOT] = 1;
         //data_out.stages[MUMMYBOT] = 1;
         //data_out.items.lifes = 0;
-        */
 
         data_out.stages[DYNAMITEBOT] = 1;
         data_out.armor_pieces[ARMOR_ARMS] = true;
         data_out.armor_pieces[ARMOR_BODY] = true;
         data_out.armor_pieces[ARMOR_LEGS] = true;
+        */
 
         // ------- DEBUG ------- //
 
