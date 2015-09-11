@@ -11,9 +11,9 @@ QT       -= gui
 
 
 #CONFIG += android
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += macosx
-CONFIG += win32
+#CONFIG += win32
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora

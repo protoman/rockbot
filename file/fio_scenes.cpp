@@ -1,3 +1,6 @@
+#include <fstream>
+#include <iostream>
+
 #include "fio_scenes.h"
 
 namespace format_v_3_0_1 {
