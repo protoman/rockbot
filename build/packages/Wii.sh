@@ -6,6 +6,7 @@ rm -r -f ./Wii
 mkdir ./Wii
 mkdir ./Wii/apps
 mkdir ./Wii/apps/rockbot
+unzip unzip -x ./files/wii_meta.zip -d ./Wii/apps/rockbot
 cp ../rockbot.elf ./Wii/apps/rockbot
 rsync -r --exclude=.svn ../data ./Wii/apps/rockbot
 rm ./Wii/apps/rockbot/data/game*.sav
