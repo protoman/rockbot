@@ -21,6 +21,8 @@ public:
 private slots:
     void on_actionSave_triggered();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::SceneEditorWindow *ui;
     // tab elements

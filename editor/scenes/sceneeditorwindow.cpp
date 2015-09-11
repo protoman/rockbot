@@ -23,3 +23,8 @@ void SceneEditorWindow::on_actionSave_triggered()
 {
     image_tab->save_data();
 }
+
+void SceneEditorWindow::on_pushButton_clicked()
+{
+    ui->widget->change_play_state();
+}
