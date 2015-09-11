@@ -125,12 +125,12 @@ namespace format_v_3_0_1 {
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
             get_default_keys(keys_codes);
-            get_default_buttons(button_codes;)
+            get_default_buttons(button_codes);
     #elif PSP
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
             get_default_keys(keys_codes);
-            get_default_buttons(button_codes;)
+            get_default_buttons(button_codes);
     #elif WII
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
@@ -140,12 +140,12 @@ namespace format_v_3_0_1 {
             input_type = INPUT_TYPE_DOUBLE;
             input_mode = INPUT_MODE_DIGITAL;
             get_default_keys(keys_codes);
-            get_default_buttons(button_codes;)
+            get_default_buttons(button_codes);
     #elif OPEN_PANDORA
             input_type = INPUT_TYPE_KEYBOARD;
             input_mode = INPUT_MODE_DIGITAL;
             get_default_keys(keys_codes);
-            get_default_buttons(button_codes;)
+            get_default_buttons(button_codes);
     #else
             input_type = INPUT_TYPE_DOUBLE;
             get_default_keys(keys_codes);
