@@ -40,6 +40,7 @@ VERSION 1.1.1 (fixes)
 --------------------------
 VERSION 1.1.2 (minor fixes & i18n)
 --------------------------
+- permitir escolher qual joystick usar, caso existem vários ligados
 - substituir efeitos sonoros menores por free
 - continuar substituição dos gráficos de fase, eliminar arquivos não mais usados
 - se pular de uma escada com baixo pressionado está pegando na escada de novo (checar função que testa se já atingiu o chão)
