@@ -86,7 +86,10 @@ SOURCES += main.cpp \
     aboutwindow.cpp \
     ../tools/tinyxml2/tinyxml2.cpp \
     scenes/tab_image.cpp \
-    ../file/fio_scenes.cpp
+    ../file/fio_scenes.cpp \
+    scenes/imageareapreview.cpp \
+    scenes/scenepreviewarea.cpp \
+    scenes/scenesmediator.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -134,7 +137,10 @@ HEADERS += mainwindow.h \
     ../file/version.h \
     aboutwindow.h \
     ../tools/tinyxml2/tinyxml2.h \
-    scenes/tab_image.h
+    scenes/tab_image.h \
+    scenes/imageareapreview.h \
+    scenes/scenepreviewarea.h \
+    scenes/scenesmediator.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

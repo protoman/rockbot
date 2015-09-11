@@ -5,6 +5,7 @@
 #include "../../defines.h"
 #include "../file/v3/3_0_1/file_scene.h"
 #include "../file/fio_scenes.h"
+#include "scenes/scenesmediator.h"
 
 namespace Ui {
 class tab_image;
@@ -25,10 +26,6 @@ private slots:
 
     void on_select_comboBox_currentIndexChanged(int index);
 
-    void on_x_spinBox_valueChanged(int arg1);
-
-    void on_y_spinBox_valueChanged(int arg1);
-
     void on_destx_spinBox_valueChanged(int arg1);
 
     void on_desty_spinBox_valueChanged(int arg1);
@@ -39,6 +36,21 @@ private slots:
 
     void on_filename_comboBox_currentIndexChanged(const QString &arg1);
 
+    void on_init_y_spinBox_valueChanged(int arg1);
+
+    void on_init_x_spinBox_valueChanged(int arg1);
+
+    void on_img_area_x_valueChanged(int arg1);
+
+    void on_img_area_y_valueChanged(int arg1);
+
+    void on_img_area_w_valueChanged(int arg1);
+
+    void on_img_area_h_valueChanged(int arg1);
+
+    void change_w(int value);
+    void change_h(int value);
+
 private:
     void change_fields_enabled(bool state);
     void fill_data();
@@ -46,8 +58,8 @@ private:
 private:
     Ui::tab_image *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
-    std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> list;
     bool data_loading;
+    ScenesMediator *mediator;
 };
 
 #endif // TAB_IMAGE_H

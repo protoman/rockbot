@@ -64,8 +64,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>419</width>
-             <height>495</height>
+             <width>670</width>
+             <height>464</height>
             </rect>
            </property>
           </widget>
@@ -112,8 +112,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>419</width>
-             <height>495</height>
+             <width>670</width>
+             <height>464</height>
             </rect>
            </property>
           </widget>
@@ -139,7 +139,7 @@
        <number>10</number>
       </property>
       <item row="0" column="0">
-       <widget class="QWidget" name="widget" native="true">
+       <widget class="ScenePreviewArea" name="widget" native="true">
         <property name="minimumSize">
          <size>
           <width>320</width>
@@ -195,6 +195,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ScenePreviewArea</class>
+   <extends>QWidget</extends>
+   <header>scenes/scenepreviewarea.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

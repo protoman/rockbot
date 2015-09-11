@@ -9,6 +9,25 @@
 
 namespace format_v_3_0_1 {
 
+    struct st_scene_area {
+        int x;
+        int y;
+        int w;
+        int h;
+        st_scene_area() {
+            x = 0;
+            y = 0;
+            w = 0;
+            h = 0;
+        }
+        st_scene_area(int set_x, int set_y, int set_w, int set_h) {
+            x = set_x;
+            y = set_y;
+            w = set_w;
+            h = set_h;
+        }
+    };
+
     enum e_SCENETYPE {
         SCENETYPE_CLEAR_SCREEN,
         SCENETYPE_CLEAR_AREA,
@@ -43,17 +62,18 @@ namespace format_v_3_0_1 {
     struct file_scene_show_image {
         char name[FS_NAME_SIZE];
         char filename[FS_CHAR_FILENAME_SIZE];
-        int x;
-        int y;
+        int ini_x;
+        int ini_y;
         int dest_x;
         int dest_y;
+        st_scene_area copy_area;
         int move_delay;
         bool blocking;                              // to be used, if false, to run multiple scene-types in parallel. defaults to true.
         file_scene_show_image() {
             name[0] = '\0';
             filename[0] = '\0';
-            x = 0;
-            y = 0;
+            ini_x = 0;
+            ini_y = 0;
             dest_x = 0;
             dest_y = 0;
             move_delay = 100;
