@@ -41,7 +41,7 @@ public:
      * @param st_position
      * @return int
      */
-    int getMapPointLock(struct st_position);
+    Uint8 getMapPointLock(struct st_position);
     /**
      * @brief
      *
@@ -72,7 +72,7 @@ public:
      *
      * @return int
      */
-    int get_current_map_number() const;
+    Uint8 get_current_map_number() const;
     /**
      * @brief
      *
@@ -84,7 +84,7 @@ public:
      *
      * @return short
      */
-    short int get_current_map_n() const;
+    Uint8 get_current_map_n() const;
     /**
      * @brief
      *
@@ -193,18 +193,9 @@ public:
     classMap* maps[PRELOAD_MAP_N]; /**< TODO */
 
 private:
-    int number; /**< TODO */
-    int currentMap; /**< TODO */
+    Sint8 number; /**< TODO */
+    Uint8 currentMap; /**< TODO */
     std::vector<classPlayer*> _player_list; /**< TODO */
-
-    int _color1_timer; /**< TODO */
-    int _color2_timer; /**< TODO */
-    int _color3_timer; /**< TODO */
-
-    int _color1_n; /**< TODO */
-    int _color2_n; /**< TODO */
-    int _color3_n; /**< TODO */
-
 };
 
 #endif // STAGE_H

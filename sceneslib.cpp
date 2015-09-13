@@ -1453,7 +1453,7 @@ Uint8 scenesLib::select_player() {
 }
 
 
-void scenesLib::boss_intro(int pos_n) const {
+void scenesLib::boss_intro(Uint8 pos_n) const {
     graphicsLib_gSurface spriteCopy;
     unsigned int intro_frames_n = 1;
     int text_x = RES_W*0.5 - 60;
@@ -1574,7 +1574,7 @@ void scenesLib::boss_intro(int pos_n) const {
         std::string str = &botname.at(i);
         std::locale settings;
         std::string boss_name;
-        for(short i = 0; i < str.size(); ++i) {
+        for(uint i = 0; i < str.size(); ++i) {
             boss_name += (std::toupper(str[i], settings));
         }
 

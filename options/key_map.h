@@ -31,7 +31,7 @@ public:
      */
     void config_input();
 
-    void check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_config_copy, int set_key, bool is_joystick);
+    void check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_config_copy, Uint8 set_key, bool is_joystick);
 
     void apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_config_copy);
 
@@ -49,7 +49,7 @@ private:
      */
     void redraw_line(short line) const;
 
-    int draw_config_keys() const;
+    Sint8 draw_config_keys() const;
 
 
 

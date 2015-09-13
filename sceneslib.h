@@ -59,7 +59,7 @@ public:
      *
      * @param pos_n
      */
-    void boss_intro(int pos_n) const;
+    void boss_intro(Uint8 pos_n) const;
     /**
      * @brief
      *
@@ -191,7 +191,7 @@ private:
     short _state; // animation state /**< TODO */
     graphicsLib_gSurface* _blink_surface; // animation surface (light/dark) /**< TODO */
     std::vector<std::string> options; /**< TODO */
-    int _password_selected_balls[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE]; /**< TODO */
+    Sint8 _password_selected_balls[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE]; /**< TODO */
 };
 
 #endif // SCENESLIB_H

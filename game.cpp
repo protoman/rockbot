@@ -151,7 +151,7 @@ void game::showGame(bool can_characters_move)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-int game::getMapPointLock(struct st_position pos)
+Uint8 game::getMapPointLock(struct st_position pos)
 {
     return loaded_stage->getMapPointLock(pos);
 }
@@ -621,7 +621,7 @@ loaded_stage->get_current_map() != players.at(0).map
 */
 }
 
-short game::get_current_map() const
+Uint8 game::get_current_map() const
 {
     return loaded_stage->get_current_map_n();;
 }
@@ -778,7 +778,7 @@ void game::remove_players_slide()
 
 
 //TRANSITION_TOP_TO_BOTTOM, TRANSITION_BOTTOM_TO_TOP
-void game::transitionScreen(short int type, short int map_n, short int adjust_x, classPlayer *pObj) {
+void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj) {
     timer.pause();
 	graphicsLib_gSurface temp_screen;
     short i = 0;
@@ -1310,12 +1310,12 @@ void game::draw_implosion(short int centerX, short int centerY) {
 	}
 }
 
-void game::show_player(short player_n)
+void game::show_player(Uint8 player_n)
 {
 	players.at(player_n).show();
 }
 
-void game::set_player_position(st_position pos, short player_n)
+void game::set_player_position(st_position pos, Uint8 player_n)
 {
 	players.at(player_n).set_position(pos);
     players.at(player_n).char_update_real_position();
@@ -1327,27 +1327,27 @@ void game::change_player_position(short xinc, short yinc, short player_n)
 	players.at(player_n).char_update_real_position();
 }
 
-void game::set_player_anim_type(ANIM_TYPE anim_type, short int player_n)
+void game::set_player_anim_type(ANIM_TYPE anim_type, Uint8 player_n)
 {
     players.at(player_n).set_animation_type(anim_type);
 }
 
-st_position game::get_player_position(short player_n)
+st_position game::get_player_position(Uint8 player_n)
 {
     return st_position(players.at(player_n).getPosition().x, players.at(player_n).getPosition().y);
 }
 
-st_size game::get_player_size(short int player_n)
+st_size game::get_player_size(Uint8 player_n)
 {
 	return players.at(player_n).get_size();
 }
 
-void game::set_player_direction(short direction, short player_n)
+void game::set_player_direction(Uint8 direction, Uint8 player_n)
 {
 	players.at(player_n).set_direction(direction);
 }
 
-void game::player_fall(short int player_n)
+void game::player_fall(Uint8 player_n)
 {
 	players.at(player_n).fall();
 }
@@ -1467,7 +1467,7 @@ bool game::subboss_alive_on_left(short tileX)
     return loaded_stage->subboss_alive_on_left(tileX);
 }
 
-void game::object_teleport_boss(st_position dest_pos, int dest_map, int teleporter_id)
+void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)
 {
 
     //std::cout << "############# teleporter_id: " << teleporter_id << std::endl;
@@ -1567,7 +1567,7 @@ void game::get_drop_item_ids()
     }
 }
 
-classPlayer *game::get_player(int n)
+classPlayer *game::get_player(Uint8 n)
 {
     return &players.at(n);
 }

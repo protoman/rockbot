@@ -41,7 +41,7 @@ private:
      * @param x_inc
      * @param y_inc
      */
-    void move_highlight(short int x_inc, short int y_inc);
+    void move_highlight(Uint8 x_inc, Uint8 y_inc);
     /**
      * @brief
      *
@@ -67,7 +67,7 @@ private:
      * @param y
      * @param erase_eyes
      */
-    void draw_eyes(int x, int y, bool erase_eyes);
+    void draw_eyes(Uint8 x, Uint8 y, bool erase_eyes);
 
 private:
     graphicsLib_gSurface s_light; /**< TODO */

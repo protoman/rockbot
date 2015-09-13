@@ -21,7 +21,7 @@ extern int freeze_weapon_id;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-projectile::projectile(int id, int set_direction, st_position set_position, classMap *set_map, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(-1), _is_temporary(true)
+projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, classMap *set_map, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(-1), _is_temporary(true)
 {
     set_default_values();
 	_id = id; // -1 is default projectile
@@ -728,7 +728,7 @@ bool projectile::check_map_colision(st_position pos_inc) const
 }
 
 
-int projectile::get_direction() const
+Uint8 projectile::get_direction() const
 {
 	return direction;
 }
@@ -753,7 +753,7 @@ void projectile::reflect()
 	soundManager.play_sfx(SFX_SHOT_REFLECTED);
 }
 
-short projectile::get_move_type() const
+Uint8 projectile::get_move_type() const
 {
     if (_id == -1) {
         return TRAJECTORY_LINEAR;
@@ -815,7 +815,7 @@ void projectile::set_owner_position(st_float_position *owner_position)
 	_owner_position = owner_position;
 }
 
-void projectile::set_owner_direction(int *owner_direction)
+void projectile::set_owner_direction(Uint8 *owner_direction)
 {
 	_owner_direction = owner_direction;
 }

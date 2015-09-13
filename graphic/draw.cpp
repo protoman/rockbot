@@ -427,12 +427,13 @@ graphicsLib_gSurface *draw::get_object_graphic(int obj_id)
             std::string complete_filename(FILEPATH + "data/images/sprites/objects/" + graphic_filename);
             graphLib.surfaceFromFile(complete_filename, &temp_sprite);
             objects_sprite_list.insert(std::pair<unsigned int, graphicsLib_gSurface>(obj_id, temp_sprite));
+            it = objects_sprite_list.find(obj_id);
         } else {
             std::cout << "ERROR: Invalid object graphic. Object_ID: '" + obj_id << "'" << std::endl;
+            return NULL;
         }
-    } else {
-        return &(*it).second;
     }
+    return &(*it).second;
 }
 
 void draw::remove_object_graphic(int obj_id)

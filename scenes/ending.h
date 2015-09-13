@@ -71,7 +71,7 @@ private:
      *
      * @param pos_n
      */
-    void boss_credits(int pos_n, short npc_id) const;
+    void boss_credits(Uint8 pos_n, short npc_id) const;
 
 
 

@@ -86,7 +86,8 @@ namespace format_v_2_1_1 {
             std::fflush(stdout);
             exit(-1);
         }
-        fread(&stages_data_out, sizeof(format_v_2_1_1::file_stages), 1, fp);
+        uint res = fread(&stages_data_out, sizeof(format_v_2_1_1::file_stages), 1, fp);
+        UNUSED(res);
         fclose(fp);
     }
 
@@ -190,7 +191,8 @@ namespace format_v_2_1_2 {
             std::fflush(stdout);
             exit(-1);
         }
-        fread(&stages_data_out, sizeof(format_v_2_1_2::file_stages), 1, fp);
+        uint res = fread(&stages_data_out, sizeof(format_v_2_1_2::file_stages), 1, fp);
+        UNUSED(res);
         fclose(fp);
     }
 
@@ -362,7 +364,7 @@ namespace format_v_2_1_2 {
 
     }
 
-    int file_io::read_stage_boss_id(int stage_n)
+    int file_io::read_stage_boss_id(Uint8 stage_n)
     {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "data/stages_v212.dat";
@@ -797,23 +799,24 @@ namespace format_v_3_0_0 {
         }
 
 
-        if (fread(&data_out.version, sizeof(float), 1, fp)  == -1) {
+        if (fread(&data_out.version, sizeof(float), 1, fp)  != sizeof(float)) {
             std::cout << ">>file_io::read_game - Error reading struct data [version] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp)  == -1) {
+        if (fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp)  != (sizeof(char)*FS_CHAR_NAME_SIZE)) {
             std::cout << ">>file_io::read_game - Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp)  == -1) {
+        if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp)  != sizeof(Sint8)) {
             std::cout << ">>file_io::read_game - Error reading struct data [semi_charged_projectile_id] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp)  == -1) {
+        if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != (sizeof(Sint8)*FS_PLATER_ITEMS_N)) {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.stage_face_filename, sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX, 1, fp)  == -1) {
+        uint var_size = sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX;
+        if (fread(&data_out.stage_face_filename, var_size, 1, fp)  != var_size) {
             std::cout << ">>file_io::read_game - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
@@ -831,8 +834,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.game_npcs, sizeof(file_npc)*FS_GAME_MAX_NPCS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_npc)*FS_GAME_MAX_NPCS;
+        if (fread(&data_out.game_npcs, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[game_npcs] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -845,8 +849,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.objects, sizeof(file_object)*FS_GAME_MAX_NPCS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_object)*FS_GAME_MAX_NPCS;
+        if (fread(&data_out.objects, sizeof(file_object), FS_GAME_MAX_NPCS, fp)  != var_size) {
+            std::cout << ">>file_io::read_game[objects2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -860,8 +865,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.projectiles, sizeof(file_projectile)*FS_MAX_PROJECTILES, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_projectile)*FS_MAX_PROJECTILES;
+        if (fread(&data_out.projectiles, var_size, 1, fp)  != var_size) {
+            std::cout << ">>file_io::read_game[projectiles] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -875,8 +881,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.weapons, sizeof(file_weapon)*FS_MAX_WEAPONS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_weapon)*FS_MAX_WEAPONS;
+        if (fread(&data_out.weapons, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[weapons2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -890,8 +897,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.players, sizeof(file_player)*FS_MAX_PLAYERS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_player)*FS_MAX_PLAYERS;
+        if (fread(&data_out.players, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[players2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -906,8 +914,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.ai_types, sizeof(file_artificial_inteligence)*FS_MAX_AI_TYPES, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(file_artificial_inteligence)*FS_MAX_AI_TYPES;
+        if (fread(&data_out.ai_types, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[ai_types2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -921,8 +930,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.trophies, sizeof(st_file_trophy)*TROPHIES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(st_file_trophy)*TROPHIES_MAX;
+        if (fread(&data_out.trophies, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[trophies2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -939,12 +949,12 @@ namespace format_v_3_0_0 {
         }
         int read_result1 = fread(&data_out.shop_dialog_welcome, sizeof(st_shop_dialog), 1, fp);
         if (read_result1  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+            std::cout << ">>file_io::read_game[shop_dialog_welcome2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         int read_result2 = fread(&data_out.shop_dialog_goodbye, sizeof(st_shop_dialog), 1, fp);
         if (read_result2  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+            std::cout << ">>file_io::read_game[shop_dialog_goodbye2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -958,8 +968,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.armor_pieces, sizeof(st_armor_piece)*FS_PLAYER_ARMOR_PIECES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(st_armor_piece)*FS_PLAYER_ARMOR_PIECES_MAX;
+        if (fread(&data_out.armor_pieces, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[armor_pieces2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -973,8 +984,9 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.anim_tiles, sizeof(st_anim_map_tile)*FS_ANIM_TILES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        var_size = sizeof(st_anim_map_tile)*FS_ANIM_TILES_MAX;
+        if (fread(&data_out.anim_tiles, var_size, 1, fp) != var_size) {
+            std::cout << ">>file_io::read_game[anim_tiles2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1153,7 +1165,7 @@ namespace format_v_3_0_0 {
     }
 
 
-    int file_io::read_stage_boss_id(int stage_n, file_stage &stages_data_out)
+    int file_io::read_stage_boss_id(Uint8 stage_n, file_stage &stages_data_out)
     {
         /// @NOTE: desabilitei essa função pois quando o formato de arquivo muda, causa um crash
         /// Isso provavelmente causará estouro de memória no PSP
@@ -1285,7 +1297,7 @@ namespace format_v_3_0_0 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (int i=0; i<scene_sequence.size(); i++) {
+        for (uint i=0; i<scene_sequence.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct format_v_3_0_0::file_scene_sequence));
         }
         fp.close();
@@ -1318,7 +1330,7 @@ namespace format_v_3_0_0 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (int i=0; i<scenes.size(); i++) {
+        for (uint i=0; i<scenes.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct format_v_3_0_0::file_scene));
         }
         fp.close();
@@ -1555,24 +1567,24 @@ namespace format_v_3_0_1 {
         }
 
 
-        if (fread(&data_out.version, sizeof(float), 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading struct data [version] from game file '" << filename << "'." << std::endl;
+        if (uint res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
+            std::cout << ">>file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
+            //exit(-1);
+        }
+        if (uint res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading struct data from [name] game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp)  == -1) {
+        if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp) != 1) {
             std::cout << ">>file_io::read_game - Error reading struct data [semi_charged_projectile_id] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp)  == -1) {
+        if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != FS_PLATER_ITEMS_N) {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (fread(&data_out.stage_face_filename, sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
+        if (uint res = fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
 
@@ -1589,9 +1601,9 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.game_npcs, sizeof(file_npc)*FS_GAME_MAX_NPCS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
+        if (fread(&data_out.game_npcs, sizeof(file_npc), FS_GAME_MAX_NPCS, fp) != FS_GAME_MAX_NPCS) {
+            std::cout << ">>file_io::read_game[game_npcs2] res: - Error reading data from game file '" << filename << "'." << std::endl;
+            //exit(-1);
         }
         fclose(fp);
 
@@ -1603,9 +1615,9 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.objects, sizeof(file_object)*FS_GAME_MAX_NPCS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
+        if (fread(&data_out.objects, sizeof(file_object), FS_GAME_MAX_NPCS, fp) != FS_GAME_MAX_NPCS) {
+            std::cout << ">>file_io::read_game[objects] - Error reading data from game file '" << filename << "'." << std::endl;
+            //exit(-1);
         }
         fclose(fp);
 
@@ -1618,8 +1630,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.projectiles, sizeof(file_projectile)*FS_MAX_PROJECTILES, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.projectiles, sizeof(file_projectile), FS_MAX_PROJECTILES, fp) != FS_MAX_PROJECTILES) {
+            std::cout << ">>file_io::read_game[projectiles2] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1633,8 +1645,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.weapons, sizeof(file_weapon)*FS_MAX_WEAPONS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
+            std::cout << ">>file_io::read_game[weapons] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1648,8 +1660,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.players, sizeof(file_player)*FS_MAX_PLAYERS, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.players, sizeof(file_player), FS_MAX_PLAYERS, fp) != FS_MAX_PLAYERS) {
+            std::cout << ">>file_io::read_game[players] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1664,8 +1676,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.ai_types, sizeof(file_artificial_inteligence)*FS_MAX_AI_TYPES, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.ai_types, sizeof(file_artificial_inteligence), FS_MAX_AI_TYPES, fp) != FS_MAX_AI_TYPES) {
+            std::cout << ">>file_io::read_game[ai_types] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1679,8 +1691,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.trophies, sizeof(st_file_trophy)*TROPHIES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
+            std::cout << ">>file_io::read_game[trophies] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1697,12 +1709,12 @@ namespace format_v_3_0_1 {
         }
         int read_result1 = fread(&data_out.shop_dialog_welcome, sizeof(st_shop_dialog), 1, fp);
         if (read_result1  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+            std::cout << ">>file_io::read_game[shop_dialog_welcome] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         int read_result2 = fread(&data_out.shop_dialog_goodbye, sizeof(st_shop_dialog), 1, fp);
         if (read_result2  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+            std::cout << ">>file_io::read_game[shop_dialog_goodbye] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1716,8 +1728,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.armor_pieces, sizeof(st_armor_piece)*FS_PLAYER_ARMOR_PIECES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.armor_pieces, sizeof(st_armor_piece), FS_PLAYER_ARMOR_PIECES_MAX, fp) != FS_PLAYER_ARMOR_PIECES_MAX) {
+            std::cout << ">>file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1731,8 +1743,8 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.anim_tiles, sizeof(st_anim_map_tile)*FS_ANIM_TILES_MAX, 1, fp)  == -1) {
-            std::cout << ">>file_io::read_game - Error reading data from game file '" << filename << "'." << std::endl;
+        if (fread(&data_out.anim_tiles, sizeof(st_anim_map_tile), FS_ANIM_TILES_MAX, fp) != FS_ANIM_TILES_MAX) {
+            std::cout << ">>file_io::read_game[anim_tiles] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -1947,7 +1959,7 @@ namespace format_v_3_0_1 {
     }
 
 
-    int file_io::read_stage_boss_id(int stage_n, file_stage &stages_data_out)
+    int file_io::read_stage_boss_id(Uint8 stage_n, file_stage &stages_data_out)
     {
         /// @NOTE: desabilitei essa função pois quando o formato de arquivo muda, causa um crash
         /// Isso provavelmente causará estouro de memória no PSP
@@ -2054,7 +2066,7 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (int i=0; i<scene_sequence.size(); i++) {
+        for (uint i=0; i<scene_sequence.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct format_v_3_0_1::file_scene_sequence));
         }
         fp.close();
@@ -2087,7 +2099,7 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (int i=0; i<scenes.size(); i++) {
+        for (uint i=0; i<scenes.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct format_v_3_0_1::file_scene));
         }
         fp.close();

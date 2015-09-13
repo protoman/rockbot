@@ -505,7 +505,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 		std::cout << "ERROR: could not find projectile graphics" << std::endl;
 		return;
 	}
-	if (attack_state != ATTACK_NOT && timer.getTimer()-state.attack_timer >= (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay) {
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay) {
 		//std::cout << "character::attack - shoot projectile END" << std::endl;
 		attack_state = ATTACK_NOT;
 	}
@@ -572,7 +572,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
     if (_charged_shot_projectile_id > 0 && is_player() && (timer.getTimer()-state.attack_timer) >= CHARGED_SHOT_TIME && attack_button_released == false) {
 		if (soundManager.is_playing_repeated_sfx() == true && soundManager.get_repeated_sfx_n() == SFX_CHARGING1) {
 			soundManager.stop_repeated_sfx();
-			soundManager.play_repeated_sfx(SFX_CHARGING2, 9999);
+            soundManager.play_repeated_sfx(SFX_CHARGING2, 255);
 		}
         if (color_keys[0].r != -1) {
             if (charging_color_timer < timer.getTimer()) {
@@ -699,16 +699,16 @@ void character::advance_frameset()
 
     //if (is_player()) std::cout << "character::show - direction: " << state.direction << ", type: " << state.animation_type << ", state: " << state.animation_state << "\n";
     //[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]
-    if (state.direction < 0 || state.direction > CHAR_ANIM_DIRECTION_COUNT) {
+    if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
         //if (is_player()) std::cout << "WARNING - character::show - (" << name << ") error, direction value " << state.direction << " is invalid" << std::endl;
 		state.direction = ANIM_DIRECTION_LEFT;
 		return;
 	}
-	if (state.animation_type < 0 || state.animation_type > ANIM_TYPE_COUNT) {
+    if (state.animation_type > ANIM_TYPE_COUNT) {
         //if (is_player()) std::cout << "character::show - error, type value " << state.direction << " is invalid" << std::endl;
 		return;
 	}
-	if (state.animation_state < 0 || (is_player() && state.animation_state > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state > MAX_NPC_SPRITES)) {
+    if ((is_player() && state.animation_state > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state > MAX_NPC_SPRITES)) {
         //if (is_player()) std::cout << "character::show - error, animation_state value " << state.animation_state << " is invalid. state.animation_type: " << state.animation_type << std::endl;
 		state.animation_state = 0;
 		return;
@@ -1822,10 +1822,8 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
 
 		if (incy != 0) {
 			if (point_top == TERRAIN_UNBLOCKED && point_middle == TERRAIN_UNBLOCKED && point_bottom == TERRAIN_WATER && _water_splash == false) {
-                int adjust_y = frameSize.height-8;
 				if (incy < 0) {
 					soundManager.play_sfx(SFX_WATER_LEAVE);
-					adjust_y = 4;
 				} else {
 					soundManager.play_sfx(SFX_WATER_LEAVE);
 				}
@@ -2178,7 +2176,7 @@ int character::is_executing_effect_weapon()
 
 // is all projectiles are normal (-1 or 0) return the character's max_shots,
 // otherwise, find the lowest between all fired projectiles
-short character::get_projectile_max_shots()
+Uint8 character::get_projectile_max_shots()
 {
     bool all_projectiles_normal = true;
     vector<projectile>::iterator it;
@@ -2431,7 +2429,7 @@ void character::execute_jump_up()
     //std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (_obj_jump.get_speed() < 0) {
         char_update_real_position();
-		bool resJump = jump(1, map->getMapScrolling());
+        jump(1, map->getMapScrolling());
         map->showMap();
 		show();
 		map->showAbove();

@@ -137,7 +137,7 @@ namespace format_v_2_1_2 {
         void load_config(st_game_config &config);
         void save_config(st_game_config &config) const;
 
-        int read_stage_boss_id(int stage_n);
+        int read_stage_boss_id(Uint8 stage_n);
 
 
     };
@@ -165,7 +165,7 @@ namespace format_v_3_0_0 {
 
         void load_config(st_game_config &config);
         void save_config(st_game_config &config) const;
-        int read_stage_boss_id(int stage_n, file_stage &stages_data_out);
+        int read_stage_boss_id(Uint8 stage_n, file_stage &stages_data_out);
 
         void read_colormap(SDL_Color (&colormap)[COLOR_COUNT]);
 
@@ -207,7 +207,7 @@ namespace format_v_3_0_1 {
 
         void load_config(format_v_3_0_1::st_game_config &config);
         void save_config(format_v_3_0_1::st_game_config &config) const;
-        int read_stage_boss_id(int stage_n, format_v_3_0_1::file_stage &stages_data_out);
+        int read_stage_boss_id(Uint8 stage_n, format_v_3_0_1::file_stage &stages_data_out);
 
         void read_colormap(SDL_Color (&colormap)[COLOR_COUNT]);
 

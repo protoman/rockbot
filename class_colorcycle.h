@@ -116,7 +116,7 @@ public:
      * @param map_key
      * @param color_number
      */
-    void set_color_key_number(unsigned int map_key, int color_number);
+    void set_color_key_number(Uint8 map_key, Uint8 color_number);
 
     void add_stage_colorcycle(short stage_n, CURRENT_FILE_FORMAT::file_colorcycle& colorcycle);
 
@@ -131,9 +131,9 @@ private:
 
 public:
 private:
-    int current_colormap; /**< TODO */
+    Uint8 current_colormap; /**< TODO */
     unsigned int current_position[COLOR_KEY_LENGTH]; /**< TODO */
-    int color_keys[3]; /**< TODO */
+    Uint8 color_keys[3]; /**< TODO */
     int time_count[COLOR_KEY_LENGTH]; /**< TODO */
     std::map<int, struct colorcycle_list> colorcycle_map; /**< TODO */
     bool _first_run; /**< When this colormap is run for the first time, must ignore time and change colors ASAP */

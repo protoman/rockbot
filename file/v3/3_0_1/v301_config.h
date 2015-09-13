@@ -19,7 +19,7 @@ namespace format_v_3_0_1 {
         bool game_finished;             // stores if game was finished, so we can show more options to player
 
 
-        int get_default_keys(int keys_codes_copy[BTN_COUNT]) {
+        void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
     #ifdef PLAYSTATION2
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
@@ -67,7 +67,7 @@ namespace format_v_3_0_1 {
     #endif
         }
 
-        int get_default_buttons(int button_codes_copy[BTN_COUNT]) {
+        void get_default_buttons(int button_codes_copy[BTN_COUNT]) {
     #ifdef PLAYSTATION2
             button_codes_copy[BTN_SHIELD] = 0;
             button_codes_copy[BTN_DASH] = 3;

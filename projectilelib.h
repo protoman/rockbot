@@ -48,7 +48,7 @@ public:
  * @param set_position
  * @param set_map
  */
-    projectile(int id, int set_direction, st_position set_position, classMap *set_map, bool _owner_is_player); // common constructor
+    projectile(Uint8 id, Uint8 set_direction, st_position set_position, classMap *set_map, bool _owner_is_player); // common constructor
     ///**
     // * @brief
     // *
@@ -106,7 +106,7 @@ public:
      *
      * @return int
      */
-    int get_direction() const;
+    Uint8 get_direction() const;
     /**
      * @brief
      *
@@ -117,7 +117,7 @@ public:
      *
      * @return short
      */
-    short int get_move_type() const;
+    Uint8 get_move_type() const;
     /**
      * @brief
      *
@@ -163,7 +163,7 @@ public:
      *
      * @param owner_position
      */
-    void set_owner_direction(int *owner_direction);
+    void set_owner_direction(Uint8 *owner_direction);
     /**
      * @brief
      *
@@ -230,15 +230,15 @@ public:
     bool is_reflected; /**< TODO */
 
 private:
-    int _id; /**< TODO */
+    Sint8 _id; /**< TODO */
     st_size_int8 _size; /**< TODO */
-    unsigned int animation_pos; /**< TODO */
+    Uint8 animation_pos; /**< TODO */
     unsigned int animation_timer; /**< TODO */
-    int direction; /**< TODO */
+    Uint8 direction; /**< TODO */
     unsigned int move_timer; /**< TODO */
     int move_delay; /**< TODO */
-    short int status; // status of animation (going/returning, etc) /**< TODO */
-    short int _move_type; /**< TODO */
+    Uint8 status; // status of animation (going/returning, etc) /**< TODO */
+    Uint8 _move_type; /**< TODO */
 
     st_float_position position; /**< TODO */
     st_position realPosition; /**< TODO */
@@ -264,11 +264,11 @@ private:
     short _weapon_id; /**< TODO */
 
     st_float_position *_owner_position; /**< TODO */
-    int *_owner_direction; /**< TODO */
+    Uint8 *_owner_direction; /**< TODO */
 
     st_float_position *_target_position; /**< TODO */
 
-    int _speed;
+    Uint8 _speed;
     trajectory_parabola _trajectory_parabola;
     bool _owner_is_player;
 

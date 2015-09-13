@@ -117,7 +117,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	hitPoints.total = game_data.game_npcs[main_id].hp.total;
 	hitPoints.current = hitPoints.total;
 
-    if (state.direction < 0 || state.direction > CHAR_ANIM_DIRECTION_COUNT) {
+    if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
 		state.direction = ANIM_DIRECTION_RIGHT;
 	}
 
@@ -389,7 +389,7 @@ void classnpc::move() {
 
 
 
-    if (state.direction < 0 || state.direction > CHAR_ANIM_DIRECTION_COUNT-1) {
+    if (state.direction > CHAR_ANIM_DIRECTION_COUNT-1) {
         state.direction = ANIM_DIRECTION_LEFT;
     }
 

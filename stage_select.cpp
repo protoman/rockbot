@@ -69,7 +69,7 @@ void stage_select::load_graphics() {
 
 
 
-void stage_select::move_highlight(short int x_inc, short int y_inc) {
+void stage_select::move_highlight(Uint8 x_inc, Uint8 y_inc) {
 	graphLib.copyArea(highlight_pos, &s_dark, &graphLib.gameScreen);
 	highlight_pos.x += x_inc;
 	highlight_pos.y += y_inc;
@@ -112,7 +112,7 @@ void stage_select::animate_highlight() {
 	}
 }
 
-void stage_select::draw_eyes(int x, int y, bool erase_eyes) {
+void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 	int posX, posY;
 	if (x == 1) {
 		posX = 11;

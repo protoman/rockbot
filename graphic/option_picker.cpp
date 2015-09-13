@@ -29,7 +29,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<std:
 	draw();
 }
 
-int option_picker::pick()
+Sint8 option_picker::pick()
 {
     bool finished = false;
     input.clean();
@@ -61,9 +61,10 @@ int option_picker::pick()
         if (input.p1_input[BTN_UP]) {
                 soundManager.play_sfx(SFX_CURSOR);
 				graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
-				_pick_pos--;
-				if (_pick_pos < 0) {
+                if (_pick_pos == 0) {
 					_pick_pos = _items.size()-1;
+                } else {
+                    _pick_pos--;
                 }
 				graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
         }
@@ -85,7 +86,7 @@ int option_picker::pick()
 }
 
 
-void option_picker::set_picker_initial_pos(int pick_pos)
+void option_picker::set_picker_initial_pos(Uint8 pick_pos)
 {
     //std::cout << "set_picker_initial_pos - pos: " << pick_pos << std::endl;
 	_pick_pos = pick_pos;

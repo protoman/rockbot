@@ -223,6 +223,7 @@ void ending::boss()
 
 void ending::boss_rockbot(graphicsLib_gSurface &last_stage_bg, graphicsLib_gSurface &destrin_sprites, st_position &destrin_pos, st_position &p_pos)
 {
+    UNUSED(p_pos);
     std::string lines[3];
     dialogs dialogs_obj;
     st_rectangle destrin_frame(44, 20, 30, destrin_sprites.height);
@@ -434,6 +435,7 @@ void ending::boss_betabot(graphicsLib_gSurface &last_stage_bg, graphicsLib_gSurf
 
 void ending::boss_candybot(graphicsLib_gSurface &last_stage_bg, graphicsLib_gSurface &destrin_sprites, st_position &destrin_pos, st_position &p_pos)
 {
+    UNUSED(p_pos);
     std::string lines[3];
     dialogs dialogs_obj;
     st_rectangle destrin_frame(86, 0, 30, destrin_sprites.height);
@@ -1043,7 +1045,7 @@ void ending::credits() const
 
 
 
-void ending::boss_credits(int pos_n, short npc_id) const
+void ending::boss_credits(Uint8 pos_n, short npc_id) const
 {
     int text_x = RES_W*0.5 - 85;
     std::string botname;

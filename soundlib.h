@@ -34,14 +34,14 @@ public:
      *
      * @param sfx
      */
-    void play_sfx(int sfx);
+    void play_sfx(Uint8 sfx);
     /**
      * @brief
      *
      * @param sfx
      * @param loops
      */
-    void play_repeated_sfx(int sfx, int loops);
+    void play_repeated_sfx(Uint8 sfx, Uint8 loops);
     /**
      * @brief
      *
@@ -58,14 +58,14 @@ public:
      *
      * @return int
      */
-    int get_repeated_sfx_n() const;
+    Uint8 get_repeated_sfx_n() const;
     /**
      * @brief
      *
      * @param sfx
      * @param time
      */
-    void play_timed_sfx(int sfx, int time);
+    void play_timed_sfx(Uint8 sfx, int time);
     /**
      * @brief
      *
@@ -146,8 +146,8 @@ private:
     Mix_Chunk *sfx_list[SFX_COUNT]; /**< TODO */
     Mix_Music *music; /**< TODO */
     Mix_Music *boss_music; /**< TODO */
-    int _repeated_sfx_channel; /**< TODO */
-    int _repeated_sfx; /**< TODO */
+    Sint8 _repeated_sfx_channel; /**< TODO */
+    Uint8 _repeated_sfx; /**< TODO */
 };
 
 #endif // SOUNDLIB_H

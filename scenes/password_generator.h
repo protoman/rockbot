@@ -11,11 +11,11 @@ enum PASSWORD_BALL_COLORS {
 };
 
 struct password_matrix {
-    int value[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE];
+    Uint8 value[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE];
 
     password_matrix() {
-        for (int i=0; i<PASSWORD_GRID_SIZE; i++) {
-            for (int j=0; j<PASSWORD_GRID_SIZE; j++) {
+        for (Uint8 i=0; i<PASSWORD_GRID_SIZE; i++) {
+            for (Uint8 j=0; j<PASSWORD_GRID_SIZE; j++) {
                 value[i][j] = 0;
             }
         }

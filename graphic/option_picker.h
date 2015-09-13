@@ -26,7 +26,7 @@ public:
      *
      * @return int
      */
-    int pick();
+    Sint8 pick();
 
 
     /**
@@ -34,7 +34,7 @@ public:
      *
      * @param pick_pos
      */
-    void set_picker_initial_pos(int pick_pos);
+    void set_picker_initial_pos(Uint8 pick_pos);
     /**
      * @brief
      *
@@ -46,7 +46,7 @@ private:
     st_position _position; /**< TODO */
     std::vector<std::string> _items; /**< TODO */
     bool _draw_border; /**< TODO */
-    short _pick_pos; /**< TODO */
+    Uint8 _pick_pos; /**< TODO */
     bool _show_return;
 };
 

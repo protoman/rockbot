@@ -33,13 +33,6 @@ stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
         n++;
         _player_list.push_back(&(*it));
 	}
-	_color1_timer = 0;
-	_color2_timer = 0;
-	_color3_timer = 0;
-
-	_color1_n = 0;
-	_color2_n = 0;
-    _color3_n = 0;
 }
 
 // ********************************************************************************************** //
@@ -108,7 +101,7 @@ void stage::showAbove(int scroll_y) const
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-int stage::getMapPointLock(st_position pos)
+Uint8 stage::getMapPointLock(st_position pos)
 {
     return maps[currentMap]->getMapPointLock(pos);
 }
@@ -152,7 +145,7 @@ classMap* stage::get_current_map()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-int stage::get_current_map_number() const
+Uint8 stage::get_current_map_number() const
 {
 	return currentMap;
 }
@@ -163,7 +156,7 @@ void stage::set_current_map(int new_map_n)
 	currentMap = new_map_n;
 }
 
-short int stage::get_current_map_n() const
+Uint8 stage::get_current_map_n() const
 {
 	return currentMap;
 }
@@ -188,7 +181,7 @@ void stage::reset_current_map()
 {
 	currentMap = checkpoint.map;
     //std::cout << "STAGE::reset_current_map - currentMap: " << currentMap << std::endl;
-    if (currentMap < 0 || currentMap > PRELOAD_MAP_N) {
+    if (currentMap > PRELOAD_MAP_N) {
         return;
     }
     if (maps[currentMap] != NULL) {

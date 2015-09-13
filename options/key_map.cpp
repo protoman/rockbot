@@ -137,7 +137,7 @@ void key_map::redraw_line(short line) const
 
 
 
-int key_map::draw_config_keys() const
+Sint8 key_map::draw_config_keys() const
 {
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
@@ -174,10 +174,10 @@ int key_map::draw_config_keys() const
 
 
 
-    short selected_option = 0;
+    Sint8 selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
-    std::cout << "key_map::draw_config_keys - selected_option: " << selected_option << std::endl;
+    std::cout << "key_map::draw_config_keys - selected_option: " << (int)selected_option << std::endl;
     return selected_option;
 }
 
@@ -255,7 +255,7 @@ void key_map::config_input()
 }
 
 // if any key is duplicated in the config, reset it to default value
-void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_config_copy, int set_key, bool is_joystick)
+void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_config_copy, Uint8 set_key, bool is_joystick)
 {
     int default_keys_codes[BTN_COUNT];
     int default_button_codes[BTN_COUNT];
