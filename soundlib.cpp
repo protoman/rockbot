@@ -30,7 +30,7 @@ void soundLib::init_audio_system()
 }
 
 
-void soundLib::play_sfx(int sfx) {
+void soundLib::play_sfx(Uint8 sfx) {
 	if (game_config.sound_enabled == false) {
         return;
 	}
@@ -42,7 +42,7 @@ void soundLib::play_sfx(int sfx) {
 	}
 }
 
-void soundLib::play_repeated_sfx(int sfx, int loops) {
+void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 	if (game_config.sound_enabled == false) {
         return;
 	}
@@ -77,13 +77,13 @@ bool soundLib::is_playing_repeated_sfx() const
 	return true;
 }
 
-int soundLib::get_repeated_sfx_n() const
+Uint8 soundLib::get_repeated_sfx_n() const
 {
 	return _repeated_sfx;
 }
 
 
-void soundLib::play_timed_sfx(int sfx, int time) {
+void soundLib::play_timed_sfx(Uint8 sfx, int time) {
 	if (game_config.sound_enabled == false) {
         return;
 	}

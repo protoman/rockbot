@@ -364,18 +364,6 @@ void graphicsLib::preload()
 
 void graphicsLib::updateScreen()
 {
-    unsigned int now_timer = timer.getTimer() ;
-
-    //std::cout << "graphicsLib::updateScreen - now_timer: " << now_timer << ", " << _timer << ", total(<20): " << now_timer - _timer << std::endl;
-
-    /*
-    if (now_timer - _timer < 20) {
-        return;
-    }
-    _timer = timer.getTimer();
-    */
-
-
 	if (!game_screen) {
         std::cout << "FATAL-ERROR::updateScreen game_screen is NULL\n";
 		return;
@@ -478,7 +466,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
 	}
 }
 
-int graphicsLib::get_colorkey_n(COLOR_KEYS key)
+Uint8 graphicsLib::get_colorkey_n(COLOR_KEYS key)
 {
     return color_keys[key];
 }
@@ -953,7 +941,7 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 
 
 
-int graphicsLib::getColorNumber(int r, int g, int b) {
+Uint8 graphicsLib::getColorNumber(Uint8 r, Uint8 g, Uint8 b) {
 	return SDL_MapRGB(game_screen->format, r, g, b);
 }
 
@@ -966,7 +954,7 @@ void graphicsLib::eraseCursor(st_position pos) {
 	blank_area(pos.x, pos.y, CURSOR_SPACING, CURSOR_SPACING);
 }
 
-void graphicsLib::blink_screen(int r, int g, int b) {
+void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 	int i;
     struct graphicsLib_gSurface screen_copy;
 
@@ -1449,7 +1437,7 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
     SDL_FillRect(surface.gSurface, &dest, SDL_MapRGB(surface.gSurface->format, r, g, b));
 }
 
-void graphicsLib::set_colormap(int map_n) {
+void graphicsLib::set_colormap(Uint8 map_n) {
     // set new colormap
     reset_colormap();
 
@@ -1481,7 +1469,7 @@ void graphicsLib::reset_image_colormap(graphicsLib_gSurface &surface)
     change_surface_color(graphLib.get_colorkey_n(COLOR_KEY_CYAN), st_color(0, 255, 255), &surface);
 }
 
-void graphicsLib::show_config_bg(int position) // 0 - centered, 1 - top, 2 - bottom
+void graphicsLib::show_config_bg(Uint8 position) // 0 - centered, 1 - top, 2 - bottom
 {
 	if (position == 0) {
 		_config_menu_pos.y = (RES_H-config_menu.height)*0.5;
@@ -1498,7 +1486,7 @@ void graphicsLib::show_config_bg(int position) // 0 - centered, 1 - top, 2 - bot
 
 
 // position - 0: center, 1: top, 2: bottom
-void graphicsLib::show_dialog(int position, bool show_btn)
+void graphicsLib::show_dialog(Uint8 position, bool show_btn)
 {
 	int posX = (RES_W-dialog_surface.width)*0.5;
 	int posY;
@@ -2041,9 +2029,9 @@ void graphicsLib::change_surface_color(st_color key, st_color new_color, struct 
     update_surface_colormap(surface->gSurface, new_colormap);
 }
 
-void graphicsLib::change_surface_color(int key_n, st_color new_color, graphicsLib_gSurface *surface)
+void graphicsLib::change_surface_color(Uint8 key_n, st_color new_color, graphicsLib_gSurface *surface)
 {
-    if (key_n > COLOR_COUNT || key_n < 0) {
+    if (key_n > COLOR_COUNT) {
         return;
     }
     SDL_Color new_colormap[COLOR_COUNT];

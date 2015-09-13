@@ -65,7 +65,7 @@ public:
      * @param st_position
      * @return int
      */
-    int getMapPointLock(struct st_position);
+    Uint8 getMapPointLock(struct st_position);
 
     /**
      * @brief
@@ -132,14 +132,14 @@ public:
      *
      * @param player_n
      */
-    void show_player(short int player_n);
+    void show_player(Uint8 player_n);
     /**
      * @brief
      *
      * @param pos
      * @param player_n
      */
-    void set_player_position(st_position pos, short int player_n);
+    void set_player_position(st_position pos, Uint8 player_n);
 
     /**
      * @brief
@@ -155,34 +155,34 @@ public:
      * @param anim_type
      * @param player_n
      */
-    void set_player_anim_type(ANIM_TYPE anim_type, short int player_n);
+    void set_player_anim_type(ANIM_TYPE anim_type, Uint8 player_n);
     /**
      * @brief
      *
      * @param player_n
      * @return st_position
      */
-    st_position get_player_position(short int player_n);
+    st_position get_player_position(Uint8 player_n);
     /**
      * @brief
      *
      * @param player_n
      * @return st_size
      */
-    st_size get_player_size(short int player_n);
+    st_size get_player_size(Uint8 player_n);
     /**
      * @brief
      *
      * @param direction
      * @param player_n
      */
-    void set_player_direction(short int direction, short int player_n);
+    void set_player_direction(Uint8 direction, Uint8 player_n);
     /**
      * @brief
      *
      * @param player_n
      */
-    void player_fall(short int player_n);
+    void player_fall(Uint8 player_n);
     /**
      * @brief
      *
@@ -251,7 +251,7 @@ public:
      * @param n
      * @return classPlayer
      */
-    classPlayer* get_player(int n);
+    classPlayer* get_player(Uint8 n);
     /**
      * @brief
      *
@@ -289,7 +289,7 @@ public:
 
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
 
-    void object_teleport_boss(st_position dest_pos, int dest_map, int teleporter_id);
+    void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id);
 
     void remove_current_teleporter_from_list(); // used when player dies
 
@@ -328,13 +328,13 @@ private:
      * @param adjust_x
      * @param pObj
      */
-    void transitionScreen(short int type, short int map_n, short int adjust_x, classPlayer *pObj);
+    void transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj);
     /**
      * @brief
      *
      * @return short
      */
-    short int get_current_map() const;
+    Uint8 get_current_map() const;
     /**
      * @brief
      *
@@ -361,7 +361,7 @@ private:
 
 
 public:
-    int currentStage; /**< TODO */
+    Uint8 currentStage; /**< TODO */
     bool is_showing_boss_intro; /**< TODO */
 
 

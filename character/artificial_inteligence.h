@@ -249,7 +249,7 @@ protected:
     short _ai_chain_n;							// indicates witch one of the four AI actions is the NPC on /**< TODO */
     short _ghost_move_speed_reducer;           // some NPCs walk slowly when throught walls
     struct st_position start_point; /**< TODO */
-    int _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
+    uint _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
 
     trajectory_parabola *_trajectory_parabola;          // used for jumping to a specific point
     bool _did_shot;                                         // used to avoid shooting multiple times

@@ -228,24 +228,14 @@ void get_filepath()
     }
 #else
     char *buffer = new char[MAXPATHLEN];
-    getcwd(buffer, MAXPATHLEN);
+    char* res = getcwd(buffer, MAXPATHLEN);
+    UNUSED(res);
     if(buffer != NULL){
         FILEPATH = std::string(buffer);
     }
     FILEPATH += "/";
     delete[] buffer;
 #endif
-
-    /*
-    #ifdef ANDROID
-        FILEPATH = "/sdcard/Android/data/net.upperland.rockbot/files/";
-    #elif WII
-        FILEPATH = "sd:/apps/Rockbot/";
-        printf("MAIN #D\n");
-    #elif defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
-        FILEPATH = "mass:/PS2/Rockbot/";
-    #endif
-    */
 
     #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
         FILEPATH = "mass:/PS2/Rockbot/";

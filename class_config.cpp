@@ -45,7 +45,7 @@ void class_config::set_player_ref(classPlayer* set_player_ref)
 // column1: normal, ape,    daisie, dynamite, mummy,     spike
 // column2:         techno, mage,   seahorse, item coil, item jet
 // column3: e-tank, w-tank *(must be changed, as currently are two rows)
-void class_config::move_cursor(int x_inc, int y_inc) {
+void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 	// left/right: if position exists, just move. if not then go to first item in nexct column or stays in place
 	bool moved = false;
     st_position res;
@@ -434,7 +434,7 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
 }
 
 
-int class_config::find_next_weapon(int current, int move) const
+Uint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
 {
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end

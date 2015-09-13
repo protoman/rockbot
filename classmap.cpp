@@ -857,11 +857,6 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
                 continue;
             }
 
-            if (temp_obj.get_type() == -1) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #3" << std::endl;
-                continue;
-            }
-
             if (temp_obj.finished() == true) {
                 continue;
             }
@@ -1508,7 +1503,7 @@ std::vector<object*> classMap::check_collision_with_objects(st_rectangle collisi
     std::vector<object>::iterator object_it;
 
     //std::cout << "### MAP::check_collision_with_objects::START ###" << std::endl;
-    for (int i=0; i<object_list.size(); i++) {
+    for (uint i=0; i<object_list.size(); i++) {
         object* temp_obj = &object_list.at(i);
         colision_detection rect_colision_obj;
         bool res_collision = rect_colision_obj.rect_overlap(temp_obj->get_area(), collision_area);

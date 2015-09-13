@@ -36,7 +36,7 @@ extern game gameControl;
 
 
 // constructor for map_object
-object::object(int set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, int map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
+object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
 {
 	map = set_map;
 	_id = set_id;
@@ -929,11 +929,6 @@ void object::move(bool paused)
                     }
                 }
                 _timer_limit = timer.getTimer() + FRAMETIMER_DEATHRAY;
-                // checa por colisão
-                int px = (position.x - _state*TILESIZE) / TILESIZE;
-                if (direction == ANIM_DIRECTION_RIGHT) {
-                    px = (position.x + _state*TILESIZE) / TILESIZE;
-                }
             }
         }
     } else if (type == OBJ_TRACK_PLATFORM) {
@@ -1061,12 +1056,12 @@ st_size object::get_size()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-short int object::get_type() const
+Uint8 object::get_type() const
 {
     return type;
 }
 
-short object::get_id() const
+Uint8 object::get_id() const
 {
     return _id;
 }
@@ -1074,7 +1069,7 @@ short object::get_id() const
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-int object::get_direction() const
+Uint8 object::get_direction() const
 {
 	return direction;
 }
@@ -1225,17 +1220,17 @@ st_position object::get_boss_teleporter_dest()
     return _boss_teleporter_dest;
 }
 
-int object::get_boss_teleport_map_dest()
+Uint8 object::get_boss_teleport_map_dest()
 {
     return _boss_teleporter_map_dest;
 }
 
-int object::get_obj_map_id()
+Uint8 object::get_obj_map_id()
 {
     return _obj_map_id;
 }
 
-void object::set_obj_map_id(int id)
+void object::set_obj_map_id(Uint8 id)
 {
     _obj_map_id = id;
 }

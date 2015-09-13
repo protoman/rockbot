@@ -22,8 +22,8 @@ enum e_object_teleport_states {
 class object
 {
 public:
-	//object(int id, struct format_v_2_1::file_object temp_obj); // game object constructor
-    object(int _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, int map_dest); // map object constructor
+    //object(Uint8 id, struct format_v_2_1::file_object temp_obj); // game object constructor
+    object(Uint8 _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest); // map object constructor
     ~object();
     /**
      * @brief
@@ -82,17 +82,17 @@ public:
      *
      * @return short
      */
-    short int get_type() const;
+    Uint8 get_type() const;
 
 
-    short int get_id() const;
+    Uint8 get_id() const;
 
     /**
      * @brief
      *
      * @return int
      */
-    int get_direction() const;
+    Uint8 get_direction() const;
     /**
      * @brief
      *
@@ -223,11 +223,11 @@ public:
 
     st_position get_boss_teleporter_dest();
 
-    int get_boss_teleport_map_dest();
+    Uint8 get_boss_teleport_map_dest();
 
-    int get_obj_map_id();
+    Uint8 get_obj_map_id();
 
-    void set_obj_map_id(int id);
+    void set_obj_map_id(Uint8 id);
 
 
 private:
@@ -261,26 +261,26 @@ private:
 
 
 private:
-    unsigned int _id;
+    Uint8 _id;
     std::string name;
     std::string graphic_filename;												// graphic file used on it
-    short int type;
+    Uint8 type;
     unsigned int obj_timer;														// used as time for disapearing block
     unsigned int _obj_frame_timer;
     int speed;																	// used as speed for moving platform
     int limit;																	// used as range (pixels) for moving platform, visible time for disapearing block
-    int direction;																// used to check if moving away from oiginalpoint or moving to it
+    Uint8 direction;																// used to check if moving away from oiginalpoint or moving to it
     int distance;
     int framesize_w;
     int framesize_h;
-    int frame;																	// indicates what is the used frame
+    Uint8 frame;																	// indicates what is the used frame
     struct st_position start_point;
     struct st_position position;
     classMap *map;																// reference to the map this object is in
     bool _started;																// some object types will only start to act/move after player interaction
     unsigned int _start_timer;                                                           // holds the time of the activation (used for initial delay)
     bool _finished;																// indicates to map->show() that the object must be deleted
-    short _state;
+    Sint8 _state;
     unsigned int _duration;
     unsigned int _timer_limit;
     bool _command_up;
@@ -291,10 +291,10 @@ private:
     enum colision_modes _colision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
     bool _must_teleport_in;                                                     // if set, the object will teleport in when added and out when finished
-    int _teleport_state;                                                        // used to control when start/finish the teleport
+    Uint8 _teleport_state;                                                        // used to control when start/finish the teleport
     st_position _boss_teleporter_dest;
-    int _boss_teleporter_map_dest;
-    int _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
+    Uint8 _boss_teleporter_map_dest;
+    Uint8 _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
     bool _expanding;
     int _size;
 };

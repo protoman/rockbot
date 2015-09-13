@@ -70,7 +70,7 @@ public:
     void updateScreen();
 
 
-    int get_colorkey_n(COLOR_KEYS key);
+    Uint8 get_colorkey_n(COLOR_KEYS key);
 
     /**
      * @brief
@@ -264,7 +264,7 @@ public:
      * @param b
      * @return int
      */
-    int getColorNumber(int r, int g, int b);
+    Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
     /**
      * @brief
      *
@@ -284,7 +284,7 @@ public:
      * @param g
      * @param b
      */
-    void blink_screen(int r, int g, int b);
+    void blink_screen(Uint8 r, Uint8 g, Uint8 b);
     /**
      * @brief
      *
@@ -411,7 +411,7 @@ public:
      *
      * @param map_n
      */
-    void set_colormap(int map_n);
+    void set_colormap(Uint8 map_n);
 
     void execute_colorcycle();
 
@@ -429,7 +429,7 @@ public:
      *
      * @param position
      */
-    void show_config_bg(int position);
+    void show_config_bg(Uint8 position);
     /**
      * @brief
      *
@@ -444,7 +444,7 @@ public:
      * @param position
      * @param show_btn
      */
-    void show_dialog(int position, bool show_btn=false);
+    void show_dialog(Uint8 position, bool show_btn=false);
     /**
      * @brief
      *
@@ -473,7 +473,7 @@ public:
      * @param new_color
      * @param surface
      */
-    void change_surface_color(int key_n, st_color new_color, struct graphicsLib_gSurface* surface);
+    void change_surface_color(Uint8 key_n, st_color new_color, struct graphicsLib_gSurface* surface);
     /**
      * @brief
      *
@@ -727,7 +727,7 @@ private:
     SDL_Color colormap_original[COLOR_COUNT]; /**< TODO */
     SDL_Color colormap_white[COLOR_COUNT]; /**< TODO */
     class_colorcycle colorcycle_manager; /**< TODO */
-    unsigned int color_keys[3]; /**< TODO */
+    Uint8 color_keys[3]; /**< TODO */
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES; /**< TODO */
 	// TODO: free those pointers
     TTF_Font *font; /**< TODO */
@@ -761,7 +761,7 @@ private:
     int _debug_msg_pos; /**< TODO */
     st_position _screen_resolution_adjust; /**< TODO */
     bool _must_set_colors;
-    short int _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
+    Uint8 _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
     long _timer;
 
 

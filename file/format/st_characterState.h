@@ -15,7 +15,7 @@
  */
 struct st_characterState {
     int hit_timer; /**< TODO */
-    int direction; /**< TODO */
+    Uint8 direction; /**< TODO */
     std::vector<struct st_projectile> projectile_list; /**< TODO */
     struct st_teleporter *last_used_teleporter; /**< TODO */
     int jump_timer; // used to control time of jump /**< TODO */

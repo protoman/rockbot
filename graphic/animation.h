@@ -46,8 +46,8 @@ private:
     Uint8 _executed_times; /**< holds the number of times the whole frames were shown. if greater or equals to _repeat_times, set is_finished to true */
     int _frame_time; /**< TODO */
     bool _finished; /**< TODO */
-    int _frames_number; /**< TODO */
-    int _direction; /**< TODO */
+    Uint8 _frames_number; /**< TODO */
+    Uint8 _direction; /**< TODO */
     st_size _framesize; /**< TODO */
 
     Uint8 _current_frame; /**< TODO */
@@ -65,11 +65,11 @@ public:
     void set_position(st_position new_pos);
 
 private:
-    int _repeat_times;
+    Uint8 _repeat_times;
     int _delay;
     int _width;
     int _timer;
-    int _max_frames;
+    Uint8 _max_frames;
     Uint8 _frame_n;
     st_position _pos;
     graphicsLib_gSurface _surface;

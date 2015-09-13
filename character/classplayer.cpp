@@ -693,7 +693,7 @@ void classPlayer::execute_projectiles()
             std::vector<object*> res_obj = map->check_collision_with_objects((*it).get_area());
             if (res_obj.size() > 0) {
                 //std::cout << "PLAYER::execute_projectiles - Found objects (" << res_obj.size() << ") that collides with bomb!" << std::endl;
-                for (int i=0; i<res_obj.size(); i++) {
+                for (uint i=0; i<res_obj.size(); i++) {
                     object* temp_obj = res_obj.at(i);
                     //std::cout << "PLAYER::execute_projectiles - OBJ[" << temp_obj->get_name() << "].type: " << temp_obj->get_type() << ", OBJ_DESTRUCTIBLE_WALL: " << OBJ_DESTRUCTIBLE_WALL << std::endl;
                     if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WALL) {

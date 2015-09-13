@@ -130,7 +130,7 @@ bool class_colorcycle::have_colorcycle(unsigned int map_key)
     return (colorcycle_map.count(map_key) > 0);
 }
 
-void class_colorcycle::set_color_key_number(unsigned int map_key, int color_number)
+void class_colorcycle::set_color_key_number(Uint8 map_key, Uint8 color_number)
 {
     color_keys[map_key] = color_number;
 }

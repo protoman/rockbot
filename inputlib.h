@@ -62,8 +62,8 @@ protected:
 private:
 
 public:
-    int p1_input[BTN_COUNT]; /**< TODO */
-    int p2_input[BTN_COUNT]; /**< TODO */
+    Uint8 p1_input[BTN_COUNT]; /**< TODO */
+    Uint8 p2_input[BTN_COUNT]; /**< TODO */
 
 
 private:
