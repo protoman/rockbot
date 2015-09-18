@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     }
 
     sceneShow show;
-    //show.show_image(0);
+    show.show_image(0);
     show.show_text(0);
 
 
