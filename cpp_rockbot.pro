@@ -304,7 +304,8 @@ SOURCES += main.cpp \
     character/movement/jump.cpp \
     character/movement/inertia.cpp \
     scenes/password_generator.cpp \
-    file/fio_scenes.cpp
+    file/fio_scenes.cpp \
+    scenes/sceneshow.cpp
 
 HEADERS += \
 	character/character.h \
@@ -370,7 +371,8 @@ HEADERS += \
     file/version.h \
     scenes/password_generator.h \
     file/v3/3_0_1/file_scene.h \
-    file/fio_scenes.h
+    file/fio_scenes.h \
+    scenes/sceneshow.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

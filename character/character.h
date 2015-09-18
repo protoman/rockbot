@@ -38,7 +38,7 @@ struct object_colision;
  *
  */
 struct st_spriteFrame {
-    uint delay; // time in milisseconds this frame will be shown /**< TODO */
+    unsigned int delay; // time in milisseconds this frame will be shown /**< TODO */
     graphicsLib_gSurface frameSurface; /**< TODO */
 	st_spriteFrame() {
 		frameSurface.gSurface = NULL;

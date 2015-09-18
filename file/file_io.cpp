@@ -86,7 +86,7 @@ namespace format_v_2_1_1 {
             std::fflush(stdout);
             exit(-1);
         }
-        uint res = fread(&stages_data_out, sizeof(format_v_2_1_1::file_stages), 1, fp);
+        unsigned int res = fread(&stages_data_out, sizeof(format_v_2_1_1::file_stages), 1, fp);
         UNUSED(res);
         fclose(fp);
     }
@@ -191,7 +191,7 @@ namespace format_v_2_1_2 {
             std::fflush(stdout);
             exit(-1);
         }
-        uint res = fread(&stages_data_out, sizeof(format_v_2_1_2::file_stages), 1, fp);
+        unsigned int res = fread(&stages_data_out, sizeof(format_v_2_1_2::file_stages), 1, fp);
         UNUSED(res);
         fclose(fp);
     }
@@ -815,7 +815,7 @@ namespace format_v_3_0_0 {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        uint var_size = sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX;
+        unsigned int var_size = sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX;
         if (fread(&data_out.stage_face_filename, var_size, 1, fp)  != var_size) {
             std::cout << ">>file_io::read_game - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             exit(-1);
@@ -1297,7 +1297,7 @@ namespace format_v_3_0_0 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (uint i=0; i<scene_sequence.size(); i++) {
+        for (unsigned int i=0; i<scene_sequence.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct format_v_3_0_0::file_scene_sequence));
         }
         fp.close();
@@ -1330,7 +1330,7 @@ namespace format_v_3_0_0 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (uint i=0; i<scenes.size(); i++) {
+        for (unsigned int i=0; i<scenes.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct format_v_3_0_0::file_scene));
         }
         fp.close();
@@ -1567,11 +1567,11 @@ namespace format_v_3_0_1 {
         }
 
 
-        if (uint res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
+        if (unsigned int res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
             std::cout << ">>file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
             //exit(-1);
         }
-        if (uint res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
+        if (unsigned int res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
             std::cout << ">>file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             exit(-1);
         }
@@ -1583,7 +1583,7 @@ namespace format_v_3_0_1 {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (uint res = fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
+        if (unsigned int res = fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
             std::cout << ">>file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
@@ -2066,7 +2066,7 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (uint i=0; i<scene_sequence.size(); i++) {
+        for (unsigned int i=0; i<scene_sequence.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct format_v_3_0_1::file_scene_sequence));
         }
         fp.close();
@@ -2099,7 +2099,7 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (uint i=0; i<scenes.size(); i++) {
+        for (unsigned int i=0; i<scenes.size(); i++) {
             fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct format_v_3_0_1::file_scene));
         }
         fp.close();

@@ -22,6 +22,7 @@ private slots:
     void on_actionSave_triggered();
 
     void on_pushButton_clicked();
+    void on_play_state_changed(bool state);
 
 private:
     Ui::SceneEditorWindow *ui;

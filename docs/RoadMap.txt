@@ -66,6 +66,12 @@ The other issue was also in ape mans stage. He jumped at me and got stuck in the
 Would you like me to take a look St the code and see if I can find the issue that would be causing the floor glitch?
 ***************************
 
+--------------------------
+VERSION 1.1.3 (improvements)
+--------------------------
+- check how to create apps in Android that add stages or complete games that user can install and select
+- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
+
 
 --------------------------
 VERSION 1.1.3 (improvements)

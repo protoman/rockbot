@@ -15,6 +15,8 @@ extern game gameControl;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
+extern bool leave_game;
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -99,7 +101,7 @@ void inputLib::readInput()
             if (event.type == SDL_QUIT) {
                 std::cout << "LEAVE #1" << std::endl;
                 std::fflush(stdout);
-                gameControl.leave_game();
+                leave_game = true;
             }
 #endif
         }
@@ -274,7 +276,7 @@ int inputLib::waitScapeTime(int wait_period) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #2" << std::endl;
             std::fflush(stdout);
-            gameControl.leave_game();
+            leave_game = true;
 #endif
 		}
 		now_time = timer.getTimer();

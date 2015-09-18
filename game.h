@@ -99,7 +99,6 @@ public:
     void leave_stage();
 
 
-    void leave_game();
 
     /**
      * @brief
@@ -296,6 +295,10 @@ public:
 
 
 private:
+    void leave_game();
+
+
+
     /**
      * @brief
      *

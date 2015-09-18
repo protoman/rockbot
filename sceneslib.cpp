@@ -2,6 +2,7 @@
 #include "sceneslib.h"
 #include "soundlib.h"
 #include "scenes/password_generator.h"
+#include "file/fio_scenes.h"
 
 extern string FILEPATH;
 extern soundLib soundManager;
@@ -41,6 +42,7 @@ extern timerLib timer;
 
 extern bool have_save;
 
+extern bool leave_game;
 
 #define TIME_SHORT 120
 #define TIME_LONG 300
@@ -523,7 +525,7 @@ void scenesLib::main_screen()
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #5" << std::endl;
             std::fflush(stdout);
-            gameControl.leave_game();
+            leave_game = true;
             return;
 #endif
         } else if (picked_n == 0) { // NEW GAME
@@ -1433,7 +1435,7 @@ Uint8 scenesLib::select_player() {
         } else if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
             x = !x;
         } else if (input.p1_input[BTN_QUIT] == 1 || input.p2_input[BTN_QUIT] == 1) {
-            gameControl.leave_game();
+            leave_game = true;
         } else if (input.p1_input[BTN_START] == 1 || input.p2_input[BTN_START] == 1) {
             input.clean();
             draw_lib.update_screen();
@@ -1574,7 +1576,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         std::string str = &botname.at(i);
         std::locale settings;
         std::string boss_name;
-        for(uint i = 0; i < str.size(); ++i) {
+        for(unsigned int i = 0; i < str.size(); ++i) {
             boss_name += (std::toupper(str[i], settings));
         }
 
@@ -1600,6 +1602,7 @@ void scenesLib::draw_castle_path(bool vertical_first, st_position initial_point,
     graphLib.draw_path(initial_point, middle_point, total_duration/2);
     graphLib.draw_path(middle_point, final_point, total_duration/2);
 }
+
 
 void scenesLib::show_destrin_ship_intro() const
 {
