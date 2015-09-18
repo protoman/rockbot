@@ -50,12 +50,18 @@ namespace format_v_3_0_1 {
         int y;
         int w;
         int h;
+        int r;
+        int g;
+        int b;
 
         file_scene_clear_area() {
             x = 0;
             y = 0;
             w = 0;
             h = 0;
+            r = 0;
+            g = 0;
+            b = 0;
         }
     };
 

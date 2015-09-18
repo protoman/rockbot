@@ -230,7 +230,7 @@ void soundLib::load_music(std::string music_file) {
 
 	unload_music();
 	filename = FILEPATH + "data/music/" + music_file;
-    //std::cout << "soundLib::load_music - filename: " << filename << std::endl;
+    std::cout << "soundLib::load_music - filename: " << filename << std::endl;
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
@@ -343,6 +343,14 @@ void soundLib::disable_sound() const
 void soundLib::enable_sound()
 {
 	game_config.sound_enabled = true;
-	play_music();
+    play_music();
+}
+
+void soundLib::play_sfx_from_file(string filename, int repeat_n)
+{
+    filename = FILEPATH + "data/sfx/" + filename;
+    Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    Sint8 channel = Mix_PlayChannel(-1, sfx, repeat_n-1);
+
 }
 

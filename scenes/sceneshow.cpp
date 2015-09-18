@@ -1,7 +1,9 @@
 #include "sceneshow.h"
 
 extern std::string FILEPATH;
-//extern soundLib soundManager;
+
+#include "soundlib.h"
+extern soundLib soundManager;
 
 #include "graphicslib.h"
 extern graphicsLib graphLib;
@@ -85,7 +87,6 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
         y += speed_y;
         total_dist--;
     }
-    input.wait_keypress();
 }
 
 
@@ -103,10 +104,47 @@ void sceneShow::show_text(int n)
     run_text(test);
 }
 
+void sceneShow::clear_area(int n)
+{
+    std::vector<CURRENT_FILE_FORMAT::file_scene_clear_area> text_list = fio_scn.load_scenes_clear_area();
+
+    CURRENT_FILE_FORMAT::file_scene_clear_area test;
+    test.x = 30;
+    test.y = 30;
+    test.w = 50;
+    test.h = 20;
+
+    test.r = 120;
+
+    graphLib.clear_area(test.x, test.y, test.w, test.h, test.r, test.g, test.b);
+    graphLib.updateScreen();
+}
+
+void sceneShow::play_sfx(int n)
+{
+    std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> text_list = fio_scn.load_scenes_play_sfx();
+
+    CURRENT_FILE_FORMAT::file_scene_play_sfx test;
+    sprintf(test.filename, "%s", "shoryuken_girl.wav");
+    test.repeat_times = 2;
+    soundManager.play_sfx_from_file(test.filename, test.repeat_times);
+
+}
+
+void sceneShow::play_music(int n)
+{
+    std::vector<CURRENT_FILE_FORMAT::file_scene_play_music> text_list = fio_scn.load_scenes_play_music();
+
+    CURRENT_FILE_FORMAT::file_scene_play_music test;
+    sprintf(test.filename, "%s", "train.mod");
+
+    soundManager.stop_music();
+    soundManager.load_music(test.filename);
+    soundManager.play_music();
+}
+
 void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 {
-    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.updateScreen();
     timer.delay(500);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         std::string line = std::string(text.text_lines[i]);
@@ -115,6 +153,5 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
         }
         graphLib.draw_progressive_text(text.x, text.y+(10*i), line, false);
     }
-    input.wait_keypress();
 }
 

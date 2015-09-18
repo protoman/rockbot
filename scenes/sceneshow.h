@@ -13,6 +13,9 @@ public:
     void show_scene(int n);
     void show_image(int n);
     void show_text(int n);
+    void clear_area(int n);
+    void play_sfx(int n);
+    void play_music(int n);
 
 private:
     void run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image);

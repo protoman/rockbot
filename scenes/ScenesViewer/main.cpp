@@ -72,7 +72,12 @@ int main(int argc, char *argv[])
 
     sceneShow show;
     show.show_image(0);
+    show.play_sfx(0);
+    show.clear_area(0);
+    show.play_music(0);
     show.show_text(0);
+
+    input.wait_keypress();
 
 
     return 1;
