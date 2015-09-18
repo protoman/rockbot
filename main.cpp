@@ -94,6 +94,8 @@ bool GAME_FLAGS[FLAG_COUNT];
 int default_keys_codes[BTN_COUNT]; // number indicator for the keyboard-keys
 int default_button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
 
+bool leave_game = false;
+
 
 #include "file/file_io.h"
 CURRENT_FILE_FORMAT::file_io fio;
@@ -563,7 +565,7 @@ int main(int argc, char *argv[])
         draw_lib.update_screen();
         if (input.p1_input[BTN_QUIT] == 1) {
             std::fflush(stdout);
-            gameControl.leave_game();
+            leave_game = true;
         }
         unsigned int now_ticks = timer.get_ticks();
         if (now_ticks < (1000 / FRAMES_PER_SECOND)) {

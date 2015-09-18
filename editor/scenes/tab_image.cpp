@@ -29,6 +29,7 @@ void tab_image::save_data()
     fio.save_scenes_show_image(mediator->image_list);
 }
 
+
 void tab_image::change_fields_enabled(bool state)
 {
     ui->select_comboBox->setEnabled(state);
@@ -44,6 +45,8 @@ void tab_image::change_fields_enabled(bool state)
     ui->desty_spinBox->setEnabled(state);
     ui->delay_spinBox->setEnabled(state);
 }
+
+
 
 void tab_image::fill_data()
 {
@@ -68,10 +71,41 @@ void tab_image::fill_data()
             std::cout << "DEBUG #3, value: '" << mediator->image_list.at(i).name << "'" << std::endl;
             ui->select_comboBox->addItem(QString(mediator->image_list.at(i).name));
         }
+        set_fields(0);
+
     }
     data_loading = false;
     ui->select_comboBox->setCurrentIndex(0);
 }
+
+void tab_image::set_fields(int index)
+{
+    ui->name_textEdit->setText(QString(mediator->image_list.at(index).name));
+    ui->filename_comboBox->setCurrentIndex(ui->filename_comboBox->findText(QString(mediator->image_list.at(index).filename)));
+    ui->init_x_spinBox->setValue(mediator->image_list.at(index).ini_x);
+    ui->init_y_spinBox->setValue(mediator->image_list.at(index).ini_y);
+    ui->destx_spinBox->setValue(mediator->image_list.at(index).dest_x);
+    ui->desty_spinBox->setValue(mediator->image_list.at(index).dest_y);
+    ui->delay_spinBox->setValue(mediator->image_list.at(index).move_delay);
+    ui->img_area_x->setValue(mediator->image_list.at(index).copy_area.x);
+    ui->img_area_y->setValue(mediator->image_list.at(index).copy_area.y);
+    ui->img_area_w->setValue(mediator->image_list.at(index).copy_area.w);
+    ui->img_area_h->setValue(mediator->image_list.at(index).copy_area.h);
+
+    ui->blocking_checkBox->setChecked(mediator->image_list.at(index).blocking);
+
+    ui->select_comboBox->setCurrentIndex(mediator->image_list.at(index).loop_mode);
+
+    update_preview_image(0);
+
+}
+
+void tab_image::update_preview_image(int index)
+{
+    ui->image_preview_widget->setImageFilename(QString(mediator->image_list.at(index).filename));
+    ui->image_preview_widget->repaint();
+}
+
 
 void tab_image::on_add_Button_clicked()
 {
@@ -88,19 +122,7 @@ void tab_image::on_add_Button_clicked()
 void tab_image::on_select_comboBox_currentIndexChanged(int index)
 {
     if (data_loading) { return; }
-    ui->name_textEdit->setText(QString(mediator->image_list.at(index).name));
-    ui->filename_comboBox->setCurrentIndex(ui->filename_comboBox->findText(QString(mediator->image_list.at(index).filename)));
-    ui->init_x_spinBox->setValue(mediator->image_list.at(index).ini_x);
-    ui->init_y_spinBox->setValue(mediator->image_list.at(index).ini_y);
-    ui->destx_spinBox->setValue(mediator->image_list.at(index).dest_x);
-    ui->desty_spinBox->setValue(mediator->image_list.at(index).dest_y);
-    ui->delay_spinBox->setValue(mediator->image_list.at(index).move_delay);
-    ui->img_area_x->setValue(mediator->image_list.at(index).copy_area.x);
-    ui->img_area_y->setValue(mediator->image_list.at(index).copy_area.y);
-    ui->img_area_w->setValue(mediator->image_list.at(index).copy_area.w);
-    ui->img_area_h->setValue(mediator->image_list.at(index).copy_area.h);
-
-    ui->blocking_checkBox->setChecked(mediator->image_list.at(index).blocking);
+    set_fields(index);
 }
 
 void tab_image::on_destx_spinBox_valueChanged(int arg1)
@@ -131,8 +153,7 @@ void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
     sprintf(mediator->image_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
-    ui->image_preview_widget->setImageFilename(arg1);
-    ui->image_preview_widget->repaint();
+    update_preview_image(ui->select_comboBox->currentIndex());
 }
 
 void tab_image::on_init_y_spinBox_valueChanged(int arg1)
@@ -191,4 +212,10 @@ void tab_image::change_h(int value)
     data_loading = true;
     ui->img_area_h->setValue(value);
     data_loading = false;
+}
+
+void tab_image::on_comboBox_currentIndexChanged(int index)
+{
+    if (data_loading) { return; }
+    mediator->image_list.at(ui->select_comboBox->currentIndex()).loop_mode = index;
 }

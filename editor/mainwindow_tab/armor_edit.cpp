@@ -44,21 +44,21 @@ void armor_edit::fill_armor_abilities()
     std::string legs_abilities[] = {"Double Jump", "Air-Dash", "Shoryuken"};
     std::string body_abilities[] = {"Half-Damage", "Extended Immunity", "Spikes Immune", "No Push-Back"};
 
-    for (uint i = 0; i<4; i++) {
+    for (unsigned int i = 0; i<4; i++) {
         ui->p1_arm_comboBox->addItem(arm_abilities[i].c_str());
         ui->p2_arm_comboBox->addItem(arm_abilities[i].c_str());
         ui->p3_arm_comboBox->addItem(arm_abilities[i].c_str());
         ui->p4_arm_comboBox->addItem(arm_abilities[i].c_str());
     }
 
-    for (uint i = 0; i<4; i++) {
+    for (unsigned int i = 0; i<4; i++) {
         ui->p1_body_comboBox->addItem(body_abilities[i].c_str());
         ui->p2_body_comboBox->addItem(body_abilities[i].c_str());
         ui->p3_body_comboBox->addItem(body_abilities[i].c_str());
         ui->p4_body_comboBox->addItem(body_abilities[i].c_str());
     }
 
-    for (uint i = 0; i<3; i++) {
+    for (unsigned int i = 0; i<3; i++) {
         ui->p1_legs_comboBox->addItem(legs_abilities[i].c_str());
         ui->p2_legs_comboBox->addItem(legs_abilities[i].c_str());
         ui->p3_legs_comboBox->addItem(legs_abilities[i].c_str());

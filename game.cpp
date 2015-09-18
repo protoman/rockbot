@@ -46,6 +46,8 @@ extern CURRENT_FILE_FORMAT::file_stage stage_data;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
 
+extern bool leave_game;
+
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 // ********************************************************************************************** //
@@ -104,6 +106,9 @@ void game::initGame()
 // ********************************************************************************************** //
 void game::showGame(bool can_characters_move)
 {
+    if (leave_game == true) {
+        leave_game();
+    }
     if (players.at(0).is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
         input.readInput();
     } else {
@@ -1184,7 +1189,7 @@ void game::show_ending(st_position boss_pos)
 	ending game_ending;
     game_ending.set_boss_pos(boss_pos);
 	game_ending.start();
-    leave_game();
+    leave_game = true;
 }
 
 void game::quick_load_game()

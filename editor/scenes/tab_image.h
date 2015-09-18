@@ -22,6 +22,8 @@ public:
 
 
 private slots:
+    void set_fields(int index);
+    void update_preview_image(int index);
     void on_add_Button_clicked();
 
     void on_select_comboBox_currentIndexChanged(int index);
@@ -50,6 +52,8 @@ private slots:
 
     void change_w(int value);
     void change_h(int value);
+
+    void on_comboBox_currentIndexChanged(int index);
 
 private:
     void change_fields_enabled(bool state);

@@ -32,6 +32,8 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 
+extern bool leave_game;
+
 ending::ending()
 {
 	// preload train
@@ -1039,7 +1041,7 @@ void ending::credits() const
 #ifdef PC
     std::cout << "LEAVE #4" << std::endl;
     std::fflush(stdout);
-    gameControl.leave_game();
+    leave_game = true;
 #endif
 }
 

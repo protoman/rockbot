@@ -69,6 +69,7 @@ namespace format_v_3_0_1 {
         st_scene_area copy_area;
         int move_delay;
         bool blocking;                              // to be used, if false, to run multiple scene-types in parallel. defaults to true.
+        int loop_mode;
         file_scene_show_image() {
             name[0] = '\0';
             filename[0] = '\0';
@@ -78,6 +79,7 @@ namespace format_v_3_0_1 {
             dest_y = 0;
             move_delay = 100;
             blocking = true;
+            loop_mode = 0;
         }
     };
 
@@ -148,11 +150,13 @@ namespace format_v_3_0_1 {
         e_SCENETYPE type;
         int seek_n;
         char name[FS_NAME_SIZE];
+        int delay_after;
 
         file_scene_list() {
             type = SCENETYPE_CLEAR_SCREEN;
             seek_n = -1;
             name[0] = '\0';
+            delay_after = 0;
         }
     };
 
