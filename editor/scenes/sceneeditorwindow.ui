@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_sequence">
        <attribute name="title">
@@ -35,8 +35,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>670</width>
-             <height>464</height>
+             <width>672</width>
+             <height>451</height>
             </rect>
            </property>
           </widget>
@@ -51,7 +51,7 @@
       </widget>
       <widget class="QWidget" name="tab_text">
        <attribute name="title">
-        <string>Show Text</string>
+        <string>Text</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -64,8 +64,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>670</width>
-             <height>464</height>
+             <width>672</width>
+             <height>451</height>
             </rect>
            </property>
           </widget>
@@ -75,7 +75,7 @@
       </widget>
       <widget class="QWidget" name="tab_image">
        <attribute name="title">
-        <string>Show Image</string>
+        <string>Move Image</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="0" column="0">
@@ -88,8 +88,32 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>670</width>
-             <height>464</height>
+             <width>672</width>
+             <height>451</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_viewpoint">
+       <attribute name="title">
+        <string>Move View Point</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="tabViewPoint_scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="tabViewPoint_scrollArea_contents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>672</width>
+             <height>451</height>
             </rect>
            </property>
           </widget>
@@ -112,8 +136,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>670</width>
-             <height>464</height>
+             <width>672</width>
+             <height>451</height>
             </rect>
            </property>
           </widget>
@@ -171,7 +195,7 @@
      <x>0</x>
      <y>0</y>
      <width>1051</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

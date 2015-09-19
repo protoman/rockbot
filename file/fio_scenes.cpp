@@ -39,6 +39,11 @@ namespace format_v_3_0_1 {
         return load_from_disk<file_scene_show_image>("scenes_show_image.dat");
     }
 
+    std::vector<file_scene_show_viewpoint> fio_scenes::load_scenes_show_viewpoint()
+    {
+        return load_from_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat");
+    }
+
     std::vector<file_scene_show_text> fio_scenes::load_scenes_show_text()
     {
         return load_from_disk<file_scene_show_text>("scenes_show_text.dat");
@@ -47,6 +52,11 @@ namespace format_v_3_0_1 {
     void fio_scenes::save_scenes_show_image(std::vector<file_scene_show_image> data)
     {
         save_data_to_disk<file_scene_show_image>("scenes_show_image.dat", data);
+    }
+
+    void fio_scenes::save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data)
+    {
+        save_data_to_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat", data);
     }
 
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)

@@ -2,6 +2,11 @@
 #define TEXT_H
 
 #include <QDialog>
+#include "scenes/scenesmediator.h"
+#include "../../defines.h"
+#include "../file/v3/3_0_1/file_scene.h"
+#include "../file/fio_scenes.h"
+
 
 namespace Ui {
 class TabText;
@@ -16,11 +21,22 @@ public:
     ~TabText();
 
 
+private slots:
+    void on_AddButton_clicked();
+
+    void on_positionType_currentIndexChanged(int index);
+
 private:
-    void fill_list();
+    void change_fields_enabled(bool state);
+    void change_x_y_fields_enabled();
+    void fill_data();
+    void set_fields(int index);
 
 private:
     Ui::TabText *ui;
+    CURRENT_FILE_FORMAT::fio_scenes fio;
+    bool data_loading;
+    ScenesMediator *mediator;
 };
 
 #endif // TEXT_H

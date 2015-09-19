@@ -39,7 +39,8 @@ namespace format_v_3_0_1 {
         SCENETYPE_SHOW_TEXT,
         SCENETYPE_CHANGE_COLORCYCLE,
         SCENETYPE_MOVE_IMAGE,                   // shows an image that moves from point "place" to point destiny
-        SCENETYPE_SHOW_ANIMATION                // shows an animation sequence
+        SCENETYPE_SHOW_ANIMATION,                // shows an animation sequence
+        SCENETYPE_MOVE_VIEWPOINT
     };
 
     /// @TODO - convert some int to uint8/short
@@ -89,6 +90,34 @@ namespace format_v_3_0_1 {
         }
     };
 
+
+    struct file_scene_show_viewpoint {
+        char name[FS_NAME_SIZE];
+        char filename[FS_CHAR_FILENAME_SIZE];
+        int ini_x;
+        int ini_y;
+        int dest_x;
+        int dest_y;
+        int w;
+        int h;
+        int move_delay;
+        bool blocking;                              // to be used, if false, to run multiple scene-types in parallel. defaults to true.
+        int loop_mode;
+        file_scene_show_viewpoint() {
+            name[0] = '\0';
+            filename[0] = '\0';
+            ini_x = 0;
+            ini_y = 0;
+            w = 0;
+            h = 0;
+            dest_x = 0;
+            dest_y = 0;
+            move_delay = 100;
+            blocking = true;
+            loop_mode = 0;
+        }
+    };
+
     struct file_scene_show_animation {
         char name[FS_NAME_SIZE];
         char filename[FS_CHAR_FILENAME_SIZE];
@@ -117,6 +146,7 @@ namespace format_v_3_0_1 {
         int x;
         int y;
         int transition_type; ///@TODO: convert to enum
+        int position_type;
 
         file_scene_show_text() {
             name[0] = '\0';
@@ -126,6 +156,7 @@ namespace format_v_3_0_1 {
             x = 0;
             y = 0;
             transition_type = 0;
+            position_type = 0;
         }
     };
 
