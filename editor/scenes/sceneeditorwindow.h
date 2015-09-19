@@ -5,6 +5,7 @@
 #include "scenes/sceneslist.h"
 #include "scenes/tab_text.h"
 #include "scenes/tab_image.h"
+#include "scenes/tab_viewpoint.h"
 
 namespace Ui {
 class SceneEditorWindow;
@@ -29,6 +30,7 @@ private:
     // tab elements
     TabText* text_tab;
     tab_image* image_tab;
+    tab_viewpoint* viewpoint_tab;
 
 
 };

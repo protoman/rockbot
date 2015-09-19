@@ -16,6 +16,16 @@ public:
 };
 
 namespace format_v_3_0_1 {
+    enum e_text_position_type {
+        text_position_type_dialogbottom,
+        text_position_type_dialogtop,
+        text_position_type_centered,
+        text_position_type_center_x,
+        text_position_type_center_y,
+        text_position_type_user_defined
+    };
+
+
     class fio_scenes
     {
     public:
@@ -26,9 +36,11 @@ namespace format_v_3_0_1 {
         std::vector<file_scene_play_sfx> load_scenes_play_sfx();
         std::vector<file_scene_show_animation> load_scenes_show_animation();
         std::vector<file_scene_show_image> load_scenes_show_image();
+        std::vector<file_scene_show_viewpoint> load_scenes_show_viewpoint();
         std::vector<file_scene_show_text> load_scenes_show_text();
 
-        void save_scenes_show_image(std::vector<file_scene_show_image>);
+        void save_scenes_show_image(std::vector<file_scene_show_image> data);
+        void save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data);
 
 
     private:

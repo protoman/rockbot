@@ -89,7 +89,8 @@ SOURCES += main.cpp \
     ../file/fio_scenes.cpp \
     scenes/imageareapreview.cpp \
     scenes/scenepreviewarea.cpp \
-    scenes/scenesmediator.cpp
+    scenes/scenesmediator.cpp \
+    scenes/tab_viewpoint.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -140,7 +141,8 @@ HEADERS += mainwindow.h \
     scenes/tab_image.h \
     scenes/imageareapreview.h \
     scenes/scenepreviewarea.h \
-    scenes/scenesmediator.h
+    scenes/scenesmediator.h \
+    scenes/tab_viewpoint.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -164,7 +166,8 @@ FORMS += mainwindow.ui \
     scenes/tab_text.ui \
     mainwindow_tab/armor_edit.ui \
     aboutwindow.ui \
-    scenes/tab_image.ui
+    scenes/tab_image.ui \
+    scenes/tab_viewpoint.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

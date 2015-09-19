@@ -156,17 +156,18 @@ void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
     update_preview_image(ui->select_comboBox->currentIndex());
 }
 
-void tab_image::on_init_y_spinBox_valueChanged(int arg1)
+void tab_image::on_init_x_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
     mediator->image_list.at(ui->select_comboBox->currentIndex()).ini_x = arg1;
 }
 
-void tab_image::on_init_x_spinBox_valueChanged(int arg1)
+void tab_image::on_init_y_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
     mediator->image_list.at(ui->select_comboBox->currentIndex()).ini_y = arg1;
 }
+
 
 void tab_image::on_img_area_x_valueChanged(int arg1)
 {

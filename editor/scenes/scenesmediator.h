@@ -12,6 +12,8 @@ public:
 
 public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> image_list;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_viewpoint> viewpoint_list;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_text> text_list;
 
 private:
     static ScenesMediator*_instance;
