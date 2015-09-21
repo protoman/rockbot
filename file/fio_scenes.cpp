@@ -59,6 +59,16 @@ namespace format_v_3_0_1 {
         save_data_to_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat", data);
     }
 
+    void fio_scenes::save_scenes_show_text(std::vector<file_scene_show_text> data)
+    {
+        save_data_to_disk<file_scene_show_text>("scenes_show_text.dat", data);
+    }
+
+    void fio_scenes::save_scenes(std::vector<file_scene_list> data)
+    {
+        save_data_to_disk<file_scene_list>("scenes_list.dat", data);
+    }
+
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)
     {
         std::string filename = std::string(FILEPATH) + "data/scenes/" + file;

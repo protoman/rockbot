@@ -80,6 +80,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->armorScrollArea->setWidget(armor_edit_tab);
 
     scenes_window = NULL;
+
+    // DEBUG
+    scenes_window = new SceneEditorWindow();
+    scenes_window->show();
+    // DEBUG
 }
 
 MainWindow::~MainWindow()

@@ -14,6 +14,7 @@ public:
     void show_image(int n);
     void show_text(int n);
     void clear_area(int n);
+    void clear_screen();
     void play_sfx(int n);
     void play_music(int n);
 

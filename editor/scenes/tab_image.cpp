@@ -2,6 +2,7 @@
 #include "ui_tab_image.h"
 #include "common.h"
 
+
 tab_image::tab_image(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::tab_image)

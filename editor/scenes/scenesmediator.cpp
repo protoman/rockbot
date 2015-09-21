@@ -4,7 +4,7 @@ ScenesMediator* ScenesMediator::_instance = NULL;
 
 ScenesMediator::ScenesMediator()
 {
-
+    selected_scene = 0;
 }
 
 ScenesMediator *ScenesMediator::get_instance()
