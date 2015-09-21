@@ -2,10 +2,11 @@
 #define SCENEEDITORWINDOW_H
 
 #include <QMainWindow>
-#include "scenes/sceneslist.h"
+#include "scenes/tab_scenelist.h"
 #include "scenes/tab_text.h"
 #include "scenes/tab_image.h"
 #include "scenes/tab_viewpoint.h"
+#include "scenes/tab_scenelist.h"
 
 namespace Ui {
 class SceneEditorWindow;
@@ -22,15 +23,13 @@ public:
 private slots:
     void on_actionSave_triggered();
 
-    void on_pushButton_clicked();
-    void on_play_state_changed(bool state);
-
 private:
     Ui::SceneEditorWindow *ui;
     // tab elements
     TabText* text_tab;
     tab_image* image_tab;
     tab_viewpoint* viewpoint_tab;
+    TabScenelist* scenes_tab;
 
 
 };

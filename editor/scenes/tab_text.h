@@ -19,12 +19,27 @@ class TabText : public QDialog
 public:
     explicit TabText(QWidget *parent = 0);
     ~TabText();
+    void save_data();
 
 
 private slots:
     void on_AddButton_clicked();
 
     void on_positionType_currentIndexChanged(int index);
+
+    void on_lineEdit1_textChanged(const QString &arg1);
+
+    void on_lineEdit2_textChanged(const QString &arg1);
+
+    void on_lineEdit3_textChanged(const QString &arg1);
+
+    void on_lineEdit4_textChanged(const QString &arg1);
+
+    void on_lineEdit5_textChanged(const QString &arg1);
+
+    void on_lineEdit6_textChanged(const QString &arg1);
+
+    void on_select_comboBox_currentIndexChanged(int index);
 
 private:
     void change_fields_enabled(bool state);

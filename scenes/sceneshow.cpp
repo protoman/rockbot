@@ -120,6 +120,12 @@ void sceneShow::clear_area(int n)
     graphLib.updateScreen();
 }
 
+void sceneShow::clear_screen()
+{
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    graphLib.updateScreen();
+}
+
 void sceneShow::play_sfx(int n)
 {
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> text_list = fio_scn.load_scenes_play_sfx();
@@ -145,13 +151,53 @@ void sceneShow::play_music(int n)
 
 void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 {
-    timer.delay(500);
+
+    int lines_n = 0;
+    int max_line_w = 0;
+    for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
+        std::string line = std::string(text.text_lines[i]);
+        if (line.size() > 0) {
+            if (line.size() > max_line_w) {
+                max_line_w = line.size();
+            }
+            lines_n++;
+        }
+    }
+
+    int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
+    int center_y = (RES_H * 0.5) - (lines_n * (LINE_H_DIFF * 0.5));
+    int pos_x = 0;
+    int pos_y = 0;
+
+    if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogbottom) {
+        pos_x = 10;
+        pos_y = 140;
+    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogtop) {
+        pos_x = 10;
+        pos_y = 10;
+    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_centered) {
+        pos_x = center_x;
+        pos_y = center_y;
+
+    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_center_x) {
+        pos_x = center_x;
+        pos_y = text.y;
+
+    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_center_y) {
+        pos_x = text.x;
+        pos_y = center_y;
+
+    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_user_defined) {
+        pos_x = text.x;
+        pos_y = text.y;
+    }
+
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         std::string line = std::string(text.text_lines[i]);
         if (line.length() < 1) {
             break;
         }
-        graphLib.draw_progressive_text(text.x, text.y+(10*i), line, false);
+        graphLib.draw_progressive_text(pos_x, pos_y+(LINE_H_DIFF*i), line, false);
     }
 }
 

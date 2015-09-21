@@ -79,7 +79,6 @@ SOURCES += main.cpp \
     stage_swap_dialog.cpp \
     mainwindow_tab/player_edit.cpp \
     scenes/sceneeditorwindow.cpp \
-    scenes/sceneslist.cpp \
     scenes/tab_text.cpp \
     mainwindow_tab/animtitle.cpp \
     mainwindow_tab/armor_edit.cpp \
@@ -88,9 +87,11 @@ SOURCES += main.cpp \
     scenes/tab_image.cpp \
     ../file/fio_scenes.cpp \
     scenes/imageareapreview.cpp \
-    scenes/scenepreviewarea.cpp \
     scenes/scenesmediator.cpp \
-    scenes/tab_viewpoint.cpp
+    scenes/tab_viewpoint.cpp \
+    scenes/textpreviewarea.cpp \
+    scenes/tab_scenelist.cpp \
+    scenes/model/objectlistmodel.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -124,7 +125,6 @@ HEADERS += mainwindow.h \
     stage_swap_dialog.h \
     mainwindow_tab/player_edit.h \
     scenes/sceneeditorwindow.h \
-    scenes/sceneslist.h \
     scenes/tab_text.h \
     mainwindow_tab/animtitle.h \
     mainwindow_tab/armor_edit.h \
@@ -140,9 +140,11 @@ HEADERS += mainwindow.h \
     ../tools/tinyxml2/tinyxml2.h \
     scenes/tab_image.h \
     scenes/imageareapreview.h \
-    scenes/scenepreviewarea.h \
     scenes/scenesmediator.h \
-    scenes/tab_viewpoint.h
+    scenes/tab_viewpoint.h \
+    scenes/textpreviewarea.h \
+    scenes/tab_scenelist.h \
+    scenes/model/objectlistmodel.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -162,12 +164,12 @@ FORMS += mainwindow.ui \
     stage_swap_dialog.ui \
     mainwindow_tab/player_edit.ui \
     scenes/sceneeditorwindow.ui \
-    scenes/sceneslist.ui \
     scenes/tab_text.ui \
     mainwindow_tab/armor_edit.ui \
     aboutwindow.ui \
     scenes/tab_image.ui \
-    scenes/tab_viewpoint.ui
+    scenes/tab_viewpoint.ui \
+    scenes/tab_scenelist.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

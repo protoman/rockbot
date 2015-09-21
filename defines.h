@@ -835,7 +835,7 @@ enum e_ARMOR_ABILITIES_BODY {
 #define EDITMODE_STAIRS 8
 #define EDITMODE_OBJECT 9
 
-
+#define LINE_H_DIFF 15
 
 #endif // DEFINES_H
 

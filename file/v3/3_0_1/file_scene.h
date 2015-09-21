@@ -6,6 +6,7 @@
 #include "file/format/st_common.h"
 
 #define SCENE_TEXT_LINES_N 6
+#define SCENE_OBJECTS_N 20
 
 namespace format_v_3_0_1 {
 
@@ -31,16 +32,26 @@ namespace format_v_3_0_1 {
     enum e_SCENETYPE {
         SCENETYPE_CLEAR_SCREEN,
         SCENETYPE_CLEAR_AREA,
-        SCENETYPE_SHOW_IMAGE,
+        SCENETYPE_MOVE_IMAGE,                   // shows an image that moves from point "place" to point destiny
+        SCENETYPE_MOVE_VIEWPOINT,
+        SCENETYPE_SHOW_ANIMATION,                // shows an animation sequence
         SCENETYPE_PLAY_SFX,
         SCENETYPE_PLAY_MUSIC,
         SCENETYPE_STOP_MUSIC,
-        SCENETYPE_REPEAT_SCROLLBG,              // keeps scrolling a background (like ninja gaiden's opening's grass)
         SCENETYPE_SHOW_TEXT,
-        SCENETYPE_CHANGE_COLORCYCLE,
-        SCENETYPE_MOVE_IMAGE,                   // shows an image that moves from point "place" to point destiny
-        SCENETYPE_SHOW_ANIMATION,                // shows an animation sequence
-        SCENETYPE_MOVE_VIEWPOINT
+        SCENETYPE_SUBSCENE                      // you can add another scene to the scene, to it is possible to repeat
+        //SCENETYPE_REPEAT_SCROLLBG,              // keeps scrolling a background (like ninja gaiden's opening's grass)
+        //SCENETYPE_CHANGE_COLORCYCLE,
+    };
+
+
+    enum e_text_position_type {
+        text_position_type_dialogbottom,
+        text_position_type_dialogtop,
+        text_position_type_centered,
+        text_position_type_center_x,
+        text_position_type_center_y,
+        text_position_type_user_defined
     };
 
     /// @TODO - convert some int to uint8/short
@@ -182,18 +193,37 @@ namespace format_v_3_0_1 {
         }
     };
 
-    // file_scene holds the type and a "pointer" to the entry number in file-seeker for that entry in the respective type file
-    struct file_scene_list {
-        e_SCENETYPE type;
-        int seek_n;
-        char name[FS_NAME_SIZE];
-        int delay_after;
+    enum e_scene_repeat_types {
+        scene_repeat_time,
+        scene_repeat_number
+    };
 
-        file_scene_list() {
+
+
+    // file_scene_object holds the type and a "pointer" to the entry number in file-seeker for that entry in the respective type file
+    struct file_scene_object {
+        int type;
+        int seek_n;
+        int delay_after;
+        int repeat_type;
+        int repeat_value;
+
+        file_scene_object() {
             type = SCENETYPE_CLEAR_SCREEN;
             seek_n = -1;
-            name[0] = '\0';
             delay_after = 0;
+            repeat_type = 0;
+            repeat_value = 0;
+        }
+
+    };
+
+    // header of one scene_list file
+    struct file_scene_list {
+        char name[FS_NAME_SIZE];
+        file_scene_object objects[SCENE_OBJECTS_N];
+        file_scene_list() {
+            name[0] = '\0';
         }
     };
 

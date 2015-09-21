@@ -12,11 +12,21 @@ TabText::TabText(QWidget *parent) :
     ui->setupUi(this);
 
     mediator = ScenesMediator::get_instance();
+
+    fill_data();
 }
 
 TabText::~TabText()
 {
     delete ui;
+}
+
+void TabText::save_data()
+{
+    for (int i=0; i<mediator->text_list.size(); i++) {
+        std::cout << "DEBUG #A, value: '" << mediator->text_list.at(i).name << "'" << std::endl;
+    }
+    fio.save_scenes_show_text(mediator->text_list);
 }
 
 void TabText::fill_data()
@@ -118,7 +128,68 @@ void TabText::change_x_y_fields_enabled()
 
 void TabText::on_positionType_currentIndexChanged(int index)
 {
+    if (data_loading) { return; }
     int pos = ui->select_comboBox->currentIndex();
     mediator->text_list.at(pos).position_type = index;
     change_x_y_fields_enabled();
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit1_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[0], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit2_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[1], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit3_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[2], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit4_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[3], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit5_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[4], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_lineEdit6_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[5], "%s", arg1.toStdString().c_str());
+    ui->widget->repaint();
+}
+
+void TabText::on_select_comboBox_currentIndexChanged(int index)
+{
+    data_loading = true;
+    ui->lineEdit1->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[0]);
+    ui->lineEdit2->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[1]);
+    ui->lineEdit3->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[2]);
+    ui->lineEdit4->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[3]);
+    ui->lineEdit5->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[4]);
+    ui->lineEdit6->setText(mediator->text_list.at(ui->select_comboBox->currentIndex()).text_lines[5]);
+    ui->positionType->setCurrentIndex(mediator->text_list.at(ui->select_comboBox->currentIndex()).position_type);
+    ui->textX_spinBox->setValue(mediator->text_list.at(ui->select_comboBox->currentIndex()).x);
+    ui->textY_spinBox->setValue(mediator->text_list.at(ui->select_comboBox->currentIndex()).y);
+    ui->transitionType_comboBox->setCurrentIndex(mediator->text_list.at(ui->select_comboBox->currentIndex()).transition_type);
+    change_x_y_fields_enabled();
+    data_loading = false;
 }

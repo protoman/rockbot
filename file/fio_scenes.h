@@ -16,14 +16,7 @@ public:
 };
 
 namespace format_v_3_0_1 {
-    enum e_text_position_type {
-        text_position_type_dialogbottom,
-        text_position_type_dialogtop,
-        text_position_type_centered,
-        text_position_type_center_x,
-        text_position_type_center_y,
-        text_position_type_user_defined
-    };
+
 
 
     class fio_scenes
@@ -41,6 +34,8 @@ namespace format_v_3_0_1 {
 
         void save_scenes_show_image(std::vector<file_scene_show_image> data);
         void save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data);
+        void save_scenes_show_text(std::vector<file_scene_show_text> data);
+        void save_scenes(std::vector<file_scene_list> data);
 
 
     private:
