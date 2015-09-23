@@ -295,7 +295,7 @@ public:
 
 
 private:
-    void leave_game();
+    void exit_game();
 
 
 
