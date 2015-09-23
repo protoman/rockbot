@@ -107,7 +107,7 @@ void game::initGame()
 void game::showGame(bool can_characters_move)
 {
     if (leave_game == true) {
-        leave_game();
+        exit_game();
     }
     if (players.at(0).is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
         input.readInput();
@@ -1117,7 +1117,7 @@ void game::leave_stage()
     start_stage();
 }
 
-void game::leave_game()
+void game::exit_game()
 {
     //std::cout << ">>> LEAVEGAME <<<" <<std::endl;
 
