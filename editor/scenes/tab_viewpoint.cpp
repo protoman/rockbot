@@ -27,9 +27,6 @@ tab_viewpoint::~tab_viewpoint()
 
 void tab_viewpoint::save_data()
 {
-    for (int i=0; i<mediator->viewpoint_list.size(); i++) {
-        std::cout << "DEBUG #A, value: '" << mediator->viewpoint_list.at(i).name << "'" << std::endl;
-    }
     fio.save_scenes_show_viewpoint(mediator->viewpoint_list);
 }
 
@@ -54,23 +51,15 @@ void tab_viewpoint::fill_data()
 {
     data_loading = true;
 
-    std::cout << "DEBUG #0" << std::endl;
     common::fill_files_combo("data/images/scenes", ui->filename_comboBox);
-    std::cout << "DEBUG #0.1" << std::endl;
-
     mediator->viewpoint_list = fio.load_scenes_show_viewpoint();
     int list_size = mediator->viewpoint_list.size();
-    std::cout << "list_size: " << list_size << std::endl;
-
 
     if (list_size == 0) {
-        std::cout << "DEBUG #1" << std::endl;
         change_fields_enabled(false);
     } else {
-        std::cout << "DEBUG #2" << std::endl;
         // fill
         for (int i=0; i<list_size; i++) {
-            std::cout << "DEBUG #3, value: '" << mediator->viewpoint_list.at(i).name << "'" << std::endl;
             ui->select_comboBox->addItem(QString(mediator->viewpoint_list.at(i).name));
         }
         set_fields(0);

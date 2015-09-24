@@ -1,5 +1,6 @@
 #include "tab_scenelist.h"
 #include "ui_tab_scenelist.h"
+#include "scenes/comboboxdelegate.h"
 
 TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::ScenesList), model_scenes(this)
 {
@@ -7,6 +8,12 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     mediator = ScenesMediator::get_instance();
     ui->object_listView->setModel(&model_objects);
     ui->scenes_tableView->setModel(&model_scenes);
+
+    ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
+    ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
+    ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+
     data_loading = true;
 
     mediator->scenes_list = fio.load_scenes();
@@ -117,10 +124,12 @@ void TabScenelist::on_addButton_clicked()
         if (mediator->scenes_list.at(n).objects[i].seek_n == -1) {
             mediator->scenes_list.at(n).objects[i].seek_n = seek_n;
             mediator->scenes_list.at(n).objects[i].type = ui->sceneTypeSelector->currentIndex();
-            std::cout << "ADDED at row["  << i << "]" << std::endl;
+            std::cout << "ADDED at row["  << i << "], mediator->scenes_list.size: " << (mediator->scenes_list.size()) << std::endl;
+
+            ui->scenes_tableView->setModel(&model_scenes);
+            model_scenes.update(i);
             break;
         }
     }
-    model_scenes.update();
 }
 

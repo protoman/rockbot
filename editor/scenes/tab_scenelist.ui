@@ -143,7 +143,11 @@
     <widget class="QLineEdit" name="name_lineEdit"/>
    </item>
    <item row="3" column="0">
-    <widget class="QTableView" name="scenes_tableView"/>
+    <widget class="QTableView" name="scenes_tableView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::AllEditTriggers</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

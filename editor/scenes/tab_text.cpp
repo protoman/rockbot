@@ -23,9 +23,6 @@ TabText::~TabText()
 
 void TabText::save_data()
 {
-    for (int i=0; i<mediator->text_list.size(); i++) {
-        std::cout << "DEBUG #A, value: '" << mediator->text_list.at(i).name << "'" << std::endl;
-    }
     fio.save_scenes_show_text(mediator->text_list);
 }
 
@@ -35,17 +32,12 @@ void TabText::fill_data()
 
     mediator->text_list = fio.load_scenes_show_text();
     int list_size = mediator->text_list.size();
-    std::cout << "list_size: " << list_size << std::endl;
-
 
     if (list_size == 0) {
-        std::cout << "DEBUG #1" << std::endl;
         change_fields_enabled(false);
     } else {
-        std::cout << "DEBUG #2" << std::endl;
         // fill
         for (int i=0; i<list_size; i++) {
-            std::cout << "DEBUG #3, value: '" << mediator->text_list.at(i).name << "'" << std::endl;
             ui->select_comboBox->addItem(QString(mediator->text_list.at(i).name));
         }
         set_fields(0);

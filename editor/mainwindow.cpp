@@ -81,10 +81,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     scenes_window = NULL;
 
-    // DEBUG
-    scenes_window = new SceneEditorWindow();
-    scenes_window->show();
-    // DEBUG
 }
 
 MainWindow::~MainWindow()

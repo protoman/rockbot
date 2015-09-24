@@ -71,7 +71,7 @@ namespace format_v_3_0_1 {
 
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)
     {
-        std::string filename = std::string(FILEPATH) + "data/scenes/" + file;
+        std::string filename = std::string(FILEPATH) + "/data/scenes/" + file;
         std::vector<T> res;
         FILE *fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -82,7 +82,7 @@ namespace format_v_3_0_1 {
         while (!feof(fp) && !ferror(fp)) {
             T out;
             int res_read = fread(&out, sizeof(T), 1, fp);
-            std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
+            //std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
             if (res_read == -1) {
                 std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
                 exit(-1);

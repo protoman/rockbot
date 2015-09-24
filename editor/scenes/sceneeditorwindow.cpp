@@ -30,5 +30,6 @@ void SceneEditorWindow::on_actionSave_triggered()
     image_tab->save_data();
     viewpoint_tab->save_data();
     text_tab->save_data();
+    scenes_tab->save_data();
 }
 
