@@ -20,11 +20,10 @@ class TabScenelist : public QDialog
 public:
     explicit TabScenelist(QWidget *parent = 0);
     ~TabScenelist();
-
+    void save_data();
 
 private:
     void fill_data();
-    void save_data();
     void change_fields_enabled(bool value);
 
 private slots:

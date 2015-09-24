@@ -28,15 +28,9 @@ common::~common()
 void common::fill_files_combo(std::string directory, QComboBox* combo, bool show_none)
 {
 
-    std::cout << "fill_files_combo::DEBUG #A" << std::endl;
-
     combo->clear(); // delete all previous entries
 
-    std::cout << "fill_files_combo::DEBUG #B - count: " << combo->count() << std::endl;
-
     combo->addItem(QString("")); // for "empty"
-    std::cout << "fill_files_combo::DEBUG #C" << std::endl;
-
     std::string str_filepath(FILEPATH+directory);
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
@@ -46,15 +40,11 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
         exit(-1);
     }
 
-    std::cout << "fill_files_combo::DEBUG #D" << std::endl;
-
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     dir.setSorting(QDir::Size | QDir::Reversed);
 	if (show_none == true) {
 		combo->addItem(QString("None"));
 	}
-
-    std::cout << "fill_files_combo::DEBUG #E" << std::endl;
 
     foreach (const QFileInfo &fileInfo, dir.entryInfoList()) {
         if (fileInfo.fileName().length() > 30) {

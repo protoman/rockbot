@@ -153,6 +153,12 @@ int main(int argc, char *argv[])
 
 	remove_duplicated();
 
-	w.show();
+    // --- DEBUG --- //
+    //w.show();
+    SceneEditorWindow* scenes_window = new SceneEditorWindow();
+    scenes_window->show();
+    // --- DEBUG --- //
+
+
     return a.exec();
 }

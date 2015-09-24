@@ -91,7 +91,8 @@ SOURCES += main.cpp \
     scenes/tab_viewpoint.cpp \
     scenes/textpreviewarea.cpp \
     scenes/tab_scenelist.cpp \
-    scenes/model/objectlistmodel.cpp
+    scenes/model/objectlistmodel.cpp \
+    scenes/comboboxdelegate.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -144,7 +145,8 @@ HEADERS += mainwindow.h \
     scenes/tab_viewpoint.h \
     scenes/textpreviewarea.h \
     scenes/tab_scenelist.h \
-    scenes/model/objectlistmodel.h
+    scenes/model/objectlistmodel.h \
+    scenes/comboboxdelegate.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

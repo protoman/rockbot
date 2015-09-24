@@ -24,9 +24,6 @@ tab_image::~tab_image()
 
 void tab_image::save_data()
 {
-    for (int i=0; i<mediator->image_list.size(); i++) {
-        std::cout << "DEBUG #A, value: '" << mediator->image_list.at(i).name << "'" << std::endl;
-    }
     fio.save_scenes_show_image(mediator->image_list);
 }
 
@@ -53,23 +50,15 @@ void tab_image::fill_data()
 {
     data_loading = true;
 
-    std::cout << "DEBUG #0" << std::endl;
     common::fill_files_combo("data/images/scenes", ui->filename_comboBox);
-    std::cout << "DEBUG #0.1" << std::endl;
-
     mediator->image_list = fio.load_scenes_show_image();
     int list_size = mediator->image_list.size();
-    std::cout << "list_size: " << list_size << std::endl;
-
 
     if (list_size == 0) {
-        std::cout << "DEBUG #1" << std::endl;
         change_fields_enabled(false);
     } else {
-        std::cout << "DEBUG #2" << std::endl;
         // fill
         for (int i=0; i<list_size; i++) {
-            std::cout << "DEBUG #3, value: '" << mediator->image_list.at(i).name << "'" << std::endl;
             ui->select_comboBox->addItem(QString(mediator->image_list.at(i).name));
         }
         set_fields(0);
