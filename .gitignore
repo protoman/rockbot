@@ -1,0 +1,5 @@
+# QtCreator arfifact
+*.user
+
+# qmake artifiacts
+Makefile
