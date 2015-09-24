@@ -16,6 +16,8 @@ extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
+extern bool leave_game;
+
 #include "graphic/draw.h"
 extern draw draw_lib;
 
@@ -259,7 +261,7 @@ struct st_position stage_select::select() {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #7" << std::endl;
             std::fflush(stdout);
-            gameControl.leave_game();
+            leave_game = true;
 #endif
 		}
 
