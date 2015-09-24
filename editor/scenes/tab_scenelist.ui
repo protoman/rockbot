@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>625</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="1">
+   <item row="6" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="rightMargin">
       <number>0</number>
@@ -61,7 +61,7 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="2">
+   <item row="6" column="2">
     <widget class="QListView" name="object_listView">
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
@@ -71,60 +71,6 @@
    <item row="2" column="0">
     <widget class="QComboBox" name="sceneSelector"/>
    </item>
-   <item row="2" column="2">
-    <widget class="QComboBox" name="sceneTypeSelector">
-     <item>
-      <property name="text">
-       <string>Clear Screen</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Clear Area</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Show/Move Image</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Move Viewpoint Image</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Show Image Animation</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Play Sound Effect</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Play Music</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Stop Music</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Text</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Sub-Scene</string>
-      </property>
-     </item>
-    </widget>
-   </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="addScene_button">
      <property name="text">
@@ -132,22 +78,104 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Name:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLineEdit" name="name_lineEdit"/>
-   </item>
-   <item row="3" column="0">
+   <item row="6" column="0">
     <widget class="QTableView" name="scenes_tableView">
      <property name="editTriggers">
       <set>QAbstractItemView::AllEditTriggers</set>
      </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
     </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Scene Objects:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Scene Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="name_lineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Available Objects:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="sceneTypeSelector">
+       <item>
+        <property name="text">
+         <string>Clear Screen</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Clear Area</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Show/Move Image</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Move Viewpoint Image</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Show Image Animation</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Play Sound Effect</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Play Music</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Stop Music</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Text</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Sub-Scene</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

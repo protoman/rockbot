@@ -22,19 +22,36 @@ extern timerLib timer;
 
 sceneShow::sceneShow()
 {
-
+    scene_list = fio_scn.load_scenes();
+    image_scenes = fio_scn.load_scenes_show_image();
+    text_list = fio_scn.load_scenes_show_text();
+    cleararea_list = fio_scn.load_scenes_clear_area();
+    playsfx_list = fio_scn.load_scenes_play_sfx();
+    playmusic_list = fio_scn.load_scenes_play_music();
 }
 
 void sceneShow::show_scene(int n)
 {
-
+    if (scene_list.size() <= n) {
+        std::cout << "ERROR: Scene List[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
+    CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(0);
+    for (int i=0; i<SCENE_OBJECTS_N; i++) {
+        if (scene.objects[i].seek_n != -1) {
+            if (scene.objects[i].type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
+                show_text(i);
+            } else if (scene.objects[i].type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
+                show_image(i);
+            }
+        }
+    }
 }
 
 void sceneShow::show_image(int n)
 {
-    std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> image_scenes = fio_scn.load_scenes_show_image();
     if (image_scenes.size() <= n) {
-        std::cout << "ERROR: Scene image[" << n << "] invalid." << std::endl;
+        std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         exit(-1);
     }
     speed_x = 1;
@@ -93,30 +110,20 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
 
 void sceneShow::show_text(int n)
 {
-    std::vector<CURRENT_FILE_FORMAT::file_scene_show_text> text_list = fio_scn.load_scenes_show_text();
-
-    CURRENT_FILE_FORMAT::file_scene_show_text test;
-    test.x = 30;
-    test.y = RES_H - 90;
-    sprintf(test.text_lines[0], "%s", "LINE #1");
-    sprintf(test.text_lines[1], "%s", "LINE #2");
-    sprintf(test.text_lines[2], "%s", "LINE #3");
-    run_text(test);
+    if (text_list.size() <= n) {
+        std::cout << "ERROR: Scene Text[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
+    run_text(text_list.at(n));
 }
 
 void sceneShow::clear_area(int n)
 {
-    std::vector<CURRENT_FILE_FORMAT::file_scene_clear_area> text_list = fio_scn.load_scenes_clear_area();
-
-    CURRENT_FILE_FORMAT::file_scene_clear_area test;
-    test.x = 30;
-    test.y = 30;
-    test.w = 50;
-    test.h = 20;
-
-    test.r = 120;
-
-    graphLib.clear_area(test.x, test.y, test.w, test.h, test.r, test.g, test.b);
+    if (cleararea_list.size() <= n) {
+        std::cout << "ERROR: Scene ClearArea[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
+    graphLib.clear_area(cleararea_list.at(n).x, cleararea_list.at(n).y, cleararea_list.at(n).w, cleararea_list.at(n).h, cleararea_list.at(n).r, cleararea_list.at(n).g, cleararea_list.at(n).b);
     graphLib.updateScreen();
 }
 
@@ -128,24 +135,21 @@ void sceneShow::clear_screen()
 
 void sceneShow::play_sfx(int n)
 {
-    std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> text_list = fio_scn.load_scenes_play_sfx();
-
-    CURRENT_FILE_FORMAT::file_scene_play_sfx test;
-    sprintf(test.filename, "%s", "shoryuken_girl.wav");
-    test.repeat_times = 2;
-    soundManager.play_sfx_from_file(test.filename, test.repeat_times);
-
+    if (playsfx_list.size() <= n) {
+        std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
+    soundManager.play_sfx_from_file(playsfx_list.at(n).filename, playsfx_list.at(n).repeat_times);
 }
 
 void sceneShow::play_music(int n)
 {
-    std::vector<CURRENT_FILE_FORMAT::file_scene_play_music> text_list = fio_scn.load_scenes_play_music();
-
-    CURRENT_FILE_FORMAT::file_scene_play_music test;
-    sprintf(test.filename, "%s", "train.mod");
-
+    if (playmusic_list.size() <= n) {
+        std::cout << "ERROR: Scene PlayMusic[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
     soundManager.stop_music();
-    soundManager.load_music(test.filename);
+    soundManager.load_music(playmusic_list.at(n).filename);
     soundManager.play_music();
 }
 

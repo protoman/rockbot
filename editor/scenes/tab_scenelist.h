@@ -33,6 +33,10 @@ private slots:
 
     void on_addScene_button_clicked();
 
+    void on_sceneSelector_currentIndexChanged(int index);
+
+    void on_removeButton_clicked();
+
 private:
     Ui::ScenesList *ui;
     QStringListModel model_objects;

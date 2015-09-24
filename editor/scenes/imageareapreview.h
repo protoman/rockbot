@@ -16,6 +16,11 @@ public:
     void set_w(int set);
     void set_h(int set);
 
+    void set_ini_x(int set);
+    void set_ini_y(int set);
+    void set_dest_x(int set);
+    void set_dest_y(int set);
+
 signals:
     void on_image_w_changed(int value);
     void on_image_h_changed(int value);
@@ -32,6 +37,10 @@ private:
     int y;
     int w;
     int h;
+    int ini_x;
+    int ini_y;
+    int dest_x;
+    int dest_y;
 };
 
 #endif // IMAGEAREAPREVIEW_H

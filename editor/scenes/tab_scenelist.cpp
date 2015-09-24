@@ -2,6 +2,8 @@
 #include "ui_tab_scenelist.h"
 #include "scenes/comboboxdelegate.h"
 
+#include <QMessageBox>
+
 TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::ScenesList), model_scenes(this)
 {
     ui->setupUi(this);
@@ -118,7 +120,6 @@ void TabScenelist::on_addButton_clicked()
     // number of the selected line in objects list
     QModelIndex listSelection = ui->object_listView->currentIndex();
     int seek_n = listSelection.row();
-    QStringList list;
     // search for a free slot
     for (unsigned int i = 0; i<SCENE_OBJECTS_N; i++) {
         if (mediator->scenes_list.at(n).objects[i].seek_n == -1) {
@@ -127,9 +128,48 @@ void TabScenelist::on_addButton_clicked()
             std::cout << "ADDED at row["  << i << "], mediator->scenes_list.size: " << (mediator->scenes_list.size()) << std::endl;
 
             ui->scenes_tableView->setModel(&model_scenes);
-            model_scenes.update(i);
+            model_scenes.update();
             break;
         }
     }
 }
 
+
+void TabScenelist::on_sceneSelector_currentIndexChanged(int index)
+{
+    mediator->selected_scene = index;
+    model_scenes.update();
+}
+
+void TabScenelist::on_removeButton_clicked()
+{
+    QModelIndexList selectedList = ui->scenes_tableView->selectionModel()->selectedRows();
+
+    if (selectedList.count() == 0) {
+        return;
+    }
+
+    for (int i=0; i<selectedList.count(); i++) {
+        int selectedRow = selectedList.at(i).row();
+        //QMessageBox::information(this,"", QString::number(selectedRow));
+        // move all above rows 1 level down
+        for (int j=selectedRow+1; j<SCENE_OBJECTS_N; j++) {
+            mediator->scenes_list.at(mediator->selected_scene).objects[j-1].seek_n = mediator->scenes_list.at(mediator->selected_scene).objects[j].seek_n;
+            mediator->scenes_list.at(mediator->selected_scene).objects[j-1].type = mediator->scenes_list.at(mediator->selected_scene).objects[j].type;
+            mediator->scenes_list.at(mediator->selected_scene).objects[j-1].delay_after = mediator->scenes_list.at(mediator->selected_scene).objects[j].delay_after;
+            mediator->scenes_list.at(mediator->selected_scene).objects[j-1].repeat_type = mediator->scenes_list.at(mediator->selected_scene).objects[j].repeat_type;
+            mediator->scenes_list.at(mediator->selected_scene).objects[j-1].repeat_value = mediator->scenes_list.at(mediator->selected_scene).objects[j].repeat_value;
+        }
+        break;
+    }
+    // empty last line, as there is none above to move down
+    mediator->scenes_list.at(mediator->selected_scene).objects[SCENE_OBJECTS_N-1].seek_n = -1;
+    mediator->scenes_list.at(mediator->selected_scene).objects[SCENE_OBJECTS_N-1].type = -1;
+    mediator->scenes_list.at(mediator->selected_scene).objects[SCENE_OBJECTS_N-1].delay_after = 100;
+    mediator->scenes_list.at(mediator->selected_scene).objects[SCENE_OBJECTS_N-1].repeat_type = 0;
+    mediator->scenes_list.at(mediator->selected_scene).objects[SCENE_OBJECTS_N-1].repeat_value = 0;
+
+    ui->scenes_tableView->setModel(&model_scenes);
+    model_scenes.update();
+
+}
