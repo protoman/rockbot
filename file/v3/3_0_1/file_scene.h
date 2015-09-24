@@ -88,6 +88,7 @@ namespace format_v_3_0_1 {
         int move_delay;
         bool blocking;                              // to be used, if false, to run multiple scene-types in parallel. defaults to true.
         int loop_mode;
+        int move_type;                              // in the future we can use to move as arc, sin, linear, etc
         file_scene_show_image() {
             name[0] = '\0';
             filename[0] = '\0';
@@ -98,6 +99,7 @@ namespace format_v_3_0_1 {
             move_delay = 100;
             blocking = true;
             loop_mode = 0;
+            move_type = 0;
         }
     };
 
