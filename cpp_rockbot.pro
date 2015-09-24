@@ -10,16 +10,16 @@ QT       -= core
 QT       -= gui
 
 
+#CONFIG += linux
+CONFIG += win32
 #CONFIG += android
-CONFIG += linux
-#CONFIG += macosx
-#CONFIG += win32
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
 #CONFIG += dingoo_native
+#CONFIG += macosx
 
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 
