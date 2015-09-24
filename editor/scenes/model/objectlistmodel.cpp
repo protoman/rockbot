@@ -144,13 +144,12 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
 
 }
 
-void ObjectListModel::update(int row)
+void ObjectListModel::update()
 {
     QModelIndex topLeft = index(0, 0);
-    QModelIndex bottomRight = index(row, columnCount()-1);
+    QModelIndex bottomRight = index(rowCount()-1, columnCount()-1);
 
-
-    std::cout << "%%%%%%%%%%%%%% ObjectListModel::update - RUN, row: " << row << " %%%%%%%%%%%%%%" << std::endl;
+    //std::cout << "%%%%%%%%%%%%%% ObjectListModel::update - RUN, row: " << (rowCount()-1) << " %%%%%%%%%%%%%%" << std::endl;
 
     emit dataChanged ( topLeft, bottomRight );
     emit layoutChanged();

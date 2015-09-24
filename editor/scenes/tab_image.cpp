@@ -82,6 +82,11 @@ void tab_image::set_fields(int index)
     ui->img_area_w->setValue(mediator->image_list.at(index).copy_area.w);
     ui->img_area_h->setValue(mediator->image_list.at(index).copy_area.h);
 
+    ui->image_preview_widget->set_ini_x(mediator->image_list.at(index).ini_x);
+    ui->image_preview_widget->set_ini_y(mediator->image_list.at(index).ini_y);
+    ui->image_preview_widget->set_dest_x(mediator->image_list.at(index).dest_x);
+    ui->image_preview_widget->set_dest_y(mediator->image_list.at(index).dest_y);
+
     ui->blocking_checkBox->setChecked(mediator->image_list.at(index).blocking);
 
     ui->select_comboBox->setCurrentIndex(mediator->image_list.at(index).loop_mode);
@@ -118,12 +123,14 @@ void tab_image::on_select_comboBox_currentIndexChanged(int index)
 void tab_image::on_destx_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
+    ui->image_preview_widget->set_dest_x(arg1);
     mediator->image_list.at(ui->select_comboBox->currentIndex()).dest_x = arg1;
 }
 
 void tab_image::on_desty_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
+    ui->image_preview_widget->set_dest_y(arg1);
     mediator->image_list.at(ui->select_comboBox->currentIndex()).dest_y = arg1;
 }
 
@@ -149,12 +156,14 @@ void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 void tab_image::on_init_x_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
+    ui->image_preview_widget->set_ini_x(arg1);
     mediator->image_list.at(ui->select_comboBox->currentIndex()).ini_x = arg1;
 }
 
 void tab_image::on_init_y_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
+    ui->image_preview_widget->set_ini_y(arg1);
     mediator->image_list.at(ui->select_comboBox->currentIndex()).ini_y = arg1;
 }
 

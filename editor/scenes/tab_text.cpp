@@ -184,4 +184,6 @@ void TabText::on_select_comboBox_currentIndexChanged(int index)
     ui->transitionType_comboBox->setCurrentIndex(mediator->text_list.at(ui->select_comboBox->currentIndex()).transition_type);
     change_x_y_fields_enabled();
     data_loading = false;
+    ui->widget->set_selected_n(index);
+    ui->widget->repaint();
 }
