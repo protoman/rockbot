@@ -13,16 +13,139 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QTextEdit" name="textEdit">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>130</y>
-     <width>104</width>
-     <height>70</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="1">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addButton">
+       <property name="text">
+        <string>&lt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeButton">
+       <property name="text">
+        <string>&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="2">
+    <widget class="QListView" name="object_listView">
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QComboBox" name="sceneSelector"/>
+   </item>
+   <item row="2" column="2">
+    <widget class="QComboBox" name="sceneTypeSelector">
+     <item>
+      <property name="text">
+       <string>Clear Screen</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Clear Area</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Show/Move Image</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Move Viewpoint Image</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Show Image Animation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Play Sound Effect</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Play Music</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Stop Music</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Text</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Sub-Scene</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="addScene_button">
+     <property name="text">
+      <string>Add New Scene</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="name_lineEdit"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QTableView" name="scenes_tableView"/>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
