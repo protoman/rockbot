@@ -434,7 +434,7 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
 }
 
 
-Uint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
+Sint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
 {
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
