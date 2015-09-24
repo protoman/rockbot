@@ -55,7 +55,7 @@ public:
     st_position convert_stage_n_to_menu_pos(short stage_n) const;
 
 
-    Uint8 find_next_weapon(Uint8 current, Uint8 move) const; // used by L/R buttons
+    Sint8 find_next_weapon(Uint8 current, Uint8 move) const; // used by L/R buttons
 
     void disable_ingame_menu();
 
