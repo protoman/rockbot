@@ -3,3 +3,9 @@
 
 # qmake artifiacts
 Makefile
+*.o
+
+# Game artifiacts
+rockbot
+data
+cpp_robot.pro
