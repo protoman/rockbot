@@ -177,6 +177,13 @@
      </item>
     </layout>
    </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Play Movie</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

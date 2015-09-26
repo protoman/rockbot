@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 
+
 TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::ScenesList), model_scenes(this)
 {
     ui->setupUi(this);
@@ -13,8 +14,9 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
 
     ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
-    ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
+    /// @TODO: find a way that works for both Qt4 and 5 - http://stackoverflow.com/questions/17535563/how-to-get-a-qtableview-to-fill-100-of-the-width
+    //ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
+    ui->scenes_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch); // Qt4
 
     data_loading = true;
 
@@ -117,9 +119,24 @@ void TabScenelist::on_addButton_clicked()
         return;
     }
     int n = ui->sceneSelector->currentIndex();
+
+    /*
     // number of the selected line in objects list
     QModelIndex listSelection = ui->object_listView->currentIndex();
     int seek_n = listSelection.row();
+    */
+
+
+    QModelIndexList selectedList = ui->object_listView->selectionModel()->selectedRows();
+
+    if (selectedList.count() == 0) {
+        return;
+    }
+
+    int seek_n = selectedList.at(0).row();
+    std::cout << ">>>>>>> seek_n: " << seek_n << " <<<<<<<<<<" << std::endl;
+
+
     // search for a free slot
     for (unsigned int i = 0; i<SCENE_OBJECTS_N; i++) {
         if (mediator->scenes_list.at(n).objects[i].seek_n == -1) {
@@ -171,5 +188,15 @@ void TabScenelist::on_removeButton_clicked()
 
     ui->scenes_tableView->setModel(&model_scenes);
     model_scenes.update();
+}
 
+void TabScenelist::on_pushButton_clicked()
+{
+    QString file = QString(FILEPATH.c_str()) + QString("scenesviewer");
+#ifdef WIN32
+    file += QString(".exe");
+#endif
+    file += QString(" --sequence ") + QString::number(ui->sceneSelector->currentIndex());
+    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
+    process.start(file);
 }

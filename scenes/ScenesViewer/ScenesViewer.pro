@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
-CONFIG += win32
+CONFIG += linux
+#CONFIG += win32
 
 TEMPLATE = app
 INCLUDEPATH += ..
