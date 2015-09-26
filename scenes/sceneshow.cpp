@@ -38,11 +38,13 @@ void sceneShow::show_scene(int n)
     }
     CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(0);
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
-        if (scene.objects[i].seek_n != -1) {
-            if (scene.objects[i].type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
-                show_text(i);
-            } else if (scene.objects[i].type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
-                show_image(i);
+        int scene_seek_n = scene.objects[i].seek_n;
+        if (scene_seek_n != -1) {
+            int scene_type = scene.objects[i].type;
+            if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
+                show_text(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
+                show_image(scene_seek_n);
             }
         }
     }

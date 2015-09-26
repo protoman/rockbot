@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QStringListModel>
 #include <QStringList>
+#include <QProcess>
+
 #include "scenes/scenesmediator.h"
 #include "file/v3/3_0_1/file_scene.h"
 #include "file/fio_scenes.h"
@@ -37,6 +39,8 @@ private slots:
 
     void on_removeButton_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::ScenesList *ui;
     QStringListModel model_objects;
@@ -44,6 +48,7 @@ private:
     ScenesMediator *mediator;
     bool data_loading;
     CURRENT_FILE_FORMAT::fio_scenes fio;
+    QProcess process;
 };
 
 #endif // SCENESLIST_H
