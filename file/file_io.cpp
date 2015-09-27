@@ -1815,7 +1815,7 @@ namespace format_v_3_0_1 {
     std::vector<std::string> file_io::read_game_list() const
     {
         std::vector<std::string> res;
-        std::string filename = FILEPATH + "/games";
+        std::string filename = GAMEPATH + "/games";
         res.push_back("Rockbot 1");
 
         // check if games folder exists

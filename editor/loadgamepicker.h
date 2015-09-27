@@ -21,6 +21,9 @@ private:
 
 private slots:
 	void on_buttonBox_accepted();
+
+signals:
+    void game_picked();
 };
 
 #endif // LOADGAMEPICKER_H

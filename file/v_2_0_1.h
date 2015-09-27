@@ -5,7 +5,8 @@
 #include <iostream>
 #include "v_2_0_0.h"
 
-extern std::string FILEPATH; /**< TODO */
+extern std::string FILEPATH;
+extern std::string GAMEPATH;
 
 namespace format_v_2_0_1 {
 

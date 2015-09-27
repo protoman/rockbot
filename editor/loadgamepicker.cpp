@@ -2,27 +2,28 @@
 #include "ui_loadgamepicker.h"
 #include <mediator.h>
 #include <stdio.h>
+#include <vector>
+
+#include "file/file_io.h"
+#include "mainwindow.h"
+
+extern std::string FILEPATH;
+extern std::string GAMEPATH;
 
 loadGamePicker::loadGamePicker(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::loadGamePicker)
 {
-	int n, i;
-		char temp_name[512];
-
 	ui->setupUi(this);
-	char tempStr[512];
-	/*
-    sprintf(tempStr, "%s/game", FILEPATH.c_str());
-    n = Mediator::get_instance()->freeSlot(tempStr, "gme");
-	printf("DEBUG.loadGamePicker::loadGamePicker - n: %d\n", n);
-	for (i=1; i<n; i++) {
-        Mediator::get_instance()->getGameName(i);
-        printf("DEBUG - adding game: '%s'\n", Mediator::get_instance()->gameName);
-        sprintf(temp_name, "%s - %s", Mediator::get_instance()->gameName, Mediator::get_instance()->centNumber);
-		ui->gameList->addItem(temp_name);
-	}
-	*/
+
+    CURRENT_FILE_FORMAT::file_io fio;
+    std::vector<std::string> game_list = fio.read_game_list();
+
+    for (int i=0; i<game_list.size(); i++) {
+        ui->gameList->addItem(QString(game_list.at(i).c_str()));
+    }
+
+
 }
 
 loadGamePicker::~loadGamePicker()
@@ -45,7 +46,16 @@ void loadGamePicker::changeEvent(QEvent *e)
 void loadGamePicker::on_buttonBox_accepted()
 {
 	int n = ui->gameList->currentRow()+1;
+
+    std::cout << ">>>>>>>>>> ui->gameList->currentRow(): " << ui->gameList->currentRow() << std::endl;
+
+    if (ui->gameList->currentRow() == 0) {
+        FILEPATH = GAMEPATH + std::string("/data/");
+    } else {
+        FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
+    }
     Mediator::get_instance()->loadGame(n);
+    emit game_picked();
 
 	//printf("DEBUG - loadGamePicker::on_buttonBox_accepted - selectedItem: %d\n", ui->gameList->currentRow());
 }
