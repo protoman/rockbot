@@ -51,7 +51,6 @@ private:
     Ui::TabText *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     bool data_loading;
-    ScenesMediator *mediator;
 };
 
 #endif // TEXT_H

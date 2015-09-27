@@ -60,7 +60,6 @@ private:
     Ui::tab_viewpoint *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     bool data_loading;
-    ScenesMediator *mediator;
 };
 
 #endif // TAB_VIEWPOINT_H

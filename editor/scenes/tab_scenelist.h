@@ -45,7 +45,6 @@ private:
     Ui::ScenesList *ui;
     QStringListModel model_objects;
     ObjectListModel model_scenes;
-    ScenesMediator *mediator;
     bool data_loading;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     QProcess process;
