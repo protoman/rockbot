@@ -7,7 +7,6 @@
 class ScenesMediator
 {
 public:
-    ScenesMediator();
     static ScenesMediator* get_instance();
 
 public:
@@ -24,6 +23,12 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scenes_list;
 
     int selected_scene;
+
+private:
+    ScenesMediator();
+    ScenesMediator(ScenesMediator const&){};             // copy constructor is private
+    ScenesMediator& operator=(ScenesMediator const&){};  // assignment operator is private
+
 
 private:
     static ScenesMediator*_instance;

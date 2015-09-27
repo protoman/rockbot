@@ -63,7 +63,6 @@ private:
     Ui::tab_image *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     bool data_loading;
-    ScenesMediator *mediator;
 };
 
 #endif // TAB_IMAGE_H

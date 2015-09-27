@@ -17,7 +17,6 @@ protected:
 
 
 private:
-    ScenesMediator *mediator;
     int selected_n;
     QFont monospace;
 };

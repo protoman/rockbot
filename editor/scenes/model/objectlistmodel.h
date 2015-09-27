@@ -18,7 +18,6 @@ public:
     void update();
 
 private:
-    ScenesMediator *mediator;
 };
 
 #endif // OBJECTLISTMODEL_H
