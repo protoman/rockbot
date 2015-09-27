@@ -161,9 +161,9 @@ void PS2_create_save_icons()
     std::string filename = SAVEPATH + "/icon.sys";
     FILE *fp = fopen(filename.c_str(), "rb");
     if (fp == NULL) {
-        std::string filename = FILEPATH + "data/images/icon.sys";
+        std::string filename = FILEPATH + "images/icon.sys";
         PS2_copy_to_memorycard(filename, "icon.sys");
-        filename = FILEPATH + "data/images/rockbot_ps2_icon.icn";
+        filename = FILEPATH + "images/rockbot_ps2_icon.icn";
         PS2_copy_to_memorycard(filename, "rockbot_ps2_icon.icn");
     } else {
         fclose(fp);
@@ -459,10 +459,25 @@ int main(int argc, char *argv[])
     #endif
 
 
-        std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
+    std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
+
+#ifndef PLAYSTATION2
+    fio.load_config(game_config);
+#endif
+
+    // INIT GRAPHICS
+    if (graphLib.initGraphics() != true) {
+        printf("ERROR intializing graphic\n");
+        return -1;
+    }
+
+
+    FILEPATH += gameControl.select_game_screen();
 
     fio.check_conversion();
 	fio.read_game(game_data);
+
+
 
 
     //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG
@@ -473,15 +488,6 @@ int main(int argc, char *argv[])
 
 
 
-#ifndef PLAYSTATION2
-    fio.load_config(game_config);
-#endif
-
-	// INIT GRAPHICS
-	if (graphLib.initGraphics() != true) {
-        printf("ERROR intializing graphic\n");
-		return -1;
-	}
 
     // define SAVEPATH
     #ifdef PLAYSTATION2

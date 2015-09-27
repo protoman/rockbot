@@ -292,7 +292,7 @@ public:
 
     void remove_current_teleporter_from_list(); // used when player dies
 
-
+    std::string select_game_screen();
 
 private:
     void exit_game();

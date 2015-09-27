@@ -1,9 +1,6 @@
 #include "editortilepallete.h"
 #include <stdio.h>
 
-extern Mediator dataExchange;
-extern char EDITOR_FILEPATH[512];
-
 EditorTilePallete::EditorTilePallete(QWidget *parent) : QWidget(parent) {
    printf("DEBUG.EditorTilePallete - constructor\n");
    selectedTileX=0;
@@ -20,10 +17,10 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
    //printf("DEBUG.EditorTilePallete - paintEvent, selectedTileX: %d, selectedTileY: %d\n", selectedTileX, selectedTileY);
    QPainter painter(this);
    if (currentPallete.length() <= 0) {
-      std::string tempstr = dataExchanger->getPallete();
+      std::string tempstr = Mediator::get_instance()->getPallete();
       filename = new QString(tempstr.c_str());
    } else {
-	  filename = new QString(QString(EDITOR_FILEPATH)+"/data/images/tilesets/");
+      filename = new QString(QString(FILEPATH.c_str())+"/images/tilesets/");
       filename->append(currentPallete);
    }
    image = new QPixmap(*filename);
@@ -53,8 +50,8 @@ void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
    QPoint pnt = event->pos();
    selectedTileX = pnt.x()/16;
    selectedTileY = pnt.y()/16;
-   dataExchanger->setPalleteX(selectedTileX);
-   dataExchanger->setPalleteY(selectedTileY);
+   Mediator::get_instance()->setPalleteX(selectedTileX);
+   Mediator::get_instance()->setPalleteY(selectedTileY);
    printf("DEBUG.EditorTilePallete::mousePressEvent - PalleteX: %d, palleteY: %d\n", selectedTileX, selectedTileY);
    repaint();
 }
@@ -63,7 +60,7 @@ void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
 
 
 QString EditorTilePallete::getPallete() {
-    return QString(dataExchanger->getPallete().c_str());
+    return QString(Mediator::get_instance()->getPallete().c_str());
 }
 
 //void EditorTilePallete::signalPalleteChanged() {

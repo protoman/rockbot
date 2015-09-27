@@ -24,6 +24,8 @@ extern soundLib soundManager;
 #include "inputlib.h"
 extern inputLib input;
 
+#include "graphic/option_picker.h"
+
 #include "file/format.h"
 
 #include "defines.h"
@@ -1038,7 +1040,7 @@ void game::got_weapon()
 		graphLib.blank_screen();
         soundManager.play_music();
 		graphicsLib_gSurface temp_bg;
-		graphLib.surfaceFromFile(FILEPATH+"data/images/backgrounds/stage_boss_intro.png", &temp_bg);
+        graphLib.surfaceFromFile(FILEPATH+"images/backgrounds/stage_boss_intro.png", &temp_bg);
 		graphLib.showSurface(&temp_bg);
 
         players.at(0).set_position(st_position(20, (RES_H * 0.5 - players.at(0).get_size().height/2)));
@@ -1152,12 +1154,12 @@ void game::game_over()
     graphLib.blank_screen();
 
     graphicsLib_gSurface password_screen;
-    std::string filename = FILEPATH + "data/images/backgrounds/config.png";
+    std::string filename = FILEPATH + "images/backgrounds/config.png";
     graphLib.surfaceFromFile(filename, &password_screen);
     graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
     graphicsLib_gSurface dialog_img;
-    filename = FILEPATH + "data/images/backgrounds/dialog.png";
+    filename = FILEPATH + "images/backgrounds/dialog.png";
     graphLib.surfaceFromFile(filename, &dialog_img);
     graphLib.copyArea(st_rectangle(0, 0, dialog_img.gSurface->w, dialog_img.gSurface->h), st_position(RES_W/2-dialog_img.gSurface->w/2, RES_H/2-dialog_img.gSurface->h/2), &dialog_img, &graphLib.gameScreen);
 
@@ -1413,6 +1415,37 @@ void game::remove_current_teleporter_from_list()
         _last_stage_used_teleporters.erase(_player_teleporter.teleporter_n);
     }
     players.at(0).set_teleporter(-1);
+}
+
+std::string game::select_game_screen()
+{
+    std::vector<std::string> game_list = fio.read_game_list();
+    if (game_list.size() == 0) {
+        return std::string("data/");
+    }
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    graphLib.draw_text(10, 10, "- Select Game -");
+
+    option_picker main_picker(false, st_position(40, 50), game_list, false);
+    draw_lib.update_screen();
+    bool repeat_menu = true;
+    int picked_n = -1;
+    while (repeat_menu == true) {
+        picked_n = main_picker.pick();
+        if (picked_n >= 0 && picked_n < game_list.size()) {
+            repeat_menu = false;
+        }
+        main_picker.draw();
+    }
+    input.clean();
+    input.waitTime(200);
+
+    std::string game_dir = std::string("/data/");
+    if (picked_n != 0) {
+        game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
+    }
+
+    return std::string(game_dir);
 }
 
 void game::finish_player_teleporter()

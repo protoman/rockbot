@@ -4,8 +4,6 @@
 #include "file/format.h"
 
 #include "mediator.h"
-extern Mediator *dataExchanger;
-extern CURRENT_FILE_FORMAT::file_stages stage_data;
 
 #include "common.h"
 
@@ -72,29 +70,29 @@ void colorcycle_edit::reload_colors()
 	std::stringstream ss;
 	for (int i=0; i<10; i++) {
 		ss.str(std::string());
-		ss << "background-color: rgb(" << stage_data.stages[dataExchanger->currentStage].colorcycle.color[i][_selected_color_key].r << ", " << stage_data.stages[dataExchanger->currentStage].colorcycle.color[i][_selected_color_key].g << ", " << stage_data.stages[dataExchanger->currentStage].colorcycle.color[i][_selected_color_key].b << ")";
+        ss << "background-color: rgb(" << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[i][_selected_color_key].r << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[i][_selected_color_key].g << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[i][_selected_color_key].b << ")";
 		_button_list[i]->setStyleSheet(ss.str().c_str());
 	}
 	// fill duration spinboxes
 	for (int i=0; i<10; i++) {
-        if (stage_data.stages[dataExchanger->currentStage].colorcycle.duration[i][_selected_color_key] <= 0) {
-            stage_data.stages[dataExchanger->currentStage].colorcycle.duration[i][_selected_color_key] = 100;
+        if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[i][_selected_color_key] <= 0) {
+            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[i][_selected_color_key] = 100;
         }
-		_timer_list[i]->setValue(stage_data.stages[dataExchanger->currentStage].colorcycle.duration[i][_selected_color_key]);
+        _timer_list[i]->setValue(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[i][_selected_color_key]);
 	}
 }
 
 void colorcycle_edit::pick_color_slot()
 {
 	std::cout << "colorcycle_edit::pick_color_slot - _selected_color_key: " << _selected_color_key << std::endl;
-	if (dataExchanger->picked_color_n != -1) {
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].r = dataExchanger->colormap[dataExchanger->picked_color_n].r;
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].g = dataExchanger->colormap[dataExchanger->picked_color_n].g;
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].b = dataExchanger->colormap[dataExchanger->picked_color_n].b;
+    if (Mediator::get_instance()->picked_color_n != -1) {
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
 	} else {
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].r = -1;
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].g = -1;
-		stage_data.stages[dataExchanger->currentStage].colorcycle.color[_selected_n][_selected_color_key].b = -1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].r = -1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].g = -1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_selected_n][_selected_color_key].b = -1;
 	}
 	reload_colors();
 }
@@ -102,7 +100,7 @@ void colorcycle_edit::pick_color_slot()
 
 void colorcycle_edit::on_stage_selector_currentIndexChanged(int index)
 {
-	dataExchanger->currentStage = index;
+    Mediator::get_instance()->currentStage = index;
 	reload_colors();
 }
 
@@ -158,7 +156,7 @@ void colorcycle_edit::on_color_pick_button10_clicked()
 
 void colorcycle_edit::on_comboBox_2_currentIndexChanged(int index)
 {
-	dataExchanger->currentMap = index;
+    Mediator::get_instance()->currentMap = index;
 	ui->map_preview->repaint();
 }
 
@@ -170,65 +168,65 @@ void colorcycle_edit::on_comboBox_currentIndexChanged(int index)
 
 void colorcycle_edit::on_duration1_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[0][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[0][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration2_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[1][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[1][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration3_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[2][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[2][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration4_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[3][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[3][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration5_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[4][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[4][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration6_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[5][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[5][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration7_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[6][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[6][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration8_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[7][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[7][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration9_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[8][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[8][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_duration10_valueChanged(int arg1)
 {
-	stage_data.stages[dataExchanger->currentStage].colorcycle.duration[9][_selected_color_key] = arg1;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[9][_selected_color_key] = arg1;
 }
 
 void colorcycle_edit::on_show_colorcycle1_checkbox_toggled(bool checked)
 {
-	dataExchanger->show_colorcycle1 = checked;
+    Mediator::get_instance()->show_colorcycle1 = checked;
 }
 
 void colorcycle_edit::on_show_colorcycle2_checkbox_toggled(bool checked)
 {
-	dataExchanger->show_colorcycle2 = checked;
+    Mediator::get_instance()->show_colorcycle2 = checked;
 }
 
 void colorcycle_edit::on_show_colorcycle3_checkbox_toggled(bool checked)
 {
-	dataExchanger->show_colorcycle3 = checked;
+    Mediator::get_instance()->show_colorcycle3 = checked;
 }

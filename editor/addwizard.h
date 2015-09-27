@@ -6,8 +6,6 @@
 #include "ui_addwizard.h"
 #include "mediator.h"
 
-extern Mediator *dataExchanger;
-
 class addWizard : public QWizard
  {
      Q_OBJECT

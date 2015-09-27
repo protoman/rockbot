@@ -31,14 +31,17 @@ void soundLib::init_audio_system()
 
 
 void soundLib::play_sfx(Uint8 sfx) {
+    std::cout << "soundLib::play_sfx::START" << std::endl;
 	if (game_config.sound_enabled == false) {
+        std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
         return;
 	}
 
 	if (sfx_list[sfx] != NULL) {
+        std::cout << "soundLib::play_sfx::PLAY" << std::endl;
         Mix_PlayChannel(-1, sfx_list[sfx], 0);
 	} else {
-		cout << "Error: soundLib::play_sfx - null sfx\n";
+        std::cout << "soundLib::play_sfx::NULL_SFX" << std::endl;
 	}
 }
 
@@ -98,116 +101,116 @@ void soundLib::load_all_sfx() {
 	int i = 0;
 	string filename;
 
-	filename = FILEPATH + "data/sfx/npc_hit.wav";
+    filename = FILEPATH + "sfx/npc_hit.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/npc_killed.wav";
+    filename = FILEPATH + "sfx/npc_killed.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/player_hit.wav";
+    filename = FILEPATH + "sfx/player_hit.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/player_shot.wav";
+    filename = FILEPATH + "sfx/player_shot.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/player_jump.wav";
+    filename = FILEPATH + "sfx/player_jump.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/cursor.wav";
+    filename = FILEPATH + "sfx/cursor.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/stage_selected.wav";
+    filename = FILEPATH + "sfx/stage_selected.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/got_energy_pill.wav";
+    filename = FILEPATH + "sfx/got_energy_pill.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/got_item.wav";
+    filename = FILEPATH + "sfx/got_item.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/shot_reflected.wav";
+    filename = FILEPATH + "sfx/shot_reflected.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/door_open.wav";
+    filename = FILEPATH + "sfx/door_open.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/got_weapon.wav";
+    filename = FILEPATH + "sfx/got_weapon.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/teleport.wav";
+    filename = FILEPATH + "sfx/teleport.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/implosion.wav";
+    filename = FILEPATH + "sfx/implosion.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/player_death.wav";
+    filename = FILEPATH + "sfx/player_death.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/destrin_ship.wav";
+    filename = FILEPATH + "sfx/destrin_ship.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/train_chunk.wav";
+    filename = FILEPATH + "sfx/train_chunk.wav";
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/skull_castle_intro.wav";
+    filename = FILEPATH + "sfx/skull_castle_intro.wav";
 	sfx_list[SFX_SKULL_CASTLE_INTRO] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/charged_shot.wav";
+    filename = FILEPATH + "sfx/charged_shot.wav";
 	sfx_list[SFX_PLAYER_CHARGED_SHOT] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/charging1.wav";
+    filename = FILEPATH + "sfx/charging1.wav";
 	sfx_list[SFX_CHARGING1] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/charging2.wav";
+    filename = FILEPATH + "sfx/charging2.wav";
 	sfx_list[SFX_CHARGING2] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/big_explosion.wav";
+    filename = FILEPATH + "sfx/big_explosion.wav";
 	sfx_list[SFX_BIG_EXPLOSION] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/water_enter.wav";
+    filename = FILEPATH + "sfx/water_enter.wav";
 	sfx_list[SFX_WATER_ENTER] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-	filename = FILEPATH + "data/sfx/water_leave.wav";
+    filename = FILEPATH + "sfx/water_leave.wav";
 	sfx_list[SFX_WATER_LEAVE] = Mix_LoadWAV(filename.c_str());
 	i++;
 
 
-    filename = FILEPATH + "data/sfx/disappearning_block.wav";
+    filename = FILEPATH + "sfx/disappearning_block.wav";
     sfx_list[SFX_DISAPPEARING_BLOCK] = Mix_LoadWAV(filename.c_str());
     i++;
 
-    filename = FILEPATH + "data/sfx/hadouken_girl.wav";
+    filename = FILEPATH + "sfx/hadouken_girl.wav";
     sfx_list[SFX_HADOUKEN_GIRL] = Mix_LoadWAV(filename.c_str());
     i++;
 
-    filename = FILEPATH + "data/sfx/shoryuken_girl.wav";
+    filename = FILEPATH + "sfx/shoryuken_girl.wav";
     sfx_list[SFX_SHORYUKEN_GIRL] = Mix_LoadWAV(filename.c_str());
     i++;
 
-    filename = FILEPATH + "data/sfx/beam.wav";
+    filename = FILEPATH + "sfx/beam.wav";
     sfx_list[SFX_BEAM] = Mix_LoadWAV(filename.c_str());
     i++;
 
@@ -229,7 +232,7 @@ void soundLib::load_music(std::string music_file) {
 	string filename;
 
 	unload_music();
-	filename = FILEPATH + "data/music/" + music_file;
+    filename = FILEPATH + "music/" + music_file;
     std::cout << "soundLib::load_music - filename: " << filename << std::endl;
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
@@ -247,7 +250,7 @@ void soundLib::load_boss_music(string music_file) {
 		Mix_FreeMusic(boss_music);
         boss_music = NULL;
 	}
-	filename = FILEPATH + "data/music/" + music_file;
+    filename = FILEPATH + "music/" + music_file;
 	//std::cout << "soundLib::load_boss_music - filename: " << filename << std::endl;
 	boss_music = Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
@@ -348,7 +351,7 @@ void soundLib::enable_sound()
 
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
 {
-    filename = FILEPATH + "data/sfx/" + filename;
+    filename = FILEPATH + "sfx/" + filename;
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
     Sint8 channel = Mix_PlayChannel(-1, sfx, repeat_n-1);
 

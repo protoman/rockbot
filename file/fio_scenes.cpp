@@ -71,7 +71,7 @@ namespace format_v_3_0_1 {
 
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)
     {
-        std::string filename = std::string(FILEPATH) + "/data/scenes/" + file;
+        std::string filename = std::string(FILEPATH) + "scenes/" + file;
         std::vector<T> res;
         FILE *fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -97,7 +97,7 @@ namespace format_v_3_0_1 {
 
     template <class T> void fio_scenes::save_data_to_disk(std::string file, std::vector<T> data)
     {
-        std::string filename = std::string(FILEPATH) + "data/scenes/" + file;
+        std::string filename = std::string(FILEPATH) + "scenes/" + file;
         std::cout << ">> file_io::save_data_to_disk - filename: '" << filename << "'." << std::endl;
         FILE *fp = fopen(filename.c_str(), "wb");
         if (!fp) {

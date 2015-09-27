@@ -4,20 +4,17 @@
 #include <QDir>
 #include <QMessageBox>
 
-extern char EDITOR_FILEPATH[512];
-extern CURRENT_FILE_FORMAT::file_game game_data;
-
 DialogObjectEdit::DialogObjectEdit(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogObjectEdit)
 {
 	ui->setupUi(this);
 	fillObjectGraphicsList();
-	if (dataExchanger->editModeNPC == 1) {
-		std::cout << "DialogObjectEdit::DialogObjectEdit - editing existing Obj, id: " << dataExchanger->selectedNPC << std::endl;
-		loadObjectData(dataExchanger->selectedNPC);
+	if (Mediator::get_instance()->editModeNPC == 1) {
+		std::cout << "DialogObjectEdit::DialogObjectEdit - editing existing Obj, id: " << Mediator::get_instance()->selectedNPC << std::endl;
+		loadObjectData(Mediator::get_instance()->selectedNPC);
 	} else {
-		std::cout << "DialogObjectEdit::DialogObjectEdit - adding new Obj, id: " << dataExchanger->selectedNPC << std::endl;
+		std::cout << "DialogObjectEdit::DialogObjectEdit - adding new Obj, id: " << Mediator::get_instance()->selectedNPC << std::endl;
 	}
 	QObject::connect(ui->npcPreviewAreaWidget, SIGNAL(clickedIn()), this, SLOT(setObjectFrame()));
 }
@@ -41,8 +38,8 @@ void DialogObjectEdit::changeEvent(QEvent *e)
 
 void DialogObjectEdit::setObjectFrame() {
 	//printf(">> DialogObjectEdit::setObjectFrame - CALLED\n");
-	//ui->frameTypeCombo->setCurrentIndex(dataExchanger->frameset[dataExchanger->getPalleteX()]+1);
-	//ui->spinBox->setValue(dataExchanger->frameset_time[dataExchanger->getPalleteX()]);
+	//ui->frameTypeCombo->setCurrentIndex(Mediator::get_instance()->frameset[Mediator::get_instance()->getPalleteX()]+1);
+	//ui->spinBox->setValue(Mediator::get_instance()->frameset_time[Mediator::get_instance()->getPalleteX()]);
 }
 
 void DialogObjectEdit::on_buttonBox_accepted()
@@ -52,13 +49,13 @@ void DialogObjectEdit::on_buttonBox_accepted()
 		return;
 	}
 	printf(">> DialogObjectEdit::on_buttonBox_accepted\n");
-	saveObjectData(dataExchanger->selectedNPC);
+	saveObjectData(Mediator::get_instance()->selectedNPC);
 	emit finishedObjectEditor();
 	close();
 }
 
 void DialogObjectEdit::fillObjectGraphicsList() {
-	QString dirPath(QString(EDITOR_FILEPATH)+"/data/images/sprites/objects/");
+    QString dirPath(QString(FILEPATH.c_str())+"/images/sprites/objects/");
     QDir dir = QDir(dirPath);
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     dir.setSorting(QDir::Size | QDir::Reversed);
@@ -67,7 +64,7 @@ void DialogObjectEdit::fillObjectGraphicsList() {
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
 		if (i == 0) {
-			sprintf(dataExchanger->addNpcFilename, "%s/data/images/sprites/objects/%s", EDITOR_FILEPATH, qPrintable(fileInfo.fileName()));
+            sprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(fileInfo.fileName()));
 		}
 		ui->objectListCombobox->addItem(fileInfo.fileName());
 	}
@@ -76,19 +73,19 @@ void DialogObjectEdit::fillObjectGraphicsList() {
 
 void DialogObjectEdit::on_npcGraphicSizeSpin_w_valueChanged(int value)
 {
-	dataExchanger->npcGraphicSize_w = value;
+	Mediator::get_instance()->npcGraphicSize_w = value;
 	ui->npcPreviewAreaWidget->repaint();
 }
 
 void DialogObjectEdit::on_npcGraphicSizeSpin_h_valueChanged(int value)
 {
-	dataExchanger->npcGraphicSize_h = value;
+	Mediator::get_instance()->npcGraphicSize_h = value;
 	ui->npcPreviewAreaWidget->repaint();
 }
 
 void DialogObjectEdit::on_objectListCombobox_currentIndexChanged(QString item)
 {
-	sprintf(dataExchanger->addNpcFilename, "%s/data/images/sprites/objects/%s", EDITOR_FILEPATH, qPrintable(item));
+    sprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(item));
 	ui->npcPreviewAreaWidget->repaint();
 }
 
@@ -96,19 +93,19 @@ void DialogObjectEdit::on_objectListCombobox_currentIndexChanged(QString item)
 
 void DialogObjectEdit::loadObjectData(int object_n) {
 
-	ui->NpcName->setText(game_data.objects[object_n].name);
-	ui->npcGraphicSizeSpin_w->setValue(game_data.objects[object_n].size.width);
-	ui->npcGraphicSizeSpin_h->setValue(game_data.objects[object_n].size.height);
-	ui->comboBoxType->setCurrentIndex(game_data.objects[object_n].type);
+    ui->NpcName->setText(Mediator::get_instance()->game_data.objects[object_n].name);
+    ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->game_data.objects[object_n].size.width);
+    ui->npcGraphicSizeSpin_h->setValue(Mediator::get_instance()->game_data.objects[object_n].size.height);
+    ui->comboBoxType->setCurrentIndex(Mediator::get_instance()->game_data.objects[object_n].type);
 
-	ui->spinBox_timer->setValue(game_data.objects[object_n].timer);
-	ui->spinBox_speed->setValue(game_data.objects[object_n].speed);
-	ui->spinBox_limit->setValue(game_data.objects[object_n].limit);
+    ui->spinBox_timer->setValue(Mediator::get_instance()->game_data.objects[object_n].timer);
+    ui->spinBox_speed->setValue(Mediator::get_instance()->game_data.objects[object_n].speed);
+    ui->spinBox_limit->setValue(Mediator::get_instance()->game_data.objects[object_n].limit);
 
-	dataExchanger->npcGraphicSize_w = game_data.objects[object_n].size.width;
-	dataExchanger->npcGraphicSize_h = game_data.objects[object_n].size.height;
+    Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->game_data.objects[object_n].size.width;
+    Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->game_data.objects[object_n].size.height;
 	for (int i=0; i<ui->objectListCombobox->count(); i++) {
-		if (ui->objectListCombobox->itemText(i) == QString(game_data.objects[object_n].graphic_filename)) {
+        if (ui->objectListCombobox->itemText(i) == QString(Mediator::get_instance()->game_data.objects[object_n].graphic_filename)) {
 			ui->objectListCombobox->setCurrentIndex(i);
 			break;
 		}
@@ -118,14 +115,14 @@ void DialogObjectEdit::loadObjectData(int object_n) {
 
 
 void DialogObjectEdit::saveObjectData(int object_n) {
-	strcpy (game_data.objects[object_n].name, ui->NpcName->text().toLatin1());
-	game_data.objects[object_n].type = ui->comboBoxType->currentIndex();
-	game_data.objects[object_n].size.width = ui->npcGraphicSizeSpin_w->value();
-	game_data.objects[object_n].size.height = ui->npcGraphicSizeSpin_h->value();
-	strcpy (game_data.objects[object_n].graphic_filename, ui->objectListCombobox->currentText().toLatin1());
-	game_data.objects[object_n].timer = ui->spinBox_timer->value();
-	game_data.objects[object_n].speed = ui->spinBox_speed->value();
-	game_data.objects[object_n].limit = ui->spinBox_limit->value();
+    strcpy (Mediator::get_instance()->game_data.objects[object_n].name, ui->NpcName->text().toLatin1());
+    Mediator::get_instance()->game_data.objects[object_n].type = ui->comboBoxType->currentIndex();
+    Mediator::get_instance()->game_data.objects[object_n].size.width = ui->npcGraphicSizeSpin_w->value();
+    Mediator::get_instance()->game_data.objects[object_n].size.height = ui->npcGraphicSizeSpin_h->value();
+    strcpy (Mediator::get_instance()->game_data.objects[object_n].graphic_filename, ui->objectListCombobox->currentText().toLatin1());
+    Mediator::get_instance()->game_data.objects[object_n].timer = ui->spinBox_timer->value();
+    Mediator::get_instance()->game_data.objects[object_n].speed = ui->spinBox_speed->value();
+    Mediator::get_instance()->game_data.objects[object_n].limit = ui->spinBox_limit->value();
 }
 
 

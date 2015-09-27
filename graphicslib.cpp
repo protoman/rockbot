@@ -314,7 +314,7 @@ bool graphicsLib::initGraphics()
 	input.init_joystick();
 	// FONT
 	TTF_Init();
-	filename = FILEPATH + "data/fonts/pressstart2p.ttf";
+    filename = FILEPATH + "fonts/pressstart2p.ttf";
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
@@ -326,7 +326,7 @@ bool graphicsLib::initGraphics()
 		return false;
 	} else {
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
-	}
+    }
     delete[] buffer;
 
 	// GAME SCREEN
@@ -336,7 +336,7 @@ bool graphicsLib::initGraphics()
 #endif
     set_video_mode();
 #ifdef PC
-    std::string icon_filename = FILEPATH + "data/images/faces/rockbot.png";
+    std::string icon_filename = FILEPATH + "images/faces/rockbot.png";
     SDL_RWops *rwop = SDL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
@@ -473,7 +473,7 @@ Uint8 graphicsLib::get_colorkey_n(COLOR_KEYS key)
 
 void graphicsLib::loadTileset()
 {
-	string filename = FILEPATH + "data/images/tilesets/default.png";
+    string filename = FILEPATH + "images/tilesets/default.png";
 
 	tileset = SDLSurfaceFromFile(filename);
 	if (tileset == NULL) {
@@ -992,7 +992,7 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 void graphicsLib::load_icons()
 {
 	struct graphicsLib_gSurface tmp;
-	std::string filename = FILEPATH + "data/images/items.png";
+    std::string filename = FILEPATH + "images/items.png";
 
 	surfaceFromFile(filename, &tmp);
 	for (int i=0; i<(tmp.width/16); i++) {
@@ -1002,7 +1002,7 @@ void graphicsLib::load_icons()
 	}
 
 	// big icon
-	filename = FILEPATH + "data/images/icons.png";
+    filename = FILEPATH + "images/icons.png";
 	surfaceFromFile(filename, &tmp);
 	for (int i=0; i<(tmp.width/14); i++) {
 		weapon_icons.push_back(graphicsLib_gSurface());
@@ -1011,7 +1011,7 @@ void graphicsLib::load_icons()
 	}
 
 	// small icons
-	filename = FILEPATH + "data/images/icons_small.png";
+    filename = FILEPATH + "images/icons_small.png";
 	surfaceFromFile(filename, &tmp);
 	for (int i=0; i<(tmp.width/8); i++) {
 		small_weapon_icons.push_back(graphicsLib_gSurface());
@@ -1021,18 +1021,18 @@ void graphicsLib::load_icons()
 
 
 
-	filename = FILEPATH + "data/images/backgrounds/config_fg.png";
+    filename = FILEPATH + "images/backgrounds/config_fg.png";
 	surfaceFromFile(filename, &config_menu);
 
 	_config_menu_pos.x = (RES_W-config_menu.width)*0.5;
 
-	filename = FILEPATH + "data/images/backgrounds/dialog.png";
+    filename = FILEPATH + "images/backgrounds/dialog.png";
 	surfaceFromFile(filename, &dialog_surface);
 
-	filename = FILEPATH + "data/images/backgrounds/weapon_menu.png";
+    filename = FILEPATH + "images/backgrounds/weapon_menu.png";
 	surfaceFromFile(filename, &ingame_menu);
 
-    filename = FILEPATH + "data/images/backgrounds/btn_a.png";
+    filename = FILEPATH + "images/backgrounds/btn_a.png";
     surfaceFromFile(filename, &_btn_a_surface);
 
 }
@@ -1873,58 +1873,58 @@ void graphicsLib::set_video_mode()
 void graphicsLib::preload_images()
 {
 	// explision used in death and bosses
-	std::string filename = FILEPATH + "data/images/tilesets/explosion_boss.png";
+    std::string filename = FILEPATH + "images/tilesets/explosion_boss.png";
 	surfaceFromFile(filename, &small_explosion);
 
 	// projectile images
     for (int i=0; i<FS_MAX_PROJECTILES; i++) {
 		std::string filename(game_data.projectiles[i].graphic_filename);
-		filename = FILEPATH + "data/images/projectiles/" + filename;
+        filename = FILEPATH + "images/projectiles/" + filename;
 		if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
 			surfaceFromFile(filename, &projectile_surface[i]);
 		}
 	}
 
 	// bomb explosion
-	filename = FILEPATH + std::string("/data/images/tilesets/big_boss_explosion.png");
+    filename = FILEPATH + std::string("/images/tilesets/big_boss_explosion.png");
 	surfaceFromFile(filename, &bomb_explosion_surface);
 
 	// --- ITEMS --- //
-	filename = FILEPATH + "data/images/sprites/objects/energy_tank.png";
+    filename = FILEPATH + "images/sprites/objects/energy_tank.png";
 	surfaceFromFile(filename, &e_tank[0]);
-	filename = FILEPATH + "data/images/sprites/objects/weapons_tank.png";
+    filename = FILEPATH + "images/sprites/objects/weapons_tank.png";
 	surfaceFromFile(filename, &w_tank[0]);
-	filename = FILEPATH + "data/images/sprites/objects/special_tank.png";
+    filename = FILEPATH + "images/sprites/objects/special_tank.png";
 	surfaceFromFile(filename, &s_tank[0]);
-	filename = FILEPATH + "data/images/sprites/objects/gray_energy_tank.png";
+    filename = FILEPATH + "images/sprites/objects/gray_energy_tank.png";
 	surfaceFromFile(filename, &e_tank[1]);
-	filename = FILEPATH + "data/images/sprites/objects/gray_weapons_tank.png";
+    filename = FILEPATH + "images/sprites/objects/gray_weapons_tank.png";
 	surfaceFromFile(filename, &w_tank[1]);
-	filename = FILEPATH + "data/images/sprites/objects/gray_special_tank.png";
+    filename = FILEPATH + "images/sprites/objects/gray_special_tank.png";
 	surfaceFromFile(filename, &s_tank[1]);
-	filename = FILEPATH + "data/images/sprites/objects/energy_balancer.png";
+    filename = FILEPATH + "images/sprites/objects/energy_balancer.png";
 	surfaceFromFile(filename, &energy_balancer);
 
-	filename = FILEPATH + "data/images/tilesets/explosion_32.png";
+    filename = FILEPATH + "images/tilesets/explosion_32.png";
 	surfaceFromFile(filename, &explosion32);
-	filename = FILEPATH + "data/images/tilesets/explosion_16.png";
+    filename = FILEPATH + "images/tilesets/explosion_16.png";
 	surfaceFromFile(filename, &explosion16);
 
-	filename = FILEPATH + "data/images/tilesets/dash_dust.png";
+    filename = FILEPATH + "images/tilesets/dash_dust.png";
 	surfaceFromFile(filename, &dash_dust);
-	filename = FILEPATH + "data/images/tilesets/hit.png";
+    filename = FILEPATH + "images/tilesets/hit.png";
 	surfaceFromFile(filename, &hit);
 
-    filename = FILEPATH + "data/images/tilesets/water_splash.png";
+    filename = FILEPATH + "images/tilesets/water_splash.png";
 	surfaceFromFile(filename, &water_splash);
 
-    filename = FILEPATH + "data/images/sprites/objects/armor_arms.png";
+    filename = FILEPATH + "images/sprites/objects/armor_arms.png";
     surfaceFromFile(filename, &armor_icon_arms);
 
-    filename = FILEPATH + "data/images/sprites/objects/armor_body.png";
+    filename = FILEPATH + "images/sprites/objects/armor_body.png";
     surfaceFromFile(filename, &armor_icon_body);
 
-    filename = FILEPATH + "data/images/sprites/objects/armor_legs.png";
+    filename = FILEPATH + "images/sprites/objects/armor_legs.png";
     surfaceFromFile(filename, &armor_icon_legs);
 
 }
@@ -1971,7 +1971,7 @@ void graphicsLib::preload_faces() const {
 	int i;
 
 	for (i=0; i<FACES_COUNT; i++) {
-		filename = FILEPATH + "data/images/faces/" + face_name[i];
+        filename = FILEPATH + "images/faces/" + face_name[i];
 		surfaceFromFile(filename, FACES_SURFACES[i]);
 	}
 	*/
@@ -2003,7 +2003,7 @@ void graphicsLib::place_face(std::string face_file, st_position pos) {
 	it = FACES_SURFACES.find(face_file);
 
 	if (it == FACES_SURFACES.end()) {
-		std::string filename = FILEPATH + "data/images/faces/" + face_file;
+        std::string filename = FILEPATH + "images/faces/" + face_file;
 		surfaceFromFile(filename, &FACES_SURFACES[face_file]);
 	}
 	copyArea(st_position(pos.x, pos.y), &FACES_SURFACES[face_file], &gameScreen);

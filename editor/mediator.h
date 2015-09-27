@@ -3,6 +3,7 @@
 #include <QString>
 #include "../file/format.h"
 #include "../file/v_1.h"
+#include "../file/file_io.h"
 
 
 struct st_player_graphics_data {
@@ -24,10 +25,10 @@ struct st_player_graphics_data {
 };
 
 class Mediator {
-private:
-	int palleteX;
-	int palleteY;
-    std::string selectedTileset;
+public:
+    static Mediator* get_instance();
+
+
 
 public:
 	char gameName[50];
@@ -68,7 +69,8 @@ public:
 	struct format_v1_0::list_map_npc *npc_map_list;
 	struct format_v1_0::npc_static_data_list *static_npc_list;
 
-	Mediator();
+
+
 	int getPalleteX();
 	int getPalleteY();
 	void setPalleteX(int value);
@@ -108,6 +110,29 @@ public:
     int current_projectile;
 	int current_player;
     int current_ai;
+
+    // old globals
+    char EDITOR_FILEPATH[512];
+    struct format_v1_0::file_game game;
+    CURRENT_FILE_FORMAT::file_game game_data;
+    CURRENT_FILE_FORMAT::file_stages stage_data;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;
+    std::vector<CURRENT_FILE_FORMAT::file_scene> scenes;
+    CURRENT_FILE_FORMAT::file_io fio;
+    bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
+
+
+private:
+    Mediator();
+    Mediator(Mediator const&){};             // copy constructor is private
+    Mediator& operator=(Mediator const&){};  // assignment operator is private
+
+
+private:
+    static Mediator* _instance;
+    int palleteX;
+    int palleteY;
+    std::string selectedTileset;
 
 };
 

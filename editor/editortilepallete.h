@@ -13,8 +13,6 @@
 
 extern int palleteX;
 extern int palleteY;
-extern Mediator *dataExchanger;
-
 
 class EditorTilePallete : public QWidget
 {

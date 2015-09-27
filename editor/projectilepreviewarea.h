@@ -7,10 +7,6 @@
 #include <QMouseEvent>
 #include "mediator.h"
 
-extern CURRENT_FILE_FORMAT::file_game game_data;
-
-extern Mediator *dataExchanger;
-
 class projectilePreviewArea : public QWidget
 {
   Q_OBJECT

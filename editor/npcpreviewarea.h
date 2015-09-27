@@ -8,8 +8,6 @@
 #include "mediator.h"
 
 
-extern Mediator *dataExchanger;
-
 class npcPreviewArea : public QWidget
 {
   Q_OBJECT

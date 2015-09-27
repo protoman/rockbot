@@ -31,10 +31,10 @@ draw::draw() : _rain_pos(0), _rain_timer(0), _rain_enabled(false), _flash_pos(0)
 
 void draw::preload()
 {
-    std::string filename = FILEPATH + "data/images/tilesets/ready.png";
+    std::string filename = FILEPATH + "images/tilesets/ready.png";
     graphLib.surfaceFromFile(filename, &ready_message);
 
-    filename = FILEPATH + "data/images/sprites/teleport_small.png";
+    filename = FILEPATH + "images/sprites/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
 
     // DROPABLE OBJECT GRAPHICS
@@ -81,7 +81,7 @@ void draw::show_rain()
 {
     if (rain_obj.gSurface == NULL) {
         // load rain
-        std::string filename = FILEPATH + "/data/images/tilesets/rain.png";
+        std::string filename = FILEPATH + "/images/tilesets/rain.png";
         graphLib.surfaceFromFile(filename, &rain_obj);
     }
     for (int i=0; i<MAP_W; i++) {
@@ -102,7 +102,7 @@ void draw::show_flash()
 {
     if (flash_obj.gSurface == NULL) {
         // load rain
-        std::string filename = FILEPATH + "/data/images/tilesets/flash.png";
+        std::string filename = FILEPATH + "/images/tilesets/flash.png";
         graphLib.surfaceFromFile(filename, &flash_obj);
     }
     for (int i=0; i<FLASH_POINTS_N; i++) {
@@ -127,13 +127,13 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     graphicsLib_gSurface bgCopy, boss_graphics;
 
 
-    std::string graph_filename = FILEPATH + "data/images/sprites/enemies/" + std::string(game_data.game_npcs[boss_id].graphic_filename);
+    std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(game_data.game_npcs[boss_id].graphic_filename);
     sprite_size.x = game_data.game_npcs[boss_id].frame_size.width;
     sprite_size.y = game_data.game_npcs[boss_id].frame_size.height;
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
 
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
-    graph_filename = FILEPATH + "data/images/backgrounds/stage_boss_intro.png";
+    graph_filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
     graphLib.surfaceFromFile(graph_filename.c_str(), &bgCopy);
     st_position bg_pos(0, (RES_H/2)-(bgCopy.height/2));
     graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
@@ -185,7 +185,7 @@ void draw::show_ready()
 void draw::show_bubble(int x, int y)
 {
     if (_bubble_gfx.gSurface == NULL) {
-        std::string filename = FILEPATH + "/data/images/tilesets/bubble.png";
+        std::string filename = FILEPATH + "images/tilesets/bubble.png";
         graphLib.surfaceFromFile(filename, &_bubble_gfx);
     }
     graphLib.showSurfaceAt(&_bubble_gfx, st_position(x, y), false);
@@ -424,7 +424,7 @@ graphicsLib_gSurface *draw::get_object_graphic(int obj_id)
     if (it == objects_sprite_list.end()) { // there is no graphic with this key yet, add it
         std::string graphic_filename(game_data.objects[obj_id].graphic_filename);
         if (graphic_filename.length() > 0) {
-            std::string complete_filename(FILEPATH + "data/images/sprites/objects/" + graphic_filename);
+            std::string complete_filename(FILEPATH + "images/sprites/objects/" + graphic_filename);
             graphLib.surfaceFromFile(complete_filename, &temp_sprite);
             objects_sprite_list.insert(std::pair<unsigned int, graphicsLib_gSurface>(obj_id, temp_sprite));
             it = objects_sprite_list.find(obj_id);

@@ -467,8 +467,8 @@ void classPlayer::initFrames()
 
 	graphicsLib_gSurface playerSpriteSurface;
 	std::stringstream filename;
-    //filename << FILEPATH << "/data/images/sprites/p" << (_number+1) << ".png";
-    filename << FILEPATH << "/data/images/sprites/" << game_data.players[_number].graphic_filename;
+    //filename << FILEPATH << "images/sprites/p" << (_number+1) << ".png";
+    filename << FILEPATH << "images/sprites/" << game_data.players[_number].graphic_filename;
 	graphLib.surfaceFromFile(filename.str(), &playerSpriteSurface);
 	if (playerSpriteSurface.gSurface == NULL) {
 		std::cout << "initFrames - Error loading player surface from file\n";

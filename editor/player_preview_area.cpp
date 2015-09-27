@@ -2,12 +2,8 @@
 #include <QPainter>
 #include <QString>
 #include <QImage>
-extern std::string FILEPATH;
 
 #include "mediator.h"
-extern Mediator *dataExchanger;
-
-extern CURRENT_FILE_FORMAT::file_game game_data;
 
 player_preview_area::player_preview_area(QWidget *parent) :
 QWidget(parent), selected_player(0)
@@ -33,8 +29,8 @@ void player_preview_area::paintEvent(QPaintEvent *) {
 	int i;
 	//printf("DEBUG - EditorArea.paintEvent\n");
 	// draw the picked tile in the tileset
-	//printf("DEBUG.npcPreviewArea::paintEvent - filename: %s\n", dataExchanger->addNpcFilename);
-	QString filename = QString(FILEPATH.c_str()) + QString("data/images/sprites/") + QString(dataExchanger->player_graphics_data.graphics_filename.c_str());
+    //printf("DEBUG.npcPreviewArea::paintEvent - filename: %s\n", Mediator::get_instance()->addNpcFilename);
+    QString filename = QString(FILEPATH.c_str()) + QString("/images/sprites/") + QString(Mediator::get_instance()->player_graphics_data.graphics_filename.c_str());
 	QImage image(filename);
     if (image.isNull() == true || image.width() <= 0) {
 		return;
@@ -43,22 +39,22 @@ void player_preview_area::paintEvent(QPaintEvent *) {
 
 	/// @TODO: player_n
 	/// @TODO: get color_n from rgb
-	int key_n1 = get_colorn_from_rgb(image, game_data.players[dataExchanger->current_player].color_keys[0].r, game_data.players[dataExchanger->current_player].color_keys[0].g, game_data.players[dataExchanger->current_player].color_keys[0].b);
-	int key_n2 = get_colorn_from_rgb(image, game_data.players[dataExchanger->current_player].color_keys[1].r, game_data.players[dataExchanger->current_player].color_keys[1].g, game_data.players[dataExchanger->current_player].color_keys[1].b);
-	int key_n3 = get_colorn_from_rgb(image, game_data.players[dataExchanger->current_player].color_keys[2].r, game_data.players[dataExchanger->current_player].color_keys[2].g, game_data.players[dataExchanger->current_player].color_keys[2].b);
+    int key_n1 = get_colorn_from_rgb(image, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[0].r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[0].g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[0].b);
+    int key_n2 = get_colorn_from_rgb(image, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[1].r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[1].g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[1].b);
+    int key_n3 = get_colorn_from_rgb(image, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[2].r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[2].g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].color_keys[2].b);
 
-	if (game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color1.r != -1) {
-		QColor temp_color1(game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color1.r, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color1.g, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color1.b);
+    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r != -1) {
+        QColor temp_color1(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b);
 		image.setColor(key_n1, temp_color1.rgb());
 	}
 
-	if (game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color2.r != -1) {
-		QColor temp_color2(game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color2.r, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color2.g, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color2.b);
+    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r != -1) {
+        QColor temp_color2(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b);
 		image.setColor(key_n2, temp_color2.rgb());
 	}
 
-	if (game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color3.r != -1) {
-		QColor temp_color3(game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color3.r, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color3.g, game_data.players[dataExchanger->current_player].weapon_colors[dataExchanger->current_weapon].color3.b);
+    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r != -1) {
+        QColor temp_color3(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b);
 		image.setColor(key_n3, temp_color3.rgb());
 	}
 
@@ -69,10 +65,10 @@ void player_preview_area::paintEvent(QPaintEvent *) {
     source = QRectF(QPoint(0, 0), QSize(image.width(), image.height()));
     painter.drawImage(target, image, source);
 
-	//printf("npcPreviewArea::paintEvent - gSize: %d\n", dataExchanger->npcGraphicSize_w);
+    //printf("npcPreviewArea::paintEvent - gSize: %d\n", Mediator::get_instance()->npcGraphicSize_w);
 
    painter.setPen(QColor(0, 120, 0));
-   int inc = dataExchanger->player_graphics_data.frame_size.width*2;
+   int inc = Mediator::get_instance()->player_graphics_data.frame_size.width*2;
    //std::cout << "PLAYYERPREVIEWAREA::PAINTEVENT - inc: " << inc << ", limit: " << this->width() << std::endl;
    if (inc > 0) {
        for (i=0; i<=this->width(); i=i+inc) {
@@ -82,7 +78,7 @@ void player_preview_area::paintEvent(QPaintEvent *) {
           painter.drawLine(line);
        }
    }
-   inc = dataExchanger->player_graphics_data.frame_size.height*2;
+   inc = Mediator::get_instance()->player_graphics_data.frame_size.height*2;
    if (inc > 0) {
        for (i=0; i<this->height(); i=i+inc) {
           // linhas horizontais
