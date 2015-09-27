@@ -14,10 +14,7 @@
 // Global static pointer used to ensure a single instance of the class.
 Mediator* Mediator::_instance = NULL;
 
-
 Mediator::Mediator() {
-	int i;
-
 	palleteX=0;
 	palleteY=0;
     selectedTileset = "/images/tilesets/default.png";
@@ -288,6 +285,7 @@ Mediator *Mediator::get_instance()
     }
     return _instance;
 }
+
 
 int Mediator::getPalleteX() {
 	return palleteX;

@@ -5,7 +5,6 @@
 #include "../file/v_1.h"
 #include "../file/file_io.h"
 
-
 struct st_player_graphics_data {
 	st_size frame_size;
 	st_rectangle hit_area;
@@ -27,7 +26,6 @@ struct st_player_graphics_data {
 class Mediator {
 public:
     static Mediator* get_instance();
-
 
 
 public:
@@ -133,7 +131,6 @@ private:
     int palleteX;
     int palleteY;
     std::string selectedTileset;
-
 };
 
 

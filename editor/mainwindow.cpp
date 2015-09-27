@@ -84,11 +84,24 @@ MainWindow::~MainWindow()
     }
 }
 
-
-
-
-
-
+void MainWindow::reload()
+{
+    Mediator::get_instance()->selectedNPC = 0;
+    Mediator::get_instance()->currentMap = 0;
+    Mediator::get_instance()->currentGame = 0;
+    Mediator::get_instance()->currentStage = 0;
+    Mediator::get_instance()->current_player = 0;
+    Mediator::get_instance()->current_weapon = 0;
+    game_prop_tab->reload();
+    colorcycle_edit_tab->reload();
+    projectile_edit_tab->reload();
+    stage_edit_tab->reload();
+    weapon_edit_tab->reload();
+    object_edit_tab->reload();
+    ai_edit_tab->reload();
+    npc_edit_tab->reload();
+    map_edit_tab->reload();
+}
 
 
 
@@ -105,6 +118,7 @@ void MainWindow::on_actionSave_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
 	QDialog *open = new loadGamePicker;
+    QObject::connect(open, SIGNAL(game_picked()), this, SLOT(reload()));
 	open->show();
     //Mediator::get_instance()->loadGame();
     //map_edit_tab->update_edit_area();
@@ -272,21 +286,7 @@ void MainWindow::on_pushButton_4_clicked()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-    Mediator::get_instance()->selectedNPC = 0;
-    Mediator::get_instance()->currentMap = 0;
-    Mediator::get_instance()->currentGame = 0;
-    Mediator::get_instance()->currentStage = 0;
-    Mediator::get_instance()->current_player = 0;
-    Mediator::get_instance()->current_weapon = 0;
-    game_prop_tab->reload();
-    colorcycle_edit_tab->reload();
-    projectile_edit_tab->reload();
-    stage_edit_tab->reload();
-    weapon_edit_tab->reload();
-    object_edit_tab->reload();
-    ai_edit_tab->reload();
-    npc_edit_tab->reload();
-    map_edit_tab->reload();
+    reload();
 }
 
 

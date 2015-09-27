@@ -60,7 +60,10 @@ private:
 	void fill_NPC_edit_tab();
 	void fill_background_list();
 
+
+
 private slots:
+    void reload();
 
  void on_npc_direction_combo_currentIndexChanged(int index);
 	void on_link_orientation_combobox_currentIndexChanged(int index);

@@ -18,8 +18,9 @@ int palleteY=0;
 #include "enum_names.h"
 #include "file/file_io.h"
 
-std::string FILEPATH;
+std::string FILEPATH; // path including DATA/GAMES/[GAME]
 std::string SAVEPATH;
+std::string GAMEPATH; // path without DATA/GAMES
 
 void remove_duplicated()
 {
@@ -117,6 +118,7 @@ int main(int argc, char *argv[])
 	std::string argvString = std::string(argv[0]);
     FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     strncpy (Mediator::get_instance()->EDITOR_FILEPATH, FILEPATH.c_str(), FILEPATH.size());
+    GAMEPATH = FILEPATH;
     FILEPATH += "/data/";
     SAVEPATH = FILEPATH;
     std::cout << " *** EXEC_NAME: " << EXEC_NAME << ", FILEPATH: " << FILEPATH << ", SAVEPATH: " << SAVEPATH << " ***" << std::endl;
@@ -134,15 +136,17 @@ int main(int argc, char *argv[])
 
     Mediator::get_instance()->initGameVar();
     QApplication a(argc, argv);
+
+
     MainWindow w;
-	w.resize(1024, 680);
+    w.resize(1024, 680);
+    w.show();
 
 	//adjust_sprites_size();
 
 	remove_duplicated();
 
     // --- DEBUG --- //
-    w.show();
     //SceneEditorWindow* scenes_window = new SceneEditorWindow();
     //scenes_window->show();
     // --- DEBUG --- //
