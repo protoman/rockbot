@@ -3,9 +3,6 @@
 #include <mediator.h>
 #include <stdio.h>
 
-extern Mediator *dataExchanger;
-extern char EDITOR_FILEPATH[512];
-
 loadGamePicker::loadGamePicker(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::loadGamePicker)
@@ -16,13 +13,13 @@ loadGamePicker::loadGamePicker(QWidget *parent) :
 	ui->setupUi(this);
 	char tempStr[512];
 	/*
-	sprintf(tempStr, "%s/data/game", EDITOR_FILEPATH);
-	n = dataExchanger->freeSlot(tempStr, "gme");
+    sprintf(tempStr, "%s/game", FILEPATH.c_str());
+    n = Mediator::get_instance()->freeSlot(tempStr, "gme");
 	printf("DEBUG.loadGamePicker::loadGamePicker - n: %d\n", n);
 	for (i=1; i<n; i++) {
-		dataExchanger->getGameName(i);
-		printf("DEBUG - adding game: '%s'\n", dataExchanger->gameName);
-		sprintf(temp_name, "%s - %s", dataExchanger->gameName, dataExchanger->centNumber);
+        Mediator::get_instance()->getGameName(i);
+        printf("DEBUG - adding game: '%s'\n", Mediator::get_instance()->gameName);
+        sprintf(temp_name, "%s - %s", Mediator::get_instance()->gameName, Mediator::get_instance()->centNumber);
 		ui->gameList->addItem(temp_name);
 	}
 	*/
@@ -48,7 +45,7 @@ void loadGamePicker::changeEvent(QEvent *e)
 void loadGamePicker::on_buttonBox_accepted()
 {
 	int n = ui->gameList->currentRow()+1;
-	dataExchanger->loadGame(n);
+    Mediator::get_instance()->loadGame(n);
 
 	//printf("DEBUG - loadGamePicker::on_buttonBox_accepted - selectedItem: %d\n", ui->gameList->currentRow());
 }

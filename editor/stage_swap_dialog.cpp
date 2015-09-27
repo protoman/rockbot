@@ -3,11 +3,9 @@
 #include "stage_swap_dialog.h"
 #include "ui_stage_swap_dialog.h"
 #include "common.h"
+#include "mediator.h"
 
 #include <file/file_io.h>
-
-extern CURRENT_FILE_FORMAT::file_stages stage_data;
-
 
 stage_swap_dialog::stage_swap_dialog(QWidget *parent) :
     QDialog(parent),
@@ -32,7 +30,7 @@ void stage_swap_dialog::on_buttonBox_accepted()
         return;
     }
     CURRENT_FILE_FORMAT::file_stage temp_stage;
-    temp_stage = stage_data.stages[ui->destiny_combo->currentIndex()];
-    stage_data.stages[ui->destiny_combo->currentIndex()] =  stage_data.stages[ui->origin_combo->currentIndex()];
-    stage_data.stages[ui->origin_combo->currentIndex()] =  temp_stage;
+    temp_stage = Mediator::get_instance()->stage_data.stages[ui->destiny_combo->currentIndex()];
+    Mediator::get_instance()->stage_data.stages[ui->destiny_combo->currentIndex()] =  Mediator::get_instance()->stage_data.stages[ui->origin_combo->currentIndex()];
+    Mediator::get_instance()->stage_data.stages[ui->origin_combo->currentIndex()] =  temp_stage;
 }

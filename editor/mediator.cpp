@@ -8,21 +8,19 @@
 #include "defines.h"
 #include "../file/file_io.h"
 
-extern CURRENT_FILE_FORMAT::file_game game_data;
-
 #define EDIT_MODE_NEW 0
 #define EDIT_MODE_EDIT 1
 
-extern struct format_v1_0::file_game game;
+// Global static pointer used to ensure a single instance of the class.
+Mediator* Mediator::_instance = NULL;
 
-extern char EDITOR_FILEPATH[512];
 
 Mediator::Mediator() {
 	int i;
 
 	palleteX=0;
 	palleteY=0;
-	selectedTileset = "data/images/tilesets/default.png";
+    selectedTileset = "/images/tilesets/default.png";
 	editMode = EDITMODE_NORMAL;
 	editTool = EDITMODE_NORMAL;
 	npcGraphicSize_w = 16;
@@ -283,6 +281,14 @@ void Mediator::initGameVar() {
 }
 
 
+Mediator *Mediator::get_instance()
+{
+    if (!_instance) {
+        _instance = new Mediator();
+    }
+    return _instance;
+}
+
 int Mediator::getPalleteX() {
 	return palleteX;
 }
@@ -300,7 +306,7 @@ void Mediator::setPalleteY(int value) {
 }
 
 std::string Mediator::getPallete() {
-    selectedTileset = FILEPATH + "data/images/tilesets/default.png";
+    selectedTileset = FILEPATH + "/images/tilesets/default.png";
     return selectedTileset;
 }
 
@@ -338,7 +344,7 @@ void Mediator::centNumberFormat(int n) {
 void Mediator::resetMap(int map_n) {
 	int j, k;
 /*
-	sprintf(map.filename, "%s/data/images/tilesets/default.png", EDITOR_FILEPATH);
+    sprintf(map.filename, "%s/images/tilesets/default.png", FILEPATH.c_str());
 	for (j=0; j<MAP_W; j++) {
 		for (k=0; k<MAP_H; k++) {
 			map.tiles[j][k].locked=0;
@@ -359,7 +365,7 @@ void Mediator::getGameName(int n) {
 	char filename[512];
 	centNumberFormat(n);
 	struct format_v1_0::file_game temp_game;
-	sprintf(filename, "%s/data/game/%s.gme", EDITOR_FILEPATH, centNumber);
+    sprintf(filename, "%s/game/%s.gme", FILEPATH.c_str(), centNumber);
 	FILE *fp = fopen(filename, "rb");
 	if (fp) {
 		fseek (fp , 0 , SEEK_END);

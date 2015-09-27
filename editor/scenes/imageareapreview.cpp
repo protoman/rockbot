@@ -3,10 +3,9 @@
 
 #include "imageareapreview.h"
 #include "defines.h"
+#include "mediator.h"
 
 #define IMAGE_SCALE 2
-
-extern char EDITOR_FILEPATH[512];
 
 ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
 {
@@ -28,7 +27,7 @@ ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
 
 void ImageAreaPreview::setImageFilename(QString name)
 {
-    graphic_filename = QString(EDITOR_FILEPATH) + QString("/data/images/scenes/") + name;
+    graphic_filename = QString(FILEPATH.c_str()) + QString("/images/scenes/") + name;
     std::cout << ">> ImageAreaPreview::setImageFilename: " << graphic_filename.toStdString() << std::endl;
 }
 

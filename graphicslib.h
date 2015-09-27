@@ -694,27 +694,27 @@ private:
 
 
 public:
-    int RES_DIFF_W; /**< TODO */
-    int RES_DIFF_H; /**< TODO */
-    struct graphicsLib_gSurface gameScreen; /**< TODO */
-    st_position big_star_list[INTRO_STARS_NUMBER/2]; /**< TODO */
-    st_position star_list[INTRO_STARS_NUMBER]; /**< TODO */
-    st_position small_star_list[INTRO_STARS_NUMBER]; /**< TODO */
+    int RES_DIFF_W;
+    int RES_DIFF_H;
+    struct graphicsLib_gSurface gameScreen;
+    st_position big_star_list[INTRO_STARS_NUMBER/2];
+    st_position star_list[INTRO_STARS_NUMBER];
+    st_position small_star_list[INTRO_STARS_NUMBER];
 
 	// graphics used in several places
-    graphicsLib_gSurface small_explosion; /**< TODO */
-    graphicsLib_gSurface projectile_surface[FS_MAX_PROJECTILES]; /**< TODO */
-    graphicsLib_gSurface bomb_explosion_surface; /**< TODO */
-    graphicsLib_gSurface e_tank[2]; /**< TODO */
-    graphicsLib_gSurface w_tank[2]; /**< TODO */
-    graphicsLib_gSurface s_tank[2]; /**< TODO */
-    graphicsLib_gSurface energy_balancer; /**< TODO */
+    graphicsLib_gSurface small_explosion;
+    graphicsLib_gSurface projectile_surface[FS_MAX_PROJECTILES];
+    graphicsLib_gSurface bomb_explosion_surface;
+    graphicsLib_gSurface e_tank[2];
+    graphicsLib_gSurface w_tank[2];
+    graphicsLib_gSurface s_tank[2];
+    graphicsLib_gSurface energy_balancer;
 
-    graphicsLib_gSurface explosion32; /**< TODO */
-    graphicsLib_gSurface explosion16; /**< TODO */
-    graphicsLib_gSurface dash_dust; /**< TODO */
-    graphicsLib_gSurface hit; /**< TODO */
-    graphicsLib_gSurface water_splash; /**< TODO */
+    graphicsLib_gSurface explosion32;
+    graphicsLib_gSurface explosion16;
+    graphicsLib_gSurface dash_dust;
+    graphicsLib_gSurface hit;
+    graphicsLib_gSurface water_splash;
 
     graphicsLib_gSurface armor_icon_arms;
     graphicsLib_gSurface armor_icon_body;
@@ -723,43 +723,45 @@ public:
 
 private:
 
-    SDL_Color colormap[COLOR_COUNT]; /**< TODO */
-    SDL_Color colormap_original[COLOR_COUNT]; /**< TODO */
-    SDL_Color colormap_white[COLOR_COUNT]; /**< TODO */
-    class_colorcycle colorcycle_manager; /**< TODO */
-    Uint8 color_keys[3]; /**< TODO */
-    std::map<std::string, graphicsLib_gSurface> FACES_SURFACES; /**< TODO */
+    SDL_Color colormap[COLOR_COUNT];
+    SDL_Color colormap_original[COLOR_COUNT];
+    SDL_Color colormap_white[COLOR_COUNT];
+    class_colorcycle colorcycle_manager;
+    Uint8 color_keys[3];
+    std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
+
 	// TODO: free those pointers
-    TTF_Font *font; /**< TODO */
-    TTF_Font *lowercase_font; /**< TODO */
-    SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally /**< TODO */
-    SDL_Surface *game_screen_scaled; /**< TODO */
-    SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally /**< TODO */
-    std::vector<struct graphicsLib_gSurface> faces;				// faces for players and npcs /**< TODO */
-    std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars /**< TODO */
-    std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars /**< TODO */
-    std::vector<struct graphicsLib_gSurface> item_icons;		// item icons, used in menu and energy bars /**< TODO */
+    TTF_Font *font;
+    TTF_Font *lowercase_font;
 
-    struct graphicsLib_gSurface ingame_menu; /**< TODO */
-    struct graphicsLib_gSurface config_menu; /**< TODO */
-    struct graphicsLib_gSurface dialog_surface; /**< TODO */
-    struct graphicsLib_gSurface _btn_a_surface; /**< TODO */
+    SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
+    SDL_Surface *game_screen_scaled;
+    SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
+    std::vector<struct graphicsLib_gSurface> faces;				// faces for players and npcs
+    std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars
+    std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars
+    std::vector<struct graphicsLib_gSurface> item_icons;		// item icons, used in menu and energy bars
 
-    st_position _dialog_pos; /**< TODO */
-    st_position _config_menu_pos; /**< TODO */
+    struct graphicsLib_gSurface ingame_menu;
+    struct graphicsLib_gSurface config_menu;
+    struct graphicsLib_gSurface dialog_surface;
+    struct graphicsLib_gSurface _btn_a_surface;
 
-    unsigned int stars_timer; /**< TODO */
+    st_position _dialog_pos;
+    st_position _config_menu_pos;
 
-    st_position _screen_adjust; /**< TODO */
+    unsigned int stars_timer;
 
-    SDL_PixelFormat screen_pixel_format; /**< TODO */
+    st_position _screen_adjust;
 
-    bool _show_stars; /**< TODO */
+    SDL_PixelFormat screen_pixel_format;
 
-    unsigned int _explosion_animation_timer; /**< TODO */
-    int _explosion_animation_pos; /**< TODO */
-    int _debug_msg_pos; /**< TODO */
-    st_position _screen_resolution_adjust; /**< TODO */
+    bool _show_stars;
+
+    unsigned int _explosion_animation_timer;
+    int _explosion_animation_pos;
+    int _debug_msg_pos;
+    st_position _screen_resolution_adjust;
     bool _must_set_colors;
     Uint8 _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
     long _timer;

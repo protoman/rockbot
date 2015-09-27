@@ -94,7 +94,7 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
     graphicsLib_gSurface bg_image;
     graphLib.initSurface(st_size(RES_W, RES_H), &bg_image);
     graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &bg_image);
-    graphLib.surfaceFromFile(FILEPATH + "/data/images/scenes/" + scene_image.filename, &image);
+    graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + scene_image.filename, &image);
     while (total_dist > 0) {
         //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(scene_image.move_delay);

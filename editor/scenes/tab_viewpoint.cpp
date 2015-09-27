@@ -51,7 +51,7 @@ void tab_viewpoint::fill_data()
 {
     data_loading = true;
 
-    common::fill_files_combo("data/images/scenes", ui->filename_comboBox);
+    common::fill_files_combo("/images/scenes", ui->filename_comboBox);
     mediator->viewpoint_list = fio.load_scenes_show_viewpoint();
     int list_size = mediator->viewpoint_list.size();
 

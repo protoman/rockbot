@@ -8,16 +8,10 @@
 #include <iostream>
 #include "defines.h"
 
-extern format_v1_0::file_game game;
-extern char EDITOR_FILEPATH[512];
-
 #include "../file/format.h"
 #include "../file/file_io.h"
-extern CURRENT_FILE_FORMAT::file_game game_data;
-extern CURRENT_FILE_FORMAT::file_stages stage_data;
 
 #define TIMER_DELAY 10
-
 
 colorcycle_map_preview::colorcycle_map_preview(QWidget *parent) : QWidget(parent), _current_color1(0), _current_color2(0), _current_color3(0), _zoom(2)
 {
@@ -54,7 +48,7 @@ void colorcycle_map_preview::paintEvent(QPaintEvent *) {
     QString filename;
 
     filename = QString("");
-    filename.append(QString(QString(EDITOR_FILEPATH)+"/data/images/tilesets/default.png"));
+    filename.append(QString(QString(FILEPATH.c_str())+"/images/tilesets/default.png"));
     QImage image(filename);
 	if (image.isNull()) {
         printf("ERROR: EditorArea::paintEvent - Could not load image file '%s'\n", qPrintable(filename));
@@ -63,11 +57,11 @@ void colorcycle_map_preview::paintEvent(QPaintEvent *) {
     apply_colorcycle(image);
 
 	// draw background color
-	painter.fillRect(QRectF(0.0, 0.0, MAP_W*TILESIZE*_zoom, MAP_H*TILESIZE*_zoom), QColor(stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].background_color.r, stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].background_color.g, stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].background_color.b, 255));
+    painter.fillRect(QRectF(0.0, 0.0, MAP_W*TILESIZE*_zoom, MAP_H*TILESIZE*_zoom), QColor(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r, Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g, Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b, 255));
 	// draw background1
-	if (strlen(stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[0].filename) > 0) {
+    if (strlen(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename) > 0) {
         filename.clear();
-        filename.append(QString(QString(EDITOR_FILEPATH)+"/data/images/map_backgrounds/"+QString(stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[0].filename)));
+        filename.append(QString(QString(FILEPATH.c_str())+"/images/map_backgrounds/"+QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename)));
         QImage bg1_image(filename);
 		if (bg1_image.isNull()) {
             printf("ERROR: EditorArea::paintEvent - Could not load bg1 image file '%s'\n", qPrintable(filename));
@@ -75,15 +69,15 @@ void colorcycle_map_preview::paintEvent(QPaintEvent *) {
             apply_colorcycle(bg1_image);
 			for (int k=0; k<((MAP_W*16)/bg1_image.width())+1; k++) {
 				QRectF pos_source(QPoint(0, 0), QSize(bg1_image.width(), bg1_image.height()));
-				QRectF pos_dest(QPoint(k*bg1_image.width(), stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[0].adjust_y*_zoom), QSize(bg1_image.width()*_zoom, bg1_image.height()*_zoom));
+                QRectF pos_dest(QPoint(k*bg1_image.width(), Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].adjust_y*_zoom), QSize(bg1_image.width()*_zoom, bg1_image.height()*_zoom));
                 painter.drawImage(pos_dest, bg1_image, pos_source);
 			}
 		}
 	}
 	// draw background2
-	if (strlen(stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[1].filename) > 0) {
+    if (strlen(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename) > 0) {
         filename.clear();
-        filename.append(QString(QString(EDITOR_FILEPATH)+"/data/images/map_backgrounds/"+QString(stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[1].filename)));
+        filename.append(QString(QString(FILEPATH.c_str())+"/images/map_backgrounds/"+QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename)));
         QImage bg2_image(filename);
 		if (bg2_image.isNull()) {
             printf("ERROR: EditorArea::paintEvent - Could not load bg1 image file '%s'\n", qPrintable(filename));
@@ -91,7 +85,7 @@ void colorcycle_map_preview::paintEvent(QPaintEvent *) {
             apply_colorcycle(bg2_image);
 			for (int k=0; k<((MAP_W*16)/bg2_image.width())+1; k++) {
 				QRectF pos_source(QPoint(0, 0), QSize(bg2_image.width(), bg2_image.height()));
-				QRectF pos_dest(QPoint(k*bg2_image.width(), stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].backgrounds[1].adjust_y*_zoom), QSize(bg2_image.width()*_zoom, bg2_image.height()*_zoom));
+                QRectF pos_dest(QPoint(k*bg2_image.width(), Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].adjust_y*_zoom), QSize(bg2_image.width()*_zoom, bg2_image.height()*_zoom));
                 painter.drawImage(pos_dest, bg2_image, pos_source);
 			}
 		}
@@ -101,15 +95,15 @@ void colorcycle_map_preview::paintEvent(QPaintEvent *) {
 	for (i=0; i<MAP_W; i++) {
 		for (j=0; j<MAP_H; j++) {
 			// level one
-			if (stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile1.x != -1 && stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile1.y != -1) {
+            if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.x != -1 && Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.y != -1) {
 				QRectF target(QPoint(i*16*_zoom, j*16*_zoom), QSize(16*_zoom, 16*_zoom));
-				QRectF source(QPoint((stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile1.x*16), (stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile1.y*16)), QSize(16, 16));
+                QRectF source(QPoint((Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.x*16), (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.y*16)), QSize(16, 16));
 				painter.drawImage(target, image, source);
 			}
 			// leval 3
-			if (stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile3.x != -1 && stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile3.y != -1) {
+            if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.x != -1 && Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.y != -1) {
 				QRectF target(QPoint(i*16*_zoom, j*16*_zoom), QSize(16*_zoom, 16*_zoom));
-				QRectF source(QPoint((stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile3.x*16), (stage_data.stages[dataExchanger->currentStage].maps[dataExchanger->currentMap].tiles[i][j].tile3.y*16)), QSize(16, 16));
+                QRectF source(QPoint((Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.x*16), (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.y*16)), QSize(16, 16));
 				painter.drawImage(target, image, source);
 			}
 		}
@@ -128,12 +122,12 @@ bool colorcycle_map_preview::color1_next(unsigned int now_time)
     if (now_time < _timer1) { // not reached timer1 yet
         return false;
     }
-    if (dataExchanger->show_colorcycle1 == true && stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color1+1][0].r != -1) {
+    if (Mediator::get_instance()->show_colorcycle1 == true && Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color1+1][0].r != -1) {
 		_current_color1++;
 	} else {
 		_current_color1 = 0;
 	}
-    _timer1 = _timer1 + stage_data.stages[dataExchanger->currentStage].colorcycle.duration[_current_color1][0];
+    _timer1 = _timer1 + Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[_current_color1][0];
     return true;
 }
 
@@ -142,12 +136,12 @@ bool colorcycle_map_preview::color2_next(unsigned int now_time)
     if (now_time < _timer2) { // not reached timer2 yet
         return false;
     }
-    if (dataExchanger->show_colorcycle2 == true && stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color2+1][1].r != -1) {
+    if (Mediator::get_instance()->show_colorcycle2 == true && Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color2+1][1].r != -1) {
 		_current_color2++;
 	} else {
 		_current_color2 = 0;
 	}
-    _timer2 = _timer2 + stage_data.stages[dataExchanger->currentStage].colorcycle.duration[_current_color2][1];
+    _timer2 = _timer2 + Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[_current_color2][1];
     return true;
 }
 
@@ -156,12 +150,12 @@ bool colorcycle_map_preview::color3_next(unsigned int now_time)
     if (now_time < _timer3) { // not reached timer3 yet
         return false;
     }
-	if (dataExchanger->show_colorcycle3 == true && stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color3+1][2].r != -1) {
+    if (Mediator::get_instance()->show_colorcycle3 == true && Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color3+1][2].r != -1) {
 		_current_color3++;
 	} else {
 		_current_color3 = 0;
 	}
-    _timer3 = _timer3 + stage_data.stages[dataExchanger->currentStage].colorcycle.duration[_current_color3][2];
+    _timer3 = _timer3 + Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.duration[_current_color3][2];
     return true;
 }
 
@@ -178,19 +172,19 @@ void colorcycle_map_preview::apply_colorcycle(QImage& image)
 
     //std::cout << "key_n1: " << key_n1 << ", " << ", key_n2: " << key_n2 << ", key_n3: " << key_n3 << std::endl;
 
-    st_color color1 = stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color1][0];
+    st_color color1 = Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color1][0];
     if (color1.r != -1) {
         QColor temp_color1(color1.r, color1.g, color1.b);
         image.setColor(key_n1, temp_color1.rgb());
     }
 
-    st_color color2 = stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color2][1];
+    st_color color2 = Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color2][1];
     if (color2.r != -1) {
         QColor temp_color2(color2.r, color2.g, color2.b);
         image.setColor(key_n2, temp_color2.rgb());
     }
 
-    st_color color3 = stage_data.stages[dataExchanger->currentStage].colorcycle.color[_current_color3][2];
+    st_color color3 = Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].colorcycle.color[_current_color3][2];
     //std::cout << "color3: " << color3.r << "," << color3.g << "," << color3.b << std::endl;
     if (color3.r != -1) {
         QColor temp_color3(color3.r, color3.g, color3.b);

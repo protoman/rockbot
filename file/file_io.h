@@ -7,13 +7,18 @@
 #include <iostream>
 #include <vector>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <stdio.h>
+
 #ifdef WII
 #include <fat.h>
 #endif
 
 
-extern std::string FILEPATH; /**< TODO */
-
+extern std::string FILEPATH;
+extern std::string SAVEPATH;
 
 /**
  * @brief
@@ -198,6 +203,8 @@ namespace format_v_3_0_1 {
         void read_stage(format_v_3_0_1::file_stage& stages_data_out, short stage_n);
 
         bool file_exists(std::string filename) const;
+        bool directory_exists(std::string filename) const;
+        std::vector<std::string> read_game_list() const;
 
         void check_conversion() const;
 

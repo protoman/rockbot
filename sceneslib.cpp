@@ -78,56 +78,56 @@ void scenesLib::preload_intro() { /// @TODO: check is memory is being freed, oth
 
 	std::string filename;
 
-	filename = FILEPATH + "data/images/presents.png";
+    filename = FILEPATH + "images/presents.png";
     graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PRESENTS]);
 
-    filename = FILEPATH + "data/images/upperland.png";
+    filename = FILEPATH + "images/upperland.png";
     graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_UPPERLAND]);
 
-    filename = FILEPATH + "data/images/scenes/city_bg.png";
+    filename = FILEPATH + "images/scenes/city_bg.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
 
-	filename = FILEPATH + "data/images/sprites/canotus.png";
+    filename = FILEPATH + "images/sprites/canotus.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_KANOTUS]);
 
-	filename = FILEPATH + "data/images/sprites/p1.png";
+    filename = FILEPATH + "images/sprites/p1.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT]);
 
-	filename = FILEPATH + "data/images/sprites/p2.png";
+    filename = FILEPATH + "images/sprites/p2.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_BETABOT]);
 
-	filename = FILEPATH + "data/images/scenes/lab_intro1.png";
+    filename = FILEPATH + "images/scenes/lab_intro1.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_LAB_BG]);
 
-	filename = FILEPATH + "data/images/logo.png";
+    filename = FILEPATH + "images/logo.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_INTRO_SCREEN]);
 
     if (game_config.game_finished == true) {
-        filename = FILEPATH + "data/images/backgrounds/player_select4.png";
+        filename = FILEPATH + "images/backgrounds/player_select4.png";
     } else {
-        filename = FILEPATH + "data/images/backgrounds/player_select.png";
+        filename = FILEPATH + "images/backgrounds/player_select.png";
     }
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_BG]);
 
-	filename = FILEPATH + "data/images/backgrounds/lights.png";
+    filename = FILEPATH + "images/backgrounds/lights.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_LIGHTS]);
 
-	filename = FILEPATH + "data/images/backgrounds/capsules.png";
+    filename = FILEPATH + "images/backgrounds/capsules.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_CAPSULES]);
 
-	filename = FILEPATH + "data/images/scenes/rockbot.png";
+    filename = FILEPATH + "images/scenes/rockbot.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG]);
 
-	filename = FILEPATH + "data/images/scenes/rockbot_half_sleep.png";
+    filename = FILEPATH + "images/scenes/rockbot_half_sleep.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP]);
 
-	filename = FILEPATH + "data/images/scenes/rockbot_full_sleep.png";
+    filename = FILEPATH + "images/scenes/rockbot_full_sleep.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP]);
 
-	filename = FILEPATH + "data/images/scenes/betabot.png";
+    filename = FILEPATH + "images/scenes/betabot.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_BETABOT_BIG]);
 
-	filename = FILEPATH + "data/images/scenes/kanotus.png";
+    filename = FILEPATH + "images/scenes/kanotus.png";
 	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_KANOTUS_BIG]);
 
 	soundManager.load_music("opening.mod");
@@ -260,7 +260,7 @@ void scenesLib::intro()
 	if (cut) { return; }
 
     soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 2);
-    simple_animation explosion_anim1(FILEPATH+"data/images/animations/city_explosion_left.png", 5, 40, 51, st_position(90, 60));
+    simple_animation explosion_anim1(FILEPATH+"images/animations/city_explosion_left.png", 5, 40, 51, st_position(90, 60));
     for (int i=0; i<40; i++) {
         graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         explosion_anim1.execute();
@@ -269,7 +269,7 @@ void scenesLib::intro()
     }
     soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 2);
     explosion_anim1.set_position(st_position(37, 45));
-    simple_animation explosion_anim2(FILEPATH+"data/images/animations/city_explosion_right.png", 5, 40, 51, st_position(177, 69));
+    simple_animation explosion_anim2(FILEPATH+"images/animations/city_explosion_right.png", 5, 40, 51, st_position(177, 69));
     for (int i=0; i<40; i++) {
         graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         explosion_anim1.execute();
@@ -1034,9 +1034,9 @@ void scenesLib::password_number_selector(int ball_type)
 
 	std::string filename;
 	if (ball_type == 0) {
-		filename = FILEPATH + "data/images/backgrounds/password_blue_ball.png";
+        filename = FILEPATH + "images/backgrounds/password_blue_ball.png";
 	} else {
-		filename = FILEPATH + "data/images/backgrounds/password_red_ball.png";
+        filename = FILEPATH + "images/backgrounds/password_red_ball.png";
 	}
 	graphLib.surfaceFromFile(filename, &ball_img);
 
@@ -1099,11 +1099,11 @@ bool scenesLib::show_password_input()
 {
     std::cout << ">> show_password_input::START << " << std::endl;
 	graphicsLib_gSurface password_screen;
-	std::string filename = FILEPATH + "data/images/backgrounds/password.png";
+    std::string filename = FILEPATH + "images/backgrounds/password.png";
 	graphLib.surfaceFromFile(filename, &password_screen);
 	graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
-	filename = FILEPATH + "data/images/backgrounds/password_selector.png";
+    filename = FILEPATH + "images/backgrounds/password_selector.png";
 	graphLib.surfaceFromFile(filename, &_password_selector);
 
     draw_lib.update_screen();
@@ -1117,19 +1117,19 @@ bool scenesLib::show_password_input()
 void scenesLib::show_password()
 {
     graphicsLib_gSurface password_screen;
-    std::string filename = FILEPATH + "data/images/backgrounds/password.png";
+    std::string filename = FILEPATH + "images/backgrounds/password.png";
     graphLib.surfaceFromFile(filename, &password_screen);
     graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
-    filename = FILEPATH + "data/images/backgrounds/password_selector.png";
+    filename = FILEPATH + "images/backgrounds/password_selector.png";
     graphLib.surfaceFromFile(filename, &_password_selector);
     // add balls
     graphicsLib_gSurface red_ball_img, blue_ball_img;
     st_position selected_number(0, 0);
     st_rectangle point_zero(60, 52, 16, 16);
-    filename = FILEPATH + "data/images/backgrounds/password_blue_ball.png";
+    filename = FILEPATH + "images/backgrounds/password_blue_ball.png";
     graphLib.surfaceFromFile(filename, &blue_ball_img);
-    filename = FILEPATH + "data/images/backgrounds/password_red_ball.png";
+    filename = FILEPATH + "images/backgrounds/password_red_ball.png";
     graphLib.surfaceFromFile(filename, &red_ball_img);
 
     if (game_save.selected_player == PLAYER_BETABOT) {
@@ -1302,18 +1302,18 @@ void scenesLib::show_password()
 void scenesLib::show_password()
 {
     graphicsLib_gSurface password_screen;
-    std::string filename = FILEPATH + "data/images/backgrounds/password.png";
+    std::string filename = FILEPATH + "images/backgrounds/password.png";
     graphLib.surfaceFromFile(filename, &password_screen);
     graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
-    filename = FILEPATH + "data/images/backgrounds/password_selector.png";
+    filename = FILEPATH + "images/backgrounds/password_selector.png";
     graphLib.surfaceFromFile(filename, &_password_selector);
     // add balls
     graphicsLib_gSurface red_ball_img, blue_ball_img;
     st_rectangle point_zero(60, 52, 16, 16);
-    filename = FILEPATH + "data/images/backgrounds/password_blue_ball.png";
+    filename = FILEPATH + "images/backgrounds/password_blue_ball.png";
     graphLib.surfaceFromFile(filename, &blue_ball_img);
-    filename = FILEPATH + "data/images/backgrounds/password_red_ball.png";
+    filename = FILEPATH + "images/backgrounds/password_red_ball.png";
     graphLib.surfaceFromFile(filename, &red_ball_img);
 
     password_generator pgen(game_save);
@@ -1500,7 +1500,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
     //std::cout << "#2 - scenesLib::boss_intro::pos_n: " << pos_n << std::endl;
 
     if (pos_n == SKULLCASTLE1 || pos_n >= SKULLCASTLE2) {
-        filename = FILEPATH + "data/images/backgrounds/skull_castle.png";
+        filename = FILEPATH + "images/backgrounds/skull_castle.png";
         graphLib.surfaceFromFile(filename, &spriteCopy);
         graphLib.copyArea(st_position(0, 0), &spriteCopy, &graphLib.gameScreen);
 
@@ -1508,7 +1508,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         graphLib.blink_surface_into_screen(spriteCopy);
 
         graphicsLib_gSurface castle_point;
-        filename = FILEPATH + "data/images/backgrounds/castle_point.png";
+        filename = FILEPATH + "images/backgrounds/castle_point.png";
         graphLib.surfaceFromFile(filename, &castle_point);
         graphLib.copyArea(st_position(74, 228), &castle_point, &graphLib.gameScreen);
 
@@ -1534,7 +1534,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
             graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
             graphLib.copyArea(st_position(195, 110), &castle_point, &graphLib.gameScreen);
             graphicsLib_gSurface castle_skull_point;
-            filename = FILEPATH + "data/images/backgrounds/castle_skull_point.png";
+            filename = FILEPATH + "images/backgrounds/castle_skull_point.png";
             graphLib.surfaceFromFile(filename, &castle_skull_point);
             graphLib.copyArea(st_position(167, 42), &castle_skull_point, &graphLib.gameScreen);
         }
@@ -1609,7 +1609,7 @@ void scenesLib::show_destrin_ship_intro() const
     graphicsLib_gSurface destrin_ship;
     st_size ship_size(56, 46);
 
-    std::string filename = FILEPATH + "data/images/sprites/enemies/destrin_capsule_small.png";
+    std::string filename = FILEPATH + "images/sprites/enemies/destrin_capsule_small.png";
     graphLib.surfaceFromFile(filename, &destrin_ship);
     graphLib.start_stars_animation();
 

@@ -5,13 +5,14 @@
 #include <QString>
 #include <QFontDatabase>
 
+#include "mediator.h"
+
 extern std::string FILEPATH;
 
 TextPreviewArea::TextPreviewArea(QWidget *parent) : QWidget(parent)
 {
-    mediator = ScenesMediator::get_instance();
     selected_n = 0;
-    const QString font_filename = QString(FILEPATH.c_str()) + QString("/data/fonts/pressstart2p.ttf");
+    const QString font_filename = QString(Mediator::get_instance()->EDITOR_FILEPATH) + QString("/fonts/pressstart2p.ttf");
     int id = QFontDatabase::addApplicationFont(font_filename);
     QString font_family = QFontDatabase::applicationFontFamilies(id).at(0);
     monospace = QFont(font_family);

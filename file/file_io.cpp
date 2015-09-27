@@ -11,10 +11,6 @@
 extern std::string FILEPATH;
 extern std::string SAVEPATH;
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
-
-extern bool GAME_FLAGS[FLAG_COUNT];
-
 namespace format_v_2_1_1 {
 
     file_io::file_io()
@@ -23,7 +19,7 @@ namespace format_v_2_1_1 {
 
     void file_io::write_game(format_v_2_1_1::file_game& data_in) const {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/game_v211.dat";
+        std::string filename = std::string(FILEPATH) + "game_v211.dat";
 
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
@@ -43,7 +39,7 @@ namespace format_v_2_1_1 {
     void file_io::write_all_stages(format_v_2_1_1::file_stages &stages_data_in) const
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v211.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v211.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << std::endl;
@@ -59,7 +55,7 @@ namespace format_v_2_1_1 {
 
     void file_io::read_game(format_v_2_1_1::file_game& data_out) const {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/game_v211.dat";
+        std::string filename = std::string(FILEPATH) + "game_v211.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save 211" << std::endl;
@@ -79,7 +75,7 @@ namespace format_v_2_1_1 {
     void file_io::read_all_stages(format_v_2_1_1::file_stages& stages_data_out) const
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v211.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v211.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR::read_game - could not load file '" << filename << std::endl;
@@ -94,7 +90,7 @@ namespace format_v_2_1_1 {
     void file_io::read_stage(format_v_2_0_3::file_stage &stages_data_out, short stage_n) const
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v211.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v211.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read stages 211" << std::endl;
@@ -128,7 +124,7 @@ namespace format_v_2_1_2 {
 
     void file_io::write_game(format_v_2_1_2::file_game& data_in) const {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/game_v212.dat";
+        std::string filename = std::string(FILEPATH) + "game_v212.dat";
 
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
@@ -148,7 +144,7 @@ namespace format_v_2_1_2 {
     void file_io::write_all_stages(format_v_2_1_2::file_stages &stages_data_in) const
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v212.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v212.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << std::endl;
@@ -164,7 +160,7 @@ namespace format_v_2_1_2 {
 
     void file_io::read_game(format_v_2_1_2::file_game& data_out) const {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/game_v212.dat";
+        std::string filename = std::string(FILEPATH) + "game_v212.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -184,7 +180,7 @@ namespace format_v_2_1_2 {
     void file_io::read_all_stages(format_v_2_1_2::file_stages& stages_data_out)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v212.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v212.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR::read_game - could not load file '" << filename << std::endl;
@@ -199,7 +195,7 @@ namespace format_v_2_1_2 {
     void file_io::read_stage(format_v_2_1_2::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v212.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v212.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -232,8 +228,8 @@ namespace format_v_2_1_2 {
     /*
     void file_io::check_conversion() const
     {
-        std::string filename_v211 = std::string(FILEPATH) + "data/game_v211.dat";
-        std::string filename_v212 = std::string(FILEPATH) + "data/game_v212.dat";
+        std::string filename_v211 = std::string(FILEPATH) + "game_v211.dat";
+        std::string filename_v212 = std::string(FILEPATH) + "game_v212.dat";
         if (file_exists(filename_v212) == false && file_exists(filename_v211) == true) {
             convert convert_obj;
             convert_obj.v211_to_v212();
@@ -367,7 +363,7 @@ namespace format_v_2_1_2 {
     int file_io::read_stage_boss_id(Uint8 stage_n)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v212.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v212.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -519,7 +515,7 @@ namespace format_v_3_0_0 {
         // Sint8 semi_charged_projectile_id;
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
-        filename = std::string(FILEPATH) + "data/game_properties_v3.dat";
+        filename = std::string(FILEPATH) + "game_properties_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -534,7 +530,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- NPCS -------------------------------------- //
         // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "data/game_npcs_v3.dat";
+        filename = std::string(FILEPATH) + "game_npcs_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -586,7 +582,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
-        filename = std::string(FILEPATH) + "data/game_objects_v3.dat";
+        filename = std::string(FILEPATH) + "game_objects_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -598,7 +594,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- PROJECTILES -------------------------------------- //
         // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "data/game_projectiles_v3.dat";
+        filename = std::string(FILEPATH) + "game_projectiles_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -610,7 +606,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "data/game_weapons_v3.dat";
+        filename = std::string(FILEPATH) + "game_weapons_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -622,7 +618,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "data/game_players_v3.dat";
+        filename = std::string(FILEPATH) + "game_players_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -676,7 +672,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
         // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "data/game_ai_v3.dat";
+        filename = std::string(FILEPATH) + "game_ai_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -688,7 +684,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "data/game_trophies_v3.dat";
+        filename = std::string(FILEPATH) + "game_trophies_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -701,7 +697,7 @@ namespace format_v_3_0_0 {
 // -------------------------------------- SHOP -------------------------------------- //
         // st_shop_dialog shop_dialog_welcome
         // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "data/game_shop_v3.dat";
+        filename = std::string(FILEPATH) + "game_shop_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -714,7 +710,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "data/game_armorPieces_v3.dat";
+        filename = std::string(FILEPATH) + "game_armorPieces_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -726,7 +722,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ANIM_TILES -------------------------------------- //
         // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "data/game_animTiles_v3.dat";
+        filename = std::string(FILEPATH) + "game_animTiles_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -748,7 +744,7 @@ namespace format_v_3_0_0 {
     void file_io::write_all_stages(format_v_3_0_0::file_stages &stages_data_in) const
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v3.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v3.dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -769,7 +765,7 @@ namespace format_v_3_0_0 {
 
         bool USE_NEW_READ = true;
         if (USE_NEW_READ == false) {
-            filename = std::string(FILEPATH) + "data/game_v3.dat";
+            filename = std::string(FILEPATH) + "game_v3.dat";
             fp = fopen(filename.c_str(), "rb");
             if (!fp) {
                 std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -791,7 +787,7 @@ namespace format_v_3_0_0 {
         // Sint8 semi_charged_projectile_id;
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
-        filename = std::string(FILEPATH) + "data/game_properties_v3.dat";
+        filename = std::string(FILEPATH) + "game_properties_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -828,7 +824,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- NPCS -------------------------------------- //
         // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "data/game_npcs_v3.dat";
+        filename = std::string(FILEPATH) + "game_npcs_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -843,7 +839,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
-        filename = std::string(FILEPATH) + "data/game_objects_v3.dat";
+        filename = std::string(FILEPATH) + "game_objects_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -859,7 +855,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- PROJECTILES -------------------------------------- //
         // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "data/game_projectiles_v3.dat";
+        filename = std::string(FILEPATH) + "game_projectiles_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -875,7 +871,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "data/game_weapons_v3.dat";
+        filename = std::string(FILEPATH) + "game_weapons_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -891,7 +887,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- PLAYERS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "data/game_players_v3.dat";
+        filename = std::string(FILEPATH) + "game_players_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -908,7 +904,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
         // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "data/game_ai_v3.dat";
+        filename = std::string(FILEPATH) + "game_ai_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -924,7 +920,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "data/game_trophies_v3.dat";
+        filename = std::string(FILEPATH) + "game_trophies_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -941,7 +937,7 @@ namespace format_v_3_0_0 {
 // -------------------------------------- SHOP -------------------------------------- //
         // st_shop_dialog shop_dialog_welcome
         // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "data/game_shop_v3.dat";
+        filename = std::string(FILEPATH) + "game_shop_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -962,7 +958,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "data/game_armorPieces_v3.dat";
+        filename = std::string(FILEPATH) + "game_armorPieces_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -978,7 +974,7 @@ namespace format_v_3_0_0 {
 
 // -------------------------------------- ANIM_TILES -------------------------------------- //
         // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "data/game_animTiles_v3.dat";
+        filename = std::string(FILEPATH) + "game_animTiles_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -998,7 +994,7 @@ namespace format_v_3_0_0 {
     void file_io::read_all_stages(format_v_3_0_0::file_stages& stages_data_out)
     {
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v3.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v3.dat";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1011,7 +1007,7 @@ namespace format_v_3_0_0 {
     void file_io::read_stage(format_v_3_0_0::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v3.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -1042,8 +1038,8 @@ namespace format_v_3_0_0 {
 
     void file_io::check_conversion() const
     {
-        std::string filename_v211 = std::string(FILEPATH) + "data/game_v212.dat";
-        std::string filename_v3 = std::string(FILEPATH) + "data/game_v3.dat";
+        std::string filename_v211 = std::string(FILEPATH) + "game_v212.dat";
+        std::string filename_v3 = std::string(FILEPATH) + "game_v3.dat";
 
 
         /// IURI - while we don't finish the new file-format, always convert
@@ -1061,8 +1057,8 @@ namespace format_v_3_0_0 {
         }
 
         // convert config
-        std::string config_v211 = std::string(FILEPATH) + "data/game_v212.dat";
-        std::string config_v3 = std::string(FILEPATH) + "data/game_v3.dat";
+        std::string config_v211 = std::string(FILEPATH) + "game_v212.dat";
+        std::string config_v3 = std::string(FILEPATH) + "game_v3.dat";
         if (file_exists(config_v3) == false && file_exists(config_v211) == true) {
             convert convert_obj;
             convert_obj.config_v212_to_v3();
@@ -1133,7 +1129,8 @@ namespace format_v_3_0_0 {
             exit(-1);
         }
 
-        if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
+        /*
+        if (Media GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
             data_out.selected_player = PLAYER_ROCKBOT;
         } else if (GAME_FLAGS[FLAG_PLAYER_BETABOT]) {
             data_out.selected_player = PLAYER_BETABOT;
@@ -1142,6 +1139,7 @@ namespace format_v_3_0_0 {
         } else if (GAME_FLAGS[FLAG_PLAYER_KITTYBOT]) {
             data_out.selected_player = PLAYER_KITTYBOT;
         }
+        */
 
         if (data_out.items.lifes > 9) {
             data_out.items.lifes = 3;
@@ -1172,7 +1170,7 @@ namespace format_v_3_0_0 {
         /// Então estou sobrescrevendo o próprio stage_data, passado como referência
         /*
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages_v3.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -1197,7 +1195,7 @@ namespace format_v_3_0_0 {
         */
         FILE *fp;
 
-        std::string filename = std::string(FILEPATH) + "data/stages_v3.dat";
+        std::string filename = std::string(FILEPATH) + "stages_v3.dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -1219,7 +1217,7 @@ namespace format_v_3_0_0 {
     {
         int line_number = 0;
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/rockbot.gpl";
+        std::string filename = std::string(FILEPATH) + "rockbot.gpl";
 
         fp = fopen(filename.c_str(), "rb");
 
@@ -1275,7 +1273,7 @@ namespace format_v_3_0_0 {
         scene_sequence.clear();
         format_v_3_0_0::file_scene_sequence temp;
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/sequence.scn";
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1291,7 +1289,7 @@ namespace format_v_3_0_0 {
     void file_io::save_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/sequence.scn";
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1308,7 +1306,7 @@ namespace format_v_3_0_0 {
         scenes.clear();
         format_v_3_0_0::file_scene temp;
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/scenes.scn";
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1324,7 +1322,7 @@ namespace format_v_3_0_0 {
     void file_io::save_scenes(std::vector<file_scene> &scenes)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/scenes.scn";
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1367,7 +1365,7 @@ namespace format_v_3_0_1 {
 
 
 // -------------------------------------- GAME -------------------------------------- //
-        filename = std::string(FILEPATH) + "data/game_properties" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_properties" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1382,7 +1380,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- NPCS -------------------------------------- //
         // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "data/game_npcs" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_npcs" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1394,7 +1392,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
-        filename = std::string(FILEPATH) + "data/game_objects" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1406,7 +1404,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- PROJECTILES -------------------------------------- //
         // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "data/game_projectiles" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_projectiles" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1418,7 +1416,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "data/game_weapons" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1430,7 +1428,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "data/game_players" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1444,7 +1442,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
         // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "data/game_ai" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_ai" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1456,7 +1454,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "data/game_trophies" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1469,7 +1467,7 @@ namespace format_v_3_0_1 {
 // -------------------------------------- SHOP -------------------------------------- //
         // st_shop_dialog shop_dialog_welcome
         // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "data/game_shop" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_shop" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1482,7 +1480,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "data/game_armorPieces" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1494,7 +1492,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ANIM_TILES -------------------------------------- //
         // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "data/game_animTiles" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_animTiles" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1516,7 +1514,7 @@ namespace format_v_3_0_1 {
     void file_io::write_all_stages(format_v_3_0_1::file_stages &stages_data_in) const
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -1537,7 +1535,7 @@ namespace format_v_3_0_1 {
 
         bool USE_NEW_READ = true;
         if (USE_NEW_READ == false) {
-            filename = std::string(FILEPATH) + "data/game" + sufix + ".dat";
+            filename = std::string(FILEPATH) + "game" + sufix + ".dat";
             fp = fopen(filename.c_str(), "rb");
             if (!fp) {
                 std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1559,7 +1557,7 @@ namespace format_v_3_0_1 {
         // Sint8 semi_charged_projectile_id;
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
-        filename = std::string(FILEPATH) + "data/game_properties" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_properties" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1595,7 +1593,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- NPCS -------------------------------------- //
         // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "data/game_npcs" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_npcs" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1609,7 +1607,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
-        filename = std::string(FILEPATH) + "data/game_objects" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1624,7 +1622,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- PROJECTILES -------------------------------------- //
         // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "data/game_projectiles" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_projectiles" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1639,7 +1637,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "data/game_weapons" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1654,7 +1652,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- PLAYERS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "data/game_players" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1670,7 +1668,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
         // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "data/game_ai" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_ai" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1685,7 +1683,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "data/game_trophies" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1701,7 +1699,7 @@ namespace format_v_3_0_1 {
 // -------------------------------------- SHOP -------------------------------------- //
         // st_shop_dialog shop_dialog_welcome
         // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "data/game_shop" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_shop" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1722,7 +1720,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "data/game_armorPieces" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1737,7 +1735,7 @@ namespace format_v_3_0_1 {
 
 // -------------------------------------- ANIM_TILES -------------------------------------- //
         // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "data/game_animTiles" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "game_animTiles" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -1756,7 +1754,7 @@ namespace format_v_3_0_1 {
     void file_io::read_all_stages(format_v_3_0_1::file_stages& stages_data_out)
     {
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -1769,7 +1767,7 @@ namespace format_v_3_0_1 {
     void file_io::read_stage(format_v_3_0_1::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -1798,14 +1796,57 @@ namespace format_v_3_0_1 {
         return res;
     }
 
+    bool file_io::directory_exists(std::string filename) const
+    {
+        struct stat info;
+
+        if (stat( filename.c_str(), &info) != 0) {
+            printf( "cannot access %s\n", filename.c_str() );
+            return false;
+        } else if (info.st_mode & S_IFDIR) { // S_ISDIR() doesn't exist on my windows
+            printf( "%s is a directory\n", filename.c_str() );
+            return true;
+        } else {
+            printf( "%s is no directory\n", filename.c_str() );
+            return false;
+        }
+    }
+
+    std::vector<std::string> file_io::read_game_list() const
+    {
+        std::vector<std::string> res;
+        std::string filename = FILEPATH + "/games";
+        res.push_back("Rockbot 1");
+
+        // check if games folder exists
+        if (!directory_exists(filename)) {
+            return res;
+        }
+
+        DIR *dir = opendir(filename.c_str());
+        struct dirent *entry = readdir(dir);
+        while (entry != NULL) {
+            if (entry->d_type == DT_DIR) {
+                std::string dir_name = std::string(entry->d_name);
+                if (dir_name != "." && dir_name != "..") {
+                    res.push_back(dir_name);
+                    printf("%s\n", dir_name.c_str());
+                }
+            }
+            entry = readdir(dir);
+        }
+        closedir(dir);
+        return res;
+    }
+
 
 
 
 
     void file_io::check_conversion() const
     {
-        std::string filename_v3 = std::string(FILEPATH) + "data/game_v3.dat";
-        std::string filename_v301 = std::string(FILEPATH) + "data/game" + sufix + ".dat";
+        std::string filename_v3 = std::string(FILEPATH) + "game_v3.dat";
+        std::string filename_v301 = std::string(FILEPATH) + "game" + sufix + ".dat";
 
 
         /// IURI - while we don't finish the new file-format, always convert
@@ -1825,8 +1866,8 @@ namespace format_v_3_0_1 {
         }
 
         // convert config
-        std::string config_v212 = std::string(FILEPATH) + "data/game_v212.dat";
-        std::string config_v3 = std::string(FILEPATH) + "data/game_v301.dat";
+        std::string config_v212 = std::string(FILEPATH) + "game_v212.dat";
+        std::string config_v3 = std::string(FILEPATH) + "game_v301.dat";
         if (file_exists(config_v3) == false && file_exists(config_v212) == true) {
             convert convert_obj;
             convert_obj.config_v212_to_v301();
@@ -1901,6 +1942,7 @@ namespace format_v_3_0_1 {
         }
 
 
+        /*
         if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
             data_out.selected_player = PLAYER_ROCKBOT;
         } else if (GAME_FLAGS[FLAG_PLAYER_BETABOT]) {
@@ -1910,6 +1952,7 @@ namespace format_v_3_0_1 {
         } else if (GAME_FLAGS[FLAG_PLAYER_KITTYBOT]) {
             data_out.selected_player = PLAYER_KITTYBOT;
         }
+        */
 
 
 
@@ -1966,7 +2009,7 @@ namespace format_v_3_0_1 {
         /// Então estou sobrescrevendo o próprio stage_data, passado como referência
         FILE *fp;
 
-        std::string filename = std::string(FILEPATH) + "data/stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -1988,7 +2031,7 @@ namespace format_v_3_0_1 {
     {
         int line_number = 0;
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "data/rockbot.gpl";
+        std::string filename = std::string(FILEPATH) + "rockbot.gpl";
 
         fp = fopen(filename.c_str(), "rb");
 
@@ -2044,7 +2087,7 @@ namespace format_v_3_0_1 {
         scene_sequence.clear();
         format_v_3_0_1::file_scene_sequence temp;
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/sequence.scn";
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -2060,7 +2103,7 @@ namespace format_v_3_0_1 {
     void file_io::save_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/sequence.scn";
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -2077,7 +2120,7 @@ namespace format_v_3_0_1 {
         scenes.clear();
         format_v_3_0_1::file_scene temp;
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "data/scenes.scn";
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -2093,7 +2136,7 @@ namespace format_v_3_0_1 {
     void file_io::save_scenes(std::vector<file_scene> &scenes)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "data/scenes.scn";
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;

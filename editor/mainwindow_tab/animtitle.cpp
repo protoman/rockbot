@@ -4,9 +4,6 @@
 #include <QImage>
 
 #include "mediator.h"
-extern Mediator *dataExchanger;
-
-extern CURRENT_FILE_FORMAT::file_game game_data;
 
 
 animTitle::animTitle(QWidget *parent) :
@@ -16,7 +13,7 @@ animTitle::animTitle(QWidget *parent) :
     myParent = parent;
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), this, SLOT(updateBG()));
-    int delay = game_data.anim_tiles[dataExchanger->selectedAnimTileset].delay;
+    int delay = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay;
     if (delay < 10) {
         delay = 10;
     }
@@ -27,25 +24,25 @@ animTitle::animTitle(QWidget *parent) :
 void animTitle::updateBG()
 {
     //std::cout << "animTitle::updateBG" << std::endl;
-    //std::cout << "sprite_preview_area::updateBG - current_npc: " << dataExchanger->current_npc_n << ", current_sprite_type: " << dataExchanger->current_sprite_type << std::endl;
+    //std::cout << "sprite_preview_area::updateBG - current_npc: " << Mediator::get_instance()->current_npc_n << ", current_sprite_type: " << Mediator::get_instance()->current_sprite_type << std::endl;
     _sprite_n++;
     if (_sprite_n > ANIM_FRAMES_COUNT-1) {
         _sprite_n = 0;
     }
 
     // check if sprite position is greater than image width
-    QString filename = QString(FILEPATH.c_str()) + QString("data/images/tilesets/anim/") + QString(game_data.anim_tiles[dataExchanger->selectedAnimTileset].filename);
+    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename);
     QImage image(filename);
     if (image.isNull()) {
         _timer->stop();
-        _timer->start(game_data.anim_tiles[dataExchanger->selectedAnimTileset].delay);
+        _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay);
         return;
     }
     if (_sprite_n > image.width()/TILESIZE) {
         _sprite_n = 0;
     }
     _timer->stop();
-    _timer->start(game_data.anim_tiles[dataExchanger->selectedAnimTileset].delay);
+    _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay);
     repaint();
 }
 
@@ -56,7 +53,7 @@ void animTitle::paintEvent(QPaintEvent *) {
     QRectF target, source;
 
 
-    QString filename = QString(FILEPATH.c_str()) + QString("data/images/tilesets/anim/") + QString(game_data.anim_tiles[dataExchanger->selectedAnimTileset].filename);
+    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename);
     QImage image(filename);
     if (image.isNull() == true || image.width() <= 0) {
         return;

@@ -4,9 +4,6 @@
 #include <QWidget>
 #include "mediator.h"
 
-extern Mediator *dataExchanger;
-
-
 namespace Ui {
 class player_edit;
 }

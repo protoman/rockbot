@@ -49,23 +49,23 @@ short stage_select::finished_stages() const
 
 void stage_select::load_graphics() {
 	std::string filename;
-	filename = FILEPATH + "data/images/backgrounds/stage_select_highlighted.png";
+    filename = FILEPATH + "images/backgrounds/stage_select_highlighted.png";
 	graphLib.surfaceFromFile(filename, &s_light);
 
-	filename = FILEPATH + "data/images/backgrounds/stage_select_darkned.png";
+    filename = FILEPATH + "images/backgrounds/stage_select_darkned.png";
 	graphLib.surfaceFromFile(filename, &s_dark);
 
     if (game_save.selected_player == PLAYER_BETABOT) {
-        filename = FILEPATH + "data/images/faces/betabot_eyes.png";
+        filename = FILEPATH + "images/faces/betabot_eyes.png";
     } else if (game_save.selected_player == PLAYER_ROCKBOT) {
-        filename = FILEPATH + "data/images/faces/rockbot_eyes.png";
+        filename = FILEPATH + "images/faces/rockbot_eyes.png";
     } else {
-        filename = FILEPATH + "data/images/faces/big_eyes.png";
+        filename = FILEPATH + "images/faces/big_eyes.png";
     }
 
 	graphLib.surfaceFromFile(filename, &eyes_surface);
 
-	filename = FILEPATH + "data/images/backgrounds/stage_select.png";
+    filename = FILEPATH + "images/backgrounds/stage_select.png";
 	graphLib.surfaceFromFile(filename, &background);
 }
 

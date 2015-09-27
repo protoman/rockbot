@@ -37,10 +37,10 @@ extern bool leave_game;
 ending::ending()
 {
 	// preload train
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/ending_layer_train.png"), &_train_surface);
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/ending_layer_background.png"),& _bg_surface);
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/ending_layer_fence.png"), &_fence_surface);
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/ending_layer_bushes.png"), &_bushes_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/ending_layer_train.png"), &_train_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/ending_layer_background.png"),& _bg_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/ending_layer_fence.png"), &_fence_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/ending_layer_bushes.png"), &_bushes_surface);
 }
 
 /// @TODO: player position is wrong for some reason (must reset scrolling?)
@@ -78,7 +78,7 @@ void ending::boss()
 
     st_position destrin_pos(250, (RES_H-(TILESIZE*3)-destrin_sprites.height));
 
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/destrin.png"), &destrin_sprites);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/destrin.png"), &destrin_sprites);
 	graphLib.showSurface(&last_stage_bg);
 	st_position p_pos = gameControl.get_player_position(0);
     //graphLib.showSurfaceRegionAt(&destrin_sprites, st_rectangle(44, 0, 20, destrin_sprites.height), destrin_pos);
@@ -825,9 +825,9 @@ void ending::lab() const
     int y_adjust = 60;
 
 
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/scenes/lab_ending.png"), &lab_bg);
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/canotus.png"), &kanotus_surface);
-	graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/candybot_ending.png"), &candybot_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/scenes/lab_ending.png"), &lab_bg);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/canotus.png"), &kanotus_surface);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/candybot_ending.png"), &candybot_surface);
 
 
     graphLib.set_colormap(-3);
@@ -903,9 +903,9 @@ void ending::look_sky_betabot() const
     graphicsLib_gSurface betabot_looking_up;
     graphicsLib_gSurface kittybot;
 
-    graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/twilight.png"), &background);
-    graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/p2_looking_up.png"), &betabot_looking_up);
-    graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/kittybot.png"), &kittybot);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/twilight.png"), &background);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/p2_looking_up.png"), &betabot_looking_up);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/kittybot.png"), &kittybot);
     graphLib.showSurface(&background);
     graphLib.showSurfaceAt(&betabot_looking_up, st_position(81, 192-betabot_looking_up.height), false); // 81, 192
     graphLib.showSurfaceRegionAt(&kittybot, st_rectangle(0, 0, 19, 28), st_position(290, 192-kittybot.height)); // 290, 192
@@ -964,8 +964,8 @@ void ending::look_sky_rockbot() const
     graphicsLib_gSurface background;
     graphicsLib_gSurface betabot_looking_up;
 
-    graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/backgrounds/night.png"), &background);
-    graphLib.surfaceFromFile(std::string(FILEPATH+"data/images/sprites/p1_looking_up.png"), &betabot_looking_up);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/backgrounds/night.png"), &background);
+    graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/p1_looking_up.png"), &betabot_looking_up);
     graphLib.showSurface(&background);
     graphLib.showSurfaceAt(&betabot_looking_up, st_position(222, 192-betabot_looking_up.height), false); // 81, 192
     graphLib.updateScreen();

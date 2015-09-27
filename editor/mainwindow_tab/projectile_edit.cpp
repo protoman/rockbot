@@ -22,9 +22,9 @@ void projectile_edit::reload()
 void projectile_edit::fill_data()
 {
     common::fill_projectiles_combo(ui->projectileList_combo);
-	common::fill_files_combo(std::string("data/images/projectiles"), ui->graphic_filename);
+    common::fill_files_combo(std::string("/images/projectiles"), ui->graphic_filename);
 	common::fill_trajectories_combo(ui->trajectory);
-    dataExchanger->current_projectile = -1;
+    Mediator::get_instance()->current_projectile = -1;
     set_edit_data(-1);
 }
 
@@ -33,23 +33,23 @@ void projectile_edit::fill_data()
 void projectile_edit::set_edit_data(int index)
 {
 	_ignore_name_change = true;
-	dataExchanger->current_projectile = index;
-	ui->name->setText(QString(game_data.projectiles[index].name));
-	ui->graphic_filename->setCurrentIndex(ui->graphic_filename->findText(QString(game_data.projectiles[index].graphic_filename)));
-    ui->trajectory->setCurrentIndex(game_data.projectiles[index].trajectory);
-    ui->img_w->setValue(game_data.projectiles[index].size.width);
-    ui->img_h->setValue(game_data.projectiles[index].size.height);
-	if (game_data.projectiles[index].is_destructible == true) {
+	Mediator::get_instance()->current_projectile = index;
+    ui->name->setText(QString(Mediator::get_instance()->game_data.projectiles[index].name));
+    ui->graphic_filename->setCurrentIndex(ui->graphic_filename->findText(QString(Mediator::get_instance()->game_data.projectiles[index].graphic_filename)));
+    ui->trajectory->setCurrentIndex(Mediator::get_instance()->game_data.projectiles[index].trajectory);
+    ui->img_w->setValue(Mediator::get_instance()->game_data.projectiles[index].size.width);
+    ui->img_h->setValue(Mediator::get_instance()->game_data.projectiles[index].size.height);
+    if (Mediator::get_instance()->game_data.projectiles[index].is_destructible == true) {
 		ui->projectileDestructibleCheckBox->setChecked(true);
 	} else {
 		ui->projectileDestructibleCheckBox->setChecked(false);
 	}
-	ui->projectileHitPointsSpinBox->setValue(game_data.projectiles[index].hp);
-	ui->max_shots->setValue(game_data.projectiles[index].max_shots);
-	ui->speed->setValue(game_data.projectiles[index].speed);
-	ui->damage->setValue(game_data.projectiles[index].damage);
+    ui->projectileHitPointsSpinBox->setValue(Mediator::get_instance()->game_data.projectiles[index].hp);
+    ui->max_shots->setValue(Mediator::get_instance()->game_data.projectiles[index].max_shots);
+    ui->speed->setValue(Mediator::get_instance()->game_data.projectiles[index].speed);
+    ui->damage->setValue(Mediator::get_instance()->game_data.projectiles[index].damage);
 	// if project is DEFAUL, disable all fields
-	if (dataExchanger->current_projectile == -1) {
+	if (Mediator::get_instance()->current_projectile == -1) {
 		ui->name->setDisabled(true);
 		ui->graphic_filename->setDisabled(true);
 		ui->trajectory->setDisabled(true);
@@ -77,7 +77,7 @@ void projectile_edit::set_edit_data(int index)
 
 void projectile_edit::on_projectileList_combo_currentIndexChanged(int index)
 {
-	dataExchanger->current_projectile = index-1;
+	Mediator::get_instance()->current_projectile = index-1;
 	set_edit_data(index-1);
 }
 
@@ -86,56 +86,56 @@ void projectile_edit::on_name_textChanged(const QString &arg1)
 	if (_ignore_name_change == true) {
 		_ignore_name_change = false;
 	} else {
-		sprintf(game_data.projectiles[dataExchanger->current_projectile].name, "%s", arg1.toStdString().c_str());
-		ui->projectileList_combo->setItemText(dataExchanger->current_projectile, arg1);
+        sprintf(Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].name, "%s", arg1.toStdString().c_str());
+		ui->projectileList_combo->setItemText(Mediator::get_instance()->current_projectile, arg1);
 	}
 }
 
 void projectile_edit::on_graphic_filename_currentIndexChanged(const QString &arg1)
 {
-	sprintf(game_data.projectiles[dataExchanger->current_projectile].graphic_filename, "%s", arg1.toStdString().c_str());
+    sprintf(Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].graphic_filename, "%s", arg1.toStdString().c_str());
 	ui->projectilePreviewAreaWidget->repaint();
 }
 
 void projectile_edit::on_trajectory_currentIndexChanged(int index)
 {
 	PROJECTILE_TRAJECTORIES temp = (PROJECTILE_TRAJECTORIES)index;
-	game_data.projectiles[dataExchanger->current_projectile].trajectory = temp;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].trajectory = temp;
 }
 
 void projectile_edit::on_img_w_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].size.width = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.width = arg1;
 	ui->projectilePreviewAreaWidget->repaint();
 }
 
 void projectile_edit::on_img_h_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].size.height = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.height = arg1;
 	ui->projectilePreviewAreaWidget->repaint();
 }
 
 void projectile_edit::on_projectileDestructibleCheckBox_toggled(bool checked)
 {
-	game_data.projectiles[dataExchanger->current_projectile].is_destructible = checked;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].is_destructible = checked;
 }
 
 void projectile_edit::on_projectileHitPointsSpinBox_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].hp = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].hp = arg1;
 }
 
 void projectile_edit::on_max_shots_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].max_shots = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].max_shots = arg1;
 }
 
 void projectile_edit::on_speed_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].speed = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].speed = arg1;
 }
 
 void projectile_edit::on_damage_valueChanged(int arg1)
 {
-	game_data.projectiles[dataExchanger->current_projectile].damage = arg1;
+    Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].damage = arg1;
 }

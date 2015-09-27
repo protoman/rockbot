@@ -7,9 +7,6 @@
 #include <QComboBox>
 #include "../file/format.h"
 
-extern std::string FILEPATH;
-extern CURRENT_FILE_FORMAT::file_game game_data;
-
 
 class common
 {

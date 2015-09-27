@@ -162,7 +162,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 		// load the graphic from file and set it into frameset
 
 
-        std::string temp_filename = FILEPATH + "data/images/sprites/enemies/" + graphic_filename;
+        std::string temp_filename = FILEPATH + "images/sprites/enemies/" + graphic_filename;
         //printf(">> temp_filename: '%s'\n", temp_filename.c_str());
 
         graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
@@ -200,7 +200,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         std::string bg_filename(game_data.game_npcs[main_id].bg_graphic_filename);
         //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
         if (bg_filename.size() > 0) {
-            std::string full_bggraphic_filename = FILEPATH + "data/images/sprites/backgrounds/" + bg_filename;
+            std::string full_bggraphic_filename = FILEPATH + "images/sprites/backgrounds/" + bg_filename;
             std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << std::endl;
             graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
             if (bg_surface.gSurface == NULL) {

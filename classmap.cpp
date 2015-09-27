@@ -756,7 +756,7 @@ void classMap::create_dynamic_background_surfaces()
 {
     graphicsLib_gSurface temp_surface;
     if (strlen(stage_data.maps[number].backgrounds[0].filename) > 0) {
-        std::string bg1_filename(FILEPATH+"data/images/map_backgrounds/" + stage_data.maps[number].backgrounds[0].filename);
+        std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + stage_data.maps[number].backgrounds[0].filename);
         if (game_save.stages[gameControl.currentStage] == 1) {
             graphLib.surfaceFromFile(bg1_filename, &temp_surface);
             create_dynamic_background_surface(bg1_surface, temp_surface);
@@ -769,7 +769,7 @@ void classMap::create_dynamic_background_surfaces()
     }
 
     if (strlen(stage_data.maps[number].backgrounds[1].filename) > 0) {
-        std::string bg2_filename(FILEPATH+"data/images/map_backgrounds/"+ stage_data.maps[number].backgrounds[1].filename);
+        std::string bg2_filename(FILEPATH+"images/map_backgrounds/"+ stage_data.maps[number].backgrounds[1].filename);
         if (game_save.stages[gameControl.currentStage] == 1) {
             graphLib.surfaceFromFile(bg2_filename, &temp_surface);
             create_dynamic_background_surface(bg2_surface, temp_surface);

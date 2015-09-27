@@ -11,10 +11,7 @@ extern std::vector<std::string> AI_ACTION_TELEPORT_OPTIONS;
 extern std::vector<std::string> AI_ACTION_DASH_OPTIONS;
 extern std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
 
-extern CURRENT_FILE_FORMAT::file_stages stage_data;
 #include "mediator.h"
-extern Mediator *dataExchanger;
-extern char EDITOR_FILEPATH[512];
 
 common::common()
 {
@@ -132,7 +129,7 @@ void common::fill_npc_combo(QComboBox* combo)
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(game_data.game_npcs[i].name);
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.game_npcs[i].name);
         combo->addItem(temp_str);
     }
 }
@@ -142,7 +139,7 @@ void common::fill_object_combo(QComboBox* combo)
     combo->clear(); // delete all previous entries
 
     for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(game_data.objects[i].name);
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.objects[i].name);
         combo->addItem(temp_str);
 	}
 }
@@ -155,7 +152,7 @@ void common::fill_weapons_combo(QComboBox *combo)
     QString temp_str = QString("[0] - Normal Weapon");
     combo->addItem(temp_str);
     for (int i=1; i<9; i++) {
-        temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(stage_data.stages[i].name + QString(" (") + QString(stage_data.stages[i].boss.name) + QString (")"));
+        temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->stage_data.stages[i].name + QString(" (") + QString(Mediator::get_instance()->stage_data.stages[i].boss.name) + QString (")"));
         combo->addItem(temp_str);
     }
 }
@@ -164,7 +161,7 @@ void common::fill_weapons_names_combo(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<FS_MAX_WEAPONS; i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(game_data.weapons[i].name);
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.weapons[i].name);
         combo->addItem(temp_str);
     }
 }
@@ -185,7 +182,7 @@ void common::fill_projectiles_combo(QComboBox *combo)
 
     combo->addItem(QString("[") + QString::number(-1) + QString("] - ") + QString("DEFAULT"));
     for (int i=0; i<FS_MAX_PROJECTILES; i++) {
-		QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(game_data.projectiles[i].name);
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.projectiles[i].name);
         combo->addItem(temp_str);
     }
 }
@@ -255,7 +252,7 @@ void common::fill_ai_list(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<MAX_AI_TYPES; i++) {
-		QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(game_data.ai_types[i].name);
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.ai_types[i].name);
 		combo->addItem(temp_str);
     }
 }
@@ -264,9 +261,9 @@ void common::fill_stages_combo(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<FS_MAX_STAGES; i++) {
-        if (strlen(stage_data.stages[i].name) > 0) {
+        if (strlen(Mediator::get_instance()->stage_data.stages[i].name) > 0) {
             //std::cout << "STAGE: '" << stage_data.stages[i].name << "'" << std::endl;
-            combo->addItem(QString(stage_data.stages[i].name));
+            combo->addItem(QString(Mediator::get_instance()->stage_data.stages[i].name));
         }
     }
 }
@@ -275,7 +272,7 @@ void common::fill_players_combo(QComboBox* combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<FS_MAX_PLAYERS; i++) {
-        combo->addItem(QString::number(i+1)+QString(" [")+QString(game_data.players[i].name)+QString("]"));
+        combo->addItem(QString::number(i+1)+QString(" [")+QString(Mediator::get_instance()->game_data.players[i].name)+QString("]"));
     }
 }
 
@@ -285,8 +282,8 @@ void common::fill_map_list_combo(QComboBox *combo)
     combo->clear(); // delete all previous entries
     for (int i=0; i<3; i++) {
         char buffer[512];
-        dataExchanger->centNumberFormat(i);
-        sprintf(buffer, "%s", dataExchanger->centNumber);
+        Mediator::get_instance()->centNumberFormat(i);
+        sprintf(buffer, "%s", Mediator::get_instance()->centNumber);
         combo->addItem(buffer);
     }
 }
@@ -304,11 +301,11 @@ void common::fill_npc_listwidget(QListWidget *listWidget)
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(game_data.game_npcs[i].name);
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.game_npcs[i].name);
         item->setText(temp_str);
-        std::string filename = FILEPATH + "/data/images/sprites/enemies/" + game_data.game_npcs[i].graphic_filename;
+        std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->game_data.game_npcs[i].graphic_filename;
         QPixmap image(filename.c_str());
-        image = image.copy(0, 0, game_data.game_npcs[i].frame_size.width, game_data.game_npcs[i].frame_size.height);
+        image = image.copy(0, 0, Mediator::get_instance()->game_data.game_npcs[i].frame_size.width, Mediator::get_instance()->game_data.game_npcs[i].frame_size.height);
         if (image.isNull() == false && image.width() > 0) {
             image = image.scaled(32, 32);
         }
@@ -331,11 +328,11 @@ void common::fill_object_listWidget(QListWidget *listWidget)
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(game_data.objects[i].name);
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.objects[i].name);
         item->setText(temp_str);
-        std::string filename = FILEPATH + "/data/images/sprites/objects/" + game_data.objects[i].graphic_filename;
+        std::string filename = FILEPATH + "/images/sprites/objects/" + Mediator::get_instance()->game_data.objects[i].graphic_filename;
         QPixmap image(filename.c_str());
-        image = image.copy(0, 0, game_data.objects[i].size.width, game_data.objects[i].size.height);
+        image = image.copy(0, 0, Mediator::get_instance()->game_data.objects[i].size.width, Mediator::get_instance()->game_data.objects[i].size.height);
         if (image.isNull() == false && image.width() > 0) {
             image = image.scaled(32, 32);
         }
@@ -351,7 +348,7 @@ std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;
     for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
-        res.push_back(std::string(game_data.game_npcs[i].name));
+        res.push_back(std::string(Mediator::get_instance()->game_data.game_npcs[i].name));
     }
     return res;
 }

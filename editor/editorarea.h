@@ -18,8 +18,6 @@
 
 extern int palleteX;
 extern int palleteY;
-extern Mediator *dataExchanger;
-
 
 struct pointElement{
    int palleteX, palleteY, type;

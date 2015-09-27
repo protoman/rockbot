@@ -722,6 +722,7 @@ enum colision_modes {
 
 
 #define FONT_SIZE 8
+#define FONT_SIZE_SMALL 8
 
 #define MENU_CHANGE_DELAY 100
 

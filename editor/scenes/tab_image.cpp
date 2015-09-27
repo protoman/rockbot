@@ -50,7 +50,7 @@ void tab_image::fill_data()
 {
     data_loading = true;
 
-    common::fill_files_combo("data/images/scenes", ui->filename_comboBox);
+    common::fill_files_combo("/images/scenes", ui->filename_comboBox);
     mediator->image_list = fio.load_scenes_show_image();
     int list_size = mediator->image_list.size();
 
