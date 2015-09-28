@@ -39,7 +39,8 @@
 #define DEBUG_OUTPUT 1 // will output all DEBUG_COUT messages, comments this out to disable all console output messages
 
 // GLOBAL/EXTERN VARIABLES
-std::string FILEPATH;
+std::string GAMEPATH; // path without DATA/GAMES
+std::string FILEPATH; // path including game-data dir
 std::string SAVEPATH;
 SDL_Event event;
 bool have_save = false;

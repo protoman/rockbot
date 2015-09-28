@@ -835,7 +835,7 @@ int classMap::colision_rect_player_obj(character* playerObj, object* temp_obj, c
 }
 
 
-void classMap::colision_player_object(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
+void classMap::colision_char_object(character* charObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
 {
     int blocked = 0;
     object* res_obj = NULL;
@@ -843,7 +843,7 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
     //if (y_inc < 0) std::cout << "MAP::colision_player_object - y_inc: " << y_inc << std::endl;
 
 
-    if (playerObj->get_platform() == NULL) {
+    if (charObj->get_platform() == NULL) {
         for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
             object& temp_obj = (*it);
 
@@ -866,13 +866,13 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
             // usar TEMP_BLOCKED aqui, para não zerar o blocked anterior, fazer merge dos valores
             int temp_blocked = 0;
             if (y_inc >= 0 || (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP)) { // jumping up on items does not block
-                temp_blocked = colision_rect_player_obj(playerObj, &temp_obj, x_inc, y_inc, reduce_x, reduce_y, 0, 0);
+                temp_blocked = colision_rect_player_obj(charObj, &temp_obj, x_inc, y_inc, reduce_x, reduce_y, 0, 0);
                 //std::cout << "temp_blocked[" << temp_obj.get_name() << "]: " << temp_blocked << std::endl;
             }
 
             // to enter platform, player.x+player.h must not be much higher than obj.y
             if (temp_obj.get_type() == OBJ_ITEM_FLY || temp_obj.get_type() == OBJ_ITEM_JUMP || temp_obj.get_type() == OBJ_ACTIVE_DISAPPEARING_BLOCK || temp_obj.get_type() == OBJ_FALL_PLATFORM || temp_obj.get_type() == OBJ_FLY_PLATFORM || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN) {
-                if (playerObj->getPosition().y+playerObj->get_size().height-2 > temp_obj.get_position().y) {
+                if (charObj->getPosition().y+charObj->get_size().height-2 > temp_obj.get_position().y) {
                     temp_blocked = 0;
                 }
             }
@@ -888,17 +888,17 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
                 }
 
                 if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
-                    playerObj->damage(TOUCH_DAMAGE_BIG, false);
+                    charObj->damage(TOUCH_DAMAGE_BIG, false);
                     temp_blocked = 0;
                     continue;
                 } else if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
-                    std::cout << "DEATHRAY(damage) - player.x: " << playerObj->getPosition().x << ", map.scroll_x: " << scroll.x << ", pos.x: " << temp_obj.get_position().x << ", size.w: " << temp_obj.get_size().width << std::endl;
-                    playerObj->damage(999, false);
+                    std::cout << "DEATHRAY(damage) - player.x: " << charObj->getPosition().x << ", map.scroll_x: " << scroll.x << ", pos.x: " << temp_obj.get_position().x << ", size.w: " << temp_obj.get_size().width << std::endl;
+                    charObj->damage(999, false);
                     temp_blocked = 0;
                     continue;
                 }
 
-                if (y_inc > 0 && playerObj->getPosition().y <= temp_obj.get_position().y) {
+                if (y_inc > 0 && charObj->getPosition().y <= temp_obj.get_position().y) {
                     //std::cout << ">>>>>>>> entered_platform!!!!!!! <<<<< classmap::colision_player_object - obj_rect.x: " << obj_rect.x << ", obj_rect.y: " << obj_rect.y << ", obj_rect.w: " << obj_rect.w << ", obj_rect.h: " << obj_rect.h << std::endl;
                     entered_platform = true;
                 }
@@ -909,21 +909,21 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
 
 
                     if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
-                        if (playerObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
-                            playerObj->set_platform(&temp_obj);
+                        if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
+                            charObj->set_platform(&temp_obj);
                             if (temp_obj.get_type() == OBJ_FALL_PLATFORM) {
                                 temp_obj.set_direction(ANIM_DIRECTION_LEFT);
                             }
-                        } else if (playerObj->get_platform() == NULL && temp_blocked == 1) {
-                            playerObj->set_platform(&temp_obj);
+                        } else if (charObj->get_platform() == NULL && temp_blocked == 1) {
+                            charObj->set_platform(&temp_obj);
                         }
                         if (temp_blocked != 0) {
                             _obj_colision = object_colision(temp_blocked, &(*it));
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_ITEM_FLY) {
-                        if (playerObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3) && y_inc > 0) {
-                            playerObj->set_platform(&temp_obj);
+                        if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3) && y_inc > 0) {
+                            charObj->set_platform(&temp_obj);
                             if (temp_obj.get_distance() == 0) {
                                 temp_obj.start();
                                 temp_obj.set_distance(1);
@@ -935,9 +935,9 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_ITEM_JUMP) {
-                        if (playerObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3) && y_inc > 0 && playerObj->getPosition().y+playerObj->get_size().height <= temp_obj.get_position().y+1) {
-                            playerObj->activate_super_jump();
-                            playerObj->activate_force_jump();
+                        if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3) && y_inc > 0 && charObj->getPosition().y+charObj->get_size().height <= temp_obj.get_position().y+1) {
+                            charObj->activate_super_jump();
+                            charObj->activate_force_jump();
                             temp_obj.start();
                         }
                         if (temp_blocked != 0) {
@@ -953,8 +953,8 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
                     } else if (temp_obj.is_hidden() == false && temp_obj.is_started() == false && temp_obj.get_type() == OBJ_ACTIVE_DISAPPEARING_BLOCK) {
                         temp_obj.start();
                     } else if (temp_obj.get_type() == OBJ_FALL_PLATFORM || temp_obj.get_type() == OBJ_FLY_PLATFORM) {
-                        if (playerObj->get_platform() == NULL) {
-                            playerObj->set_platform(&temp_obj);
+                        if (charObj->get_platform() == NULL) {
+                            charObj->set_platform(&temp_obj);
                             if (temp_obj.get_state() == OBJ_STATE_STAND) {
                                 temp_obj.set_state(OBJ_STATE_MOVE);
                                 temp_obj.start();
@@ -964,8 +964,8 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_TRACK_PLATFORM) {
-                        if (playerObj->get_platform() == NULL) {
-                            playerObj->set_platform(&temp_obj);
+                        if (charObj->get_platform() == NULL) {
+                            charObj->set_platform(&temp_obj);
                             _obj_colision = object_colision(temp_blocked, &(*it));
                             return;
                         }
@@ -1005,40 +1005,40 @@ void classMap::colision_player_object(character* playerObj, const short int x_in
 
     // this part seems to be OK
     } else {
-        object* temp_obj = playerObj->get_platform();
+        object* temp_obj = charObj->get_platform();
         if (temp_obj->is_hidden() == true) {
-            playerObj->set_platform(NULL);
+            charObj->set_platform(NULL);
         } else if (temp_obj->get_type() == OBJ_TRACK_PLATFORM && temp_obj->get_state() != 0) {
-            playerObj->set_platform(NULL);
+            charObj->set_platform(NULL);
         } else {
-            blocked = colision_rect_player_obj(playerObj, temp_obj, x_inc, y_inc, reduce_x, reduce_y, 0, 0);
+            blocked = colision_rect_player_obj(charObj, temp_obj, x_inc, y_inc, reduce_x, reduce_y, 0, 0);
         }
     }
 
 
     // got out of platform
-    if (blocked == 0 && playerObj->get_platform() != NULL) {
+    if (blocked == 0 && charObj->get_platform() != NULL) {
         //  for player item, platform must only be removed only if the item was already adtivated
-        if (playerObj->get_platform()->get_type() == OBJ_ITEM_FLY || playerObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
+        if (charObj->get_platform()->get_type() == OBJ_ITEM_FLY || charObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
             //std::cout << "y_inc: " << y_inc << ", playerObj->get_platform()->get_distance(): " << playerObj->get_platform()->get_distance() << std::endl;
-            if (playerObj->get_platform()->get_distance() > 0 && y_inc != 0) {
-                playerObj->set_platform(NULL);
+            if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
+                charObj->set_platform(NULL);
             } else {
                 _obj_colision = object_colision(0, NULL);
                 return;
             }
-        } else if (playerObj->get_platform()->is_hidden() == true) {
+        } else if (charObj->get_platform()->is_hidden() == true) {
             //std::cout << ">> OUT OF PLATFORM #2" << std::endl;
-            playerObj->set_platform(NULL);
+            charObj->set_platform(NULL);
         } else {
             _platform_leave_counter++;
             if (_platform_leave_counter > 2) {
                 //std::cout << ">> OUT OF PLATFORM #3" << std::endl;
-                playerObj->set_platform(NULL);
+                charObj->set_platform(NULL);
                 _platform_leave_counter = 0;
             }
         }
-    } else if (blocked != 0 && playerObj->get_platform() != NULL) {
+    } else if (blocked != 0 && charObj->get_platform() != NULL) {
         _platform_leave_counter = 0;
     }
 
