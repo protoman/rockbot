@@ -15,7 +15,7 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
     /// @TODO: find a way that works for both Qt4 and 5 - http://stackoverflow.com/questions/17535563/how-to-get-a-qtableview-to-fill-100-of-the-width
     //ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
-    ui->scenes_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch); // Qt4
+    //ui->scenes_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch); // Qt4
 
     data_loading = true;
 
