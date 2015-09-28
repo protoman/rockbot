@@ -18,6 +18,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     scenes_tab = new TabScenelist();
     ui->sequenceScrollArea->setWidget(scenes_tab);
+
+    sfx_tab = new TabSfx();
+    ui->tab_sfx_scrollArea->setWidget(sfx_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()

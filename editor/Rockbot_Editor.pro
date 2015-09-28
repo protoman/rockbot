@@ -2,8 +2,8 @@
 # Project created by QtCreator 2009-12-03T12:16:29
 # -------------------------------------------------
 
-#CONFIG += win32
-CONFIG += linux
+CONFIG += win32
+#CONFIG += linux
 #CONFIG += macosx
 
 QT += widgets
@@ -92,7 +92,8 @@ SOURCES += main.cpp \
     scenes/textpreviewarea.cpp \
     scenes/tab_scenelist.cpp \
     scenes/model/objectlistmodel.cpp \
-    scenes/comboboxdelegate.cpp
+    scenes/comboboxdelegate.cpp \
+    scenes/tab_sfx.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -146,7 +147,8 @@ HEADERS += mainwindow.h \
     scenes/textpreviewarea.h \
     scenes/tab_scenelist.h \
     scenes/model/objectlistmodel.h \
-    scenes/comboboxdelegate.h
+    scenes/comboboxdelegate.h \
+    scenes/tab_sfx.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -171,7 +173,8 @@ FORMS += mainwindow.ui \
     aboutwindow.ui \
     scenes/tab_image.ui \
     scenes/tab_viewpoint.ui \
-    scenes/tab_scenelist.ui
+    scenes/tab_scenelist.ui \
+    scenes/tab_sfx.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
