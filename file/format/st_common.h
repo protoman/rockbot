@@ -340,8 +340,8 @@ struct st_position_int8 {
 
 
 struct st_position_uint8 {
-    Sint8 x;
-    Sint8 y;
+    Uint8 x;
+    Uint8 y;
     st_position_uint8() {
         x = 0;
         y = 0;
