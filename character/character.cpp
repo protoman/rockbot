@@ -1655,9 +1655,7 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
 	int map_block = BLOCK_UNBLOCKED;
 
 
-    if (is_player()) {
-        map->colision_player_object(this, incx, incy, 9, py_adjust);
-    }
+    map->colision_char_object(this, incx, incy, 9, py_adjust);
     object_colision res_colision_object = map->get_obj_colision();
 
 
@@ -1679,7 +1677,12 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
                 _can_execute_airdash = true;
             }
         }
-	}
+    } else if (is_player() == false && res_colision_object._block != 0) {
+        map_block = res_colision_object._block;
+        if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
+            _can_execute_airdash = true;
+        }
+    }
 
 	if (is_player()) {
         //std::cout << "colision_player_npcs #3" << std::endl;

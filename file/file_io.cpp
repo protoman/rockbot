@@ -10,6 +10,7 @@
 
 extern std::string FILEPATH;
 extern std::string SAVEPATH;
+extern std::string GAMEPATH;
 
 namespace format_v_2_1_1 {
 
@@ -1826,7 +1827,10 @@ namespace format_v_3_0_1 {
         DIR *dir = opendir(filename.c_str());
         struct dirent *entry = readdir(dir);
         while (entry != NULL) {
-            if (entry->d_type == DT_DIR) {
+            struct stat s;
+            stat(entry->d_name, &s);
+            if ((s.st_mode & S_IFMT) == S_IFDIR) {
+            //if (entry->d_type == DT_DIR) {
                 std::string dir_name = std::string(entry->d_name);
                 if (dir_name != "." && dir_name != "..") {
                     res.push_back(dir_name);
