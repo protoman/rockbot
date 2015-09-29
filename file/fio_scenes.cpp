@@ -69,6 +69,16 @@ namespace format_v_3_0_1 {
         save_data_to_disk<file_scene_list>("scenes_list.dat", data);
     }
 
+    void fio_scenes::save_scenes_play_sfx(std::vector<file_scene_play_sfx> data)
+    {
+        save_data_to_disk<file_scene_play_sfx>("scenes_play_sfx.dat", data);
+    }
+
+    void fio_scenes::save_scenes_play_music(std::vector<file_scene_play_music> data)
+    {
+        save_data_to_disk<file_scene_play_music>("scenes_play_music.dat", data);
+    }
+
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;

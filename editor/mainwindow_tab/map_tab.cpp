@@ -10,6 +10,11 @@ map_tab::map_tab(QWidget *parent) :
     std::cout << ">>>>>>>>>>>>> DEBUG#1 <<<<<<<<<<<<<<<" << std::endl;
     ui->setupUi(this);
     fill_data();
+
+    ui->editTile_button->setChecked(true);
+    ui->editModeNormal_button->setChecked(true);
+
+
     ui->editArea->repaint();
     QObject::connect(ui->pallete, SIGNAL(signalPalleteChanged()), ui->editArea, SLOT(repaint()));
 }
@@ -32,6 +37,7 @@ void map_tab::save()
 void map_tab::set_current_box(short n)
 {
     ui->toolBox->setCurrentIndex(n);
+
     ui->editArea->repaint();
 }
 
@@ -271,4 +277,154 @@ void map_tab::on_object_direction_combo_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->object_direction = index;
+}
+
+void map_tab::on_editTile_button_clicked()
+{
+    ui->editNpc_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editTile_button->setChecked(true);
+
+    //ui->editModeNormal_button->setEnabled(true);
+    ui->editModeLock_button->setEnabled(true);
+    ui->editModeErase_button->setEnabled(true);
+
+    set_current_box(1);
+    Mediator::get_instance()->editMode = EDITMODE_NORMAL;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+
+}
+
+void map_tab::on_editObject_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editObject_button->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(true);
+
+    set_current_box(5);
+    Mediator::get_instance()->editMode = EDITMODE_OBJECT;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+    update_edit_area();
+}
+
+void map_tab::on_editLink_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(true);
+
+    set_current_box(4);
+    Mediator::get_instance()->editMode = EDITMODE_LINK;
+    Mediator::get_instance()->editTool = EDITMODE_LINK;
+    update_edit_area();
+}
+
+void map_tab::on_editNpc_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editNpc_button->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(true);
+
+    set_current_box(3);
+    Mediator::get_instance()->editMode = EDITMODE_NPC;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+}
+
+void map_tab::on_editSetSubBoss_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(false);
+
+    set_current_box(3);
+    Mediator::get_instance()->editMode = EDITMODE_SET_SUBBOSS;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+
+}
+
+void map_tab::on_editSetBoss_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(false);
+
+    set_current_box(3);
+    Mediator::get_instance()->editMode = EDITMODE_SET_BOSS;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+
+}
+
+void map_tab::on_editModeNormal_button_clicked()
+{
+    ui->editModeNormal_button->setChecked(true);
+    ui->editModeLock_button->setChecked(false);
+    ui->editModeErase_button->setChecked(false);
+
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+    if (ui->editTile_button->isChecked()) {
+        set_current_box(1);
+    } else if (ui->editNpc_button->isChecked()) {
+        set_current_box(3);
+    } else if (ui->editObject_button->isChecked()) {
+        set_current_box(5);
+    } else if (ui->editLink_button->isChecked()) {
+        set_current_box(4);
+    }
+    update_edit_area();
+
+}
+
+void map_tab::on_editModeLock_button_clicked()
+{
+    ui->editModeNormal_button->setChecked(false);
+    ui->editModeLock_button->setChecked(true);
+    ui->editModeErase_button->setChecked(false);
+
+    set_current_box(2);
+    Mediator::get_instance()->editTool = EDITMODE_LOCK;
+    update_edit_area();
+}
+
+void map_tab::on_editModeErase_button_clicked()
+{
+    ui->editModeNormal_button->setChecked(false);
+    ui->editModeLock_button->setChecked(false);
+    ui->editModeErase_button->setChecked(true);
+
+    Mediator::get_instance()->editTool = EDITMODE_ERASER;
+    update_edit_area();
+
 }

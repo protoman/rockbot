@@ -70,23 +70,14 @@ private slots:
 	void on_spinBox_valueChanged(int );
 	void on_listWidget_2_currentRowChanged(int currentRow);
 	void on_toolBox_currentChanged(int index);
-    void on_actionAdd_Object_triggered();
     void on_actionThree_triggered();
     void on_actionTwo_triggered();
     void on_actionOne_triggered();
     void on_editNPCButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
-    void on_actionEdit_Tileset_triggered();
-    void on_actionEdit_NPC_triggered();
     void on_comboBox_currentIndexChanged(int index);
-    void on_actionStairs_triggered();
-    void on_actionLink_triggered();
     void on_MainWindow_iconSizeChanged(QSize iconSize);
     void on_actionNew_triggered();
-    void on_actionFill_triggered();
-    void on_actionEraser_triggered();
-    void on_actionNormal_Edit_triggered();
-    void on_actionLock_Edit_triggered();
     void on_pallete_signalPalleteChanged();
     void on_actionOpen_triggered();
     void on_actionSave_triggered();
@@ -107,8 +98,6 @@ private slots:
 	void on_pushButton_4_clicked();
 
 	void on_tabWidget_currentChanged(int index);
-
-    void on_actionSet_Boss_triggered(bool checked);
 
 	void on_bg1_filename_currentIndexChanged(const QString &arg1);
 
@@ -155,8 +144,6 @@ private slots:
     void on_players_tab_list_combo_2_currentIndexChanged(int index);
 
     void on_actionSwap_Maps_triggered();
-
-    void on_actionAction_subboss_triggered(bool checked);
 
     void on_actionScenes_Editor_triggered();
 

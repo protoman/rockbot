@@ -36,6 +36,8 @@ namespace format_v_3_0_1 {
         void save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data);
         void save_scenes_show_text(std::vector<file_scene_show_text> data);
         void save_scenes(std::vector<file_scene_list> data);
+        void save_scenes_play_sfx(std::vector<file_scene_play_sfx> data);
+        void save_scenes_play_music(std::vector<file_scene_play_music> data);
 
 
     private:
