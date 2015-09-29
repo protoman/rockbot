@@ -7,6 +7,8 @@ TabSfx::TabSfx(QWidget *parent) :
     ui(new Ui::TabSfx)
 {
     ui->setupUi(this);
+
+    fill_data();
 }
 
 TabSfx::~TabSfx()
@@ -46,6 +48,11 @@ void TabSfx::set_fields(int index)
 {
     ui->filename_comboBox->setCurrentIndex(ui->filename_comboBox->findText(QString(ScenesMediator::get_instance()->playsfx_list.at(index).filename)));
     ui->name_lineEdit->setText(ScenesMediator::get_instance()->playsfx_list.at(index).name);
+}
+
+void TabSfx::save_data()
+{
+    fio.save_scenes_play_sfx(ScenesMediator::get_instance()->playsfx_list);
 }
 
 void TabSfx::on_add_pushButton_clicked()

@@ -8,6 +8,7 @@
 #include "scenes/tab_viewpoint.h"
 #include "scenes/tab_scenelist.h"
 #include "scenes/tab_sfx.h"
+#include "scenes/tab_music.h"
 
 namespace Ui {
 class SceneEditorWindow;
@@ -32,6 +33,7 @@ private:
     tab_viewpoint* viewpoint_tab;
     TabScenelist* scenes_tab;
     TabSfx* sfx_tab;
+    TabMusic* music_tab;
 
 
 };

@@ -1,5 +1,5 @@
-#ifndef TAB_SFX_H
-#define TAB_SFX_H
+#ifndef TAB_MUSIC_H
+#define TAB_MUSIC_H
 
 #include <QWidget>
 
@@ -8,18 +8,17 @@
 #include "../file/fio_scenes.h"
 #include "scenes/scenesmediator.h"
 
-
 namespace Ui {
-class TabSfx;
+class TabMusic;
 }
 
-class TabSfx : public QWidget
+class TabMusic : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit TabSfx(QWidget *parent = 0);
-    ~TabSfx();
+    explicit TabMusic(QWidget *parent = 0);
+    ~TabMusic();
     void save_data();
 
 private:
@@ -30,18 +29,15 @@ private:
 
 private slots:
     void on_add_pushButton_clicked();
-
     void on_select_comboBox_currentIndexChanged(int index);
-
     void on_name_lineEdit_textChanged(const QString &arg1);
-
     void on_filename_comboBox_currentIndexChanged(const QString &arg1);
 
 private:
-    Ui::TabSfx *ui;
+    Ui::TabMusic *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     bool data_loading;
 
 };
 
-#endif // TAB_SFX_H
+#endif // TAB_MUSIC_H

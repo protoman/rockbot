@@ -21,6 +21,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     sfx_tab = new TabSfx();
     ui->tab_sfx_scrollArea->setWidget(sfx_tab);
+
+    music_tab = new TabMusic();
+    ui->tab_music_scrollArea->setWidget(music_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()
@@ -34,5 +37,7 @@ void SceneEditorWindow::on_actionSave_triggered()
     viewpoint_tab->save_data();
     text_tab->save_data();
     scenes_tab->save_data();
+    sfx_tab->save_data();
+    music_tab->save_data();
 }
 

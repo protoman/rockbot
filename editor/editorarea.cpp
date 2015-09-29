@@ -200,7 +200,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     if (Mediator::get_instance()->show_teleporters_flag == true) {
         // draw links
         //printf("editoMode: %d, EDITMODE_NORMAL: %d, editTool: %d, EDITMODE_LINK_DEST: %d\n", Mediator::get_instance()->editMode, EDITMODE_NORMAL, Mediator::get_instance()->editTool, EDITMODE_LINK_DEST);
-        if (Mediator::get_instance()->editMode == EDITMODE_NORMAL && (Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editTool == EDITMODE_LINK)) {
+        if (Mediator::get_instance()->editMode == EDITMODE_LINK && (Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editTool == EDITMODE_LINK)) {
             for (int i=0; i<STAGE_MAX_LINKS; i++) {
                 if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin) {
                     // transparent blue rectangle
@@ -465,13 +465,12 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         } else if (Mediator::get_instance()->editTool == EDITMODE_FILL) {
 			fill_area();
 
+        }
 
 
-
-
-
+    } else if (Mediator::get_instance()->editMode == EDITMODE_LINK) {
 		// first click on origin link
-        } else if (Mediator::get_instance()->editTool == EDITMODE_LINK && tempX == -1) {
+        if (Mediator::get_instance()->editTool == EDITMODE_LINK && tempX == -1) {
 			// checks if a link in this position already exits to remove it
 			bool removed_link = false;
 			for (int i=0; i<STAGE_MAX_LINKS; i++) {
@@ -645,7 +644,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
     } else if (Mediator::get_instance()->editMode == EDITMODE_OBJECT) {
 
 
-		printf(">> EditorArea::mousePressEvent - EDITMODE_OBJECT");
+        std::cout << ">> EditorArea::mousePressEvent - EDITMODE_OBJECT" << std::endl;
 
 		int found_object = -1;
 		// search if there is an existing object in ths position, and if yes, remove it
@@ -703,19 +702,22 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         } else if (Mediator::get_instance()->editTool == EDITMODE_NORMAL && found_object != -1 && Mediator::get_instance()->selectedNPC != -1) {
 			printf(">> EditorArea::mousePressEvent - Adding object - place already taken\n");
         } else if (Mediator::get_instance()->editTool == EDITMODE_OBJECT_LINK_PLACING) {
+            std::cout << ">> EditorArea::mousePressEvent - EDITMODE_OBJECT_LINK_PLACING" << std::endl;
             std::cout << "USE editor_selected_object_pos_map: " << editor_selected_object_pos_map << ", editor_selected_object_pos: " << editor_selected_object_pos << ", editor_selectedTileX: " << editor_selectedTileX << ", editor_selectedTileY: " << editor_selectedTileY <<    std::endl;
             Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.x = editor_selectedTileX;
             Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.y = editor_selectedTileY;
             Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].map_dest = Mediator::get_instance()->currentMap;
             std::cout << "[TELEPORTER] SET map: " << (int)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].map_dest << ", x: " << (int)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.x << ", y: " << (int)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.y << std::endl;
             QApplication::setOverrideCursor(Qt::ArrowCursor);
+        } else {
+            std::cout << ">> EditorArea::mousePressEvent - EDITMODE UNKNOWN!!!!" << std::endl;
         }
 
 
 
 
 
-        std::cout << ">> EditorArea::mousePressEvent - EDITMODE_OBJECT" << std::endl;
+
 
 	}
     temp = 1;
@@ -749,9 +751,9 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
 		tempX = -1;
 		tempY = -1;
 		repaint();
-    } else {
-        std::cout << "########### -> editorArea::mousePress - ignore mouse release" << std::endl;
-        std::cout << "######### edit_move: " << Mediator::get_instance()->editTool << ", tempX: " << tempX << std::endl;
+    //} else {
+        //std::cout << "########### -> editorArea::mousePress - ignore mouse release" << std::endl;
+        //std::cout << "######### edit_move: " << Mediator::get_instance()->editTool << ", tempX: " << tempX << std::endl;
     }
 	mouse_released = true;
 }

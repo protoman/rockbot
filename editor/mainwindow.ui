@@ -53,8 +53,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -77,8 +77,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -101,8 +101,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -125,8 +125,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -149,8 +149,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -173,8 +173,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -197,8 +197,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -221,8 +221,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -245,8 +245,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -269,8 +269,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -293,8 +293,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>826</width>
+             <height>304</height>
             </rect>
            </property>
           </widget>
@@ -317,45 +317,15 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionEdit_Tileset"/>
-   <addaction name="actionEdit_NPC"/>
-   <addaction name="separator"/>
-   <addaction name="actionAction_subboss"/>
-   <addaction name="actionSet_Boss"/>
-   <addaction name="separator"/>
-   <addaction name="actionAdd_Object"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QToolBar" name="editToolBar">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionNormal_Edit"/>
-   <addaction name="actionLock_Edit"/>
-   <addaction name="actionEraser"/>
-   <addaction name="actionFill"/>
-   <addaction name="separator"/>
-   <addaction name="actionLink"/>
-  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>870</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFILE">
@@ -462,48 +432,6 @@
     <string>Save</string>
    </property>
   </action>
-  <action name="actionNormal_Edit">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/draw-freehand.png</normaloff>
-     <normalon>:/toolbar_icons/draw-freehand.png</normalon>:/toolbar_icons/draw-freehand.png</iconset>
-   </property>
-   <property name="text">
-    <string>Normal Edit</string>
-   </property>
-  </action>
-  <action name="actionLock_Edit">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/toolbar_icons/Lock</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Lock Edit</string>
-   </property>
-  </action>
-  <action name="actionEraser">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normalon>:/toolbar_icons/draw-eraser.png</normalon>
-    </iconset>
-   </property>
-   <property name="text">
-    <string>Eraser</string>
-   </property>
-  </action>
   <action name="actionAdd">
    <property name="icon">
     <iconset resource="resources/icons/icons.qrc">
@@ -511,75 +439,6 @@
    </property>
    <property name="text">
     <string>Add</string>
-   </property>
-  </action>
-  <action name="actionFill">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/Fill</normaloff>:/toolbar_icons/Fill</iconset>
-   </property>
-   <property name="text">
-    <string>Fill</string>
-   </property>
-  </action>
-  <action name="actionLink">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/connect_no.png</normaloff>:/toolbar_icons/connect_no.png</iconset>
-   </property>
-   <property name="text">
-    <string>Link</string>
-   </property>
-   <property name="toolTip">
-    <string>Link Maps</string>
-   </property>
-  </action>
-  <action name="actionStairs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/stairs.png</normaloff>:/toolbar_icons/stairs.png</iconset>
-   </property>
-   <property name="text">
-    <string>Stairs</string>
-   </property>
-  </action>
-  <action name="actionEdit_NPC">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/Manager-icon.png</normaloff>:/toolbar_icons/Manager-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Edit NPC</string>
-   </property>
-  </action>
-  <action name="actionEdit_Tileset">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/format-stroke-color.png</normaloff>:/toolbar_icons/format-stroke-color.png</iconset>
-   </property>
-   <property name="text">
-    <string>Edit Tileset</string>
    </property>
   </action>
   <action name="actionLayer_Level">
@@ -609,36 +468,6 @@
     <string>three</string>
    </property>
   </action>
-  <action name="actionAdd_Object">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/media-playlist-shuffle.png</normaloff>:/toolbar_icons/media-playlist-shuffle.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add Object</string>
-   </property>
-   <property name="toolTip">
-    <string>Add Object</string>
-   </property>
-  </action>
-  <action name="actionSet_Boss">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/4a6b77ae99a98d0d3a0a68a6b5491305.png</normaloff>:/toolbar_icons/4a6b77ae99a98d0d3a0a68a6b5491305.png</iconset>
-   </property>
-   <property name="text">
-    <string>Set Boss</string>
-   </property>
-   <property name="toolTip">
-    <string>Set Stage Boss</string>
-   </property>
-  </action>
   <action name="actionReset_Map">
    <property name="icon">
     <iconset resource="resources/icons/icons.qrc">
@@ -654,21 +483,6 @@
   <action name="actionSwap_Maps">
    <property name="text">
     <string>Swap Stages</string>
-   </property>
-  </action>
-  <action name="actionAction_subboss">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resources/icons/icons.qrc">
-     <normaloff>:/toolbar_icons/Knight-icon.png</normaloff>:/toolbar_icons/Knight-icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>action_subboss</string>
-   </property>
-   <property name="toolTip">
-    <string>Set sub-boss</string>
    </property>
   </action>
   <action name="actionScenes_Editor">
