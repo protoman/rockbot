@@ -27,6 +27,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     cleararea_tab = new TabClearArea();
     ui->tab_cleararea_scrollArea->setWidget(cleararea_tab);
+
+    changecolorcycle_tab = new TabChangeColorcycle();
+    ui->tab_changecolorcycle_scrollArea->setWidget(changecolorcycle_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()
@@ -43,5 +46,6 @@ void SceneEditorWindow::on_actionSave_triggered()
     sfx_tab->save_data();
     music_tab->save_data();
     cleararea_tab->save_data();
+    changecolorcycle_tab->save_data();
 }
 
