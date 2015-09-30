@@ -134,8 +134,8 @@ namespace format_v_3_0_1 {
     struct file_scene_show_animation {
         char name[FS_NAME_SIZE];
         char filename[FS_CHAR_FILENAME_SIZE];
-        int x;
-        int y;
+        int x;                                      // TBD
+        int y;                                      // TBD
         int frame_w;
         int frame_h;
         int frame_delay;
@@ -145,6 +145,8 @@ namespace format_v_3_0_1 {
         file_scene_show_animation() {
             name[0] = '\0';
             filename[0] = '\0';
+            x = 0;
+            y = 0;
             frame_w = 0;
             frame_h = 0;
             frame_delay = 0;

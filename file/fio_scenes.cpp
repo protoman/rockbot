@@ -74,6 +74,11 @@ namespace format_v_3_0_1 {
         save_data_to_disk<file_scene_list>("scenes_list.dat", data);
     }
 
+    void fio_scenes::save_scenes_show_animation(std::vector<file_scene_show_animation> data)
+    {
+        save_data_to_disk<file_scene_show_animation>("scenes_show_animation.dat", data);
+    }
+
     void fio_scenes::save_scenes_play_sfx(std::vector<file_scene_play_sfx> data)
     {
         save_data_to_disk<file_scene_play_sfx>("scenes_play_sfx.dat", data);
