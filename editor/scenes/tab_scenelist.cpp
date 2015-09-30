@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 
+extern std::string GAMEPATH;
 
 TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::ScenesList), model_scenes(this)
 {
@@ -191,7 +192,7 @@ void TabScenelist::on_removeButton_clicked()
 
 void TabScenelist::on_pushButton_clicked()
 {
-    QString file = QString(FILEPATH.c_str()) + QString("scenesviewer");
+    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
 #ifdef WIN32
     file += QString(".exe");
 #endif
