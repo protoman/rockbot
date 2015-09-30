@@ -11,6 +11,9 @@ TabAnimation::TabAnimation(QWidget *parent) :
     ui->setupUi(this);
 
     fill_data();
+
+    QObject::connect(ui->widget, SIGNAL(on_image_w_changed(int)), this, SLOT(change_w(int)));
+    QObject::connect(ui->widget, SIGNAL(on_image_h_changed(int)), this, SLOT(change_h(int)));
 }
 
 TabAnimation::~TabAnimation()
@@ -67,6 +70,20 @@ void TabAnimation::set_fields(int index)
     ui->widget->set_w(ScenesMediator::get_instance()->animation_list.at(index).frame_w);
     ui->widget->set_h(ScenesMediator::get_instance()->animation_list.at(index).frame_h);
     ui->widget->set_delay(ScenesMediator::get_instance()->animation_list.at(index).frame_delay);
+}
+
+void TabAnimation::change_w(int value)
+{
+    data_loading = true;
+    ui->width_spinBox->setValue(value);
+    data_loading = false;
+}
+
+void TabAnimation::change_h(int value)
+{
+    data_loading = true;
+    ui->height_spinBox->setValue(value);
+    data_loading = false;
 }
 
 void TabAnimation::on_add_pushButton_clicked()
