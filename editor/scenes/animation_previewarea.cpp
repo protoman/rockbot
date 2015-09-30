@@ -6,10 +6,15 @@ AnimationPreviewArea::AnimationPreviewArea(QWidget *parent) : QWidget(parent)
 {
     animation_timer = 0;
     frame_n = 0;
+    x = 0;
+    y = 0;
+    w = 0;
+    h = 0;
+    delay = 10;
 
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), this, SLOT(update_animation()));
-    _timer->start(100);
+    _timer->start(10);
 
 }
 
@@ -53,7 +58,6 @@ void AnimationPreviewArea::update_animation()
 void AnimationPreviewArea::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    QLineF line;
     QRectF target, source;
 
     painter.fillRect(0, 0, RES_W, RES_H, QColor(0, 0, 0, 255));

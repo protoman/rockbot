@@ -35,6 +35,8 @@ private:
     QTimer *_timer;
     int w;
     int h;
+    int x;
+    int y;
     int delay;
     int animation_timer;
     int frame_n;

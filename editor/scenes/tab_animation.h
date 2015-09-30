@@ -36,6 +36,9 @@ private:
     void fill_data();
     void set_fields(int index);
 
+public slots:
+    void change_w(int value);
+    void change_h(int value);
 
 private:
     Ui::TabAnimation *ui;
