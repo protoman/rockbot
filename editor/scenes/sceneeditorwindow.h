@@ -9,6 +9,7 @@
 #include "scenes/tab_scenelist.h"
 #include "scenes/tab_sfx.h"
 #include "scenes/tab_music.h"
+#include "scenes/tab_cleararea.h"
 
 namespace Ui {
 class SceneEditorWindow;
@@ -34,6 +35,7 @@ private:
     TabScenelist* scenes_tab;
     TabSfx* sfx_tab;
     TabMusic* music_tab;
+    TabClearArea* cleararea_tab;
 
 
 };

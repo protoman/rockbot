@@ -49,6 +49,11 @@ namespace format_v_3_0_1 {
         return load_from_disk<file_scene_show_text>("scenes_show_text.dat");
     }
 
+    std::vector<file_scene_change_colorcyle> fio_scenes::load_scenes_change_colorcycle()
+    {
+        return load_from_disk<file_scene_change_colorcyle>("scenes_change_colorcycle.dat");
+    }
+
     void fio_scenes::save_scenes_show_image(std::vector<file_scene_show_image> data)
     {
         save_data_to_disk<file_scene_show_image>("scenes_show_image.dat", data);
@@ -77,6 +82,16 @@ namespace format_v_3_0_1 {
     void fio_scenes::save_scenes_play_music(std::vector<file_scene_play_music> data)
     {
         save_data_to_disk<file_scene_play_music>("scenes_play_music.dat", data);
+    }
+
+    void fio_scenes::save_scenes_clear_area(std::vector<file_scene_clear_area> data)
+    {
+        save_data_to_disk<file_scene_clear_area>("scenes_clear_area.dat", data);
+    }
+
+    void fio_scenes::save_scenes_change_colorcyle(std::vector<file_scene_change_colorcyle> data)
+    {
+        save_data_to_disk<file_scene_change_colorcyle>("scenes_change_colorcycle.dat", data);
     }
 
     template <class T> std::vector<T> fio_scenes::load_from_disk(std::string file)
