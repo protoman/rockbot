@@ -96,7 +96,9 @@ SOURCES += main.cpp \
     scenes/tab_sfx.cpp \
     scenes/tab_music.cpp \
     scenes/tab_cleararea.cpp \
-    scenes/tab_changecolorcycle.cpp
+    scenes/tab_changecolorcycle.cpp \
+    scenes/tab_animation.cpp \
+    scenes/animation_previewarea.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -154,7 +156,9 @@ HEADERS += mainwindow.h \
     scenes/tab_sfx.h \
     scenes/tab_music.h \
     scenes/tab_cleararea.h \
-    scenes/tab_changecolorcycle.h
+    scenes/tab_changecolorcycle.h \
+    scenes/tab_animation.h \
+    scenes/animation_previewarea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -183,7 +187,8 @@ FORMS += mainwindow.ui \
     scenes/tab_sfx.ui \
     scenes/tab_music.ui \
     scenes/tab_cleararea.ui \
-    scenes/tab_changecolorcycle.ui
+    scenes/tab_changecolorcycle.ui \
+    scenes/tab_animation.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
