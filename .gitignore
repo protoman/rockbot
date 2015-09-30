@@ -8,4 +8,4 @@ Makefile
 # Game artifiacts
 rockbot
 data
-cpp_robot.pro
+editor/moc_*.cpp
