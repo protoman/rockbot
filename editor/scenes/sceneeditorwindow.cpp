@@ -24,6 +24,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     music_tab = new TabMusic();
     ui->tab_music_scrollArea->setWidget(music_tab);
+
+    cleararea_tab = new TabClearArea();
+    ui->tab_cleararea_scrollArea->setWidget(cleararea_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()
@@ -39,5 +42,6 @@ void SceneEditorWindow::on_actionSave_triggered()
     scenes_tab->save_data();
     sfx_tab->save_data();
     music_tab->save_data();
+    cleararea_tab->save_data();
 }
 

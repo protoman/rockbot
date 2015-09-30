@@ -39,9 +39,9 @@ namespace format_v_3_0_1 {
         SCENETYPE_PLAY_MUSIC,
         SCENETYPE_STOP_MUSIC,
         SCENETYPE_SHOW_TEXT,
-        SCENETYPE_SUBSCENE                      // you can add another scene to the scene, to it is possible to repeat
+        SCENETYPE_SUBSCENE,                      // you can add another scene to the scene, to it is possible to repeat
+        SCENETYPE_CHANGE_COLORCYCLE
         //SCENETYPE_REPEAT_SCROLLBG,              // keeps scrolling a background (like ninja gaiden's opening's grass)
-        //SCENETYPE_CHANGE_COLORCYCLE,
     };
 
 
@@ -170,6 +170,16 @@ namespace format_v_3_0_1 {
             y = 0;
             transition_type = 0;
             position_type = 0;
+        }
+    };
+
+
+    struct file_scene_change_colorcyle {
+        char name[FS_NAME_SIZE];
+        int colorcycle_n;
+        file_scene_change_colorcyle() {
+            name[0] = '\0';
+            colorcycle_n = -1;
         }
     };
 

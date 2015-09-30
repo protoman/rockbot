@@ -56,7 +56,7 @@ void colorcycle_edit::reload()
 void colorcycle_edit::pick_color(short n)
 {
 	_selected_n = n;
-	QDialog *color_pick = new dialog_pick_color;
+    QDialog *color_pick = new dialog_pick_color();
 	color_pick->show();
 	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_color_slot()));
 }
