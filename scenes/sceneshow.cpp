@@ -203,7 +203,9 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
         if (line.length() < 1) {
             break;
         }
-        graphLib.draw_progressive_text(pos_x, pos_y+(LINE_H_DIFF*i), line, false);
+        int adjusted_y = pos_y+(LINE_H_DIFF*i);
+        graphLib.clear_area(pos_x, adjusted_y, strlen(text.text_lines[i])*9, 8, 0, 0, 0);
+        graphLib.draw_progressive_text(pos_x, adjusted_y, line, false);
     }
 }
 
