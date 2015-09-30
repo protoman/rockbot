@@ -32,6 +32,7 @@ CURRENT_FILE_FORMAT::file_stage stage_data;
 SDL_Event event;
 std::string FILEPATH;
 std::string SAVEPATH;
+std::string GAMEPATH;
 bool leave_game = false;
 bool GAME_FLAGS[FLAG_COUNT];
 
@@ -57,6 +58,8 @@ void get_filepath()
 #endif
 
     std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
+    GAMEPATH = FILEPATH;
+    FILEPATH += "/data/";
 }
 
 int main(int argc, char *argv[])

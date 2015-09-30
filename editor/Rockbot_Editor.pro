@@ -94,7 +94,8 @@ SOURCES += main.cpp \
     scenes/model/objectlistmodel.cpp \
     scenes/comboboxdelegate.cpp \
     scenes/tab_sfx.cpp \
-    scenes/tab_music.cpp
+    scenes/tab_music.cpp \
+    scenes/tab_cleararea.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -150,7 +151,8 @@ HEADERS += mainwindow.h \
     scenes/model/objectlistmodel.h \
     scenes/comboboxdelegate.h \
     scenes/tab_sfx.h \
-    scenes/tab_music.h
+    scenes/tab_music.h \
+    scenes/tab_cleararea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -177,7 +179,8 @@ FORMS += mainwindow.ui \
     scenes/tab_viewpoint.ui \
     scenes/tab_scenelist.ui \
     scenes/tab_sfx.ui \
-    scenes/tab_music.ui
+    scenes/tab_music.ui \
+    scenes/tab_cleararea.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
