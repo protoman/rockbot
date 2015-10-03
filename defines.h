@@ -830,6 +830,18 @@ enum e_ARMOR_ABILITIES_BODY {
 
 #define VIDEO_MODE_COLORS 16
 
+#define COLORKEY1_R 55
+#define COLORKEY1_G 255
+#define COLORKEY1_B 0
+
+#define COLORKEY2_R 255
+#define COLORKEY2_G 0
+#define COLORKEY2_B 255
+
+#define COLORKEY3_R 0
+#define COLORKEY3_G 255
+#define COLORKEY3_B 255
+
 #endif // DEFINES_H
 
 

@@ -473,15 +473,15 @@ void character::clear_move_commands()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void character::change_char_color(st_color key, st_color new_color, bool full_change=true)
+void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change=true)
 {
     if (full_change == false) {
-		graphLib.change_surface_color(key, new_color, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(colorkey_n, new_color, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-					graphLib.change_surface_color(key, new_color, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
+                    graphLib.change_surface_color(colorkey_n, new_color, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
 				}
 			}
 		}
@@ -557,15 +557,15 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
                 }
                 charging_color_timer = timer.getTimer()+200;
 				if (charging_color_n == 0) {
-					change_char_color(color_keys[0], st_color(171, 0, 19), false);
-					change_char_color(color_keys[1], st_color(231, 0, 91), false);
-				} else if (charging_color_n == 1) {
-					change_char_color(color_keys[0], st_color(231, 0, 91), false);
-                    change_char_color(color_keys[1], st_color(255, 119, 183), false);
-				} else if (charging_color_n == 2) {
-					change_char_color(color_keys[0], st_color(255, 119, 183), false);
-					change_char_color(color_keys[1], st_color(171, 0, 19), false);
-				}
+                    change_char_color(0, st_color(171, 0, 19), false);
+                    change_char_color(1, st_color(231, 0, 91), false);
+                } else if (charging_color_n == 1) {
+                    change_char_color(0, st_color(231, 0, 91), false);
+                    change_char_color(1, st_color(255, 119, 183), false);
+                } else if (charging_color_n == 2) {
+                    change_char_color(0, st_color(255, 119, 183), false);
+                    change_char_color(1, st_color(171, 0, 19), false);
+                }
 			}
         }
     }
@@ -582,14 +582,14 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
                 }
                 charging_color_timer = timer.getTimer()+100;
 				if (charging_color_n == 0) {
-					change_char_color(color_keys[0], st_color(219, 43, 0), false);
-					change_char_color(color_keys[1], st_color(255, 155, 59), false);
+                    change_char_color(0, st_color(219, 43, 0), false);
+                    change_char_color(1, st_color(255, 155, 59), false);
 				} else if (charging_color_n == 1) {
-					change_char_color(color_keys[0], st_color(255, 155, 59), false);
-					change_char_color(color_keys[1], st_color(255, 234, 0), false);
+                    change_char_color(0, st_color(255, 155, 59), false);
+                    change_char_color(1, st_color(255, 234, 0), false);
 				} else if (charging_color_n == 2) {
-					change_char_color(color_keys[0], st_color(255, 234, 0), false);
-					change_char_color(color_keys[1], st_color(219, 43, 0), false);
+                    change_char_color(0, st_color(255, 234, 0), false);
+                    change_char_color(1, st_color(219, 43, 0), false);
 				}
 			}
         }
@@ -682,10 +682,10 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         if (dont_update_colors == false) {
             //state.animation_timer = 0;
             if (color_keys[0].r != -1) {
-                change_char_color(color_keys[0], color_keys[0]);
+                change_char_color(0, color_keys[0]);
             }
             if (color_keys[1].r != -1) {
-                change_char_color(color_keys[1], color_keys[1]);
+                change_char_color(1, color_keys[1]);
             }
         }
     }
@@ -1895,8 +1895,14 @@ void character::addSpriteFrame(int anim_direction, int anim_type, int posX, int 
     if (is_player()) std::cout << "delay: " << delay << std::endl;
 
 	for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
-		if ((character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.gSurface == NULL) {
+        if ((character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
+            if (i == 0) {
+                (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.enable_show_debug();
+                //std::cout << "==================== add frame ===============" << std::endl;
+            }
+            // AQUI, esse setsurface tem que usar o outro set_surface
             (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].setSurface(graphLib.surfaceFromRegion(spriteArea, spritesSurface));
+            (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.init_colorkeys();
 			(character_graphics_list.find(name)->second)[anim_direction][anim_type][i].delay = delay;
 			break;
         }
@@ -1998,7 +2004,7 @@ void character::add_graphic()
     for (int i=0; i<2; i++) {
 		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-				temp_sprites[i][j][k].frameSurface.gSurface = NULL;
+                temp_sprites[i][j][k].frameSurface.set_surface(NULL);
 			}
 		}
 	}
@@ -2020,7 +2026,7 @@ bool character::have_frame_graphics()
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-					if ((character_graphics_list.find(name)->second)[i][k][k].frameSurface.width > 0 && (character_graphics_list.find(name)->second)[i][j][k].frameSurface.gSurface != NULL) {
+                    if ((character_graphics_list.find(name)->second)[i][k][k].frameSurface.width > 0 && (character_graphics_list.find(name)->second)[i][j][k].frameSurface.get_surface() != NULL) {
 						return true;
 					}
 				}
@@ -2064,7 +2070,7 @@ bool character::have_background_graphics()
 int character::frames_count()
 {
 	for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-		if ((character_graphics_list.find(name)->second)[state.direction][state.animation_type][i].frameSurface.width == 0 || (character_graphics_list.find(name)->second)[state.direction][state.animation_type][i].frameSurface.gSurface == NULL) {
+        if ((character_graphics_list.find(name)->second)[state.direction][state.animation_type][i].frameSurface.width == 0 || (character_graphics_list.find(name)->second)[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
 			return i;
 		}
 	}
@@ -2093,7 +2099,7 @@ bool character::have_frame_graphic(int direction, int type, int pos)
         //std::cout << "character::have_frame_graphic(" << name << ") - using LEFT frame as there is no RIGHT one - state.animation_state: " << state.animation_state << std::endl;
         direction = ANIM_DIRECTION_LEFT;
     }
-    if ((character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.width == 0 || (character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.gSurface == NULL) {
+    if ((character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.width == 0 || (character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.get_surface() == NULL) {
         //if (name == "Bat") std::cout << "character::have_frame_graphic(" << name << ")[" << direction << "][" << type << "][" << pos << "] - FALSE" << std::endl;
 		return false;
 	}

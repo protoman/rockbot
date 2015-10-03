@@ -469,8 +469,9 @@ void classPlayer::initFrames()
 	std::stringstream filename;
     //filename << FILEPATH << "images/sprites/p" << (_number+1) << ".png";
     filename << FILEPATH << "images/sprites/" << game_data.players[_number].graphic_filename;
+    //playerSpriteSurface.show_debug = true;
 	graphLib.surfaceFromFile(filename.str(), &playerSpriteSurface);
-	if (playerSpriteSurface.gSurface == NULL) {
+    if (playerSpriteSurface.get_surface() == NULL) {
 		std::cout << "initFrames - Error loading player surface from file\n";
 		return;
 	}
@@ -878,7 +879,12 @@ void classPlayer::death()
     _obj_jump.finish();
     //std::cout << "[[[freeze_weapon_effect(RESET #1)]]]" << std::endl;
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
-    change_player_color(true);
+
+    Sint8 old_weapon_n = selected_weapon;
+    selected_weapon = 0;
+    change_player_color(old_weapon_n, true);
+
+
     set_weapon(WEAPON_DEFAULT);
     _inertia_obj.stop();
     clear_move_commands();
@@ -900,25 +906,25 @@ void classPlayer::reset_hp()
 	hitPoints.current = hitPoints.total;
 }
 
-void classPlayer::change_player_color(bool full_change)
+void classPlayer::change_player_color(Sint8 previous_weapon_n, bool full_change)
 {
     //std::cout << "PLAYER::change_player_color - selected_weapon: " << selected_weapon << std::endl;
 	if (full_change == false) {
-		graphLib.change_surface_color(color_keys[0], weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
-		graphLib.change_surface_color(color_keys[0], weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
-		graphLib.change_surface_color(color_keys[0], weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
 					if (weapon_colors[selected_weapon].color1.r != -1) {
-						graphLib.change_surface_color(color_keys[0], weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
+                        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
 					}
 					if (weapon_colors[selected_weapon].color2.r != -1) {
-						graphLib.change_surface_color(color_keys[1], weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
+                        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
 					}
 					if (weapon_colors[selected_weapon].color3.r != -1) {
-						graphLib.change_surface_color(color_keys[2], weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
+                        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)[i][j][k].frameSurface);
 					}
 				}
 			}
@@ -930,8 +936,9 @@ void classPlayer::change_player_color(bool full_change)
 
 void classPlayer::set_weapon(short weapon_n)
 {
+    Sint8 old_weapon_n = selected_weapon;
 	selected_weapon = weapon_n;
-	change_player_color(true);
+    change_player_color(old_weapon_n, true);
 }
 
 short classPlayer::get_weapon_value(int weapon_n)
@@ -1199,10 +1206,10 @@ void classPlayer::reset_charging_shot()
     attack_button_released = true;
     soundManager.stop_repeated_sfx();
     if (color_keys[0].r != -1) {
-        change_char_color(color_keys[0], color_keys[0], true);
+        change_char_color(0, color_keys[0], true);
     }
     if (color_keys[1].r != -1) {
-        change_char_color(color_keys[1], color_keys[1], true);
+        change_char_color(1, color_keys[1], true);
     }
     // also reset slide/dash
     if (state.animation_type == ANIM_TYPE_SLIDE) {

@@ -313,12 +313,12 @@ void projectile::set_target_position(st_float_position *pos)
 graphicsLib_gSurface *projectile::get_surface()
 {
 	if (_id == -1) {
-        if (&graphLib.projectile_surface[0].gSurface == NULL) {
+        if (graphLib.projectile_surface[0].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #1");
         }
 		return &graphLib.projectile_surface[0];
 	} else {
-        if (&graphLib.projectile_surface[_id].gSurface == NULL) {
+        if (graphLib.projectile_surface[_id].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #2");
         }
         return &graphLib.projectile_surface[_id];

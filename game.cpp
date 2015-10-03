@@ -1133,12 +1133,12 @@ void game::game_over()
     graphicsLib_gSurface password_screen;
     std::string filename = FILEPATH + "images/backgrounds/config.png";
     graphLib.surfaceFromFile(filename, &password_screen);
-    graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
     graphicsLib_gSurface dialog_img;
     filename = FILEPATH + "images/backgrounds/dialog.png";
     graphLib.surfaceFromFile(filename, &dialog_img);
-    graphLib.copyArea(st_rectangle(0, 0, dialog_img.gSurface->w, dialog_img.gSurface->h), st_position(RES_W/2-dialog_img.gSurface->w/2, RES_H/2-dialog_img.gSurface->h/2), &dialog_img, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
 
     graphLib.draw_centered_text(RES_H/2-6, "GAME OVER", graphLib.gameScreen, st_color(235, 235, 235));
 
