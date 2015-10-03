@@ -156,6 +156,8 @@ bool dialogs::show_leave_game_dialog() const
 
     timer.pause();
 
+    std::cout << ">>>>>>> show_leave_game_dialog::START" << std::endl;
+
     graphicsLib_gSurface bgCopy;
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bgCopy);
@@ -170,6 +172,7 @@ bool dialogs::show_leave_game_dialog() const
     draw_lib.update_screen();
     while (repeat_menu == true) {
         picked_n = main_picker.pick();
+        std::cout << "picked_n: " << picked_n << std::endl;
         if (picked_n == 0) {
             res = true;
             repeat_menu = false;
@@ -185,6 +188,9 @@ bool dialogs::show_leave_game_dialog() const
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
     timer.unpause();
+
+    std::cout << ">>>>>>> show_leave_game_dialog::END" << std::endl;
+
     return res;
 }
 
