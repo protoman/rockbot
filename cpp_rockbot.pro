@@ -288,7 +288,6 @@ SOURCES += main.cpp \
     stage_select.cpp \
     class_config.cpp \
     objects/object.cpp \
-    class_colorcycle.cpp \
     graphic/option_picker.cpp \
     scenes/dialogs.cpp \
     file/file_io.cpp \
@@ -324,7 +323,6 @@ HEADERS += \
     stage_select.h \
     class_config.h \
     objects/object.h \
-    class_colorcycle.h \
     graphic/option_picker.h \
     scenes/dialogs.h \
     file/format.h \

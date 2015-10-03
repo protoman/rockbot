@@ -190,8 +190,6 @@ st_position game::checkScrolling()
 void game::start_stage()
 {
 
-    graphLib.set_colormap(currentStage);
-
 	_show_boss_hp = false;
     input.clean();
     loaded_stage->reset_current_map();
@@ -208,8 +206,6 @@ void game::start_stage()
 
     players.at(0).reset_charging_shot();
     players.at(0).cancel_slide();
-
-    draw_lib.update_colorcycle();
 
     loaded_stage->showStage();
     loaded_stage->showAbove();
@@ -228,15 +224,7 @@ void game::start_stage()
     int min_y = loaded_stage->get_teleport_minimal_y(95); // x = 80 + half a player width (30)
     players.at(0).set_teleport_minimal_y((min_y-3)*TILESIZE);
 
-
-    loaded_stage->showStage(); // to fix colorcycle colors
-    loaded_stage->showAbove();
-    draw_lib.update_screen();
-
-
-
-
-    show_ready(); /// @TODO - not updating colorcycle for some reason...
+    show_ready();
 
     soundManager.play_music();
 
@@ -264,12 +252,6 @@ void game::show_ready() const
         draw_lib.show_ready();
         timer.delay(400);
         draw_lib.update_screen();
-
-        loaded_stage->showStage(); // to fix colorcycle colors
-        loaded_stage->show_objects();
-        loaded_stage->showAbove();
-        draw_lib.update_screen();
-        timer.delay(400);
     }
 }
 
@@ -326,7 +308,6 @@ void game::restart_stage()
     loaded_stage->showStage();
     loaded_stage->showAbove();
 	graphLib.set_screen_adjust(st_position(0, 0));
-    //graphLib.set_colormap(currentStage);
     draw_lib.update_screen();
     soundManager.restart_music();
     show_ready();
@@ -345,7 +326,6 @@ bool game::showIntro()
 
     scenes.preloadScenes();
     scenes.intro();
-	graphLib.set_colormap(-1);
 	scenes.main_screen();
     scenes.unload_intro();
 	currentStage = 0;
@@ -822,19 +802,14 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
 		// copy the new screen to the temp_area
         graphicsLib_gSurface temp_map_area = temp_map->get_map_area_surface();
 		if (type == TRANSITION_TOP_TO_BOTTOM) {
-            graphLib.copy_area_with_colormap_update(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_map_area, &temp_screen);
+            graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_map_area, &temp_screen);
 		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-            graphLib.copy_area_with_colormap_update(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_map_area, &temp_screen);
+            graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_map_area, &temp_screen);
 		}
-
-        graphLib.set_colormap_original(&temp_screen);
-        graphLib.set_colormap_current(&temp_screen);
-
 
 		// now, show the transition
         short int extra_y = 0;
 		for (i=0; i<(RES_H+TILESIZE*0.5)/TRANSITION_STEP; i++) {
-            graphLib.set_colormap_current(&temp_screen);
             if (type == TRANSITION_TOP_TO_BOTTOM) {
                 graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
             } else if (type == TRANSITION_BOTTOM_TO_TOP) {
@@ -1089,8 +1064,6 @@ void game::leave_stage()
     if (fio.write_save(game_save) == false) {
         show_savegame_error();
     }
-
-    graphLib.reset_tileset_colormap();
 
     //std::cout << "[[[freeze_weapon_effect(RESET #2)]]]" << std::endl;
     draw_lib.set_flash_enabled(false);

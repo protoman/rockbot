@@ -15,7 +15,6 @@
 
 #include "defines.h"
 #include "file/format/st_common.h"
-#include "class_colorcycle.h"
 #include "file/format.h"
 
 #ifdef PSP
@@ -70,8 +69,6 @@ public:
     void updateScreen();
 
 
-    Uint8 get_colorkey_n(COLOR_KEYS key);
-
     /**
      * @brief
      *
@@ -109,9 +106,6 @@ public:
      */
     void copyArea(struct st_rectangle rect, struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*);
 
-
-    // to be used in spceial cases when colormap issues happen as transitionscreen in game.cpp
-    void copy_area_with_colormap_update(struct st_rectangle origin_rectangle, struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny);
 
     /**
      * @brief
@@ -393,23 +387,6 @@ public:
      * @param color_key
      * @param new_color
      */
-    void change_colormap(unsigned int color_key, st_color new_color);
-    /**
-     * @brief
-     *
-     * @param map_n
-     */
-    void set_colormap(Uint8 map_n);
-
-    void execute_colorcycle();
-
-    /**
-     * @brief
-     *
-     */
-    void reset_colormap();
-
-    void reset_image_colormap(graphicsLib_gSurface &surface);
 
 
     /**
@@ -512,26 +489,6 @@ public:
      *
      * @param surface
      */
-    void set_colormap_white(struct graphicsLib_gSurface* surface);
-    /**
-     * @brief
-     *
-     * @param surface
-     */
-    void set_colormap_original(struct graphicsLib_gSurface* surface);
-
-
-    /**
-     * @brief
-     *
-     * @param surface
-     */
-    void set_colormap_current(struct graphicsLib_gSurface* surface);
-
-    void set_colormap_current_tileset();
-
-    void set_colormap_original_tileset();
-
     /**
      * @brief
      *
@@ -557,25 +514,8 @@ public:
      * @brief
      *
      */
-    void reset_tileset_colormap();
-    /**
-     * @brief
-     *
-     * @param initial_point
-     * @param final_point
-     * @param duration
-     */
+
     void draw_path(st_position initial_point, st_position final_point, short duration);
-
-
-    void preload_stage_colorcycle();
-
-    void add_stage_colorcycle(short stage_n, CURRENT_FILE_FORMAT::file_colorcycle &colorcycle);
-
-    void update_colors();
-
-    void update_surface_colormap(graphicsLib_gSurface *display_surface);
-
 
 
 private:
@@ -676,7 +616,6 @@ private:
      */
     void preload_images();
 
-    void update_surface_colormap(SDL_Surface *display_surface, SDL_Color set_colormap[COLOR_COUNT]);
 
 
 
@@ -711,11 +650,6 @@ public:
 
 private:
 
-    SDL_Color colormap[COLOR_COUNT];
-    SDL_Color colormap_original[COLOR_COUNT];
-    SDL_Color colormap_white[COLOR_COUNT];
-    class_colorcycle colorcycle_manager;
-    Uint8 color_keys[3];
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
 
 	// TODO: free those pointers
@@ -750,7 +684,6 @@ private:
     int _explosion_animation_pos;
     int _debug_msg_pos;
     st_position _screen_resolution_adjust;
-    bool _must_set_colors;
     Uint8 _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
     long _timer;
 
