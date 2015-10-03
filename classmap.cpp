@@ -47,12 +47,7 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(0), bg2_scroll(0
     //std::cout << "classMap::classMap ******** backgrounds[1].filename: " << stage_data.stages[0].maps[0].backgrounds[1].filename << std::endl;
 
 	int i;
-    graphLib.initSurface(st_size(MAP_W*TILESIZE, MAP_H*TILESIZE), &mapSurface);
 
-    if (!mapSurface.gSurface) {
-        graphLib.show_debug_msg("EXIT #21.MALLOC");
-        exit(-1);
-    }
 
 
 	for (i=0; i<MAP_W; i++) {
@@ -76,7 +71,6 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(0), bg2_scroll(0
 classMap::~classMap()
 {
     //std::cout << "MAP::DESTRUCTOR" << std::endl;
-    mapSurface.freeGraphic();
     clean_map();
 }
 
@@ -209,45 +203,11 @@ void classMap::loadMap()
 stage_data.maps[number].backgrounds[0].speed = 0;
 #endif
 
-    drawMap();
-}
-
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void classMap::drawMap()
-{
-	struct st_position pos_origin;
-	struct st_position pos_destiny;
-	for (int i=0; i<MAP_W; i++) {
-		for (int j=0; j<MAP_H; j++) {
-			// level 1
-            pos_origin.x = stage_data.maps[number].tiles[i][j].tile1.x;
-            pos_origin.y = stage_data.maps[number].tiles[i][j].tile1.y;
-			pos_destiny.x = i*TILESIZE;
-			pos_destiny.y = j*TILESIZE;
-
-            if (!mapSurface.gSurface) {
-                graphLib.show_debug_msg("EXIT #21.A");
-                exit(-1);
-            }
-
-            graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
-        }
-	}
-    //std::cout << "graphLib.gameScreen.width: " << graphLib.gameScreen.width << std::endl;
-    //graphLib.clear_area(0, 0, 600, graphLib.gameScreen.height, 0, 0, 0);
 }
 
 
 void classMap::showMap()
 {
-    if (!mapSurface.gSurface) {
-        graphLib.show_debug_msg("EXIT #21.A");
-        exit(-1);
-    }
-
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, graphLib.gameScreen);
     draw_dynamic_backgrounds();
     int tile_x_ini = scroll.x/TILESIZE-1;
@@ -507,24 +467,24 @@ void classMap::draw_dynamic_backgrounds()
     if (bg2_surface.width > 0) {
         // draw leftmost part
         graphLib.copyAreaWithAdjust(st_position(bg2_scroll, stage_data.maps[number].backgrounds[1].adjust_y), &bg2_surface, &graphLib.gameScreen);
-        //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - bg2_scroll: " << bg2_scroll << std::endl;
+        //std::cout << "MAP::draw_dynamic_backgrounds - bg2_scroll: " << bg2_scroll << std::endl;
     }
 }
 
 
-void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface, int x_adjust, int y_adjust)
+void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
     //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << stage_data.maps[number].background_color.r << ", " << stage_data.maps[number].background_color.g << ", " << stage_data.maps[number].background_color.b << ")" << std::endl;
     graphLib.clear_surface_area(0, 0, surface.width, surface.height, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, surface);
-    if (bg1_surface.width > 0 && stage_data.maps[number].backgrounds[0].speed != 0) {
+    if (bg1_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(x_adjust, stage_data.maps[number].backgrounds[0].adjust_y+y_adjust), &bg1_surface, &surface);
+        graphLib.copyAreaWithAdjust(st_position(bg1_scroll, stage_data.maps[number].backgrounds[0].adjust_y), &bg1_surface, &surface);
     }
 
 
-    if (bg2_surface.width > 0 && stage_data.maps[number].backgrounds[1].speed != 0) {
+    if (bg2_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(x_adjust, stage_data.maps[number].backgrounds[1].adjust_y+y_adjust), &bg2_surface, &surface);
+        graphLib.copyAreaWithAdjust(st_position(bg2_scroll, stage_data.maps[number].backgrounds[1].adjust_y), &bg2_surface, &surface);
     }
     graphLib.set_colormap_current(&surface);
 
@@ -1073,9 +1033,42 @@ void classMap::reset_beam_objects()
     }
 }
 
-graphicsLib_gSurface* classMap::get_map_surface()
+graphicsLib_gSurface classMap::get_map_area_surface()
 {
-	return &mapSurface;
+    //@TODO - create a new surface, because we need that only for transition screen
+    graphicsLib_gSurface mapSurface;
+    graphLib.initSurface(st_size(RES_W, RES_H), &mapSurface);
+
+    if (!mapSurface.gSurface) {
+        graphLib.show_debug_msg("EXIT #21.MALLOC");
+        exit(-1);
+    }
+
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, mapSurface);
+    //draw_dynamic_backgrounds();
+
+    draw_dynamic_backgrounds_into_surface(mapSurface);
+
+    int tile_x_ini = scroll.x/TILESIZE-1;
+
+    // draw the tiles of the screen region
+    struct st_position pos_origin;
+    struct st_position pos_destiny;
+    int n = -1;
+    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
+        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
+        pos_destiny.x = n*TILESIZE - diff;
+        for (int j=0; j<MAP_H; j++) {
+            pos_origin.x = stage_data.maps[number].tiles[i][j].tile1.x;
+            pos_origin.y = stage_data.maps[number].tiles[i][j].tile1.y;
+            pos_destiny.y = j*TILESIZE;
+            graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
+        }
+        n++;
+    }
+
+
+    return mapSurface;
 }
 
 bool classMap::get_map_point_wall_lock(int x) const

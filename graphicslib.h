@@ -143,19 +143,7 @@ public:
      * @param
      */
     void showSurface(struct graphicsLib_gSurface*);
-    /**
-     * @brief
-     *
-     * @param surfaceOrigin
-     * @param origin_rectangle
-     */
-    void showMapSurfaceRegion(struct graphicsLib_gSurface* surfaceOrigin, st_rectangle origin_rectangle);
-    /**
-     * @brief
-     *
-     * @param
-     * @param origin_rectangle
-     */
+
     void showSurfaceRegion(struct graphicsLib_gSurface*, const struct st_rectangle origin_rectangle);
     /**
      * @brief

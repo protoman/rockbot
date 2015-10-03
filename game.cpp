@@ -796,11 +796,13 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
     temp_map->set_bg2_scroll(loaded_stage->get_current_map()->get_bg2_scroll());
     temp_map->set_scrolling(st_position(adjust_x, 0));
 
+    /*
     if (type == TRANSITION_TOP_TO_BOTTOM) {
-        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, loaded_stage->get_current_map()->get_bg1_scroll(), RES_H);
+        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, RES_H);
     } else {
-        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, loaded_stage->get_current_map()->get_bg1_scroll(), 0);
+        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, 0);
     }
+    */
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
 	// draw map in the screen, erasing all players/objects/npcs
@@ -818,10 +820,11 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
             graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_screen);
         }
 		// copy the new screen to the temp_area
+        graphicsLib_gSurface temp_map_area = temp_map->get_map_area_surface();
 		if (type == TRANSITION_TOP_TO_BOTTOM) {
-            graphLib.copy_area_with_colormap_update(st_rectangle(adjust_x, 0, RES_W, RES_H), st_position(0, RES_H), temp_map->get_map_surface(), &temp_screen);
+            graphLib.copy_area_with_colormap_update(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_map_area, &temp_screen);
 		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-            graphLib.copy_area_with_colormap_update(st_rectangle(adjust_x, 0, RES_W, RES_H), st_position(0, 0), temp_map->get_map_surface(), &temp_screen);
+            graphLib.copy_area_with_colormap_update(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_map_area, &temp_screen);
 		}
 
         graphLib.set_colormap_original(&temp_screen);
@@ -1199,7 +1202,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = SKULLCASTLE5;
+    currentStage = DAISIEBOT;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
@@ -1420,7 +1423,7 @@ void game::remove_current_teleporter_from_list()
 std::string game::select_game_screen()
 {
     std::vector<std::string> game_list = fio.read_game_list();
-    if (game_list.size() == 0) {
+    if (game_list.size() < 2) {
         return std::string("data/");
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
