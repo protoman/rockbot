@@ -78,8 +78,6 @@ public:
 
     void loadMap();
 
-    void drawMap();
-
     void showMap();
 
     void showAbove(int scroll_y=0, int temp_scroll_x = -99999);
@@ -118,7 +116,7 @@ public:
 
     void reset_beam_objects();
 
-    graphicsLib_gSurface* get_map_surface();
+    graphicsLib_gSurface get_map_area_surface();
 
     void set_scrolling(st_position pos);
 
@@ -154,7 +152,7 @@ public:
 
     void reset_map_npcs();
 
-    void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface, int x_adjust, int y_adjust);
+    void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface);
 
     void add_object(object obj);
 
@@ -209,7 +207,6 @@ public:
 
 private:
     int stage_number;
-    graphicsLib_gSurface mapSurface;
     struct st_position scroll;
     st_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     std::vector<object> object_list;

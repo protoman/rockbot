@@ -648,14 +648,6 @@ void graphicsLib::showSurface(struct graphicsLib_gSurface* surfaceOrigin)
     showSurfacePortion(surfaceOrigin, origin_rectangle, st_rectangle(_screen_adjust.x, _screen_adjust.y, surfaceOrigin->width, surfaceOrigin->height));
 }
 
-void graphicsLib::showMapSurfaceRegion(graphicsLib_gSurface *surfaceOrigin, st_rectangle origin_rectangle)
-{
-	if (_screen_adjust.x < 0) {
-		origin_rectangle.w += abs(_screen_adjust.x);
-	}
-    update_surface_colormap(surfaceOrigin->gSurface, colormap);
-    copySDLPortion(origin_rectangle, st_rectangle(_screen_adjust.x, 0, RES_W, RES_H), surfaceOrigin->gSurface, game_screen);
-}
 
 void graphicsLib::showSurfaceRegion(struct graphicsLib_gSurface* surfaceOrigin, const struct st_rectangle origin_rectangle)
 {
