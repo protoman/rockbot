@@ -66,8 +66,6 @@ void stage::loadStage() {
         return;
 	}
 
-    graphLib.add_stage_colorcycle(number, stage_data.colorcycle);
-
 	//std::cout << "stage::loadStage - number: " << number << std::endl;
 
 	// load stage maps

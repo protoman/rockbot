@@ -188,15 +188,10 @@ void scenesLib::intro()
 	input.waitScapeTime(2000);
 	soundManager.play_music();
 
-    graphLib.set_colormap_original(&INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
-
     graphLib.blank_screen();
-
-    graphLib.set_colormap(-2);
 
     draw_lib.update_screen();
 
-    graphLib.set_colormap_current(&INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
     graphLib.copyArea(st_rectangle(0,  INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->h-100, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
 
     draw_lib.update_screen();
@@ -232,7 +227,6 @@ void scenesLib::intro()
 
     int posy = INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->h-100;
     for (int i=0; i<50; i++) {
-        graphLib.set_colormap_current(&INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
         graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         draw_lib.update_screen();
         cut = input.waitScapeTime(10);
@@ -279,7 +273,6 @@ void scenesLib::intro()
     }
 
     for (int i=0; i<50; i++) {
-        graphLib.set_colormap_current(&INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
         graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         draw_lib.update_screen();
         cut = input.waitScapeTime(10);
@@ -315,7 +308,6 @@ void scenesLib::intro()
 
 	graphLib.blank_screen();
 
-    graphLib.set_colormap(-1);
     draw_lib.update_screen();
 
     graphLib.copyArea(st_rectangle(0, 10, INTRO_SURFACES[INTRO_SURFACES_CAPSULES].width, 90), st_position(60, 20), &INTRO_SURFACES[INTRO_SURFACES_CAPSULES], &graphLib.gameScreen);
@@ -329,9 +321,7 @@ void scenesLib::intro()
     cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
 	if (cut) { return; }
 
-    graphLib.set_colormap(-3);
     graphLib.blank_screen();
-    graphLib.set_colormap_current(&INTRO_SURFACES[INTRO_SURFACES_LAB_BG]);
 	graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].gSurface->w, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].gSurface->h), st_position(10-graphLib.RES_DIFF_W, 10-graphLib.RES_DIFF_H+13), &INTRO_SURFACES[INTRO_SURFACES_LAB_BG], &graphLib.gameScreen);
 
 	graphLib.copyArea(st_rectangle(0, 0, 21, 24), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);

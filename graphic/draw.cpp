@@ -59,11 +59,6 @@ void draw::update_screen()
     graphLib.updateScreen();
 }
 
-void draw::update_colorcycle() const
-{
-    graphLib.execute_colorcycle();
-}
-
 void draw::set_rain_enabled(bool enabled)
 {
     _rain_enabled = enabled;
@@ -191,15 +186,9 @@ void draw::show_bubble(int x, int y)
     graphLib.showSurfaceAt(&_bubble_gfx, st_position(x, y), false);
 }
 
-void draw::reset_teleporter_colors()
-{
-    graphLib.reset_image_colormap(_teleport_small_gfx);
-}
-
 void draw::set_teleport_small_colors(st_color color1, st_color color2)
 {
-    graphLib.change_surface_color(graphLib.get_colorkey_n(COLOR_KEY_GREEN), color1, &_teleport_small_gfx);
-    graphLib.change_surface_color(graphLib.get_colorkey_n(COLOR_KEY_PURPLE), color2, &_teleport_small_gfx);
+    /// @TODO new colormap
 }
 
 void draw::show_teleport_small(int x, int y)

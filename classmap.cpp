@@ -486,8 +486,6 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
         // draw leftmost part
         graphLib.copyAreaWithAdjust(st_position(bg2_scroll, stage_data.maps[number].backgrounds[1].adjust_y), &bg2_surface, &surface);
     }
-    graphLib.set_colormap_current(&surface);
-
 }
 
 void classMap::add_object(object obj)

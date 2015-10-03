@@ -28,6 +28,8 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 #define TIMED_DIALOG_DURATION 4000
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
+
+#include "file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
@@ -668,12 +670,7 @@ void ending::train()
 	int pos_bushes_2 = 0;
 
 
-    graphLib.set_colormap(-1);
-
-
-
-
-	soundManager.stop_music();
+    soundManager.stop_music();
 	soundManager.load_music("train.mod");
 	soundManager.play_music();
 
@@ -830,9 +827,7 @@ void ending::lab() const
     graphLib.surfaceFromFile(std::string(FILEPATH+"images/sprites/candybot_ending.png"), &candybot_surface);
 
 
-    graphLib.set_colormap(-3);
     graphLib.blank_screen();
-    graphLib.set_colormap_current(&lab_bg);
     graphLib.copyArea(st_rectangle(0, 0, lab_bg.width, lab_bg.height), st_position(0, y_adjust+10-graphLib.RES_DIFF_H), &lab_bg, &graphLib.gameScreen);
     graphLib.copyArea(st_rectangle(0, 0, 21, 24), st_position(58, y_adjust+82), &kanotus_surface, &graphLib.gameScreen);
     graphLib.copyArea(st_rectangle(0, 0, 16, 26), st_position(174, y_adjust+80), &candybot_surface, &graphLib.gameScreen);
@@ -844,7 +839,6 @@ void ending::lab() const
 
 	while (p_pos.x > RES_W/2-50) {
 		p_pos.x -= 3;
-        graphLib.set_colormap_current(&lab_bg);
         graphLib.copyArea(st_rectangle(0, 0, lab_bg.width, lab_bg.height), st_position(0, y_adjust+10-graphLib.RES_DIFF_H), &lab_bg, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(0, 0, 21, 24), st_position(58, y_adjust+82), &kanotus_surface, &graphLib.gameScreen);
 		if (p_pos.x > 172) {
@@ -858,7 +852,6 @@ void ending::lab() const
 		input.waitTime(20);
 	}
 	gameControl.set_player_anim_type(ANIM_TYPE_STAND, 0);
-    graphLib.set_colormap_current(&lab_bg);
     graphLib.copyArea(st_rectangle(0, 0, lab_bg.width, lab_bg.height), st_position(0, y_adjust+10-graphLib.RES_DIFF_H), &lab_bg, &graphLib.gameScreen);
     graphLib.copyArea(st_rectangle(64, 0, 21, 24), st_position(58, y_adjust+82), &kanotus_surface, &graphLib.gameScreen);
     graphLib.copyArea(st_rectangle(16, 0, 16, 26), st_position(174, y_adjust+80), &candybot_surface, &graphLib.gameScreen);
@@ -893,7 +886,6 @@ void ending::lab() const
     lines[2] = "SO LETS RESPECT HIM.";
     dialogs_obj.show_timed_dialog("canotus_face.png", true, lines, TIMED_DIALOG_DURATION, false);
 
-    graphLib.set_colormap(-1);
 }
 
 void ending::look_sky_betabot() const
@@ -1007,7 +999,9 @@ void ending::bosses() const
 	soundManager.load_music("ending_bosses.mod");
 	soundManager.play_music();
     graphLib.start_stars_animation();
-	/// @TODO - copy from boss_intro
+    /// @TODO - copy from boss_intro
+
+
     boss_credits(APEBOT, fio.read_stage_boss_id(APEBOT, stage_data));
     boss_credits(TECHNOBOT, fio.read_stage_boss_id(TECHNOBOT, stage_data));
     boss_credits(DYNAMITEBOT, fio.read_stage_boss_id(DYNAMITEBOT, stage_data));
