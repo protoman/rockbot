@@ -31,17 +31,17 @@ void soundLib::init_audio_system()
 
 
 void soundLib::play_sfx(Uint8 sfx) {
-    std::cout << "soundLib::play_sfx::START" << std::endl;
+    //std::cout << "soundLib::play_sfx::START" << std::endl;
 	if (game_config.sound_enabled == false) {
-        std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
+        //std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
         return;
 	}
 
 	if (sfx_list[sfx] != NULL) {
-        std::cout << "soundLib::play_sfx::PLAY" << std::endl;
+        //std::cout << "soundLib::play_sfx::PLAY" << std::endl;
         Mix_PlayChannel(-1, sfx_list[sfx], 0);
-	} else {
-        std::cout << "soundLib::play_sfx::NULL_SFX" << std::endl;
+    //} else {
+        //std::cout << "soundLib::play_sfx::NULL_SFX" << std::endl;
 	}
 }
 

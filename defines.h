@@ -828,6 +828,8 @@ enum e_ARMOR_ABILITIES_BODY {
 
 #define LINE_H_DIFF 15
 
+#define VIDEO_MODE_COLORS 16
+
 #endif // DEFINES_H
 
 

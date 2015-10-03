@@ -1097,11 +1097,12 @@ void game::leave_stage()
 
 void game::exit_game()
 {
-    //std::cout << ">>> LEAVEGAME <<<" <<std::endl;
+    std::cout << ">>> game::exit_game <<<" <<std::endl;
 
     dialogs dialogs_obj;
     if (dialogs_obj.show_leave_game_dialog() != true) { // cuidar se isso não cria loophole
-        //std::cout << "++ DON'T LEAVE GAME" << std::endl;
+        std::cout << "++ DON'T LEAVE GAME" << std::endl;
+        leave_game = false;
         return;
     }
 

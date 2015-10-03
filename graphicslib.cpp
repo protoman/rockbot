@@ -171,7 +171,7 @@ void graphicsLib::updateScreen()
         //std::cout << "GRAPH::updateScreen NO SCALE" << std::endl;
         SDL_Flip(game_screen);
     } else {
-        //std::cout << "GRAPH::updateScreen SCALE" << std::endl;
+        //std::cout << "GRAPH::updateScreen SCALE, _video_filter: " << (int)_video_filter << std::endl;
         if (_video_filter == VIDEO_FILTER_BITSCALE) {
             scale2x(game_screen, game_screen_scaled, false);
         } else if (_video_filter == VIDEO_FILTER_SCALE2x) {
@@ -463,7 +463,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         return;
     }
     gSurface->freeGraphic();
-    SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, 8, 0, 0, 0, 0);
+    SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
 
     if (!temp_surface) {
         show_debug_msg("EXIT #21.INIT #1");
@@ -931,6 +931,8 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 	 }
 	}
 
+    //std::cout << "scale2x::smooth_scale: " << smooth_scale << ", bpp: " << bpp << std::endl;
+
 	const int wd = ((dest->w / 2) < (surface->w)) ? (dest->w / 2) : (surface->w);
 	const int hg = ((dest->h) < (surface->h*2)) ? (dest->h / 2) : (surface->h);
 
@@ -983,27 +985,35 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 	   Uint16* tp = (Uint16*) dest->pixels;
 	   Uint16* sp = (Uint16*) surface->pixels;
 
-	   for (j = 0; j < hg; ++j)
-	   {
-		b = j>0?spitch:0;
-		h = j<hg?spitch:0;
-		 for (i = 0; i < wd; ++i)
-		 {
-			   if (B != H && D != F) {
-					   E0 = D == B ? D : E;
-					   E1 = B == F ? F : E;
-					   E2 = D == H ? D : E;
-					   E3 = H == F ? F : E;
-			   } else {
-					   E0 = E;
-					   E1 = E;
-					   E2 = E;
-					   E3 = E;
-			   }
-		 }
-		 tp += 2*tpitch;
-		 sp += spitch;
-	   }
+       for (j = 0; j < hg; ++j)
+       {
+           b = j>0?spitch:0;
+           h = j<hg?spitch:0;
+
+           for (i = 0; i < wd; ++i)
+           {
+               if (B != H && D != F) {
+                   if (smooth_scale == true) {
+                       E0 = D == B ? D : E;
+                       E1 = B == F ? F : E;
+                       E2 = D == H ? D : E;
+                       E3 = H == F ? F : E;
+                   } else {
+                       E0 = E;
+                       E1 = E;
+                       E2 = E;
+                       E3 = E;
+                   }
+               } else {
+                   E0 = E;
+                   E1 = E;
+                   E2 = E;
+                   E3 = E;
+               }
+           }
+           tp += 2*tpitch;
+           sp += spitch;
+       }
 
 	   break;
 	 }
@@ -1014,27 +1024,36 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 	   Uint32* tp = (Uint32*) dest->pixels;
 	   Uint32* sp = (Uint32*) surface->pixels;
 
-	   for (j = 0; j < hg; ++j)
-	   {
-		b = j>0?spitch:0;
-		h = j<hg?spitch:0;
-		 for (i = 0; i < wd; ++i)
-		 {
-			   if (B != H && D != F) {
-					   E0 = D == B ? D : E;
-					   E1 = B == F ? F : E;
-					   E2 = D == H ? D : E;
-					   E3 = H == F ? F : E;
-			   } else {
-					   E0 = E;
-					   E1 = E;
-					   E2 = E;
-					   E3 = E;
-			   }
-		 }
-		 tp += 2*tpitch;
-		 sp += spitch;
-	   }
+       for (j = 0; j < hg; ++j)
+       {
+           b = j>0?spitch:0;
+           h = j<hg?spitch:0;
+
+           for (i = 0; i < wd; ++i)
+           {
+               if (B != H && D != F) {
+                   if (smooth_scale == true) {
+                       E0 = D == B ? D : E;
+                       E1 = B == F ? F : E;
+                       E2 = D == H ? D : E;
+                       E3 = H == F ? F : E;
+                   } else {
+                       E0 = E;
+                       E1 = E;
+                       E2 = E;
+                       E3 = E;
+                   }
+               } else {
+                   E0 = E;
+                   E1 = E;
+                   E2 = E;
+                   E3 = E;
+               }
+           }
+           tp += 2*tpitch;
+           sp += spitch;
+       }
+
 
 	   break;
 	 }
@@ -1472,23 +1491,23 @@ void graphicsLib::anim_stars() {
 void graphicsLib::set_video_mode()
 {
 #ifdef DINGUX
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_SWSURFACE);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(OPEN_PANDORA)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(ANDROID)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_SWSURFACE);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(WII)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_HWSURFACE);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     if (game_config.video_fullscreen == false) {
-        game_screen = SDL_SetVideoMode(480, 272, 8, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
+        game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
     } else {
-        game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
+        game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
     }
 #elif defined(DREAMCAST)
-    game_screen = SDL_SetVideoMode(320, 240, 8, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(320, 240, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_SWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
     /*
     256, 224 - good
     288, 224 - good (strange colors?)
@@ -1503,22 +1522,22 @@ void graphicsLib::set_video_mode()
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
         if (game_config.video_fullscreen == false) {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
         } else {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, 8, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
         }
         //game_screen = SDL_SetVideoMode(480, 272, 8, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
     } else {
         /// @TODO - do we need scale on fullscreen if no filter?
         if (game_config.video_fullscreen == false) {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, 8, SDL_HWSURFACE|SDL_DOUBLEBUF);
+            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF);
         } else {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, 8, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
         }
         if (game_screen != NULL) {
             SDL_FreeSurface(game_screen);
         }
-        SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, 8, 0, 0, 0, 255);
+        SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
         game_screen = SDL_DisplayFormat(temp_surface);
         SDL_FreeSurface(temp_surface);
     }

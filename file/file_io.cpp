@@ -1968,10 +1968,10 @@ namespace format_v_3_0_1 {
             data_out.stages[i] = 1;
         }
         */
-        /*
         //data_out.stages[MAGEBOT] = 0;
-        //data_out.stages[SEAHORSEBOT] = 1;
-        //data_out.stages[DAISIEBOT] = 1;
+        data_out.stages[SEAHORSEBOT] = 1;
+        data_out.stages[DAISIEBOT] = 1;
+        /*
         //data_out.stages[MUMMYBOT] = 1;
         //data_out.items.lifes = 0;
 
