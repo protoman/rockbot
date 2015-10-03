@@ -232,13 +232,13 @@ void class_config::change_player_frame_color()
     CURRENT_FILE_FORMAT::file_weapon_colors colors = player_ref->get_weapon_colors(selected_weapon);
 
 	if (colors.color1.r != -1) {
-		graphLib.change_surface_color(player_ref->get_color_key(0), colors.color1, &_player_surface);
+        graphLib.change_surface_color(0, colors.color1, &_player_surface);
 	}
 	if (colors.color2.r != -1) {
-		graphLib.change_surface_color(player_ref->get_color_key(1), colors.color2, &_player_surface);
+        graphLib.change_surface_color(1, colors.color2, &_player_surface);
 	}
 	if (colors.color3.r != -1) {
-		graphLib.change_surface_color(player_ref->get_color_key(2), colors.color3, &_player_surface);
+        graphLib.change_surface_color(2, colors.color3, &_player_surface);
 	}
 	graphLib.copyArea(st_position(26, 190), &_player_surface, &graphLib.gameScreen);
 }

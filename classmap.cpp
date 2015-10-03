@@ -1037,7 +1037,7 @@ graphicsLib_gSurface classMap::get_map_area_surface()
     graphicsLib_gSurface mapSurface;
     graphLib.initSurface(st_size(RES_W, RES_H), &mapSurface);
 
-    if (!mapSurface.gSurface) {
+    if (!mapSurface.get_surface()) {
         graphLib.show_debug_msg("EXIT #21.MALLOC");
         exit(-1);
     }
@@ -1274,7 +1274,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 							if (is_close == false) {
 								if (tiles_showed < nTiles) {
 
-                                    if (!graphLib.gameScreen.gSurface) {
+                                    if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.C");
                                         exit(-1);
                                     }
@@ -1287,7 +1287,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 							} else {
 								if (tiles_showed < k) {
 
-                                    if (!graphLib.gameScreen.gSurface) {
+                                    if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.D");
                                         exit(-1);
                                     }
@@ -1300,7 +1300,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 							}
 						} else {
 
-                            if (!graphLib.gameScreen.gSurface) {
+                            if (!graphLib.gameScreen.get_surface()) {
                                 graphLib.show_debug_msg("EXIT #21.E");
                                 exit(-1);
                             }

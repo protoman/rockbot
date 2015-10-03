@@ -74,7 +74,7 @@ void draw::set_flash_enabled(bool enabled)
 
 void draw::show_rain()
 {
-    if (rain_obj.gSurface == NULL) {
+    if (rain_obj.get_surface() == NULL) {
         // load rain
         std::string filename = FILEPATH + "/images/tilesets/rain.png";
         graphLib.surfaceFromFile(filename, &rain_obj);
@@ -95,7 +95,7 @@ void draw::show_rain()
 
 void draw::show_flash()
 {
-    if (flash_obj.gSurface == NULL) {
+    if (flash_obj.get_surface() == NULL) {
         // load rain
         std::string filename = FILEPATH + "/images/tilesets/flash.png";
         graphLib.surfaceFromFile(filename, &flash_obj);
@@ -179,7 +179,7 @@ void draw::show_ready()
 
 void draw::show_bubble(int x, int y)
 {
-    if (_bubble_gfx.gSurface == NULL) {
+    if (_bubble_gfx.get_surface() == NULL) {
         std::string filename = FILEPATH + "images/tilesets/bubble.png";
         graphLib.surfaceFromFile(filename, &_bubble_gfx);
     }

@@ -165,8 +165,8 @@ void scenesLib::unload_stage_select() {
 	int i;
 
 	for (i=0; i<STAGE_SELECT_COUNT; i++) {
-		if (STAGE_SELECT_SURFACES[i].gSurface) {
-			SDL_FreeSurface(STAGE_SELECT_SURFACES[i].gSurface);
+        if (STAGE_SELECT_SURFACES[i].get_surface()) {
+            SDL_FreeSurface(STAGE_SELECT_SURFACES[i].get_surface());
 		}
 	}
 }
@@ -192,7 +192,7 @@ void scenesLib::intro()
 
     draw_lib.update_screen();
 
-    graphLib.copyArea(st_rectangle(0,  INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->h-100, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0,  INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->h-100, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
 
     draw_lib.update_screen();
 
@@ -225,16 +225,16 @@ void scenesLib::intro()
     if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
 
 
-    int posy = INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->h-100;
+    int posy = INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->h-100;
     for (int i=0; i<50; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         draw_lib.update_screen();
         cut = input.waitScapeTime(10);
         posy -= 1;
         if (cut) { return; }
     }
 
-    graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
     draw_lib.update_screen();
 
 
@@ -256,7 +256,7 @@ void scenesLib::intro()
     soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 2);
     simple_animation explosion_anim1(FILEPATH+"images/animations/city_explosion_left.png", 5, 40, 51, st_position(90, 60));
     for (int i=0; i<40; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         explosion_anim1.execute();
         draw_lib.update_screen();
         cut = input.waitScapeTime(10);
@@ -265,7 +265,7 @@ void scenesLib::intro()
     explosion_anim1.set_position(st_position(37, 45));
     simple_animation explosion_anim2(FILEPATH+"images/animations/city_explosion_right.png", 5, 40, 51, st_position(177, 69));
     for (int i=0; i<40; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         explosion_anim1.execute();
         explosion_anim2.execute();
         draw_lib.update_screen();
@@ -273,7 +273,7 @@ void scenesLib::intro()
     }
 
     for (int i=0; i<50; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].gSurface->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
         draw_lib.update_screen();
         cut = input.waitScapeTime(10);
         posy -= 1;
@@ -322,7 +322,7 @@ void scenesLib::intro()
 	if (cut) { return; }
 
     graphLib.blank_screen();
-	graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].gSurface->w, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].gSurface->h), st_position(10-graphLib.RES_DIFF_W, 10-graphLib.RES_DIFF_H+13), &INTRO_SURFACES[INTRO_SURFACES_LAB_BG], &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].get_surface()->w, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].get_surface()->h), st_position(10-graphLib.RES_DIFF_W, 10-graphLib.RES_DIFF_H+13), &INTRO_SURFACES[INTRO_SURFACES_LAB_BG], &graphLib.gameScreen);
 
 	graphLib.copyArea(st_rectangle(0, 0, 21, 24), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);
 
@@ -344,7 +344,7 @@ void scenesLib::intro()
 	cut = input.waitScapeTime(500);
 	if (cut) { return; }
 
-	graphLib.copyArea(st_rectangle(43, 0, 21, INTRO_SURFACES[INTRO_SURFACES_KANOTUS].gSurface->h), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(43, 0, 21, INTRO_SURFACES[INTRO_SURFACES_KANOTUS].get_surface()->h), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);
 
     cut = graphLib.draw_progressive_text(10, line_position_y[3],"A SECOND ONE, CALLED ROCKBOT.", true);
 	if (cut) { return; }
@@ -788,7 +788,7 @@ bool scenesLib::password_ball_selector()
 	int selected_ball = 0; // blue, 1 is red
 	st_position blue_ball_pos(236, 60);
 	st_position red_ball_pos(252, 60);
-	graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
     draw_lib.update_screen();
 
 	input.clean();
@@ -800,29 +800,29 @@ bool scenesLib::password_ball_selector()
 			soundManager.play_sfx(SFX_CURSOR);
 			if (selected_ball == 0) {
 				// erase mark on blue
-				graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
 				// draw mark on red
-				graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), red_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), red_ball_pos, &_password_selector, &graphLib.gameScreen);
 				selected_ball = 1;
 			} else {
 				// erase mark on red
-				graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
 				// draw mark on blue
-				graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
 				selected_ball = 0;
 			}
 		} else if (input.p1_input[BTN_JUMP] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
 			password_number_selector(selected_ball);
 			if (selected_ball == 0) {
-				graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
 			} else {
-				graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), red_ball_pos, &_password_selector, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), red_ball_pos, &_password_selector, &graphLib.gameScreen);
 			}
 		} else if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
             bool res = password_end_selector();
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>> #1" << std::endl;
             return res;
@@ -979,8 +979,8 @@ bool scenesLib::password_end_selector()
 {
 	st_position end_pos1(235, 124);
 	st_position end_pos2(258, 124);
-	graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w/2, _password_selector.gSurface->h/2), end_pos1, &_password_selector, &graphLib.gameScreen);
-	graphLib.copyArea(st_rectangle( _password_selector.gSurface->w/2, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), end_pos2, &_password_selector, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w/2, _password_selector.get_surface()->h/2), end_pos1, &_password_selector, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle( _password_selector.get_surface()->w/2, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), end_pos2, &_password_selector, &graphLib.gameScreen);
     draw_lib.update_screen();
     input.clean();
     timer.delay(10);
@@ -988,8 +988,8 @@ bool scenesLib::password_end_selector()
     while (true) {
         input.readInput();
 		if (input.p1_input[BTN_UP] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w/2, _password_selector.gSurface->h), end_pos1, &_password_selector, &graphLib.gameScreen);
-			graphLib.copyArea(st_rectangle( _password_selector.gSurface->w/2, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), end_pos2, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w/2, _password_selector.get_surface()->h), end_pos1, &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle( _password_selector.get_surface()->w/2, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), end_pos2, &_password_selector, &graphLib.gameScreen);
             return password_ball_selector();
 		} else if (input.p1_input[BTN_ATTACK] == 1) {
             std::cout << "password_end_selector::LEAVE#1 (GAVE UP)" << std::endl;
@@ -1020,7 +1020,7 @@ void scenesLib::password_number_selector(int ball_type)
 	st_position selected_number(0, 0);
 	st_rectangle point_zero(60, 52, 16, 16);
 
-	graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), st_position(point_zero.x, point_zero.y), &_password_selector, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), st_position(point_zero.x, point_zero.y), &_password_selector, &graphLib.gameScreen);
 
 	std::string filename;
 	if (ball_type == 0) {
@@ -1036,44 +1036,44 @@ void scenesLib::password_number_selector(int ball_type)
 	while (true) {
 		input.readInput();
 		if (input.p1_input[BTN_LEFT] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			selected_number.x--;
 			if (selected_number.x < 0) {
 				selected_number.x = 5;
 			}
-			graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 		} else if (input.p1_input[BTN_RIGHT] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			selected_number.x++;
 			if (selected_number.x > 5) {
 				selected_number.x = 0;
 			}
-			graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 		} else if (input.p1_input[BTN_UP] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			selected_number.y--;
 			if (selected_number.y < 0) {
 				selected_number.y = 5;
 			}
-			graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 		} else if (input.p1_input[BTN_DOWN] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			selected_number.y++;
 			if (selected_number.y > 5) {
 				selected_number.y = 0;
 			}
-			graphLib.copyArea(st_rectangle(0, 0, _password_selector.gSurface->w, _password_selector.gSurface->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, 0, _password_selector.get_surface()->w, _password_selector.get_surface()->h/2), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 		} else if (input.p1_input[BTN_JUMP] == 1) {
             if (_password_selected_balls[selected_number.x][selected_number.y] == -1) {
-				graphLib.copyArea(st_rectangle(0, 0, ball_img.gSurface->w, ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &ball_img, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, ball_img.get_surface()->w, ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &ball_img, &graphLib.gameScreen);
                 _password_selected_balls[selected_number.x][selected_number.y] = ball_type;
 				std::cout << "set password[" << selected_number.y << "][" << selected_number.x << "] to " << ball_type << std::endl;
 			} else {
-				graphLib.blank_area(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2, ball_img.gSurface->w, ball_img.gSurface->h, graphLib.gameScreen);
+                graphLib.blank_area(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2, ball_img.get_surface()->w, ball_img.get_surface()->h, graphLib.gameScreen);
                 _password_selected_balls[selected_number.x][selected_number.y] = -1;
 			}
 		} else if (input.p1_input[BTN_ATTACK] == 1) {
-			graphLib.copyArea(st_rectangle(0, _password_selector.gSurface->h/2, _password_selector.gSurface->w, _password_selector.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			break;
 		}
         input.clean();
@@ -1091,7 +1091,7 @@ bool scenesLib::show_password_input()
 	graphicsLib_gSurface password_screen;
     std::string filename = FILEPATH + "images/backgrounds/password.png";
 	graphLib.surfaceFromFile(filename, &password_screen);
-	graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
     filename = FILEPATH + "images/backgrounds/password_selector.png";
 	graphLib.surfaceFromFile(filename, &_password_selector);
@@ -1109,7 +1109,7 @@ void scenesLib::show_password()
     graphicsLib_gSurface password_screen;
     std::string filename = FILEPATH + "images/backgrounds/password.png";
     graphLib.surfaceFromFile(filename, &password_screen);
-    graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
     filename = FILEPATH + "images/backgrounds/password_selector.png";
     graphLib.surfaceFromFile(filename, &_password_selector);
@@ -1125,155 +1125,155 @@ void scenesLib::show_password()
     if (game_save.selected_player == PLAYER_BETABOT) {
         selected_number.x = 1;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.selected_player == PLAYER_CANDYBOT) {
         selected_number.x = 1;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.selected_player == PLAYER_KITTYBOT) {
         selected_number.x = 2;
         selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
 
     if (game_save.stages[TECHNOBOT] == 1) {
         selected_number.x = 5;
         selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[DAISIEBOT] == 1) {
         selected_number.x = 5;
         selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[MUMMYBOT] == 1) {
         selected_number.x = 3;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[SPIKEBOT] == 1) {
         selected_number.x = 4;
         selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
 
 
     if (game_save.stages[SKULLCASTLE1] == 1) {
         selected_number.x = 0;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[SKULLCASTLE2] == 1) {
         selected_number.x = 1;
         selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[SKULLCASTLE3] == 1) {
         selected_number.x = 4;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[SKULLCASTLE4] == 1) {
         selected_number.x = 4;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
     }
 
     if (game_save.stages[INTRO_STAGE] == 1) {
         selected_number.x = 0;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[MAGEBOT] == 1) {
         selected_number.x = 2;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[DYNAMITEBOT] == 1) {
         selected_number.x = 4;
         selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[SEAHORSEBOT] == 1) {
         selected_number.x = 2;
         selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.stages[APEBOT] == 1) {
         selected_number.x = 3;
         selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
 
     if (game_save.items.energy_tanks == 1) {
         selected_number.x = 5;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 2) {
         selected_number.x = 3;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 3) {
         selected_number.x = 3;
         selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 4) {
         selected_number.x = 0;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 5) {
         selected_number.x = 4;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 6) {
         selected_number.x = 1;
         selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 7) {
         selected_number.x = 2;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 8) {
         selected_number.x = 1;
         selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     } else if (game_save.items.energy_tanks == 9) {
         selected_number.x = 5;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
 
     // weapon-tank: y 5, x 0
     if (game_save.items.weapon_tanks == 1) {
         selected_number.x = 5;
         selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
 
     // special tank y 5, x 2
     if (game_save.items.special_tanks == 1) {
         selected_number.x = 5;
         selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     // usados, linha 4: 5, 3, 0
     // linha4, coluna 1 -> armor, 2 -> hands, 4 -> legs
     if (game_save.armor_pieces[ARMOR_BODY]) {
         selected_number.x = 1;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.armor_pieces[ARMOR_ARMS]) {
         selected_number.x = 2;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
     if (game_save.armor_pieces[ARMOR_LEGS]) {
         selected_number.x = 4;
         selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
     }
 
 
@@ -1294,7 +1294,7 @@ void scenesLib::show_password()
     graphicsLib_gSurface password_screen;
     std::string filename = FILEPATH + "images/backgrounds/password.png";
     graphLib.surfaceFromFile(filename, &password_screen);
-    graphLib.copyArea(st_rectangle(0, 0, password_screen.gSurface->w, password_screen.gSurface->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
 
     filename = FILEPATH + "images/backgrounds/password_selector.png";
     graphLib.surfaceFromFile(filename, &_password_selector);
@@ -1311,9 +1311,9 @@ void scenesLib::show_password()
     for (int i=0; i<PASSWORD_GRID_SIZE; i++) {
         for (int j=0; j<PASSWORD_GRID_SIZE; j++) {
             if (res.value[i][j] == PASSWORD_BALL_COLOR_RED) {
-                graphLib.copyArea(st_rectangle(0, 0, red_ball_img.gSurface->w, red_ball_img.gSurface->h), st_position(i*point_zero.w + point_zero.x+2, j*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(i*point_zero.w + point_zero.x+2, j*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
             } else if (res.value[i][j] == PASSWORD_BALL_COLOR_BLUE) {
-                graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.gSurface->w, blue_ball_img.gSurface->h), st_position(i*point_zero.w + point_zero.x+2, j*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(i*point_zero.w + point_zero.x+2, j*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
             }
         }
     }

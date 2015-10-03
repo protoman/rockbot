@@ -41,7 +41,7 @@ struct st_spriteFrame {
     unsigned int delay; // time in milisseconds this frame will be shown /**< TODO */
     graphicsLib_gSurface frameSurface; /**< TODO */
 	st_spriteFrame() {
-		frameSurface.gSurface = NULL;
+        frameSurface.set_surface(NULL);
 		delay = 20;
 	}
     /**
@@ -521,7 +521,7 @@ protected:
      * @param new_color
      * @param full_change
      */
-    void change_char_color(st_color key, st_color new_color, bool full_change);
+    void change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change);
 
     /**
      * @brief

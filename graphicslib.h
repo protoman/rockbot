@@ -381,13 +381,6 @@ public:
      */
 
     void clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
-    /**
-     * @brief
-     *
-     * @param color_key
-     * @param new_color
-     */
-
 
     /**
      * @brief
@@ -423,22 +416,10 @@ public:
      * @return st_position
      */
     st_position get_dialog_pos() const;
-    /**
-     * @brief
-     *
-     * @param key
-     * @param new_color
-     * @param surface
-     */
-    void change_surface_color(st_color key, st_color new_color, struct graphicsLib_gSurface* surface);
-    /**
-     * @brief
-     *
-     * @param key_n
-     * @param new_color
-     * @param surface
-     */
-    void change_surface_color(Uint8 key_n, st_color new_color, struct graphicsLib_gSurface* surface);
+
+
+    void change_surface_color(Sint8 colorkey_n, st_color new_color, struct graphicsLib_gSurface* surface);
+
     /**
      * @brief
      *
@@ -519,31 +500,10 @@ public:
 
 
 private:
-    /**
-     * @brief
-     *
-     * @param st_rectangle
-     * @param st_position
-     * @param
-     * @param
-     * @param fix_colors
-     */
+    Uint32 getpixel(SDL_Surface *surface, int x, int y);
+    void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
-    /**
-     * @brief
-     *
-     * @param st_rectangle
-     * @param st_rectangle
-     * @param
-     * @param
-     */
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
-    /**
-     * @brief
-     *
-     * @param filename
-     * @return SDL_Surface
-     */
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
     /**
      * @brief
@@ -619,7 +579,6 @@ private:
 
 
 
-
 public:
     int RES_DIFF_W;
     int RES_DIFF_H;
@@ -686,6 +645,7 @@ private:
     st_position _screen_resolution_adjust;
     Uint8 _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
     long _timer;
+    st_color color_keys[3];                                 // holds the 3 color-keys we use for changing colors
 
 
 #ifdef PSP

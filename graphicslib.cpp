@@ -54,6 +54,19 @@ graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_a
 	RES_DIFF_W = 0;
 	RES_DIFF_H = 0;
     _debug_msg_pos = 0;
+
+    color_keys[0].r = 55;
+    color_keys[0].g = 255;
+    color_keys[0].b = 0;
+
+    color_keys[1].r = 255;
+    color_keys[1].g = 0;
+    color_keys[1].b = 255;
+
+    color_keys[2].r = 0;
+    color_keys[2].g = 255;
+    color_keys[2].b = 255;
+
 }
 
 graphicsLib::~graphicsLib()
@@ -209,6 +222,21 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     }
 
     SDL_FreeSurface(spriteCopy);
+
+
+    if (filename.find(std::string("p1.png")) != std::string::npos) {
+        std::cout << ">>>>>>>>>>>>> " << filename << " <<<<<<<<<<<<<<<" << std::endl;
+        /*
+        for (int y=0; y<display_surface->h; y++) {
+            for (int x=0; x<display_surface->w; x++) {
+                SDL_Color pixel_color = get_pixel_color(display_surface, x, y);
+                std::cout << "r: " << (int)pixel_color.r << ", g: " << (int)pixel_color.g << ", b: " << (int)pixel_color.b << std::endl;
+            }
+        }
+        */
+    }
+
+
     return display_surface;
 }
 
@@ -216,8 +244,9 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
 {
     res->freeGraphic();
-	res->gSurface = SDLSurfaceFromFile(filename);
-	if (res->gSurface == NULL) {
+    res->set_surface(SDLSurfaceFromFile(filename));
+
+    if (res->get_surface() == NULL) {
         std::cout << "surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
         _debug_msg_pos = 1;
         show_debug_msg(filename);
@@ -228,8 +257,9 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         show_debug_msg("EXIT #05");
         exit(-1);
 	} else {
-		res->width = res->gSurface->w;
-		res->height = res->gSurface->h;
+        //std::cout << "surfaceFromFile - file: '" << filename << "'" << std::endl;
+        res->width = res->get_surface()->w;
+        res->height = res->get_surface()->h;
 	}
 }
 
@@ -300,29 +330,29 @@ void graphicsLib::copy_gamescreen_area(st_rectangle origin_rectangle, st_positio
 
 void graphicsLib::copyArea(struct st_rectangle origin_rectangle, struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny)
 {
-    if (!surfaceDestiny->gSurface) {
+    if (!surfaceDestiny->get_surface()) {
         std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.3");
         exit(-1);
     }
-    copySDLArea(origin_rectangle, pos, surfaceOrigin->gSurface, surfaceDestiny->gSurface);
+    copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
 
 
 void graphicsLib::copyArea(struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny)
 {
-    if (!surfaceDestiny->gSurface) {
+    if (!surfaceDestiny->get_surface()) {
         std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.4");
         exit(-1);
     }
     st_rectangle origin_rectangle(0, 0, surfaceOrigin->width, surfaceOrigin->height);
-    copySDLArea(origin_rectangle, pos, surfaceOrigin->gSurface, surfaceDestiny->gSurface);
+    copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
 
 void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny)
 {
-    if (!surfaceDestiny->gSurface) {
+    if (!surfaceDestiny->get_surface()) {
         std::cout << "copyAreaWithAdjust - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.4");
         exit(-1);
@@ -334,12 +364,12 @@ void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_
     //pos.x += _screen_resolution_adjust.x;
     //pos.y += _screen_resolution_adjust.y;
 
-    copySDLArea(origin_rectangle, pos, surfaceOrigin->gSurface, surfaceDestiny->gSurface);
+    copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
 
 void graphicsLib::placeTile(struct st_position pos_origin, struct st_position pos_destiny, struct graphicsLib_gSurface* gSurface)
 {
-    if (!gSurface->gSurface) {
+    if (!gSurface->get_surface()) {
         std::cout << "placeTile - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.5");
         exit(-1);
@@ -354,7 +384,7 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
 
 
     pos_destiny.x += _screen_adjust.x;
-    copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->gSurface);
+    copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
 }
 
 void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y)
@@ -404,7 +434,7 @@ void graphicsLib::showSurfaceRegionAt(struct graphicsLib_gSurface* surfaceOrigin
         show_debug_msg("EXIT #21.4");
         exit(-1);
     }
-    copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->gSurface, game_screen);
+    copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->get_surface(), game_screen);
 }
 
 void graphicsLib::showSurfacePortion(graphicsLib_gSurface *surfaceOrigin, const st_rectangle origin_rect, st_rectangle destiny_rect)
@@ -414,7 +444,7 @@ void graphicsLib::showSurfacePortion(graphicsLib_gSurface *surfaceOrigin, const 
         show_debug_msg("EXIT #21.2");
         exit(-1);
     }
-    copySDLPortion(origin_rect, destiny_rect, surfaceOrigin->gSurface, game_screen);
+    copySDLPortion(origin_rect, destiny_rect, surfaceOrigin->get_surface(), game_screen);
 }
 
 // ********************************************************************************************** //
@@ -431,7 +461,7 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 	struct st_rectangle origin_rectangle;
 	struct st_position pos_destiny;
 
-	if (!surfaceOrigin->gSurface) {
+    if (!surfaceOrigin->get_surface()) {
 		std::cout << "Error: no data in surfaceOrigin at graphicsLib::showSurfaceAt." << std::endl;
 		//exit(-1);
 		return;
@@ -439,12 +469,12 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 
 	origin_rectangle.x = 0;
 	origin_rectangle.y = 0;
-	origin_rectangle.w = surfaceOrigin->gSurface->w;
-	origin_rectangle.h = surfaceOrigin->gSurface->h;
+    origin_rectangle.w = surfaceOrigin->get_surface()->w;
+    origin_rectangle.h = surfaceOrigin->get_surface()->h;
 	pos_destiny.x = pos.x;
 	pos_destiny.y = pos.y;
 
-    copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->gSurface, game_screen, fix_colors);
+    copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->get_surface(), game_screen, fix_colors);
 }
 
 void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_position pos)
@@ -474,16 +504,16 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
-    gSurface->gSurface = SDL_DisplayFormat(temp_surface);
+    gSurface->set_surface(SDL_DisplayFormat(temp_surface));
 
 
-    if (!gSurface->gSurface) {
+    if (!gSurface->get_surface()) {
         //show_debug_msg("EXIT #21.INIT #2");
         std::cout << "GRAPH::initSurface WARNING - can't convert to screen-format" << std::endl;
         #ifdef PSP
         std::cout << "GRAPH::initSurface - SDL_DisplayFormat failed. RAM='" << _ram_counter.ramAvailable() << "'" << std::endl;
         #endif
-        gSurface->gSurface = temp_surface; // stay with the original file in case of error (should fix PSP crash issues)
+        gSurface->set_surface(temp_surface); // stay with the original file in case of error (should fix PSP crash issues)
     } else {
         SDL_FreeSurface(temp_surface); // free the original
     }
@@ -502,14 +532,14 @@ struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle r
 	struct graphicsLib_gSurface res;
 	initSurface(st_size(rect_origin.w, rect_origin.h), &res);
 
-    if (!res.gSurface) {
+    if (!res.get_surface()) {
         std::cout << "surfaceFromRegion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.8");
         exit(-1);
     }
 
     /// @NOTE: removed for optimization test
-	copySDLArea(rect_origin, destiny_pos, originalSurface.gSurface, res.gSurface);
+    copySDLArea(rect_origin, destiny_pos, originalSurface.get_surface(), res.get_surface());
     /// @NOTE: removed for optimization test
 	return res;
 }
@@ -522,7 +552,7 @@ void graphicsLib::blank_screen() {
 
 void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
 {
-	SDL_FillRect(surface.gSurface, NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
+    SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
 }
 
 void graphicsLib::blank_area(short int x, short int y, short int w, short int h) {
@@ -629,7 +659,7 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
     SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
 	SDL_FreeSurface(textSF);
-	SDL_BlitSurface(textSF_format, 0, surface.gSurface, &text_pos);
+    SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
 	SDL_FreeSurface(textSF_format);
 }
 
@@ -662,7 +692,7 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
     //text_pos.y += _screen_resolution_adjust.y;
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
 	SDL_FreeSurface(textSF);
-	SDL_BlitSurface(textSF_format, 0, surface.gSurface, &text_pos);
+    SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
 	SDL_FreeSurface(textSF_format);
 }
 
@@ -694,7 +724,7 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 		updateScreen();
 		input.waitTime(80);
 
-		SDL_BlitSurface(screen_copy.gSurface, 0, game_screen, 0);
+        SDL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
 		updateScreen();
 		input.waitTime(80);
     }
@@ -1157,7 +1187,7 @@ void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short
 
 void graphicsLib::clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const {
 	SDL_Rect dest;
-    if (surface.gSurface == gameScreen.gSurface) {
+    if (surface.get_surface() == gameScreen.get_surface()) {
         dest.x = x + _screen_resolution_adjust.x;
         dest.y = y + _screen_resolution_adjust.y;
     } else {
@@ -1167,7 +1197,7 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
 	dest.w = w;
 	dest.h = h;
     //int color_n = SDL_MapRGB(surface.gSurface->format, r, g, b);
-    SDL_FillRect(surface.gSurface, &dest, SDL_MapRGB(surface.gSurface->format, r, g, b));
+    SDL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
 }
 
 
@@ -1548,7 +1578,7 @@ void graphicsLib::set_video_mode()
         show_debug_msg("EXIT #13");
 		exit(-1);
 	}
-	gameScreen.gSurface = game_screen;
+    gameScreen.set_surface(game_screen);
     gameScreen.video_screen = true;
 	screen_pixel_format = *game_screen->format;
 
@@ -1684,19 +1714,19 @@ void graphicsLib::place_face(std::string face_file, st_position pos) {
 	copyArea(st_position(pos.x, pos.y), &FACES_SURFACES[face_file], &gameScreen);
 }
 
-void graphicsLib::change_surface_color(st_color key, st_color new_color, struct graphicsLib_gSurface* surface)
-{
-	if (!surface->gSurface) {
-		return;
-	}
-    // @TODO
-}
 
-void graphicsLib::change_surface_color(Uint8 key_n, st_color new_color, graphicsLib_gSurface *surface)
+void graphicsLib::change_surface_color(Sint8 colorkey_n, st_color new_color, graphicsLib_gSurface *surface)
 {
-    // @TODO
-}
+    if (surface == NULL) {
+        return;
+    }
+    if (surface->get_surface() == NULL) {
+        return;
+    }
 
+    //std::cout << "change_surface_color::colorkey_n: " << (int)colorkey_n << ", new_color.rgb: " << new_color.r << ", " << new_color.g << ", " << new_color.b << std::endl;
+    surface->change_colorkey_color(colorkey_n, new_color);
+}
 
 
 

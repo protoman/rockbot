@@ -1801,6 +1801,7 @@ namespace format_v_3_0_1 {
     {
         struct stat info;
 
+#ifndef PLAYSTATION2
         if (stat( filename.c_str(), &info) != 0) {
             printf( "cannot access %s\n", filename.c_str() );
             return false;
@@ -1811,6 +1812,13 @@ namespace format_v_3_0_1 {
             printf( "%s is no directory\n", filename.c_str() );
             return false;
         }
+#else
+        if (info.st_mode & S_IFDIR) { // S_ISDIR() doesn't exist on my windows
+            return true;
+        } else {
+            return false;
+        }
+#endif
     }
 
     std::vector<std::string> file_io::read_game_list() const
@@ -1823,6 +1831,8 @@ namespace format_v_3_0_1 {
         if (!directory_exists(filename)) {
             return res;
         }
+
+#ifndef PLAYSTATION2
 
         DIR *dir = opendir(filename.c_str());
         struct dirent *entry = readdir(dir);
@@ -1840,6 +1850,7 @@ namespace format_v_3_0_1 {
             entry = readdir(dir);
         }
         closedir(dir);
+#endif
         return res;
     }
 

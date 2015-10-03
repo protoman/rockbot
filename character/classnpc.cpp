@@ -166,7 +166,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         //printf(">> temp_filename: '%s'\n", temp_filename.c_str());
 
         graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
-		if (npc_sprite_surface.gSurface == NULL) {
+        if (npc_sprite_surface.get_surface() == NULL) {
 			std::cout << "initFrames - Error loading player surface from file\n";
 			return;
 		}
@@ -203,7 +203,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
             std::string full_bggraphic_filename = FILEPATH + "images/sprites/backgrounds/" + bg_filename;
             std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << std::endl;
             graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
-            if (bg_surface.gSurface == NULL) {
+            if (bg_surface.get_surface() == NULL) {
                 std::cout << "initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
                 return;
             }
