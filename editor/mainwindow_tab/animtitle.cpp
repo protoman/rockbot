@@ -6,14 +6,13 @@
 #include "mediator.h"
 
 
-animTitle::animTitle(QWidget *parent) :
-    QWidget(parent)
+animTitle::animTitle(QWidget *parent) : QWidget(parent)
 {
     std::cout << "animTitle::CONSTRUCTOR" << std::endl;
     myParent = parent;
     _timer = new QTimer(this);
     connect(_timer, SIGNAL(timeout()), this, SLOT(updateBG()));
-    int delay = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay;
+    int delay = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[0];
     if (delay < 10) {
         delay = 10;
     }
@@ -35,14 +34,14 @@ void animTitle::updateBG()
     QImage image(filename);
     if (image.isNull()) {
         _timer->stop();
-        _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay);
+        _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[0]);
         return;
     }
     if (_sprite_n > image.width()/TILESIZE) {
         _sprite_n = 0;
     }
     _timer->stop();
-    _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay);
+    _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[0]);
     repaint();
 }
 
@@ -64,7 +63,7 @@ void animTitle::paintEvent(QPaintEvent *) {
     myParent->adjustSize();
 
     int x_ini = _sprite_n*TILESIZE*2;
-    std::cout << "image.w: " << image.width() << ", image.h: " << image.height() << ", _sprite_n: " << _sprite_n << ", x_init: " << x_ini << std::endl;
+    //std::cout << "image.w: " << image.width() << ", image.h: " << image.height() << ", _sprite_n: " << _sprite_n << ", x_init: " << x_ini << std::endl;
 
     source = QRectF(QPoint(_sprite_n*(TILESIZE*2), 0), QSize(TILESIZE*2, TILESIZE*2));
     target = QRectF(QPoint(0, 0), QSize(TILESIZE*2, TILESIZE*2));

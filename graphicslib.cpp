@@ -153,6 +153,7 @@ void graphicsLib::preload()
     loadTileset();
     preload_faces();
     preload_images();
+    preload_anim_tiles();
 }
 
 
@@ -385,6 +386,36 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
 
     pos_destiny.x += _screen_adjust.x;
     copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
+}
+
+void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, struct graphicsLib_gSurface* dest_surface)
+{
+    if (!ANIM_TILES_SURFACES.at(anim_tile_id).get_surface()) {
+        std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
+        show_debug_msg("EXIT place_anim_tile");
+        exit(-1);
+    }
+
+    //std::cout << "GRAPH::place_anim_tile::id: " << anim_tile_id << std::endl;
+
+    struct st_rectangle origin_rectangle;
+
+    origin_rectangle.x = ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos * TILESIZE;
+    origin_rectangle.y = 0;
+    origin_rectangle.w = TILESIZE;
+    origin_rectangle.h = TILESIZE;
+
+    pos_destiny.x += _screen_adjust.x;
+
+    copySDLArea(origin_rectangle, pos_destiny, ANIM_TILES_SURFACES.at(anim_tile_id).get_surface(), dest_surface->get_surface());
+
+    if (ANIM_TILES_TIMERS.at(anim_tile_id).timer < timer.getTimer()) {
+        ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos++;
+        if (ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos >= ANIM_TILES_TIMERS.at(anim_tile_id).max_frames) {
+            ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos = 0;
+        }
+        ANIM_TILES_TIMERS.at(anim_tile_id).timer = timer.getTimer() + ANIM_TILES_TIMERS.at(anim_tile_id).frames_delay[ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos];
+    }
 }
 
 void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y)
@@ -1646,6 +1677,26 @@ void graphicsLib::preload_images()
     filename = FILEPATH + "images/sprites/objects/armor_legs.png";
     surfaceFromFile(filename, &armor_icon_legs);
 
+}
+
+void graphicsLib::preload_anim_tiles()
+{
+    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
+        std::string file(game_data.anim_tiles[i].filename);
+        if (file.length() < 1) {
+            std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;
+            break;
+        } else {
+            std::string filename = FILEPATH + std::string("images/tilesets/anim/") + file;
+            std::cout << "### graphicsLib::preload_anim_tiles::filename: " << filename << std::endl;
+
+            ANIM_TILES_SURFACES.push_back(graphicsLib_gSurface());
+            surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));
+
+            int frames_n = ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1).width / TILESIZE;
+            ANIM_TILES_TIMERS.push_back(anim_tile_timer(frames_n, timer.getTimer() + game_data.anim_tiles[i].delay[0]));
+        }
+    }
 }
 
 

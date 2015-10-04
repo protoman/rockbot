@@ -222,8 +222,15 @@ void classMap::showMap()
         for (int j=0; j<MAP_H; j++) {
             pos_origin.x = stage_data.maps[number].tiles[i][j].tile1.x;
             pos_origin.y = stage_data.maps[number].tiles[i][j].tile1.y;
-            pos_destiny.y = j*TILESIZE;
-            graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen);
+
+            if (pos_origin.x >= 0 && pos_origin.y >= 0) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen);
+            } else if (pos_origin.x < -1 && pos_origin.y == 0) {
+                int anim_tile_id = (pos_origin.x * -1) - 2;
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
+            }
         }
         n++;
     }

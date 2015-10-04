@@ -65,9 +65,12 @@ private slots:
 
     void on_editModeErase_button_clicked();
 
+    void on_addAnimTile_toolButton_clicked();
+
 private:
     void fill_data();
     void fill_background_list();
+    void fill_anim_tiles_data();
     
 private:
     Ui::map_tab *ui;

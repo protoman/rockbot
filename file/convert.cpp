@@ -696,7 +696,9 @@ void convert::v300_to_v301() const
         }
     }
     for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
-        game_data_v301.anim_tiles[i].delay = game_data_v300.anim_tiles[i].delay;
+        for (int j=0; j<ANIM_TILE_MAX_FRAMES; j++) {
+            game_data_v301.anim_tiles[i].delay[j] = game_data_v300.anim_tiles[i].delay;
+        }
         sprintf(game_data_v301.anim_tiles[i].filename, "%s", game_data_v300.anim_tiles[i].filename);
     }
     fio_v301.write_game(game_data_v301);
