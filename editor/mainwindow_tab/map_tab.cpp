@@ -59,6 +59,7 @@ void map_tab::pick_bg_color()
 void map_tab::fill_data()
 {
     _data_loading = true;
+    fill_anim_tiles_data();
     common::fill_stages_combo(ui->stageListCombo);
     common::fill_map_list_combo(ui->mapListCombo);
     common::fill_npc_listwidget(ui->npc_listWidget);
@@ -88,10 +89,19 @@ void map_tab::fill_background_list()
     ss.str(std::string());
     ss << "background-color: rgb(" << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b << ")";
     ui->bg_color_pick->setStyleSheet(ss.str().c_str());
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
         ui->current_anim_tile_combobox->addItem(QString::number(i));
     }
+
+}
+
+void map_tab::fill_anim_tiles_data()
+{
     common::fill_files_combo("images/tilesets/anim", ui->anim_tile_graphic_combobox);
+    std::string filename = Mediator::get_instance()->game_data.anim_tiles[0].filename;
+    //std::cout << "############## filename: " << filename << std::endl;
+    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(filename.c_str()));
+    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[0].delay[0]);
 }
 
 void map_tab::on_stageListCombo_currentIndexChanged(int index)
@@ -258,7 +268,7 @@ void map_tab::on_current_anim_tile_combobox_currentIndexChanged(int index)
     if (_data_loading == true) { return; }
     Mediator::get_instance()->selectedAnimTileset = index;
     ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->game_data.anim_tiles[index].filename));
-    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay);
+    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay[0]);
 }
 
 void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &arg1)
@@ -270,7 +280,9 @@ void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &a
 void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay = arg1;
+    /// @TODO
+    int selectedFrame = 0;
+    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[selectedFrame] = arg1;
 }
 
 void map_tab::on_object_direction_combo_currentIndexChanged(int index)
@@ -287,6 +299,7 @@ void map_tab::on_editTile_button_clicked()
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editTile_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     //ui->editModeNormal_button->setEnabled(true);
     ui->editModeLock_button->setEnabled(true);
@@ -306,6 +319,7 @@ void map_tab::on_editObject_button_clicked()
     ui->editSetBoss_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editObject_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -324,6 +338,7 @@ void map_tab::on_editLink_button_clicked()
     ui->editSetBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -342,6 +357,7 @@ void map_tab::on_editNpc_button_clicked()
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -359,6 +375,7 @@ void map_tab::on_editSetSubBoss_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(false);
@@ -377,6 +394,7 @@ void map_tab::on_editSetBoss_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetBoss_button->setChecked(true);
+    ui->addAnimTile_toolButton->setChecked(false);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(false);
@@ -386,6 +404,25 @@ void map_tab::on_editSetBoss_button_clicked()
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
 
 }
+
+void map_tab::on_addAnimTile_toolButton_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->addAnimTile_toolButton->setChecked(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(false);
+
+    set_current_box(6);
+    Mediator::get_instance()->editMode = EDITMODE_ANIM_TILE;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+}
+
 
 void map_tab::on_editModeNormal_button_clicked()
 {
@@ -428,3 +465,4 @@ void map_tab::on_editModeErase_button_clicked()
     update_edit_area();
 
 }
+

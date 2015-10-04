@@ -133,15 +133,15 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>6</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>361</width>
+              <height>301</height>
              </rect>
             </property>
             <attribute name="label">
@@ -291,8 +291,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -426,8 +426,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -557,8 +557,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -658,8 +658,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -753,8 +753,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <property name="toolTip">
@@ -822,8 +822,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -870,14 +870,14 @@
                <item row="1" column="1">
                 <widget class="QComboBox" name="anim_tile_graphic_combobox">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
                <item row="0" column="1">
                 <widget class="QComboBox" name="current_anim_tile_combobox">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -891,7 +891,7 @@
                <item row="2" column="1">
                 <widget class="QSpinBox" name="anim_tile_delay_spinbox">
                  <property name="enabled">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="maximum">
                   <number>9999</number>
@@ -1049,6 +1049,20 @@
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
          <normaloff>:/toolbar_icons/connect_established.png</normaloff>:/toolbar_icons/connect_established.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="addAnimTile_toolButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/games-config-background.png</normaloff>:/toolbar_icons/games-config-background.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>

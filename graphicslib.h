@@ -32,6 +32,23 @@
 // ****************************************************************************** //
 
 
+struct anim_tile_timer {
+    unsigned long timer;                        // timer animation was last executed
+    Uint8 frame_pos;                            // current frame animation is
+    Uint8 max_frames;                           // maximum number of frames this anim-tile have
+    int frames_delay[ANIM_TILE_MAX_FRAMES];     // the delay for each animation frame TBD
+    anim_tile_timer(int frames_n, unsigned long time_set) {
+        timer = time_set;
+        frame_pos = 0;
+        max_frames = frames_n;
+
+        /// @TODO, set those times
+        for (int i=0; i<ANIM_TILE_MAX_FRAMES; i++) {
+            frames_delay[i] = 150;
+        }
+    }
+};
+
 
 /**
  * @brief
@@ -82,6 +99,8 @@ public:
      * @param
      */
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
+
+    void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);
 
     void place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y);
 
@@ -576,6 +595,8 @@ private:
      */
     void preload_images();
 
+    void preload_anim_tiles();
+
 
 
 
@@ -610,6 +631,9 @@ public:
 private:
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
+
+    std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface
+    std::vector<struct anim_tile_timer> ANIM_TILES_TIMERS;
 
 	// TODO: free those pointers
     TTF_Font *font;

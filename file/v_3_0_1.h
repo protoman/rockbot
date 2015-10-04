@@ -22,10 +22,12 @@ namespace format_v_3_0_1 {
 
 
     struct st_anim_map_tile {
-        int delay;
+        int delay[ANIM_TILE_MAX_FRAMES]; // each frame can have its own delay, let the editr handle user wanting to set the same for all
         char filename[FS_CHAR_FILENAME_SIZE];
         st_anim_map_tile() {
-            delay = 100;
+            for (int i=0; i<ANIM_TILE_MAX_FRAMES; i++) {
+                delay[i] = 100;
+            }
             filename[0] = '\0';
         }
     };
