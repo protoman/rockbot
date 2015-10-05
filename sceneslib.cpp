@@ -475,8 +475,7 @@ void scenesLib::draw_main()
 	// PARTE 1 - TITLE SCREEN
 	graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &INTRO_SURFACES[INTRO_SURFACES_INTRO_SCREEN], &graphLib.gameScreen);
 
-    graphLib.draw_text(8, 70,"Kyoto Evolution!!");
-    graphLib.draw_text(220, 12, VERSION_NUMBER);
+    graphLib.draw_text(8, 8, VERSION_NUMBER);
 
 	options.push_back("NEW GAME");
 	options.push_back("LOAD GAME");
