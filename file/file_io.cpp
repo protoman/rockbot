@@ -1799,9 +1799,9 @@ namespace format_v_3_0_1 {
 
     bool file_io::directory_exists(std::string filename) const
     {
-        struct stat info;
 
 #ifndef PLAYSTATION2
+        struct stat info;
         if (stat( filename.c_str(), &info) != 0) {
             printf( "cannot access %s\n", filename.c_str() );
             return false;
@@ -1813,11 +1813,7 @@ namespace format_v_3_0_1 {
             return false;
         }
 #else
-        if (info.st_mode & S_IFDIR) { // S_ISDIR() doesn't exist on my windows
-            return true;
-        } else {
-            return false;
-        }
+        return false;
 #endif
     }
 

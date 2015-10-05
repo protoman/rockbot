@@ -217,6 +217,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         printf("IMG_LoadPNG_RW: %s\n", IMG_GetError());
     }
 
+    /*
     display_surface = SDL_DisplayFormat(spriteCopy);
     if (display_surface == NULL) {
         printf("SDL_DisplayFormat: %s\n", IMG_GetError());
@@ -225,20 +226,9 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     SDL_FreeSurface(spriteCopy);
 
 
-    if (filename.find(std::string("p1.png")) != std::string::npos) {
-        std::cout << ">>>>>>>>>>>>> " << filename << " <<<<<<<<<<<<<<<" << std::endl;
-        /*
-        for (int y=0; y<display_surface->h; y++) {
-            for (int x=0; x<display_surface->w; x++) {
-                SDL_Color pixel_color = get_pixel_color(display_surface, x, y);
-                std::cout << "r: " << (int)pixel_color.r << ", g: " << (int)pixel_color.g << ", b: " << (int)pixel_color.b << std::endl;
-            }
-        }
-        */
-    }
-
-
     return display_surface;
+    */
+    return spriteCopy;
 }
 
 
@@ -535,6 +525,9 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
+    //gSurface->set_surface(SDL_DisplayFormat(temp_surface));
+
+
     gSurface->set_surface(SDL_DisplayFormat(temp_surface));
 
 
@@ -662,7 +655,7 @@ void graphicsLib::draw_text(short int x, short int y, string text) {
     if (!textSF) {
         return;
     }
-	SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
 
     if (!textSF_format) {
@@ -689,9 +682,9 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
     text_pos.y += _screen_resolution_adjust.y;
     SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-	SDL_FreeSurface(textSF);
+    SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
-	SDL_FreeSurface(textSF_format);
+    SDL_FreeSurface(textSF_format);
 }
 
 void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
@@ -722,9 +715,9 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
     //text_pos.x += _screen_resolution_adjust.x;
     //text_pos.y += _screen_resolution_adjust.y;
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-	SDL_FreeSurface(textSF);
+    SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
-	SDL_FreeSurface(textSF_format);
+    SDL_FreeSurface(textSF_format);
 }
 
 
@@ -1587,7 +1580,7 @@ void graphicsLib::set_video_mode()
         } else {
             game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
         }
-        //game_screen = SDL_SetVideoMode(480, 272, 8, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
+        //game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
     } else {
         /// @TODO - do we need scale on fullscreen if no filter?
         if (game_config.video_fullscreen == false) {
