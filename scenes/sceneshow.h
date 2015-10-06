@@ -17,6 +17,8 @@ public:
     void clear_screen();
     void play_sfx(int n);
     void play_music(int n);
+    void show_viewpoint(int n);
+    void show_animation(int n, int repeat_n, int repeat_mode);
 
 private:
     void run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image);
@@ -37,6 +39,8 @@ private:
     std::vector<CURRENT_FILE_FORMAT::file_scene_clear_area> cleararea_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> playsfx_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_music> playmusic_list;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_viewpoint> viewpoint_list;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_animation> animation_list;
 
 };
 
