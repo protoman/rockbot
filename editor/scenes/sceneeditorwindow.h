@@ -10,7 +10,6 @@
 #include "scenes/tab_sfx.h"
 #include "scenes/tab_music.h"
 #include "scenes/tab_cleararea.h"
-#include "scenes/tab_changecolorcycle.h"
 #include "scenes/tab_animation.h"
 
 namespace Ui {
@@ -38,7 +37,6 @@ private:
     TabSfx* sfx_tab;
     TabMusic* music_tab;
     TabClearArea* cleararea_tab;
-    TabChangeColorcycle* changecolorcycle_tab;
     TabAnimation* animation_tab;
 
 };
