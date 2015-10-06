@@ -5,6 +5,7 @@
 #include "timerlib.h"
 #include "soundlib.h"
 #include "sceneshow.h"
+#include "file/file_io.h"
 
 #if defined(LINUX) || defined(OSX)
     #include <errno.h>
