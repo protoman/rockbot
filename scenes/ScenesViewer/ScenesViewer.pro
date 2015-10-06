@@ -65,7 +65,6 @@ SOURCES += main.cpp \
     ../../graphicslib.cpp \
     ../../inputlib.cpp \
     ../../soundlib.cpp \
-    ../../class_colorcycle.cpp \
     ../../timerlib.cpp \
     ../../file/file_io.cpp \
     ../../file/convert.cpp \
@@ -76,7 +75,6 @@ HEADERS += \
     ../../graphicslib.h \
     ../../inputlib.h \
     ../../soundlib.h \
-    ../../class_colorcycle.h \
     ../../timerlib.h \
     ../../file/file_io.h \
     ../../file/convert.h \

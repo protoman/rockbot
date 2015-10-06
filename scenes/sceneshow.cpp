@@ -28,6 +28,8 @@ sceneShow::sceneShow()
     cleararea_list = fio_scn.load_scenes_clear_area();
     playsfx_list = fio_scn.load_scenes_play_sfx();
     playmusic_list = fio_scn.load_scenes_play_music();
+    viewpoint_list = fio_scn.load_scenes_show_viewpoint();
+    animation_list = fio_scn.load_scenes_show_animation();
 }
 
 void sceneShow::show_scene(int n)
@@ -43,9 +45,26 @@ void sceneShow::show_scene(int n)
             int scene_type = scene.objects[i].type;
             if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
                 show_text(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
+                clear_area(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
+                graphLib.clear_area(0 ,0, RES_W, RES_H, 0, 0, 0);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
                 show_image(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
+                /// @TODO
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
+                play_music(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
+                play_sfx(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
+                show_animation(scene_seek_n, scene.objects[i].repeat_value, scene.objects[i].repeat_type);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
+                soundManager.stop_music();
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
+                show_scene(scene_seek_n);
             }
+            timer.delay(scene.objects[i].delay_after);
         }
     }
 }
@@ -76,8 +95,6 @@ void sceneShow::show_image(int n)
         speed_y = -speed_y;
     }
     total_dist = diff_x;
-    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.updateScreen();
     run_image_scene(current_scene_image);
 
 }
@@ -141,6 +158,9 @@ void sceneShow::play_sfx(int n)
         std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         exit(-1);
     }
+    if (playsfx_list.at(n).repeat_times < 1) {
+        playsfx_list.at(n).repeat_times = 1;
+    }
     soundManager.play_sfx_from_file(playsfx_list.at(n).filename, playsfx_list.at(n).repeat_times);
 }
 
@@ -154,6 +174,8 @@ void sceneShow::play_music(int n)
     soundManager.load_music(playmusic_list.at(n).filename);
     soundManager.play_music();
 }
+
+
 
 void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 {
@@ -209,3 +231,53 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     }
 }
 
+void sceneShow::show_viewpoint(int n)
+{
+
+}
+
+void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
+{
+    graphicsLib_gSurface image;
+    graphicsLib_gSurface bg_image;
+    CURRENT_FILE_FORMAT::file_scene_show_animation scene = animation_list.at(n);
+
+    graphLib.surfaceFromFile(FILEPATH + "images/animations/" + scene.filename, &image);
+    graphLib.initSurface(st_size(scene.frame_w, scene.frame_h), &bg_image);
+    graphLib.copy_gamescreen_area(st_rectangle(scene.x, scene.y, scene.frame_w, scene.frame_h), st_position(0, 0), &bg_image);
+    int frame_n = 0;
+    long frame_timer = timer.getTimer() + scene.frame_delay;
+    int max_frames = image.width / scene.frame_w;
+    long started_timer = timer.getTimer();
+    int repeat_times = 0;
+
+    while (true) {
+        graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
+        graphLib.showSurfaceRegionAt(&image, st_rectangle(frame_n*scene.frame_w, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
+        graphLib.updateScreen();
+
+        if (frame_timer < timer.getTimer()) {
+            frame_n++;
+            if (frame_n > max_frames) {
+                frame_n = 0;
+                repeat_times++;
+            }
+        }
+
+        // stop condition
+        if (repeat_n <= 1) {
+            return;
+        } else {
+            if (repeat_mode == 0) { // time-mode
+                if ((timer.getTimer() - started_timer) > repeat_n) {
+                    return;
+                }
+            } else { // repeat number mode
+                if (repeat_times > repeat_n) {
+                    return;
+                }
+            }
+        }
+        timer.delay(10);
+    }
+}
