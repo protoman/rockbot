@@ -187,7 +187,6 @@ FORMS += mainwindow.ui \
     scenes/tab_sfx.ui \
     scenes/tab_music.ui \
     scenes/tab_cleararea.ui \
-    scenes/tab_changecolorcycle.ui \
     scenes/tab_animation.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console

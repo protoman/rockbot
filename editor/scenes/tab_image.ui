@@ -178,6 +178,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
           </widget>
          </item>
          <item>
@@ -195,6 +198,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
           </widget>
          </item>
         </layout>
@@ -208,6 +214,9 @@
              <width>50</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="maximum">
+            <number>320</number>
            </property>
           </widget>
          </item>
@@ -226,6 +235,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="maximum">
+            <number>240</number>
+           </property>
           </widget>
          </item>
         </layout>
@@ -241,7 +253,7 @@
             </size>
            </property>
            <property name="maximum">
-            <number>999</number>
+            <number>9999</number>
            </property>
           </widget>
          </item>
@@ -316,7 +328,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>250</width>
+          <width>241</width>
           <height>352</height>
          </rect>
         </property>
