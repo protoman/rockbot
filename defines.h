@@ -1,7 +1,7 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define FRAMES_PER_SECOND 35
+#define FRAMES_PER_SECOND 60
 
 #define RES_W 320
 #define RES_H 240

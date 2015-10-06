@@ -22,7 +22,11 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="QSpinBox" name="h_spinBox"/>
+    <widget class="QSpinBox" name="h_spinBox">
+     <property name="maximum">
+      <number>240</number>
+     </property>
+    </widget>
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_5">
@@ -39,7 +43,11 @@
     </widget>
    </item>
    <item row="5" column="1">
-    <widget class="QSpinBox" name="w_spinBox"/>
+    <widget class="QSpinBox" name="w_spinBox">
+     <property name="maximum">
+      <number>320</number>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1">
     <widget class="QComboBox" name="select_comboBox"/>
@@ -59,7 +67,11 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QSpinBox" name="x_spinBox"/>
+    <widget class="QSpinBox" name="x_spinBox">
+     <property name="maximum">
+      <number>990</number>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_4">
@@ -72,7 +84,11 @@
     <widget class="QLineEdit" name="name_lineEdit"/>
    </item>
    <item row="4" column="1">
-    <widget class="QSpinBox" name="y_spinBox"/>
+    <widget class="QSpinBox" name="y_spinBox">
+     <property name="maximum">
+      <number>999</number>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
