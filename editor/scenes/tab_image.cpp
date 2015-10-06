@@ -87,9 +87,9 @@ void tab_image::set_fields(int index)
 
     ui->blocking_checkBox->setChecked(ScenesMediator::get_instance()->image_list.at(index).blocking);
 
-    ui->select_comboBox->setCurrentIndex(ScenesMediator::get_instance()->image_list.at(index).loop_mode);
+    //ui->select_comboBox->setCurrentIndex(ScenesMediator::get_instance()->image_list.at(index).loop_mode);
 
-    update_preview_image(0);
+    update_preview_image(ui->select_comboBox->currentIndex());
 
 }
 

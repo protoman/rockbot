@@ -96,7 +96,6 @@ SOURCES += main.cpp \
     scenes/tab_sfx.cpp \
     scenes/tab_music.cpp \
     scenes/tab_cleararea.cpp \
-    scenes/tab_changecolorcycle.cpp \
     scenes/tab_animation.cpp \
     scenes/animation_previewarea.cpp
 
@@ -156,7 +155,6 @@ HEADERS += mainwindow.h \
     scenes/tab_sfx.h \
     scenes/tab_music.h \
     scenes/tab_cleararea.h \
-    scenes/tab_changecolorcycle.h \
     scenes/tab_animation.h \
     scenes/animation_previewarea.h
 
