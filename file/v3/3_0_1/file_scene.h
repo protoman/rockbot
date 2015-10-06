@@ -39,8 +39,7 @@ namespace format_v_3_0_1 {
         SCENETYPE_PLAY_MUSIC,
         SCENETYPE_STOP_MUSIC,
         SCENETYPE_SHOW_TEXT,
-        SCENETYPE_SUBSCENE,                      // you can add another scene to the scene, to it is possible to repeat
-        SCENETYPE_CHANGE_COLORCYCLE
+        SCENETYPE_SUBSCENE                      // you can add another scene to the scene, to it is possible to repeat
         //SCENETYPE_REPEAT_SCROLLBG,              // keeps scrolling a background (like ninja gaiden's opening's grass)
     };
 
