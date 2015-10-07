@@ -1,6 +1,7 @@
 #include "fileseditor.h"
 #include "ui_fileseditor.h"
 #include "model/combolistdelegate.h"
+#include "model/buttondelegate.h"
 
 #include <QDir>
 #include <map>
@@ -14,8 +15,16 @@ FilesEditor::FilesEditor(QWidget *parent) : QMainWindow(parent), ui(new Ui::File
     ui->dir_list_tableView->setModel(&model_directories);
 
     std::vector<std::string> dir_list = model_directories.get_directory_list();
-    ComboListDelegate* delegate = new ComboListDelegate(this, get_dir_files_matrix(dir_list));
+    std::map<int, std::vector<std::string>> data_matrix = get_dir_files_matrix(dir_list);
+
+    ComboListDelegate* delegate = new ComboListDelegate(this, data_matrix);
     ui->dir_list_tableView->setItemDelegateForColumn(1, delegate);
+
+    ButtonDelegate* delegate_button = new ButtonDelegate(this, data_matrix);
+    ui->dir_list_tableView->setItemDelegateForColumn(2, delegate_button);
+
+    connect(delegate_button, SIGNAL(buttonClicked(QModelIndex)), delegate_button, SLOT(onButtonClick(QModelIndex)));
+
 }
 
 FilesEditor::~FilesEditor()

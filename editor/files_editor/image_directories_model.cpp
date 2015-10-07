@@ -44,7 +44,6 @@ QVariant ImageDirectoriesModel::data(const QModelIndex &index, int role) const
             return QString(list_directories.at(row).c_str());
         } else if (col == 1) {
             std::string value = list_dir_selected_value.at(row);
-            std::cout << "col[" << col << "], row[" << row << "]: " << value << std::endl;
             return QString(value.c_str());
         } else if (col == 2) {
             return QString("IMPORT BUTTON");
