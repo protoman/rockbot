@@ -22,6 +22,7 @@ public:
 
 private:
     std::vector<std::string> list_directories;
+    std::vector<std::string> list_dir_selected_value;           // rowxvalue
 
 };
 

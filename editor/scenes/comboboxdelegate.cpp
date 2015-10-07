@@ -20,14 +20,8 @@ ComboBoxDelegate::ComboBoxDelegate(QObject *parent)
 QWidget *ComboBoxDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option , const QModelIndex &index) const
 {
     QComboBox* editor = new QComboBox(parent);
-    if (data_matrix.size() == 0) {
-        for (unsigned int i = 0; i < Items.size(); ++i) {
-            editor->addItem(Items[i].c_str());
-        }
-    } else {
-        for (unsigned int i = 0; i < data_matrix.at(index.row()).size(); ++i) {
-            editor->addItem(data_matrix.at(index.row()).at(i).c_str());
-        }
+    for (unsigned int i = 0; i < Items.size(); ++i) {
+        editor->addItem(Items[i].c_str());
     }
     return editor;
 }
@@ -51,10 +45,6 @@ void ComboBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionV
     editor->setGeometry(option.rect);
 }
 
-void ComboBoxDelegate::set_data_matrix(std::vector<std::vector<std::string> > data)
-{
-    data_matrix = data;
-}
 
 
 

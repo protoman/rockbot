@@ -1,8 +1,9 @@
 #include "fileseditor.h"
 #include "ui_fileseditor.h"
-#include "scenes/comboboxdelegate.h"
+#include "model/combolistdelegate.h"
 
 #include <QDir>
+#include <map>
 
 extern std::string FILEPATH;
 
@@ -11,11 +12,10 @@ FilesEditor::FilesEditor(QWidget *parent) : QMainWindow(parent), ui(new Ui::File
     ui->setupUi(this);
 
     ui->dir_list_tableView->setModel(&model_directories);
-    ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
-    std::vector<std::string> dir_list = model_directories.get_directory_list();
-    delegate->set_data_matrix(get_dir_files_matrix(dir_list));
-    ui->dir_list_tableView->setItemDelegateForColumn(1, delegate);
 
+    std::vector<std::string> dir_list = model_directories.get_directory_list();
+    ComboListDelegate* delegate = new ComboListDelegate(this, get_dir_files_matrix(dir_list));
+    ui->dir_list_tableView->setItemDelegateForColumn(1, delegate);
 }
 
 FilesEditor::~FilesEditor()
@@ -23,9 +23,9 @@ FilesEditor::~FilesEditor()
     delete ui;
 }
 
-std::vector<std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::vector<std::string> dir_list)
+std::map<int, std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::vector<std::string> dir_list)
 {
-    std::vector<std::vector<std::string>> res;
+    std::map<int, std::vector<std::string>> res;
     for (int k=0; k<dir_list.size(); k++) {
         QString filepath = QString(FILEPATH.c_str()) + QString(dir_list.at(k).c_str());
         QDir dir = QDir(filepath);
@@ -46,7 +46,7 @@ std::vector<std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::vec
                 file_list.push_back(fileInfo.fileName().toStdString());
             }
         }
-        res.push_back(file_list);
+        res.insert(std::pair<int, std::vector<std::string>>(k, file_list));
     }
     return res;
 }
