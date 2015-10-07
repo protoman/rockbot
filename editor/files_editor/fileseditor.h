@@ -15,7 +15,7 @@ class FilesEditor : public QMainWindow
 public:
     explicit FilesEditor(QWidget *parent = 0);
     ~FilesEditor();
-    std::vector<std::vector<std::string>> get_dir_files_matrix(std::vector<std::string> dir_list);
+    std::map<int, std::vector<std::string>> get_dir_files_matrix(std::vector<std::string> dir_list);
 
 private:
     Ui::FilesEditor *ui;

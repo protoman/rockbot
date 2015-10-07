@@ -14,6 +14,9 @@ ImageDirectoriesModel::ImageDirectoriesModel(QObject *parent)
     list_directories.push_back("/images/sprites/objects");
     list_directories.push_back("/images/tilesets");
     list_directories.push_back("/images/tilesets/anim");
+    for (int i=0; i<list_directories.size(); i++) {
+        list_dir_selected_value.push_back("- Select -");
+    }
 }
 
 int ImageDirectoriesModel::rowCount(const QModelIndex &parent) const
@@ -40,7 +43,9 @@ QVariant ImageDirectoriesModel::data(const QModelIndex &index, int role) const
         if (col == 0) {
             return QString(list_directories.at(row).c_str());
         } else if (col == 1) {
-            return QString("IMAGE-LIST");
+            std::string value = list_dir_selected_value.at(row);
+            std::cout << "col[" << col << "], row[" << row << "]: " << value << std::endl;
+            return QString(value.c_str());
         } else if (col == 2) {
             return QString("IMPORT BUTTON");
         } else {
@@ -91,7 +96,18 @@ Qt::ItemFlags ImageDirectoriesModel::flags(const QModelIndex &index) const
 
 bool ImageDirectoriesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    /// UNUSED
+    int row = index.row();
+    int col = index.column();
+
+
+    if (col == 1) {
+        std::string str_value = value.toString().toStdString();
+        list_dir_selected_value.at(row) = str_value;
+        /// @TODO: set image in mediator and make preview-area to use it
+
+    }
+
+
     /*
     int row = index.row();
     int col = index.column();

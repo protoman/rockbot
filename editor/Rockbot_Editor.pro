@@ -99,7 +99,8 @@ SOURCES += main.cpp \
     scenes/tab_animation.cpp \
     scenes/animation_previewarea.cpp \
     files_editor/fileseditor.cpp \
-    files_editor/image_directories_model.cpp
+    files_editor/image_directories_model.cpp \
+    model/combolistdelegate.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -160,7 +161,8 @@ HEADERS += mainwindow.h \
     scenes/tab_animation.h \
     scenes/animation_previewarea.h \
     files_editor/fileseditor.h \
-    files_editor/image_directories_model.h
+    files_editor/image_directories_model.h \
+    model/combolistdelegate.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
