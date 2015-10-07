@@ -97,7 +97,9 @@ SOURCES += main.cpp \
     scenes/tab_music.cpp \
     scenes/tab_cleararea.cpp \
     scenes/tab_animation.cpp \
-    scenes/animation_previewarea.cpp
+    scenes/animation_previewarea.cpp \
+    files_editor/fileseditor.cpp \
+    files_editor/image_directories_model.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -156,7 +158,9 @@ HEADERS += mainwindow.h \
     scenes/tab_music.h \
     scenes/tab_cleararea.h \
     scenes/tab_animation.h \
-    scenes/animation_previewarea.h
+    scenes/animation_previewarea.h \
+    files_editor/fileseditor.h \
+    files_editor/image_directories_model.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -185,7 +189,8 @@ FORMS += mainwindow.ui \
     scenes/tab_sfx.ui \
     scenes/tab_music.ui \
     scenes/tab_cleararea.ui \
-    scenes/tab_animation.ui
+    scenes/tab_animation.ui \
+    files_editor/fileseditor.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
