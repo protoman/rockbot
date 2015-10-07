@@ -507,3 +507,9 @@ void MainWindow::on_actionAbout_triggered()
     about_window->show();
 
 }
+
+void MainWindow::on_actionImage_Browser_triggered()
+{
+    files_editor_window = new FilesEditor();
+    files_editor_window->show();
+}
