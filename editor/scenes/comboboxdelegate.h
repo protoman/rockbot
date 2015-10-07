@@ -13,9 +13,11 @@ class ComboBoxDelegate : public QItemDelegate
       void setEditorData(QWidget *editor, const QModelIndex &index) const;
       void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
       void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+      void set_data_matrix(std::vector<std::vector<std::string>> data);
 
     private:
       std::vector<std::string> Items;
+      std::vector<std::vector<std::string>> data_matrix;
 
     };
 

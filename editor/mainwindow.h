@@ -21,6 +21,7 @@
 #include "mainwindow_tab/armor_edit.h"
 #include "scenes/sceneeditorwindow.h"
 #include "aboutwindow.h"
+#include "files_editor/fileseditor.h"
 
 namespace Ui
 {
@@ -155,6 +156,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_actionImage_Browser_triggered();
+
 private:
 	// USED IN NPC TAB
 	std::string _npcedit_tab_graphic;
@@ -162,7 +165,7 @@ private:
 	bool _data_loading;
     SceneEditorWindow* scenes_window;
     AboutWindow* about_window;
-
+    FilesEditor* files_editor_window;
 };
 
 
