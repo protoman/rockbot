@@ -118,6 +118,7 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_scene> scenes;
     CURRENT_FILE_FORMAT::file_io fio;
     bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
+    std::string combobox_select_string;
 
 
 private:

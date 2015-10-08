@@ -16,16 +16,18 @@ public:
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 private:
+
+public slots:
+    void onButtonClicked(int);
 
 private:
     std::vector<std::string> dir_list;
     std::map<int, std::vector<std::string>> data_map;
-    QSignalMapper mapper;
     QStyle::State  _state;
     QObject *_parent;
+    QSignalMapper *signal_mapper;
 
 
 };

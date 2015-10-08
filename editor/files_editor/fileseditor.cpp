@@ -23,6 +23,15 @@ FilesEditor::FilesEditor(QWidget *parent) : QMainWindow(parent), ui(new Ui::File
     ButtonDelegate* delegate_button = new ButtonDelegate(this, dir_list, data_matrix);
     ui->dir_list_tableView->setItemDelegateForColumn(2, delegate_button);
 
+
+    for ( int i = 0; i < model_directories.rowCount(); ++i ) {
+        ui->dir_list_tableView->openPersistentEditor( model_directories.index(i, 1) );
+        ui->dir_list_tableView->openPersistentEditor( model_directories.index(i, 2) );
+    }
+
+    connect(&model_directories, SIGNAL(selected_image_changed(std::string)), this, SLOT(on_selected_image_changed(std::string)));
+
+
 }
 
 FilesEditor::~FilesEditor()
@@ -56,4 +65,10 @@ std::map<int, std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::v
         res.insert(std::pair<int, std::vector<std::string>>(k, file_list));
     }
     return res;
+}
+
+void FilesEditor::on_selected_image_changed(std::string image)
+{
+    QString filename = QString(FILEPATH.c_str()) + QString("/") + QString(image.c_str());
+    ui->image_preview_widget->setImageFilename(filename);
 }
