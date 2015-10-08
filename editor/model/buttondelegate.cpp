@@ -5,8 +5,11 @@
 #include <QMouseEvent>
 #include <QFileDialog>
 
-ButtonDelegate::ButtonDelegate(QObject *parent, std::map<int, std::vector<std::string> > set_data_map)
+extern std::string FILEPATH;
+
+ButtonDelegate::ButtonDelegate(QObject *parent, std::vector<std::string> set_dir_list, std::map<int, std::vector<std::string> > set_data_map)
 {
+    dir_list = set_dir_list;
     data_map = set_data_map;
     _state =  QStyle::State_Enabled;
     _parent = parent;
@@ -47,13 +50,23 @@ bool ButtonDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const
         std::cout << "MOUSE-RELEASED" << std::endl;
 
         QString filename = QFileDialog::getOpenFileName((QWidget*)_parent, tr("Open Image File 1"), "/home", tr("Image Files (*.png)"));
-        //ui->File1Path->setText(file1Name);
-
+        QFileInfo file_info(filename);
         std::cout << ">>> filename: " << filename.toStdString() << std::endl;
+        int row = index.row();
+        if (row >= dir_list.size()) {
+            std::cout << ">>> ButtonDelegate::editorEvent::ERROR: row[" << row << "] not found in data_map." << std::endl;
+        } else {
+            std::string dest_path = FILEPATH + dir_list.at(row) + std::string("/") + file_info.fileName().toStdString();
+            std::cout << "ButtonDelegate::editorEvent::dest_path: " << dest_path << std::endl;
+            if (QFile::copy(filename, QString(dest_path.c_str())) == false) {
+                std::cout << "ButtonDelegate::editorEvent::ERROR: Can't copy file." << std::endl;
+            }
+        }
 
         return false;
     } else {
         return QItemDelegate::editorEvent(event, model, option, index);
     }
 }
+
 
