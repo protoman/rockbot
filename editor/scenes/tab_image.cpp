@@ -95,7 +95,8 @@ void tab_image::set_fields(int index)
 
 void tab_image::update_preview_image(int index)
 {
-    ui->image_preview_widget->setImageFilename(QString(ScenesMediator::get_instance()->image_list.at(index).filename));
+    QString filename = QString(FILEPATH.c_str()) + QString("/images/scenes/") + QString(ScenesMediator::get_instance()->image_list.at(index).filename);
+    ui->image_preview_widget->setImageFilename(filename);
     ui->image_preview_widget->repaint();
 }
 

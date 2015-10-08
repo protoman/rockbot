@@ -27,8 +27,9 @@ ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
 
 void ImageAreaPreview::setImageFilename(QString name)
 {
-    graphic_filename = QString(FILEPATH.c_str()) + QString("/images/scenes/") + name;
+    graphic_filename = name;
     std::cout << ">> ImageAreaPreview::setImageFilename: " << graphic_filename.toStdString() << std::endl;
+    repaint();
 }
 
 // viewpoint
@@ -100,7 +101,7 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
     QPixmap image(graphic_filename.toStdString().c_str());
 
     if (image.isNull() == true || image.width() <= 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4" << std::endl;
+        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4 [" << graphic_filename.toStdString() << "]" << std::endl;
         return;
     }
 

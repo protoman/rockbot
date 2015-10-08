@@ -20,9 +20,13 @@ public:
     void update();
     std::vector<std::string> get_directory_list();
 
+signals:
+    void selected_image_changed(std::string filename);
+
 private:
     std::vector<std::string> list_directories;
-    std::vector<std::string> list_dir_selected_value;           // rowxvalue
+    std::vector<std::string> list_dir_selected_value;           // row x value
+    QObject *_parent;
 
 };
 
