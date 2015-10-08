@@ -53,12 +53,6 @@ QVariant ImageDirectoriesModel::data(const QModelIndex &index, int role) const
         } else {
             return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() +1);
         }
-    } else if (role == Qt::EditRole) {
-        if (col == 1) {
-            return QString("A");
-        } else if (col == 2) {
-            return QString("B");
-        }
     }
 
     return QVariant();
@@ -74,7 +68,7 @@ QVariant ImageDirectoriesModel::headerData(int section, Qt::Orientation orientat
             case 0:
                 return QString("Directory Name");
             case 1:
-                return QString("Images");
+                return QString("Preview");
             case 2:
                 return QString("Import");
             }
@@ -106,10 +100,6 @@ bool ImageDirectoriesModel::setData(const QModelIndex &index, const QVariant &va
         std::string str_value = value.toString().toStdString();
         list_dir_selected_value.at(row) = str_value;
         emit selected_image_changed(list_directories.at(row) + std::string("/") + str_value);
-        /// @TODO: set image in mediator and make preview-area to use it
-
-    //} else if (col == 2) {
-
     }
 
     return true;
