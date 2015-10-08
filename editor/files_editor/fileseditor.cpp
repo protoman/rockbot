@@ -20,10 +20,8 @@ FilesEditor::FilesEditor(QWidget *parent) : QMainWindow(parent), ui(new Ui::File
     ComboListDelegate* delegate = new ComboListDelegate(this, data_matrix);
     ui->dir_list_tableView->setItemDelegateForColumn(1, delegate);
 
-    ButtonDelegate* delegate_button = new ButtonDelegate(this, data_matrix);
+    ButtonDelegate* delegate_button = new ButtonDelegate(this, dir_list, data_matrix);
     ui->dir_list_tableView->setItemDelegateForColumn(2, delegate_button);
-
-    connect(delegate_button, SIGNAL(buttonClicked(QModelIndex)), delegate_button, SLOT(onButtonClick(QModelIndex)));
 
 }
 
