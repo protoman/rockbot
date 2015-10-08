@@ -23,6 +23,8 @@ public slots:
 private:
     Ui::FilesEditor *ui;
     ImageDirectoriesModel model_directories;
+    std::map<int, std::vector<std::string>> data_matrix;
+    std::vector<std::string> dir_list;
 };
 
 #endif // FILESEDITOR_H

@@ -1,7 +1,7 @@
 #include "combolistdelegate.h"
 #include "mediator.h"
 
-ComboListDelegate::ComboListDelegate(QObject *parent, std::map<int, std::vector<std::string> > set_data_map) :QItemDelegate(parent)
+ComboListDelegate::ComboListDelegate(QObject *parent, std::map<int, std::vector<std::string> > set_data_map) : QItemDelegate(parent)
 {
     data_map = set_data_map;
 }
