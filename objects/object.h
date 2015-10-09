@@ -22,7 +22,7 @@ enum e_object_teleport_states {
 class object
 {
 public:
-    //object(Uint8 id, struct format_v_2_1::file_object temp_obj); // game object constructor
+    //object(Uint8 id, struct CURRENT_FILE_FORMAT::file_object temp_obj); // game object constructor
     object(Uint8 _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest); // map object constructor
     ~object();
     /**

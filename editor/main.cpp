@@ -12,15 +12,17 @@ int palleteY=0;
 #include "../file/format.h"
 #include "editortilepallete.h"
 #include "editorarea.h"
+#include "newgamedialog.h"
 #include "mainwindow.h"
+#include "loadgamepicker.h"
 
 #include "defines.h"
 #include "enum_names.h"
 #include "file/file_io.h"
 
-std::string FILEPATH; // path including DATA/GAMES/[GAME]
+std::string GAMEPATH; // path without GAMES
+std::string FILEPATH; // path including GAMES/[GAME]
 std::string SAVEPATH;
-std::string GAMEPATH; // path without DATA/GAMES
 
 void remove_duplicated()
 {
@@ -104,6 +106,10 @@ void clean_bad_data() {
     }
 }
 
+bool game_exists() {
+    return true;
+}
+
 #undef main
 int main(int argc, char *argv[])
 {
@@ -116,41 +122,39 @@ int main(int argc, char *argv[])
     printf(" *** EDITOR_FILEPATH: '%s' ***\n", Mediator::get_instance()->EDITOR_FILEPATH);
 
 	std::string argvString = std::string(argv[0]);
-    FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+    GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     strncpy (Mediator::get_instance()->EDITOR_FILEPATH, FILEPATH.c_str(), FILEPATH.size());
-    GAMEPATH = FILEPATH;
-    FILEPATH += "/data/";
-    SAVEPATH = FILEPATH;
     std::cout << " *** EXEC_NAME: " << EXEC_NAME << ", FILEPATH: " << FILEPATH << ", SAVEPATH: " << SAVEPATH << " ***" << std::endl;
+
+    FILEPATH = "";
 
     init_enum_names();
     assert_enum_items(); // check that stringfy variables are OK
 
 
-    Mediator::get_instance()->fio.check_conversion();
     Mediator::get_instance()->fio.read_game(Mediator::get_instance()->game_data);
     Mediator::get_instance()->fio.read_all_stages(Mediator::get_instance()->stage_data);
     Mediator::get_instance()->fio.load_scene_sequence(Mediator::get_instance()->sequences);
     Mediator::get_instance()->fio.load_scenes(Mediator::get_instance()->scenes);
     clean_bad_data();
 
-    Mediator::get_instance()->initGameVar();
     QApplication a(argc, argv);
 
-
     MainWindow w;
-    w.resize(1024, 680);
-    w.show();
+    w.setWindowState(Qt::WindowMaximized);
 
-	//adjust_sprites_size();
+    if (game_exists() == false) {
+        NewGameDialog *new_game_dialog = new NewGameDialog();
+        QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(on_new_game_accepted(QString)));
+        new_game_dialog->show();
+    } else {
+        QDialog *open = new loadGamePicker();
+        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(reload()));
+        open->show();
+        //w.show();
+    }
 
 	remove_duplicated();
-
-    // --- DEBUG --- //
-    //SceneEditorWindow* scenes_window = new SceneEditorWindow();
-    //scenes_window->show();
-    // --- DEBUG --- //
-
 
     return a.exec();
 }

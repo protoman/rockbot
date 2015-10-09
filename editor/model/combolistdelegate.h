@@ -18,6 +18,9 @@ public:
 
     void set_row_data(int row, std::vector<std::string> data);
 
+public slots:
+    void onCurrentIndexChanged(int);
+
 private:
     std::map<int, std::vector<std::string>> data_map;
 };

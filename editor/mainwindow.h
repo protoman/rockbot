@@ -14,7 +14,6 @@
 #include "mainwindow_tab/stage_edit.h"
 #include "mainwindow_tab/projectile_edit.h"
 #include "mainwindow_tab/artificial_inteligence_tab.h"
-#include "mainwindow_tab/colorcycle.h"
 #include "mainwindow_tab/game_properties_tab.h"
 #include "mainwindow_tab/map_tab.h"
 #include "mainwindow_tab/player_edit.h"
@@ -43,6 +42,8 @@ public:
 	void fillObjList();
 	void fillStageList();
 
+    void show_critial_error(QString error);
+
 
 private:
     Ui::MainWindow *ui;
@@ -52,7 +53,6 @@ private:
 	weapon_edit *weapon_edit_tab;
 	stage_edit *stage_edit_tab;
     projectile_edit *projectile_edit_tab;
-	colorcycle_edit *colorcycle_edit_tab;
     game_properties_tab *game_prop_tab;
     map_tab *map_edit_tab;
     player_edit *player_edit_tab;
@@ -63,8 +63,11 @@ private:
 
 
 
-private slots:
+
+public slots:
     void reload();
+    void on_new_game_accepted(QString);
+
 
  void on_npc_direction_combo_currentIndexChanged(int index);
 	void on_link_orientation_combobox_currentIndexChanged(int index);

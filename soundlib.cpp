@@ -21,7 +21,6 @@ void soundLib::init_audio_system()
 {
     if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
         std::cout << "Couldn't open audio. Error: " << SDL_GetError() << std::endl;
-        std::fflush(stdout);
         exit(-1);
     } else {
         std::cout << "Audio initialized" << std::endl;
@@ -237,7 +236,6 @@ void soundLib::load_music(std::string music_file) {
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
-        std::fflush(stdout);
 		exit(-1);
 	}
 }
@@ -255,7 +253,6 @@ void soundLib::load_boss_music(string music_file) {
 	boss_music = Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
         std::cout << "Error in soundLib::load_boss_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
-        std::fflush(stdout);
 		exit(-1);
 	}
 }
@@ -279,7 +276,6 @@ void soundLib::play_music() {
 	if (music) {
 		if (Mix_PlayMusic(music, -1) == -1) {
             std::cout << "<<<<<<<<<<<<< Mix_PlayMusic Error: " << Mix_GetError() << std::endl;
-            std::fflush(stdout);
 			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_music" << std::endl;
@@ -297,7 +293,6 @@ void soundLib::play_boss_music() {
 	if (boss_music) {
 		if (Mix_PlayMusic(boss_music, -1) == -1) {
             std::cout << "<<<<<<<<<<<<< Mix_PlayMusic, Error: " << Mix_GetError() << std::endl;
-            std::fflush(stdout);
 			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_boss_music" << std::endl;

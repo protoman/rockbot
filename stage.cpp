@@ -8,7 +8,7 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::file_io fio;
 
-extern struct format_v_2_0_1::st_checkpoint checkpoint;
+extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 // ********************************************************************************************** //
 //                                                                                                //

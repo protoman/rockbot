@@ -108,7 +108,7 @@ CURRENT_FILE_FORMAT::file_stage stage_data;
 FREEZE_EFFECT_TYPES freeze_weapon_effect = FREEZE_EFFECT_NONE;
 int freeze_weapon_id = -1;
 
-struct format_v_2_0_1::st_checkpoint checkpoint;
+struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 #ifdef PLAYSTATION2
     #include "ports/ps2/modules.h"
@@ -475,10 +475,7 @@ int main(int argc, char *argv[])
 
     FILEPATH += gameControl.select_game_screen();
 
-    fio.check_conversion();
 	fio.read_game(game_data);
-
-
 
 
     //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG

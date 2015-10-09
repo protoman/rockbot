@@ -100,7 +100,6 @@ void inputLib::readInput()
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             if (event.type == SDL_QUIT) {
                 std::cout << "LEAVE #1" << std::endl;
-                std::fflush(stdout);
                 leave_game = true;
             }
 #endif
@@ -275,7 +274,6 @@ int inputLib::waitScapeTime(int wait_period) {
         } else if (p1_input[BTN_QUIT] == 1 || p2_input[BTN_QUIT] == 1) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #2" << std::endl;
-            std::fflush(stdout);
             leave_game = true;
 #endif
 		}

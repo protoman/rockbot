@@ -260,7 +260,6 @@ struct st_position stage_select::select() {
 		if (input.p1_input[BTN_QUIT] || input.p2_input[BTN_QUIT]) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #7" << std::endl;
-            std::fflush(stdout);
             leave_game = true;
 #endif
 		}

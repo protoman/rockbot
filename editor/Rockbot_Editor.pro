@@ -71,8 +71,6 @@ SOURCES += main.cpp \
     sprite_preview_area.cpp \
     mainwindow_tab/artificial_inteligence_tab.cpp \
     mainwindow_tab/projectile_edit.cpp \
-    mainwindow_tab/colorcycle.cpp \
-    mainwindow_tab/colorcycle_map_preview.cpp \
     mainwindow_tab/game_properties_tab.cpp \
     mainwindow_tab/map_tab.cpp \
     ../file/convert.cpp \
@@ -101,7 +99,8 @@ SOURCES += main.cpp \
     files_editor/fileseditor.cpp \
     files_editor/image_directories_model.cpp \
     model/combolistdelegate.cpp \
-    model/buttondelegate.cpp
+    model/buttondelegate.cpp \
+    newgamedialog.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -127,8 +126,6 @@ HEADERS += mainwindow.h \
     mainwindow_tab/artificial_inteligence_tab.h \
     mainwindow_tab/projectile_edit.h \
     enum_names.h \
-    mainwindow_tab/colorcycle.h \
-    mainwindow_tab/colorcycle_map_preview.h \
     mainwindow_tab/game_properties_tab.h \
     mainwindow_tab/map_tab.h \
     ../file/convert.h \
@@ -164,7 +161,8 @@ HEADERS += mainwindow.h \
     files_editor/fileseditor.h \
     files_editor/image_directories_model.h \
     model/combolistdelegate.h \
-    model/buttondelegate.h
+    model/buttondelegate.h \
+    newgamedialog.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -178,7 +176,6 @@ FORMS += mainwindow.ui \
     mainwindow_tab/stage_edit.ui \
     mainwindow_tab/artificial_inteligence_tab.ui \
     mainwindow_tab/projectile_edit.ui \
-    mainwindow_tab/colorcycle.ui \
     mainwindow_tab/game_properties_tab.ui \
     mainwindow_tab/map_tab.ui \
     stage_swap_dialog.ui \
@@ -194,7 +191,8 @@ FORMS += mainwindow.ui \
     scenes/tab_music.ui \
     scenes/tab_cleararea.ui \
     scenes/tab_animation.ui \
-    files_editor/fileseditor.ui
+    files_editor/fileseditor.ui \
+    newgamedialog.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
