@@ -330,24 +330,14 @@ HEADERS += \
     character/classboss.h \
     graphic/animation.h \
     scenes/ending.h \
-    file/v_2_0_0.h \
-    file/v_1.h \
-    file/v_2_0_1.h \
-    file/v_2_0_2.h \
     colision_detection.h \
-	file/v_2_0_3.h \
     character/artificial_inteligence.h \
     character/st_spriteFrame.h \
-    file/v_2_0_4.h \
     ports/ps2/modules.h \
-    file/v_2_1.h \
-    file/v_2_1_1.h \
     options/key_map.h \
     graphic/draw.h \
 	aux_tools/trajectory_parabola.h \
     file/convert.h \
-	file/v_2_1_2.h \
-    file/v_3_0_0.h \
     file/v_3_0_1.h \
     file/format/st_characterState.h \
     file/format/st_common.h \
@@ -357,9 +347,6 @@ HEADERS += \
     file/format/st_teleporter.h \
     character/movement/jump.h \
     file/scenes_v300.h \
-    file/v3/file_stage.h \
-    file/v3/file_save.h \
-    file/v3/file_config.h \
     character/movement/inertia.h \
     file/v_3_0_1.h \
     file/v3/3_0_1/v301_config.h \

@@ -39,12 +39,22 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 	//printf("projectilePreviewArea::paintEvent - gSize: %d\n", Mediator::get_instance()->projectileGraphicSize_w);
 
    painter.setPen(QColor(0, 120, 0));
-   for (i=0; i<=this->width()+1; i=i+Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.width*2) {
+   int step = Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.width*2;
+   int max = this->width()+1;
+   if (step < 1) {
+       step = 1;
+   }
+   for (i=0; i<=max; i=i+step) {
 	  // linhas verticais
       line = QLineF(i, 0, i, this->height()+100);
       painter.drawLine(line);
    }
-   for (i=0; i<this->height()+1; i=i+Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.height*2) {
+   max = this->height()+1;
+   step = Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.height*2;
+   if (step < 1) {
+       step = 1;
+   }
+   for (i=0; i<max; i=i+step) {
 	  // linhas horizontais
       line = QLineF(0, i, this->width()+100, i);
       painter.drawLine(line);

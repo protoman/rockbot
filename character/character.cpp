@@ -12,7 +12,7 @@ extern soundLib soundManager;
 #include "inputlib.h"
 extern inputLib input;
 
-extern struct format_v_2_0_1::st_checkpoint checkpoint;
+extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
 

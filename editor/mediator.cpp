@@ -39,8 +39,6 @@ Mediator::Mediator() {
     object_direction = 0;
 
 	zoom = 1;
-	static_npc_list = NULL;
-	npc_map_list = NULL;
 	currentStage = 1;
 	sprintf(addNpcFilename, "%c", '\0');
     sprintf(addProjectileFilename, "%c", '\0');
@@ -70,11 +68,6 @@ Mediator::Mediator() {
     show_teleporters_flag = true;
 
     combobox_select_string = "-Select-";
-}
-
-// set default values for game variable
-void Mediator::initGameVar() {
-	strcpy (game.name, "My Game");
 }
 
 
@@ -117,13 +110,9 @@ void Mediator::setPallete(char *value) {
 
 
 
-void Mediator::loadGame(int n) {
+void Mediator::loadGame() {
 	CURRENT_FILE_FORMAT::file_io fio;
 	fio.read_game(game_data);
-}
-
-
-void Mediator::createGame() {
 }
 
 

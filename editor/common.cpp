@@ -63,7 +63,7 @@ void common::fill_graphicfiles_listwidget(std::string directory, QListWidget* li
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-		//std::cout << ">> MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
+        std::cout << ">> MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
         exit(-1);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -99,7 +99,7 @@ void common::fill_graphicfiles_combobox(std::string directory, QComboBox *comboW
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-        //std::cout << ">> MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
+        std::cout << ">> MainWindow::fill_graphicfiles_combobox ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
         exit(-1);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);

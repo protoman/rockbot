@@ -7,15 +7,21 @@
 #include "loadgamepicker.h"
 #include "dialog_pick_color.h"
 #include "stage_swap_dialog.h"
-//#include <QStandardItemModel>
+#include "newgamedialog.h"
+
 #include <QListView>
 #include <QList>
 #include <QListWidgetItem>
+#include <QMessageBox>
+
 #include "../defines.h"
 #include "../file/version.h"
 
 
 #include "common.h"
+
+extern std::string GAMEPATH;
+extern std::string FILEPATH;
 
 bool background_filled = false;
 
@@ -24,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->setupUi(this);
     QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER);
     setWindowTitle(window_title);
-    Mediator::get_instance()->loadGame(1);
+    Mediator::get_instance()->loadGame();
 
 
 	// insert NPC tab form
@@ -54,10 +60,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->ProjectileScrollArea->setWidget(projectile_edit_tab);
 
 
-	// insert COLORCYCLE tab form
-	colorcycle_edit_tab = new colorcycle_edit();
-    ui->ColorcycleScrollArea->setWidget(colorcycle_edit_tab);
-
     // insert GAME_PROPERTIES tab form
     game_prop_tab = new game_properties_tab();
     ui->gamePropertiesScrollarea->setWidget(game_prop_tab);
@@ -84,6 +86,14 @@ MainWindow::~MainWindow()
     }
 }
 
+void MainWindow::show_critial_error(QString error_msg)
+{
+    QMessageBox msgBox;
+    msgBox.setText(error_msg);
+    msgBox.exec();
+    close();
+}
+
 void MainWindow::reload()
 {
     Mediator::get_instance()->selectedNPC = 0;
@@ -93,7 +103,6 @@ void MainWindow::reload()
     Mediator::get_instance()->current_player = 0;
     Mediator::get_instance()->current_weapon = 0;
     game_prop_tab->reload();
-    colorcycle_edit_tab->reload();
     projectile_edit_tab->reload();
     stage_edit_tab->reload();
     weapon_edit_tab->reload();
@@ -104,11 +113,7 @@ void MainWindow::reload()
     this->show();
 }
 
-void MainWindow::on_new_game_accepted(QString name)
-{
-    /// @TODO: create game files
-    this->show();
-}
+
 
 
 
@@ -139,7 +144,9 @@ void MainWindow::on_pallete_signalPalleteChanged()
 
 void MainWindow::on_actionNew_triggered()
 {
-    Mediator::get_instance()->createGame();
+    NewGameDialog *new_game_dialog = new NewGameDialog();
+    QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), this, SLOT(on_new_game_accepted(QString)));
+    new_game_dialog->show();
 }
 
 
@@ -518,4 +525,35 @@ void MainWindow::on_actionImage_Browser_triggered()
 {
     files_editor_window = new FilesEditor();
     files_editor_window->show();
+}
+
+
+void MainWindow::on_new_game_accepted(QString name)
+{
+    /// @TODO: create game files
+    QString games_folder_path = QString(GAMEPATH.c_str()) + QString("/games/");
+    if (QDir(games_folder_path).exists() == false) {
+        if (QDir().mkdir(games_folder_path) == false) {
+            QString error_msg = QString("Can't create games container folder '") + games_folder_path + QString("'.");
+            show_critial_error(error_msg);
+            return;
+        }
+    }
+    QString filepath = QString(GAMEPATH.c_str()) + QString("/games/") + name;
+    if (QDir().mkdir(filepath) == false) {
+        QString error_msg = QString("Can't create new game folder '") + filepath + QString("'.");
+        show_critial_error(error_msg);
+        return;
+    }
+
+    FILEPATH = GAMEPATH + std::string("/games/") + name.toStdString() + std::string("/");
+
+    // generate empty/default game files
+    CURRENT_FILE_FORMAT::file_io fio;
+    fio.generate_files();
+
+    /// @TODO: copy image files
+    Mediator::get_instance()->loadGame();
+
+    this->show();
 }
