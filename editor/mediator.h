@@ -2,7 +2,6 @@
 #define MEDIATOR_H
 #include <QString>
 #include "../file/format.h"
-#include "../file/v_1.h"
 #include "../file/file_io.h"
 
 struct st_player_graphics_data {
@@ -64,19 +63,13 @@ public:
     bool show_teleporters_flag;
 
 
-	struct format_v1_0::list_map_npc *npc_map_list;
-	struct format_v1_0::npc_static_data_list *static_npc_list;
-
-
-
 	int getPalleteX();
 	int getPalleteY();
 	void setPalleteX(int value);
 	void setPalleteY(int value);
     std::string getPallete();
 	void setPallete(char *value);
-	void initGameVar();
-	void loadGame(int n);
+    void loadGame();
 
 	int get_stage_n(const int map_n);
 
@@ -95,7 +88,6 @@ public:
 	bool link_is_door;
 
 
-	void createGame();
 	void centNumberFormat(int n);
     //void getGameName(int n);
 	void resetMap(int);
@@ -111,7 +103,6 @@ public:
 
     // old globals
     char EDITOR_FILEPATH[512];
-    struct format_v1_0::file_game game;
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
     std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;

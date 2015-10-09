@@ -66,7 +66,7 @@ void key_map::draw_screen()
             } else {
                 graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, "PRESS NEW KEY/BUTTON"); //input code (number)
                 draw_lib.update_screen();
-                //format_v_2_1_1::st_key_config new_key = input.get_pressed_key();
+                //CURRENT_FILE_FORMAT::st_key_config new_key = input.get_pressed_key();
                 graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, 0, 0, 0);
                 ///@TODO - key_config[_pick_pos].key_type = new_key.key_type;
                 ///@TODO - key_config[_pick_pos].key_number = new_key.key_number;

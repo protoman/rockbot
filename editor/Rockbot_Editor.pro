@@ -71,8 +71,6 @@ SOURCES += main.cpp \
     sprite_preview_area.cpp \
     mainwindow_tab/artificial_inteligence_tab.cpp \
     mainwindow_tab/projectile_edit.cpp \
-    mainwindow_tab/colorcycle.cpp \
-    mainwindow_tab/colorcycle_map_preview.cpp \
     mainwindow_tab/game_properties_tab.cpp \
     mainwindow_tab/map_tab.cpp \
     ../file/convert.cpp \
@@ -128,8 +126,6 @@ HEADERS += mainwindow.h \
     mainwindow_tab/artificial_inteligence_tab.h \
     mainwindow_tab/projectile_edit.h \
     enum_names.h \
-    mainwindow_tab/colorcycle.h \
-    mainwindow_tab/colorcycle_map_preview.h \
     mainwindow_tab/game_properties_tab.h \
     mainwindow_tab/map_tab.h \
     ../file/convert.h \
@@ -180,7 +176,6 @@ FORMS += mainwindow.ui \
     mainwindow_tab/stage_edit.ui \
     mainwindow_tab/artificial_inteligence_tab.ui \
     mainwindow_tab/projectile_edit.ui \
-    mainwindow_tab/colorcycle.ui \
     mainwindow_tab/game_properties_tab.ui \
     mainwindow_tab/map_tab.ui \
     stage_swap_dialog.ui \

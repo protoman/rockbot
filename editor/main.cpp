@@ -107,7 +107,7 @@ void clean_bad_data() {
 }
 
 bool game_exists() {
-    return false;
+    return true;
 }
 
 #undef main
@@ -133,16 +133,13 @@ int main(int argc, char *argv[])
     assert_enum_items(); // check that stringfy variables are OK
 
 
-    Mediator::get_instance()->fio.check_conversion();
     Mediator::get_instance()->fio.read_game(Mediator::get_instance()->game_data);
     Mediator::get_instance()->fio.read_all_stages(Mediator::get_instance()->stage_data);
     Mediator::get_instance()->fio.load_scene_sequence(Mediator::get_instance()->sequences);
     Mediator::get_instance()->fio.load_scenes(Mediator::get_instance()->scenes);
     clean_bad_data();
 
-    Mediator::get_instance()->initGameVar();
     QApplication a(argc, argv);
-
 
     MainWindow w;
     w.resize(1024, 680);
@@ -158,15 +155,7 @@ int main(int argc, char *argv[])
         //w.show();
     }
 
-	//adjust_sprites_size();
-
 	remove_duplicated();
-
-    // --- DEBUG --- //
-    //SceneEditorWindow* scenes_window = new SceneEditorWindow();
-    //scenes_window->show();
-    // --- DEBUG --- //
-
 
     return a.exec();
 }

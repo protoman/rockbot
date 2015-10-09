@@ -74,12 +74,18 @@ void npc_edit::fill_data()
 
 void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 {
+    if (index == -1) {
+        return;
+    }
 	_data_loading = true;
     Mediator::get_instance()->current_npc_n = index;
 
 	_npcedit_tab_selectednpc = index;
     ui->npc_edit_tab_canshoot->setChecked(Mediator::get_instance()->game_data.game_npcs[index].is_ghost);
-    ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(Mediator::get_instance()->game_data.game_npcs[index].graphic_filename)));
+    std::string image_filename(Mediator::get_instance()->game_data.game_npcs[index].graphic_filename);
+    if (image_filename.length() > 0) {
+        ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(image_filename.c_str())));
+    }
     ui->npc_edit_tab_graphicheight->setValue(Mediator::get_instance()->game_data.game_npcs[index].frame_size.height);
     ui->npc_edit_tab_graphicwidth->setValue(Mediator::get_instance()->game_data.game_npcs[index].frame_size.width);
     Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->game_data.game_npcs[index].frame_size.height;
