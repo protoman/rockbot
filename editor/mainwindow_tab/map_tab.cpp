@@ -58,6 +58,9 @@ void map_tab::pick_bg_color()
 
 void map_tab::fill_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
     _data_loading = true;
     fill_anim_tiles_data();
     common::fill_stages_combo(ui->stageListCombo);

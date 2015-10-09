@@ -11,7 +11,7 @@ npc_edit::npc_edit(QWidget *parent) : _data_loading(false), QWidget(parent), _np
 	QObject::connect(ui->npc_edit_tab_previewarea, SIGNAL(clickedIn()), this, SLOT(set_npc_frame()));
 	_npcedit_tab_selected_weakness_weapon = 0;
 
-	fill_data();
+    fill_data();
 	on_npc_edit_tab_selectnpccombo_currentIndexChanged(0);
 	_data_loading = false;
 	reload_frame_list(ui->frame_list_selector->currentIndex());
@@ -35,6 +35,9 @@ void npc_edit::reload()
 
 void npc_edit::fill_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
 	_data_loading = true;
     common::fill_files_combo("images/sprites/enemies", ui->npc_edit_tab_graphiccombo);
     ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(Mediator::get_instance()->game_data.game_npcs[0].graphic_filename)));
