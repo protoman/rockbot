@@ -22,6 +22,9 @@ void game_properties_tab::reload()
 
 void game_properties_tab::fill_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
     _data_loading = true;
     _current_stage = 0;
     common::fill_projectiles_combo(ui->semicharged_shot_combo);

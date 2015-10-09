@@ -19,6 +19,7 @@ ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
     ini_y = 0;
     dest_x = 0;
     dest_y = 0;
+    ignore_lines = false;
 
 
     this->resize(RES_W, RES_H);
@@ -27,8 +28,9 @@ ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
 
 void ImageAreaPreview::setImageFilename(QString name)
 {
-    graphic_filename = QString(FILEPATH.c_str()) + QString("/images/scenes/") + name;
+    graphic_filename = name;
     std::cout << ">> ImageAreaPreview::setImageFilename: " << graphic_filename.toStdString() << std::endl;
+    repaint();
 }
 
 // viewpoint
@@ -80,6 +82,11 @@ void ImageAreaPreview::set_dest_y(int set)
     repaint();
 }
 
+void ImageAreaPreview::set_ignore_lines(bool set_ignore)
+{
+    ignore_lines = set_ignore;
+}
+
 void ImageAreaPreview::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -100,7 +107,7 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
     QPixmap image(graphic_filename.toStdString().c_str());
 
     if (image.isNull() == true || image.width() <= 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4" << std::endl;
+        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4 [" << graphic_filename.toStdString() << "]" << std::endl;
         return;
     }
 
@@ -118,6 +125,10 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
     target = QRectF(QPoint(x+ini_x, y+ini_y), QSize(image.width(), image.height()));
     source = QRectF(QPoint(0, 0), QSize(image.width(), image.height()));
     painter.drawPixmap(target, image, source);
+
+    if (ignore_lines) {
+        return;
+    }
 
     // frame rectangle
     painter.setPen(QColor(255, 0, 0));

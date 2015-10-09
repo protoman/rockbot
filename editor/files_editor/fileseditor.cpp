@@ -14,16 +14,30 @@ FilesEditor::FilesEditor(QWidget *parent) : QMainWindow(parent), ui(new Ui::File
 
     ui->dir_list_tableView->setModel(&model_directories);
 
-    std::vector<std::string> dir_list = model_directories.get_directory_list();
-    std::map<int, std::vector<std::string>> data_matrix = get_dir_files_matrix(dir_list);
+    dir_list = model_directories.get_directory_list();
+    data_matrix = get_dir_files_matrix(dir_list);
 
-    ComboListDelegate* delegate = new ComboListDelegate(this, data_matrix);
-    ui->dir_list_tableView->setItemDelegateForColumn(1, delegate);
+    //ComboListDelegate* delegate = new ComboListDelegate(this, data_matrix);
+    ButtonDelegate* delegate_button_preview = new ButtonDelegate(this, dir_list, data_matrix, &model_directories);
+    delegate_button_preview->set_operation_mode(1);
+    ui->dir_list_tableView->setItemDelegateForColumn(1, delegate_button_preview);
 
-    ButtonDelegate* delegate_button = new ButtonDelegate(this, data_matrix);
+    ButtonDelegate* delegate_button = new ButtonDelegate(this, dir_list, data_matrix, &model_directories);
     ui->dir_list_tableView->setItemDelegateForColumn(2, delegate_button);
 
-    connect(delegate_button, SIGNAL(buttonClicked(QModelIndex)), delegate_button, SLOT(onButtonClick(QModelIndex)));
+
+    for ( int i = 0; i < model_directories.rowCount(); ++i ) {
+        ui->dir_list_tableView->openPersistentEditor( model_directories.index(i, 1) );
+        ui->dir_list_tableView->openPersistentEditor( model_directories.index(i, 2) );
+    }
+
+    connect(&model_directories, SIGNAL(selected_image_changed(std::string)), this, SLOT(on_selected_image_changed(std::string)));
+
+
+    connect(delegate_button, SIGNAL(data_changed(int)), this, SLOT(on_data_changed(int)));
+
+    ui->image_preview_widget->set_ignore_lines(true);
+
 
 }
 
@@ -59,3 +73,10 @@ std::map<int, std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::v
     }
     return res;
 }
+
+void FilesEditor::on_selected_image_changed(std::string image)
+{
+    QString filename = QString(FILEPATH.c_str()) + QString("/") + QString(image.c_str());
+    ui->image_preview_widget->setImageFilename(filename);
+}
+

@@ -105,7 +105,8 @@ void tab_viewpoint::set_fields(int index)
 
 void tab_viewpoint::update_preview_image(int index)
 {
-    ui->image_preview_widget->setImageFilename(QString(ScenesMediator::get_instance()->viewpoint_list.at(index).filename));
+    QString filename = QString(FILEPATH.c_str()) + QString("/images/scenes/") + QString(ScenesMediator::get_instance()->viewpoint_list.at(index).filename);
+    ui->image_preview_widget->setImageFilename(filename);
     ui->image_preview_widget->repaint();
 }
 

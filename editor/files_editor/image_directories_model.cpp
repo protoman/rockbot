@@ -1,5 +1,7 @@
 #include "image_directories_model.h"
 
+#include <QFileDialog>
+
 ImageDirectoriesModel::ImageDirectoriesModel(QObject *parent)
 {
     list_directories.push_back("/images/");
@@ -17,6 +19,7 @@ ImageDirectoriesModel::ImageDirectoriesModel(QObject *parent)
     for (int i=0; i<list_directories.size(); i++) {
         list_dir_selected_value.push_back("- Select -");
     }
+    _parent = parent;
 }
 
 int ImageDirectoriesModel::rowCount(const QModelIndex &parent) const
@@ -46,15 +49,9 @@ QVariant ImageDirectoriesModel::data(const QModelIndex &index, int role) const
             std::string value = list_dir_selected_value.at(row);
             return QString(value.c_str());
         } else if (col == 2) {
-            return QString("IMPORT BUTTON");
+            return QString("Import...");
         } else {
             return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() +1);
-        }
-    } else if (role == Qt::EditRole) {
-        if (col == 1) {
-            return QString("A");
-        } else if (col == 2) {
-            return QString("B");
         }
     }
 
@@ -71,7 +68,7 @@ QVariant ImageDirectoriesModel::headerData(int section, Qt::Orientation orientat
             case 0:
                 return QString("Directory Name");
             case 1:
-                return QString("Images");
+                return QString("Preview");
             case 2:
                 return QString("Import");
             }
@@ -102,23 +99,10 @@ bool ImageDirectoriesModel::setData(const QModelIndex &index, const QVariant &va
     if (col == 1) {
         std::string str_value = value.toString().toStdString();
         list_dir_selected_value.at(row) = str_value;
-        /// @TODO: set image in mediator and make preview-area to use it
-
+        emit selected_image_changed(list_directories.at(row) + std::string("/") + str_value);
     }
 
-
-    /*
-    int row = index.row();
-    int col = index.column();
-
-    if (col == 1) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].delay_after = value.toInt();
-    } else if (col == 2) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type = value.toInt();
-    } else if (col == 3) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value = value.toInt();
-    }
-    */
+    return true;
 
 }
 

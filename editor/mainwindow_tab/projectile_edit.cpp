@@ -21,6 +21,10 @@ void projectile_edit::reload()
 
 void projectile_edit::fill_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
+
     common::fill_projectiles_combo(ui->projectileList_combo);
     common::fill_files_combo(std::string("/images/projectiles"), ui->graphic_filename);
 	common::fill_trajectories_combo(ui->trajectory);

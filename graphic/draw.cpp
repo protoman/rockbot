@@ -13,6 +13,8 @@ extern timerLib timer;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
+extern std::string FILEPATH;
+
 #include "game.h"
 extern game gameControl;
 

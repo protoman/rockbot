@@ -20,6 +20,7 @@ public:
     void set_ini_y(int set);
     void set_dest_x(int set);
     void set_dest_y(int set);
+    void set_ignore_lines(bool set_ignore);
 
 signals:
     void on_image_w_changed(int value);
@@ -41,6 +42,7 @@ private:
     int ini_y;
     int dest_x;
     int dest_y;
+    bool ignore_lines;
 };
 
 #endif // IMAGEAREAPREVIEW_H

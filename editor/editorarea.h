@@ -36,7 +36,6 @@ public:
   QWidget *myParent;
 
 private:
-  void removeNpcFromMap(int, int);
 
   // variables
   int link_pos_x;
@@ -70,7 +69,6 @@ protected:
 public slots:
    void changeTile();
    void saveGame(int game_n);
-   void addObjectToMap(int, int);
 
 
 
