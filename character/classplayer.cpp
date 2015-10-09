@@ -13,6 +13,8 @@ extern soundLib soundManager;
 #include "game.h"
 extern game gameControl;
 
+extern std::string FILEPATH;
+
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
