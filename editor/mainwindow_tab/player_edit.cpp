@@ -21,6 +21,10 @@ player_edit::~player_edit()
 
 void player_edit::fill_players_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
+
     _loading = true;
     int index = Mediator::get_instance()->current_player;
     common::fill_graphicfiles_combobox("/images/sprites/", ui->player_graphics_combo);

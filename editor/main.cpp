@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     strncpy (Mediator::get_instance()->EDITOR_FILEPATH, FILEPATH.c_str(), FILEPATH.size());
     std::cout << " *** EXEC_NAME: " << EXEC_NAME << ", FILEPATH: " << FILEPATH << ", SAVEPATH: " << SAVEPATH << " ***" << std::endl;
 
-    FILEPATH = GAMEPATH;
+    FILEPATH = "";
 
     init_enum_names();
     assert_enum_items(); // check that stringfy variables are OK
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     MainWindow w;
-    w.resize(1024, 680);
+    w.setWindowState(Qt::WindowMaximized);
 
     if (game_exists() == false) {
         NewGameDialog *new_game_dialog = new NewGameDialog();

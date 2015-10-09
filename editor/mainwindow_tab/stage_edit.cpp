@@ -59,6 +59,9 @@ void stage_edit::reload()
 
 void stage_edit::fill_stage_tab_data()
 {
+    if (FILEPATH.length() == 0) {
+        return;
+    }
     std::cout << "#B - STAGE_N: " << Mediator::get_instance()->currentStage << std::endl;
     _data_loading = true;
     QListWidgetItem item_empty;
