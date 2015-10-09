@@ -47,11 +47,7 @@ void loadGamePicker::on_buttonBox_accepted()
 {
     std::cout << ">>>>>>>>>> ui->gameList->currentRow(): " << ui->gameList->currentRow() << std::endl;
 
-    if (ui->gameList->currentRow() == 0) {
-        FILEPATH = GAMEPATH + std::string("/data/");
-    } else {
-        FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
-    }
+    FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
     Mediator::get_instance()->loadGame();
     emit game_picked();
 
