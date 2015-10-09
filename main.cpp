@@ -475,10 +475,7 @@ int main(int argc, char *argv[])
 
     FILEPATH += gameControl.select_game_screen();
 
-    fio.check_conversion();
 	fio.read_game(game_data);
-
-
 
 
     //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG
