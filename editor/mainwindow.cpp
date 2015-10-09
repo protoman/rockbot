@@ -101,6 +101,13 @@ void MainWindow::reload()
     ai_edit_tab->reload();
     npc_edit_tab->reload();
     map_edit_tab->reload();
+    this->show();
+}
+
+void MainWindow::on_new_game_accepted(QString name)
+{
+    /// @TODO: create game files
+    this->show();
 }
 
 
@@ -117,11 +124,10 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
+    this->hide();
 	QDialog *open = new loadGamePicker;
     QObject::connect(open, SIGNAL(game_picked()), this, SLOT(reload()));
 	open->show();
-    //Mediator::get_instance()->loadGame();
-    //map_edit_tab->update_edit_area();
 }
 
 void MainWindow::on_pallete_signalPalleteChanged()

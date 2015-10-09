@@ -101,7 +101,8 @@ SOURCES += main.cpp \
     files_editor/fileseditor.cpp \
     files_editor/image_directories_model.cpp \
     model/combolistdelegate.cpp \
-    model/buttondelegate.cpp
+    model/buttondelegate.cpp \
+    newgamedialog.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -164,7 +165,8 @@ HEADERS += mainwindow.h \
     files_editor/fileseditor.h \
     files_editor/image_directories_model.h \
     model/combolistdelegate.h \
-    model/buttondelegate.h
+    model/buttondelegate.h \
+    newgamedialog.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -194,7 +196,8 @@ FORMS += mainwindow.ui \
     scenes/tab_music.ui \
     scenes/tab_cleararea.ui \
     scenes/tab_animation.ui \
-    files_editor/fileseditor.ui
+    files_editor/fileseditor.ui \
+    newgamedialog.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common
