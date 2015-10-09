@@ -63,8 +63,11 @@ private:
 
 
 
-private slots:
+
+public slots:
     void reload();
+    void on_new_game_accepted(QString);
+
 
  void on_npc_direction_combo_currentIndexChanged(int index);
 	void on_link_orientation_combobox_currentIndexChanged(int index);

@@ -12,7 +12,9 @@ int palleteY=0;
 #include "../file/format.h"
 #include "editortilepallete.h"
 #include "editorarea.h"
+#include "newgamedialog.h"
 #include "mainwindow.h"
+#include "loadgamepicker.h"
 
 #include "defines.h"
 #include "enum_names.h"
@@ -104,6 +106,10 @@ void clean_bad_data() {
     }
 }
 
+bool game_exists() {
+    return false;
+}
+
 #undef main
 int main(int argc, char *argv[])
 {
@@ -140,7 +146,17 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     w.resize(1024, 680);
-    w.show();
+
+    if (game_exists() == false) {
+        NewGameDialog *new_game_dialog = new NewGameDialog();
+        QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(on_new_game_accepted(QString)));
+        new_game_dialog->show();
+    } else {
+        QDialog *open = new loadGamePicker();
+        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(reload()));
+        open->show();
+        //w.show();
+    }
 
 	//adjust_sprites_size();
 
