@@ -563,6 +563,10 @@ void MainWindow::on_new_game_accepted(QString name)
         return;
     }
 
+    // copy data directories
+    QString template_path = QString(GAMEPATH.c_str()) + QString("/template/");
+    copy_path(template_path, filepath);
+
     FILEPATH = GAMEPATH + std::string("/games/") + name.toStdString() + std::string("/");
 
     // generate empty/default game files
