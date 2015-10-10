@@ -96,13 +96,18 @@ void MainWindow::show_critial_error(QString error_msg)
 
 void MainWindow::copy_path(QString src, QString dst)
 {
+    src = src.replace(QString("//"), QString("/"));
+    dst = dst.replace(QString("//"), QString("/"));
+    std::cout << "MainWindow::copy_path::src: " << src.toStdString() << ", dst: " << dst.toStdString() << std::endl;
+    //exit(-1);
     QDir dir(src);
     if (! dir.exists())
         return;
 
     foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QString dst_path = dst + QDir::separator() + d;
-        dir.mkpath(dst_path);
+        QDir dst_dir(dst_path);
+        dst_dir.mkpath(dst_path);
         copy_path(src+ QDir::separator() + d, dst_path);
     }
 
