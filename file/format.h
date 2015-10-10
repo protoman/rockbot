@@ -7,10 +7,7 @@
 #include "../defines.h"
 #include "../file/format/st_common.h"
 #include "../file/format/st_hitPoints.h"
-
-#include "v_3_0_1.h"
-
-#define CURRENT_FILE_FORMAT format_v_3_0_1
-
+#include "file/v4/file_game_v4.h"
+#include "file/v4/file_scene_v4.h"
 
 #endif // FILE_FORMAT_H

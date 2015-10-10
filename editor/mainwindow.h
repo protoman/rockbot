@@ -45,21 +45,14 @@ public:
     void show_critial_error(QString error);
 
 
-private:
-    Ui::MainWindow *ui;
-	npc_edit *npc_edit_tab;
-	artificial_inteligence_tab *ai_edit_tab;
-	object_tab *object_edit_tab;
-	weapon_edit *weapon_edit_tab;
-	stage_edit *stage_edit_tab;
-    projectile_edit *projectile_edit_tab;
-    game_properties_tab *game_prop_tab;
-    map_tab *map_edit_tab;
-    player_edit *player_edit_tab;
-    armor_edit *armor_edit_tab;
 
+
+
+private:
 	void fill_NPC_edit_tab();
 	void fill_background_list();
+    void copy_path(QString src, QString dst);
+
 
 
 
@@ -161,8 +154,21 @@ public slots:
 
     void on_actionImage_Browser_triggered();
 
+
 private:
-	// USED IN NPC TAB
+    Ui::MainWindow *ui;
+    npc_edit *npc_edit_tab;
+    artificial_inteligence_tab *ai_edit_tab;
+    object_tab *object_edit_tab;
+    weapon_edit *weapon_edit_tab;
+    stage_edit *stage_edit_tab;
+    projectile_edit *projectile_edit_tab;
+    game_properties_tab *game_prop_tab;
+    map_tab *map_edit_tab;
+    player_edit *player_edit_tab;
+    armor_edit *armor_edit_tab;
+
+    // USED IN NPC TAB
 	std::string _npcedit_tab_graphic;
 	int _npcedit_tab_selectednpc;
 	bool _data_loading;

@@ -2,7 +2,8 @@
 #define SCENESMEDIATOR_H
 
 #include <vector>
-#include "file/v3/3_0_1/file_scene.h"
+#include "defines.h"
+#include "file/format.h"
 
 class ScenesMediator
 {

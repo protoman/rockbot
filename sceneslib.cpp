@@ -3,6 +3,7 @@
 #include "soundlib.h"
 #include "scenes/password_generator.h"
 #include "file/fio_scenes.h"
+#include "strings_map.h"
 
 extern string FILEPATH;
 extern soundLib soundManager;
@@ -477,11 +478,11 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-	options.push_back("NEW GAME");
-	options.push_back("LOAD GAME");
-	options.push_back("PASSWORD");
-	options.push_back("OPTIONS");
-    options.push_back("CREDITS");
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_password));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_about));
 
     std::string text("\xA9 2009-2015 UPPERLAND STUDIOS");
 	graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), text);

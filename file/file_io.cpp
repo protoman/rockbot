@@ -15,7 +15,7 @@ extern std::string GAMEPATH;
 
 // ************************************************************************************************************* //
 
-namespace format_v_3_0_1 {
+namespace format_v4 {
 
     file_io::file_io()
     {
@@ -24,7 +24,7 @@ namespace format_v_3_0_1 {
 
 
 
-    void file_io::write_game(format_v_3_0_1::file_game& data_in) const {
+    void file_io::write_game(format_v4::file_game& data_in) const {
         std::ofstream fp;
         std::string filename = "";
 
@@ -176,7 +176,7 @@ namespace format_v_3_0_1 {
 
 
 
-    void file_io::write_all_stages(format_v_3_0_1::file_stages &stages_data_in) const
+    void file_io::write_all_stages(format_v4::file_stages &stages_data_in) const
     {
         std::ofstream fp;
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
@@ -187,13 +187,13 @@ namespace format_v_3_0_1 {
         } else {
             std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
         }
-        fp.write(reinterpret_cast<char *>(&stages_data_in), sizeof(struct format_v_3_0_1::file_stages));
+        fp.write(reinterpret_cast<char *>(&stages_data_in), sizeof(struct format_v4::file_stages));
         fp.close();
     }
 
 
 
-    void file_io::read_game(format_v_3_0_1::file_game& data_out) const {
+    void file_io::read_game(format_v4::file_game& data_out) const {
         FILE *fp;
         std::string filename = "";
 
@@ -207,7 +207,7 @@ namespace format_v_3_0_1 {
                 fflush(stdout);
                 return;
             }
-            int read_result = fread(&data_out, sizeof(struct format_v_3_0_1::file_game), 1, fp);
+            int read_result = fread(&data_out, sizeof(struct format_v4::file_game), 1, fp);
             if (read_result  == -1) {
                 std::cout << ">>file_io::read_game - Error reading struct data from game file '" << filename << "'." << std::endl;
                 fflush(stdout);
@@ -416,7 +416,7 @@ namespace format_v_3_0_1 {
     }
 
 
-    void file_io::read_all_stages(format_v_3_0_1::file_stages& stages_data_out)
+    void file_io::read_all_stages(format_v4::file_stages& stages_data_out)
     {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
@@ -425,11 +425,11 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        fp.read(reinterpret_cast<char *>(&stages_data_out), sizeof(struct format_v_3_0_1::file_stages));
+        fp.read(reinterpret_cast<char *>(&stages_data_out), sizeof(struct format_v4::file_stages));
         fp.close();
     }
 
-    void file_io::read_stage(format_v_3_0_1::file_stage &stages_data_out, short stage_n)
+    void file_io::read_stage(format_v4::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
@@ -439,8 +439,8 @@ namespace format_v_3_0_1 {
             fflush(stdout);
             return;
         }
-        fseek(fp, sizeof(format_v_3_0_1::file_stage) * stage_n, SEEK_SET);
-        int read_result = fread(&stages_data_out, sizeof(struct format_v_3_0_1::file_stage), 1, fp);
+        fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
+        int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
         if (read_result == -1) {
             printf(">>file_io::read_game - Error reading struct data from stage file.\n");
             fflush(stdout);
@@ -529,7 +529,7 @@ namespace format_v_3_0_1 {
         return false;
     }
 
-    void file_io::load_config(format_v_3_0_1::st_game_config& config)
+    void file_io::load_config(format_v4::st_game_config& config)
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + "/config_v301.sav";
@@ -537,7 +537,7 @@ namespace format_v_3_0_1 {
         if (!fp) {
             std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
         } else {
-            int read_result = fread(&config, sizeof(struct format_v_3_0_1::st_game_config), 1, fp);
+            int read_result = fread(&config, sizeof(struct format_v4::st_game_config), 1, fp);
             if (read_result  == -1) {
                 printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                 fflush(stdout);
@@ -565,11 +565,11 @@ namespace format_v_3_0_1 {
             std::cout << "Error: Could not open config file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        fwrite(&config, sizeof(struct format_v_3_0_1::st_game_config), 1, fp);
+        fwrite(&config, sizeof(struct format_v4::st_game_config), 1, fp);
         fclose(fp);
     }
 
-    void file_io::read_save(format_v_3_0_1::st_save& data_out) const
+    void file_io::read_save(format_v4::st_save& data_out) const
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + "/game_v301.sav";
@@ -578,7 +578,7 @@ namespace format_v_3_0_1 {
             std::cout << "ERROR: Could not read save" << std::endl;
             exit(-1);
         }
-        int read_result = fread(&data_out, sizeof(struct format_v_3_0_1::st_save), 1, fp);
+        int read_result = fread(&data_out, sizeof(struct format_v4::st_save), 1, fp);
         if (read_result  == -1) {
             printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
             fflush(stdout);
@@ -631,7 +631,7 @@ namespace format_v_3_0_1 {
         fclose(fp);
     }
 
-    bool file_io::write_save(format_v_3_0_1::st_save& data_in)
+    bool file_io::write_save(format_v4::st_save& data_in)
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + "/game_v301.sav";
@@ -640,7 +640,7 @@ namespace format_v_3_0_1 {
             std::cout << "Error: Could not open save-file '" << filename << "'." << std::endl;
             return false;
         }
-        fwrite(&data_in, sizeof(struct format_v_3_0_1::st_save), 1, fp);
+        fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp);
         fclose(fp);
         return true;
     }
@@ -660,8 +660,8 @@ namespace format_v_3_0_1 {
             fflush(stdout);
             exit(-1);
         }
-        fseek(fp, sizeof(format_v_3_0_1::file_stage) * stage_n, SEEK_SET);
-        int read_result = fread(&stages_data_out, sizeof(struct format_v_3_0_1::file_stage), 1, fp);
+        fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
+        int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
         if (read_result == -1) {
             printf(">>file_io::read_game - Error reading struct data from stage file.\n");
             fflush(stdout);
@@ -669,74 +669,6 @@ namespace format_v_3_0_1 {
         }
         fclose(fp);
         return stages_data_out.boss.id_npc;
-    }
-
-
-
-    void file_io::load_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
-    {
-        scene_sequence.clear();
-        format_v_3_0_1::file_scene_sequence temp;
-        std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "sequence.scn";
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        while(!fp.eof()) {
-            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct format_v_3_0_1::file_scene_sequence));
-            scene_sequence.push_back(temp);
-        }
-        fp.close();
-    }
-
-    void file_io::save_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
-    {
-        std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "sequence.scn";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        for (unsigned int i=0; i<scene_sequence.size(); i++) {
-            fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct format_v_3_0_1::file_scene_sequence));
-        }
-        fp.close();
-    }
-
-    void file_io::load_scenes(std::vector<file_scene> &scenes)
-    {
-        scenes.clear();
-        format_v_3_0_1::file_scene temp;
-        std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "scenes.scn";
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        while(!fp.eof()) {
-            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct format_v_3_0_1::file_scene));
-            scenes.push_back(temp);
-        }
-        fp.close();
-    }
-
-    void file_io::save_scenes(std::vector<file_scene> &scenes)
-    {
-        std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "scenes.scn";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        for (unsigned int i=0; i<scenes.size(); i++) {
-            fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct format_v_3_0_1::file_scene));
-        }
-        fp.close();
     }
 
 
@@ -764,6 +696,73 @@ namespace format_v_3_0_1 {
         write_all_stages(stages_data_in);
     }
 
+    void file_io::load_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
+    {
+        scene_sequence.clear();
+        file_scene_sequence temp;
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        while(!fp.eof()) {
+            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct file_scene_sequence));
+            scene_sequence.push_back(temp);
+        }
+        fp.close();
+    }
+
+    void file_io::save_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
+    {
+        std::ofstream fp;
+        std::string filename = std::string(FILEPATH) + "sequence.scn";
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        for (unsigned int i=0; i<scene_sequence.size(); i++) {
+            fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct file_scene_sequence));
+        }
+        fp.close();
+    }
+
+
+    void file_io::load_scenes(std::vector<file_scene> &scenes)
+    {
+        scenes.clear();
+        file_scene temp;
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        while(!fp.eof()) {
+            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct file_scene));
+            scenes.push_back(temp);
+        }
+        fp.close();
+    }
+
+
+    void file_io::save_scenes(std::vector<file_scene> &scenes)
+    {
+        std::ofstream fp;
+        std::string filename = std::string(FILEPATH) + "scenes.scn";
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        for (unsigned int i=0; i<scenes.size(); i++) {
+            fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct file_scene));
+        }
+        fp.close();
+    }
 
 }
 

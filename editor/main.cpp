@@ -106,9 +106,6 @@ void clean_bad_data() {
     }
 }
 
-bool game_exists() {
-    return true;
-}
 
 #undef main
 int main(int argc, char *argv[])
@@ -143,7 +140,9 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setWindowState(Qt::WindowMaximized);
 
-    if (game_exists() == false) {
+    std::vector<std::string> game_list = Mediator::get_instance()->fio.read_game_list();
+
+    if (game_list.size() < 1) {
         NewGameDialog *new_game_dialog = new NewGameDialog();
         QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(on_new_game_accepted(QString)));
         new_game_dialog->show();
@@ -151,7 +150,6 @@ int main(int argc, char *argv[])
         QDialog *open = new loadGamePicker();
         QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(reload()));
         open->show();
-        //w.show();
     }
 
 	remove_duplicated();

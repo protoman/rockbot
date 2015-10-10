@@ -52,7 +52,7 @@ public:
      */
     void wait_keypress(); /// waits intil a key is pressed
 
-    bool pick_key_or_button(format_v_3_0_1::st_game_config &game_config_copy, INPUT_COMMANDS key);
+    bool pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key);
 
 
 
