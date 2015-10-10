@@ -30,8 +30,12 @@ namespace format_v4 {
         FILE *fp = fopen(filename.c_str(), "rb");
 
         if (!fp) {
-            std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate defaul." << std::endl;
+            std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
             create_default_ingame_strings();
+            fp = fopen(filename.c_str(), "rb");
+            if (!fp) {
+                std::cout << "[WARNING] file_io::load_game_strings - Critical error, can't open' '" << filename << "' for reading." << std::endl;
+            }
         }
 
         while (!feof(fp) && !ferror(fp)) {

@@ -1417,10 +1417,7 @@ std::string game::select_game_screen()
     input.clean();
     input.waitTime(200);
 
-    std::string game_dir = std::string("/data/");
-    if (picked_n != 0) {
-        game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
-    }
+    std::string game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
 
     return std::string(game_dir);
 }
