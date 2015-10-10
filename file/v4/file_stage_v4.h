@@ -1,10 +1,10 @@
 #ifndef FILE_STAGE_v301H
 #define FILE_STAGE_v301H
 
-#include "../../../file/format/st_common.h"
-#include "../../../defines.h"
+#include "file/format/st_common.h"
+#include "defines.h"
 
-namespace format_v_3_0_1 {
+namespace format_v4 {
 
 struct st_map_background {
     char filename[FS_CHAR_FILENAME_SIZE];

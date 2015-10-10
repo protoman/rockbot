@@ -1,5 +1,5 @@
-#ifndef V_3_0_1_H
-#define V_3_0_1_H
+#ifndef V_4_H
+#define V_4_H
 
 #include <stdio.h>
 #include <iostream>
@@ -7,10 +7,10 @@
 #include "../file/format/st_common.h"
 #include "../file/format/st_hitPoints.h"
 
-#include "../file/v3/3_0_1/v301_stage.h"
-#include "../file/v3/3_0_1/v301_save.h"
-#include "../file/v3/3_0_1/v301_config.h"
-#include "../file/v3/3_0_1/v301_scenes.h"
+#include "../file/v4/file_stage_v4.h"
+#include "../file/v4/file_save_v4.h"
+#include "../file/v4/file_config_v4.h"
+#include "../file/v4/file_scene_v4.h"
 
 
 // @NOTE: all defines related to filesystem must contain a "FS_" prefix
@@ -18,7 +18,7 @@
 
 //#define FORCE_CONVERT 1
 
-namespace format_v_3_0_1 {
+namespace format_v4 {
 
 
     struct st_anim_map_tile {
@@ -426,4 +426,4 @@ namespace format_v_3_0_1 {
 
 
 
-#endif // V_3_0_1_H
+#endif // V_4_H

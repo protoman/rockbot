@@ -1,7 +1,7 @@
 #ifndef FILE_SAVE_301_H
 #define FILE_SAVE_301_H
 
-namespace format_v_3_0_1 {
+namespace format_v4 {
 
     struct st_items {
         Uint8 energy_tanks;
