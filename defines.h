@@ -824,7 +824,7 @@ enum e_ARMOR_ABILITIES_BODY {
 
 #define SPIKES_DAMAGE 999
 
-#define CURRENT_FILE_FORMAT format_v_3_0_1
+#define CURRENT_FILE_FORMAT format_v4
 
 
 #define LINE_H_DIFF 15
@@ -844,6 +844,24 @@ enum e_ARMOR_ABILITIES_BODY {
 #define COLORKEY3_B 255
 
 #define ANIM_TILE_MAX_FRAMES 10
+
+// --- STRINGS BEGIN --- //
+#define STRINGS_LINE_SIZE 30
+
+enum E_STRINGS_INGAME {
+    strings_ingame_newgame,
+    strings_ingame_loadgame,
+    strings_ingame_config,
+    strings_ingame_about,
+    strings_ingame_password,
+
+
+
+    strings_ingame_COUNT
+};
+
+// --- STRINGS  END --- //
+
 
 #endif // DEFINES_H
 

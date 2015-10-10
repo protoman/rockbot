@@ -3,7 +3,6 @@
 
 #include "defines.h"
 #include "file/fio_scenes.h"
-#include "file/v3/3_0_1/file_scene.h"
 
 class sceneShow
 {

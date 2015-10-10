@@ -46,9 +46,9 @@ FilesEditor::~FilesEditor()
     delete ui;
 }
 
-std::map<int, std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::vector<std::string> dir_list)
+std::map<int, std::vector<std::string> > FilesEditor::get_dir_files_matrix(std::vector<std::string> dir_list)
 {
-    std::map<int, std::vector<std::string>> res;
+    std::map<int, std::vector<std::string> > res;
     for (int k=0; k<dir_list.size(); k++) {
         QString filepath = QString(FILEPATH.c_str()) + QString(dir_list.at(k).c_str());
         QDir dir = QDir(filepath);
@@ -69,7 +69,7 @@ std::map<int, std::vector<std::string>> FilesEditor::get_dir_files_matrix(std::v
                 file_list.push_back(fileInfo.fileName().toStdString());
             }
         }
-        res.insert(std::pair<int, std::vector<std::string>>(k, file_list));
+        res.insert(std::pair<int, std::vector<std::string> >(k, file_list));
     }
     return res;
 }

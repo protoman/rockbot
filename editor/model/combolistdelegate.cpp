@@ -11,7 +11,7 @@ QWidget *ComboListDelegate::createEditor(QWidget *parent, const QStyleOptionView
     QComboBox* editor = new QComboBox(parent);
     unsigned int row = index.row();
 
-    std::map<int, std::vector<std::string>>::const_iterator iter = data_map.find(row);
+    std::map<int, std::vector<std::string> >::const_iterator iter = data_map.find(row);
     int max = iter->second.size();
 
     editor->addItem(Mediator::get_instance()->combobox_select_string.c_str());

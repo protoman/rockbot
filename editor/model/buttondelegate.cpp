@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QUrl>
 
 extern std::string FILEPATH;
 

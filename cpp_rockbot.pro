@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
-CONFIG += win32
+CONFIG += linux
+#CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
@@ -279,12 +279,12 @@ SOURCES += main.cpp \
     game.cpp \
     stage.cpp \
     classmap.cpp \
-	character/classplayer.cpp \
+    character/classplayer.cpp \
     timerlib.cpp \
     sceneslib.cpp \
     soundlib.cpp \
     projectilelib.cpp \
-	character/classnpc.cpp \
+    character/classnpc.cpp \
     stage_select.cpp \
     class_config.cpp \
     objects/object.cpp \
@@ -294,32 +294,34 @@ SOURCES += main.cpp \
     character/classboss.cpp \
     graphic/animation.cpp \
     scenes/ending.cpp \
-	colision_detection.cpp \
+    colision_detection.cpp \
     character/artificial_inteligence.cpp \
     options/key_map.cpp \
     graphic/draw.cpp \
-	aux_tools/trajectory_parabola.cpp \
-        file/convert.cpp \
+    aux_tools/trajectory_parabola.cpp \
+    file/convert.cpp \
     character/movement/jump.cpp \
     character/movement/inertia.cpp \
     scenes/password_generator.cpp \
     file/fio_scenes.cpp \
-    scenes/sceneshow.cpp
+    scenes/sceneshow.cpp \
+    strings_map.cpp \
+    file/fio_strings.cpp
 
 HEADERS += \
-	character/character.h \
+    character/character.h \
     graphicslib.h \
     defines.h \
     inputlib.h \
     game.h \
     stage.h \
     classmap.h \
-	character/classplayer.h \
+    character/classplayer.h \
     timerlib.h \
     sceneslib.h \
     soundlib.h \
     projectilelib.h \
-	character/classnpc.h \
+    character/classnpc.h \
     stage_select.h \
     class_config.h \
     objects/object.h \
@@ -336,9 +338,8 @@ HEADERS += \
     ports/ps2/modules.h \
     options/key_map.h \
     graphic/draw.h \
-	aux_tools/trajectory_parabola.h \
+    aux_tools/trajectory_parabola.h \
     file/convert.h \
-    file/v_3_0_1.h \
     file/format/st_characterState.h \
     file/format/st_common.h \
     file/format/st_hitPoints.h \
@@ -346,18 +347,19 @@ HEADERS += \
     file/format/st_projectile.h \
     file/format/st_teleporter.h \
     character/movement/jump.h \
-    file/scenes_v300.h \
     character/movement/inertia.h \
-    file/v_3_0_1.h \
-    file/v3/3_0_1/v301_config.h \
-    file/v3/3_0_1/v301_stage.h \
-    file/v3/3_0_1/v301_scenes.h \
-    file/v3/3_0_1/v301_save.h \
     file/version.h \
     scenes/password_generator.h \
-    file/v3/3_0_1/file_scene.h \
     file/fio_scenes.h \
-    scenes/sceneshow.h
+    scenes/sceneshow.h \
+    file/v4/file_config_v4.h \
+    file/v4/file_game_v4.h \
+    file/v4/file_save_v4.h \
+    file/v4/file_scene_v4.h \
+    file/v4/file_stage_v4.h \
+    file/v4/file_strings_v4.h \
+    strings_map.h \
+    file/fio_strings.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

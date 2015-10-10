@@ -10,7 +10,7 @@ class ButtonDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    ButtonDelegate(QObject *parent, std::vector<std::string> set_dir_list, std::map<int, std::vector<std::string>> set_data_map, QAbstractTableModel *model);
+    ButtonDelegate(QObject *parent, std::vector<std::string> set_dir_list, std::map<int, std::vector<std::string> > set_data_map, QAbstractTableModel *model);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
@@ -29,7 +29,7 @@ signals:
 
 private:
     std::vector<std::string> dir_list;
-    std::map<int, std::vector<std::string>> data_map;
+    std::map<int, std::vector<std::string> > data_map;
     QStyle::State  _state;
     QObject *_parent;
     QSignalMapper *signal_mapper;

@@ -54,6 +54,8 @@ bool have_save = false;
 #include "game.h"
 #include "scenes/ending.h"
 
+#define MAXPATHLEN 256
+
 #if defined(LINUX) || defined(OSX)
     #include <errno.h>
     #include <sys/stat.h>
@@ -61,7 +63,6 @@ bool have_save = false;
     #include <sys/param.h>
 #elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII)
     #include <unistd.h>
-    #define MAXPATHLEN 256
 #elif defined(WIN32)
     #include <direct.h>
     #undef main // to build on win32
@@ -251,6 +252,7 @@ void get_filepath()
 		FILEPATH = "/cd/";
 	#endif
 
+    GAMEPATH = FILEPATH;
 }
 
 
@@ -473,7 +475,15 @@ int main(int argc, char *argv[])
     }
 
 
-    FILEPATH += gameControl.select_game_screen();
+    std::string selected_game = gameControl.select_game_screen();
+    if (selected_game == "") {
+        graphLib.draw_text(20, 20, "Rockbot Engine Error:");
+        graphLib.draw_text(20, 32, "No games available");
+        input.wait_keypress();
+        SDL_Quit();
+        return 0;
+    }
+    FILEPATH += std::string("/") + selected_game;
 
 	fio.read_game(game_data);
 

@@ -9,8 +9,8 @@ CONFIG += win32
 QT += widgets
 
 macosx {
-        QMAKE_LIBS_QT =
-        QMAKE_LIBS_QT_THREAD =
+    QMAKE_LIBS_QT =
+    QMAKE_LIBS_QT_THREAD =
 
     QMAKE_CXX = /usr/local/bin/g++-4.8
     QMAKE_LINK = /usr/local/bin/g++-4.8

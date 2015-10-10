@@ -278,7 +278,7 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_conf
     }
 }
 
-void key_map::apply_key_codes_changes(format_v_3_0_1::st_game_config game_config_copy)
+void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
     for (int i=0; i<BTN_COUNT; i++) {
         game_config.keys_codes[i] = game_config_copy.keys_codes[i];

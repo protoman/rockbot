@@ -7,7 +7,6 @@
 #include <QProcess>
 
 #include "scenes/scenesmediator.h"
-#include "file/v3/3_0_1/file_scene.h"
 #include "file/fio_scenes.h"
 #include "model/objectlistmodel.h"
 

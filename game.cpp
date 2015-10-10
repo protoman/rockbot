@@ -1397,8 +1397,8 @@ void game::remove_current_teleporter_from_list()
 std::string game::select_game_screen()
 {
     std::vector<std::string> game_list = fio.read_game_list();
-    if (game_list.size() < 2) {
-        return std::string("data/");
+    if (game_list.size() < 1) {
+        return std::string("");
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
     graphLib.draw_text(10, 10, "- Select Game -");

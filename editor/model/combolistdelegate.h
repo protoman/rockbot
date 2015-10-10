@@ -9,7 +9,7 @@ class ComboListDelegate : public QItemDelegate
 {
     Q_OBJECT
 public:
-    ComboListDelegate(QObject *parent, std::map<int, std::vector<std::string>> set_data_map);
+    ComboListDelegate(QObject *parent, std::map<int, std::vector<std::string> > set_data_map);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
@@ -22,7 +22,7 @@ public slots:
     void onCurrentIndexChanged(int);
 
 private:
-    std::map<int, std::vector<std::string>> data_map;
+    std::map<int, std::vector<std::string> > data_map;
 };
 
 #endif // COMBOLISTDELEGATE_H
