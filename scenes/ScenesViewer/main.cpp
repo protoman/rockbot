@@ -7,6 +7,8 @@
 #include "sceneshow.h"
 #include "file/file_io.h"
 
+#include <sstream>
+
 #if defined(LINUX) || defined(OSX)
     #include <errno.h>
     #include <sys/stat.h>
@@ -36,6 +38,8 @@ std::string SAVEPATH;
 std::string GAMEPATH;
 bool leave_game = false;
 bool GAME_FLAGS[FLAG_COUNT];
+std::string game_name = "";
+int animation_n = 0;
 
 
 void get_filepath()
@@ -43,8 +47,8 @@ void get_filepath()
 #ifdef WIN32
     char* buffer;
     if( (buffer = _getcwd( NULL, 0 )) != NULL ) {
-        FILEPATH = std::string(buffer);
-        FILEPATH += "/";
+        GAMEPATH = std::string(buffer);
+        GAMEPATH += "/";
     }
     delete[] buffer;
 #else
@@ -52,20 +56,66 @@ void get_filepath()
     char* res = getcwd(buffer, MAXPATHLEN);
     UNUSED(res);
     if(buffer != NULL){
-        FILEPATH = std::string(buffer);
+        GAMEPATH = std::string(buffer);
     }
-    FILEPATH += "/";
+    GAMEPATH += "/";
     delete[] buffer;
 #endif
 
+    std::cout << "get_filepath - GAMEPATH:" << GAMEPATH << std::endl;
+}
+
+bool check_parameters(int argc, char *argv[]) {
+    if (argc < 2) {
+        std::cout << "ERROR: must inform --gamename \"[NAME]\" to run this app." << std::endl;
+        return false;
+    }
+
+
+    // check command-line paramethers
+    bool ignore_param = false;
+    for (int i=1; i<argc; i++) {
+        if (ignore_param == true) { // jump a parameter if already was used, no need to re-check
+            ignore_param = false;
+            continue;
+        }
+        std::string temp_argv(argv[i]);
+        if (temp_argv == "--gamename") {
+            if (argc <= i+1) {
+                std::cout << "ERROR: no [NAME] informed for --gamename flag." << std::endl;
+                return false;
+            } else {
+                game_name = std::string(argv[i+1]);
+                ignore_param = true;
+            }
+        } else if (temp_argv == "--scenenumber") {
+            if (argc <= i+1) {
+                std::cout << "ERROR: no [NUMBER] informed for --scenenumber flag." << std::endl;
+                return false;
+            } else {
+                istringstream ss(argv[i+1]);
+                int x;
+                if (!(ss >> x)) {
+                    std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --scenenumber flag." << std::endl;
+                    return false;
+                }
+                ignore_param = true;
+            }
+        }
+    }
+    FILEPATH = GAMEPATH + std::string("/games/") + game_name + std::string("/");
     std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
-    GAMEPATH = FILEPATH;
-    FILEPATH += "/data/";
+    return true;
 }
 
 int main(int argc, char *argv[])
 {
     get_filepath();
+
+    if (check_parameters(argc, argv) == false) {
+        return 0;
+    }
+
     fio.read_game(game_data);
     soundManager.init_audio_system();
 

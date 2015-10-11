@@ -9,6 +9,7 @@
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
+extern std::string GAMENAME;
 
 loadGamePicker::loadGamePicker(QWidget *parent) :
     QDialog(parent),
@@ -48,6 +49,7 @@ void loadGamePicker::on_buttonBox_accepted()
     std::cout << ">>>>>>>>>> ui->gameList->currentRow(): " << ui->gameList->currentRow() << std::endl;
 
     FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
+    GAMENAME = ui->gameList->currentItem()->text().toStdString();
     Mediator::get_instance()->loadGame();
     emit game_picked();
 

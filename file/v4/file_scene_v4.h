@@ -225,8 +225,8 @@ namespace format_v4 {
             type = SCENETYPE_CLEAR_SCREEN;
             seek_n = -1;
             delay_after = 0;
-            repeat_type = 0;
-            repeat_value = 0;
+            repeat_type = 1;
+            repeat_value = 1;
         }
 
     };

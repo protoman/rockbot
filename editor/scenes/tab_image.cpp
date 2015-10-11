@@ -218,3 +218,9 @@ void tab_image::on_comboBox_currentIndexChanged(int index)
     if (data_loading) { return; }
     ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).loop_mode = index;
 }
+
+void tab_image::on_name_textEdit_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+}

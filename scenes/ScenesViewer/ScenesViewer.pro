@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
-CONFIG += win32
+CONFIG += linux
+#CONFIG += win32
 
 TEMPLATE = app
 INCLUDEPATH += ..
@@ -80,4 +80,10 @@ HEADERS += \
     ../../file/convert.h \
     ../sceneshow.h \
     ../../file/v3/3_0_1/file_scene.h \
-    ../../file/fio_scenes.h
+    ../../file/fio_scenes.h \
+    ../../file/v4/file_config_v4.h \
+    ../../file/v4/file_game_v4.h \
+    ../../file/v4/file_save_v4.h \
+    ../../file/v4/file_scene_v4.h \
+    ../../file/v4/file_stage_v4.h \
+    ../../file/v4/file_strings_v4.h

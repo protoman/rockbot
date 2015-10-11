@@ -29,6 +29,8 @@ private slots:
     void on_width_spinBox_valueChanged(int arg1);
     void on_height_spinBox_valueChanged(int arg1);
     void on_duration_spinBox_valueChanged(int arg1);
+    void on_posx_spinBox_valueChanged(int arg1);
+    void on_posy_spinBox_valueChanged(int arg1);
 
 private:
     void change_fields_enabled(bool state);

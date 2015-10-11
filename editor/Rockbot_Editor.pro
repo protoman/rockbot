@@ -101,7 +101,9 @@ SOURCES += main.cpp \
     model/combolistdelegate.cpp \
     model/buttondelegate.cpp \
     newgamedialog.cpp \
-    mainwindow_tab/gamescenes.cpp
+    mainwindow_tab/gamescenes.cpp \
+    files_editor/stringseditor.cpp \
+    ../file/fio_strings.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -170,7 +172,9 @@ HEADERS += mainwindow.h \
     ../file/v4/file_scene_v4.h \
     ../file/v4/file_stage_v4.h \
     ../file/v4/file_strings_v4.h \
-    mainwindow_tab/gamescenes.h
+    mainwindow_tab/gamescenes.h \
+    files_editor/stringseditor.h \
+    ../file/fio_strings.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -201,7 +205,8 @@ FORMS += mainwindow.ui \
     scenes/tab_animation.ui \
     files_editor/fileseditor.ui \
     newgamedialog.ui \
-    mainwindow_tab/gamescenes.ui
+    mainwindow_tab/gamescenes.ui \
+    files_editor/stringseditor.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

@@ -16,7 +16,8 @@ using namespace std;
 
 #include "defines.h"
 
-extern string FILEPATH;
+extern std::string FILEPATH;
+extern std::string GAMEPATH;
 
 #include "inputlib.h"
 extern inputLib input;
@@ -108,7 +109,7 @@ bool graphicsLib::initGraphics()
 	input.init_joystick();
 	// FONT
 	TTF_Init();
-    filename = FILEPATH + "fonts/pressstart2p.ttf";
+    filename = GAMEPATH + "/fonts/pressstart2p.ttf";
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());

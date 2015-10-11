@@ -22,10 +22,10 @@ class fio_strings
 public:
     fio_strings();
     std::string get_ingame_string(int n);
-
+    std::vector<std::string> load_game_strings();
 
 private:
-    std::vector<std::string> load_game_strings();
+
     bool file_exists(std::string filename) const;
     void create_default_ingame_strings();
 

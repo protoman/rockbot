@@ -22,6 +22,7 @@
 #include "scenes/sceneeditorwindow.h"
 #include "aboutwindow.h"
 #include "files_editor/fileseditor.h"
+#include "files_editor/stringseditor.h"
 
 namespace Ui
 {
@@ -156,6 +157,11 @@ public slots:
     void on_actionImage_Browser_triggered();
 
 
+private slots:
+    void on_actionMovie_Editor_triggered();
+
+    void on_actionStrings_Editor_triggered();
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;
@@ -170,6 +176,7 @@ private:
     armor_edit *armor_edit_tab;
     GameScenes *game_scenes_tab;
 
+
     // USED IN NPC TAB
 	std::string _npcedit_tab_graphic;
 	int _npcedit_tab_selectednpc;
@@ -177,6 +184,7 @@ private:
     SceneEditorWindow* scenes_window;
     AboutWindow* about_window;
     FilesEditor* files_editor_window;
+    StringsEditor* strings_editor_window;
 };
 
 

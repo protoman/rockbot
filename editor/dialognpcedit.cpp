@@ -7,6 +7,7 @@
 #include "../file/format.h".h"
 
 extern std::vector<std::string> AI_ACTION_NAMES;
+extern std::string GAMEPATH;
 
 DialogNPCEdit::DialogNPCEdit(QWidget *parent) :
     QDialog(parent),
@@ -158,7 +159,7 @@ void DialogNPCEdit::on_npcGraphicSizeSpin_h_valueChanged(int value)
 
 void DialogNPCEdit::on_npcListCombobox_currentIndexChanged(QString item)
 {
-    sprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/enemies/%s", Mediator::get_instance()->EDITOR_FILEPATH, qPrintable(item));
+    sprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/enemies/%s", GAMEPATH.c_str(), qPrintable(item));
 	ui->npcPreviewAreaWidget->repaint();
 }
 

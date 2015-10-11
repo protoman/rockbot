@@ -166,12 +166,14 @@ struct file_stage {
     file_dialog intro_dialog;
     file_dialog boss_dialog;
     file_colorcycle colorcycle;
+    char tileset_filename[FS_CHAR_FILENAME_SIZE];
 
     // CONSTRUCTOR //
     file_stage() {
        boss = file_boss();
         sprintf(name, "%s", "Stage");
         bgmusic_filename[0] = '\0';
+        tileset_filename[0] = '\0';
     }
 };
 

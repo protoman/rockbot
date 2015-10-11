@@ -25,7 +25,7 @@ AnimationPreviewArea::~AnimationPreviewArea()
 
 void AnimationPreviewArea::set_filename(QString name)
 {
-    graphic_filename = QString(FILEPATH.c_str()) + QString("/images/animations/") + name;
+    graphic_filename = QString(FILEPATH.c_str()) + QString("/images/scenes/animations/") + name;
 }
 
 void AnimationPreviewArea::set_w(int set)
@@ -42,6 +42,17 @@ void AnimationPreviewArea::set_delay(int set)
 {
     delay = set;
 }
+
+void AnimationPreviewArea::set_x(int set)
+{
+    x = set;
+}
+
+void AnimationPreviewArea::set_y(int set)
+{
+    y = set;
+}
+
 
 void AnimationPreviewArea::update_animation()
 {
@@ -90,12 +101,12 @@ void AnimationPreviewArea::paintEvent(QPaintEvent *event)
     }
 
     // reset animation when needed
-    std::cout << "frame_n: " << frame_n << ", frame_n*w: " << (frame_n*w) << ", image.width(): " << image.width() << std::endl;
+    //std::cout << "frame_n: " << frame_n << ", frame_n*w: " << (frame_n*w) << ", image.width(): " << image.width() << std::endl;
     if (frame_n*w >= image.width()) {
         frame_n = 0;
     }
 
-    target = QRectF(QPoint(0, 0), QSize(w, h));
+    target = QRectF(QPoint(x, y), QSize(w, h));
     source = QRectF(QPoint(frame_n*w, 0), QSize(w, h));
     painter.drawPixmap(target, image, source);
 

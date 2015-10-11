@@ -102,7 +102,6 @@ public:
     int current_ai;
 
     // old globals
-    char EDITOR_FILEPATH[512];
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
     std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;

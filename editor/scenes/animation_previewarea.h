@@ -18,6 +18,8 @@ public:
     void set_w(int set);
     void set_h(int set);
     void set_delay(int set);
+    void set_x(int set);
+    void set_y(int set);
 
 
 protected:

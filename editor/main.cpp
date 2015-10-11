@@ -23,6 +23,7 @@ int palleteY=0;
 std::string GAMEPATH; // path without GAMES
 std::string FILEPATH; // path including GAMES/[GAME]
 std::string SAVEPATH;
+std::string GAMENAME;
 
 void remove_duplicated()
 {
@@ -116,11 +117,9 @@ int main(int argc, char *argv[])
     #else
 		EXEC_NAME = "editor.exe";
 	#endif
-    printf(" *** EDITOR_FILEPATH: '%s' ***\n", Mediator::get_instance()->EDITOR_FILEPATH);
 
 	std::string argvString = std::string(argv[0]);
     GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
-    strncpy (Mediator::get_instance()->EDITOR_FILEPATH, FILEPATH.c_str(), FILEPATH.size());
     std::cout << " *** EXEC_NAME: " << EXEC_NAME << ", FILEPATH: " << FILEPATH << ", SAVEPATH: " << SAVEPATH << " ***" << std::endl;
 
     FILEPATH = "";

@@ -5,6 +5,7 @@
 #include <QMessageBox>
 
 extern std::string GAMEPATH;
+extern std::string GAMENAME;
 
 TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::ScenesList), model_scenes(this)
 {
@@ -196,7 +197,13 @@ void TabScenelist::on_pushButton_clicked()
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --sequence ") + QString::number(ui->sceneSelector->currentIndex());
+    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"");
     std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
     process.start(file);
+}
+
+void TabScenelist::on_name_lineEdit_textChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).name, "%s", arg1.toStdString().c_str());
 }

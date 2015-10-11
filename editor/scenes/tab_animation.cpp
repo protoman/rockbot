@@ -41,7 +41,7 @@ void TabAnimation::fill_data()
 
     ScenesMediator::get_instance()->animation_list = fio.load_scenes_show_animation();
 
-    common::fill_files_combo("/images/animations", ui->filename_comboBox);
+    common::fill_files_combo("/images/scenes/animations", ui->filename_comboBox);
 
     int list_size = ScenesMediator::get_instance()->animation_list.size();
 
@@ -76,6 +76,7 @@ void TabAnimation::change_w(int value)
 {
     data_loading = true;
     ui->width_spinBox->setValue(value);
+    ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_w = value;
     data_loading = false;
 }
 
@@ -83,6 +84,7 @@ void TabAnimation::change_h(int value)
 {
     data_loading = true;
     ui->height_spinBox->setValue(value);
+    ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_h = value;
     data_loading = false;
 }
 
@@ -136,4 +138,18 @@ void TabAnimation::on_duration_spinBox_valueChanged(int arg1)
     if (data_loading == true) { return; }
     ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_delay = arg1;
     ui->widget->set_delay(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_delay);
+}
+
+void TabAnimation::on_posx_spinBox_valueChanged(int arg1)
+{
+    if (data_loading == true) { return; }
+    ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).x = arg1;
+    ui->widget->set_x(arg1);
+}
+
+void TabAnimation::on_posy_spinBox_valueChanged(int arg1)
+{
+    if (data_loading == true) { return; }
+    ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).y = arg1;
+    ui->widget->set_y(arg1);
 }

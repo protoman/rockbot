@@ -11,6 +11,7 @@ ImageDirectoriesModel::ImageDirectoriesModel(QObject *parent)
     list_directories.push_back("/images/map_backgrounds");
     list_directories.push_back("/images/projectiles");
     list_directories.push_back("/images/scenes");
+    list_directories.push_back("/images/scenes/animations");
     list_directories.push_back("/images/sprites");
     list_directories.push_back("/images/sprites/enemies");
     list_directories.push_back("/images/sprites/objects");

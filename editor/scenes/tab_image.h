@@ -54,6 +54,8 @@ private slots:
 
     void on_comboBox_currentIndexChanged(int index);
 
+    void on_name_textEdit_textChanged(const QString &arg1);
+
 private:
     void change_fields_enabled(bool state);
     void fill_data();

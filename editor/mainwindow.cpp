@@ -22,6 +22,7 @@
 
 extern std::string GAMEPATH;
 extern std::string FILEPATH;
+extern std::string GAMENAME;
 
 bool background_filled = false;
 
@@ -585,7 +586,25 @@ void MainWindow::on_new_game_accepted(QString name)
     /// @TODO: copy image files
     Mediator::get_instance()->loadGame();
 
+    GAMENAME = name.toStdString();
+
     reload();
 
     this->show();
+}
+
+void MainWindow::on_actionMovie_Editor_triggered()
+{
+    if (scenes_window != NULL) {
+        delete scenes_window;
+    }
+    scenes_window = new SceneEditorWindow();
+    scenes_window->show();
+
+}
+
+void MainWindow::on_actionStrings_Editor_triggered()
+{
+    strings_editor_window = new StringsEditor();
+    strings_editor_window->show();
 }

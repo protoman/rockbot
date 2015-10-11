@@ -855,7 +855,6 @@ enum E_STRINGS_INGAME {
     strings_ingame_password,
 
 
-
     strings_ingame_COUNT
 };
 

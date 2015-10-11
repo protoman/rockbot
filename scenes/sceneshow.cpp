@@ -238,22 +238,32 @@ void sceneShow::show_viewpoint(int n)
 
 void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 {
-    graphicsLib_gSurface image;
-    graphicsLib_gSurface bg_image;
-    CURRENT_FILE_FORMAT::file_scene_show_animation scene = animation_list.at(n);
-
-    graphLib.surfaceFromFile(FILEPATH + "images/animations/" + scene.filename, &image);
-    graphLib.initSurface(st_size(scene.frame_w, scene.frame_h), &bg_image);
-    graphLib.copy_gamescreen_area(st_rectangle(scene.x, scene.y, scene.frame_w, scene.frame_h), st_position(0, 0), &bg_image);
     int frame_n = 0;
+    CURRENT_FILE_FORMAT::file_scene_show_animation scene = animation_list.at(n);
     long frame_timer = timer.getTimer() + scene.frame_delay;
-    int max_frames = image.width / scene.frame_w;
     long started_timer = timer.getTimer();
     int repeat_times = 0;
 
+    graphicsLib_gSurface image;
+    graphLib.surfaceFromFile(FILEPATH + "images/scenes/animations/" + scene.filename, &image);
+    int max_frames = image.width / scene.frame_w;
+
+    graphicsLib_gSurface bg_image;
+    graphLib.initSurface(st_size(scene.frame_w, scene.frame_h), &bg_image);
+    graphLib.copy_gamescreen_area(st_rectangle(scene.x, scene.y, scene.frame_w, scene.frame_h), st_position(0, 0), &bg_image);
+
     while (true) {
-        graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
-        graphLib.showSurfaceRegionAt(&image, st_rectangle(frame_n*scene.frame_w, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
+
+        std::cout << "sceneShow::show_animation::LOOP" << std::endl;
+
+        //graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
+
+        int x = frame_n*scene.frame_w;
+        std::cout << "origin.x: " << x << ", dest.x: " << scene.x << ", frame.w: " << scene.frame_w << ", frame.h: " << scene.frame_h << std::endl;
+
+        graphLib.showSurfaceRegionAt(&image, st_rectangle(x, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
+
+
         graphLib.updateScreen();
 
         if (frame_timer < timer.getTimer()) {
@@ -262,18 +272,22 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
                 frame_n = 0;
                 repeat_times++;
             }
+            frame_timer = timer.getTimer() + scene.frame_delay;
         }
 
         // stop condition
-        if (repeat_n <= 1) {
+        if (repeat_times > 0 && repeat_n <= 1) {
+            std::cout << "sceneShow::show_animation::LEAVE#1" << std::endl;
             return;
         } else {
             if (repeat_mode == 0) { // time-mode
                 if ((timer.getTimer() - started_timer) > repeat_n) {
+                    std::cout << "sceneShow::show_animation::LEAVE#2" << std::endl;
                     return;
                 }
             } else { // repeat number mode
                 if (repeat_times > repeat_n) {
+                    std::cout << "sceneShow::show_animation::LEAVE#3" << std::endl;
                     return;
                 }
             }
