@@ -162,7 +162,13 @@ HEADERS += mainwindow.h \
     files_editor/image_directories_model.h \
     model/combolistdelegate.h \
     model/buttondelegate.h \
-    newgamedialog.h
+    newgamedialog.h \
+    ../file/v4/file_config_v4.h \
+    ../file/v4/file_game_v4.h \
+    ../file/v4/file_save_v4.h \
+    ../file/v4/file_scene_v4.h \
+    ../file/v4/file_stage_v4.h \
+    ../file/v4/file_strings_v4.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

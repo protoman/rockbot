@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>893</width>
-        <height>817</height>
+        <width>887</width>
+        <height>811</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -40,7 +40,7 @@
          <item row="3" column="2">
           <widget class="QLabel" name="label_12">
            <property name="text">
-            <string>Boss Face File:</string>
+            <string>Dialog Person Face:</string>
            </property>
           </widget>
          </item>
@@ -88,7 +88,7 @@
          <item row="3" column="0">
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Boss Name:</string>
+            <string>Dialog Person Name:</string>
            </property>
           </widget>
          </item>

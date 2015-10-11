@@ -18,7 +18,10 @@ key_n1: 14304, key_n2: 63519, key_n3: 2047
 => remove support for game data in the old data dir, always use the new "games" folder
 
 
+- remove intro/ending, as it will now be scenes
+
 FILE-FORMAT-V4:
+- each stage can have its own tileset (optional, otherwise, uses default)
 - all char[] must be replaced by a seek_n that points to the strings file/table
 - two strings file:
     * one they key is a enum and are used in-game

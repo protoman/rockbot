@@ -18,6 +18,11 @@ player_edit::~player_edit()
     delete ui;
 }
 
+void player_edit::reload()
+{
+    fill_players_data();
+}
+
 
 void player_edit::fill_players_data()
 {
@@ -27,6 +32,11 @@ void player_edit::fill_players_data()
 
     _loading = true;
     int index = Mediator::get_instance()->current_player;
+
+
+    std::cout << "graphic_filename: " << Mediator::get_instance()->game_data.players[index].graphic_filename << std::endl;
+
+
     common::fill_graphicfiles_combobox("/images/sprites/", ui->player_graphics_combo);
     ui->players_tab_name->setText(QString(Mediator::get_instance()->game_data.players[index].name));
     ui->players_tab_hp->setValue(Mediator::get_instance()->game_data.players[index].HP);

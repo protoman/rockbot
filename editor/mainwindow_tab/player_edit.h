@@ -15,6 +15,7 @@ class player_edit : public QWidget
 public:
     explicit player_edit(QWidget *parent = 0);
     ~player_edit();
+    void reload();
 
 
 public slots:
