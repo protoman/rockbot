@@ -52,7 +52,6 @@ bool have_save = false;
 #include "timerlib.h"
 #include "soundlib.h"
 #include "game.h"
-#include "scenes/ending.h"
 
 #define MAXPATHLEN 256
 

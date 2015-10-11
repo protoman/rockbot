@@ -1616,7 +1616,7 @@ void graphicsLib::set_video_mode()
 void graphicsLib::preload_images()
 {
 	// explision used in death and bosses
-    std::string filename = FILEPATH + "images/tilesets/explosion_boss.png";
+    std::string filename = FILEPATH + "images/animations/explosion_boss.png";
 	surfaceFromFile(filename, &small_explosion);
 
 	// projectile images
@@ -1629,7 +1629,7 @@ void graphicsLib::preload_images()
 	}
 
 	// bomb explosion
-    filename = FILEPATH + std::string("/images/tilesets/big_boss_explosion.png");
+    filename = FILEPATH + std::string("/images/animations/big_boss_explosion.png");
 	surfaceFromFile(filename, &bomb_explosion_surface);
 
 	// --- ITEMS --- //
@@ -1648,17 +1648,17 @@ void graphicsLib::preload_images()
     filename = FILEPATH + "images/sprites/objects/energy_balancer.png";
 	surfaceFromFile(filename, &energy_balancer);
 
-    filename = FILEPATH + "images/tilesets/explosion_32.png";
+    filename = FILEPATH + "images/animations/explosion_32.png";
 	surfaceFromFile(filename, &explosion32);
-    filename = FILEPATH + "images/tilesets/explosion_16.png";
+    filename = FILEPATH + "images/animations/explosion_16.png";
 	surfaceFromFile(filename, &explosion16);
 
-    filename = FILEPATH + "images/tilesets/dash_dust.png";
+    filename = FILEPATH + "images/animations/dash_dust.png";
 	surfaceFromFile(filename, &dash_dust);
-    filename = FILEPATH + "images/tilesets/hit.png";
+    filename = FILEPATH + "images/animations/hit.png";
 	surfaceFromFile(filename, &hit);
 
-    filename = FILEPATH + "images/tilesets/water_splash.png";
+    filename = FILEPATH + "images/animations/water_splash.png";
 	surfaceFromFile(filename, &water_splash);
 
     filename = FILEPATH + "images/sprites/objects/armor_arms.png";

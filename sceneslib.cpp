@@ -67,97 +67,11 @@ scenesLib::scenesLib() : _timer(0), _state(0)
 // ********************************************************************************************** //
 void scenesLib::preloadScenes() const
 {
-	//graphLib.draw_text(RES_W*0.5-45-graphLib.RES_DIFF_W, RES_H*0.5-15,"LOADING...");
-	preload_stage_select();
 	soundManager.load_boss_music("boss_battle.mod");
 }
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void scenesLib::preload_intro() { /// @TODO: check is memory is being freed, otherwise, use local variables and load on-the-fly
-
-	std::string filename;
-
-    filename = FILEPATH + "images/presents.png";
-    graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PRESENTS]);
-
-    filename = FILEPATH + "images/upperland.png";
-    graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_UPPERLAND]);
-
-    filename = FILEPATH + "images/scenes/city_bg.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_CITY_BG]);
-
-    filename = FILEPATH + "images/sprites/canotus.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_KANOTUS]);
-
-    filename = FILEPATH + "images/sprites/p1.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT]);
-
-    filename = FILEPATH + "images/sprites/p2.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_BETABOT]);
-
-    filename = FILEPATH + "images/scenes/lab_intro1.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_LAB_BG]);
-
-    filename = FILEPATH + "images/logo.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_INTRO_SCREEN]);
-
-    if (game_config.game_finished == true) {
-        filename = FILEPATH + "images/backgrounds/player_select4.png";
-    } else {
-        filename = FILEPATH + "images/backgrounds/player_select.png";
-    }
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_BG]);
-
-    filename = FILEPATH + "images/backgrounds/lights.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_LIGHTS]);
-
-    filename = FILEPATH + "images/backgrounds/capsules.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_CAPSULES]);
-
-    filename = FILEPATH + "images/scenes/rockbot.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG]);
-
-    filename = FILEPATH + "images/scenes/rockbot_half_sleep.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP]);
-
-    filename = FILEPATH + "images/scenes/rockbot_full_sleep.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP]);
-
-    filename = FILEPATH + "images/scenes/betabot.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_BETABOT_BIG]);
-
-    filename = FILEPATH + "images/scenes/kanotus.png";
-	graphLib.surfaceFromFile(filename, &INTRO_SURFACES[INTRO_SURFACES_KANOTUS_BIG]);
-
-	soundManager.load_music("opening.mod");
-
-}
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void scenesLib::preload_stage_select() const {
-	//backgrounds/stage_select.png
-	//backgrounds/stage_select_darkned.png
-	//backgrounds/stage_select_highlighted.png
-	//backgrounds/stage_select_highlighted_yellow.png
-	//backgrounds/stage_select_item.png
-	//backgrounds/stage_boss_intro.png
-}
 
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void scenesLib::unload_intro() {
-	int i;
-
-	for (i=0; i<INTRO_SURFACES_COUNT; i++) {
-		INTRO_SURFACES[i].freeGraphic();
-	}
-}
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -173,299 +87,10 @@ void scenesLib::unload_stage_select() {
 }
 
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void scenesLib::intro()
-{
-    // @todo - BETTER WAY TO HANDLE START/ESC CUTTING SCENE
-    int cut=0;
 
-	preload_intro();
-    intro_presents();
 
-	// do not cut here because we need to load the music
-	graphLib.draw_progressive_text(RES_W*0.5-45-graphLib.RES_DIFF_W, RES_H*0.5-15, "20XX AD.", false);
-	input.waitScapeTime(2000);
-	soundManager.play_music();
 
-    graphLib.blank_screen();
 
-    draw_lib.update_screen();
-
-    graphLib.copyArea(st_rectangle(0,  INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->h-100, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-
-    draw_lib.update_screen();
-
-
-	int line_position_y[] = {140, 155, 170, 185, 200};
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"IN THE YEAR 20XX...", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"STORM RAGES IN TOKYO, WITH EVIL", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"FORCES CAUSING ROBOTS GO BERSEK.", true);
-    if (cut) { return; } cut = input.waitScapeTime(2000); if (cut) { return; }
-
-    cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
-    graphLib.blank_area(0, 120, RES_W, 100);
-
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"IN KYOTO PEACE LASTS,", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"BUT FEAR RAISES WITH", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"RUMORS OF A REBELION.", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[4],"FINALLY, ONE NIGHT...", true);
-    if (cut) { return; } cut = input.waitScapeTime(100); if (cut) { return; }
-
-
-    int posy = INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->h-100;
-    for (int i=0; i<50; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-        draw_lib.update_screen();
-        cut = input.waitScapeTime(10);
-        posy -= 1;
-        if (cut) { return; }
-    }
-
-    graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-
-    graphLib.blank_area(0, 120, RES_W, 100);
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"BATTLE REACHES THE CITY!", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"A HORDE OF EVIL ROBOTS WAGE", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"WAR AND BRING CHAOS!!", true);
-	if (cut) { return; }
-
-    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 2);
-    simple_animation explosion_anim1(FILEPATH+"images/animations/city_explosion_left.png", 5, 40, 51, st_position(90, 60));
-    for (int i=0; i<40; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-        explosion_anim1.execute();
-        draw_lib.update_screen();
-        cut = input.waitScapeTime(10);
-    }
-    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 2);
-    explosion_anim1.set_position(st_position(37, 45));
-    simple_animation explosion_anim2(FILEPATH+"images/animations/city_explosion_right.png", 5, 40, 51, st_position(177, 69));
-    for (int i=0; i<40; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-        explosion_anim1.execute();
-        explosion_anim2.execute();
-        draw_lib.update_screen();
-        cut = input.waitScapeTime(10);
-    }
-
-    for (int i=0; i<50; i++) {
-        graphLib.copyArea(st_rectangle(0,  posy, INTRO_SURFACES[INTRO_SURFACES_CITY_BG].get_surface()->w, 100), st_position(10, 20), &INTRO_SURFACES[INTRO_SURFACES_CITY_BG], &graphLib.gameScreen);
-        draw_lib.update_screen();
-        cut = input.waitScapeTime(10);
-        posy -= 1;
-        if (cut) { return; }
-    }
-
-
-	graphLib.blank_area(0, 120, RES_W, 100);
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"POLICE IS UNABLE TO RESIST,", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"AND WHEN ARMY IS NEAR DEFEAT,", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"A TASKFORCE OF SCIENTISTS", true);
-	if (cut) { return; }
-    cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[3],"IS FORMED TO HELP OUT!", true);
-    if (cut) { return; }
-    cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
-    if (cut) { return; }
-
-
-    graphLib.blank_area(0, 120, RES_W, 100);
-
-	graphLib.blank_screen();
-
-    draw_lib.update_screen();
-
-    graphLib.copyArea(st_rectangle(0, 10, INTRO_SURFACES[INTRO_SURFACES_CAPSULES].width, 90), st_position(60, 20), &INTRO_SURFACES[INTRO_SURFACES_CAPSULES], &graphLib.gameScreen);
-    draw_lib.update_screen();
-    graphLib.draw_progressive_text(10, line_position_y[0],"INSPIRATED BY THE METAL HEROES", true);
-    graphLib.draw_progressive_text(10, line_position_y[1],"FROM TOKYO, A YOUNG PROFESSOR", true);
-    graphLib.draw_progressive_text(10, line_position_y[2],"DECIDES TO CREATE NEW POLICEMEN", true);
-    graphLib.draw_progressive_text(10, line_position_y[3],"MADE OF ELECTRONICS AND STEEL.", true);
-    //graphLib.draw_progressive_text(10, line_position_y[4],"", true);
-
-    cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
-	if (cut) { return; }
-
-    graphLib.blank_screen();
-    graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].get_surface()->w, INTRO_SURFACES[INTRO_SURFACES_LAB_BG].get_surface()->h), st_position(10-graphLib.RES_DIFF_W, 10-graphLib.RES_DIFF_H+13), &INTRO_SURFACES[INTRO_SURFACES_LAB_BG], &graphLib.gameScreen);
-
-	graphLib.copyArea(st_rectangle(0, 0, 21, 24), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);
-
-    draw_lib.update_screen();
-
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"HIS FIRST CREATION IS CALLED", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"BETABUT, BUT IS UNSTABLE.", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"IMPROVING THE PROJECT, HE BUILDS", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(500);
-	if (cut) { return; }
-
-    graphLib.copyArea(st_rectangle(43, 0, 21, INTRO_SURFACES[INTRO_SURFACES_KANOTUS].get_surface()->h), st_position(226-graphLib.RES_DIFF_W, 95), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS], &graphLib.gameScreen);
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[3],"A SECOND ONE, CALLED ROCKBOT.", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[4],"NOW BOTH WILL FIGHT TOGETHER.", true);
-	if (cut) { return; }
-    cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
-	if (cut) { return; }
-
-	graphLib.blank_area(0, 120, RES_W, 120);
-
-	graphLib.clear_area(10, 20, 300, 103, 27, 63, 95);
-	graphLib.copyArea(st_position(220, 57), &INTRO_SURFACES[INTRO_SURFACES_KANOTUS_BIG], &graphLib.gameScreen);
-	graphLib.copyArea(st_position(30, 60), &INTRO_SURFACES[INTRO_SURFACES_BETABOT_BIG], &graphLib.gameScreen);
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-
-	//graphLib.copyArea(st_rectangle(88, 9, 19, 24), st_position(158-graphLib.RES_DIFF_W, 83), &INTRO_SURFACES[INTRO_SURFACES_BETABOT], &graphLib.gameScreen);
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[0],"KYOTO'S SINGLE HOPE AGAINST", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[1],"THE ENEMY ARMY RESIDES ON THE", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[2],"HANDS OF TWO UNEXPERIENCED", true);
-	if (cut) { return; }
-	cut = input.waitScapeTime(100);
-	if (cut) { return; }
-
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[3],"AND UNTESTED ROBOTS...", true);
-    if (cut) { return; }
-    cut = input.waitScapeTime(100);
-    if (cut) { return; }
-
-
-
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(TIME_SHORT);
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(TIME_LONG);
-
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(TIME_LONG);
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(TIME_SHORT);
-
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(TIME_LONG);
-	graphLib.copyArea(st_position(80, 60), &INTRO_SURFACES[INTRO_SURFACES_ROCKBOT_BIG], &graphLib.gameScreen);
-    draw_lib.update_screen();
-	input.waitScapeTime(2000);
-
-
-    cut = graphLib.draw_progressive_text(10, line_position_y[4],"BETABOT AND ROCKBOT!!!", true);
-	if (cut) { return; }
-    cut = input.waitScapeTime(INTRO_DIALOG_DURATION_TIME);
-	if (cut) { return; }
-}
-
-
-
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void scenesLib::intro_presents() {
-
-    graphLib.blank_screen();
-    draw_lib.update_screen();
-
-    st_position logo_pos(RES_W/2 - (INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].width/6)/2, RES_H/2 - INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].height/2);
-    graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_PRESENTS].width, INTRO_SURFACES[INTRO_SURFACES_PRESENTS].height), st_position(RES_W*0.5-INTRO_SURFACES[INTRO_SURFACES_PRESENTS].width*0.5, logo_pos.y + INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].height + 7), &INTRO_SURFACES[INTRO_SURFACES_PRESENTS], &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-
-    //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
-    graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].width/6, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].height), logo_pos, &INTRO_SURFACES[INTRO_SURFACES_UPPERLAND], &graphLib.gameScreen);
-    draw_lib.update_screen();
-    input.waitScapeTime(400);
-    for (int i=1; i<6; i++) {
-        graphLib.copyArea(st_rectangle((INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].width/6)*i, 0, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].width/6, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].height), logo_pos, &INTRO_SURFACES[INTRO_SURFACES_UPPERLAND], &graphLib.gameScreen);
-        draw_lib.update_screen();
-        input.waitScapeTime(30);
-    }
-    graphLib.copyArea(st_rectangle(0, 0, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].width/6, INTRO_SURFACES[INTRO_SURFACES_UPPERLAND].height), logo_pos, &INTRO_SURFACES[INTRO_SURFACES_UPPERLAND], &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-    input.waitScapeTime(1000);
-
-    graphLib.blank_screen();
-
-    graphLib.draw_centered_text(30, "NOTICE", graphLib.gameScreen, st_color(199, 215, 255));
-    int pos_x = 70;
-    graphLib.draw_text(pos_x, 60, "THIS GAME WAS BEEN", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 80, "DEVELOPED BY FANS ", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 100, "OF THE MEGAMAN SERIES", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 120, "AND IS NOT RELATED", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 140, "THE OFFICIAL SERIES", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 160, "ALL MEGAMAN RIGHTS", graphLib.gameScreen);
-    graphLib.draw_text(pos_x, 180, "ARE PROPERTY OF CAPCOM.", graphLib.gameScreen);
-
-    draw_lib.update_screen();
-    input.waitScapeTime(3000);
-
-    graphLib.blank_screen();
-}
 
 
 void scenesLib::draw_main()
@@ -474,7 +99,10 @@ void scenesLib::draw_main()
     draw_lib.update_screen();
 
 	// PARTE 1 - TITLE SCREEN
-	graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &INTRO_SURFACES[INTRO_SURFACES_INTRO_SCREEN], &graphLib.gameScreen);
+    graphicsLib_gSurface intro_screen;
+    std::string intro_path = FILEPATH + "/images/logo.png";
+    graphLib.surfaceFromFile(intro_path, &intro_screen);
+    graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &intro_screen, &graphLib.gameScreen);
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
@@ -552,8 +180,6 @@ void scenesLib::main_screen()
     if (picked_n == 0) {
         game_save.selected_player = select_player();
     }
-	// TODO - select_player();
-
 }
 
 // ********************************************************************************************** //
@@ -1408,7 +1034,14 @@ Uint8 scenesLib::select_player() {
         adjustY = 74;
     }
 
-    graphLib.copyArea(st_position(0, 0), &INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_BG], &graphLib.gameScreen);
+
+    graphicsLib_gSurface bg_surface;
+    std::string filename = FILEPATH + "images/backgrounds/player_select.png";
+    if (game_config.game_finished == true) {
+        filename = FILEPATH + "images/backgrounds/player_select4.png";
+    }
+    graphLib.surfaceFromFile(filename, &bg_surface);
+    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
 	input.clean();
@@ -1435,7 +1068,12 @@ Uint8 scenesLib::select_player() {
         // convert x/y into selected
         selected = x + y*2;
 
-		draw_lights_select_player(INTRO_SURFACES[INTRO_SURFACES_PLAYER_SELECT_LIGHTS], selected, adjustX, adjustY);
+
+        graphicsLib_gSurface lights_surface;
+        std::string filename = FILEPATH + "images/backgrounds/lights.png";
+        graphLib.surfaceFromFile(filename, &lights_surface);
+
+        draw_lights_select_player(lights_surface, selected, adjustX, adjustY);
         input.clean();
         timer.delay(10);
         draw_lib.update_screen();
