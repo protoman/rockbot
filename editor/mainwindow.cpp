@@ -98,7 +98,7 @@ void MainWindow::copy_path(QString src, QString dst)
 {
     src = src.replace(QString("//"), QString("/"));
     dst = dst.replace(QString("//"), QString("/"));
-    std::cout << "MainWindow::copy_path::src: " << src.toStdString() << ", dst: " << dst.toStdString() << std::endl;
+    //std::cout << "MainWindow::copy_path::src: " << src.toStdString() << ", dst: " << dst.toStdString() << std::endl;
     //exit(-1);
     QDir dir(src);
     if (! dir.exists())
@@ -132,6 +132,7 @@ void MainWindow::reload()
     ai_edit_tab->reload();
     npc_edit_tab->reload();
     map_edit_tab->reload();
+    player_edit_tab->reload();
     this->show();
 }
 
@@ -580,6 +581,8 @@ void MainWindow::on_new_game_accepted(QString name)
 
     /// @TODO: copy image files
     Mediator::get_instance()->loadGame();
+
+    reload();
 
     this->show();
 }

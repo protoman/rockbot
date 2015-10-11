@@ -125,6 +125,12 @@ namespace format_v4 {
             graphic_filename[0] = '\0';
             face_filename[0] = '\0';
             HP = 0;
+            sprite_size.width = 29;
+            sprite_size.height = 29;
+            sprite_hit_area.x = 0;
+            sprite_hit_area.y = 0;
+            sprite_hit_area.w = 29;
+            sprite_hit_area.h = 29;
             move_speed = 2.0;
             max_shots = 3;
             simultaneous_shots = 3;
@@ -384,11 +390,14 @@ namespace format_v4 {
         // CONSTRUCTOR //
         file_game() {
             /// *** hardcoded parts *** ///
-            version = 3.00; // file-format version, not game
-            sprintf(name, "%s", "Rockbot");
+            version = 4.00; // file-format version, not game
+            sprintf(name, "%s", "My Game");
             semi_charged_projectile_id = 0;
             player_items[0] = 0;
             player_items[1] = 0;
+
+            std::cout << "%%%%%%%%%%% file_game::CONSTRUCTOR %%%%%%%%%%%" << std::endl;
+
             for (int i=0; i<MAX_STAGES; i++) {
                 stage_face_filename[i][0] = '\0';
             }
@@ -405,11 +414,14 @@ namespace format_v4 {
                 sprintf(projectiles[i].name, "Projectile [%d]", i);
             }
             for (int i=0; i<FS_MAX_PLAYERS; i++) {
+                std::cout << "%%%%%%%%%%% file_game::CONSTRUCTOR::PLAYERS %%%%%%%%%%%" << std::endl;
                 sprintf(players[i].name, "Player [%d]", i);
+                sprintf(players[i].graphic_filename, "%s%d%s", "p", (i+1), ".png");
             }
             for (int i=0; i<FS_MAX_AI_TYPES; i++) {
                 sprintf(ai_types[i].name, "A.I. [%d]", i);
             }
+
         }
     };
 
