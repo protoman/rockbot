@@ -17,11 +17,9 @@ public:
  */
     scenesLib();
     void preloadScenes() const;
-    void intro();
     void draw_main();
     void main_screen();
     short pick_stage();
-    void unload_intro();
     void show_password(); // show the password fot the current save
     void boss_intro(Uint8 pos_n) const;
     void show_destrin_ship_intro() const;
@@ -29,12 +27,9 @@ public:
 
 private:
     // preload/unload
-    void preload_intro();
-    void preload_stage_select() const;
     void preload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)
     void unload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)
     void unload_stage_select();
-    void intro_presents();
     void show_config_video();
     void show_config_video_PSP();
     void show_config_audio();
@@ -49,7 +44,6 @@ private:
 
 
 private:
-    graphicsLib_gSurface INTRO_SURFACES[INTRO_SURFACES_COUNT];
     graphicsLib_gSurface STAGE_SELECT_SURFACES[STAGE_SELECT_COUNT];
     st_position selected_stage;
     graphicsLib_gSurface _password_selector;

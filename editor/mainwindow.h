@@ -18,6 +18,7 @@
 #include "mainwindow_tab/map_tab.h"
 #include "mainwindow_tab/player_edit.h"
 #include "mainwindow_tab/armor_edit.h"
+#include "mainwindow_tab/gamescenes.h"
 #include "scenes/sceneeditorwindow.h"
 #include "aboutwindow.h"
 #include "files_editor/fileseditor.h"
@@ -167,6 +168,7 @@ private:
     map_tab *map_edit_tab;
     player_edit *player_edit_tab;
     armor_edit *armor_edit_tab;
+    GameScenes *game_scenes_tab;
 
     // USED IN NPC TAB
 	std::string _npcedit_tab_graphic;

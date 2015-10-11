@@ -25,12 +25,8 @@ extern soundLib soundManager;
 extern inputLib input;
 
 #include "graphic/option_picker.h"
-
 #include "file/format.h"
-
 #include "defines.h"
-
-#include "scenes/ending.h"
 #include "file/file_io.h"
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
@@ -325,9 +321,10 @@ bool game::showIntro()
 #endif
 
     scenes.preloadScenes();
-    scenes.intro();
+
+    /// @TODO - add scene intro here
+
 	scenes.main_screen();
-    scenes.unload_intro();
 	currentStage = 0;
 
 #ifdef PSP
@@ -1165,9 +1162,8 @@ void game::show_ending(st_position boss_pos)
     players.at(0).set_show_hp(false);
     // reset player colors to original
     players.at(0).set_weapon(0);
-	ending game_ending;
-    game_ending.set_boss_pos(boss_pos);
-	game_ending.start();
+
+    /// @TODO add scene ending
     leave_game = true;
 }
 

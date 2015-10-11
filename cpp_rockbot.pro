@@ -293,7 +293,6 @@ SOURCES += main.cpp \
     file/file_io.cpp \
     character/classboss.cpp \
     graphic/animation.cpp \
-    scenes/ending.cpp \
     colision_detection.cpp \
     character/artificial_inteligence.cpp \
     options/key_map.cpp \
@@ -331,7 +330,6 @@ HEADERS += \
     file/file_io.h \
     character/classboss.h \
     graphic/animation.h \
-    scenes/ending.h \
     colision_detection.h \
     character/artificial_inteligence.h \
     character/st_spriteFrame.h \

@@ -51,11 +51,11 @@ namespace format_v4 {
         Uint8 spawn_npc_n;                                      // number of NPCs that will be spawned
         file_projectile() {
             sprintf(name, "%s", "Projectile");
-            graphic_filename[0] = '\0';
+            sprintf(graphic_filename, "%s", "projectile_normal.png");
             is_destructible = false;
             hp = 1;
-            size.width = 3;
-            size.height = 2;
+            size.width = 6;
+            size.height = 6;
             trajectory = TRAJECTORY_LINEAR;
             max_shots = 3;
             speed = PROJECTILE_DEFAULT_SPEED;

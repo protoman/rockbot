@@ -33,7 +33,7 @@ draw::draw() : _rain_pos(0), _rain_timer(0), _rain_enabled(false), _flash_pos(0)
 
 void draw::preload()
 {
-    std::string filename = FILEPATH + "images/tilesets/ready.png";
+    std::string filename = FILEPATH + "images/animations/ready.png";
     graphLib.surfaceFromFile(filename, &ready_message);
 
     filename = FILEPATH + "images/sprites/teleport_small.png";

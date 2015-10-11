@@ -74,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     armor_edit_tab = new armor_edit();
     ui->armorScrollArea->setWidget(armor_edit_tab);
 
+    game_scenes_tab = new GameScenes();
+    ui->gameScenes_scrollArea->setWidget(game_scenes_tab);
+
     scenes_window = NULL;
 
 }

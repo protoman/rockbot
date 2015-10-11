@@ -164,10 +164,6 @@ void soundLib::load_all_sfx() {
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-    filename = FILEPATH + "sfx/train_chunk.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
-	i++;
-
     filename = FILEPATH + "sfx/skull_castle_intro.wav";
 	sfx_list[SFX_SKULL_CASTLE_INTRO] = Mix_LoadWAV(filename.c_str());
 	i++;

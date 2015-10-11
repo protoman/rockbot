@@ -36,7 +36,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="game_tab">
        <attribute name="title">
@@ -49,6 +49,30 @@
            <bool>true</bool>
           </property>
           <widget class="QWidget" name="GamePropertiesScrollareaContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>828</width>
+             <height>285</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Game Scenes</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="gameScenes_scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_8">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -77,8 +101,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>828</width>
+             <height>285</height>
             </rect>
            </property>
           </widget>
@@ -245,8 +269,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>828</width>
-             <height>285</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
           </widget>
@@ -269,8 +293,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>828</width>
+             <height>285</height>
             </rect>
            </property>
           </widget>
