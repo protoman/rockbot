@@ -4,7 +4,6 @@
 
 SEQUENCE - Ape, Dynamite, Mage, Seahorse, Daisie, Techno, Mummy, Spike (Daisie, Seahorse, Ape x2, Spike)
 
-==>>>> NUNCA, MAIS, MUDAR, FORMATO, DE, ARQUIVO, DE, DADOS. NUNCA!! <<<<==
 
 
 key_n1: 14304, key_n2: 63519, key_n3: 2047
@@ -21,6 +20,7 @@ key_n1: 14304, key_n2: 63519, key_n3: 2047
 - use selected scenes for intro/ending
 
 FILE-FORMAT-V4:
+- both player and enemies must have aprojectile-position that determines his arm/cannon position, so we can fire attack from the position.
 - each stage can have its own tileset (optional, otherwise, uses default)
 - all char[] must be replaced by a seek_n that points to the strings file/table
 - two strings file:
