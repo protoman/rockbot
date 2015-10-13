@@ -32,6 +32,13 @@ FILE-FORMAT-V4:
 
 OK - check if stage have the autoscroll flag
 
+- port to GCW:
+    * http://www.gcw-zero.com/news.php?id=13
+
+
+Inspirations:
+http://www23.atwiki.jp/rockmanforte/pages/21.html
+
 -------------------------------------------------------------------------------
                                  DONE:
 -------------------------------------------------------------------------------
