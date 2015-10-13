@@ -23,6 +23,7 @@ public:
     fio_strings();
     std::string get_ingame_string(int n);
     std::vector<std::string> load_game_strings();
+    void save_game_strings(std::vector<std::string> list);
 
 private:
 

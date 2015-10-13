@@ -53,6 +53,23 @@ namespace format_v4 {
         return res;
     }
 
+    void fio_strings::save_game_strings(std::vector<std::string> list)
+    {
+        std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
+        FILE *fp = fopen(filename.c_str(), "wb");
+        if (!fp) {
+            std::cout << ">> fio_strings::save_game_strings: Could not open '" << filename << "' for writting." << std::endl;
+            return;
+        }
+
+        int block_size = sizeof(st_strings_line);
+        for (int i=0; i<list.size(); i++) {
+            fwrite(list.at(i).c_str(), block_size, 1, fp);
+        }
+        fclose(fp);
+
+    }
+
     bool format_v4::fio_strings::file_exists(std::string filename) const
     {
         bool res = false;
@@ -84,8 +101,8 @@ namespace format_v4 {
             return;
         }
 
+        int block_size = sizeof(st_strings_line);
         for (int i=0; i<strings_ingame_COUNT; i++) {
-            int block_size = sizeof(st_strings_line);
             fwrite(&lines[i], block_size, 1, fp);
         }
         fclose(fp);

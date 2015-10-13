@@ -18,14 +18,16 @@ class StringsEditor : public QDialog
 public:
     explicit StringsEditor(QWidget *parent = 0);
     ~StringsEditor();
+    void save_data();
 
-private slots:
-    void on_text_changed(int n, QString value);
+public slots:
+    void on_text_changed(int n);
 
 private:
     Ui::StringsEditor *ui;
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     QSignalMapper signal_mapper;
+    std::vector<std::string> string_list;
 };
 
 #endif // STRINGSEDITOR_H
