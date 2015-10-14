@@ -44,7 +44,7 @@ private slots:
     void on_h_spinBox_valueChanged(int arg1);
 
 public slots:
-    void pick_color_slot();
+    void pick_color_slot(QColor color);
 
 
 private:

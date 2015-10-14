@@ -399,8 +399,6 @@ namespace format_v4 {
             player_items[0] = 0;
             player_items[1] = 0;
 
-            std::cout << "%%%%%%%%%%% file_game::CONSTRUCTOR %%%%%%%%%%%" << std::endl;
-
             for (int i=0; i<MAX_STAGES; i++) {
                 stage_face_filename[i][0] = '\0';
             }
@@ -417,7 +415,6 @@ namespace format_v4 {
                 sprintf(projectiles[i].name, "Projectile [%d]", i);
             }
             for (int i=0; i<FS_MAX_PLAYERS; i++) {
-                std::cout << "%%%%%%%%%%% file_game::CONSTRUCTOR::PLAYERS %%%%%%%%%%%" << std::endl;
                 sprintf(players[i].name, "Player [%d]", i);
                 sprintf(players[i].graphic_filename, "%s%d%s", "p", (i+1), ".png");
             }

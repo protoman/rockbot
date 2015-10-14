@@ -51,7 +51,6 @@ stage_edit::~stage_edit()
 void stage_edit::reload()
 {
     Mediator::get_instance()->currentStage = INTRO_STAGE;
-    std::cout << "#A - STAGE_N: " << Mediator::get_instance()->currentStage << std::endl;
     fill_stage_tab_data();
 }
 
@@ -62,7 +61,6 @@ void stage_edit::fill_stage_tab_data()
     if (FILEPATH.length() == 0) {
         return;
     }
-    std::cout << "#B - STAGE_N: " << Mediator::get_instance()->currentStage << std::endl;
     _data_loading = true;
     QListWidgetItem item_empty;
     item_empty.setText("");
@@ -101,7 +99,6 @@ void stage_edit::update_stage_data()
     if (Mediator::get_instance()->currentStage < 0) {
         return;
     }
-    std::cout << "#1 - STAGE_N: " << Mediator::get_instance()->currentStage << std::endl;
 
 	// SET ITEMS
     ui->stages_tab_stage_name_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].name);
@@ -169,7 +166,6 @@ void stage_edit::update_stage_data()
 void stage_edit::on_stages_tab_stage_combo_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
-    std::cout << "#2 - STAGE_N: " << index << std::endl;
     Mediator::get_instance()->currentStage = index;
 	update_stage_data();
 }

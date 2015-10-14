@@ -11,6 +11,7 @@ namespace format_v4 {
         Uint8 lifes;
         Uint8 bolts;
         Uint8 weapons[WEAPON_COUNT];
+
         // items that can be bought on shop
         bool exit;                                              // leave a completed stage
         bool shock_guard;                                       // do not move back when hit
@@ -55,7 +56,6 @@ namespace format_v4 {
         Sint8 difficulty;                                              // 0 - easy, 1 - normal, 2 - hard
         Sint8 defeated_enemies_count;                                  // number of defeated enemies
         bool used_countinue;
-        // NEW VALUES V3
         bool armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
 
         st_save() {

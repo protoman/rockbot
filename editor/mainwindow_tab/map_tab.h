@@ -2,7 +2,6 @@
 #define MAP_TAB_H
 
 #include <QWidget>
-#include "dialog_pick_color.h"
 
 namespace Ui {
 class map_tab;

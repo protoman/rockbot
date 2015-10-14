@@ -42,6 +42,7 @@
 std::string GAMEPATH; // path without DATA/GAMES
 std::string FILEPATH; // path including game-data dir
 std::string SAVEPATH;
+std::string GAMENAME; // the gamename, part of path
 SDL_Event event;
 bool have_save = false;
 
@@ -455,9 +456,8 @@ int main(int argc, char *argv[])
         _mkdir(SAVEPATH.c_str());
     #elif DREAMCAST
         SAVEPATH = "/vmu/a1";
-
     #else
-        SAVEPATH = FILEPATH;
+        SAVEPATH = GAMEPATH;
     #endif
 
 
@@ -469,20 +469,20 @@ int main(int argc, char *argv[])
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
-        printf("ERROR intializing graphic\n");
+        std::cout << "ERROR intializing graphic mode." << std::endl;
         return -1;
     }
 
 
-    std::string selected_game = gameControl.select_game_screen();
-    if (selected_game == "") {
+    GAMENAME = gameControl.select_game_screen();
+    if (GAMENAME == "") {
         graphLib.draw_text(20, 20, "Rockbot Engine Error:");
         graphLib.draw_text(20, 32, "No games available");
         input.wait_keypress();
         SDL_Quit();
         return 0;
     }
-    FILEPATH += std::string("/") + selected_game;
+    FILEPATH += std::string("/") + GAMENAME;
 
 	fio.read_game(game_data);
 
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
         // --- REDIRECT STDOUT TO A FILE --- //
         #if defined(PSP) || defined(WII) || defined(ANDROID) || defined(DINGUX) || defined(PLAYSTATION2)
             //std::string cout_file = SAVEPATH + "/stdout.txt";
-            std::string cout_file = FILEPATH + "/stdout.txt";
+            std::string cout_file = GAMEPATH + "/stdout.txt";
             std::streambuf *coutbuf = std::cout.rdbuf();
             std::ofstream out(cout_file.c_str());
             std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!

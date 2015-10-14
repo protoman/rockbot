@@ -53,7 +53,6 @@ void object_tab::on_objectlist_combo_currentIndexChanged(int index)
 	}
 	_current_object = index;
     ui->name->setText(Mediator::get_instance()->game_data.objects[index].name);
-    std::cout << "#2 (change combo) Mediator::get_instance()->game_data.objects[" << index << "].graphic_filename: " << Mediator::get_instance()->game_data.objects[index].graphic_filename << std::endl;
     ui->graphicfile_combo->setCurrentIndex(ui->graphicfile_combo->findText(QString(Mediator::get_instance()->game_data.objects[index].graphic_filename)));
     ui->graphic_w->setValue(Mediator::get_instance()->game_data.objects[index].size.width);
     ui->graphic_h->setValue(Mediator::get_instance()->game_data.objects[index].size.height);

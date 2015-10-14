@@ -29,6 +29,7 @@ signals:
 private:
     Ui::NewGameDialog *ui;
     QString game_name;
+    bool data_loading;
 };
 
 #endif // NEWGAMEDIALOG_H

@@ -21,8 +21,8 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
-#define PLAYER_MOVE_SPEED_INT_PART 2 // higher is faster
-#define PLAYER_MOVE_SPEED_FLOAT_PART 4 // lower is faster
+#define PLAYER_MOVE_SPEED_INT_PART 1 // higher is faster
+#define PLAYER_MOVE_SPEED_FLOAT_PART 1 // lower is faster
 
 
 #include "classmap.h"
@@ -34,7 +34,7 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
 {
     _number = playerNumber;
     if (_number == 3 || _number == 0) {
-        _obj_jump.set_jump_acceleration(0.95);
+        //_obj_jump.set_jump_acceleration(0.95);
         _obj_jump.set_jump_limit(50);
     }
 	max_projectiles = game_data.players[_number].max_shots;
@@ -75,11 +75,11 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
 
 void classPlayer::init_weapon_colors()
 {
-    color_keys[0] = graphLib.getColorNumber(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
-    color_keys[1] = graphLib.getColorNumber(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
-    color_keys[2] = graphLib.getColorNumber(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
+    color_keys[0] = st_color(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
+    color_keys[1] = st_color(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
+    color_keys[2] = st_color(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
 
-	for (int i=0; i<MAX_WEAPON_N; i++) {
+    for (int i=0; i<MAX_WEAPON_N; i++) {
 		weapon_colors[i] = game_data.players[_number].weapon_colors[i];
 	}
 }

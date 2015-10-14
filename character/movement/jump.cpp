@@ -2,12 +2,13 @@
 #include <cmath>
 #include "jump.h"
 
-#define JUMP_INITIAL_SPEED 11
+#define JUMP_INITIAL_SPEED 8
 
 
 classjump::classjump() : started(false)
 {
-    JUMP_ACCELERATION = 1.001;
+    //JUMP_ACCELERATION = 1.001;
+    JUMP_ACCELERATION = 0.4;
     JUMP_LIMIT = (TILESIZE*3)-6;
     state = NOJUMP;
     jumps_number = 0;
@@ -15,12 +16,6 @@ classjump::classjump() : started(false)
 
 void classjump::start(bool bigjump_mode)
 {
-    /*
-    if (started == true) {
-        std::cout << "ERROR::jump::start - can't start jumping unless you have double-jump" << std::endl;
-        return;
-    }
-    */
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -29,6 +24,7 @@ void classjump::start(bool bigjump_mode)
     } else {
         acceleration = JUMP_ACCELERATION;
     }
+    std::cout << "classjump::START - acceleration[" << acceleration << "]" << std::endl;
     jumps_number++;
     speed = -JUMP_INITIAL_SPEED;
     moved = 0;
@@ -45,10 +41,10 @@ void classjump::execute()
         //std::cout << "ERROR::jump::execute - trying to jump but not started" << std::endl;
         return;
     }
-    //std::cout << "classjump::execute - speed.pre[" << speed << "]";
+    std::cout << "classjump::execute - speed.pre[" << speed << "]";
     speed += acceleration;
     moved += std::abs((double)speed);
-    //std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
+    std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {

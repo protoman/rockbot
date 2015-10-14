@@ -5,7 +5,6 @@
 #include "dialognpcedit.h"
 #include "dialogobjectedit.h"
 #include "loadgamepicker.h"
-#include "dialog_pick_color.h"
 #include "stage_swap_dialog.h"
 #include "newgamedialog.h"
 
@@ -270,59 +269,13 @@ void MainWindow::on_npc_direction_combo_currentIndexChanged(int index)
 
 
 
-void MainWindow::on_pushButton_2_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color1()));
-}
 
-
-
-void MainWindow::on_pushButton_7_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_keycolor1()));
-}
-
-void MainWindow::on_pushButton_8_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_keycolor2()));
-}
-
-void MainWindow::on_pushButton_9_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_keycolor3()));
-}
 
 
 void MainWindow::on_comboBox_6_currentIndexChanged(int index)
 {
     Mediator::get_instance()->current_player = index;
 }
-
-void MainWindow::on_pushButton_3_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color2()));
-}
-
-void MainWindow::on_pushButton_4_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color3()));
-}
-
-
-
-
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
@@ -383,12 +336,6 @@ void MainWindow::on_bg2_speed_valueChanged(int arg1)
     map_edit_tab->update_edit_area();
 }
 
-void MainWindow::on_bg_color_pick_clicked()
-{
-	QDialog *color_pick = new dialog_pick_color;
-	color_pick->show();
-	QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_bg_color()));
-}
 
 void MainWindow::on_checkBox_2_clicked(bool checked)
 {

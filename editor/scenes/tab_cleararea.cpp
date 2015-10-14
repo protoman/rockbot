@@ -1,8 +1,8 @@
 #include "tab_cleararea.h"
 #include "ui_tab_cleararea.h"
-
 #include "mediator.h"
-#include "dialog_pick_color.h"
+
+#include <QColorDialog>
 
 TabClearArea::TabClearArea(QWidget *parent) :
     QWidget(parent),
@@ -89,12 +89,13 @@ void TabClearArea::on_select_comboBox_currentIndexChanged(int index)
 
 void TabClearArea::on_color_pushButton_clicked()
 {
-    QDialog *color_pick = new dialog_pick_color();
-    color_pick->show();
-    QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_color_slot()));
+
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_color_slot(QColor)));
+    colorDialog->show();
 }
 
-void TabClearArea::pick_color_slot()
+void TabClearArea::pick_color_slot(QColor color)
 {
     if (data_loading == true) { return; }
     if (Mediator::get_instance()->picked_color_n != -1) {

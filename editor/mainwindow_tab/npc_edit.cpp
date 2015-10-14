@@ -125,7 +125,6 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
         ui->checkBox->setChecked(true);
     }
 
-    std::cout << "NPC: " << Mediator::get_instance()->current_npc_n << ", hit_area - x: " << Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x << ", y: " << Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y << ", w: " << Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w << ", h: " << Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h << std::endl;
     ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x);
     ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y);
     ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
@@ -139,11 +138,9 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 void npc_edit::on_npc_edit_tab_graphiccombo_currentIndexChanged(const QString &arg1)
 {
 	if (_data_loading) {
-        //std::cout << "\\\\\\\\\\\ on_npc_edit_tab_graphiccombo_currentIndexChanged /////////////" << std::endl;
 		return;
 	}
     sprintf(Mediator::get_instance()->game_data.game_npcs[_npcedit_tab_selectednpc].graphic_filename, "%s", arg1.toStdString().c_str());
-    std::cout << "npc[" << _npcedit_tab_selectednpc << "].graphic_filename: " << Mediator::get_instance()->game_data.game_npcs[_npcedit_tab_selectednpc].graphic_filename << std::endl;
     ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
     ui->npc_edit_tab_previewarea->repaint();
 }
@@ -157,7 +154,6 @@ void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
         ui->hitarea_w_spinBox->setValue(arg1);
 
         if (Mediator::get_instance()->game_data.game_npcs[_npcedit_tab_selectednpc].frame_size.width == Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w) {
-            std::cout << "### SET collistion W" << std::endl;
             Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_npc_n].sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w = arg1;
         }
         ui->npc_edit_tab_previewarea->update();

@@ -11,6 +11,7 @@
 extern std::string FILEPATH;
 extern std::string SAVEPATH;
 extern std::string GAMEPATH;
+extern std::string GAMENAME;
 
 
 // ************************************************************************************************************* //
@@ -250,9 +251,6 @@ namespace format_v4 {
             std::cout << ">>file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-
-
-        std::cout << "version: " << data_out.version << ", name: '" << data_out.name << "', semi_charged_projectile_id: " << (int)data_out.semi_charged_projectile_id << std::endl;
 
         fclose(fp);
 
@@ -535,7 +533,7 @@ namespace format_v4 {
 
     bool file_io::save_exists() const
     {
-        std::string filename = std::string(SAVEPATH) + "/game_v301.sav";
+        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = clean_filename(filename);
         std::ifstream fp(filename.c_str());
         if (fp.good()) {
@@ -547,7 +545,7 @@ namespace format_v4 {
     void file_io::load_config(format_v4::st_game_config& config)
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/config_v301.sav";
+        std::string filename = std::string(SAVEPATH) + "/config.sav";
         filename = clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -575,7 +573,7 @@ namespace format_v4 {
     void file_io::save_config(st_game_config &config) const
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/config_v301.sav";
+        std::string filename = std::string(SAVEPATH) + "/config.sav";
         filename = clean_filename(filename);
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
@@ -589,7 +587,7 @@ namespace format_v4 {
     void file_io::read_save(format_v4::st_save& data_out) const
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/game_v301.sav";
+        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -652,7 +650,7 @@ namespace format_v4 {
     bool file_io::write_save(format_v4::st_save& data_in)
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/game_v301.sav";
+        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = clean_filename(filename);
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {

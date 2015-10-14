@@ -1,7 +1,6 @@
 #include "player_edit.h"
 #include "ui_player_edit.h"
 #include "common.h"
-#include "dialog_pick_color.h"
 
 #include <QColorDialog>
 
@@ -34,9 +33,6 @@ void player_edit::fill_players_data()
 
     _loading = true;
     int index = Mediator::get_instance()->current_player;
-
-
-    std::cout << "graphic_filename: " << Mediator::get_instance()->game_data.players[index].graphic_filename << std::endl;
 
 
     common::fill_graphicfiles_combobox("/images/sprites/", ui->player_graphics_combo);

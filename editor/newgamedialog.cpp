@@ -10,6 +10,7 @@ NewGameDialog::NewGameDialog(QWidget *parent) :
     ui(new Ui::NewGameDialog)
 {
     ui->setupUi(this);
+    data_loading = false;
     ui->buttonBox->setEnabled(false);
 }
 
@@ -26,6 +27,7 @@ bool NewGameDialog::game_folder_exists(QString name)
 
 void NewGameDialog::on_gameName_lineEdit_textChanged(const QString &arg1)
 {
+    if (data_loading) { return; }
     game_name = arg1;
     game_name.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_—+=|:;<>«»,.?/{}\'\"\\\[\\\]\\\\]")));
     if (game_name.size() < 5) {
@@ -38,6 +40,11 @@ void NewGameDialog::on_gameName_lineEdit_textChanged(const QString &arg1)
         ui->error_label->setText("");
         ui->buttonBox->setEnabled(true);
     }
+    game_name = game_name.remove(" ");
+    data_loading = true;
+    ui->gameName_lineEdit->setText(game_name);
+    data_loading = false;
+
 }
 
 void NewGameDialog::on_buttonBox_accepted()

@@ -82,19 +82,7 @@ public slots:
     void on_actionSave_triggered();
     void on_actionQuit_triggered();
 
-	void on_pushButton_2_clicked();
-
-	void on_pushButton_7_clicked();
-
-	void on_pushButton_8_clicked();
-
-	void on_pushButton_9_clicked();
-
 	void on_comboBox_6_currentIndexChanged(int index);
-
-	void on_pushButton_3_clicked();
-
-	void on_pushButton_4_clicked();
 
 	void on_tabWidget_currentChanged(int index);
 
@@ -111,8 +99,6 @@ public slots:
 	void on_bg1_speed_valueChanged(int arg1);
 
 	void on_bg2_speed_valueChanged(int arg1);
-
-	void on_bg_color_pick_clicked();
 
 	void on_checkBox_2_clicked(bool checked);
 

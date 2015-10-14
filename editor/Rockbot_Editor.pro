@@ -179,7 +179,6 @@ FORMS += mainwindow.ui \
     loadgamepicker.ui \
     dialognpcedit.ui \
     dialogobjectedit.ui \
-	dialog_pick_color.ui \
     mainwindow_tab/npc_edit.ui \
     mainwindow_tab/object_tab.ui \
     mainwindow_tab/weapon_edit.ui \
