@@ -853,6 +853,29 @@ enum E_STRINGS_INGAME {
     strings_ingame_config,
     strings_ingame_about,
     strings_ingame_password,
+    strings_ingame_gameover,
+    strings_ingame_and,
+    strings_ingame_selectgame,
+    strings_ingame_savegameerror1,
+    strings_ingame_savegameerror2,
+    strings_ingame_savegameerror3,
+    strings_ingame_copyrightline,
+    strings_ingame_audio,
+    strings_ingame_input,
+    strings_ingame_video,
+    strings_ingame_leavestage,
+
+
+    strings_ingame_video_windowed,
+    strings_ingame_video_fullscreen,
+    strings_ingame_video_noscale,
+    strings_ingame_video_size2x,
+    strings_ingame_video_scale2x,
+    strings_ingame_config_restart1,
+    strings_ingame_config_restart2,
+    strings_ingame_config_restart3,
+    strings_ingame_config_presstorestart,
+
 
 
     strings_ingame_COUNT

@@ -29,6 +29,8 @@ extern inputLib input;
 #include "defines.h"
 #include "file/file_io.h"
 
+#include "strings_map.h"
+
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::file_io fio;
@@ -78,7 +80,7 @@ void game::initGame()
 	stringstream player_name;
     player_name << "p" << game_save.selected_player;
     players.push_back(classPlayer(player_name.str(), game_save.selected_player));
-    // @TODO - optimixzation: make this uneeded
+    /// @TODO - optimization: make this uneeded
     // always insert all possible players, as it is used in cutscenes and such
     for (int i=0; i<FS_MAX_PLAYERS; i++) {
         if (i != game_save.selected_player) {
@@ -168,9 +170,6 @@ st_position game::checkScrolling()
     st_position mapScroll = loaded_stage->getMapScrolling();
     st_position p1Pos(players.at(0).getPosition().x,  players.at(0).getPosition().y);
 
-	//cout << "game::checkScrolling - p1Pos.x: " << p1Pos.x << ", mapScroll.x: " << mapScroll.x << ", RES_W/2: " << RES_W/2 << "\n";
-
-
 	move.x += (p1Pos.x - mapScroll.x) - RES_W/2;
 
 	if (mapScroll.x + move.x < 0 || mapScroll.x + move.x > MAP_W*TILESIZE) {
@@ -191,7 +190,7 @@ void game::start_stage()
     loaded_stage->reset_current_map();
 
 
-	// TODO - this must be on a single method in soundlib
+    /// @TODO - this must be on a single method in soundlib
 	players.at(0).set_position(st_position(80, -TILESIZE));
 
 	soundManager.stop_music();
@@ -251,23 +250,6 @@ void game::show_ready() const
     }
 }
 
-
-/*
-void graphicsLib::show_ready()
-{
-    st_position dest_pos((RES_W/2)-26, (RES_H/2)-6);
-
-    for (int i=0; i<4; i++) {
-        copyArea(dest_pos, &ready_message, &gameScreen);
-        updateScreen();
-        timer.delay(400);
-
-        updateScreen();
-        timer.delay(400);
-    }
-}
-*/
-
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -289,7 +271,6 @@ void game::restart_stage()
     soundManager.load_stage_music(stage_data.bgmusic_filename);
 	players.at(0).clean_projectiles();
 	players.at(0).set_animation_type(ANIM_TYPE_TELEPORT);
-    std::cout << ">> checkpoint..x: " << checkpoint.x << ", checkpoint.y: " << checkpoint.y << std::endl;
 
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
@@ -333,7 +314,6 @@ bool game::showIntro()
 
 
 	initGame();
-    //std::cout << "game::showIntro - game_save.stages[INTRO_STAGE]: " << game_save.stages[INTRO_STAGE] << std::endl;
 	if (game_save.stages[INTRO_STAGE] == 0) {
 		input.clean();
 		start_stage();
@@ -348,7 +328,6 @@ bool game::showIntro()
         }
 		start_stage();
 	}
-    //std::cout << "game::showIntro - selected_stage.x: " << selected_stage.x << ", selected_stage.y: " << selected_stage.y << ", currentStage: " << currentStage << std::endl;
 
 #ifdef PSP
     std::cout << "showIntro::RAM::STAGE_LOADED='" << _ram_counter.ramAvailable() << "'" << std::endl;
@@ -461,10 +440,6 @@ bool game::test_teleport(classPlayer *test_player) {
                 }
             }
 
-            //std::cout << "GAME::test_teleport - found a LINK for this map" << std::endl;
-
-            //std::cout << "LINK[" << j << "] - px: " << px << ", lim1: " << lim1 << ", lim2: " << lim2 << ", py: " << py << ", lim3: " << lim3 << ", lim4: " << lim4 << std::endl;
-
 			if ((px >= lim1 && px <= lim2) && ((py > lim3 && py < lim4))) {
 
 				if (test_player->get_teleporter() == -1) {
@@ -473,7 +448,6 @@ bool game::test_teleport(classPlayer *test_player) {
                     if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_BOSS_TELEPORTER && (transition_type == TRANSITION_TOP_TO_BOTTOM || transition_type == TRANSITION_BOTTOM_TO_TOP)) {
 						short int p_posy = test_player->getPosition().y;
                         if (p_posy > 0 && p_posy+test_player->get_size().height < RES_H-4) {
-                            //std::cout << "GAME::test_teleport - player position is not out-of-screen - t1: " << (p_posy+test_player->get_size().height) << " < t2: " << (RES_H-4) << std::endl;
                             i++;
 							continue;
 						}
@@ -511,10 +485,6 @@ bool game::test_teleport(classPlayer *test_player) {
 
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
-    // --------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // TODO - define according to the condition, try to maintain it
-    //playerObj->sprite->anim_type = ANIM_STAIRS;
-    // --------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>
     int dest_x = (player_x*TILESIZE) - temp_stage->getMapScrolling().x;
 
 
@@ -526,15 +496,9 @@ bool game::test_teleport(classPlayer *test_player) {
        dest_x = 0;
     }
 
-    //std::cout << ">>>>>>>>>>>> TELEPORT - temp_map_n: " << temp_map_n << ", dest_x: " << dest_x << " <<<<<<<<<<<<" << std::endl;
-
 
     // must move the map, so that the dest position in screen is equal to player_real_pos_x
     int new_map_pos_x;
-    //int playerRealXPos = test_player->getPosition().x + temp_stage->getMapScrolling().x;
-
-    //new_map_pos_x = ((player_x*TILESIZE)) - playerRealXPos + teleporter_dist;
-    //std::cout << "game::test_teleport - playerRealXPos: " << playerRealXPos << ", teleporter_dist: " << teleporter_dist << ", link.dest.x: " << player_x << std::endl;
     new_map_pos_x = temp_stage->getMapScrolling().x - teleporter_dist;
     if (new_map_pos_x < 0) {
        new_map_pos_x = 0;
@@ -549,11 +513,7 @@ bool game::test_teleport(classPlayer *test_player) {
     }
     new_map_pos_x -= diff_h +2;
 
-    //std::cout << "******************* game::test_teleport - teleporter_dist: " << teleporter_dist << ", new_map_pos_x: " << new_map_pos_x << std::endl;
-
-
     if (link_type == LINK_TELEPORTER || link_type == LINK_BOSS_TELEPORTER) {
-        //std::cout << "<<<<<<<<<<<< TELEPORTER LINK >>>>>>>>>>>>>>" << std::endl;
         test_player->teleport_out();
         graphLib.blank_screen();
         draw_lib.update_screen();
@@ -561,7 +521,6 @@ bool game::test_teleport(classPlayer *test_player) {
         currentMap = temp_map_n;
         new_map_pos_x = (stage_data.links[j].pos_destiny.x * TILESIZE) - TILESIZE*2;
     } else {
-        //std::cout << "<<<<<<<<<<<< TRANSITION LINK >>>>>>>>>>>>>>" << std::endl;
         transitionScreen(transition_type, temp_map_n, new_map_pos_x, test_player);
     }
 
@@ -570,7 +529,6 @@ bool game::test_teleport(classPlayer *test_player) {
 
     if (link_type == LINK_TELEPORTER || link_type == LINK_BOSS_TELEPORTER) {
         int new_scroll_pos = loaded_stage->get_first_lock_on_left(stage_data.links[j].pos_destiny.x);
-        //std::cout << ">>>>>>>>>> teleporter.new_scroll_pos: " << new_scroll_pos << std::endl;
         loaded_stage->set_scrolling(st_position(new_scroll_pos, temp_stage->getMapScrolling().y));
         test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
     } else {
@@ -589,20 +547,14 @@ bool game::test_teleport(classPlayer *test_player) {
 
 void game::set_current_map(int temp_map_n)
 {
-	//std::cout << "game::set_current_map - temp_map_n: " << temp_map_n << std::endl;
     loaded_stage->set_current_map(temp_map_n);
     loaded_stage->reset_current_map_objects();
     players.at(0).set_map(loaded_stage->get_current_map());
 
     if (loaded_stage->get_current_map() != players.at(0).map) {
-		std::cout << ">>>>>>>>>>>>>> ERROR" << std::endl;
         graphLib.show_debug_msg("EXIT #03");
 		exit(-1);
 	}
-
-/*
-loaded_stage->get_current_map() != players.at(0).map
-*/
 }
 
 Uint8 game::get_current_map() const
@@ -613,7 +565,6 @@ Uint8 game::get_current_map() const
 
 void game::map_present_boss(bool show_dialog)
 {
-    std::cout << "game::map_present_boss::START" << std::endl;
 	is_showing_boss_intro = true;
 
     soundManager.stop_music();
@@ -624,12 +575,10 @@ void game::map_present_boss(bool show_dialog)
 	players.at(0).clear_move_commands();
 	bool loop_run = true;
 	while (loop_run == true) {
-        //std::cout << "game::map_present_boss::LOOP #1" << std::endl;
         loaded_stage->showStage();
 		players.at(0).charMove();
         bool hit_ground = players.at(0).hit_ground();
         int anim_type = players.at(0).get_anim_type();
-        //std::cout << "game::map_present_boss - hit_ground: " << hit_ground << ", anim_type: " << anim_type << std::endl;
         if (hit_ground == true && anim_type == ANIM_TYPE_STAND) {
 			loop_run = false;
 		}
@@ -645,8 +594,6 @@ void game::map_present_boss(bool show_dialog)
 	// 3. move boss from top to ground
 	loop_run = true;
 	while (loop_run == true) {
-        //std::cout << "game::map_present_boss::LOOP #2" << std::endl;
-        //std::cout << ">> game::boss_intro - waiting for hit_ground... <<" << std::endl;
         if (loaded_stage->boss_hit_ground() == true) {
 			loop_run = false;
 		}
@@ -660,23 +607,17 @@ void game::map_present_boss(bool show_dialog)
         if (strlen(stage_data.boss_dialog.line1[0]) > 0 && game_save.stages[currentStage] == 0) {
 			dialogs boss_dialog;
             boss_dialog.show_boss_dialog();
-            //std::cout << "PSP DEBUG - #A" << std::endl;
 		}
-        //std::cout << "PSP DEBUG - #B" << std::endl;
 	}
 
 
 	show_stage(8, false);
 
-    std::cout << "game::map_present_boss::PASS #1" << std::endl;
 
-    //std::cout << "PSP DEBUG - #1" << std::endl;
 	fill_boss_hp_bar();
-    //std::cout << "PSP DEBUG - #2" << std::endl;
 	_show_boss_hp = true;
 	is_showing_boss_intro = false;
 
-    //std::cout << "PSP DEBUG - #3" << std::endl;
 }
 
 character *game::get_player()
@@ -692,7 +633,6 @@ object* game::get_player_platform()
 void game::check_player_return_teleport()
 {
 	if (is_player_on_teleporter() == true) {
-		std::cout << ">>>>>>> RETURN from teleporter <<<<<<<<<" << std::endl;
         finish_player_teleporter();
     }
 }
@@ -704,7 +644,6 @@ bool game::must_show_boss_hp() const
 
 void game::fill_boss_hp_bar() const
 {
-	//soundManager.play_repeated_sfx(SFX_GOT_ENERGY, 5);
 	soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
 	for (int i=0; i<PLAYER_INITIAL_HP; i++) {
 		graphLib.draw_hp_bar(i, -1, -1);
@@ -773,22 +712,12 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
     temp_map->set_bg2_scroll(loaded_stage->get_current_map()->get_bg2_scroll());
     temp_map->set_scrolling(st_position(adjust_x, 0));
 
-    /*
-    if (type == TRANSITION_TOP_TO_BOTTOM) {
-        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, RES_H);
-    } else {
-        temp_map->draw_dynamic_backgrounds_into_surface(temp_screen, 0);
-    }
-    */
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
 	// draw map in the screen, erasing all players/objects/npcs
     loaded_stage->showStage();
 
-	//std::cout << "transitionScreen::START - p.x: " << pObj->getPosition().x << ", p.y: " << pObj->getPosition().y << std::endl;
-
     // draw the offscreen with the new loaded map
-
 	if (type == TRANSITION_TOP_TO_BOTTOM || type == TRANSITION_BOTTOM_TO_TOP) {
         // copy current screen to temp
 		if (type == TRANSITION_TOP_TO_BOTTOM) {
@@ -869,8 +798,6 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
 	pObj->char_update_real_position();
     timer.unpause();
 
-    //std::cout << "transitionScreen::END" << std::endl;
-
 }
 
 
@@ -895,7 +822,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 
         // if there is a subboss alive, near left, you can't open
         if (subboss_alive_on_left(tileX) == true) {
-            std::cout << "Oh não! Porta não pode ser aberta porque existe um sub-boss vivo à esquerda dela!" << std::endl;
+            std::cout << "[ERROR]: Oh no! Door can't be open because there is an alive sub-boss on its left side." << std::endl;
             return;
         }
 
@@ -922,7 +849,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 
 
 	int move_limit = (RES_W/abs((float)scroll_move.x))-TILESIZE/abs((float)scroll_move.x);
-	//int move_limit = (RES_W/abs((float)scroll_move.x));
 	for (int i=0; i<move_limit; i++) {
         loaded_stage->changeScrolling(scroll_move, false);
         loaded_stage->showStage();
@@ -944,7 +870,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         players.at(0).reset_charging_shot();
         players.at(0).cancel_slide();
     }
-    std::cout << "horizontal_screen_move END" << std::endl;
 	input.waitTime(6);
     timer.unpause();
     loaded_stage->showStage();
@@ -961,9 +886,7 @@ void game::got_weapon()
 		game_save.finished_stages++;
     }
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE]; // store old value in order to not set the flag to false if it is on my command-line parameter
-    //std::cout << "**** SAVE#1::invencible_old_value: " << invencible_old_value << ", GAME_FLAGS[FLAG_INVENCIBLE]: " << GAME_FLAGS[FLAG_INVENCIBLE] << std::endl;
     GAME_FLAGS[FLAG_INVENCIBLE] = true;
-    //std::cout << "game::got_weapon - npc_name: " << npc_name << std::endl;
 
 
     // remove any projectiles, charged shots, slides, etc
@@ -972,7 +895,6 @@ void game::got_weapon()
 
     if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
 		// check witch is the boss that was killed
-		//if (npc_name ==)
 
 		/// @TODO: save game
 
@@ -1036,10 +958,12 @@ void game::got_weapon()
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
 		std::string extra_name = "";
         if (currentStage == COIL_GOT_STAGE) {
-			extra_name = "AND FROG COIL ADAPTOR";
+            std::string item_name = strings_map::get_instance()->toupper(std::string(game_data.objects[game_data.player_items[0]].name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
         } else if (currentStage == JET_GOT_STAGE) {
-			extra_name = "AND EAGLE JET ADAPTOR";
-		}
+            std::string item_name = strings_map::get_instance()->toupper(std::string(game_data.objects[game_data.player_items[1]].name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        }
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
 
 		players.at(0).show();
@@ -1062,11 +986,9 @@ void game::leave_stage()
         show_savegame_error();
     }
 
-    //std::cout << "[[[freeze_weapon_effect(RESET #2)]]]" << std::endl;
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
     GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
-    //std::cout << "**** LOAD::invencible_old_value: " << invencible_old_value << ", GAME_FLAGS[FLAG_INVENCIBLE]: " << GAME_FLAGS[FLAG_INVENCIBLE] << std::endl;
 
     // show password
     input.clean();
@@ -1094,18 +1016,14 @@ void game::leave_stage()
 
 void game::exit_game()
 {
-    std::cout << ">>> game::exit_game <<<" <<std::endl;
 
     dialogs dialogs_obj;
     if (dialogs_obj.show_leave_game_dialog() != true) { // cuidar se isso não cria loophole
-        std::cout << "++ DON'T LEAVE GAME" << std::endl;
         leave_game = false;
         return;
     }
 
-    //std::cout << "++ YES, LEAVE GAME" << std::endl;
     if (fio.write_save(game_save) == false) {
-        std::cout << "*** Show savegame Error" << std::endl;
         show_savegame_error();
     }
 
@@ -1137,7 +1055,7 @@ void game::game_over()
     graphLib.surfaceFromFile(filename, &dialog_img);
     graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
 
-    graphLib.draw_centered_text(RES_H/2-6, "GAME OVER", graphLib.gameScreen, st_color(235, 235, 235));
+    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover), graphLib.gameScreen, st_color(235, 235, 235));
 
     draw_lib.update_screen();
     input.waitTime(400);
@@ -1183,9 +1101,6 @@ void game::quick_load_game()
     } else if (GAME_FLAGS[FLAG_PLAYER_KITTYBOT]) {
         game_save.selected_player = PLAYER_KITTYBOT;
     }
-    //std::cout << ">> game_save.selected_player: " << game_save.selected_player << std::endl;
-    //std::cout << "p4.arms: " << game_data.armor_pieces[3].special_ability[ARMOR_ARMS] << std::endl;
-
 
     scenes.preloadScenes();
 	initGame();
@@ -1205,13 +1120,6 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
 	int accel=1;
 
 	timerInit = timer.getTimer();
-
-/*
-    if (show_players) {
-		players.at(0).set_animation_type(ANIM_TYPE_STAND);
-	}
-*/
-
 
     draw_lib.update_screen();
 	soundManager.stop_music();
@@ -1259,11 +1167,9 @@ void game::draw_implosion(short int centerX, short int centerY) {
 	// x = a + r * cos(t)
 	// y = b + r * sin(t)
     while (distance > -second_distance) {
-		//std::cout << "distance: " << distance << std::endl;
         loaded_stage->showStage();
 		players.at(0).show();
         loaded_stage->showAbove();
-        //loaded_stage->showAbove();
         if (distance > 0) {
             for (int i=0; i<6; i++) {
 				graphLib.copyArea(st_rectangle(TILESIZE*mode, 0, graphLib.small_explosion.width/3, graphLib.small_explosion.height), st_position(centerX+distance*cos(static_cast<double>(i*45)), centerY+distance*sin(static_cast<double>(i*45))), &graphLib.small_explosion, &graphLib.gameScreen);
@@ -1369,10 +1275,8 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
 	_player_teleporter.teleporter_n = set_teleport_n;
 	_player_teleporter.old_player_pos.x = set_player_pos.x;
 	_player_teleporter.old_player_pos.y = set_player_pos.y;
-	//std::cout << "----->> set_player_teleporter - x: " << _player_teleporter.old_player_pos.x << ", y: " << _player_teleporter.old_player_pos.y << std::endl;
 	_player_teleporter.active = true;
 	_player_teleporter.finished = false;
-    //std::cout << "game::set_player_teleporter - scroll: " << loaded_stage->getMapScrolling().x << std::endl;
     _player_teleporter.old_map_scroll = loaded_stage->getMapScrolling();
     _player_teleporter.old_map_n = loaded_stage->get_current_map_n();
 }
@@ -1397,7 +1301,7 @@ std::string game::select_game_screen()
         return std::string("");
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.draw_text(10, 10, "- Select Game -");
+    graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_ingame_selectgame));
 
     option_picker main_picker(false, st_position(40, 50), game_list, false);
     draw_lib.update_screen();
@@ -1439,7 +1343,6 @@ void game::finish_player_teleporter()
         loaded_stage->activate_final_boss_teleporter();
     }
     players.at(0).set_map(loaded_stage->get_current_map());
-    //std::cout << "game::finish_player_teleporter - scroll.x: " << _player_teleporter.old_map_scroll.x << ", scroll.y: " << _player_teleporter.old_map_scroll.y << std::endl;
     loaded_stage->set_scrolling(st_position(_player_teleporter.old_map_scroll));
     players.at(0).set_animation_type(ANIM_TYPE_STAND);
     if (_player_teleporter.is_object == true) {
@@ -1478,16 +1381,12 @@ bool game::subboss_alive_on_left(short tileX)
 void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)
 {
 
-    //std::cout << "############# teleporter_id: " << teleporter_id << std::endl;
-
     // checa se já foi usado
     if (_last_stage_used_teleporters.find(teleporter_id) != _last_stage_used_teleporters.end()) {
-        //std::cout << "[TELEPORT-OBJ] teleporter_id [" << teleporter_id << "] already used" << std::endl;
         return;
     }
     set_player_teleporter(teleporter_id, st_position(players.at(0).getPosition().x, players.at(0).getPosition().y), true);
     classPlayer* test_player = &players.at(0);
-    //std::cout << "<<<<<<<<<<<< TELEPORTER LINK >>>>>>>>>>>>>>" << std::endl;
     test_player->teleport_out();
     graphLib.blank_screen();
     draw_lib.update_screen();
@@ -1496,7 +1395,6 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     set_current_map(dest_map);
 
     int new_scroll_pos = loaded_stage->get_first_lock_on_left(dest_pos.x);
-    //std::cout << ">>>>>>>>>> teleporter.new_scroll_pos: " << new_scroll_pos << std::endl;
     loaded_stage->set_scrolling(st_position(new_scroll_pos, 0));
     test_player->set_position(st_position(dest_pos.x*TILESIZE, 0));
     test_player->char_update_real_position();
@@ -1542,9 +1440,9 @@ void game::unload_stage()
 void game::show_savegame_error()
 {
     std::vector<std::string> msgs;
-    msgs.push_back("ERROR WHILE SAVING GAME,");
-    msgs.push_back("PLEASE CHECK THAT THE DEVICE OR");
-    msgs.push_back("FILE IS NOT WRITE-PROTECTED.");
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror1));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror2));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror3));
     draw_lib.show_ingame_warning(msgs);
 }
 
@@ -1553,23 +1451,16 @@ void game::get_drop_item_ids()
     for (int i=0; i<DROP_ITEM_COUNT; i++) {
         _drop_item_list[i] = -1;
     }
-    //std::cout << "**** game::get_drop_item_ids::START ******" << std::endl;
     for (int i=0; i<GAME_MAX_OBJS; i++) {
-        //std::cout << "**** game::get_drop_item_ids OBJ_ENERGY_PILL_BIG: " << OBJ_ENERGY_PILL_BIG << ", i: " << i << ", obj.name: '" << game_data.objects[i].name << "'', obj.type: " << game_data.objects[i].type << std::endl;
         if (game_data.objects[i].type == OBJ_LIFE) {
-            //std::cout << "**** game::get_drop_item_ids DROP_ITEM_1UP: " << i << " ******" << std::endl;
             _drop_item_list[DROP_ITEM_1UP] = i;
         } else if (game_data.objects[i].type == OBJ_ENERGY_PILL_SMALL) {
-            //std::cout << "**** game::get_drop_item_ids OBJ_ENERGY_PILL_SMALL: " << i << " ******" << std::endl;
             _drop_item_list[DROP_ITEM_ENERGY_SMALL] = i;
         } else if (game_data.objects[i].type == OBJ_ENERGY_PILL_BIG) {
-            //std::cout << "**** game::get_drop_item_ids OBJ_ENERGY_PILL_BIG: " << i << " ******" << std::endl;
             _drop_item_list[DROP_ITEM_ENERGY_BIG] = i;
         } else if (game_data.objects[i].type == OBJ_WEAPON_PILL_SMALL) {
-            //std::cout << "**** game::get_drop_item_ids OBJ_WEAPON_PILL_SMALL: " << i << " ******" << std::endl;
             _drop_item_list[DROP_ITEM_WEAPON_SMALL] = i;
         } else if (game_data.objects[i].type == OBJ_WEAPON_PILL_BIG) {
-            //std::cout << "**** game::get_drop_item_ids OBJ_WEAPON_PILL_BIG: " << i << " ******" << std::endl;
             _drop_item_list[DROP_ITEM_WEAPON_BIG] = i;
         }
     }

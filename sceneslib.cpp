@@ -54,7 +54,6 @@ extern bool leave_game;
 // ********************************************************************************************** //
 scenesLib::scenesLib() : _timer(0), _state(0)
 {
-    //preloadScenes();
 	for (int i=0; i<PASSWORD_GRID_SIZE; i++) {
 		for (int j=0; j<PASSWORD_GRID_SIZE; j++) {
 			_password_selected_balls[i][j] = -1;
@@ -88,11 +87,6 @@ void scenesLib::unload_stage_select() {
 
 
 
-
-
-
-
-
 void scenesLib::draw_main()
 {
 	graphLib.blank_screen();
@@ -112,8 +106,7 @@ void scenesLib::draw_main()
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_about));
 
-    std::string text("\xA9 2009-2015 UPPERLAND STUDIOS");
-	graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), text);
+    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
 }
 
 // ********************************************************************************************** //
@@ -136,12 +129,10 @@ void scenesLib::main_screen()
     }
 	bool repeat_menu = true;
 	while (repeat_menu == true) {
-        std::cout << "######## MAIN_MENU::LOOP" << std::endl;
 
 		picked_n = main_picker.pick();
 		if (picked_n == -1) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            std::cout << "LEAVE #5" << std::endl;
             std::fflush(stdout);
             leave_game = true;
             return;
@@ -155,7 +146,6 @@ void scenesLib::main_screen()
 			}
 		} else if (picked_n == 2) {
             if (show_password_input() == true) {
-                std::cout << "######## MAIN_MENU::PASSWORD END" << std::endl;
 				repeat_menu = false;
 			} else {
 				draw_main();
@@ -172,11 +162,8 @@ void scenesLib::main_screen()
             main_picker.draw();
         }
 	}
-    std::cout << "######## MAIN_MENU::LEAVE" << std::endl;
     draw_lib.update_screen();
 
-
-	// TODO - select_load_game();
     if (picked_n == 0) {
         game_save.selected_player = select_player();
     }
@@ -199,11 +186,8 @@ short scenesLib::pick_stage() {
         pos_n--;
     }
 
-    //std::cout << "scenesLib::pick_stage - pos_n: " << pos_n << ", c.x: " << selected_stage.x << ", c.y: " << selected_stage.y << std::endl;
-
     if (pos_n == SKULLCASTLE1) { // look for the actual stage in skullcastle
         for (int i=SKULLCASTLE1; i<SKULLCASTLE5; i++) {
-            std::cout << "Check stage[" << i << "]: " << (int)game_save.stages[i] << std::endl;
             if (game_save.stages[i] == 0) {
                 break;
             }
@@ -229,14 +213,14 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 	input.waitTime(300);
     int return_option = 2;
 
-	options.push_back("AUDIO");
-	options.push_back("INPUT");
+    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_audio));
+    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_input));
 #if defined(PC) || defined (PSP)
-    options.push_back("VIDEO");
+    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_video));
     return_option = 3;
 #endif
     if (stage_finished) {
-        options.push_back("LEAVE STAGE");
+        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
     }
 
 
@@ -247,7 +231,6 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 	while (selected_option != -1) {
         option_picker main_config_picker(false, config_text_pos, options, true);
 		selected_option = main_config_picker.pick();
-        std::cout << "#1.2 - KEY CONFIG - LEAVE 0" << std::endl;
 		if (selected_option == -1) {
 			break;
 		}
@@ -256,7 +239,6 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 		if (selected_option == 0) {
 			show_config_audio();
 		} else if (selected_option == 1) {
-            std::cout << "#1.1 - KEY CONFIG" << std::endl;
             key_map key_mapper;
             key_mapper.config_input();
         } else if (selected_option == 2) {
@@ -268,16 +250,13 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 #endif
                 graphLib.show_config_bg(0);
             } else {
-                std::cout << "#1.2 - KEY CONFIG - LEAVE 1.2" << std::endl;
                 res = 1;
                 break;
             }
         } else if (selected_option == 3) {
             res = 1;
-            std::cout << "#1.2 - KEY CONFIG - LEAVE 1.3" << std::endl;
             break;
         }
-        std::cout << "#1.2 - KEY CONFIG - LEAVE 2 - selected_option: " << selected_option << std::endl;
         fio.save_config(game_config);
 
 		graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
@@ -301,23 +280,23 @@ void scenesLib::show_config_video()
 
 	std::vector<std::string> options;
 	if (game_config.video_fullscreen == true) {
-		options.push_back("WINDOWED");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
 	} else {
-		options.push_back("FULLSCREEN");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
 	}
 
     if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-        options.push_back("NO SCALE  [X]");
-        options.push_back("SIZE2X    [ ]");
-        options.push_back("SCALE2X   [ ]");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[X]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[ ]"));
     } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-        options.push_back("NO SCALE  [ ]");
-        options.push_back("SIZE2X    [X]");
-        options.push_back("SCALE2X   [ ]");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[X]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[ ]"));
     } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-        options.push_back("NO SCALE  [ ]");
-        options.push_back("SIZE2X    [ ]");
-        options.push_back("SCALE2X   [X]");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[X]"));
     }
 
 	short selected_option = 0;
@@ -326,13 +305,10 @@ void scenesLib::show_config_video()
 	if (selected_option == 0) {
         game_config.video_fullscreen = !game_config.video_fullscreen;
     } else if (selected_option == 1) {
-        std::cout << "SET video_filter to VIDEO_FILTER_NOSCALE" << std::endl;
         game_config.video_filter = VIDEO_FILTER_NOSCALE;
 	} else if (selected_option == 2) {
-        std::cout << "SET video_filter to VIDEO_FILTER_BITSCALE" << std::endl;
         game_config.video_filter = VIDEO_FILTER_BITSCALE;
 	} else if (selected_option == 3) {
-        std::cout << "SET video_filter to VIDEO_FILTER_SCALE2x" << std::endl;
         game_config.video_filter = VIDEO_FILTER_SCALE2x;
     } else {
         std::cout << "SET video_filter - UNKNOWN mode!!" << std::endl;
@@ -343,10 +319,10 @@ void scenesLib::show_config_video()
         input.waitTime(300);
         st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
         graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-        graphLib.draw_text(menu_pos.x, menu_pos.y, "PLEASE RESTART THE GAME");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+10, "FOR THE CONFIGURATION");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+20, "TO TAKE EFFECT.");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+40, "PRESS A KEY TO RETURN");
+        graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
         input.wait_keypress();
     }
 }
@@ -361,9 +337,9 @@ void scenesLib::show_config_video_PSP()
 
     std::vector<std::string> options;
     if (game_config.video_fullscreen == true) {
-        options.push_back("WINDOWED");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
     } else {
-        options.push_back("FULLSCREEN");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
     }
     short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
@@ -377,10 +353,10 @@ void scenesLib::show_config_video_PSP()
         input.waitTime(300);
         st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
         graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-        graphLib.draw_text(menu_pos.x, menu_pos.y, "PLEASE RESTART THE GAME");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+10, "FOR THE CONFIGURATION");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+20, "TO TAKE EFFECT.");
-        graphLib.draw_text(menu_pos.x, menu_pos.y+40, "PRESS A KEY TO RETURN");
+        graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
+        graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
         input.wait_keypress();
     }
 }
@@ -450,7 +426,6 @@ bool scenesLib::password_ball_selector()
             graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), red_ball_pos, &_password_selector, &graphLib.gameScreen);
             graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), blue_ball_pos, &_password_selector, &graphLib.gameScreen);
             bool res = password_end_selector();
-            std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>> #1" << std::endl;
             return res;
 		}
         input.clean();
@@ -467,7 +442,7 @@ bool scenesLib::password_set()
 
             /*
 
-              NUMERO É X, LETRA É Y
+              NUMBER IS X, LETTER IS Y
 
             [1, 0]a2 blue -> char #3 (candy?)
             [5, 3]d6 blue -> techno - OK
@@ -475,12 +450,10 @@ bool scenesLib::password_set()
             [3, 2]c4 blue -> mummy - OK
             [4, 5]f5 blue -> spike - OK
 
-                [0, 0]a1 -> castle #1
-                [1, 1]b2 -> castle #2
-                [0, 4]e1 -> castle #3
-                [2, 4]e3 -> castle #4
-
-
+            [0, 0]a1 -> castle #1
+            [1, 1]b2 -> castle #2
+            [0, 4]e1 -> castle #3
+            [2, 4]e3 -> castle #4
             */
 			if (_password_selected_balls[x][y] == 0) { // blue
 
@@ -540,19 +513,13 @@ bool scenesLib::password_set()
                 [4, 1]b5 red  -> dynamite
                 [2, 3]d3 red  -> seahorse
                 [3, 5]f4 red  -> apebot
-
-
 				*/
                 if (x == 1 && y == 0) {
-                    std::cout << "PASSWORD - PLAYER_BETABOT" << std::endl;
                     game_save.selected_player = PLAYER_BETABOT;
                 } else if (x == 2 && y == 1) {
-                    std::cout << "PASSWORD - PLAYER_KITTYBOT" << std::endl;
                     game_save.selected_player = PLAYER_KITTYBOT;
                 } else if (x == 0 && y == 2) {
-                    std::cout << "PASSWORD - INTRO_STAGE" << std::endl;
 					game_save.stages[INTRO_STAGE] = 1;
-					std::cout << "scenesLib::password_set - game_save.stages[INTRO_STAGE]: " << game_save.stages[INTRO_STAGE] << std::endl;
                 } else if (x == 2 && y == 0) {
 					game_save.stages[MAGEBOT] = 1;
                 } else if (x == 4 && y == 1) {
@@ -618,16 +585,13 @@ bool scenesLib::password_end_selector()
             graphLib.copyArea(st_rectangle( _password_selector.get_surface()->w/2, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), end_pos2, &_password_selector, &graphLib.gameScreen);
             return password_ball_selector();
 		} else if (input.p1_input[BTN_ATTACK] == 1) {
-            std::cout << "password_end_selector::LEAVE#1 (GAVE UP)" << std::endl;
 			return false;
 		} else if (input.p1_input[BTN_JUMP] == 1 || input.p1_input[BTN_START] == 1) {
 			if (password_set() == false) { // show an error and keep trying
-                std::cout << "SENHA INVALIDA::LEAVE#2" << std::endl;
                 graphLib.clear_area(53, 180, 217, 28, 0, 0, 0);
                 graphLib.draw_text(66, 190, "INVALID PASSWORD.", graphLib.gameScreen);
                 draw_lib.update_screen();
 			} else {
-                std::cout << "password_end_selector::LEAVE#2 (PASSWORD OK)" << std::endl;
 				return true;
 			}
 		}
@@ -713,7 +677,6 @@ void scenesLib::password_number_selector(int ball_type)
 
 bool scenesLib::show_password_input()
 {
-    std::cout << ">> show_password_input::START << " << std::endl;
 	graphicsLib_gSurface password_screen;
     std::string filename = FILEPATH + "images/backgrounds/password.png";
 	graphLib.surfaceFromFile(filename, &password_screen);
@@ -725,195 +688,8 @@ bool scenesLib::show_password_input()
     draw_lib.update_screen();
 
     bool res = password_end_selector();
-    std::cout << ">> show_password_input::END << " << std::endl;
     return res;
 }
-
-/*
-void scenesLib::show_password()
-{
-    graphicsLib_gSurface password_screen;
-    std::string filename = FILEPATH + "images/backgrounds/password.png";
-    graphLib.surfaceFromFile(filename, &password_screen);
-    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
-
-    filename = FILEPATH + "images/backgrounds/password_selector.png";
-    graphLib.surfaceFromFile(filename, &_password_selector);
-    // add balls
-    graphicsLib_gSurface red_ball_img, blue_ball_img;
-    st_position selected_number(0, 0);
-    st_rectangle point_zero(60, 52, 16, 16);
-    filename = FILEPATH + "images/backgrounds/password_blue_ball.png";
-    graphLib.surfaceFromFile(filename, &blue_ball_img);
-    filename = FILEPATH + "images/backgrounds/password_red_ball.png";
-    graphLib.surfaceFromFile(filename, &red_ball_img);
-
-    if (game_save.selected_player == PLAYER_BETABOT) {
-        selected_number.x = 1;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.selected_player == PLAYER_CANDYBOT) {
-        selected_number.x = 1;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.selected_player == PLAYER_KITTYBOT) {
-        selected_number.x = 2;
-        selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-
-    if (game_save.stages[TECHNOBOT] == 1) {
-        selected_number.x = 5;
-        selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[DAISIEBOT] == 1) {
-        selected_number.x = 5;
-        selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[MUMMYBOT] == 1) {
-        selected_number.x = 3;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[SPIKEBOT] == 1) {
-        selected_number.x = 4;
-        selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-
-
-    if (game_save.stages[SKULLCASTLE1] == 1) {
-        selected_number.x = 0;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[SKULLCASTLE2] == 1) {
-        selected_number.x = 1;
-        selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[SKULLCASTLE3] == 1) {
-        selected_number.x = 4;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[SKULLCASTLE4] == 1) {
-        selected_number.x = 4;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &blue_ball_img, &graphLib.gameScreen);
-    }
-
-    if (game_save.stages[INTRO_STAGE] == 1) {
-        selected_number.x = 0;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[MAGEBOT] == 1) {
-        selected_number.x = 2;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[DYNAMITEBOT] == 1) {
-        selected_number.x = 4;
-        selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[SEAHORSEBOT] == 1) {
-        selected_number.x = 2;
-        selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.stages[APEBOT] == 1) {
-        selected_number.x = 3;
-        selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-
-    if (game_save.items.energy_tanks == 1) {
-        selected_number.x = 5;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 2) {
-        selected_number.x = 3;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 3) {
-        selected_number.x = 3;
-        selected_number.y = 1;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 4) {
-        selected_number.x = 0;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 5) {
-        selected_number.x = 4;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 6) {
-        selected_number.x = 1;
-        selected_number.y = 3;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 7) {
-        selected_number.x = 2;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 8) {
-        selected_number.x = 1;
-        selected_number.y = 5;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    } else if (game_save.items.energy_tanks == 9) {
-        selected_number.x = 5;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, red_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-
-    // weapon-tank: y 5, x 0
-    if (game_save.items.weapon_tanks == 1) {
-        selected_number.x = 5;
-        selected_number.y = 0;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-
-    // special tank y 5, x 2
-    if (game_save.items.special_tanks == 1) {
-        selected_number.x = 5;
-        selected_number.y = 2;
-        graphLib.copyArea(st_rectangle(0, 0, blue_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    // usados, linha 4: 5, 3, 0
-    // linha4, coluna 1 -> armor, 2 -> hands, 4 -> legs
-    if (game_save.armor_pieces[ARMOR_BODY]) {
-        selected_number.x = 1;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.armor_pieces[ARMOR_ARMS]) {
-        selected_number.x = 2;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-    if (game_save.armor_pieces[ARMOR_LEGS]) {
-        selected_number.x = 4;
-        selected_number.y = 4;
-        graphLib.copyArea(st_rectangle(0, 0, red_ball_img.get_surface()->w, blue_ball_img.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x+2, selected_number.y*point_zero.h + point_zero.y+2), &red_ball_img, &graphLib.gameScreen);
-    }
-
-
-
-    graphLib.draw_text(112, 190, ">PRESS START", graphLib.gameScreen);
-
-    /// @TODO
-
-    draw_lib.update_screen();
-    input.wait_keypress();
-    password_screen.freeGraphic();
-
-}
-*/
 
 void scenesLib::show_password()
 {
@@ -977,8 +753,6 @@ void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int sele
     YPos[1] = 88;
     YPos[2] = 114;
     YPos[3] = 200;
-
-    //std::cout << "draw_lights_select_player - selected: " << selected << std::endl;
 
     // erase previous position
     for (int i=0; i<2; i++) {
@@ -1078,7 +852,6 @@ Uint8 scenesLib::select_player() {
         timer.delay(10);
         draw_lib.update_screen();
 	}
-    //printf(">> select_player.END, n: %d\n", selected);
 	return selected;
 }
 
@@ -1090,9 +863,6 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
     unsigned int i;
     std::string filename;
     std::string botname;
-
-    //std::cout << "#1 - scenesLib::boss_intro::pos_n: " << pos_n << std::endl;
-
 
     // set skullcastole number accoring to the save
     if (pos_n == SKULLCASTLE1) {
@@ -1107,12 +877,10 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         }
     }
 
-    //pos_n = SKULLCASTLE5; ///@DEBUG
-
-
     if (pos_n == SKULLCASTLE1) {
         graphLib.blank_screen();
-        show_destrin_ship_intro();
+        /// @TODO - use scenes here
+        //show_destrin_ship_intro();
     }
 
     botname = game_data.game_npcs[stage_data.boss.id_npc].name;
@@ -1123,9 +891,6 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
             intro_frames_n++;
         }
     }
-
-
-    //std::cout << "#2 - scenesLib::boss_intro::pos_n: " << pos_n << std::endl;
 
     if (pos_n == SKULLCASTLE1 || pos_n >= SKULLCASTLE2) {
         filename = FILEPATH + "images/backgrounds/skull_castle.png";
@@ -1229,59 +994,5 @@ void scenesLib::draw_castle_path(bool vertical_first, st_position initial_point,
     }
     graphLib.draw_path(initial_point, middle_point, total_duration/2);
     graphLib.draw_path(middle_point, final_point, total_duration/2);
-}
-
-
-void scenesLib::show_destrin_ship_intro() const
-{
-    graphicsLib_gSurface destrin_ship;
-    st_size ship_size(56, 46);
-
-    std::string filename = FILEPATH + "images/sprites/enemies/destrin_capsule_small.png";
-    graphLib.surfaceFromFile(filename, &destrin_ship);
-    graphLib.start_stars_animation();
-
-    std::cout << "graphicsLib::show_destrin_ship_intro::START" << std::endl;
-
-
-    int ship_pos_x = RES_W + ship_size.width-TILESIZE;
-    int ship_pos_y = RES_H/2 - ship_size.height/2;
-    // show ship coming from right
-    int move_speed = 2;
-    while (ship_pos_x > RES_W/2) {
-        //std::cout << ">> #1 ship_pos_x: " << ship_pos_x << std::endl;
-        ship_pos_x -= move_speed;
-        graphLib.clear_area(ship_pos_x, ship_pos_y, ship_size.width+move_speed, ship_size.height, 0, 0, 0);
-        graphLib.showSurfaceRegionAt(&destrin_ship, st_rectangle(0, 0, ship_size.width, ship_size.height), st_position(ship_pos_x, ship_pos_y));
-        graphLib.wait_and_update_screen(20);
-    }
-    // show eyebrows animation
-    graphLib.wait_and_update_screen(2000);
-
-    for (int i=0; i<4; i++) {
-        graphLib.clear_area(ship_pos_x, ship_pos_y, ship_size.width+move_speed, ship_size.height, 0, 0, 0);
-        graphLib.showSurfaceRegionAt(&destrin_ship, st_rectangle(ship_size.width, 0, ship_size.width, ship_size.height), st_position(ship_pos_x, ship_pos_y));
-        graphLib.wait_and_update_screen(200);
-        graphLib.clear_area(ship_pos_x, ship_pos_y, ship_size.width+move_speed, ship_size.height, 0, 0, 0);
-        graphLib.showSurfaceRegionAt(&destrin_ship, st_rectangle(ship_size.width*2, 0, ship_size.width, ship_size.height), st_position(ship_pos_x, ship_pos_y));
-        graphLib.wait_and_update_screen(200);
-    }
-    graphLib.clear_area(ship_pos_x, ship_pos_y, ship_size.width+move_speed, ship_size.height, 0, 0, 0);
-    graphLib.showSurfaceRegionAt(&destrin_ship, st_rectangle(0, 0, ship_size.width, ship_size.height), st_position(ship_pos_x, ship_pos_y));
-    graphLib.wait_and_update_screen(1000);
-
-
-    // show ship parting to left
-    move_speed = 6;
-    while (ship_pos_x > -(ship_size.width+TILESIZE)) {
-        //std::cout << ">> #2 ship_pos_x: " << ship_pos_x << std::endl;
-        graphLib.clear_area(ship_pos_x, ship_pos_y, ship_size.width+move_speed, ship_size.height, 0, 0, 0);
-        graphLib.showSurfaceRegionAt(&destrin_ship, st_rectangle(0, 0, (ship_size.width), ship_size.height), st_position(ship_pos_x, ship_pos_y));
-        draw_lib.update_screen();
-        graphLib.wait_and_update_screen(20);
-        ship_pos_x -= move_speed;
-    }
-
-    graphLib.stop_stars_animation();
 }
 

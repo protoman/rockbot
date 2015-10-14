@@ -106,7 +106,6 @@ namespace format_v4 {
         Uint8 move_speed;                                               // how many sprites move each step
         st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
         file_weapon_colors weapon_colors[MAX_WEAPON_N];
-        st_color color_keys[3];
         // habilities part
         bool have_shield;
         Uint8 max_shots;                                                // number of maximum simultaneous projectiles
@@ -119,6 +118,8 @@ namespace format_v4 {
         bool can_air_dash;
         Sint8 damage_modifier;
         bool can_shot_diagonal;
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
 
         file_player() {
             sprintf(name, "%s", "Player");
@@ -142,6 +143,7 @@ namespace format_v4 {
             can_air_dash = false;
             damage_modifier = 0;
             can_shot_diagonal = false;
+            attack_frame = 0;
         }
     };
 
@@ -220,11 +222,11 @@ namespace format_v4 {
         char bg_graphic_filename[CHAR_FILENAME_SIZE];               // holds a static background
         st_position sprites_pos_bg;                                 // holds position of sprites in relation with background
         bool is_boss;                                               // indicates if this NPC is a boss
-        // *** NEW 3.0.0 *** //
         Sint8 attack_frame_n[ANIM_TYPE_COUNT];                      // tells wich is the frame that ignites the attack
         bool is_sub_boss;                                           // a middle-stage boss, the doors will only open after it's dead
-        // *** NEW in 3.0.1 *** //
         int respawn_delay;                                          // if > 0, will respawn even if on-screen
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
 
 
     /**
@@ -248,6 +250,7 @@ namespace format_v4 {
                 attack_frame_n[i] = -1;
             }
             respawn_delay = 0;
+            attack_frame = 0;
         }
 
     };

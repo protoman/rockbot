@@ -2,6 +2,8 @@
 #include "ui_map_tab.h"
 #include "common.h"
 
+#include <QColorDialog>
+
 map_tab::map_tab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::map_tab),
@@ -46,11 +48,11 @@ void map_tab::update_edit_area()
     ui->editArea->repaint();
 }
 
-void map_tab::pick_bg_color()
+void map_tab::pick_bg_color(QColor color)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r = color.red();
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g = color.green();
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b = color.blue();
     fill_background_list();
     update_edit_area();
 }
@@ -187,9 +189,9 @@ void map_tab::on_objectListWidget_currentRowChanged(int currentRow)
 
 void map_tab::on_bg_color_pick_clicked()
 {
-    QDialog *color_pick = new dialog_pick_color;
-    color_pick->show();
-    QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_bg_color()));
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(on_color_selected1(QColor)));
+    colorDialog->show();
 }
 
 void map_tab::on_bg1_filename_currentIndexChanged(const QString &arg1)

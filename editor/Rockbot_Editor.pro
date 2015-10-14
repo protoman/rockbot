@@ -61,7 +61,6 @@ SOURCES += main.cpp \
     dialogobjectedit.cpp \
     projectilepreviewarea.cpp \
     ../file/file_io.cpp \
-    dialog_pick_color.cpp \
 	player_preview_area.cpp \
     mainwindow_tab/npc_edit.cpp \
     common.cpp \
@@ -118,7 +117,6 @@ HEADERS += mainwindow.h \
     projectilepreviewarea.h \
     ../file/file_io.h \
     ../file/format.h \
-    dialog_pick_color.h \
 	player_preview_area.h \
     mainwindow_tab/npc_edit.h \
     common.h \

@@ -22,7 +22,6 @@ public:
     short pick_stage();
     void show_password(); // show the password fot the current save
     void boss_intro(Uint8 pos_n) const;
-    void show_destrin_ship_intro() const;
     short show_main_config(short stage_finished);
 
 private:

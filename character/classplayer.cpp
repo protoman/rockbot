@@ -75,9 +75,10 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
 
 void classPlayer::init_weapon_colors()
 {
-	for (int i=0; i<3; i++) {
-		color_keys[i] = game_data.players[_number].color_keys[i];
-	}
+    color_keys[0] = graphLib.getColorNumber(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
+    color_keys[1] = graphLib.getColorNumber(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
+    color_keys[2] = graphLib.getColorNumber(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
+
 	for (int i=0; i<MAX_WEAPON_N; i++) {
 		weapon_colors[i] = game_data.players[_number].weapon_colors[i];
 	}

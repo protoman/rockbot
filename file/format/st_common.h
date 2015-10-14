@@ -194,9 +194,9 @@ struct st_rectangle {
  *
  */
 struct st_color {
-    short r;
-    short g;
-    short b;
+    int r;
+    int g;
+    int b;
 	st_color () {
 		r = -1;
 		g = -1;

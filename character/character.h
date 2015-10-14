@@ -730,7 +730,7 @@ protected:
 
     bool dead; /**< TODO */
 
-    st_color color_keys[3]; /**< TODO */
+    st_color color_keys[3];
 
     short int       shield_type;                        // same as for NPC, 0->no-shield, 1->full_shield, 2->front-shield /**< TODO */
 

@@ -65,6 +65,9 @@ namespace format_v4 {
 
         void generate_files();
 
+        void replaceAll( std::string& source, const std::string& from, const std::string& to ) const;
+        std::string clean_filename(std::string filename) const;
+
 
     private:
         std::vector<std::string> split(std::string str,std::string sep);

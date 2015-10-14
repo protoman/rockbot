@@ -23,6 +23,9 @@ public:
 public slots:
     void on_text_changed(int n);
 
+private slots:
+    void on_buttonBox_accepted();
+
 private:
     Ui::StringsEditor *ui;
     CURRENT_FILE_FORMAT::fio_strings fio_str;

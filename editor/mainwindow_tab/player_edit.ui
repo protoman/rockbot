@@ -25,7 +25,7 @@
         <x>0</x>
         <y>0</y>
         <width>752</width>
-        <height>393</height>
+        <height>397</height>
        </rect>
       </property>
       <attribute name="label">
@@ -275,7 +275,7 @@
         <x>0</x>
         <y>0</y>
         <width>752</width>
-        <height>393</height>
+        <height>397</height>
        </rect>
       </property>
       <attribute name="label">
@@ -292,7 +292,26 @@
            <item row="3" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
               <widget class="QLabel" name="label_41">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text">
                 <string>Width:</string>
                </property>
@@ -300,6 +319,12 @@
              </item>
              <item>
               <widget class="QSpinBox" name="player_sprite_w">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="value">
                 <number>29</number>
                </property>
@@ -307,6 +332,12 @@
              </item>
              <item>
               <widget class="QLabel" name="label_42">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="text">
                 <string>Height:</string>
                </property>
@@ -314,6 +345,12 @@
              </item>
              <item>
               <widget class="QSpinBox" name="player_sprite_h">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="value">
                 <number>32</number>
                </property>
@@ -324,14 +361,7 @@
            <item row="1" column="2">
             <widget class="QComboBox" name="player_graphics_combo"/>
            </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_47">
-             <property name="text">
-              <string>Key Colors:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="2">
+           <item row="5" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <widget class="QPushButton" name="color1_picker">
@@ -413,88 +443,6 @@
              </item>
             </layout>
            </item>
-           <item row="5" column="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
-             <item>
-              <widget class="QPushButton" name="key1_picker">
-               <property name="text">
-                <string>Key 1</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="ColorKeyIndicator1">
-               <property name="minimumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="key2_picker">
-               <property name="text">
-                <string>Key 2</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="ColorKeyIndicator2">
-               <property name="minimumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="key3_picker">
-               <property name="text">
-                <string>Key 3</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="ColorKeyIndicator3">
-               <property name="minimumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>32</width>
-                 <height>32</height>
-                </size>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item row="0" column="2">
             <widget class="QComboBox" name="players_tab_list_combo_2"/>
            </item>
@@ -505,13 +453,13 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="5" column="1">
             <widget class="QComboBox" name="weaponlist_combo"/>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_19">
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_39">
              <property name="text">
-              <string>Weapon Colors:</string>
+              <string>Sprite Size:</string>
              </property>
             </widget>
            </item>
@@ -522,31 +470,50 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_39">
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_19">
              <property name="text">
-              <string>Sprite Size:</string>
+              <string>Weapon Colors:</string>
              </property>
             </widget>
            </item>
            <item row="4" column="2">
             <layout class="QVBoxLayout" name="verticalLayout_6">
              <property name="leftMargin">
-              <number>4</number>
+              <number>0</number>
              </property>
              <property name="topMargin">
-              <number>4</number>
+              <number>0</number>
              </property>
              <property name="rightMargin">
-              <number>4</number>
+              <number>0</number>
              </property>
              <property name="bottomMargin">
-              <number>4</number>
+              <number>0</number>
              </property>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_12">
                <item>
+                <spacer name="horizontalSpacer_7">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
                 <widget class="QLabel" name="label_43">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>X:</string>
                  </property>
@@ -554,6 +521,12 @@
                </item>
                <item>
                 <widget class="QSpinBox" name="player_hitarea_x">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="value">
                   <number>4</number>
                  </property>
@@ -561,6 +534,12 @@
                </item>
                <item>
                 <widget class="QLabel" name="label_44">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Y:</string>
                  </property>
@@ -568,6 +547,12 @@
                </item>
                <item>
                 <widget class="QSpinBox" name="player_hitarea_y">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="value">
                   <number>8</number>
                  </property>
@@ -578,19 +563,38 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_13">
                <property name="leftMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="topMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="bottomMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <item>
+                <spacer name="horizontalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
                 <widget class="QLabel" name="label_45">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>W:</string>
                  </property>
@@ -598,6 +602,12 @@
                </item>
                <item>
                 <widget class="QSpinBox" name="player_hitarea_w">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="value">
                   <number>21</number>
                  </property>
@@ -605,6 +615,12 @@
                </item>
                <item>
                 <widget class="QLabel" name="label_46">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>H:</string>
                  </property>
@@ -612,6 +628,12 @@
                </item>
                <item>
                 <widget class="QSpinBox" name="player_hitarea_h">
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="value">
                   <number>24</number>
                  </property>
@@ -621,17 +643,17 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_38">
-             <property name="text">
-              <string>Graphics:</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Face Graphic:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_38">
+             <property name="text">
+              <string>Graphics:</string>
              </property>
             </widget>
            </item>

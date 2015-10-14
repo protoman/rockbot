@@ -36,3 +36,8 @@ void StringsEditor::on_text_changed(int n)
     QLineEdit* line = (QLineEdit*)sender();
     string_list.at(n) = line->text().toStdString();
 }
+
+void StringsEditor::on_buttonBox_accepted()
+{
+    save_data();
+}

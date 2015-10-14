@@ -34,8 +34,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>608</width>
-            <height>301</height>
+            <width>606</width>
+            <height>279</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
@@ -89,8 +89,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>608</width>
-            <height>301</height>
+            <width>606</width>
+            <height>279</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
@@ -103,6 +103,13 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
     </widget>
    </item>
   </layout>

@@ -1336,7 +1336,7 @@ void graphicsLib::draw_explosion(st_position pos)
 
 void graphicsLib::show_debug_msg(string msg)
 {
-    std::cout << "GRAPH::show_debug_msg - msg: " << msg << std::endl;
+    std::cout << "show_debug_msg - msg: " << msg << std::endl;
     std::fflush(stdout);
 
     clear_area(0, 0, RES_W, 50, 50, 50, 50);

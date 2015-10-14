@@ -91,7 +91,31 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config].line, "%s", "CONFIG");
         sprintf(lines[strings_ingame_about].line, "%s", "ABOUT");
         sprintf(lines[strings_ingame_password].line, "%s", "PASSWORD");
+        sprintf(lines[strings_ingame_gameover].line, "%s", "GAME OVER");
+        sprintf(lines[strings_ingame_and].line, "%s", "AND");
+        sprintf(lines[strings_ingame_selectgame].line, "%s", "SELECT GAME");
+        sprintf(lines[strings_ingame_savegameerror1].line, "%s", "ERROR WHILE SAVING GAME,");
+        sprintf(lines[strings_ingame_savegameerror2].line, "%s", "PLEASE CHECK THAT THE DEVICE OR");
+        sprintf(lines[strings_ingame_savegameerror3].line, "%s", "FILE IS NOT WRITE-PROTECTED.");
 
+        sprintf(lines[strings_ingame_copyrightline].line, "%s", "\xA9 2009-2015 UPPERLAND STUDIOS");
+
+
+        sprintf(lines[strings_ingame_audio].line, "%s", "AUDIO");
+        sprintf(lines[strings_ingame_input].line, "%s", "INPUT");
+        sprintf(lines[strings_ingame_video].line, "%s", "VIDEO");
+        sprintf(lines[strings_ingame_leavestage].line, "%s", "LEAVE STAGE");
+
+
+        sprintf(lines[strings_ingame_video_windowed].line, "%s", "WINDOWED");
+        sprintf(lines[strings_ingame_video_fullscreen].line, "%s", "FULLSCREEN");
+        sprintf(lines[strings_ingame_video_noscale].line, "%s", "NO SCALE  ");
+        sprintf(lines[strings_ingame_video_size2x].line, "%s", "SIZE2X    ");
+        sprintf(lines[strings_ingame_video_scale2x].line, "%s", "SCALE2X   ");
+        sprintf(lines[strings_ingame_config_restart1].line, "%s", "PLEASE RESTART THE GAME");
+        sprintf(lines[strings_ingame_config_restart2].line, "%s", "FOR THE CONFIGURATION");
+        sprintf(lines[strings_ingame_config_restart3].line, "%s", "TO TAKE EFFECT");
+        sprintf(lines[strings_ingame_config_presstorestart].line, "%s", "PRESS A KEY TO RETURN");
 
 
         std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
