@@ -141,7 +141,7 @@ bool graphicsLib::initGraphics()
             SDL_WM_SetIcon(icon_img, NULL);
         }
     } else {
-        std::cout << "rwop is NULL " << std::endl;
+        std::cout << "graphicsLib::initGraphics(set-window-icon): rwop is NULL " << std::endl;
     }
 #endif
 	// other loading methods

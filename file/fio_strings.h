@@ -6,8 +6,6 @@
 #include <cstdlib>
 #include <fstream>
 
-#include "file/v4/file_strings_v4.h"
-
 class fio_strings
 {
 public:

@@ -845,7 +845,7 @@ enum e_ARMOR_ABILITIES_BODY {
 #define ANIM_TILE_MAX_FRAMES 10
 
 // --- STRINGS BEGIN --- //
-#define STRINGS_LINE_SIZE 30
+#define STRINGS_LINE_SIZE 60
 
 enum E_STRINGS_INGAME {
     strings_ingame_newgame,
