@@ -1301,7 +1301,7 @@ std::string game::select_game_screen()
         return std::string("");
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_ingame_selectgame));
+    graphLib.draw_text(10, 10, "SELECT GAME:");
 
     option_picker main_picker(false, st_position(40, 50), game_list, false);
     draw_lib.update_screen();

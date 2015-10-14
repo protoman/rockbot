@@ -27,6 +27,7 @@ private:
 
     bool file_exists(std::string filename) const;
     void create_default_ingame_strings();
+    void replaceAll( std::string& source, const std::string& from, const std::string& to ) const;
 
 private:
     std::vector<std::string> string_list;

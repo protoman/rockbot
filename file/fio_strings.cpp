@@ -16,11 +16,13 @@ namespace format_v4 {
 
     fio_strings::fio_strings()
     {
-        string_list = load_game_strings();
     }
 
     std::string fio_strings::get_ingame_string(int n)
     {
+        if (string_list.size() == 0) {
+            string_list = load_game_strings();
+        }
         if (n < 0 || n > string_list.size()) {
             return "";
         }
@@ -45,9 +47,10 @@ namespace format_v4 {
             }
         }
 
-        std::string line;
-        while (getline (fp, line)) {
-            res.push_back(line);
+        std::string str;
+        while (getline(fp, str)) {
+            replaceAll(str, "\n", "");
+            res.push_back(str);
         }
 
         fp.close();
@@ -175,6 +178,27 @@ namespace format_v4 {
         }
         fp.close();
 
+    }
+
+    void fio_strings::replaceAll(std::string &source, const std::string &from, const std::string &to) const
+    {
+        std::string newString;
+        newString.reserve( source.length() );  // avoids a few memory allocations
+
+        std::string::size_type lastPos = 0;
+        std::string::size_type findPos;
+
+        while( std::string::npos != ( findPos = source.find( from, lastPos )))
+        {
+            newString.append( source, lastPos, findPos - lastPos );
+            newString += to;
+            lastPos = findPos + from.length();
+        }
+
+        // Care for the rest after last occurrence
+        newString += source.substr( lastPos );
+
+        source.swap( newString );
     }
 
 
