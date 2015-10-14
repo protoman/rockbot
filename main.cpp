@@ -29,7 +29,7 @@
 #include <SDL/SDL_endian.h>
 #include <SDL/SDL_mixer.h>
 
-
+#include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
 #define DEBUG_SHOW_FPS 1
@@ -476,13 +476,15 @@ int main(int argc, char *argv[])
 
     GAMENAME = gameControl.select_game_screen();
     if (GAMENAME == "") {
-        graphLib.draw_text(20, 20, "Rockbot Engine Error:");
-        graphLib.draw_text(20, 32, "No games available");
+        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
+        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
         input.wait_keypress();
         SDL_Quit();
         return 0;
     }
-    FILEPATH += std::string("/") + GAMENAME;
+    FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
+
+    std::cout << "GAMENAME: " << GAMENAME << std::endl;
 
 	fio.read_game(game_data);
 

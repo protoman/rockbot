@@ -382,10 +382,6 @@ public:
 
         SDL_UnlockSurface(gSurface);
 
-        if (colorkey1_points.size() > 0) {
-            std::cout << "<<<<<<<<<<<<<<<<<<<< set_surface list1.size: " << colorkey1_points.size() << std::endl;
-        }
-
     }
 
     void set_surface(SDL_Surface *surface) {

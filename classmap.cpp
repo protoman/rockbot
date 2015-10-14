@@ -691,7 +691,6 @@ void classMap::load_map_objects() {
 			object_list.push_back(temp_obj);
 		}
 	}
-    std::cout << ">>>>>> MAP::load_map_objects[" << number << "] - object_list.size: " << object_list.size() << std::endl;
 }
 
 

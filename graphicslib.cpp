@@ -44,6 +44,8 @@ extern graphicsLib_gSurface _explosion_surface;
 
 #include "class_config.h"
 
+#include "strings_map.h"
+
 
 graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0)
 {
@@ -713,8 +715,6 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 	if (text.size() > 0) {
 		text_pos.x = RES_W/2 - textSF->w/2;
 	}
-    //text_pos.x += _screen_resolution_adjust.x;
-    //text_pos.y += _screen_resolution_adjust.y;
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
@@ -951,8 +951,6 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     ss << "0" << (int)game_save.items.bolts;
     draw_text(273, item_text_pos, ss.str());
 
-	//std::cout << "item_ref->energy_tanks: " << item_ref->energy_tanks << ", item_ref->weapon_tanks: " << item_ref->weapon_tanks << std::endl;
-
 	//if (item_ref->balancer > 0) {
 	if (true) {
         copyArea(st_position(245, 196), &energy_balancer, &gameScreen);
@@ -967,6 +965,10 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     if (game_save.armor_pieces[ARMOR_LEGS] == true) {
         copyArea(st_position(175, 197), &armor_icon_legs, &gameScreen);
     }
+
+    draw_text(212, 23, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" (R)"));
+    draw_text(37, 185, strings_map::get_instance()->get_ingame_string(strings_ingame_life));
+    draw_text(111, 185, strings_map::get_instance()->get_ingame_string(strings_ingame_item));
 
 	updateScreen();
 }

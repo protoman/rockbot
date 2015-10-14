@@ -38,11 +38,9 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
         _obj_jump.set_jump_limit(50);
     }
 	max_projectiles = game_data.players[_number].max_shots;
-    std::cout << "###### classPlayer::classPlayer[" << _number << "] - max_projectiles: " << max_projectiles << std::endl;
     position.y = -TILESIZE;
 	position.x = 80;
     hit_duration = 2000;
-	//hitPoints.total = game_data.players[_number].HP;
 	hitPoints.total = PLAYER_INITIAL_HP;
 	hitPoints.current = hitPoints.total;
 	name = set_name;
@@ -978,7 +976,6 @@ void classPlayer::refill_weapons()
 
 void classPlayer::set_teleport_minimal_y(int y)
 {
-    std::cout << "######### classPlayer::set_teleport_minimal_y - y: " << y << std::endl;
     _teleport_minimal_y = y;
 }
 

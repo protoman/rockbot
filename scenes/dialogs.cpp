@@ -18,7 +18,7 @@ extern timerLib timer;
 
 
 #include "graphic/option_picker.h"
-
+#include "strings_map.h"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
@@ -30,8 +30,6 @@ dialogs::dialogs() : is_showing_dialog_bg(false)
 {
     /// @TODO - temporary configurations should not be placed in st_config
     //if (game_config.two_players == 2 || game_config.selected_player == 1) {
-
-    //std::cout << "DIALOGS::CONSTRUCTOR - " << game_save.selected_player << std::endl;
 
     if (game_save.selected_player == PLAYER_ROCKBOT) {
 		player_name = "Rockbot";
@@ -51,7 +49,6 @@ dialogs::dialogs() : is_showing_dialog_bg(false)
 
 void dialogs::show_stage_dialog()
 {
-    //std::cout << "DEBUG - dialogs::show_stage_dialog::stage: " << stage << ", player_n: " << (game_config.selected_player) << std::endl;
     if (strlen(stage_data.intro_dialog.face_graphics_filename) <= 0) {
 		return;
 	}
@@ -88,7 +85,6 @@ void dialogs::show_boss_dialog()
 	for (int i=0; i<3; i++) {
         lines[i] = std::string(stage_data.boss_dialog.line1[i]);
 	}
-    //std::cout << "stage: " << stage << ", boss_face: '" << stage_data.boss.face_graphics_filename << "'" << std::endl;
     if (strlen(stage_data.boss.face_graphics_filename) <= 0) {
         sprintf(stage_data.boss.face_graphics_filename, "%s", "dr_kanotus.png");
 	}
@@ -156,15 +152,13 @@ bool dialogs::show_leave_game_dialog() const
 
     timer.pause();
 
-    std::cout << ">>>>>>> show_leave_game_dialog::START" << std::endl;
-
     graphicsLib_gSurface bgCopy;
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bgCopy);
 
     graphLib.show_dialog(0, false);
     st_position dialog_pos = graphLib.get_dialog_pos();
-    graphLib.draw_text(dialog_pos.x+30, dialog_pos.y+16, "QUIT GAME?");
+    graphLib.draw_text(dialog_pos.x+30, dialog_pos.y+16, strings_map::get_instance()->get_ingame_string(strings_ingame_quitgame));
     std::vector<std::string> item_list;
     item_list.push_back("YES");
     item_list.push_back("NO");
@@ -188,8 +182,6 @@ bool dialogs::show_leave_game_dialog() const
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
     timer.unpause();
-
-    std::cout << ">>>>>>> show_leave_game_dialog::END" << std::endl;
 
     return res;
 }
@@ -216,7 +208,6 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 			temp_text += temp_char;
 
             graphLib.draw_text(j*9+(dialog_pos.x+52), i*11+(dialog_pos.y+16), temp_text);
-			//graphLib.draw_text(j*9+53, i*11+9, "A");
             draw_lib.update_screen();
 			input.waitTime(15);
 		}
@@ -237,58 +228,45 @@ void dialogs::draw_dialog_bg(bool show_btn=true)
 	graphLib.show_dialog(1, show_btn);
 }
 
-/*
-void armor_edit::fill_armor_abilities() {
-    std::string arm_abilities[] = {"Super-Shot", "Laser-Beam", "Always-Charged", "Freeze"};
-    std::string legs_abilities[] = {"Double Jump", "Air-Dash", "Wall-Grab"};
-    std::string body_abilities[] = {"Half-Damage", "Extended Imunnity", "Spikes Immune", "No Push-Back"};
- */
 void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)
 {
     std::string type_str = "???";
     std::string ability_str = "???";
 
-    //std::cout << ">> showGotArmorDialog - p4.arms: " << game_data.armor_pieces[game_save.selected_player].special_ability[ARMOR_ARMS] << std::endl;
-
     int type = game_data.armor_pieces[armor_type].special_ability[game_save.selected_player];
-    //std::cout << "player: " << game_save.selected_player << ", armor_type: " << armor_type << ", armor.ability: " << type << std::endl;
     if (armor_type == ARMOR_ARMS) {
-        type_str = "THIS IMPROVED ARMS WILL";
+        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms);
         if (type == ARMOR_ABILITY_ARMS_ALWAYSCHARGED) {
-            ability_str = "FIRE ALWAYS CHARGED.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg1);
         } else if (type == ARMOR_ABILITY_ARMS_LASERBEAM) {
-            ability_str = "CHARGE A LASER BEAM";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg2);
         } else if (type == ARMOR_ABILITY_ARMS_SUPERSHOT) {
-            ability_str = "FIRE A SUPER-SHOT!";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg3);
         } else if (type == ARMOR_ABILITY_ARMS_MISSILE) {
-            ability_str = "THROW A HADOUKEN.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg4);
         }
     } else if (armor_type == ARMOR_LEGS) {
         if (type == ARMOR_ABILITY_LEGS_AIRDASH) {
-            type_str = "THOSE LIGHTER LEGS";
-            ability_str = "DASH IN MIDDLE-AIR.";
+            type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg1);
         } else if (type == ARMOR_ABILITY_LEGS_DOUBLEJUMP) {
-            type_str = "THOSE LIGHTER LEGS";
-            ability_str = "EXECUTE DOUBLE JUMP.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg2);
         } else if (type == ARMOR_ABILITY_LEGS_SHORYUKEN) {
-            type_str = "HOLD UP AND DASH";
-            ability_str = "TO SHURYUKEN!";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg3);
         }
     } else {
-        type_str = "THIS FORTIFIED BODY WILL";
+        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body);
         if (type == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
-            ability_str = "BE INTANGIBLE MORE TIME.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg1);
         } else if (type == ARMOR_ABILITY_BODY_HALFDAMAGE) {
-            ability_str = "TAKE HALF DAMAGE.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg2);
         } else if (type == ARMOR_ABILITY_BODY_NOPUSHBACK) {
-            ability_str = "RESIST PUSH-BACK.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg3);
         } else if (type == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
-            ability_str = "RESIST SPIKES.";
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg4);
         }
     }
 
-
-
-    std::string lines[] = {type_str, "GIVE YOU THE ABILITY TO", ability_str};
+    std::string lines[] = {type_str, strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_ability), ability_str};
     show_dialog("canotus_face.png", true, lines, true);
 }

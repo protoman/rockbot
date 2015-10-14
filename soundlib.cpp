@@ -228,7 +228,6 @@ void soundLib::load_music(std::string music_file) {
 
 	unload_music();
     filename = FILEPATH + "music/" + music_file;
-    std::cout << "soundLib::load_music - filename: " << filename << std::endl;
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";

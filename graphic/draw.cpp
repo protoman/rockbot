@@ -244,20 +244,7 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     if (credits_list.size() > 0) {
         return;
     }
-    credits_list.push_back("--- COPYRIGHT NOTICE ---");
-    credits_list.push_back("MEGAMAN AND ROCKMAN ARE TRADEMARKS");
-    credits_list.push_back("OF CAPCOM INC. SOME OF THE GRAPHICS");
-    credits_list.push_back("AND SOUND EFFECTS USED IN THIS GAME");
-    credits_list.push_back("ARE PROPERTY OF CAPCOM INC.");
-    credits_list.push_back("");
-    credits_list.push_back("THIS FANGAME IS A TRIBUTE TO MEGAMAN,");
-    credits_list.push_back("FREE AND OPEN-SOURCE");
-    credits_list.push_back("");
-    credits_list.push_back("WE THANK CAPCOM FOR CREATING MEGAMAN");
-    credits_list.push_back("AND ITS CLASSIC GAMES, ALSO FOR");
-    credits_list.push_back("BEING FRIENDLY TOWARDS FANGAMES.");
-    credits_list.push_back("");
-    credits_list.push_back("");
+    credits_list.push_back("*** ROCKBOT CREDITS ****");
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
@@ -349,12 +336,13 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("DIGIA QT");
     credits_list.push_back("UBUNTU LINUX");
     credits_list.push_back("MINT LINUX");
-    credits_list.push_back("GIMP");
+    credits_list.push_back("GIMP EDITOR");
     credits_list.push_back("PAINT TOOL SAI");
     credits_list.push_back("COREL DRAW");
     credits_list.push_back("SIMPLE SCREEN RECORD");
     credits_list.push_back("AUDACIOUS PLAYER");
-    credits_list.push_back("AUDACITY EDIT");
+    credits_list.push_back("AUDACITY EDITOR");
+    credits_list.push_back("BFXR.NET");
 
     credits_list.push_back("");
     credits_list.push_back("");

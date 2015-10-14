@@ -784,16 +784,6 @@ void character::show() {
         show_sprite();
     }
     show_hp();
-
-    /*
-    stringstream ss;
-    ss << "x:" << position.x;
-    graphLib.draw_text(position.x, position.y, ss.str());
-    ss.str(std::string());
-    ss << "y:" << position.y;
-    graphLib.draw_text(position.x, position.y+8, ss.str());
-    */
-
 }
 
 

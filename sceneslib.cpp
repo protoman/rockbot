@@ -589,7 +589,7 @@ bool scenesLib::password_end_selector()
 		} else if (input.p1_input[BTN_JUMP] == 1 || input.p1_input[BTN_START] == 1) {
 			if (password_set() == false) { // show an error and keep trying
                 graphLib.clear_area(53, 180, 217, 28, 0, 0, 0);
-                graphLib.draw_text(66, 190, "INVALID PASSWORD.", graphLib.gameScreen);
+                graphLib.draw_text(66, 190, strings_map::get_instance()->get_ingame_string(strings_ingame_passwordinvalid), graphLib.gameScreen);
                 draw_lib.update_screen();
 			} else {
 				return true;
@@ -719,7 +719,7 @@ void scenesLib::show_password()
             }
         }
     }
-    graphLib.draw_text(112, 190, ">PRESS START", graphLib.gameScreen);
+    graphLib.draw_text(112, 190, std::string(">") + strings_map::get_instance()->get_ingame_string(strings_ingame_pressstart), graphLib.gameScreen);
     draw_lib.update_screen();
     input.wait_keypress();
     password_screen.freeGraphic();
@@ -951,7 +951,6 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         return;
     } else if (game_save.stages[pos_n] != 0) {
         std::cout << "boss_intro - stage already finished" << std::endl;
-        //return;
     }
 
 

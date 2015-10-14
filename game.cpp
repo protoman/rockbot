@@ -344,7 +344,7 @@ void game::fps_count()
 {
 	fps_counter++;
 	if (fps_timer <= timer.getTimer()) {
-        sprintf(_fps_buffer, "fps: %d", fps_counter);
+        sprintf(_fps_buffer, "FPS: %d", fps_counter);
 		fps_counter = 0;
 		fps_timer = timer.getTimer()+1000;
 	}
@@ -1317,9 +1317,9 @@ std::string game::select_game_screen()
     input.clean();
     input.waitTime(200);
 
-    std::string game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
+    //std::string game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
 
-    return std::string(game_dir);
+    return game_list.at(picked_n);
 }
 
 void game::finish_player_teleporter()

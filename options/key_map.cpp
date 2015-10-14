@@ -14,6 +14,7 @@ extern draw draw_lib;
 
 #include "graphic/option_picker.h"
 
+#include "strings_map.h"
 
 #include "defines.h"
 
@@ -22,13 +23,12 @@ extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 key_map::key_map()
 {
-    _keys_list.push_back(std::string("JUMP: "));
-    _keys_list.push_back(std::string("SHOT: "));
-    _keys_list.push_back(std::string("DASH: "));
-    _keys_list.push_back(std::string("SHIELD: "));
-    _keys_list.push_back(std::string("L: "));
-    _keys_list.push_back(std::string("R: "));
-    _keys_list.push_back(std::string("START: "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start) + std::string(": "));
 }
 
 
@@ -54,19 +54,16 @@ void key_map::draw_screen()
     graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING, "RETURN");
     draw_lib.update_screen();
 
-    //cout << "scenesLib::option_picker::START\n";
     graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
         input.readInput();
         if (input.p1_input[BTN_START]) {
             if (_pick_pos == (short)_keys_list.size()) {
-                std::cout << "key_map::draw_screen - FINISHED #1" << std::endl;
                 finished = true;
             } else {
-                graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, "PRESS NEW KEY/BUTTON"); //input code (number)
+                graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_pressnew)); //input code (number)
                 draw_lib.update_screen();
-                //CURRENT_FILE_FORMAT::st_key_config new_key = input.get_pressed_key();
                 graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, 0, 0, 0);
                 ///@TODO - key_config[_pick_pos].key_type = new_key.key_type;
                 ///@TODO - key_config[_pick_pos].key_number = new_key.key_number;
@@ -93,7 +90,6 @@ void key_map::draw_screen()
                 graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));
         }
         if (input.p1_input[BTN_QUIT]) {
-            std::cout << "key_map::draw_screen - FINISHED #2" << std::endl;
             finished = true;
         }
         input.clean();
@@ -109,30 +105,12 @@ void key_map::redraw_line(short line) const
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     graphLib.clear_area(config_text_pos.x+70-1, config_text_pos.y-1 + line*CURSOR_SPACING, 110,  CURSOR_SPACING+1, 0, 0, 0);
-    ///@TODO -
-    /*
-    if (key_config[line].key_type == 0) {
-        graphLib.draw_text(config_text_pos.x + 70, config_text_pos.y + line*CURSOR_SPACING, "JOYSTICK"); // input type (joystick/keyboard)
-    } else {
-        graphLib.draw_text(config_text_pos.x + 70, config_text_pos.y + line*CURSOR_SPACING, "KEYBOARD"); // input type (joystick/keyboard)
-    }
-    */
 
     std::stringstream key_n_ss;
     ///@TODO - key_n_ss << key_config[line].key_number;
 
     graphLib.draw_text(config_text_pos.x + 140, config_text_pos.y + line*CURSOR_SPACING, key_n_ss.str()); //input code (number)
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -149,35 +127,29 @@ Sint8 key_map::draw_config_keys() const
 
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
     std::vector<std::string> options;
-    options.push_back("RESET TO DEFAULT");
-    options.push_back("SET JUMP");
-    options.push_back("SET ATTACK");
-    options.push_back("SET SHIELD");
-    options.push_back("SET DASH");
-    options.push_back("SET L");
-    options.push_back("SET R");
-    options.push_back("SET START");
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start));
 
-    // -- NEW -- //
     if (game_config.input_mode == INPUT_MODE_DIGITAL) {
-        options.push_back("DIRECTIONAL: DIGITAL");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_digital));
     } else {
-        options.push_back("DIRECTIONAL: ANALOG");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_analog));
     }
-    // -- NEW --//
     if (game_config.input_mode == INPUT_MODE_DIGITAL) {
-        options.push_back("SET UP");
-        options.push_back("SET DOWN");
-        options.push_back("SET LEFT");
-        options.push_back("SET RIGHT");
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_up));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_down));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_left));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right));
     }
-
-
 
     Sint8 selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
-    std::cout << "key_map::draw_config_keys - selected_option: " << (int)selected_option << std::endl;
     return selected_option;
 }
 
@@ -193,57 +165,47 @@ void key_map::config_input()
     while (selected_option != -1) {
         selected_option = draw_config_keys();
 
-        std::cout << "key_map::config_input - selected_option: " << selected_option << std::endl;
-
         if (selected_option == 0) {
             game_config.set_default_keys();
-            std::cout << "key_map::config_input - LEAVE #1" << std::endl;
         } else if (selected_option == -1) {
-            std::cout << "key_map::config_input - LEAVE #2" << std::endl;
             // apply changes to game-config
             apply_key_codes_changes(game_config_copy);
             return;
 
-        // -- NEW -- //
         } else if (selected_option == 8) {
             if (game_config.input_mode == INPUT_MODE_DIGITAL) {
                 game_config.input_mode = INPUT_MODE_ANALOG;
             } else {
                 game_config.input_mode = INPUT_MODE_DIGITAL;
             }
-        // -- NEW -- //
-
 
         } else {
-            std::cout << "key_map::config_input - PICK KEY #1" << std::endl;
             INPUT_COMMANDS selected_key = BTN_JUMP;
             if (selected_option == 1) {
                 selected_key = BTN_JUMP;
             } else if (selected_option == 2) {
                 selected_key = BTN_ATTACK;
             } else if (selected_option == 3) {
-                selected_key = BTN_SHIELD;
-            } else if (selected_option == 4) {
                 selected_key = BTN_DASH;
-            } else if (selected_option == 5) {
+            } else if (selected_option == 4) {
                 selected_key = BTN_L;
-            } else if (selected_option == 6) {
+            } else if (selected_option == 5) {
                 selected_key = BTN_R;
-            } else if (selected_option == 7) {
+            } else if (selected_option == 6) {
                 selected_key = BTN_START;
-            } else if (selected_option == 9) {
+            } else if (selected_option == 8) {
                 selected_key = BTN_UP;
-            } else if (selected_option == 10) {
+            } else if (selected_option == 9) {
                 selected_key = BTN_DOWN;
-            } else if (selected_option == 11) {
+            } else if (selected_option == 10) {
                 selected_key = BTN_LEFT;
-            } else if (selected_option == 12) {
+            } else if (selected_option == 11) {
                 selected_key = BTN_RIGHT;
             }
 
             st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
             graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-            graphLib.draw_text(menu_pos.x, menu_pos.y, "PRESS A KEY OR BUTTON");
+            graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey));
             input.clean();
             input.waitTime(20);
             bool is_joystick = input.pick_key_or_button(game_config_copy, selected_key);
@@ -266,12 +228,10 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config game_conf
     for (int i=0; i<BTN_COUNT; i++) {
         if (is_joystick == false) {
             if (i != set_key && game_config_copy.keys_codes[i] == game_config_copy.keys_codes[set_key]) { // found duplicate
-                std::cout << "FOUND DUPLICATE KEY, set_key[" << set_key << "]: " << game_config_copy.keys_codes[set_key] << ", [" << i <<"] with value: " << game_config_copy.keys_codes[i] << ", RESET" << std::endl;
                 game_config_copy.keys_codes[i] = default_keys_codes[i]; // reset duplicate to default value, avoiding setting two buttons with same key
             }
         } else {
             if (i != set_key && game_config_copy.button_codes[i] == game_config_copy.button_codes[set_key]) { // found duplicate
-                std::cout << "FOUND DUPLICATE BUTTON, set_key[" << set_key << "]: " << game_config_copy.button_codes[set_key] << ", [" << i <<"] with value: " << game_config_copy.button_codes[i] << ", RESET" << std::endl;
                 game_config_copy.button_codes[i] = default_button_codes[i]; // reset duplicate to default value, avoiding setting two buttons with same key
             }
         }
