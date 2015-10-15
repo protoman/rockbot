@@ -145,6 +145,12 @@ int main(int argc, char *argv[])
         NewGameDialog *new_game_dialog = new NewGameDialog();
         QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(on_new_game_accepted(QString)));
         new_game_dialog->show();
+    } else if (game_list.size() == 1) {
+        FILEPATH = GAMEPATH + std::string("/games/") + game_list.at(0) + std::string("/");
+        GAMENAME = game_list.at(0);
+        Mediator::get_instance()->loadGame();
+        w.reload();
+        w.show();
     } else {
         QDialog *open = new loadGamePicker();
         QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(reload()));

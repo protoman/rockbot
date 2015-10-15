@@ -14,7 +14,7 @@
    <string>Strings Editor</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -24,7 +24,7 @@
        <string>Game Strings</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+       <item row="4" column="0">
         <widget class="QScrollArea" name="tabGame_scrollArea">
          <property name="widgetResizable">
           <bool>true</bool>
@@ -35,13 +35,10 @@
             <x>0</x>
             <y>0</y>
             <width>606</width>
-            <height>279</height>
+            <height>222</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="tabGame_gridLayout"/>
-           </item>
            <item row="0" column="1">
             <spacer name="horizontalSpacer">
              <property name="orientation">
@@ -54,6 +51,9 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="tabGame_gridLayout"/>
            </item>
            <item row="1" column="0">
             <spacer name="verticalSpacer">
@@ -90,7 +90,7 @@
             <x>0</x>
             <y>0</y>
             <width>606</width>
-            <height>279</height>
+            <height>222</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
@@ -105,12 +105,66 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
+   </item>
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout_6">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Current Language:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="languageSelector_comboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLineEdit" name="languageName_lineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="maxLength">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="addLanguage_pushButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Add Language</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

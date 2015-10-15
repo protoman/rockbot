@@ -4,6 +4,8 @@
 #include "file_io.h"
 #include "convert.h"
 #include "../file/convert.h"
+#include "aux_tools/stringutils.h"
+
 #ifdef DREAMCAST
 #include <kos.h>
 #endif
@@ -257,7 +259,7 @@ namespace format_v4 {
 // -------------------------------------- NPCS -------------------------------------- //
         // file_npc game_npcs[FS_GAME_MAX_NPCS]
         filename = std::string(FILEPATH) + "game_npcs" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -273,7 +275,7 @@ namespace format_v4 {
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
         filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -289,7 +291,7 @@ namespace format_v4 {
 // -------------------------------------- PROJECTILES -------------------------------------- //
         // file_projectile projectiles[FS_MAX_PROJECTILES]
         filename = std::string(FILEPATH) + "game_projectiles" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -305,7 +307,7 @@ namespace format_v4 {
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -321,7 +323,7 @@ namespace format_v4 {
 // -------------------------------------- PLAYERS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
         filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -338,7 +340,7 @@ namespace format_v4 {
 // -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
         // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
         filename = std::string(FILEPATH) + "game_ai" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -354,7 +356,7 @@ namespace format_v4 {
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
         filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -371,7 +373,7 @@ namespace format_v4 {
         // st_shop_dialog shop_dialog_welcome
         // st_shop_dialog shop_dialog_goodbye
         filename = std::string(FILEPATH) + "game_shop" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -393,7 +395,7 @@ namespace format_v4 {
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
         filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -409,7 +411,7 @@ namespace format_v4 {
 // -------------------------------------- ANIM_TILES -------------------------------------- //
         // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
         filename = std::string(FILEPATH) + "game_animTiles" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -429,7 +431,7 @@ namespace format_v4 {
     {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
@@ -443,7 +445,7 @@ namespace format_v4 {
     {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
@@ -494,9 +496,15 @@ namespace format_v4 {
 
     std::vector<std::string> file_io::read_game_list() const
     {
-        std::vector<std::string> res;
         std::string filename = GAMEPATH + "/games/";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
+        return read_directory_list(filename, true);
+    }
+
+    std::vector<std::string> file_io::read_directory_list(std::string filename, bool dir_only) const
+    {
+        std::vector<std::string> res;
+        filename = StringUtils::clean_filename(filename);
 
         // check if games folder exists
         if (!directory_exists(filename)) {
@@ -512,19 +520,26 @@ namespace format_v4 {
             std::string dir_name = std::string(entry->d_name);
             if (dir_name != "." && dir_name != "..") {
                 DIR *child_dir;
-                std::string child_dir_path = GAMEPATH + std::string("/games/") + dir_name;
+                std::string child_dir_path = filename + std::string("/") + dir_name;
                 child_dir = opendir (child_dir_path.c_str());
-                if (child_dir != NULL) {
+
+                if (dir_only == true && child_dir != NULL) {
+                    res.push_back(dir_name);
+                } else if (dir_only == false && child_dir == NULL) {
                     res.push_back(dir_name);
                 }
             }
-
             entry = readdir(dir);
 
         }
         closedir(dir);
 #endif
         return res;
+    }
+
+    std::vector<std::string> file_io::read_file_list(std::string filename) const
+    {
+        return read_directory_list(filename, false);
     }
 
 
@@ -534,7 +549,7 @@ namespace format_v4 {
     bool file_io::save_exists() const
     {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         std::ifstream fp(filename.c_str());
         if (fp.good()) {
             return true;
@@ -546,7 +561,7 @@ namespace format_v4 {
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + "/config.sav";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
@@ -574,7 +589,7 @@ namespace format_v4 {
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + "/config.sav";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
             std::cout << "Error: Could not open config file '" << filename << "'." << std::endl;
@@ -588,7 +603,7 @@ namespace format_v4 {
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
@@ -651,7 +666,7 @@ namespace format_v4 {
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
             std::cout << "Error: Could not open save-file '" << filename << "'." << std::endl;
@@ -671,7 +686,7 @@ namespace format_v4 {
         FILE *fp;
 
         std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -691,19 +706,6 @@ namespace format_v4 {
     }
 
 
-
-    std::vector<std::string> file_io::split(std::string str, std::string sep)
-    {
-        char* cstr = const_cast<char*>(str.c_str());
-        char* current;
-        std::vector<std::string> arr;
-        current = strtok(cstr, sep.c_str());
-        while(current != NULL){
-            arr.push_back(current);
-            current=strtok(NULL, sep.c_str());
-        }
-        return arr;
-    }
 
 
     // create and save empty files for new-game
@@ -727,7 +729,7 @@ namespace format_v4 {
         file_scene_sequence temp;
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "sequence.scn";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
@@ -745,7 +747,7 @@ namespace format_v4 {
     {
         std::ofstream fp;
         std::string filename = std::string(FILEPATH) + "sequence.scn";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
@@ -765,7 +767,7 @@ namespace format_v4 {
         file_scene temp;
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "scenes.scn";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
@@ -784,7 +786,7 @@ namespace format_v4 {
     {
         std::ofstream fp;
         std::string filename = std::string(FILEPATH) + "scenes.scn";
-        filename = clean_filename(filename);
+        filename = StringUtils::clean_filename(filename);
 
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
@@ -799,38 +801,6 @@ namespace format_v4 {
 
 
 
-
-    void file_io::replaceAll(std::string &source, const std::string &from, const std::string &to) const
-    {
-        std::string newString;
-        newString.reserve( source.length() );  // avoids a few memory allocations
-
-        std::string::size_type lastPos = 0;
-        std::string::size_type findPos;
-
-        while( std::string::npos != ( findPos = source.find( from, lastPos )))
-        {
-            newString.append( source, lastPos, findPos - lastPos );
-            newString += to;
-            lastPos = findPos + from.length();
-        }
-
-        // Care for the rest after last occurrence
-        newString += source.substr( lastPos );
-
-        source.swap( newString );
-    }
-
-
-    std::string file_io::clean_filename(std::string filename) const
-    {
-        replaceAll(filename, "//", "/");
-        replaceAll(filename, "//", "/"); // twice because first time could will have "//" if "///"
-        replaceAll(filename, "\\", "/");
-
-        return filename;
-
-    }
 
 }
 

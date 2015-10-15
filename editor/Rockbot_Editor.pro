@@ -102,7 +102,8 @@ SOURCES += main.cpp \
     newgamedialog.cpp \
     mainwindow_tab/gamescenes.cpp \
     files_editor/stringseditor.cpp \
-    ../file/fio_strings.cpp
+    ../file/fio_strings.cpp \
+    ../aux_tools/stringutils.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -172,7 +173,8 @@ HEADERS += mainwindow.h \
     ../file/v4/file_strings_v4.h \
     mainwindow_tab/gamescenes.h \
     files_editor/stringseditor.h \
-    ../file/fio_strings.h
+    ../file/fio_strings.h \
+    ../aux_tools/stringutils.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

@@ -21,13 +21,13 @@ public:
     fio_strings();
     std::string get_ingame_string(int n);
     std::vector<std::string> load_game_strings();
-    void save_game_strings(std::vector<std::string> list);
+    std::vector<std::string> load_game_strings_from_file(std::string filename);
+    void save_game_strings(std::vector<std::string> list, std::string filename);
 
 private:
 
     bool file_exists(std::string filename) const;
     void create_default_ingame_strings();
-    void replaceAll( std::string& source, const std::string& from, const std::string& to ) const;
 
 private:
     std::vector<std::string> string_list;

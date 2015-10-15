@@ -5,9 +5,7 @@
 
 extern std::string GAMEPATH;
 
-NewGameDialog::NewGameDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NewGameDialog)
+NewGameDialog::NewGameDialog(QWidget *parent) : QDialog(parent), ui(new Ui::NewGameDialog)
 {
     ui->setupUi(this);
     data_loading = false;

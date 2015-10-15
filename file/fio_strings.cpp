@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "defines.h"
+#include "aux_tools/stringutils.h"
 
 extern std::string FILEPATH;
 
@@ -33,6 +34,11 @@ namespace format_v4 {
     std::vector<std::string> fio_strings::load_game_strings()
     {
         std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
+        return load_game_strings_from_file(filename);
+    }
+
+    std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename)
+    {
         std::vector<std::string> res;
 
         std::ifstream fp(filename.c_str());
@@ -49,19 +55,15 @@ namespace format_v4 {
 
         std::string str;
         while (getline(fp, str)) {
-            replaceAll(str, "\n", "");
+            StringUtils::replace_all(str, "\n", "");
             res.push_back(str);
         }
-
         fp.close();
-
-
         return res;
     }
 
-    void fio_strings::save_game_strings(std::vector<std::string> list)
+    void fio_strings::save_game_strings(std::vector<std::string> list, std::string filename)
     {
-        std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
         std::ofstream fp(filename.c_str());
         if (!fp.is_open()) {
             std::cout << ">> fio_strings::create_default_ingame_strings: Could not open '" << filename << "' for writting." << std::endl;
@@ -179,27 +181,5 @@ namespace format_v4 {
         fp.close();
 
     }
-
-    void fio_strings::replaceAll(std::string &source, const std::string &from, const std::string &to) const
-    {
-        std::string newString;
-        newString.reserve( source.length() );  // avoids a few memory allocations
-
-        std::string::size_type lastPos = 0;
-        std::string::size_type findPos;
-
-        while( std::string::npos != ( findPos = source.find( from, lastPos )))
-        {
-            newString.append( source, lastPos, findPos - lastPos );
-            newString += to;
-            lastPos = findPos + from.length();
-        }
-
-        // Care for the rest after last occurrence
-        newString += source.substr( lastPos );
-
-        source.swap( newString );
-    }
-
 
 }// namepsace

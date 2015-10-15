@@ -48,6 +48,8 @@ namespace format_v4 {
         bool file_exists(std::string filename) const;
         bool directory_exists(std::string filename) const;
         std::vector<std::string> read_game_list() const;
+        std::vector<std::string> read_directory_list(std::string filename, bool dir_only) const;
+        std::vector<std::string> read_file_list(std::string filename) const;
 
         bool write_save(st_save& data_in);
         void read_save(st_save& data_out) const;
@@ -65,12 +67,8 @@ namespace format_v4 {
 
         void generate_files();
 
-        void replaceAll( std::string& source, const std::string& from, const std::string& to ) const;
-        std::string clean_filename(std::string filename) const;
-
 
     private:
-        std::vector<std::string> split(std::string str,std::string sep);
         std::string sufix;
 
 
