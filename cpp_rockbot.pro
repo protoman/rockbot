@@ -358,7 +358,8 @@ HEADERS += \
     file/v4/file_stage_v4.h \
     strings_map.h \
     file/fio_strings.h \
-    aux_tools/stringutils.h
+    aux_tools/stringutils.h \
+    file/v4/file_strings.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

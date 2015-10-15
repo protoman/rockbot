@@ -6,13 +6,15 @@
 
 extern std::string FILEPATH;
 
-StringsEditor::StringsEditor(QWidget *parent) : QDialog(parent), ui(new Ui::StringsEditor)
+StringsEditor::StringsEditor(QWidget *parent) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this)
 {
     string_list = fio_str.load_game_strings();
     ui->setupUi(this);
 
     data_loading = true;
 
+
+    // ==================== GAME STRINGS ==================== //
     fill_data();
 
     QObject::connect(&signal_mapper, SIGNAL(mapped(const int &)), this, SLOT(on_text_changed(const int &)));
@@ -35,6 +37,15 @@ StringsEditor::StringsEditor(QWidget *parent) : QDialog(parent), ui(new Ui::Stri
         std::string path_new = FILEPATH + std::string("/lang/strings_ingame_") + current_lang + std::string(".dat");
         load_language(path_new);
     }
+
+    // ==================== COMMON STRINGS ==================== //
+
+    std::vector<CURRENT_FILE_FORMAT::st_common_string> common_string_list;
+    common_string_list.push_back(CURRENT_FILE_FORMAT::st_common_string("NOME #1", "VALOR #1"));
+    common_string_list.push_back(CURRENT_FILE_FORMAT::st_common_string("NOME #2", "VALOR #2"));
+
+    string_edit_model.set_data(common_string_list);
+    ui->commonStrings_tableView->setModel(&string_edit_model);
 
     data_loading = false;
 }

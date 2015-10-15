@@ -4,6 +4,7 @@
 #include "file/format.h"
 #include "file/fio_strings.h"
 #include "file/file_io.h"
+#include "model/stringeditmodel.h"
 
 #include <QDialog>
 #include <QSignalMapper>
@@ -56,6 +57,7 @@ private:
     std::vector<QLineEdit*> editor_line_list;
     bool data_loading;
     std::string current_lang;
+    StringEditModel string_edit_model;
 };
 
 #endif // STRINGSEDITOR_H

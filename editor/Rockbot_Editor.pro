@@ -103,7 +103,8 @@ SOURCES += main.cpp \
     mainwindow_tab/gamescenes.cpp \
     files_editor/stringseditor.cpp \
     ../file/fio_strings.cpp \
-    ../aux_tools/stringutils.cpp
+    ../aux_tools/stringutils.cpp \
+    model/stringeditmodel.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -174,7 +175,9 @@ HEADERS += mainwindow.h \
     mainwindow_tab/gamescenes.h \
     files_editor/stringseditor.h \
     ../file/fio_strings.h \
-    ../aux_tools/stringutils.h
+    ../aux_tools/stringutils.h \
+    model/stringeditmodel.h \
+    ../file/v4/file_strings.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
