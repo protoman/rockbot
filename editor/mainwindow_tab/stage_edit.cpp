@@ -6,6 +6,7 @@
 #include "common.h"
 
 #include "../mediator.h"
+#include "files_editor/stringseditor.h"
 
 stage_edit::stage_edit(QWidget *parent) : QWidget(parent), ui(new Ui::stage_edit), _data_loading(true)
 {
@@ -363,4 +364,10 @@ void stage_edit::on_bossface_comboBox_currentIndexChanged(const QString &arg1)
 
     sprintf(Mediator::get_instance()->game_data.stage_face_filename[Mediator::get_instance()->currentStage], "%s", arg1.toStdString().c_str()); // this is used to have faces without loading the whole stage
     sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.face_graphics_filename, "%s", arg1.toStdString().c_str());
+}
+
+void stage_edit::on_toolButton_clicked()
+{
+    StringsEditor* strings_editor_window = new StringsEditor(this, true);
+    strings_editor_window->show();
 }

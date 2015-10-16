@@ -6,8 +6,9 @@
 
 extern std::string FILEPATH;
 
-StringsEditor::StringsEditor(QWidget *parent) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this)
+StringsEditor::StringsEditor(QWidget *parent, bool pick_mode) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this)
 {
+    pick_mode_enabled = pick_mode;
     string_list = fio_str.load_game_strings();
     ui->setupUi(this);
 
@@ -40,14 +41,26 @@ StringsEditor::StringsEditor(QWidget *parent) : QDialog(parent), ui(new Ui::Stri
 
     // ==================== COMMON STRINGS ==================== //
 
-    std::vector<CURRENT_FILE_FORMAT::st_common_string> common_string_list;
-    common_string_list.push_back(CURRENT_FILE_FORMAT::st_common_string("NOME #1", "VALOR #1"));
-    common_string_list.push_back(CURRENT_FILE_FORMAT::st_common_string("NOME #2", "VALOR #2"));
+    std::vector<CURRENT_FILE_FORMAT::st_file_common_string> common_string_list = fio_str.get_common_strings();
+    /*
+    common_string_list.push_back(CURRENT_FILE_FORMAT::st_file_common_string("NOME #1", "VALOR #1"));
+    common_string_list.push_back(CURRENT_FILE_FORMAT::st_file_common_string("NOME #2", "VALOR #2"));
+    common_string_list.push_back(CURRENT_FILE_FORMAT::st_file_common_string("NOME #3", "VALOR #3"));
+    */
 
     string_edit_model.set_data(common_string_list);
+    string_edit_model.set_pick_mode(pick_mode_enabled);
     ui->commonStrings_tableView->setModel(&string_edit_model);
 
     data_loading = false;
+
+    if (pick_mode_enabled == true) {
+        ui->tabWidget->setTabEnabled(0, false);
+        ui->addLanguage_pushButton->setVisible(false);
+        ui->languageName_lineEdit->setVisible(false);
+        ui->addCommonString_pushButton->setVisible(false);
+        ui->tabWidget->setCurrentIndex(1);
+    }
 }
 
 StringsEditor::~StringsEditor()
@@ -105,7 +118,14 @@ void StringsEditor::on_text_changed(int n)
 
 void StringsEditor::on_buttonBox_accepted()
 {
-    save_data();
+    if (pick_mode_enabled == false) {
+        save_data();
+    }
+    QModelIndexList selectedList = ui->commonStrings_tableView->selectionModel()->selectedRows();
+    for (int i=0; i<selectedList.count(); i++) {
+        emit on_accepted(selectedList.at(i).row());
+        break;
+    }
     this->close();
 }
 

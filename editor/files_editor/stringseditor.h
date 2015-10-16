@@ -24,7 +24,7 @@ class StringsEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit StringsEditor(QWidget *parent = 0);
+    explicit StringsEditor(QWidget *parent, bool pick_mode);
     ~StringsEditor();
     void save_data();
 
@@ -47,6 +47,10 @@ private slots:
 
     void on_languageSelector_comboBox_currentTextChanged(const QString &arg1);
 
+
+signals:
+    void on_accepted(int);                  // emits a signal indicating the selected line number
+
 private:
     Ui::StringsEditor *ui;
     CURRENT_FILE_FORMAT::fio_strings fio_str;
@@ -58,6 +62,7 @@ private:
     bool data_loading;
     std::string current_lang;
     StringEditModel string_edit_model;
+    bool pick_mode_enabled;
 };
 
 #endif // STRINGSEDITOR_H

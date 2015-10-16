@@ -70,6 +70,8 @@ private slots:
 
     void on_bossface_comboBox_currentIndexChanged(const QString &arg1);
 
+    void on_toolButton_clicked();
+
 private:
 	void fill_stage_tab_data();
     void update_stage_data();

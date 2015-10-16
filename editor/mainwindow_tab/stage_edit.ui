@@ -37,7 +37,17 @@
          <property name="bottomMargin">
           <number>10</number>
          </property>
-         <item row="3" column="2">
+         <item row="5" column="1">
+          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_48">
+           <property name="text">
+            <string>Stage:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="3">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Dialog Person Face:</string>
@@ -51,18 +61,22 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="stages_tab_stage_combo"/>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_48">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>Stage:</string>
+            <string>Dialog Person Name:</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="stages_tab_stage_combo"/>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="stages_tab_bossname_lineedit">
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_49">
@@ -75,20 +89,6 @@
           <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
            <property name="maxLength">
             <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="stages_tab_bossname_lineedit">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Dialog Person Name:</string>
            </property>
           </widget>
          </item>
@@ -189,7 +189,24 @@
            </item>
           </layout>
          </item>
-         <item row="6" column="3">
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_20">
+           <property name="text">
+            <string>Boss Dialogs:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
+          <widget class="QLabel" name="label_63">
+           <property name="text">
+            <string>Boss Weapon:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="4">
+          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
+         </item>
+         <item row="6" column="4">
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
             <widget class="QLabel" name="label_54">
@@ -259,23 +276,6 @@
            </item>
           </layout>
          </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Boss Dialogs:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="3">
-          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
-         </item>
-         <item row="5" column="2">
-          <widget class="QLabel" name="label_63">
-           <property name="text">
-            <string>Boss Weapon:</string>
-           </property>
-          </widget>
-         </item>
          <item row="7" column="1">
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
@@ -336,7 +336,7 @@
            </item>
           </layout>
          </item>
-         <item row="7" column="3">
+         <item row="7" column="4">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="label">
@@ -396,13 +396,20 @@
            </item>
           </layout>
          </item>
-         <item row="3" column="3">
+         <item row="3" column="4">
           <widget class="QComboBox" name="bossface_comboBox">
            <property name="iconSize">
             <size>
              <width>32</width>
              <height>32</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QToolButton" name="toolButton">
+           <property name="text">
+            <string>...</string>
            </property>
           </widget>
          </item>

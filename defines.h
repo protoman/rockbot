@@ -873,7 +873,6 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_restart2,
     strings_ingame_config_restart3,
     strings_ingame_config_presstorestart,
-
     strings_ingame_pressanykey,
     strings_ingame_config_set,
     strings_ingame_config_key_up,
@@ -891,19 +890,15 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_key_directional,
     strings_ingame_config_key_directional_analog,
     strings_ingame_config_key_directional_digital,
-
     strings_ingame_passwordinvalid,
     strings_ingame_pressstart,
     strings_ingame_engineerror,
     strings_ingame_nogames,
     strings_ingame_quitgame,
-
     strings_ingame_yes,
     strings_ingame_no,
-
     strings_ingame_life,
     strings_ingame_item,
-
     strings_ingame_gotarmor_type_ability,
     strings_ingame_gotarmor_type_arms,
     strings_ingame_gotarmor_type_arms_msg1,
@@ -927,7 +922,13 @@ enum E_STRINGS_INGAME {
     strings_ingame_COUNT
 };
 
+
+#define FS_COMMONSTRING_ID_SIZE 30
+#define FS_COMMON_STRINGS_DIALOG 27
+
 // --- STRINGS  END --- //
+
+
 
 
 #endif // DEFINES_H

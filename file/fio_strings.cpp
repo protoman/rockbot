@@ -78,6 +78,14 @@ namespace format_v4 {
 
     }
 
+    std::string fio_strings::get_common_strings_filename()
+    {
+        std::string filename = FILEPATH + std::string("/lang/common_strings.dat");
+        filename = StringUtils::clean_filename(filename);
+        return filename;
+    }
+
+
     bool format_v4::fio_strings::file_exists(std::string filename) const
     {
         bool res = false;
@@ -181,5 +189,137 @@ namespace format_v4 {
         fp.close();
 
     }
+
+    void fio_strings::create_default_common_strings()
+    {
+        std::vector<st_file_common_string> res;
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            char line_id[FS_COMMONSTRING_ID_SIZE];
+            sprintf(line_id, "STAGE_DLG_NAME_%d", i);
+            char line_value[FS_CHAR_NAME_SIZE];
+            sprintf(line_value, "DIALOG_PERSON_NAME #%d", i);
+            res.push_back(st_file_common_string(line_id, line_value));
+        }
+
+        // stage-start dialogs
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            // person dialogs
+            char line_id[FS_COMMONSTRING_ID_SIZE];
+            char line_value[FS_COMMON_STRINGS_DIALOG];
+            sprintf(line_id, "STAGE_DLG_%d", i);
+            sprintf(line_value, "START-STAGE DIALOG #%d", i);
+            res.push_back(st_file_common_string(line_id, line_value));
+            // players dialogs
+            for (int j=0; j<4; j++) {
+                for (int k=0; k<3; k++) {
+                    char player_line_id[FS_COMMONSTRING_ID_SIZE];
+                    char player_line_value[FS_COMMON_STRINGS_DIALOG];
+                    sprintf(player_line_id, "STAGE_DLG_PLAYER_%d_%d_%d", j, i, k);
+                    sprintf(player_line_value, "STAGE DIALOG PLAYER %d %d %d", j, i, k);
+                    res.push_back(st_file_common_string(player_line_id, player_line_value));
+                }
+            }
+        }
+
+
+        // stage-boss dialogs
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            // person dialogs
+            char line_id[FS_COMMONSTRING_ID_SIZE];
+            char line_value[FS_COMMON_STRINGS_DIALOG];
+            sprintf(line_id, "BOSS_DLG_%d", i);
+            sprintf(line_value, "BOSS DIALOG #%d", i);
+            res.push_back(st_file_common_string(line_id, line_value));
+            // players dialogs
+            for (int j=0; j<4; j++) {
+                // 3 lines
+                for (int k=0; k<3; k++) {
+                    char player_line_id[FS_COMMONSTRING_ID_SIZE];
+                    char player_line_value[FS_COMMON_STRINGS_DIALOG];
+                    sprintf(player_line_id, "BOSS_DLG_PLAYER_%d_%d %d", j, i, k);
+                    sprintf(player_line_value, "BOSS DIALOG PLAYER %d %d %d", j, i, k);
+                    res.push_back(st_file_common_string(player_line_id, player_line_value));
+                }
+            }
+        }
+
+        std::ofstream fp;
+        fp.open(get_common_strings_filename(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::create_default_common_strings - could not create file '" << get_common_strings_filename() << "'" << std::endl;
+            exit(-1);
+        }
+        for (unsigned int i=0; i<res.size(); i++) {
+            st_file_common_string item = res.at(i);
+            fp.write(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
+        }
+        fp.close();
+
+    }
+
+
+
+
+    std::vector<st_file_common_string> fio_strings::get_common_strings()
+    {
+        std::vector<st_file_common_string> res;
+        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        if (!fp.is_open()) {
+            create_default_common_strings();
+            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        }
+        while (!fp.eof()) {
+            st_file_common_string item;
+            fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
+            res.push_back(item);
+        }
+        return res;
+    }
+
+    st_file_common_string fio_strings::get_common_string(int id)
+    {
+        if (id == -1) {
+            return st_file_common_string(std::string(""), std::string(""));
+        }
+
+        st_file_common_string item;
+        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        if (!fp.is_open()) {
+            create_default_common_strings();
+            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        }
+        int fpos = id * sizeof(st_file_common_string);
+        fp.seekg(fpos, std::ios::beg);
+        fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
+        return item;
+    }
+
+
+    std::map<int, st_file_common_string> fio_strings::get_common_strings_map(std::vector<int> id_list)
+    {
+        std::map<int, st_file_common_string> res;
+        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        if (!fp.is_open()) {
+            create_default_common_strings();
+            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        }
+        for (int i=0; i<id_list.size(); i++) {
+            st_file_common_string item;
+            int fpos = id_list.at(i) * sizeof(st_file_common_string);
+            fp.seekg(fpos, std::ios::beg);
+            fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
+            res.insert(std::pair<int, st_file_common_string>(id_list.at(i), item));
+        }
+        return res;
+    }
+
+
+
+
+
+
+
+
+
 
 }// namepsace

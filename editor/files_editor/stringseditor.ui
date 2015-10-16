@@ -104,7 +104,14 @@
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QTableView" name="commonStrings_tableView"/>
+              <widget class="QTableView" name="commonStrings_tableView">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::SingleSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
