@@ -48,7 +48,7 @@ void map_tab::update_edit_area()
     ui->editArea->repaint();
 }
 
-void map_tab::pick_bg_color(QColor color)
+void map_tab::on_color_selected1(QColor color)
 {
     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r = color.red();
     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g = color.green();
@@ -107,9 +107,6 @@ void map_tab::fill_anim_tiles_data()
     std::string filename = Mediator::get_instance()->game_data.anim_tiles[0].filename;
     ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(filename.c_str()));
     ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[0].delay[0]);
-    ui->animTileWidth_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[0].w-1);
-    ui->animTileHeight_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[0].h-1);
-
 }
 
 void map_tab::on_stageListCombo_currentIndexChanged(int index)
@@ -474,8 +471,6 @@ void map_tab::on_current_anim_tile_combobox_currentIndexChanged(int index)
     Mediator::get_instance()->selectedAnimTileset = index;
     ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->game_data.anim_tiles[index].filename));
     ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay[0]);
-    ui->animTileWidth_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[index].w-1);
-    ui->animTileHeight_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[index].h-1);
     ui->animTile_Preview->update_properties();
 }
 
@@ -494,16 +489,3 @@ void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
     ui->animTile_Preview->update_properties();
 }
 
-void map_tab::on_animTileWidth_comboBox_currentIndexChanged(int index)
-{
-    if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].w = index+1;
-    ui->animTile_Preview->update_properties();
-}
-
-void map_tab::on_animTileHeight_comboBox_currentIndexChanged(int index)
-{
-    if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].h = index+1;
-    ui->animTile_Preview->update_properties();
-}

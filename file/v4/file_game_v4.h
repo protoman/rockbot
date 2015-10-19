@@ -24,14 +24,10 @@ namespace format_v4 {
     struct st_anim_map_tile {
         int delay[ANIM_TILE_MAX_FRAMES]; // each frame can have its own delay, let the editr handle user wanting to set the same for all
         char filename[FS_CHAR_FILENAME_SIZE];
-        int w; // number of tiles used in width
-        int h; // number of tiles used in height
         st_anim_map_tile() {
             for (int i=0; i<ANIM_TILE_MAX_FRAMES; i++) {
                 delay[i] = 100;
             }
-            w = 1;
-            h = 1;
             filename[0] = '\0';
         }
     };
@@ -392,6 +388,7 @@ namespace format_v4 {
         st_shop_dialog shop_dialog_goodbye;
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX];
+        bool sequential_stages;                                         // if true, stages are executed one after another, like castlevania or ghouls & ghosts
 
 
         // CONSTRUCTOR //
@@ -402,6 +399,7 @@ namespace format_v4 {
             semi_charged_projectile_id = 0;
             player_items[0] = 0;
             player_items[1] = 0;
+            sequential_stages = false;
 
             for (int i=0; i<MAX_STAGES; i++) {
                 stage_face_filename[i][0] = '\0';

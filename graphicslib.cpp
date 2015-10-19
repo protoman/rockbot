@@ -1704,7 +1704,8 @@ void graphicsLib::preload_anim_tiles()
             surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));
 
             int frames_n = ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1).width / TILESIZE;
-            ANIM_TILES_TIMERS.push_back(anim_tile_timer(frames_n, timer.getTimer() + game_data.anim_tiles[i].delay[0]));
+            anim_tile_timer anim_timer(frames_n, timer.getTimer() + game_data.anim_tiles[i].delay[0]);
+            ANIM_TILES_TIMERS.push_back(anim_timer);
         }
     }
 }

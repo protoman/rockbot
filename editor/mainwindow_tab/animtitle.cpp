@@ -33,11 +33,9 @@ void animTitle::update_properties()
     }
     image = image.scaled(image.width()*2, image.height()*2);
 
-    w = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].w * TILESIZE;
-    h = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].h * TILESIZE;
-    this->resize(w*2, h*2);
+    this->resize(TILESIZE*2, TILESIZE*2);
     myParent->adjustSize();
-    max_frames = image.width()/(w*2);
+    max_frames = image.width()/(TILESIZE*2);
     std::cout << "animTitle::update_properties::max_frames: " << max_frames << std::endl;
 
     _sprite_n = 0;
@@ -76,7 +74,7 @@ void animTitle::paintEvent(QPaintEvent *) {
         return;
     }
 
-    source = QRectF(QPoint(_sprite_n*(w*2), 0), QSize(w*2, h*2));
-    target = QRectF(QPoint(0, 0), QSize(w*2, h*2));
+    source = QRectF(QPoint(_sprite_n*(TILESIZE*2), 0), QSize(TILESIZE*2, TILESIZE*2));
+    target = QRectF(QPoint(0, 0), QSize(TILESIZE*2, TILESIZE*2));
     painter.drawImage(target, image, source);
 }

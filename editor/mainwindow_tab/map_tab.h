@@ -20,7 +20,7 @@ public:
     void update_edit_area();
 
 public slots:
-    void pick_bg_color(QColor);
+    void on_color_selected1(QColor);
 
 private slots:
     void on_stageListCombo_currentIndexChanged(int index);
@@ -67,10 +67,6 @@ private slots:
     void on_addAnimTile_toolButton_clicked();
 
     void on_stageTileset_comboBox_currentIndexChanged(const QString &arg1);
-
-    void on_animTileWidth_comboBox_currentIndexChanged(int index);
-
-    void on_animTileHeight_comboBox_currentIndexChanged(int index);
 
 private:
     void fill_data();

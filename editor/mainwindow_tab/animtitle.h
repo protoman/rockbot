@@ -21,8 +21,6 @@ private:
   QTimer *_timer;
 
   QImage image;
-  int w;
-  int h;
   int max_frames;
 
 signals:

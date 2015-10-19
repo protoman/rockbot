@@ -124,25 +124,24 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 std::cout << "********** (READ) anim-tile-id: " << anim_tile_id << std::endl;
 
                 QString anim_tile_filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[anim_tile_id].filename);
-                int anim_tile_w = Mediator::get_instance()->game_data.anim_tiles[anim_tile_id].w * TILESIZE;
-                int anim_tile_h = Mediator::get_instance()->game_data.anim_tiles[anim_tile_id].h * TILESIZE;
 
-                QRectF target(QPoint(i*TILESIZE*Mediator::get_instance()->zoom, j*TILESIZE*Mediator::get_instance()->zoom), QSize(anim_tile_w*Mediator::get_instance()->zoom, anim_tile_h*Mediator::get_instance()->zoom));
-                QRectF source(QPoint(0, 0), QSize(anim_tile_w, anim_tile_h));
                 QPixmap anim_image(anim_tile_filename);
 
                 if (anim_image.isNull() == false) {
+                    QRectF target(QPoint(i*TILESIZE*Mediator::get_instance()->zoom, j*TILESIZE*Mediator::get_instance()->zoom), QSize(TILESIZE*Mediator::get_instance()->zoom, TILESIZE*Mediator::get_instance()->zoom));
+                    QRectF source(QPoint(0, 0), QSize(TILESIZE, TILESIZE));
+
                     painter.drawPixmap(target, anim_image, source);
                     // draw an orange border border to indicate anim tile
                     QPen pen(QColor(0, 200, 0), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
                     painter.setPen(pen);
 
-                    int anim_tile_x = i * (anim_tile_w-TILESIZE) * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
-                    int anim_tile_y = j * anim_tile_h *Mediator::get_instance()->zoom;
-                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(anim_tile_w*Mediator::get_instance()->zoom), anim_tile_y);
-                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(anim_tile_h*Mediator::get_instance()->zoom));
-                    painter.drawLine(anim_tile_x, anim_tile_y+(anim_tile_h*Mediator::get_instance()->zoom), anim_tile_x+(anim_tile_w*Mediator::get_instance()->zoom), anim_tile_y+(anim_tile_h*Mediator::get_instance()->zoom));
-                    painter.drawLine(anim_tile_x+(anim_tile_w*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(anim_tile_w*Mediator::get_instance()->zoom), anim_tile_y+(anim_tile_h*Mediator::get_instance()->zoom));
+                    int anim_tile_x = i * TILESIZE * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
+                    int anim_tile_y = j * TILESIZE *Mediator::get_instance()->zoom;
+                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y);
+                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                    painter.drawLine(anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                    painter.drawLine(anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
                 } else {
                     std::cout << ">>>>>>>> anim-file '" << anim_tile_filename.toStdString() << "' not found." << std::endl;
                 }
