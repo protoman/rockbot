@@ -321,40 +321,43 @@
                  <number>10</number>
                 </property>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <property name="bottomMargin">
-                   <number>10</number>
+                 <layout class="QGridLayout" name="gridLayout">
+                  <property name="topMargin">
+                   <number>0</number>
                   </property>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout">
-                    <property name="bottomMargin">
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="comboBox">
+                    <property name="currentIndex">
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLabel" name="label">
-                      <property name="text">
-                       <string>Level:</string>
-                      </property>
-                     </widget>
+                     <property name="text">
+                      <string>Background</string>
+                     </property>
                     </item>
                     <item>
-                     <widget class="QComboBox" name="comboBox">
-                      <property name="currentIndex">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string>Background</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Overlay</string>
-                       </property>
-                      </item>
-                     </widget>
+                     <property name="text">
+                      <string>Overlay</string>
+                     </property>
                     </item>
-                   </layout>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Level:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_13">
+                    <property name="text">
+                     <string>Stage Tileset:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QComboBox" name="stageTileset_comboBox"/>
                   </item>
                  </layout>
                 </item>
@@ -827,7 +830,7 @@
              </rect>
             </property>
             <attribute name="label">
-             <string>Animated Tiles (Disabled)</string>
+             <string>Animated Tiles</string>
             </attribute>
             <layout class="QVBoxLayout" name="verticalLayout_6">
              <item>
@@ -840,8 +843,8 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>32</width>
-                 <height>32</height>
+                 <width>96</width>
+                 <height>96</height>
                 </size>
                </property>
                <property name="baseSize">
@@ -860,18 +863,87 @@
                <property name="bottomMargin">
                 <number>10</number>
                </property>
-               <item row="1" column="0">
+               <item row="4" column="1">
+                <widget class="QComboBox" name="anim_tile_graphic_combobox">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="animTileWidth_comboBox">
+                 <item>
+                  <property name="text">
+                   <string>16</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>32</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>48</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QSpinBox" name="anim_tile_delay_spinbox">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="maximum">
+                  <number>9999</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
                 <widget class="QLabel" name="label_8">
                  <property name="text">
                   <string>Graphic:</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QComboBox" name="anim_tile_graphic_combobox">
-                 <property name="enabled">
-                  <bool>true</bool>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_15">
+                 <property name="text">
+                  <string>Width:</string>
                  </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_14">
+                 <property name="text">
+                  <string>Height:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>Frame Delay:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QComboBox" name="animTileHeight_comboBox">
+                 <item>
+                  <property name="text">
+                   <string>16</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>32</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>48</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="0" column="1">
@@ -885,23 +957,6 @@
                 <widget class="QLabel" name="label_6">
                  <property name="text">
                   <string>Current Tile:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QSpinBox" name="anim_tile_delay_spinbox">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="maximum">
-                  <number>9999</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_3">
-                 <property name="text">
-                  <string>Frame Delay:</string>
                  </property>
                 </widget>
                </item>

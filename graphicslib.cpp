@@ -202,6 +202,8 @@ void graphicsLib::updateScreen()
 
 
 
+
+
 SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 {
 	SDL_RWops *rwop;
@@ -267,7 +269,19 @@ void graphicsLib::loadTileset()
         show_debug_msg("EXIT #06");
 		exit(-1);
 	}
+}
 
+
+void graphicsLib::load_custom_tileset(string name)
+{
+    string filename = FILEPATH + std::string("images/tilesets/") + name;
+
+    tileset = SDLSurfaceFromFile(filename);
+    if (tileset == NULL) {
+        cout << "ERROR::load_custom_tileset: Could not find file '" << filename << "'\n";
+        show_debug_msg("EXIT #06");
+        exit(-1);
+    }
 }
 
 void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)

@@ -287,9 +287,9 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 void MainWindow::on_bg1_filename_currentIndexChanged(const QString &arg1)
 {
 	if (arg1.toStdString() == std::string("None")) {
-        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
+        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
 	} else {
-        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
+        sprintf(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
 	}
     map_edit_tab->update_edit_area();
 }
@@ -302,14 +302,14 @@ void MainWindow::on_checkBox_clicked(bool checked)
 
 void MainWindow::on_bg1_y_pos_valueChanged(int arg1)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].adjust_y = arg1;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y = arg1;
     map_edit_tab->update_edit_area();
 }
 
 void MainWindow::on_bg1_speed_valueChanged(int arg1)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#1 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
+    std::cout << "#1 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     map_edit_tab->update_edit_area();
 }
 
@@ -317,22 +317,22 @@ void MainWindow::on_bg1_speed_valueChanged(int arg1)
 void MainWindow::on_bg2_filename_currentIndexChanged(const QString &arg1)
 {
 	if (arg1.toStdString() == std::string("None")) {
-        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
+        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
 	} else {
-        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
+        sprintf(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
 	}
 }
 
 void MainWindow::on_bg2_y_pos_valueChanged(int arg1)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
     map_edit_tab->update_edit_area();
 }
 
 
 void MainWindow::on_bg2_speed_valueChanged(int arg1)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
     map_edit_tab->update_edit_area();
 }
 
@@ -359,8 +359,8 @@ void MainWindow::on_bg1_speed_valueChanged(double arg1)
     if (background_filled == false) {
 		return;
 	}
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#2 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
+    std::cout << "#2 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     map_edit_tab->update_edit_area();
 }
 
@@ -369,7 +369,7 @@ void MainWindow::on_bg2_speed_valueChanged(double arg1)
     if (background_filled == false) {
 		return;
 	}
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
     map_edit_tab->update_edit_area();
 }
 
@@ -377,13 +377,13 @@ void MainWindow::on_actionReset_Map_triggered()
 {
 	for (int i=0; i<MAP_W; i++) {
 		for (int j=0; j<MAP_H; j++) {
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].locked = 0;
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.x = -1;
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile1.y = -1;
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.x = -1;
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].tiles[i][j].tile3.y = -1;
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
-            Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked = 0;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x = -1;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y = -1;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.x = -1;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.y = -1;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
 		}
 	}
 }
@@ -538,6 +538,12 @@ void MainWindow::on_new_game_accepted(QString name)
     reload();
 
     this->show();
+}
+
+void MainWindow::on_load_game_accepted()
+{
+    Mediator::get_instance()->loadGame();
+    reload();
 }
 
 void MainWindow::on_actionMovie_Editor_triggered()

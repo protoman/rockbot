@@ -68,6 +68,8 @@ Mediator::Mediator() {
     show_teleporters_flag = true;
 
     combobox_select_string = "-Select-";
+
+    selectedTileset = FILEPATH + "/images/tilesets/default.png";
 }
 
 
@@ -97,8 +99,12 @@ void Mediator::setPalleteY(int value) {
 }
 
 std::string Mediator::getPallete() {
-    selectedTileset = FILEPATH + "/images/tilesets/default.png";
     return selectedTileset;
+}
+
+void Mediator::setPallete(std::string filename)
+{
+    selectedTileset =  FILEPATH + std::string("/images/tilesets/") + filename;
 }
 
 void Mediator::setPallete(char *value) {
@@ -111,8 +117,11 @@ void Mediator::setPallete(char *value) {
 
 
 void Mediator::loadGame() {
-	CURRENT_FILE_FORMAT::file_io fio;
-	fio.read_game(game_data);
+    Mediator::get_instance()->fio.read_game(game_data);
+    Mediator::get_instance()->fio.read_all_stages(stage_data);
+    Mediator::get_instance()->fio.read_all_maps(maps_data);
+    Mediator::get_instance()->fio.load_scene_sequence(sequences);
+    Mediator::get_instance()->fio.load_scenes(scenes);
 }
 
 

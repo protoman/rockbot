@@ -16,7 +16,6 @@ map_tab::map_tab(QWidget *parent) :
     ui->editTile_button->setChecked(true);
     ui->editModeNormal_button->setChecked(true);
 
-
     ui->editArea->repaint();
     QObject::connect(ui->pallete, SIGNAL(signalPalleteChanged()), ui->editArea, SLOT(repaint()));
 }
@@ -29,6 +28,7 @@ map_tab::~map_tab()
 void map_tab::reload()
 {
     fill_data();
+    ui->animTile_Preview->update_properties();
 }
 
 void map_tab::save()
@@ -50,9 +50,9 @@ void map_tab::update_edit_area()
 
 void map_tab::pick_bg_color(QColor color)
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r = color.red();
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g = color.green();
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b = color.blue();
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r = color.red();
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g = color.green();
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b = color.blue();
     fill_background_list();
     update_edit_area();
 }
@@ -69,6 +69,7 @@ void map_tab::fill_data()
     common::fill_map_list_combo(ui->mapListCombo);
     common::fill_npc_listwidget(ui->npc_listWidget);
     common::fill_object_listWidget(ui->objectListWidget);
+    common::fill_files_combo("/images/tilesets", ui->stageTileset_comboBox);
     fill_background_list();
     ui->npc_direction_combo->setCurrentIndex(Mediator::get_instance()->npc_direction);
     ui->object_direction_combo->setCurrentIndex(Mediator::get_instance()->object_direction);
@@ -77,36 +78,38 @@ void map_tab::fill_data()
 
 void map_tab::fill_background_list()
 {
-    QString bg1_filename(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename);
-    QString bg2_filename(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename);
+    QString bg1_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
+    QString bg2_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename);
     common::fill_files_combo("images/map_backgrounds", ui->bg1_filename);
     common::fill_files_combo("images/map_backgrounds", ui->bg2_filename);
     ui->bg1_filename->setCurrentIndex(ui->bg1_filename->findText(bg1_filename));
     ui->bg2_filename->setCurrentIndex(ui->bg2_filename->findText(bg2_filename));
-    ui->bg1_y_pos->setValue(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].adjust_y);
-    ui->bg2_y_pos->setValue(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].adjust_y);
+    ui->bg1_y_pos->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y);
+    ui->bg2_y_pos->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y);
 
-    float bg1_speed = (float)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed/10;
+    float bg1_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed/10;
     ui->bg1_speed->setValue(bg1_speed);
-    float bg2_speed = (float)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].speed/10;
+    float bg2_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed/10;
     ui->bg2_speed->setValue(bg2_speed);
     std::stringstream ss;
     ss.str(std::string());
-    ss << "background-color: rgb(" << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g << ", " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b << ")";
+    ss << "background-color: rgb(" << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b << ")";
     ui->bg_color_pick->setStyleSheet(ss.str().c_str());
-    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
-        ui->current_anim_tile_combobox->addItem(QString::number(i));
-    }
 
 }
 
 void map_tab::fill_anim_tiles_data()
 {
+    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
+        ui->current_anim_tile_combobox->addItem(QString::number(i));
+    }
     common::fill_files_combo("images/tilesets/anim", ui->anim_tile_graphic_combobox);
     std::string filename = Mediator::get_instance()->game_data.anim_tiles[0].filename;
-    //std::cout << "############## filename: " << filename << std::endl;
     ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(filename.c_str()));
     ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[0].delay[0]);
+    ui->animTileWidth_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[0].w-1);
+    ui->animTileHeight_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[0].h-1);
+
 }
 
 void map_tab::on_stageListCombo_currentIndexChanged(int index)
@@ -198,9 +201,9 @@ void map_tab::on_bg1_filename_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) { return; }
     if (arg1.toStdString() == std::string("None")) {
-        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
+        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
     } else {
-        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
+        sprintf(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
     }
     update_edit_area();
 }
@@ -208,15 +211,15 @@ void map_tab::on_bg1_filename_currentIndexChanged(const QString &arg1)
 void map_tab::on_bg1_speed_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#3 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << (int)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
+    std::cout << "#3 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     update_edit_area();
 }
 
 void map_tab::on_bg1_y_pos_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[0].adjust_y = arg1;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y = arg1;
     update_edit_area();
 }
 
@@ -224,9 +227,9 @@ void map_tab::on_bg2_filename_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) { return; }
     if (arg1.toStdString() == std::string("None")) {
-        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
+        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
     } else {
-        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
+        sprintf(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
     }
 
 }
@@ -234,15 +237,15 @@ void map_tab::on_bg2_filename_currentIndexChanged(const QString &arg1)
 void map_tab::on_bg2_speed_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
-    std::cout << ">> on_bg2_speed_valueChanged, value: " << (int)Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].speed << std::endl;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    std::cout << ">> on_bg2_speed_valueChanged, value: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed << std::endl;
     update_edit_area();
 }
 
 void map_tab::on_bg2_y_pos_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
     update_edit_area();
 }
 
@@ -268,27 +271,6 @@ void map_tab::on_checkBox_3_toggled(bool checked)
 }
 
 
-void map_tab::on_current_anim_tile_combobox_currentIndexChanged(int index)
-{
-    if (_data_loading == true) { return; }
-    Mediator::get_instance()->selectedAnimTileset = index;
-    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->game_data.anim_tiles[index].filename));
-    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay[0]);
-}
-
-void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &arg1)
-{
-    if (_data_loading == true) { return; }
-    sprintf(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename, "%s", arg1.toStdString().c_str());
-}
-
-void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
-{
-    if (_data_loading == true) { return; }
-    /// @TODO
-    int selectedFrame = 0;
-    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[selectedFrame] = arg1;
-}
 
 void map_tab::on_object_direction_combo_currentIndexChanged(int index)
 {
@@ -471,3 +453,57 @@ void map_tab::on_editModeErase_button_clicked()
 
 }
 
+
+void map_tab::on_stageTileset_comboBox_currentIndexChanged(const QString &arg1)
+{
+    if (_data_loading == true) { return; }
+    if (arg1.length() == 0) { // reset to default
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename[0] = '\0';
+        Mediator::get_instance()->setPallete(std::string("default.png"));
+    } else {
+        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename, "%s", arg1.toStdString().c_str());
+        Mediator::get_instance()->setPallete(arg1.toStdString());
+    }
+}
+
+// ======================== ANIM TILE ======================== //
+
+void map_tab::on_current_anim_tile_combobox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->selectedAnimTileset = index;
+    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->game_data.anim_tiles[index].filename));
+    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay[0]);
+    ui->animTileWidth_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[index].w-1);
+    ui->animTileHeight_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.anim_tiles[index].h-1);
+    ui->animTile_Preview->update_properties();
+}
+
+void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &arg1)
+{
+    if (_data_loading == true) { return; }
+    sprintf(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename, "%s", arg1.toStdString().c_str());
+    ui->animTile_Preview->update_properties();
+}
+
+void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
+{
+    if (_data_loading == true) { return; }
+    int selectedFrame = 0;
+    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[selectedFrame] = arg1;
+    ui->animTile_Preview->update_properties();
+}
+
+void map_tab::on_animTileWidth_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].w = index+1;
+    ui->animTile_Preview->update_properties();
+}
+
+void map_tab::on_animTileHeight_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].h = index+1;
+    ui->animTile_Preview->update_properties();
+}

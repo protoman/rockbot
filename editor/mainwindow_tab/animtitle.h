@@ -9,7 +9,7 @@ class animTitle : public QWidget
     Q_OBJECT
 public:
     explicit animTitle(QWidget *parent = 0);
-
+    void update_properties();
 
 protected:
   void paintEvent(QPaintEvent *event);
@@ -19,6 +19,11 @@ private:
   int _sprite_n;
   int _timer_next_frame;
   QTimer *_timer;
+
+  QImage image;
+  int w;
+  int h;
+  int max_frames;
 
 signals:
 

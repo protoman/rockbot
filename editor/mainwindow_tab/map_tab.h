@@ -66,6 +66,12 @@ private slots:
 
     void on_addAnimTile_toolButton_clicked();
 
+    void on_stageTileset_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_animTileWidth_comboBox_currentIndexChanged(int index);
+
+    void on_animTileHeight_comboBox_currentIndexChanged(int index);
+
 private:
     void fill_data();
     void fill_background_list();

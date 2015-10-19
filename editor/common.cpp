@@ -47,7 +47,10 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
         if (fileInfo.fileName().length() > 30) {
             std::cout << "ERROR: file '" << fileInfo.fileName().toStdString() << "' surpasses the maximum number of file-characters (" << CHAR_FILENAME_SIZE << ")" << std::endl;
         } else {
-            combo->addItem(QString(fileInfo.fileName()));
+            QString filename(fileInfo.fileName());
+            if (filename.length() > 0) {
+                combo->addItem(filename);
+            }
         }
     }
     combo->repaint();

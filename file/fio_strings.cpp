@@ -244,7 +244,7 @@ namespace format_v4 {
         }
 
         std::ofstream fp;
-        fp.open(get_common_strings_filename(), std::ios::out | std::ios::binary | std::ios::ate);
+        fp.open(get_common_strings_filename().c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::create_default_common_strings - could not create file '" << get_common_strings_filename() << "'" << std::endl;
             exit(-1);
@@ -263,10 +263,10 @@ namespace format_v4 {
     std::vector<st_file_common_string> fio_strings::get_common_strings()
     {
         std::vector<st_file_common_string> res;
-        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         if (!fp.is_open()) {
             create_default_common_strings();
-            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         }
         while (!fp.eof()) {
             st_file_common_string item;
@@ -283,10 +283,10 @@ namespace format_v4 {
         }
 
         st_file_common_string item;
-        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         if (!fp.is_open()) {
             create_default_common_strings();
-            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         }
         int fpos = id * sizeof(st_file_common_string);
         fp.seekg(fpos, std::ios::beg);
@@ -298,10 +298,10 @@ namespace format_v4 {
     std::map<int, st_file_common_string> fio_strings::get_common_strings_map(std::vector<int> id_list)
     {
         std::map<int, st_file_common_string> res;
-        std::ifstream fp(get_common_strings_filename(), std::ios::in | std::ios::binary);
+        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         if (!fp.is_open()) {
             create_default_common_strings();
-            fp.open(get_common_strings_filename(), std::ios::in | std::ios::binary);
+            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         }
         for (int i=0; i<id_list.size(); i++) {
             st_file_common_string item;

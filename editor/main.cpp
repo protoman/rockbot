@@ -32,25 +32,25 @@ void remove_duplicated()
 			// remove duplicated NPCS
 			for (int k=0; k<MAX_MAP_NPC_N; k++) {
 				for (int l=0; l<MAX_MAP_NPC_N; l++) {
-                    //stage_data.stages[i].maps[j].map_npcs[k].id_npc != -1 && stage_data.stages[i].maps[j].map_npcs[l].id_npc != -1 &&
-                    if (Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].id_npc != -1 && k != l && Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point == Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].start_point) {
-                        std::cout << ">>> removing duplicated NPC[" << l << "].id[" << Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].id_npc << "] in stage[" << i << "].map[" << j << "] <<<" << std::endl;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].id_npc = -1;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].start_point.x = -1;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[l].start_point.y = -1;
+                    //maps_data[i][j].map_npcs[k].id_npc != -1 && maps_data[i][j].map_npcs[l].id_npc != -1 &&
+                    if (Mediator::get_instance()->maps_data[i][j].map_npcs[l].id_npc != -1 && k != l && Mediator::get_instance()->maps_data[i][j].map_npcs[k].start_point == Mediator::get_instance()->maps_data[i][j].map_npcs[l].start_point) {
+                        std::cout << ">>> removing duplicated NPC[" << l << "].id[" << Mediator::get_instance()->maps_data[i][j].map_npcs[l].id_npc << "] in stage[" << i << "].map[" << j << "] <<<" << std::endl;
+                        Mediator::get_instance()->maps_data[i][j].map_npcs[l].id_npc = -1;
+                        Mediator::get_instance()->maps_data[i][j].map_npcs[l].start_point.x = -1;
+                        Mediator::get_instance()->maps_data[i][j].map_npcs[l].start_point.y = -1;
 					}
 				}
 			}
 			// remove duplicated OBJECTS
 			for (int k=0; k<MAX_MAP_NPC_N; k++) {
 				for (int l=0; l<MAX_MAP_NPC_N; l++) {
-                    if (Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].id_object != -1 && Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].id_object != -1 && k != l && Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point == Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].start_point) {
-                        std::cout << "# id1: " << (int)Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].id_object << ", id2: " << (int)Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].id_object;
+                    if (Mediator::get_instance()->maps_data[i][j].map_objects[k].id_object != -1 && Mediator::get_instance()->maps_data[i][j].map_objects[l].id_object != -1 && k != l && Mediator::get_instance()->maps_data[i][j].map_objects[k].start_point == Mediator::get_instance()->maps_data[i][j].map_objects[l].start_point) {
+                        std::cout << "# id1: " << (int)Mediator::get_instance()->maps_data[i][j].map_objects[k].id_object << ", id2: " << (int)Mediator::get_instance()->maps_data[i][j].map_objects[l].id_object;
                         std::cout << ", pos#1[" << k << "], pos2[" << l << "]";
-                        std::cout << ", x1: " << Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.x << ", x2: " << Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].start_point.x << ", y1: " << Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.y << ", y2: " << Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].start_point.y << std::endl;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].id_object = -1;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].start_point.x = -1;
-                        Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[l].start_point.y = -1;
+                        std::cout << ", x1: " << Mediator::get_instance()->maps_data[i][j].map_objects[k].start_point.x << ", x2: " << Mediator::get_instance()->maps_data[i][j].map_objects[l].start_point.x << ", y1: " << Mediator::get_instance()->maps_data[i][j].map_objects[k].start_point.y << ", y2: " << Mediator::get_instance()->maps_data[i][j].map_objects[l].start_point.y << std::endl;
+                        Mediator::get_instance()->maps_data[i][j].map_objects[l].id_object = -1;
+                        Mediator::get_instance()->maps_data[i][j].map_objects[l].start_point.x = -1;
+                        Mediator::get_instance()->maps_data[i][j].map_objects[l].start_point.y = -1;
 					}
 				}
 			}
@@ -77,36 +77,6 @@ void assert_enum_items() {
 	assert(AI_ACTION_NAMES.size() == AI_ACTION_LIST_SIZE);
 }
 
-// removes items, teleports and npcs that are placed out of the map for some reason
-void clean_bad_data() {
-    for (int i=0; i<MAX_STAGES; i++) {
-        // clean links
-        for (int j=0; j<STAGE_MAX_LINKS; j++) {
-            if (Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.x < 0 || Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.x > MAP_W || Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.y < 0 || Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.y > MAP_H || Mediator::get_instance()->stage_data.stages[i].links[j].pos_destiny.x < 0 || Mediator::get_instance()->stage_data.stages[i].links[j].pos_destiny.x > MAP_W || Mediator::get_instance()->stage_data.stages[i].links[j].pos_destiny.y < 0 || Mediator::get_instance()->stage_data.stages[i].links[j].pos_destiny.y > MAP_H) {
-                Mediator::get_instance()->stage_data.stages[i].links[j].id_map_destiny = -1;
-                Mediator::get_instance()->stage_data.stages[i].links[j].id_map_origin = -1;
-                Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.x = 0;
-                Mediator::get_instance()->stage_data.stages[i].links[j].pos_origin.y = 0;
-            }
-        }
-        // clean NPCs and Objects
-        for (int j=0; j<STAGE_MAX_MAPS; j++) {
-            for (int k=0; k<MAX_MAP_NPC_N; k++) {
-                if (Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.x < 0 || Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.x > MAP_W || Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.y < 0 || Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.y > MAP_H) {
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.x = 0;
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].start_point.y = 0;
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_npcs[k].id_npc = -1;
-                }
-                if (Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.x < 0 || Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.x > MAP_W || Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.y < 0 || Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.y > MAP_H) {
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.x = 0;
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].start_point.y = 0;
-                    Mediator::get_instance()->stage_data.stages[i].maps[j].map_objects[k].id_object = -1;
-                }
-            }
-        }
-    }
-}
-
 
 #undef main
 int main(int argc, char *argv[])
@@ -128,12 +98,6 @@ int main(int argc, char *argv[])
     assert_enum_items(); // check that stringfy variables are OK
 
 
-    Mediator::get_instance()->fio.read_game(Mediator::get_instance()->game_data);
-    Mediator::get_instance()->fio.read_all_stages(Mediator::get_instance()->stage_data);
-    Mediator::get_instance()->fio.load_scene_sequence(Mediator::get_instance()->sequences);
-    Mediator::get_instance()->fio.load_scenes(Mediator::get_instance()->scenes);
-    clean_bad_data();
-
     QApplication a(argc, argv);
 
     MainWindow w;
@@ -153,7 +117,7 @@ int main(int argc, char *argv[])
         w.show();
     } else {
         QDialog *open = new loadGamePicker();
-        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(reload()));
+        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(on_load_game_accepted()));
         open->show();
     }
 

@@ -17,27 +17,48 @@ animTitle::animTitle(QWidget *parent) : QWidget(parent)
         delay = 10;
     }
     _timer->start(delay);
+
+    update_properties();
+}
+
+void animTitle::update_properties()
+{
+    std::cout << "animTitle::update_properties" << std::endl;
+    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename);
+    image = QImage(filename);
+    if (image.isNull()) {
+        _timer->stop();
+        repaint();
+        return;
+    }
+    image = image.scaled(image.width()*2, image.height()*2);
+
+    w = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].w * TILESIZE;
+    h = Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].h * TILESIZE;
+    this->resize(w*2, h*2);
+    myParent->adjustSize();
+    max_frames = image.width()/(w*2);
+    std::cout << "animTitle::update_properties::max_frames: " << max_frames << std::endl;
+
+    _sprite_n = 0;
+    _timer->stop();
+    _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[0]);
+    repaint();
 }
 
 
 void animTitle::updateBG()
 {
-    //std::cout << "animTitle::updateBG" << std::endl;
-    //std::cout << "sprite_preview_area::updateBG - current_npc: " << Mediator::get_instance()->current_npc_n << ", current_sprite_type: " << Mediator::get_instance()->current_sprite_type << std::endl;
     _sprite_n++;
     if (_sprite_n > ANIM_FRAMES_COUNT-1) {
         _sprite_n = 0;
     }
 
-    // check if sprite position is greater than image width
-    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename);
-    QImage image(filename);
     if (image.isNull()) {
         _timer->stop();
-        _timer->start(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[0]);
         return;
     }
-    if (_sprite_n > image.width()/TILESIZE) {
+    if (_sprite_n >= max_frames) {
         _sprite_n = 0;
     }
     _timer->stop();
@@ -47,27 +68,15 @@ void animTitle::updateBG()
 
 
 void animTitle::paintEvent(QPaintEvent *) {
-    //std::cout << "animTitle::paintEvent" << std::endl;
     QPainter painter(this);
     QRectF target, source;
 
-
-    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename);
-    QImage image(filename);
     if (image.isNull() == true || image.width() <= 0) {
+        painter.fillRect(0, 0, this->width(), this->height(), QColor(0, 0, 0));
         return;
     }
-    image = image.scaled(image.width()*2, image.height()*2);
 
-    this->resize(image.size());
-    myParent->adjustSize();
-
-    int x_ini = _sprite_n*TILESIZE*2;
-    //std::cout << "image.w: " << image.width() << ", image.h: " << image.height() << ", _sprite_n: " << _sprite_n << ", x_init: " << x_ini << std::endl;
-
-    source = QRectF(QPoint(_sprite_n*(TILESIZE*2), 0), QSize(TILESIZE*2, TILESIZE*2));
-    target = QRectF(QPoint(0, 0), QSize(TILESIZE*2, TILESIZE*2));
+    source = QRectF(QPoint(_sprite_n*(w*2), 0), QSize(w*2, h*2));
+    target = QRectF(QPoint(0, 0), QSize(w*2, h*2));
     painter.drawImage(target, image, source);
-
-
 }

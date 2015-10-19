@@ -6,6 +6,7 @@ using namespace std;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
+extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
@@ -21,6 +22,13 @@ stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
 	currentMap = 0;
 	setNumber(setStageN);
     fio.read_stage(stage_data, setStageN);
+    fio.read_stage_maps(setStageN, map_data);
+
+    std::string tileset_name(stage_data.tileset_filename);
+    if (tileset_name.length() == 0) {
+        tileset_name = std::string("default.png");
+    }
+    graphLib.load_custom_tileset(tileset_name);
 
     for (int i=0; i<PRELOAD_MAP_N; i++) {
         maps[i] = NULL;

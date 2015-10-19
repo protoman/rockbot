@@ -41,9 +41,14 @@ namespace format_v4 {
         file_io();
         void read_game(file_game& data_out) const;
         void write_game(file_game& data_in) const;
+        // stages
         void write_all_stages(file_stages& stages_data_in) const;
         void read_all_stages(file_stages &stages_data_out);
         void read_stage(file_stage& stages_data_out, short stage_n);
+        // maps
+        void read_all_maps(file_map (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
+        void write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
+        void read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS]);
 
         bool file_exists(std::string filename) const;
         bool directory_exists(std::string filename) const;

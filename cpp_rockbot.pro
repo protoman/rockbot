@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
-CONFIG += win32
+CONFIG += linux
+#CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
@@ -359,7 +359,8 @@ HEADERS += \
     strings_map.h \
     file/fio_strings.h \
     aux_tools/stringutils.h \
-    file/v4/file_strings.h
+    file/v4/file_strings.h \
+    file/v4/file_map.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

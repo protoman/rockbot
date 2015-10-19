@@ -110,9 +110,9 @@ void player_edit::pick_player_color3()
 
 void player_edit::pick_bg_color()
 {
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].maps[Mediator::get_instance()->currentMap].background_color.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
     /// @TDO - send a signal for map edit and others to update themselves
     //map_edit_tab->update_edit_area();
 }

@@ -85,19 +85,10 @@ public:
      */
     void updateScreen();
 
+    void load_custom_tileset(std::string name);
 
-    /**
-     * @brief
-     *
-     */
     void loadTileset();
-    /**
-     * @brief
-     *
-     * @param st_position
-     * @param st_position
-     * @param
-     */
+
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
 
     void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);

@@ -441,6 +441,7 @@ namespace format_v4 {
         fp.close();
     }
 
+
     void file_io::read_stage(format_v4::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
@@ -460,6 +461,65 @@ namespace format_v4 {
             exit(-1);
         }
         fclose(fp);
+    }
+
+    void file_io::read_all_maps(file_map (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS])
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + std::string("/maps.dat");
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+                fp.read(reinterpret_cast<char *>(&data_out[i][j]), sizeof(file_map));
+            }
+        }
+
+        fp.close();
+    }
+
+    void file_io::write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS])
+    {
+        std::string filename = std::string(FILEPATH) + "/maps.dat";
+        std::ofstream fp;
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::write_all_maps - could not write to file '" << filename << "'. Will create new one." << std::endl;
+            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        } else {
+            std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
+        }
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+                fp.write(reinterpret_cast<char *>(&data_in[i][j]), sizeof(file_map));
+            }
+        }
+        fp.close();
+    }
+
+    void file_io::read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS])
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + std::string("/maps.dat");
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+
+        int fpos = stage_id * FS_STAGE_MAX_MAPS * sizeof(file_map);
+        fp.seekg(fpos, std::ios::beg);
+
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map));
+        }
+
+        fp.close();
     }
 
     bool file_io::file_exists(std::string filename) const
@@ -715,6 +775,9 @@ namespace format_v4 {
         write_game(data_in);
         CURRENT_FILE_FORMAT::file_stages stages_data_in;
         write_all_stages(stages_data_in);
+
+        CURRENT_FILE_FORMAT::file_map maps_data_in[FS_MAX_STAGES][FS_STAGE_MAX_MAPS];
+        write_all_maps(maps_data_in);
     }
 
 

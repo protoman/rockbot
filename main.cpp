@@ -103,6 +103,7 @@ bool leave_game = false;
 CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::file_game game_data;
 CURRENT_FILE_FORMAT::file_stage stage_data;
+CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 
 #include "defines.h"
 

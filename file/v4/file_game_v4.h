@@ -24,10 +24,14 @@ namespace format_v4 {
     struct st_anim_map_tile {
         int delay[ANIM_TILE_MAX_FRAMES]; // each frame can have its own delay, let the editr handle user wanting to set the same for all
         char filename[FS_CHAR_FILENAME_SIZE];
+        int w; // number of tiles used in width
+        int h; // number of tiles used in height
         st_anim_map_tile() {
             for (int i=0; i<ANIM_TILE_MAX_FRAMES; i++) {
                 delay[i] = 100;
             }
+            w = 1;
+            h = 1;
             filename[0] = '\0';
         }
     };

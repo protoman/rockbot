@@ -68,6 +68,7 @@ public:
 	void setPalleteX(int value);
 	void setPalleteY(int value);
     std::string getPallete();
+    void setPallete(std::string filename);
 	void setPallete(char *value);
     void loadGame();
 
@@ -104,6 +105,7 @@ public:
     // old globals
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
+    CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
     std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;
     std::vector<CURRENT_FILE_FORMAT::file_scene> scenes;
     CURRENT_FILE_FORMAT::file_io fio;

@@ -33,8 +33,8 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
-
 extern CURRENT_FILE_FORMAT::st_save game_save;
+extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 
 
 // ********************************************************************************************** //
@@ -159,8 +159,8 @@ void classMap::loadMap()
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
-            int lvl3_x = stage_data.maps[number].tiles[i][j].tile3.x;
-            int lvl3_y = stage_data.maps[number].tiles[i][j].tile3.y;
+            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
+            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
             if (lvl3_x != -1 && lvl3_y != -1) {
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
                 _level3_tiles.push_back(temp_tile);
@@ -172,7 +172,7 @@ void classMap::loadMap()
 	for (int i=0; i<MAP_W; i++) {
 		column_locked = true;
 		for (int j=0; j<MAP_H; j++) {
-            if (stage_data.maps[number].tiles[i][j].locked != 1 && stage_data.maps[number].tiles[i][j].locked != TERRAIN_DOOR && stage_data.maps[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK) {
+            if (map_data[number].tiles[i][j].locked != 1 && map_data[number].tiles[i][j].locked != TERRAIN_DOOR && map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK) {
 				column_locked = false;
 				break;
 			}
@@ -184,8 +184,8 @@ void classMap::loadMap()
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
-            int lvl3_x = stage_data.maps[number].tiles[i][j].tile3.x;
-            int lvl3_y = stage_data.maps[number].tiles[i][j].tile3.y;
+            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
+            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
             if (lvl3_x != -1 && lvl3_y != -1) {
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
                 _level3_tiles.push_back(temp_tile);
@@ -200,7 +200,7 @@ void classMap::loadMap()
     create_dynamic_background_surfaces();
 
 #ifdef HANDLELD // portable consoles aren't strong enought for two dynamic backgrounds
-stage_data.maps[number].backgrounds[0].speed = 0;
+map_data[number].backgrounds[0].speed = 0;
 #endif
 
 }
@@ -208,7 +208,7 @@ stage_data.maps[number].backgrounds[0].speed = 0;
 
 void classMap::showMap()
 {
-    graphLib.clear_surface_area(0, 0, RES_W, RES_H, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, graphLib.gameScreen);
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     draw_dynamic_backgrounds();
     int tile_x_ini = scroll.x/TILESIZE-1;
 
@@ -220,8 +220,8 @@ void classMap::showMap()
         int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
         pos_destiny.x = n*TILESIZE - diff;
         for (int j=0; j<MAP_H; j++) {
-            pos_origin.x = stage_data.maps[number].tiles[i][j].tile1.x;
-            pos_origin.y = stage_data.maps[number].tiles[i][j].tile1.y;
+            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
 
             if (pos_origin.x >= 0 && pos_origin.y >= 0) {
                 pos_destiny.y = j*TILESIZE;
@@ -322,7 +322,7 @@ int classMap::getMapPointLock(st_position pos) const
 	if (pos.x < 0 || pos.y < 0 || pos.y > RES_H/TILESIZE || pos.x > MAP_W) {
 		return TERRAIN_UNBLOCKED;
 	}
-    return stage_data.maps[number].tiles[pos.x][pos.y].locked;
+    return map_data[number].tiles[pos.x][pos.y].locked;
 }
 
 st_position_int8 classMap::get_map_point_tile1(st_position pos)
@@ -330,7 +330,7 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
     if (pos.x < 0 || pos.y < 0 || pos.y > RES_H/TILESIZE || pos.x > MAP_W) {
         return st_position_int8(-1, -1);
     }
-    return stage_data.maps[number].tiles[pos.x][pos.y].tile1;
+    return map_data[number].tiles[pos.x][pos.y].tile1;
 }
 
 // ********************************************************************************************** //
@@ -342,8 +342,8 @@ void classMap::changeScrolling(st_position pos, bool check_lock)
 	if (pos.x != 0) {
 		//scrolled = pos;
 	}
-    float bg1_speed = (float)stage_data.maps[number].backgrounds[0].speed/10;
-    float bg2_speed = (float)stage_data.maps[number].backgrounds[1].speed/10;
+    float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
+    float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
     //std::cout << "*********** bg1_scroll: " << bg1_scroll << std::endl;
 
     //std::cout << fixed << "bg1_speed: " << bg1_speed << std::endl;
@@ -447,14 +447,14 @@ void classMap::load_map_npcs()
 	//std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
-        if (stage_data.maps[number].map_npcs[i].id_npc != -1) {
-            if (stage_data.boss.id_npc == stage_data.maps[number].map_npcs[i].id_npc) {
-                new_npc = new classboss(stage_number, number, stage_data.maps[number].map_npcs[i].id_npc, i);
+        if (map_data[number].map_npcs[i].id_npc != -1) {
+            if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
+                new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
                 new_npc->set_stage_boss(true);
-            } else if (game_data.game_npcs[stage_data.maps[number].map_npcs[i].id_npc].is_boss == true) {
-                new_npc = new classboss(stage_number, number, stage_data.maps[number].map_npcs[i].id_npc, i);
+            } else if (game_data.game_npcs[map_data[number].map_npcs[i].id_npc].is_boss == true) {
+                new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			} else {
-                new_npc = new classnpc(stage_number, number, stage_data.maps[number].map_npcs[i].id_npc, i);
+                new_npc = new classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			}
 			new_npc->set_map(this);
             _npc_list.push_back(new_npc); // insert new npc at the list-end
@@ -467,13 +467,13 @@ void classMap::draw_dynamic_backgrounds()
 {
     if (bg1_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg1_scroll, stage_data.maps[number].backgrounds[0].adjust_y), &bg1_surface, &graphLib.gameScreen);
+        graphLib.copyAreaWithAdjust(st_position(bg1_scroll, map_data[number].backgrounds[0].adjust_y), &bg1_surface, &graphLib.gameScreen);
     }
 
 
     if (bg2_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg2_scroll, stage_data.maps[number].backgrounds[1].adjust_y), &bg2_surface, &graphLib.gameScreen);
+        graphLib.copyAreaWithAdjust(st_position(bg2_scroll, map_data[number].backgrounds[1].adjust_y), &bg2_surface, &graphLib.gameScreen);
         //std::cout << "MAP::draw_dynamic_backgrounds - bg2_scroll: " << bg2_scroll << std::endl;
     }
 }
@@ -481,17 +481,17 @@ void classMap::draw_dynamic_backgrounds()
 
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
-    //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << stage_data.maps[number].background_color.r << ", " << stage_data.maps[number].background_color.g << ", " << stage_data.maps[number].background_color.b << ")" << std::endl;
-    graphLib.clear_surface_area(0, 0, surface.width, surface.height, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, surface);
+    //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << map_data[number].background_color.r << ", " << map_data[number].background_color.g << ", " << map_data[number].background_color.b << ")" << std::endl;
+    graphLib.clear_surface_area(0, 0, surface.width, surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, surface);
     if (bg1_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg1_scroll, stage_data.maps[number].backgrounds[0].adjust_y), &bg1_surface, &surface);
+        graphLib.copyAreaWithAdjust(st_position(bg1_scroll, map_data[number].backgrounds[0].adjust_y), &bg1_surface, &surface);
     }
 
 
     if (bg2_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg2_scroll, stage_data.maps[number].backgrounds[1].adjust_y), &bg2_surface, &surface);
+        graphLib.copyAreaWithAdjust(st_position(bg2_scroll, map_data[number].backgrounds[1].adjust_y), &bg2_surface, &surface);
     }
 }
 
@@ -683,11 +683,11 @@ void classMap::load_map_objects() {
     }
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
-        if (stage_data.maps[number].map_objects[i].id_object != -1) {
-            //int temp_id = stage_data.maps[number].map_objects[i].id_object;
-            object temp_obj(stage_data.maps[number].map_objects[i].id_object, this, stage_data.maps[number].map_objects[i].start_point, stage_data.maps[number].map_objects[i].link_dest, stage_data.maps[number].map_objects[i].map_dest);
+        if (map_data[number].map_objects[i].id_object != -1) {
+            //int temp_id = map_data[number].map_objects[i].id_object;
+            object temp_obj(map_data[number].map_objects[i].id_object, this, map_data[number].map_objects[i].start_point, map_data[number].map_objects[i].link_dest, map_data[number].map_objects[i].map_dest);
             temp_obj.set_obj_map_id(i);
-            temp_obj.set_direction(stage_data.maps[number].map_objects[i].direction);
+            temp_obj.set_direction(map_data[number].map_objects[i].direction);
 			object_list.push_back(temp_obj);
 		}
 	}
@@ -719,8 +719,8 @@ bool classMap::value_in_range(int value, int min, int max) const
 void classMap::create_dynamic_background_surfaces()
 {
     graphicsLib_gSurface temp_surface;
-    if (strlen(stage_data.maps[number].backgrounds[0].filename) > 0) {
-        std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + stage_data.maps[number].backgrounds[0].filename);
+    if (strlen(map_data[number].backgrounds[0].filename) > 0) {
+        std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + map_data[number].backgrounds[0].filename);
         if (game_save.stages[gameControl.currentStage] == 1) {
             graphLib.surfaceFromFile(bg1_filename, &temp_surface);
             create_dynamic_background_surface(bg1_surface, temp_surface);
@@ -732,8 +732,8 @@ void classMap::create_dynamic_background_surfaces()
         bg1_surface.freeGraphic();
     }
 
-    if (strlen(stage_data.maps[number].backgrounds[1].filename) > 0) {
-        std::string bg2_filename(FILEPATH+"images/map_backgrounds/"+ stage_data.maps[number].backgrounds[1].filename);
+    if (strlen(map_data[number].backgrounds[1].filename) > 0) {
+        std::string bg2_filename(FILEPATH+"images/map_backgrounds/"+ map_data[number].backgrounds[1].filename);
         if (game_save.stages[gameControl.currentStage] == 1) {
             graphLib.surfaceFromFile(bg2_filename, &temp_surface);
             create_dynamic_background_surface(bg2_surface, temp_surface);
@@ -750,7 +750,7 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
 {
     // initialize dest_surface
     graphLib.initSurface(st_size(RES_W*2, RES_H), &dest_surface);
-    //graphLib.clear_surface_area(0, 0, image_surface.width, image_surface.height, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, dest_surface);
+    //graphLib.clear_surface_area(0, 0, image_surface.width, image_surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, dest_surface);
     int total_w = 0;
     int n = 0;
     while (total_w <= RES_W*2) {
@@ -1048,7 +1048,7 @@ graphicsLib_gSurface classMap::get_map_area_surface()
         exit(-1);
     }
 
-    graphLib.clear_surface_area(0, 0, RES_W, RES_H, stage_data.maps[number].background_color.r, stage_data.maps[number].background_color.g, stage_data.maps[number].background_color.b, mapSurface);
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, mapSurface);
     //draw_dynamic_backgrounds();
 
     draw_dynamic_backgrounds_into_surface(mapSurface);
@@ -1063,8 +1063,8 @@ graphicsLib_gSurface classMap::get_map_area_surface()
         int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
         pos_destiny.x = n*TILESIZE - diff;
         for (int j=0; j<MAP_H; j++) {
-            pos_origin.x = stage_data.maps[number].tiles[i][j].tile1.x;
-            pos_origin.y = stage_data.maps[number].tiles[i][j].tile1.y;
+            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
             pos_destiny.y = j*TILESIZE;
             graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
         }
@@ -1274,8 +1274,8 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 		}
 		for (int i=0; i<MAP_W; i++) {
 			for (int j=0; j<MAP_H; j++) {
-                if (stage_data.maps[number].tiles[i][j].tile3.x != -1 && stage_data.maps[number].tiles[i][j].tile3.y != -1) {
-                        if (i == tileX && stage_data.maps[number].tiles[i][j].locked == TERRAIN_DOOR) {
+                if (map_data[number].tiles[i][j].tile3.x != -1 && map_data[number].tiles[i][j].tile3.y != -1) {
+                        if (i == tileX && map_data[number].tiles[i][j].locked == TERRAIN_DOOR) {
 							//std::cout << "****** redraw_boss_door - k: " << k << ", tiles_showed: " << tiles_showed << ", nTiles: " << nTiles << std::endl;
 							if (is_close == false) {
 								if (tiles_showed < nTiles) {
@@ -1286,7 +1286,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                                     }
 
 
-                                    graphLib.placeTile(st_position(stage_data.maps[number].tiles[i][j].tile3.x, stage_data.maps[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                                    graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
                                     draw_lib.update_screen();
 									tiles_showed++;
 								}
@@ -1299,7 +1299,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                                     }
 
 
-                                    graphLib.placeTile(st_position(stage_data.maps[number].tiles[i][j].tile3.x, stage_data.maps[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                                    graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
                                     draw_lib.update_screen();
 									tiles_showed++;
 								}
@@ -1312,7 +1312,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                             }
 
 
-                            graphLib.placeTile(st_position(stage_data.maps[number].tiles[i][j].tile3.x, stage_data.maps[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)+scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                            graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)+scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
 						}
 				}
 			}

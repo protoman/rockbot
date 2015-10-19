@@ -62,6 +62,7 @@ private:
 public slots:
     void reload();
     void on_new_game_accepted(QString);
+    void on_load_game_accepted();
 
 
  void on_npc_direction_combo_currentIndexChanged(int index);
