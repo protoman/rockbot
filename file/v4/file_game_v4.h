@@ -354,14 +354,14 @@ namespace format_v4 {
     struct st_armor_piece {
         int special_ability[FS_MAX_PLAYERS]; // each player can have a different ability
         // *** NEW IN 3.0.1 *** //
-        char got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES][DIALOG_LINE_LIMIT];
         Sint8 projectile_id;                // for armor-arms you can get a different attack, defined here
+        Sint8 got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
         st_armor_piece() {
             for (int i=0; i<FS_MAX_PLAYERS; i++) {
                 special_ability[i] = 0;
                 for (int j=0; j<FS_DIALOG_LINES; j++) {
-                    got_message[i][j][0] = '\0';
+                    got_message[i][j] = -1;
                 }
             }
             projectile_id = -1;

@@ -1,7 +1,5 @@
 #include "armor_edit.h"
-#include "ui_armor_edit.h"
-#include "../file/format.h"
-#include "mediator.h"
+
 
 armor_edit::armor_edit(QWidget *parent) :
     QWidget(parent),
@@ -80,6 +78,7 @@ void armor_edit::fill_armor_abilities()
     ui->p4_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[3]);
 }
 
+
 void armor_edit::on_p1_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
@@ -153,4 +152,29 @@ void armor_edit::on_p4_legs_comboBox_currentIndexChanged(int index)
     if (_data_loading == true) { return; }
     std::cout << "on_p4_legs_comboBox_currentIndexChanged - index: " << index << std::endl;
     Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[3] = index;
+}
+
+void armor_edit::on_string_selected(int string_id)
+{
+    StringsEditor* strings_editor_window = (StringsEditor*)sender();
+    Sint8* value_property = strings_editor_window->get_target_property();
+    *value_property = string_id;
+    QLineEdit* qline = strings_editor_window->get_target_qline();
+    qline->setText(fio_str.get_common_string(string_id).value);
+}
+
+
+void armor_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
+{
+    StringsEditor* strings_editor_window = new StringsEditor(this, true);
+    QObject::connect(strings_editor_window, SIGNAL(on_accepted(int)), this, SLOT(on_string_selected(int)));
+    strings_editor_window->set_target_property(property);
+    strings_editor_window->set_target_qline(qline);
+    strings_editor_window->show();
+}
+
+void armor_edit::on_arm_player1_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0]), ui->arm_player1_text1);
+
 }
