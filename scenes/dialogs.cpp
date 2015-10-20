@@ -49,63 +49,79 @@ dialogs::dialogs() : is_showing_dialog_bg(false)
 
 void dialogs::show_stage_dialog()
 {
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+
     if (strlen(stage_data.intro_dialog.face_graphics_filename) <= 0) {
 		return;
 	}
 
-    if (strlen(stage_data.intro_dialog.line1[0]) <= 0) {
+    if (stage_data.intro_dialog.text1_string_ids[0] == -1) {
         return;
     }
 
-	std::string lines[3];
-	for (int i=0; i<3; i++) {
-        lines[i] = std::string(stage_data.intro_dialog.line1[i]);
+    std::string lines[FS_DIALOG_LINES];
+    for (int i=0; i<FS_DIALOG_LINES; i++) {
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]).value;
 	}
     show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
-	for (int i=0; i<3; i++) {
-        lines[i] = std::string(stage_data.intro_dialog.answer1[game_save.selected_player][i]);
+
+    for (int i=0; i<FS_DIALOG_LINES; i++) {
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]).value;
 	}
     show_dialog(game_data.players[game_save.selected_player].face_filename, stage_data.intro_dialog.top_side, lines, true); /// @TODO: create "extern" for player number
-    if (strlen(stage_data.intro_dialog.line2[0]) > 0) {
-		for (int i=0; i<3; i++) {
-            lines[i] = std::string(stage_data.intro_dialog.line2[i]);
-		}
+
+    if (stage_data.boss_dialog.text2_string_ids[0] != -1) {
+        for (int i=0; i<FS_DIALOG_LINES; i++) {
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]).value;
+        }
         show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
 	}
+
+    if (stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][0] != -1) {
+        for (int i=0; i<FS_DIALOG_LINES; i++) {
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]).value;
+        }
+        show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
+    }
 }
 
 
 
 void dialogs::show_boss_dialog()
 {
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+
     if (strlen(stage_data.intro_dialog.face_graphics_filename) <= 0) {
 		return;
 	}
-	std::string lines[3];
-	for (int i=0; i<3; i++) {
-        lines[i] = std::string(stage_data.boss_dialog.line1[i]);
+    std::string lines[FS_DIALOG_LINES];
+    for (int i=0; i<FS_DIALOG_LINES; i++) {
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]).value;
 	}
     if (strlen(stage_data.boss.face_graphics_filename) <= 0) {
         sprintf(stage_data.boss.face_graphics_filename, "%s", "dr_kanotus.png");
 	}
     show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
 
-    for (int i=0; i<3; i++) {
-        lines[i] = std::string(stage_data.boss_dialog.answer1[game_save.selected_player][i]);
+    for (int i=0; i<FS_DIALOG_LINES; i++) {
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]).value;
 	}
+    show_dialog(game_data.players[game_save.selected_player].face_filename, stage_data.boss_dialog.top_side, lines, true); /// @TODO: create "extern" for player number
 
-    if (lines[0].size() > 0) {
-        show_dialog(game_data.players[game_save.selected_player].face_filename, stage_data.boss_dialog.top_side, lines, true); /// @TODO: create "extern" for player number
-    } else {
-        return;
-    }
-
-    if (strlen(stage_data.boss_dialog.line2[0]) > 0) {
-		for (int i=0; i<3; i++) {
-            lines[i] = std::string(stage_data.boss_dialog.line2[i]);
+    if (stage_data.boss_dialog.text2_string_ids[0] != -1) {
+        for (int i=0; i<FS_DIALOG_LINES; i++) {
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]).value;
 		}
         show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
 	}
+
+
+    if (stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][0] != -1) {
+        for (int i=0; i<FS_DIALOG_LINES; i++) {
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]).value;
+        }
+        show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
+    }
 }
 
 void dialogs::show_dialog(std::string face_file, bool top_side, std::string lines[3], bool show_btn=true)

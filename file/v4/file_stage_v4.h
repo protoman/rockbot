@@ -12,8 +12,8 @@ struct file_dialog { // DONE - Stage x2
     bool top_side;
     Sint8 text1_string_ids[FS_DIALOG_LINES];
     Sint8 text2_string_ids[FS_DIALOG_LINES];
-    Sint8 answer1_string_ids[FS_DIALOG_LINES];
-    Sint8 answer2_string_ids[FS_DIALOG_LINES];
+    Sint8 answer1_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
+    Sint8 answer2_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
 
     file_dialog() {
@@ -22,8 +22,10 @@ struct file_dialog { // DONE - Stage x2
         for (int i=0; i<FS_DIALOG_LINES; i++) {
             text1_string_ids[i] = -1;
             text2_string_ids[i] = -1;
-            answer1_string_ids[i] = -1;
-            answer2_string_ids[i] = -1;
+            for (int j=0; j<FS_MAX_PLAYERS; j++) {
+                answer1_string_ids[j][i] = -1;
+                answer2_string_ids[j][i] = -1;
+            }
         }
     }
 };

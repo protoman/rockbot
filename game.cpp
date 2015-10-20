@@ -28,6 +28,7 @@ extern inputLib input;
 #include "file/format.h"
 #include "defines.h"
 #include "file/file_io.h"
+#include "file/fio_strings.h"
 
 #include "strings_map.h"
 
@@ -604,7 +605,7 @@ void game::map_present_boss(bool show_dialog)
 
 	if (show_dialog == true) {
 		// 4. show boss dialog
-        if (strlen(stage_data.boss_dialog.line1[0]) > 0 && game_save.stages[currentStage] == 0) {
+        if (stage_data.boss_dialog.text1_string_ids[0] != -1 && game_save.stages[currentStage] == 0) {
 			dialogs boss_dialog;
             boss_dialog.show_boss_dialog();
 		}
