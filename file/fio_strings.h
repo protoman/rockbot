@@ -35,7 +35,7 @@ public:
     st_file_common_string get_common_string(int id);
     std::map<int, st_file_common_string> get_common_strings_map(std::vector<int> id_list);
 
-
+    void create_files();
 
 private:
     // === GAME STRINGS === //

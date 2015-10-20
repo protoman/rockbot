@@ -13,8 +13,8 @@
  *
  */
 struct st_position {
-    short x;
-    short y;
+    Sint16 x;
+    Sint16 y;
 	st_position() {
 		x = 0;
 		y = 0;
@@ -136,8 +136,8 @@ struct st_float_position {
  *
  */
 struct st_size {
-    short width;
-    short height;
+    Sint16 width;
+    Sint16 height;
 	st_size()
 	{
 		width = 0;
@@ -162,10 +162,10 @@ struct st_size {
  *
  */
 struct st_rectangle {
-    short x;
-    short y;
-    short w;
-    short h;
+    Sint16 x;
+    Sint16 y;
+    Sint16 w;
+    Sint16 h;
 	st_rectangle () {
 		x = 0;
 		y = 0;
@@ -173,14 +173,6 @@ struct st_rectangle {
 		h = 0;
 	}
 
-/**
- * @brief
- *
- * @param setX
- * @param setY
- * @param setW
- * @param setH
- */
     st_rectangle (int setX, int setY, int setW, int setH) {
 		x = setX;
 		y = setY;
@@ -189,26 +181,16 @@ struct st_rectangle {
 	}
 };
 
-/**
- * @brief
- *
- */
 struct st_color {
-    int r;
-    int g;
-    int b;
+    Sint16 r;
+    Sint16 g;
+    Sint16 b;
 	st_color () {
 		r = -1;
 		g = -1;
 		b = -1;
 	}
-/**
- * @brief
- *
- * @param setR
- * @param setG
- * @param setB
- */
+
     st_color (int setR, int setG, int setB) {
 		r = setR;
 		g = setG;
@@ -453,12 +435,12 @@ public:
  *
  */
 struct used_teleporter {
-    short teleporter_n; // number of the map_link (this is hardcoded, must be rebuilt in 0.2)
+    Sint8 teleporter_n; // number of the map_link (this is hardcoded, must be rebuilt in 0.2)
     bool finished; // indicates if already used
     struct st_position old_player_pos;
     bool active; // if true, then after beating the boss, the player must be teleported back to the teleporter origin
     st_position old_map_scroll;
-    short old_map_n;
+    Sint8 old_map_n;
     bool is_object;
 	used_teleporter() {
         teleporter_n = -1;
@@ -553,13 +535,13 @@ struct st_size_int8 {
 };
 
 struct st_map_colision {
-    short block;
-    short terrain_type;
+    Sint8 block;
+    Sint8 terrain_type;
     st_map_colision() {
         block = 0;
         terrain_type = 0;
     }
-    st_map_colision(short set_block, short set_terrain_type) {
+    st_map_colision(Sint8 set_block, Sint8 set_terrain_type) {
         block = set_block;
         terrain_type = set_terrain_type;
     }

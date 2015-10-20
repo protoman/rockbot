@@ -530,6 +530,9 @@ void MainWindow::on_new_game_accepted(QString name)
     CURRENT_FILE_FORMAT::file_io fio;
     fio.generate_files();
 
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    fio_str.create_files();
+
     /// @TODO: copy image files
     Mediator::get_instance()->loadGame();
 

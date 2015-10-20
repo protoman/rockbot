@@ -18,7 +18,6 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_animation> animation_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> playsfx_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_music> playmusic_list;
-    std::vector<CURRENT_FILE_FORMAT::file_scene_change_colorcyle> changecolorcycle_list;
 
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scenes_list;
 

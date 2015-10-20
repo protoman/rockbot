@@ -57,13 +57,13 @@ namespace format_v4 {
 
     struct file_scene_clear_area {
         char name[FS_NAME_SIZE];
-        int x;
-        int y;
-        int w;
-        int h;
-        int r;
-        int g;
-        int b;
+        Uint16 x;
+        Uint16 y;
+        Uint16 w;
+        Uint16 h;
+        Uint16 r;
+        Uint16 g;
+        Uint16 b;
 
         file_scene_clear_area() {
             x = 0;
@@ -171,16 +171,6 @@ namespace format_v4 {
             y = 0;
             transition_type = 0;
             position_type = 0;
-        }
-    };
-
-
-    struct file_scene_change_colorcyle {
-        char name[FS_NAME_SIZE];
-        int colorcycle_n;
-        file_scene_change_colorcyle() {
-            name[0] = '\0';
-            colorcycle_n = -1;
         }
     };
 
@@ -292,7 +282,6 @@ namespace format_v4 {
         Uint8 move_speed;                                   // how fast the repeat-background will move
         char text[SCENE_TEXT_LINES_N][DIALOG_LINE_LIMIT];   // string that will be show as text
         st_scene_text_options text_options;                 // options for text
-        Sint8 colorcyle;                                    // colorcycle used
         int delay;                                          // delay before next scene is executed
 
         file_scene() {

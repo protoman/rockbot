@@ -31,7 +31,6 @@ namespace format_v4 {
         std::vector<file_scene_show_image> load_scenes_show_image();
         std::vector<file_scene_show_viewpoint> load_scenes_show_viewpoint();
         std::vector<file_scene_show_text> load_scenes_show_text();
-        std::vector<file_scene_change_colorcyle> load_scenes_change_colorcycle();
 
         void save_scenes_show_image(std::vector<file_scene_show_image> data);
         void save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data);
@@ -41,7 +40,8 @@ namespace format_v4 {
         void save_scenes_play_sfx(std::vector<file_scene_play_sfx> data);
         void save_scenes_play_music(std::vector<file_scene_play_music> data);
         void save_scenes_clear_area(std::vector<file_scene_clear_area> data);
-        void save_scenes_change_colorcyle(std::vector<file_scene_change_colorcyle> data);
+
+        void generate_files();
 
 
     private:

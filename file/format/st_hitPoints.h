@@ -1,10 +1,6 @@
 #ifndef ST_HITPOINTS_H
 #define ST_HITPOINTS_H
 
-/**
- * @brief
- *
- */
 struct st_hit_points {
     short int total; /**< TODO */
     short int current; /**< TODO */

@@ -7,6 +7,10 @@
 #include "aux_tools/stringutils.h"
 
 extern std::string FILEPATH;
+extern std::string GAMEPATH;
+
+#define STRINGS_INGAME_FILENAME "/strings_ingame.dat"
+#define STRINGS_COMMON_FILENAME "/common_strings.dat"
 
 fio_strings::fio_strings()
 {
@@ -33,14 +37,14 @@ namespace format_v4 {
 
     std::vector<std::string> fio_strings::load_game_strings()
     {
-        std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
+        std::string filename = std::string(GAMEPATH) + STRINGS_INGAME_FILENAME;
         return load_game_strings_from_file(filename);
     }
 
     std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename)
     {
         std::vector<std::string> res;
-
+        filename = StringUtils::clean_filename(filename);
         std::ifstream fp(filename.c_str());
         //fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
 
@@ -80,7 +84,7 @@ namespace format_v4 {
 
     std::string fio_strings::get_common_strings_filename()
     {
-        std::string filename = FILEPATH + std::string("/lang/common_strings.dat");
+        std::string filename = FILEPATH + STRINGS_COMMON_FILENAME;
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
@@ -174,7 +178,7 @@ namespace format_v4 {
         /// @TODO: add assert to check that we set all the values from the enum
 
 
-        std::string filename = std::string(FILEPATH) + "/strings_ingame_v4.dat";
+        std::string filename = std::string(GAMEPATH) + STRINGS_INGAME_FILENAME;
 
         std::ofstream fp(filename.c_str());
         if (!fp.is_open()) {
@@ -311,6 +315,12 @@ namespace format_v4 {
             res.insert(std::pair<int, st_file_common_string>(id_list.at(i), item));
         }
         return res;
+    }
+
+    void fio_strings::create_files()
+    {
+        create_default_ingame_strings();
+        create_default_common_strings();
     }
 
 
