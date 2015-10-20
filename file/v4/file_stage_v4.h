@@ -10,22 +10,20 @@ namespace format_v4 {
 struct file_dialog { // DONE - Stage x2
     char face_graphics_filename[20];
     bool top_side;
-    char line1[FS_DIALOG_LINES][DIALOG_LINE_LIMIT];
-    char answer1[FS_MAX_PLAYERS][FS_DIALOG_LINES][DIALOG_LINE_LIMIT];
-    char line2[FS_DIALOG_LINES][DIALOG_LINE_LIMIT];
-    char answer2[FS_MAX_PLAYERS][FS_DIALOG_LINES][DIALOG_LINE_LIMIT];
+    Sint8 text1_string_ids[FS_DIALOG_LINES];
+    Sint8 text2_string_ids[FS_DIALOG_LINES];
+    Sint8 answer1_string_ids[FS_DIALOG_LINES];
+    Sint8 answer2_string_ids[FS_DIALOG_LINES];
+
+
     file_dialog() {
         top_side = true;
         face_graphics_filename[0] = '\0';
-        for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            for (int j=0; j<3; j++) {
-                answer1[i][j][0] = '\0';
-                answer2[i][j][0] = '\0';
-            }
-        }
-        for (int j=0; j<3; j++) {
-            line1[j][0] = '\0';
-            line2[j][0] = '\0';
+        for (int i=0; i<FS_DIALOG_LINES; i++) {
+            text1_string_ids[i] = -1;
+            text2_string_ids[i] = -1;
+            answer1_string_ids[i] = -1;
+            answer2_string_ids[i] = -1;
         }
     }
 };
@@ -63,8 +61,10 @@ struct file_boss { // DONE - Stage
     Sint8 id_npc;
     Sint8 id_weapon;
     char name[20];
+    Sint8 name_string_id;
     char face_graphics_filename[20];
     file_boss() {
+        name_string_id = -1;
         id_npc = -1;
         id_weapon = -1;
         sprintf(name, "%s", "Boss");

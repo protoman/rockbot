@@ -27,25 +27,27 @@ public:
     explicit StringsEditor(QWidget *parent, bool pick_mode);
     ~StringsEditor();
     void save_data();
+    void set_target_qline(QLineEdit* line);
+    QLineEdit* get_target_qline();
+    void set_target_property(Sint8 *prop);
+    Sint8 *get_target_property();
 
 private:
     void fill_data();
     void fill_translation();
     void load_language(std::string filename);
 
+
 public slots:
     void on_text_changed(int n);
 
 private slots:
     void on_buttonBox_accepted();
-
     void on_buttonBox_rejected();
-
     void on_addLanguage_pushButton_clicked();
-
     void on_languageName_lineEdit_textChanged(const QString &arg1);
-
     void on_languageSelector_comboBox_currentTextChanged(const QString &arg1);
+
 
 
 signals:
@@ -63,6 +65,11 @@ private:
     std::string current_lang;
     StringEditModel string_edit_model;
     bool pick_mode_enabled;
+
+    // target QLineEdit
+    QLineEdit* target_qline;
+    // target int property
+    Sint8* target_property;
 };
 
 #endif // STRINGSEDITOR_H

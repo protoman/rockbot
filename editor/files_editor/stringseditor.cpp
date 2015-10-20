@@ -6,7 +6,7 @@
 
 extern std::string FILEPATH;
 
-StringsEditor::StringsEditor(QWidget *parent, bool pick_mode) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this)
+StringsEditor::StringsEditor(QWidget *parent, bool pick_mode) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this), target_qline(NULL), target_property(NULL)
 {
     pick_mode_enabled = pick_mode;
     string_list = fio_str.load_game_strings();
@@ -75,6 +75,26 @@ void StringsEditor::save_data()
     }
     std::string path_new = FILEPATH + std::string("/lang/strings_ingame_") + current_lang + std::string(".dat");
     fio_str.save_game_strings(translation_string_list, path_new);
+}
+
+void StringsEditor::set_target_qline(QLineEdit *line)
+{
+    target_qline = line;
+}
+
+QLineEdit *StringsEditor::get_target_qline()
+{
+    return target_qline;
+}
+
+void StringsEditor::set_target_property(Sint8 *prop)
+{
+    target_property = prop;
+}
+
+Sint8 *StringsEditor::get_target_property()
+{
+    return target_property;
 }
 
 void StringsEditor::fill_data()

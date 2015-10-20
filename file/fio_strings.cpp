@@ -283,7 +283,7 @@ namespace format_v4 {
     st_file_common_string fio_strings::get_common_string(int id)
     {
         if (id == -1) {
-            return st_file_common_string(std::string(""), std::string(""));
+            return st_file_common_string(std::string(""), std::string("UNSET"));
         }
 
         st_file_common_string item;
