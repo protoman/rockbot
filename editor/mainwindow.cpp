@@ -15,6 +15,7 @@
 
 #include "../defines.h"
 #include "../file/version.h"
+#include "file/fio_scenes.h"
 
 
 #include "common.h"
@@ -533,6 +534,15 @@ void MainWindow::on_new_game_accepted(QString name)
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     fio_str.create_files();
+
+    std::string scenes_filename = std::string(FILEPATH) + "/scenes/";
+    if (fio.directory_exists(scenes_filename.c_str()) == false) {
+        QDir().mkdir(scenes_filename.c_str());
+    }
+
+    CURRENT_FILE_FORMAT::fio_scenes fio_scenes;
+    fio_scenes.generate_files();
+
 
     /// @TODO: copy image files
     Mediator::get_instance()->loadGame();

@@ -2,10 +2,12 @@
 #define TEXT_H
 
 #include <QDialog>
+#include <QLineEdit>
 #include "scenes/scenesmediator.h"
-#include "../../defines.h"
-#include "../file/fio_scenes.h"
-
+#include "defines.h"
+#include "file/fio_scenes.h"
+#include "file/fio_strings.h"
+#include "files_editor/stringseditor.h"
 
 namespace Ui {
 class TabText;
@@ -26,29 +28,35 @@ private slots:
 
     void on_positionType_currentIndexChanged(int index);
 
-    void on_lineEdit1_textChanged(const QString &arg1);
-
-    void on_lineEdit2_textChanged(const QString &arg1);
-
-    void on_lineEdit3_textChanged(const QString &arg1);
-
-    void on_lineEdit4_textChanged(const QString &arg1);
-
-    void on_lineEdit5_textChanged(const QString &arg1);
-
-    void on_lineEdit6_textChanged(const QString &arg1);
-
     void on_select_comboBox_currentIndexChanged(int index);
+
+    void on_line1_toolButton_clicked();
+
+    void on_line2_toolButton_clicked();
+
+    void on_line3_toolButton_clicked();
+
+    void on_line4_toolButton_clicked();
+
+    void on_line5_toolButton_clicked();
+
+    void on_line6_toolButton_clicked();
+
+public slots:
+    void on_string_selected(int string_id);
+
 
 private:
     void change_fields_enabled(bool state);
     void change_x_y_fields_enabled();
     void fill_data();
     void set_fields(int index);
+    void string_tooltip_click(Sint8 *property, QLineEdit* qline);
 
 private:
     Ui::TabText *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
     bool data_loading;
 };
 

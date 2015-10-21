@@ -6,6 +6,7 @@
 #include <QFontDatabase>
 
 #include "mediator.h"
+#include "file/fio_strings.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -56,8 +57,9 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
 
     int lines_n = 0;
     int max_line_w = 0;
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-        QString line = QString(text_info.text_lines[i]);
+        QString line = QString(fio_str.get_common_string(text_info.line_string_id[i]).value);
         if (line.size() > 0) {
             if (line.size() > max_line_w) {
                 max_line_w = line.size();
@@ -97,7 +99,7 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
     pos_y += FONT_SIZE;
 
     for (int i=0; i<lines_n; i++) {
-        QString line = QString(text_info.text_lines[i]);
+        QString line = QString(fio_str.get_common_string(text_info.line_string_id[i]).value);
         painter.drawText(pos_x, pos_y + (i*LINE_H_DIFF), line);
         //std::cout << ">>OK - DRAW LINE[" << i << "]" << std::endl;
     }

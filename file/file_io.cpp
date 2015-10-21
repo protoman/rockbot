@@ -781,11 +781,6 @@ namespace format_v4 {
     }
 
 
-
-
-
-
-
     void file_io::load_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
     {
         scene_sequence.clear();
