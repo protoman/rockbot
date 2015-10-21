@@ -479,7 +479,6 @@ enum e_energy_types { ENERGY_TYPE_HP, ENERGY_TYPE_WEAPON };
 #define MAX_AI_REACTIONS 3
 
 #define CHAR_NAME_SIZE 30
-#define CHAR_FILENAME_SIZE 30
 
 #define MAX_FILE_PLAYERS 5
 

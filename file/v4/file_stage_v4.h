@@ -104,16 +104,22 @@ struct file_stage {
 
 
 
-
-/**
- * @brief
- *
- */
+// we have 20 stages:
+// 1 intro, 8 bosses, 5 castle #1, 5 castle #2, 1 reserve
 struct file_stages {
     file_stage stages[FS_MAX_STAGES];
     file_stages() {
         for (int i=0; i<FS_MAX_STAGES; i++) {
-            sprintf(stages[i].name, "Stage [%d]", i);
+            if (i == 0) {
+                sprintf(stages[i].name, "#%d INTRO STAGE", i);
+            } else if (i < 9) {
+                sprintf(stages[i].name, "#%d 8-Bosses-Stage", i);
+            } else if (i <14) {
+                sprintf(stages[i].name, "Castle #1 Stage #%d", i);
+            } else {
+                sprintf(stages[i].name, "Castle #2 Stage #%d", i);
+            }
+
         }
     }
 };

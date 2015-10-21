@@ -173,25 +173,25 @@ void TabText::on_line1_toolButton_clicked()
 
 void TabText::on_line2_toolButton_clicked()
 {
-    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[1]), ui->lineEdit1);
+    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[1]), ui->lineEdit2);
 }
 
 void TabText::on_line3_toolButton_clicked()
 {
-    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[2]), ui->lineEdit1);
+    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[2]), ui->lineEdit3);
 }
 
 void TabText::on_line4_toolButton_clicked()
 {
-    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[3]), ui->lineEdit1);
+    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[3]), ui->lineEdit4);
 }
 
 void TabText::on_line5_toolButton_clicked()
 {
-    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[4]), ui->lineEdit1);
+    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[4]), ui->lineEdit5);
 }
 
 void TabText::on_line6_toolButton_clicked()
 {
-    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5]), ui->lineEdit1);
+    string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5]), ui->lineEdit6);
 }

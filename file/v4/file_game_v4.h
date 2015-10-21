@@ -36,7 +36,7 @@ namespace format_v4 {
 
     struct file_projectile {
         char name[CHAR_NAME_SIZE];
-        char graphic_filename[CHAR_FILENAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
         st_size_int8 size;
         bool is_destructible;                                   // indicates if the projectile can be shot down, if true, uses HP
         Uint8 hp;                                               // how much danage needs to be taken to destruct the projectile
@@ -45,7 +45,7 @@ namespace format_v4 {
         Uint8 speed;                                            // now many pixels are moved into a step
         Uint8 damage;                                           // how many hitpoints will be reduced from target
         // new in 3.0.1
-        char sfx_filename[CHAR_FILENAME_SIZE];                  // allows to use different projectile shot sound
+        char sfx_filename[FS_CHAR_NAME_SIZE];                  // allows to use different projectile shot sound
         bool can_be_reflected;                                  // if false, like in a charged-shot, can't be reflected by shield
         Uint8 spawn_npc_id;                                     // will spawn NPCs (like bird egg in mm2)
         Uint8 spawn_npc_n;                                      // number of NPCs that will be spawned
@@ -97,9 +97,9 @@ namespace format_v4 {
     };
 
     struct file_player { // DONE -> Game
-        char name[CHAR_NAME_SIZE];
-        char graphic_filename[CHAR_FILENAME_SIZE];
-        char face_filename[CHAR_FILENAME_SIZE];
+        char name[FS_CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        char face_filename[FS_CHAR_NAME_SIZE];
         Uint8 HP;
         st_size_int8 sprite_size;                                       // size of sprite graphic
         st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/colision
@@ -166,7 +166,7 @@ namespace format_v4 {
 
     struct file_object { // DONE - Game
         char name[CHAR_NAME_SIZE];
-        char graphic_filename[CHAR_FILENAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
         Sint8 type;													///@ TODO: use enum
         int timer;													// used as time for disapearing block
         Sint8 speed;												// used as speed for moving platform
@@ -205,7 +205,7 @@ namespace format_v4 {
         //unsigned int projectile_id;                               // indicates the projectile ID (relation with file_projectile)
         Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
         char name[CHAR_NAME_SIZE];
-        char graphic_filename[CHAR_FILENAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
         struct st_hit_points hp;
         Sint8 direction;                                           // defines how it behavies (kink of AI*)
         Sint8 speed;                                               // defines the distances it can see enemies
@@ -219,7 +219,7 @@ namespace format_v4 {
         Sint8 IA_type;                                             // IA types. For custom (edited) ones, use IA_TYPES_COUNT + position (in the array)
         Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
         st_weakness weakness[FS_NPC_WEAKNESSES];                                    // each npc have weaknesses for each boss weapon, plus the normal weapon
-        char bg_graphic_filename[CHAR_FILENAME_SIZE];               // holds a static background
+        char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
         st_position sprites_pos_bg;                                 // holds position of sprites in relation with background
         bool is_boss;                                               // indicates if this NPC is a boss
         Sint8 attack_frame_n[ANIM_TYPE_COUNT];                      // tells wich is the frame that ignites the attack
@@ -378,11 +378,11 @@ namespace format_v4 {
         file_weapon weapons[FS_MAX_WEAPONS];                            // 8 stage-bosses and 3 item-like
         file_player players[FS_MAX_PLAYERS];                            // up to 4 different players the user can select from
         file_artificial_inteligence ai_types[FS_MAX_AI_TYPES];
-        // game properties @TODO - revise to organize as an structure
-        Sint8 semi_charged_projectile_id;                              // common to all players
-        Sint8 player_items[FS_PLATER_ITEMS_N];                                         // common to all players -> to be used in add_coil_object and add_jet_object
+        Sint8 semi_charged_projectile_id;                               // common to all players
+        Sint8 player_items[FS_PLATER_ITEMS_N];                          // common to all players -> to be used in add_coil_object and add_jet_object
         char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX];
-        // ** NEW IN FILEV3.0 ** //
+
+        // ** NEW IN FILE V3.0 ** //
         st_file_trophy trophies[TROPHIES_MAX];
         st_shop_dialog shop_dialog_welcome;
         st_shop_dialog shop_dialog_goodbye;
@@ -390,6 +390,14 @@ namespace format_v4 {
         st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX];
         bool sequential_stages;                                         // if true, stages are executed one after another, like castlevania or ghouls & ghosts
 
+        // ** NEW IN FILE V4.0 ** //
+        char boss_music_filename[FS_CHAR_NAME_SIZE];
+        char final_boss_music_filename[FS_CHAR_NAME_SIZE];
+        char got_weapon_music_filename[FS_CHAR_NAME_SIZE];
+        char game_over_music_filename[FS_CHAR_NAME_SIZE];
+        char stage_select_music_filename[FS_CHAR_NAME_SIZE];
+        bool use_second_castle;
+        Uint8 final_boss_id;
 
         // CONSTRUCTOR //
         file_game() {
@@ -400,6 +408,15 @@ namespace format_v4 {
             player_items[0] = 0;
             player_items[1] = 0;
             sequential_stages = false;
+
+            boss_music_filename[0] = '\0';
+            final_boss_music_filename[0] = '\0';
+            got_weapon_music_filename[0] = '\0';
+            game_over_music_filename[0] = '\0';
+            stage_select_music_filename[0] = '\0';
+
+            use_second_castle = false;
+            final_boss_id = -1;
 
             for (int i=0; i<MAX_STAGES; i++) {
                 stage_face_filename[i][0] = '\0';
