@@ -286,6 +286,10 @@ namespace format_v4 {
             return st_file_common_string(std::string(""), std::string("UNSET"));
         }
 
+        if (FILEPATH == "") {
+            return st_file_common_string(std::string(""), std::string("LOADING..."));
+        }
+
         st_file_common_string item;
         std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
         if (!fp.is_open()) {

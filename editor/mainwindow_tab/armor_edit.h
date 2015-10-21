@@ -21,6 +21,7 @@ class armor_edit : public QWidget
 public:
     explicit armor_edit(QWidget *parent = 0);
     ~armor_edit();
+    void reload();
 
 
 private slots:
@@ -38,6 +39,41 @@ private slots:
     void on_p4_legs_comboBox_currentIndexChanged(int index);
 
     void on_arm_player1_toolButton1_clicked();
+    void on_arm_player1_toolButton2_clicked();
+    void on_arm_player1_toolButton3_clicked();
+    void on_arm_player2_toolButton1_clicked();
+    void on_arm_player2_toolButton2_clicked();
+    void on_arm_player2_toolButton3_clicked();
+    void on_arm_player3_toolButton1_clicked();
+    void on_arm_player3_toolButton2_clicked();
+    void on_arm_player3_toolButton3_clicked();
+    void on_arm_player4_toolButton1_clicked();
+    void on_arm_player4_toolButton2_clicked();
+    void on_arm_player4_toolButton3_clicked();
+    void on_body_player1_toolButton1_clicked();
+    void on_body_player1_toolButton2_clicked();
+    void on_body_player1_toolButton3_clicked();
+    void on_body_player2_toolButton1_clicked();
+    void on_body_player2_toolButton2_clicked();
+    void on_body_player2_toolButton3_clicked();
+    void on_body_player3_toolButton1_clicked();
+    void on_body_player3_toolButton2_clicked();
+    void on_body_player3_toolButton3_clicked();
+    void on_body_player4_toolButton1_clicked();
+    void on_body_player4_toolButton2_clicked();
+    void on_body_player4_toolButton3_clicked();
+    void on_legs_player1_toolButton1_clicked();
+    void on_legs_player1_toolButton2_clicked();
+    void on_legs_player1_toolButton3_clicked();
+    void on_legs_player2_toolButton1_clicked();
+    void on_legs_player2_toolButton2_clicked();
+    void on_legs_player2_toolButton3_clicked();
+    void on_legs_player3_toolButton1_clicked();
+    void on_legs_player3_toolButton2_clicked();
+    void on_legs_player3_toolButton3_clicked();
+    void on_legs_player4_toolButton1_clicked();
+    void on_legs_player4_toolButton2_clicked();
+    void on_legs_player4_toolButton3_clicked();
 
 public slots:
     void on_string_selected(int string_id);

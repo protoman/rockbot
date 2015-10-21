@@ -18,6 +18,7 @@ namespace format_v4 {
         int button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
         bool game_finished;             // stores if game was finished, so we can show more options to player
         Uint8 selected_input_device;
+        Uint8 selected_language;
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -181,6 +182,7 @@ namespace format_v4 {
             platform = get_current_platform();
             // Note: do not change game_finished when resetting
             selected_input_device = 0;
+            selected_language = 0;
         }
 
 

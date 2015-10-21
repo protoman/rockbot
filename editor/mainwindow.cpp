@@ -136,6 +136,7 @@ void MainWindow::reload()
     npc_edit_tab->reload();
     map_edit_tab->reload();
     player_edit_tab->reload();
+    armor_edit_tab->reload();
     this->show();
 }
 

@@ -15,6 +15,78 @@ armor_edit::~armor_edit()
 {
     delete ui;
 }
+
+void armor_edit::reload()
+{
+    ui->p1_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0]);
+    ui->p1_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[0]);
+    ui->p1_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[0]);
+
+    ui->p2_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1]);
+    ui->p2_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[1]);
+    ui->p2_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[1]);
+
+    ui->p3_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2]);
+    ui->p3_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[2]);
+    ui->p3_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[2]);
+
+    ui->p4_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3]);
+    ui->p4_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[3]);
+    ui->p4_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[3]);
+
+    // === ARMS === //
+    ui->arm_player1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0]).value);
+    ui->arm_player1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][1]).value);
+    ui->arm_player1_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][2]).value);
+
+    ui->arm_player2_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][0]).value);
+    ui->arm_player2_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][1]).value);
+    ui->arm_player2_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][2]).value);
+
+    ui->arm_player3_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][0]).value);
+    ui->arm_player3_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][1]).value);
+    ui->arm_player3_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][2]).value);
+
+    ui->arm_player4_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][0]).value);
+    ui->arm_player4_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][1]).value);
+    ui->arm_player4_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][2]).value);
+
+    // === BODY === //
+    ui->body_player1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][0]).value);
+    ui->body_player1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][1]).value);
+    ui->body_player1_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][2]).value);
+
+    ui->body_player2_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][0]).value);
+    ui->body_player2_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][1]).value);
+    ui->body_player2_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][2]).value);
+
+    ui->body_player3_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][0]).value);
+    ui->body_player3_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][1]).value);
+    ui->body_player3_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][2]).value);
+
+    ui->body_player4_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][0]).value);
+    ui->body_player4_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][1]).value);
+    ui->body_player4_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][2]).value);
+
+    // === LEGS === //
+    ui->legs_player1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][0]).value);
+    ui->legs_player1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][1]).value);
+    ui->legs_player1_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][2]).value);
+
+    ui->legs_player2_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][0]).value);
+    ui->legs_player2_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][1]).value);
+    ui->legs_player2_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][2]).value);
+
+    ui->legs_player3_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][0]).value);
+    ui->legs_player3_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][1]).value);
+    ui->legs_player3_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][2]).value);
+
+    ui->legs_player4_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][0]).value);
+    ui->legs_player4_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][1]).value);
+    ui->legs_player4_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2]).value);
+
+
+}
 /*
 -------------------------------------------------------------------
                 legs           buster              body
@@ -61,21 +133,7 @@ void armor_edit::fill_armor_abilities()
         ui->p4_legs_comboBox->addItem(legs_abilities[i].c_str());
     }
 
-    ui->p1_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0]);
-    ui->p1_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[0]);
-    ui->p1_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[0]);
-
-    ui->p2_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1]);
-    ui->p2_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[1]);
-    ui->p2_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[1]);
-
-    ui->p3_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2]);
-    ui->p3_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[2]);
-    ui->p3_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[2]);
-
-    ui->p4_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3]);
-    ui->p4_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[3]);
-    ui->p4_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[3]);
+    reload();
 }
 
 
@@ -176,5 +234,179 @@ void armor_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
 void armor_edit::on_arm_player1_toolButton1_clicked()
 {
     string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0]), ui->arm_player1_text1);
+}
 
+void armor_edit::on_arm_player1_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][1]), ui->arm_player1_text2);
+}
+
+void armor_edit::on_arm_player1_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][2]), ui->arm_player1_text3);
+}
+
+void armor_edit::on_arm_player2_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][0]), ui->arm_player2_text1);
+}
+
+void armor_edit::on_arm_player2_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][1]), ui->arm_player2_text2);
+}
+
+void armor_edit::on_arm_player2_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][3]), ui->arm_player2_text3);
+}
+
+void armor_edit::on_arm_player3_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][0]), ui->arm_player3_text1);
+}
+
+void armor_edit::on_arm_player3_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][1]), ui->arm_player3_text2);
+}
+
+void armor_edit::on_arm_player3_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][2]), ui->arm_player3_text3);
+}
+
+void armor_edit::on_arm_player4_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][0]), ui->arm_player4_text1);
+}
+
+void armor_edit::on_arm_player4_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][1]), ui->arm_player4_text2);
+}
+
+void armor_edit::on_arm_player4_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][2]), ui->arm_player4_text3);
+}
+
+void armor_edit::on_body_player1_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][0]), ui->body_player1_text1);
+}
+
+void armor_edit::on_body_player1_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][1]), ui->body_player1_text2);
+}
+
+void armor_edit::on_body_player1_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][2]), ui->body_player1_text3);
+}
+
+void armor_edit::on_body_player2_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][0]), ui->body_player2_text1);
+}
+
+void armor_edit::on_body_player2_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][1]), ui->body_player2_text2);
+}
+
+void armor_edit::on_body_player2_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][2]), ui->body_player2_text3);
+}
+
+void armor_edit::on_body_player3_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][0]), ui->body_player3_text1);
+}
+
+void armor_edit::on_body_player3_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][1]), ui->body_player3_text2);
+}
+
+void armor_edit::on_body_player3_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][2]), ui->body_player3_text3);
+}
+
+void armor_edit::on_body_player4_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][0]), ui->body_player4_text1);
+}
+
+void armor_edit::on_body_player4_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][1]), ui->body_player4_text2);
+}
+
+void armor_edit::on_body_player4_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][2]), ui->body_player4_text3);
+}
+
+void armor_edit::on_legs_player1_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][0]), ui->legs_player1_text1);
+}
+
+void armor_edit::on_legs_player1_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][1]), ui->legs_player1_text2);
+}
+
+void armor_edit::on_legs_player1_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][2]), ui->legs_player1_text3);
+}
+
+void armor_edit::on_legs_player2_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][0]), ui->legs_player2_text1);
+}
+
+void armor_edit::on_legs_player2_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][1]), ui->legs_player2_text2);
+}
+
+void armor_edit::on_legs_player2_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][2]), ui->legs_player2_text3);
+}
+
+void armor_edit::on_legs_player3_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][0]), ui->legs_player3_text1);
+}
+
+void armor_edit::on_legs_player3_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][1]), ui->legs_player3_text2);
+}
+
+void armor_edit::on_legs_player3_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][2]), ui->legs_player3_text3);
+}
+
+void armor_edit::on_legs_player4_toolButton1_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][0]), ui->legs_player4_text1);
+}
+
+void armor_edit::on_legs_player4_toolButton2_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][1]), ui->legs_player4_text2);
+}
+
+void armor_edit::on_legs_player4_toolButton3_clicked()
+{
+    string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2]), ui->legs_player4_text3);
 }
