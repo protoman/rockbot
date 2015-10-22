@@ -179,50 +179,50 @@ struct st_position stage_select::select() {
 
 	graphLib.copyArea(st_position(0, 0), &background, &graphLib.gameScreen);
 
-	if (game_save.stages[APEBOT] == 0) {
-        place_face(game_data.stage_face_filename[APEBOT], "APE", st_position(0, 0));
+	if (game_save.stages[STAGE1] == 0) {
+        place_face(game_data.stage_face_filename[STAGE1], "APE", st_position(0, 0));
 	} else {
 		place_face(std::string(""), "APE", st_position(0, 0));
 	}
 
-	if (game_save.stages[DAISIEBOT] == 0) {
-        place_face(game_data.stage_face_filename[DAISIEBOT], "DAISIE", st_position(1, 0));
+	if (game_save.stages[STAGE2] == 0) {
+        place_face(game_data.stage_face_filename[STAGE2], "DAISIE", st_position(1, 0));
 	} else {
 		place_face(std::string(""), "DAISIE", st_position(1, 0));
 	}
 
-	if (game_save.stages[SEAHORSEBOT] == 0) {
-        place_face(game_data.stage_face_filename[SEAHORSEBOT], "SEAHORSE", st_position(2, 0));
+	if (game_save.stages[STAGE3] == 0) {
+        place_face(game_data.stage_face_filename[STAGE3], "SEAHORSE", st_position(2, 0));
 	} else {
 		place_face(std::string(""), "SEAHORSE", st_position(2, 0));
 	}
 
-	if (game_save.stages[MUMMYBOT] == 0) {
-        place_face(game_data.stage_face_filename[MUMMYBOT], "MUMMY", st_position(0, 1));
+	if (game_save.stages[STAGE4] == 0) {
+        place_face(game_data.stage_face_filename[STAGE4], "MUMMY", st_position(0, 1));
 	} else {
 		place_face(std::string(""), "MUMMY", st_position(0, 1));
 	}
 
-	if (game_save.stages[MAGEBOT] == 0) {
-        place_face(game_data.stage_face_filename[MAGEBOT], "MAGE", st_position(2, 1));
+	if (game_save.stages[STAGE5] == 0) {
+        place_face(game_data.stage_face_filename[STAGE5], "MAGE", st_position(2, 1));
 	} else {
 		place_face(std::string(""), "MAGE", st_position(2, 1));
 	}
 
-	if (game_save.stages[DYNAMITEBOT] == 0) {
-        place_face(game_data.stage_face_filename[DYNAMITEBOT], "DYNAMITE", st_position(0, 2));
+	if (game_save.stages[STAGE6] == 0) {
+        place_face(game_data.stage_face_filename[STAGE6], "DYNAMITE", st_position(0, 2));
 	} else {
 		place_face(std::string(""), "DYNAMITE", st_position(0, 2));
 	}
 
-	if (game_save.stages[SPIKEBOT] == 0) {
-        place_face(game_data.stage_face_filename[SPIKEBOT], "SPIKE", st_position(1, 2));
+	if (game_save.stages[STAGE7] == 0) {
+        place_face(game_data.stage_face_filename[STAGE7], "SPIKE", st_position(1, 2));
 	} else {
 		place_face(std::string(""), "SPIKE", st_position(1, 2));
 	}
 
-	if (game_save.stages[TECHNOBOT] == 0) {
-        place_face(game_data.stage_face_filename[TECHNOBOT], "TECHNO", st_position(2, 2));
+	if (game_save.stages[STAGE8] == 0) {
+        place_face(game_data.stage_face_filename[STAGE8], "TECHNO", st_position(2, 2));
 	} else {
 		place_face(std::string(""), "TECHNO", st_position(2, 2));
 	}

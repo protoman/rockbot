@@ -241,7 +241,6 @@ namespace format_v4 {
         scenetype_stop_music,
         scenetype_repeat_scrollbg,              // keeps scrolling a background (like ninja gaiden's opening's grass)
         scenetype_show_text,
-        scenetype_change_colorcycle,
         scenetype_move_image,                   // shows an image that moves from point "place" to point destiny
         scenetype_show_animation                // shows an animation sequence
     };

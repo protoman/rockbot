@@ -30,6 +30,20 @@ private slots:
 
     void on_lineEdit_textChanged(const QString &arg1);
 
+    void on_gameStyle_comboBox_currentIndexChanged(int index);
+
+    void on_bossMusic_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_finalBoss_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_gotWeaponMusic_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_gameOverMusic_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_stageSelectMusic_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_stageNumber_comboBox_currentIndexChanged(int index);
+
 private:
     void fill_data();
     

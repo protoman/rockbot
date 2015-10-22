@@ -54,9 +54,6 @@ public:
     bool playing_sprites;
     int current_sprite_type;
     int current_npc_n;
-	bool show_colorcycle1;
-	bool show_colorcycle2;
-	bool show_colorcycle3;
     int selectedAnimTileset;
     bool show_objects_flag;
     bool show_npcs_flag;

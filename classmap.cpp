@@ -1450,7 +1450,8 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     gameControl.remove_all_projectiles();
                     //std::cout << "classMap::showMap - killed boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));
-                    if (stage_number == SKULLCASTLE5) { /// @TODO: check only if boss (must find a way to set multiple bosses in skull castle 1 by using the ones from 8-stages)
+                    /// @TODO - replace with game_data.final_boss_id
+                    if (stage_number == CASTLE1_STAGE5) {
                         gameControl.show_ending(npc_pos);
                         return;
                     } else {
@@ -1468,10 +1469,8 @@ void classMap::move_npcs() /// @TODO - check out of screen
 void classMap::show_npcs() /// @TODO - check out of screen
 {
     std::vector<classnpc*>::iterator npc_it;
-	//std::cout << "*************** classMap::showMap - npc_list.size: " << npc_list.size() << std::endl;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         if (gameControl.must_show_boss_hp() && (*npc_it)->is_boss() && (*npc_it)->is_on_visible_screen() == true) {
-            //std::cout << ">>>>>>>>>>>>>>>>>> classMap::showMap - executing npc '" << (*npc_it)->getName() << "'" << ", hp: " << (*npc_it)->get_current_hp() << std::endl;
 			graphLib.draw_hp_bar((*npc_it)->get_current_hp(), -1, -1);
 		}
 		if ((*npc_it)->is_dead() == false) {
@@ -1489,7 +1488,7 @@ void classMap::move_objects(bool paused)
 			object_list.erase(object_it);
 			break;
 		} else {
-            (*object_it).execute(paused); // TODO: must pass scroll map to npcs somwhow...
+            (*object_it).execute(paused); /// @TODO: must pass scroll map to npcs somwhow...
 		}
     }
 }
@@ -1497,15 +1496,12 @@ void classMap::move_objects(bool paused)
 std::vector<object*> classMap::check_collision_with_objects(st_rectangle collision_area)
 {
     std::vector<object*> res;
-    std::vector<object>::iterator object_it;
 
-    //std::cout << "### MAP::check_collision_with_objects::START ###" << std::endl;
     for (unsigned int i=0; i<object_list.size(); i++) {
         object* temp_obj = &object_list.at(i);
         colision_detection rect_colision_obj;
         bool res_collision = rect_colision_obj.rect_overlap(temp_obj->get_area(), collision_area);
         if (res_collision == true) {
-            //std::cout << "### Found object that collides ###" << std::endl;
             res.push_back(temp_obj);
         }
     }

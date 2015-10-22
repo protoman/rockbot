@@ -388,7 +388,6 @@ namespace format_v4 {
         st_shop_dialog shop_dialog_goodbye;
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX];
-        bool sequential_stages;                                         // if true, stages are executed one after another, like castlevania or ghouls & ghosts
 
         // ** NEW IN FILE V4.0 ** //
         char boss_music_filename[FS_CHAR_NAME_SIZE];
@@ -397,7 +396,8 @@ namespace format_v4 {
         char game_over_music_filename[FS_CHAR_NAME_SIZE];
         char stage_select_music_filename[FS_CHAR_NAME_SIZE];
         bool use_second_castle;
-        Uint8 final_boss_id;
+        Uint8 game_style;                                               // if 1, stages are executed one after another, like castlevania or ghouls & ghosts
+        Uint8 final_boss_id;                                            // indicates who is the final boss, the id refers to the map_npc id, not to the npc itself
 
         // CONSTRUCTOR //
         file_game() {
@@ -407,14 +407,14 @@ namespace format_v4 {
             semi_charged_projectile_id = 0;
             player_items[0] = 0;
             player_items[1] = 0;
-            sequential_stages = false;
 
+            // ** NEW IN FILE V4.0 ** //
             boss_music_filename[0] = '\0';
             final_boss_music_filename[0] = '\0';
             got_weapon_music_filename[0] = '\0';
             game_over_music_filename[0] = '\0';
             stage_select_music_filename[0] = '\0';
-
+            game_style = 0;
             use_second_castle = false;
             final_boss_id = -1;
 

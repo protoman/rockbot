@@ -75,11 +75,6 @@ struct file_boss { // DONE - Stage
 };
 
 
-struct file_colorcycle { // DONE - Stage
-    st_color color[FS_COLORCYCLE_MAX_ITEMS][COLOR_KEY_LENGTH];
-    Sint16 duration[FS_COLORCYCLE_MAX_ITEMS][COLOR_KEY_LENGTH];
-};
-
 struct file_stage {
     char name[FS_CHAR_NAME_SIZE];
     char bgmusic_filename[FS_CHAR_FILENAME_SIZE];
@@ -87,7 +82,6 @@ struct file_stage {
     file_boss boss;
     file_dialog intro_dialog;
     file_dialog boss_dialog;
-    file_colorcycle colorcycle;
     char tileset_filename[FS_CHAR_FILENAME_SIZE];
     bool autoscroll;
 

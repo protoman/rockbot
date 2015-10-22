@@ -181,13 +181,13 @@ short scenesLib::pick_stage() {
 
 	int pos_n = selected_stage.x + 1 + selected_stage.y*3;
     if (pos_n == 5) { // hack for skullcastle position
-        pos_n = SKULLCASTLE1;
+        pos_n = CASTLE1_STAGE1;
     } else if (pos_n >= 6) {
         pos_n--;
     }
 
-    if (pos_n == SKULLCASTLE1) { // look for the actual stage in skullcastle
-        for (int i=SKULLCASTLE1; i<SKULLCASTLE5; i++) {
+    if (pos_n == CASTLE1_STAGE1) { // look for the actual stage in skullcastle
+        for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
             if (game_save.stages[i] == 0) {
                 break;
             }
@@ -462,22 +462,22 @@ bool scenesLib::password_set()
                 if (x == 1 && y == 0) {
                     game_save.selected_player = PLAYER_CANDYBOT;
                 } else if (x == 5 && y == 3) {
-					game_save.stages[TECHNOBOT] = 1;
+					game_save.stages[STAGE8] = 1;
 				} else if (x == 5 && y == 5) {
-					game_save.stages[DAISIEBOT] = 1;
+					game_save.stages[STAGE2] = 1;
                 } else if (x == 3 && y == 2) {
-					game_save.stages[MUMMYBOT] = 1;
+					game_save.stages[STAGE4] = 1;
                 } else if (x == 4 && y == 5) {
-					game_save.stages[SPIKEBOT] = 1;
+					game_save.stages[STAGE7] = 1;
 
                 } else if (x == 0 && y == 0) {
-                    game_save.stages[SKULLCASTLE1] = 1;
+                    game_save.stages[CASTLE1_STAGE1] = 1;
                 } else if (x == 1 && y == 1) {
-                    game_save.stages[SKULLCASTLE2] = 1;
+                    game_save.stages[CASTLE1_STAGE2] = 1;
                 } else if (x == 0 && y == 4) {
-                    game_save.stages[SKULLCASTLE3] = 1;
+                    game_save.stages[CASTLE1_STAGE3] = 1;
                 } else if (x == 2 && y == 4) {
-                    game_save.stages[SKULLCASTLE4] = 1;
+                    game_save.stages[CASTLE1_STAGE4] = 1;
 
 
                 // weapon-tank: y 5, x 0
@@ -521,13 +521,13 @@ bool scenesLib::password_set()
                 } else if (x == 0 && y == 2) {
 					game_save.stages[INTRO_STAGE] = 1;
                 } else if (x == 2 && y == 0) {
-					game_save.stages[MAGEBOT] = 1;
+					game_save.stages[STAGE5] = 1;
                 } else if (x == 4 && y == 1) {
-					game_save.stages[DYNAMITEBOT] = 1;
+					game_save.stages[STAGE6] = 1;
                 } else if (x == 2 && y == 3) {
-					game_save.stages[SEAHORSEBOT] = 1;
+					game_save.stages[STAGE3] = 1;
                 } else if (x == 3 && y == 5) {
-					game_save.stages[APEBOT] = 1;
+					game_save.stages[STAGE1] = 1;
 				// energy tanks
 				/*
                 [5, 4]E6 = Start with 1
@@ -865,19 +865,19 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
     std::string botname;
 
     // set skullcastole number accoring to the save
-    if (pos_n == SKULLCASTLE1) {
-        if (game_save.stages[SKULLCASTLE5] != 0 || game_save.stages[SKULLCASTLE4] != 0) {
-            pos_n = SKULLCASTLE5;
-        } else if (game_save.stages[SKULLCASTLE3] != 0) {
-            pos_n = SKULLCASTLE4;
-        } else if (game_save.stages[SKULLCASTLE2] != 0) {
-            pos_n = SKULLCASTLE3;
-        } else if (game_save.stages[SKULLCASTLE1] != 0) {
-            pos_n = SKULLCASTLE2;
+    if (pos_n == CASTLE1_STAGE1) {
+        if (game_save.stages[CASTLE1_STAGE5] != 0 || game_save.stages[CASTLE1_STAGE4] != 0) {
+            pos_n = CASTLE1_STAGE5;
+        } else if (game_save.stages[CASTLE1_STAGE3] != 0) {
+            pos_n = CASTLE1_STAGE4;
+        } else if (game_save.stages[CASTLE1_STAGE2] != 0) {
+            pos_n = CASTLE1_STAGE3;
+        } else if (game_save.stages[CASTLE1_STAGE1] != 0) {
+            pos_n = CASTLE1_STAGE2;
         }
     }
 
-    if (pos_n == SKULLCASTLE1) {
+    if (pos_n == CASTLE1_STAGE1) {
         graphLib.blank_screen();
         /// @TODO - use scenes here
         //show_destrin_ship_intro();
@@ -892,7 +892,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         }
     }
 
-    if (pos_n == SKULLCASTLE1 || pos_n >= SKULLCASTLE2) {
+    if (pos_n == CASTLE1_STAGE1 || pos_n >= CASTLE1_STAGE2) {
         filename = FILEPATH + "images/backgrounds/skull_castle.png";
         graphLib.surfaceFromFile(filename, &spriteCopy);
         graphLib.copyArea(st_position(0, 0), &spriteCopy, &graphLib.gameScreen);
@@ -907,19 +907,19 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
 
 
 
-        if (pos_n == SKULLCASTLE2) {
+        if (pos_n == CASTLE1_STAGE2) {
             graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == SKULLCASTLE3) {
+        } else if (pos_n == CASTLE1_STAGE3) {
             draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
             graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
             graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == SKULLCASTLE4) {
+        } else if (pos_n == CASTLE1_STAGE4) {
             draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
             draw_castle_path(false, st_position(117, 152), st_position(179, 140), 0);
             graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
             graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
             graphLib.copyArea(st_position(195, 110), &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == SKULLCASTLE5) {
+        } else if (pos_n == CASTLE1_STAGE5) {
             draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
             draw_castle_path(false, st_position(117, 152), st_position(179, 146), 0);
             draw_castle_path(true, st_position(179, 138), st_position(191, 112), 0);
@@ -938,13 +938,13 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
 
 
         /// @TODO - instant path for drawing previous ones (do not need a for-loop)
-        if (pos_n == SKULLCASTLE2) {
+        if (pos_n == CASTLE1_STAGE2) {
             draw_castle_path(true, st_position(76, 228), st_position(105, 152), 1000);
-        } else if (pos_n == SKULLCASTLE3) {
+        } else if (pos_n == CASTLE1_STAGE3) {
             draw_castle_path(false, st_position(117, 152), st_position(179, 146), 1000);
-        } else if (pos_n == SKULLCASTLE4) {
+        } else if (pos_n == CASTLE1_STAGE4) {
             draw_castle_path(true, st_position(179, 138), st_position(191, 112), 1000);
-        } else if (pos_n == SKULLCASTLE5) {
+        } else if (pos_n == CASTLE1_STAGE5) {
             draw_castle_path(true, st_position(197, 110), st_position(186, 47), 1000);
         }
         input.waitTime(1500);

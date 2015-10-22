@@ -393,7 +393,7 @@ bool game::test_teleport(classPlayer *test_player) {
         }
 
         if (stage_data.links[j].id_map_origin != -1) {
-            if (currentStage == SKULLCASTLE5 && _last_stage_used_teleporters.find(i) != _last_stage_used_teleporters.end()) {
+            if (currentStage == CASTLE1_STAGE5 && _last_stage_used_teleporters.find(i) != _last_stage_used_teleporters.end()) {
 				i++;
 				continue;
 			}
@@ -455,7 +455,7 @@ bool game::test_teleport(classPlayer *test_player) {
 					}
 					teleporter_dist = lim1 - player_x*TILESIZE - 8;
 					MUST_TELEPORT = true;
-                    if (stage_data.links[j].type == LINK_BOSS_TELEPORTER && currentStage == SKULLCASTLE5 && currentMap == 2) {
+                    if (stage_data.links[j].type == LINK_BOSS_TELEPORTER && currentStage == CASTLE1_STAGE5 && currentMap == 2) {
                         test_player->set_direction(ANIM_DIRECTION_RIGHT);
                         test_player->set_teleporter(i);
                     } else if (stage_data.links[j].type != LINK_TELEPORTER) {
@@ -468,7 +468,7 @@ bool game::test_teleport(classPlayer *test_player) {
 			// only clean teleport when player is out of the teleporter
 			} else {
                 if (i == test_player->get_teleporter()) {
-                    if (link_type != LINK_BOSS_TELEPORTER || currentStage != SKULLCASTLE5 || currentMap != 2) { // only clean link if not teleporter nor is on final stage/map
+                    if (link_type != LINK_BOSS_TELEPORTER || currentStage != CASTLE1_STAGE5 || currentMap != 2) { // only clean link if not teleporter nor is on final stage/map
                         test_player->set_teleporter(-1);
                     }
 				}
