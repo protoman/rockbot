@@ -53,9 +53,9 @@ http://www23.atwiki.jp/rockmanforte/pages/21.html
     * http://www.bfxr.net/ (sfx creation)
 
 
---------------------------
+-------------------------------------------------
 VERSION 1.1.2 (minor fixes & i18n)
---------------------------
+-------------------------------------------------
 - deixar o pulo dos chefes mais lentos ou melhorar eles
 - tem alguns objectos de teleporte inválidos (ver bolinhas no editor, nas fases intro e skull #5)
 - trocar gráficos do castelo (dragão na montanha)
@@ -85,16 +85,16 @@ Would you like me to take a look St the code and see if I can find the issue tha
 
 
 
---------------------------
+-------------------------------------------------
 VERSION 1.1.3 (improvements)
---------------------------
+-------------------------------------------------
 - check how to create apps in Android that add stages or complete games that user can install and select
 - colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
 
 
---------------------------
-VERSION 1.1.3 (improvements)
---------------------------
+-------------------------------------------------
+VERSION 1.1.4 (improvements)
+-------------------------------------------------
 - não tirar tiro carregado ao passar por uma porta
     * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
@@ -117,7 +117,7 @@ VERSION 1.1.3 (improvements)
 
 
 --------------------------
-VERSION 1.1.4 (refinamentos)
+VERSION 1.1.5 (refinamentos)
 --------------------------
 - fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
 - usar fundo UNUSED do gemini e top man (mm3) em algum estágio
@@ -125,7 +125,7 @@ VERSION 1.1.4 (refinamentos)
 
 
 --------------------------
-VERSION 1.1.5 (melhorias IA)
+VERSION 1.1.6 (melhorias IA)
 --------------------------
 - AI ACTIONS:
     * add 4 types of jump in AI - short, medium, long, moonwalk
@@ -140,7 +140,7 @@ VERSION 1.1.5 (melhorias IA)
 
 
 --------------------------
-VERSION 1.1.6 (mm2 support)
+VERSION 1.1.7 (mm2 support)
 --------------------------
 - some Megaman 2 features:
     - 1/ballom item (slowly up)
@@ -151,7 +151,7 @@ VERSION 1.1.6 (mm2 support)
 
 
 --------------------------
-VERSION 1.1.7 (mm3 support)
+VERSION 1.1.8 (mm3 support)
 --------------------------
 - some Megaman 3 features:
     - guided projectile (hardman)
