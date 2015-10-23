@@ -59,10 +59,6 @@ Mediator::Mediator() {
     current_npc_n = 0;
 	current_ai = 0;
 
-	show_colorcycle1 = true;
-	show_colorcycle2 = true;
-	show_colorcycle3 = true;
-
     show_objects_flag = true;
     show_npcs_flag = true;
     show_teleporters_flag = true;
@@ -120,8 +116,6 @@ void Mediator::loadGame() {
     Mediator::get_instance()->fio.read_game(game_data);
     Mediator::get_instance()->fio.read_all_stages(stage_data);
     Mediator::get_instance()->fio.read_all_maps(maps_data);
-    Mediator::get_instance()->fio.load_scene_sequence(sequences);
-    Mediator::get_instance()->fio.load_scenes(scenes);
 }
 
 

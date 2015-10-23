@@ -3,9 +3,6 @@
 #include "../file/format.h"
 
 
-extern std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;
-extern std::vector<CURRENT_FILE_FORMAT::file_scene> scenes;
-
 TabText::TabText(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TabText)

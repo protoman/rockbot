@@ -27,14 +27,16 @@ struct st_map_background {
     char filename[FS_CHAR_FILENAME_SIZE];
     Sint16 adjust_y;                             // distance of the background from the screen top
     Sint8 speed;                                // 0 means will scroll in the same speed as foreground (so the bg is used only to ease map-creation)
-    bool auto_scroll;                           // automatic move background even if player isn't moving
+    Uint8 auto_scroll;                          // automatic move background even if player isn't moving. 0: don't move, 1: horizontal, 2: vertical
+    Uint8 gfx;                                  // indicates that the map have an gfx executed by drawlib (rain, snow, train, etc)
     st_map_background()
     {
         filename[0] = '\0';
         adjust_y = 0;
         speed = 0;
-        auto_scroll = false;
+        auto_scroll = 0;
         sprintf(filename, "%s", "");
+        gfx = 0;
     }
 };
 

@@ -64,12 +64,6 @@ namespace format_v4 {
         void save_config(st_game_config &config) const;
         int read_stage_boss_id(Uint8 stage_n, file_stage &stages_data_out);
 
-        void load_scene_sequence(std::vector<file_scene_sequence>& scene_sequence);
-        void save_scene_sequence(std::vector<file_scene_sequence>& scene_sequence);
-
-        void load_scenes(std::vector<file_scene>& scenes);
-        void save_scenes(std::vector<file_scene>& scenes);
-
         void generate_files();
 
 

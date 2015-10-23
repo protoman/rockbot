@@ -384,8 +384,6 @@ namespace format_v4 {
 
         // ** NEW IN FILE V3.0 ** //
         st_file_trophy trophies[TROPHIES_MAX];
-        st_shop_dialog shop_dialog_welcome;
-        st_shop_dialog shop_dialog_goodbye;
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX];
 

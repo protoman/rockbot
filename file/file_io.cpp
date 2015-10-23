@@ -132,20 +132,6 @@ namespace format_v4 {
         fp.close();
 
 
-// -------------------------------------- SHOP -------------------------------------- //
-        // st_shop_dialog shop_dialog_welcome
-        // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "game_shop" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-        fp.write(reinterpret_cast<char *>(&data_in.shop_dialog_welcome), sizeof(st_shop_dialog));
-        fp.write(reinterpret_cast<char *>(&data_in.shop_dialog_goodbye), sizeof(st_shop_dialog));
-        fp.close();
-
-
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
         filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
@@ -364,29 +350,6 @@ namespace format_v4 {
         }
         if (fread(&data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
             std::cout << ">>file_io::read_game[trophies] - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        fclose(fp);
-
-
-// -------------------------------------- SHOP -------------------------------------- //
-        // st_shop_dialog shop_dialog_welcome
-        // st_shop_dialog shop_dialog_goodbye
-        filename = std::string(FILEPATH) + "game_shop" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        int read_result1 = fread(&data_out.shop_dialog_welcome, sizeof(st_shop_dialog), 1, fp);
-        if (read_result1  == -1) {
-            std::cout << ">>file_io::read_game[shop_dialog_welcome] - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        int read_result2 = fread(&data_out.shop_dialog_goodbye, sizeof(st_shop_dialog), 1, fp);
-        if (read_result2  == -1) {
-            std::cout << ">>file_io::read_game[shop_dialog_goodbye] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);
@@ -779,86 +742,6 @@ namespace format_v4 {
         CURRENT_FILE_FORMAT::file_map maps_data_in[FS_MAX_STAGES][FS_STAGE_MAX_MAPS];
         write_all_maps(maps_data_in);
     }
-
-
-    void file_io::load_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
-    {
-        scene_sequence.clear();
-        file_scene_sequence temp;
-        std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "sequence.scn";
-        filename = StringUtils::clean_filename(filename);
-
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        while(!fp.eof()) {
-            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct file_scene_sequence));
-            scene_sequence.push_back(temp);
-        }
-        fp.close();
-    }
-
-    void file_io::save_scene_sequence(std::vector<file_scene_sequence> &scene_sequence)
-    {
-        std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "sequence.scn";
-        filename = StringUtils::clean_filename(filename);
-
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        for (unsigned int i=0; i<scene_sequence.size(); i++) {
-            fp.write(reinterpret_cast<char *>(&scene_sequence.at(i)), sizeof(struct file_scene_sequence));
-        }
-        fp.close();
-    }
-
-
-    void file_io::load_scenes(std::vector<file_scene> &scenes)
-    {
-        scenes.clear();
-        file_scene temp;
-        std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "scenes.scn";
-        filename = StringUtils::clean_filename(filename);
-
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        while(!fp.eof()) {
-            fp.read(reinterpret_cast<char *>(&temp), sizeof(struct file_scene));
-            scenes.push_back(temp);
-        }
-        fp.close();
-    }
-
-
-    void file_io::save_scenes(std::vector<file_scene> &scenes)
-    {
-        std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "scenes.scn";
-        filename = StringUtils::clean_filename(filename);
-
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
-            return;
-        }
-        for (unsigned int i=0; i<scenes.size(); i++) {
-            fp.write(reinterpret_cast<char *>(&scenes.at(i)), sizeof(struct file_scene));
-        }
-        fp.close();
-    }
-
-
-
 
 }
 

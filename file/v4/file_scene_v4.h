@@ -205,7 +205,7 @@ namespace format_v4 {
 
     // file_scene_object holds the type and a "pointer" to the entry number in file-seeker for that entry in the respective type file
     struct file_scene_object {
-        int type;
+        Sint8 type;
         int seek_n;
         int delay_after;
         int repeat_type;
@@ -245,48 +245,7 @@ namespace format_v4 {
         scenetype_show_animation                // shows an animation sequence
     };
 
-    // a scene is a sequence of several little actions
-    // the actions are stored in a different file and its type and IDare stored
-    struct file_scene_sequence {
-        int action_id;
 
-        // tipo[texto, imagem, som, animação, limpa-tela]/id
-    };
-
-    // multiple options that are unique to text are stored in this scruct
-    struct st_scene_text_options {
-        bool center_align;                                  // horizontal align
-        bool progressive_text;                              // each character appears by itself until full text is shown
-        bool fade_in_out;
-
-        st_scene_text_options() {
-            center_align = false;
-            progressive_text = false;
-            fade_in_out = true;
-        }
-    };
-
-    // holds options for all types of scene, except animations
-    struct file_scene {
-        bool deleted;                                             // if logically deleted
-        e_scenes_types type;                                // type of the scene
-        int repeat_times;                                   // how many times this action will repeat until finished
-        unsigned int repeat_timer;                          // how many milisseconds this action will play until finished
-        st_rectangle rect;                                  // this is used for clear-area
-        st_position place;                                  // used by show functions: image, text, repeat_scrollbg, move-image start point
-        st_position destiny;                                // for moving image
-        enum SFX_LIST sfx;                                  // what is the SFX the will be played
-        char bgmusic_filename[FS_CHAR_FILENAME_SIZE];       // what is the music that will be played
-        char bgimage_filename[FS_CHAR_FILENAME_SIZE];       // what is the filename of the background that will repeat
-        Uint8 move_speed;                                   // how fast the repeat-background will move
-        char text[SCENE_TEXT_LINES_N][DIALOG_LINE_LIMIT];   // string that will be show as text
-        st_scene_text_options text_options;                 // options for text
-        int delay;                                          // delay before next scene is executed
-
-        file_scene() {
-            deleted = false;
-        }
-    };
 
 }
 

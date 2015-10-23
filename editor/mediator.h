@@ -1,8 +1,9 @@
 #ifndef MEDIATOR_H
 #define MEDIATOR_H
 #include <QString>
-#include "../file/format.h"
-#include "../file/file_io.h"
+#include "file/format.h"
+#include "file/file_io.h"
+#include "file/fio_scenes.h"
 
 struct st_player_graphics_data {
 	st_size frame_size;
@@ -103,10 +104,8 @@ public:
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
     CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
-    std::vector<CURRENT_FILE_FORMAT::file_scene_sequence> sequences;
-    std::vector<CURRENT_FILE_FORMAT::file_scene> scenes;
     CURRENT_FILE_FORMAT::file_io fio;
-    CURRENT_FILE_FORMAT::file_scene fio_scenes;
+    CURRENT_FILE_FORMAT::fio_scenes fio_scenes;
     bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
     std::string combobox_select_string;
 
