@@ -47,6 +47,17 @@ namespace format_v4 {
     };
 
 
+    // this stores any "generic" items you could want to add to game, such as parts od beta to fix him (like in mmx zero)
+    // or anything we want to expand later, like shop items
+    struct st_collect_items {
+        Uint8 id;
+        Uint8 number;
+        collect_items() {
+            id = 0;
+            number = 0;
+        }
+    };
+
 
     struct st_save {
         Sint8 finished_stages;                                         // number of already finished stages, just to simplify calc
@@ -57,6 +68,7 @@ namespace format_v4 {
         Sint8 defeated_enemies_count;                                  // number of defeated enemies
         bool used_countinue;
         bool armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
+        st_collect_items collect_items[FS_COMMON_ITEMS_MAX];
 
         st_save() {
             finished_stages = 0;
