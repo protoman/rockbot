@@ -52,7 +52,7 @@ namespace format_v4 {
     struct st_collect_items {
         Uint8 id;
         Uint8 number;
-        collect_items() {
+        st_collect_items() {
             id = 0;
             number = 0;
         }

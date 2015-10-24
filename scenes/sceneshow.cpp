@@ -39,8 +39,10 @@ void sceneShow::show_scene(int n)
         exit(-1);
     }
     CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(0);
+
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
         int scene_seek_n = scene.objects[i].seek_n;
+        //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
         if (scene_seek_n != -1) {
             int scene_type = scene.objects[i].type;
             if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
@@ -63,6 +65,8 @@ void sceneShow::show_scene(int n)
                 soundManager.stop_music();
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
                 show_scene(scene_seek_n);
+            } else {
+                std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
             timer.delay(scene.objects[i].delay_after);
         }
@@ -71,6 +75,7 @@ void sceneShow::show_scene(int n)
 
 void sceneShow::show_image(int n)
 {
+    std::cout << "sceneShow::show_image::START" << std::endl;
     if (image_scenes.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         exit(-1);
@@ -86,7 +91,7 @@ void sceneShow::show_image(int n)
         speed_y = (float)((float)diff_y / diff_x);
         std::cout << "speed_y: " << speed_y << ", res: " << ((float)diff_y / diff_x) << std::endl;
     } else if (diff_x < diff_y) {
-        speed_x = (float)((float)diff_y / diff_x);
+        speed_x = (float)((float)diff_x / diff_y);
     }
     if (current_scene_image.ini_x > current_scene_image.dest_x) {
         speed_x = -speed_x;
@@ -94,7 +99,11 @@ void sceneShow::show_image(int n)
     if (current_scene_image.ini_y > current_scene_image.dest_y) {
         speed_y = -speed_y;
     }
-    total_dist = diff_x;
+    if (diff_x >= diff_y) {
+        total_dist = diff_x;
+    } else {
+        total_dist = diff_y;
+    }
     run_image_scene(current_scene_image);
 
 }
@@ -105,6 +114,7 @@ void sceneShow::show_image(int n)
 // That way we can move the run_XXX methods into threads to run in paralel
 void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image)
 {
+    std::cout << "** sceneShow::run_image_scene::START" << std::endl;
     float x = scene_image.ini_x;
     float y = scene_image.ini_y;
     graphicsLib_gSurface image;
@@ -112,6 +122,9 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
     graphLib.initSurface(st_size(RES_W, RES_H), &bg_image);
     graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &bg_image);
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + scene_image.filename, &image);
+
+    std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
+
     while (total_dist > 0) {
         //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(scene_image.move_delay);
@@ -123,6 +136,8 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
         y += speed_y;
         total_dist--;
     }
+    graphLib.showSurfaceAt(&image, st_position(x, y), false);
+    graphLib.updateScreen();
 }
 
 
@@ -182,8 +197,16 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 
     int lines_n = 0;
     int max_line_w = 0;
+
+    // this part is used to calculate text/lines size for positioning
+    /// @TODO: optimize using a vector
+    std::vector<int> string_id_list;
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-        std::string line = std::string(text.text_lines[i]);
+        string_id_list.push_back(text.line_string_id[i]);
+    }
+    std::map<int, CURRENT_FILE_FORMAT::st_file_common_string> text_list = fio_str.get_common_strings_map(string_id_list);
+    for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
+        std::string line = std::string(text_list.at(text.line_string_id[i]).value);
         if (line.size() > 0) {
             if (line.size() > max_line_w) {
                 max_line_w = line.size();
@@ -221,12 +244,12 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     }
 
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-        std::string line = std::string(text.text_lines[i]);
+        std::string line = std::string(text_list.at(text.line_string_id[i]).value);
         if (line.length() < 1) {
             break;
         }
         int adjusted_y = pos_y+(LINE_H_DIFF*i);
-        graphLib.clear_area(pos_x, adjusted_y, strlen(text.text_lines[i])*9, 8, 0, 0, 0);
+        graphLib.clear_area(pos_x, adjusted_y, line.length()*9, 8, 0, 0, 0);
         graphLib.draw_progressive_text(pos_x, adjusted_y, line, false);
     }
 }
@@ -254,12 +277,7 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 
     while (true) {
 
-        std::cout << "sceneShow::show_animation::LOOP" << std::endl;
-
-        //graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
-
         int x = frame_n*scene.frame_w;
-        std::cout << "origin.x: " << x << ", dest.x: " << scene.x << ", frame.w: " << scene.frame_w << ", frame.h: " << scene.frame_h << std::endl;
 
         graphLib.showSurfaceRegionAt(&image, st_rectangle(x, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
 

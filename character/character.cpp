@@ -17,6 +17,7 @@ extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 extern bool GAME_FLAGS[FLAG_COUNT];
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
+extern CURRENT_FILE_FORMAT::st_save game_save;
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
@@ -1514,8 +1515,6 @@ void character::check_map_colision_point(int &map_block, int &new_map_lock, int 
 {
     UNUSED(map_pos);
 
-    //if (name == "Scorpion") std::cout << "CHAR::check_map_colision_point - map_pos.x: " << map_pos.x << ", map_pos.y: " << map_pos.y << ", map_block: " << map_block << ", new_map_lock: " << new_map_lock << std::endl;
-
     int old_map_lock = gameControl.getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+frameSize.height/2)/TILESIZE));
 
     if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_WATER) {
@@ -1526,20 +1525,20 @@ void character::check_map_colision_point(int &map_block, int &new_map_lock, int 
         bool must_block = false;
 
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
-            std::cout << "NPC[" << name << "] - can't leave water" << std::endl;
             must_block = true;
         } else if (is_player() == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // NPCs must not enter water
-            std::cout << "NPC[" << name << "] - can't enter water - old_map_lock: " << old_map_lock << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
             must_block = true;
+        } else if (new_map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty == 0) {
+            must_block = true;
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
             must_block = true;
+
         }
         if (must_block == true) {
             if (mode_xy == 0) {
                 if (map_block != BLOCK_XY) {
-                    //if (is_player()) std::cout << "$$ character::check_map_colision_point $$ - block-x, terrain-type: " << new_map_lock << std::endl;
                     map_block = BLOCK_X;
                 }
             } else {
@@ -1560,31 +1559,23 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     if (incx > 0) {
         direction = ANIM_DIRECTION_RIGHT;
     }
-	//std::cout << "character::process_special_map_points - map_lock: " << map_lock << ", TERRAIN_SPIKE: " << TERRAIN_SPIKE << std::endl;
 	if (is_player() && incx > 0 && map_lock == TERRAIN_DOOR) {
-        std::cout << "process_special_map_points LEAVE #1" << std::endl;
         gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
 		return true;
 	}
 	if (is_player() && incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
-        //std::cout << "CHAR::process_special_map_points - TERRAIN_SCROLL_LOCK, direction: " << direction << ", incx: " << incx << std::endl;
-        //std::cout << "process_special_map_points LEAVE #2" << std::endl;
         gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
 		return true;
 	}
-    if (is_player() == true && state.animation_type != ANIM_TYPE_TELEPORT && map_lock == TERRAIN_SPIKE) {
-        //std::cout << "process_special_map_points LEAVE #3" << std::endl;
-        //std::cout << "char::process_special_map_points - TERRAIN_SPIKE ACTIVE!" << std::endl;
-        //std::cout << "map_lock: " << map_lock << ", map.x: " << map_pos.x << ", map.y: " << map_pos.y << std::endl;
+    if (is_player() == true && state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDCODEBLOCK && game_save.difficulty == 2))) {
         damage(SPIKES_DAMAGE, false);
         return true;
-	}
+    }
 	if (is_player() && map_lock == TERRAIN_CHECKPOINT) {
 		checkpoint.x = position.x;
 		checkpoint.y = position.y;
 		checkpoint.map = map->get_number();
 		checkpoint.map_scroll_x = map->getMapScrolling().x;
-		//std::cout << "======= CHECKPOINT x: " << checkpoint.x << ", y: " << checkpoint.y << ", map: " << checkpoint.map << ", scroll_x: " << checkpoint.map_scroll_x << std::endl;
 	}
 
     return false;
@@ -1604,7 +1595,6 @@ void character::check_platform_move(short map_lock)
                 pos_x = (position.x + 5 + move) / TILESIZE;
             }
             int point_terrain = gameControl.getMapPointLock(st_position(pos_x, pos_y));
-            std::cout << "point_terrain[LEFT][" << pos_x << "][" << pos_y << "]: " << point_terrain << std::endl;
             if (point_terrain != TERRAIN_UNBLOCKED && point_terrain != TERRAIN_WATER) {
                 can_move = false;
             }
@@ -1616,7 +1606,6 @@ void character::check_platform_move(short map_lock)
                 can_move = false;
             }
         }
-        //if (is_player()) std::cout << "TERRAIN_MOVE - move: " << move << ", move_speed: " << move_speed << ", can_move: " << can_move << std::endl;
         if (can_move) {
             position.x += move;
             _moving_platform_timer = timer.getTimer()+MOVING_GROUND;
@@ -1650,7 +1639,6 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
 
 
 
-    //std::cout << "############ character::map_colision - res_colision_object._block: " << res_colision_object._block  << std::endl;
 
     if (is_player() == true && res_colision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
@@ -1675,7 +1663,6 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
     }
 
 	if (is_player()) {
-        //std::cout << "colision_player_npcs #3" << std::endl;
         if (have_shoryuken() == true && state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
             map->colision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
@@ -1711,19 +1698,13 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
     // if we are out of map, return always true
     if (_always_move_ahead == true) {
         if ((incx < 0 && (position.x+incx < 0)) || (incx > 0 && position.x+incx > MAP_W*TILESIZE)) {
-            //std::cout << "NPC[" << getName() << "] free to move ahead out of map - incx: " << incx << std::endl;
             return st_map_colision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
-        //} else {
-            //std::cout << "NPC[" << getName() << "] NOT free to move ahead out of map - incx: " << incx << std::endl;
         }
     }
 
 	/// @TODO - use collision rect for the current frame. Until there, use 3 points check
 	int py_top, py_middle, py_bottom;
 	int px_left, px_center, px_right;
-
-
-
 
     py_top = position.y + incy + py_adjust;
 
@@ -1754,8 +1735,6 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
 	map_y_points[1] = py_middle/TILESIZE;
     map_y_points[2] = py_bottom/TILESIZE;
 
-    //if (is_player()) { std::cout << ">>>>>>>>>>> map_block: " << map_block << ", incy: " << incy << ", pos.y: " << position.y << ", py_top: " << py_top << ", map_y_points[0]: " << map_y_points[0] << ", py_adjust: " << py_adjust << std::endl; }
-
     // TEST X POINTS
 	if (incx != 0) {
 		for (int i=0; i<3; i++) {
@@ -1764,10 +1743,8 @@ st_map_colision character::map_colision(const short incx, const short incy, st_p
             } else {
                 map_point.y = map_y_points[i];
             }
-            //std::cout << "py_top: " << py_top << ", map_point.y: " << map_point.y << std::endl;
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_colision_point(map_block, new_map_lock, 0, map_point);
-            //std::cout << "### process_special_map_points A ###" << std::endl;
             if (process_special_map_points(new_map_lock, incx, incy, map_point)) {
                 return st_map_colision(map_block, new_map_lock);
             }

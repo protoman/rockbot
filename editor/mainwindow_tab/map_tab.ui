@@ -133,7 +133,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>6</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
@@ -551,6 +551,24 @@
                <iconset>
                 <normalon>:/toolbar_icons/Save</normalon>
                </iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Easy-Mode Block</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../resources/icons/icons.qrc">
+                <normaloff>:/toolbar_icons/draw-polygon.png</normaloff>:/toolbar_icons/draw-polygon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Hard-Mode Spike</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../resources/icons/icons.qrc">
+                <normaloff>:/toolbar_icons/draw-square-inverted-corners.png</normaloff>:/toolbar_icons/draw-square-inverted-corners.png</iconset>
               </property>
              </item>
             </widget>

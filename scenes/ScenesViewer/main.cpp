@@ -21,6 +21,7 @@
     std::string EXEC_NAME("rockbot.exe");
 #endif
 
+#define MAXPATHLEN 256
 
 // --- EXTERNAL --- //
 graphicsLib graphLib;
@@ -33,12 +34,14 @@ CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::file_game game_data;
 CURRENT_FILE_FORMAT::file_stage stage_data;
 SDL_Event event;
+
 std::string FILEPATH;
 std::string SAVEPATH;
 std::string GAMEPATH;
+std::string GAMENAME;
+
 bool leave_game = false;
 bool GAME_FLAGS[FLAG_COUNT];
-std::string game_name = "";
 int animation_n = 0;
 
 
@@ -85,7 +88,7 @@ bool check_parameters(int argc, char *argv[]) {
                 std::cout << "ERROR: no [NAME] informed for --gamename flag." << std::endl;
                 return false;
             } else {
-                game_name = std::string(argv[i+1]);
+                GAMENAME = std::string(argv[i+1]);
                 ignore_param = true;
             }
         } else if (temp_argv == "--scenenumber") {
@@ -103,7 +106,7 @@ bool check_parameters(int argc, char *argv[]) {
             }
         }
     }
-    FILEPATH = GAMEPATH + std::string("/games/") + game_name + std::string("/");
+    FILEPATH = GAMEPATH + std::string("/games/") + GAMENAME + std::string("/");
     std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
     return true;
 }

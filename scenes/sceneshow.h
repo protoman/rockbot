@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "file/fio_scenes.h"
+#include "file/fio_strings.h"
 
 class sceneShow
 {
@@ -25,6 +26,7 @@ private:
 
 private:
     CURRENT_FILE_FORMAT::fio_scenes fio_scn;
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
     float speed_x;
     float speed_y;
     float inc_x;

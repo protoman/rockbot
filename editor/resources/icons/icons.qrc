@@ -87,5 +87,11 @@
         <file>Knight-icon.png</file>
         <file>Wizard-icon.png</file>
         <file>Manager-icon.png</file>
+        <file>draw-circle.png</file>
+        <file>draw-cross.png</file>
+        <file>draw-donut.png</file>
+        <file>draw-polygon.png</file>
+        <file>draw-rectangle.png</file>
+        <file>draw-square-inverted-corners.png</file>
     </qresource>
 </RCC>

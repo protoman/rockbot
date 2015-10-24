@@ -45,17 +45,18 @@ void TabText::fill_data()
 
 void TabText::set_fields(int index)
 {
-    ui->lineEdit1->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[0]).value);
-    ui->lineEdit2->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[1]).value);
-    ui->lineEdit3->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[2]).value);
-    ui->lineEdit4->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[3]).value);
-    ui->lineEdit5->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[4]).value);
-    ui->lineEdit6->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(0).line_string_id[5]).value);
-    ui->positionType->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(0).position_type);
+    ui->lineEdit1->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[0]).value);
+    ui->lineEdit2->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[1]).value);
+    ui->lineEdit3->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[2]).value);
+    ui->lineEdit4->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[3]).value);
+    ui->lineEdit5->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[4]).value);
+    ui->lineEdit6->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[5]).value);
+    ui->positionType->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(index).position_type);
     change_x_y_fields_enabled();
-    ui->textX_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(0).x);
-    ui->textY_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(0).y);
-    ui->transitionType_comboBox->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(0).transition_type);
+    ui->textX_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(index).x);
+    ui->textY_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(index).y);
+    ui->transitionType_comboBox->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(index).transition_type);
+    ui->name_lineEdit->setText(ScenesMediator::get_instance()->text_list.at(index).name);
 }
 
 void TabText::on_AddButton_clicked()
@@ -191,4 +192,60 @@ void TabText::on_line5_toolButton_clicked()
 void TabText::on_line6_toolButton_clicked()
 {
     string_tooltip_click(&(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5]), ui->lineEdit6);
+}
+
+void TabText::on_name_lineEdit_textChanged(const QString &arg1)
+{
+    if (data_loading == true) { return; }
+    sprintf(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+}
+
+void TabText::on_removeString1_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[0] = -1;
+    ui->lineEdit1->setText("UNSET");
+}
+
+void TabText::on_removeString2_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[1] = -1;
+    ui->lineEdit2->setText("UNSET");
+}
+
+void TabText::on_removeString3_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[2] = -1;
+    ui->lineEdit3->setText("UNSET");
+}
+
+void TabText::on_removeString4_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[3] = -1;
+    ui->lineEdit4->setText("UNSET");
+}
+
+void TabText::on_removeString5_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[4] = -1;
+    ui->lineEdit5->setText("UNSET");
+}
+
+void TabText::on_removeString6_toolButton_clicked()
+{
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5] = -1;
+    ui->lineEdit6->setText("UNSET");
+}
+
+void TabText::on_textX_spinBox_valueChanged(int arg1)
+{
+    if (data_loading == true) { return; }
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).x = arg1;
+    ui->widget->repaint();
+}
+
+void TabText::on_textY_spinBox_valueChanged(int arg1)
+{
+    if (data_loading == true) { return; }
+    ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).y = arg1;
+    ui->widget->repaint();
 }

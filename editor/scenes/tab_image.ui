@@ -104,6 +104,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="minimum">
+            <number>-999</number>
+           </property>
            <property name="maximum">
             <number>999</number>
            </property>
@@ -140,6 +143,9 @@
              <width>50</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="minimum">
+            <number>-999</number>
            </property>
            <property name="maximum">
             <number>999</number>
@@ -328,8 +334,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>241</width>
-          <height>352</height>
+          <width>211</width>
+          <height>356</height>
          </rect>
         </property>
         <property name="sizePolicy">

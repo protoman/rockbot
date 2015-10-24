@@ -42,6 +42,10 @@ private slots:
 
     void on_name_lineEdit_textChanged(const QString &arg1);
 
+    void on_up_pushButton_clicked();
+
+    void on_down_pushButton_clicked();
+
 private:
     Ui::ScenesList *ui;
     QStringListModel model_objects;

@@ -220,6 +220,12 @@ void classMap::showMap()
         int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
         pos_destiny.x = n*TILESIZE - diff;
         for (int j=0; j<MAP_H; j++) {
+
+            // don't draw easy-mode blocks if game difficulty not set to easy
+            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty != 0) {
+                continue;
+            }
+
             pos_origin.x = map_data[number].tiles[i][j].tile1.x;
             pos_origin.y = map_data[number].tiles[i][j].tile1.y;
 
@@ -270,19 +276,13 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x)
     std::vector<st_level3_tile>::iterator tile3_it;
     for (tile3_it = _level3_tiles.begin(); tile3_it != _level3_tiles.end(); tile3_it++) {
 
-        //struct st_position pos_origin((*tile3_it).tileset_pos.x, (*tile3_it).tileset_pos.y);
-        //struct st_position pos_destiny(((*tile3_it).map_position.x*TILESIZE)-scroll_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
-
         if (_3rd_level_ignore_area.x != -1 && _3rd_level_ignore_area.w > 0 && ((*tile3_it).map_position.x >= _3rd_level_ignore_area.x && (*tile3_it).map_position.x < _3rd_level_ignore_area.x+_3rd_level_ignore_area.w && (*tile3_it).map_position.y >= _3rd_level_ignore_area.y && (*tile3_it).map_position.y < _3rd_level_ignore_area.y+_3rd_level_ignore_area.h)) {
             continue;
         }
-        //graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen, game_save.stages[gameControl.currentStage]);
         graphLib.place_3rd_level_tile((*tile3_it).tileset_pos.x, (*tile3_it).tileset_pos.y, ((*tile3_it).map_position.x*TILESIZE)-scroll_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
     }
 
     if (_water_bubble.pos.x != -1) {
-        //std::cout << ">> MAP::showAbove::SHOW_BUBBLE - x: " << _water_bubble.pos.x << ", y: " << _water_bubble.pos.y << ", timer: " << _water_bubble.timer << ", now: " << timer.getTimer() << " <<" << std::endl;
-        //graphLib.clear_area(_water_bubble.pos.x+_water_bubble.x_adjust, _water_bubble.pos.y, 4, 4, 255, 0, 0);
         draw_lib.show_bubble(_water_bubble.pos.x+_water_bubble.x_adjust, _water_bubble.pos.y);
         int water_lock = getMapPointLock(st_position((_water_bubble.pos.x+2+scroll_x)/TILESIZE, _water_bubble.pos.y/TILESIZE));
         _water_bubble.pos.y -= 2;
@@ -308,10 +308,11 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x)
 bool classMap::is_point_solid(st_position pos) const
 {
 	short int lock_p = getMapPointLock(pos);
-	if (lock_p != TERRAIN_UNBLOCKED && lock_p != TERRAIN_WATER && lock_p != TERRAIN_CHECKPOINT && lock_p != TERRAIN_SCROLL_LOCK) {
-		return true;
+
+    if (lock_p == TERRAIN_UNBLOCKED || lock_p != TERRAIN_WATER || lock_p == TERRAIN_CHECKPOINT || lock_p == TERRAIN_SCROLL_LOCK || (lock_p == TERRAIN_EASYMODEBLOCK && game_save.difficulty != 0)) {
+        return false;
 	}
-	return false;
+    return true;
 }
 
 // ********************************************************************************************** //

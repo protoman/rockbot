@@ -33,16 +33,46 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="up_pushButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/arrow-up.png</normaloff>:/toolbar_icons/arrow-up.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="addButton">
        <property name="text">
-        <string>&lt;</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/arrow-left.png</normaloff>:/toolbar_icons/arrow-left.png</iconset>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="removeButton">
        <property name="text">
-        <string>&gt;</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/arrow-right.png</normaloff>:/toolbar_icons/arrow-right.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="down_pushButton">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/arrow-down.png</normaloff>:/toolbar_icons/arrow-down.png</iconset>
        </property>
       </widget>
      </item>
@@ -186,6 +216,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

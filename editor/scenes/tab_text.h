@@ -42,6 +42,24 @@ private slots:
 
     void on_line6_toolButton_clicked();
 
+    void on_name_lineEdit_textChanged(const QString &arg1);
+
+    void on_removeString1_toolButton_clicked();
+
+    void on_removeString2_toolButton_clicked();
+
+    void on_removeString3_toolButton_clicked();
+
+    void on_removeString4_toolButton_clicked();
+
+    void on_removeString5_toolButton_clicked();
+
+    void on_removeString6_toolButton_clicked();
+
+    void on_textX_spinBox_valueChanged(int arg1);
+
+    void on_textY_spinBox_valueChanged(int arg1);
+
 public slots:
     void on_string_selected(int string_id);
 

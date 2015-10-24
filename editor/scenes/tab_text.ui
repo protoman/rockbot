@@ -46,28 +46,14 @@
          <property name="topMargin">
           <number>0</number>
          </property>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_5">
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_9">
            <property name="text">
-            <string>Draw Type:</string>
+            <string>Line 5:</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Position X</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_11">
-           <property name="text">
-            <string>Position type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
+         <item row="3" column="1">
           <widget class="QSpinBox" name="textX_spinBox">
            <property name="enabled">
             <bool>false</bool>
@@ -77,14 +63,127 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_3">
+         <item row="5" column="1">
+          <widget class="QComboBox" name="transitionType_comboBox">
+           <item>
+            <property name="text">
+             <string>Progressive</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Instant</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="name_lineEdit"/>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Position Y</string>
+            <string>Line 2:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="lineEdit2">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Line 6:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="textY_spinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>999</number>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
+          <widget class="QComboBox" name="select_comboBox"/>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="lineEdit1">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Line 3:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Position type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Line 4:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Select Entry:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QToolButton" name="line1_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Position X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
           <widget class="QComboBox" name="positionType">
            <item>
             <property name="text">
@@ -118,190 +217,167 @@
            </item>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QComboBox" name="transitionType_comboBox">
-           <item>
-            <property name="text">
-             <string>Progressive</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Instant</string>
-            </property>
-           </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Draw Type:</string>
+           </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="textY_spinBox">
+         <item row="6" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Line1: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <widget class="QToolButton" name="line6_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLineEdit" name="lineEdit4">
            <property name="enabled">
             <bool>false</bool>
            </property>
-           <property name="maximum">
-            <number>999</number>
+           <property name="maxLength">
+            <number>30</number>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_10">
-             <property name="text">
-              <string>Line 6:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Line 2:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>Line 5:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Line 4:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Line1: </string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit2">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Line 3:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="lineEdit3">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit1">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit4">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLineEdit" name="lineEdit5">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLineEdit" name="lineEdit6">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QToolButton" name="line1_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QToolButton" name="line2_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QToolButton" name="line3_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QToolButton" name="line4_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="2">
-            <widget class="QToolButton" name="line5_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="QToolButton" name="line6_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_4">
+         <item row="8" column="2">
+          <widget class="QToolButton" name="line3_toolButton">
            <property name="text">
-            <string>Select Entry:</string>
+            <string>...</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="select_comboBox"/>
+         <item row="9" column="2">
+          <widget class="QToolButton" name="line4_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <widget class="QLineEdit" name="lineEdit6">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QLineEdit" name="lineEdit5">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="2">
+          <widget class="QToolButton" name="line2_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLineEdit" name="lineEdit3">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Position Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="2">
+          <widget class="QToolButton" name="line5_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="3">
+          <widget class="QToolButton" name="removeString1_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="3">
+          <widget class="QToolButton" name="removeString2_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="3">
+          <widget class="QToolButton" name="removeString3_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="3">
+          <widget class="QToolButton" name="removeString4_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="3">
+          <widget class="QToolButton" name="removeString5_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="3">
+          <widget class="QToolButton" name="removeString6_toolButton">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../resources/icons/icons.qrc">
+             <normaloff>:/toolbar_icons/edit-delete.png</normaloff>:/toolbar_icons/edit-delete.png</iconset>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -369,6 +445,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -69,7 +69,10 @@ SOURCES += main.cpp \
     ../../file/file_io.cpp \
     ../../file/convert.cpp \
     ../sceneshow.cpp \
-    ../../file/fio_scenes.cpp
+    ../../file/fio_scenes.cpp \
+    ../../strings_map.cpp \
+    ../../aux_tools/stringutils.cpp \
+    ../../file/fio_strings.cpp
 
 HEADERS += \
     ../../graphicslib.h \
@@ -86,4 +89,8 @@ HEADERS += \
     ../../file/v4/file_save_v4.h \
     ../../file/v4/file_scene_v4.h \
     ../../file/v4/file_stage_v4.h \
-    ../../file/v4/file_strings_v4.h
+    ../../file/v4/file_strings_v4.h \
+    ../../file/v4/file_strings.h \
+    ../../strings_map.h \
+    ../../aux_tools/stringutils.h \
+    ../../file/fio_strings.h

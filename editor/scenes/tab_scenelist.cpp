@@ -50,9 +50,16 @@ void TabScenelist::on_addScene_button_clicked()
 void TabScenelist::fill_data()
 {
     ui->sceneSelector->clear();
+
+    std::cout << "fill_data::ScenesMediator::get_instance()->scenes_list.size(): " << ScenesMediator::get_instance()->scenes_list.size() << std::endl;
+
     for (int i=0; i<ScenesMediator::get_instance()->scenes_list.size(); i++) {
         ui->sceneSelector->addItem(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
     }
+    // combox zero position is clear screen, so just add one item
+    QStringList list;
+    list.append(QString("Clear"));
+    model_objects.setStringList(list);
 }
 
 void TabScenelist::save_data()
@@ -72,7 +79,7 @@ void TabScenelist::on_sceneTypeSelector_currentIndexChanged(int index)
 {
     QStringList list;
     if (index == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
-        // nothing to do
+        list.append(QString("Clear"));
     } else if (index == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
         for (unsigned int i=0; i<ScenesMediator::get_instance()->cleararea_list.size(); i++) {
             list.append(QString(ScenesMediator::get_instance()->cleararea_list.at(i).name));
@@ -121,13 +128,6 @@ void TabScenelist::on_addButton_clicked()
     }
     int n = ui->sceneSelector->currentIndex();
 
-    /*
-    // number of the selected line in objects list
-    QModelIndex listSelection = ui->object_listView->currentIndex();
-    int seek_n = listSelection.row();
-    */
-
-
     QModelIndexList selectedList = ui->object_listView->selectionModel()->selectedRows();
 
     if (selectedList.count() == 0) {
@@ -135,8 +135,6 @@ void TabScenelist::on_addButton_clicked()
     }
 
     int seek_n = selectedList.at(0).row();
-    std::cout << ">>>>>>> seek_n: " << seek_n << " <<<<<<<<<<" << std::endl;
-
 
     // search for a free slot
     for (unsigned int i = 0; i<SCENE_OBJECTS_N; i++) {
@@ -206,4 +204,44 @@ void TabScenelist::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading) { return; }
     sprintf(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).name, "%s", arg1.toStdString().c_str());
+}
+
+void TabScenelist::on_up_pushButton_clicked()
+{
+    QModelIndexList selectedList = ui->scenes_tableView->selectionModel()->selectedRows();
+    // no line selected, do nothing
+    if (selectedList.count() == 0) {
+        return;
+    }
+    int selected_row = selectedList.at(0).row();
+    // can't move up first row
+    if (selected_row == 0) {
+        return;
+    }
+
+    CURRENT_FILE_FORMAT::file_scene_object temp = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row-1];
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row-1] = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row];
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row] = temp;
+
+    model_scenes.update();
+}
+
+void TabScenelist::on_down_pushButton_clicked()
+{
+    QModelIndexList selectedList = ui->scenes_tableView->selectionModel()->selectedRows();
+    // no line selected, do nothing
+    if (selectedList.count() == 0) {
+        return;
+    }
+    int selected_row = selectedList.at(0).row();
+    // can't move down last row
+    if (selected_row == ui->scenes_tableView->selectionModel()->children().count()-1) {
+        return;
+    }
+
+    CURRENT_FILE_FORMAT::file_scene_object temp = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row+1];
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row+1] = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row];
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row] = temp;
+
+    model_scenes.update();
 }
