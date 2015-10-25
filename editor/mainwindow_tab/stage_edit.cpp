@@ -80,8 +80,6 @@ void stage_edit::fill_stage_tab_data()
     common::fill_stages_combo(ui->stages_tab_stage_combo);
 	// fill bg music combo
     common::fill_files_combo(std::string("/music"), ui->stages_tab_bgmusic_combo);
-	// fill boss faces
-    common::fill_graphicfiles_combobox(std::string("/images/faces"), ui->bossface_comboBox);
 	// fill digalogs faces
     common::fill_graphicfiles_combobox(std::string("/images/faces"), ui->dialogs_line1_face_combo);
 
@@ -112,13 +110,6 @@ void stage_edit::update_stage_data()
     for (int i=0; i<ui->dialogs_line1_face_combo->count(); i++) {
         int combo_n = ui->dialogs_line1_face_combo->findText(QString(search_text.c_str()));
         ui->dialogs_line1_face_combo->setCurrentIndex(combo_n);
-        break;
-    }
-
-    search_text = std::string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.face_graphics_filename);
-    for (int i=0; i<ui->bossface_comboBox->count(); i++) {
-        int combo_n = ui->bossface_comboBox->findText(QString(search_text.c_str()));
-        ui->bossface_comboBox->setCurrentIndex(combo_n);
         break;
     }
 
@@ -171,15 +162,6 @@ void stage_edit::on_stages_tab_stage_combo_currentIndexChanged(int index)
 	update_stage_data();
 }
 
-void stage_edit::on_stages_tab_bossfaces_view_itemClicked(QListWidgetItem *item)
-{
-    if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.face_graphics_filename, "%s", item->text().toStdString().c_str());
-}
-
-
-
-
 
 void stage_edit::on_dialogs_answer1_player_currentIndexChanged(int index)
 {
@@ -207,14 +189,6 @@ void stage_edit::on_dialogs_line1_face_combo_currentIndexChanged(const QString &
 {
     if (_data_loading == true) return;
     sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.face_graphics_filename, "%s", arg1.toStdString().c_str());
-}
-
-void stage_edit::on_bossface_comboBox_currentIndexChanged(const QString &arg1)
-{
-    if (_data_loading == true) return;
-
-    sprintf(Mediator::get_instance()->game_data.stage_face_filename[Mediator::get_instance()->currentStage], "%s", arg1.toStdString().c_str()); // this is used to have faces without loading the whole stage
-    sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.face_graphics_filename, "%s", arg1.toStdString().c_str());
 }
 
 // ------------------- string tooltip buttons ------------------- //

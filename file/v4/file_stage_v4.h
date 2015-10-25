@@ -64,13 +64,11 @@ struct file_boss { // DONE - Stage
     Sint8 id_weapon;
     char name[20];
     Sint8 name_string_id;
-    char face_graphics_filename[20];
     file_boss() {
         name_string_id = -1;
         id_npc = -1;
         id_weapon = -1;
         sprintf(name, "%s", "Boss");
-        face_graphics_filename[0] = '\0';
     }
 };
 

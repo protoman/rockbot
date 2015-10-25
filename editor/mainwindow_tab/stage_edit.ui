@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>907</width>
+    <width>1098</width>
     <height>831</height>
    </rect>
   </property>
@@ -24,12 +24,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>887</width>
+        <width>1078</width>
         <height>811</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="rightMargin">
           <number>10</number>
@@ -37,341 +37,27 @@
          <property name="bottomMargin">
           <number>10</number>
          </property>
-         <item row="11" column="2">
-          <widget class="QToolButton" name="phrase1_3_toolButton">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_48">
            <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="2">
-          <widget class="QToolButton" name="phrase2_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="1">
-          <widget class="QLineEdit" name="dialogs_line1_text3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Phrase 2:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="23" column="2">
-          <widget class="Line" name="line_4">
-           <property name="minimumSize">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="2">
-          <widget class="QToolButton" name="phrase2_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="2">
-          <widget class="QToolButton" name="boss_phrase1_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_50">
-           <property name="text">
-            <string>Stage Dialogs:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="5">
-          <widget class="QLineEdit" name="dialogs_answer1_text3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="6">
-          <widget class="QToolButton" name="answer1_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="15" column="0">
-          <widget class="QLabel" name="label_20">
-           <property name="text">
-            <string>Boss Dialogs:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text1_line1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="5">
-          <widget class="QLineEdit" name="dialogs_answer2_text1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="0">
-          <widget class="QLabel" name="label_21">
-           <property name="text">
-            <string>Phrase 1:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="4">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Player Answer 2:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer2_line2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="1">
-          <widget class="QLineEdit" name="dialogs_line2_text1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="6">
-          <widget class="QToolButton" name="answer2_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="2">
-          <widget class="QToolButton" name="boss_phrase1_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="2">
-          <widget class="QToolButton" name="phrase1_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="1">
-          <widget class="QLineEdit" name="dialogs_line1_text1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer1_line3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="6">
-          <widget class="QToolButton" name="boss_answer1_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="1">
-          <widget class="QLineEdit" name="dialogs_line2_text3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="4">
-          <widget class="QLabel" name="label_55">
-           <property name="text">
-            <string>Player Answer 1:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="2">
-          <widget class="QToolButton" name="phrase1_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="2">
-          <widget class="QToolButton" name="boss_phrase2_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="1">
-          <widget class="QLineEdit" name="dialogs_line1_text2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="5">
-          <widget class="QLineEdit" name="dialogs_answer2_text3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="6">
-          <widget class="QToolButton" name="answer1_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="5">
-          <widget class="QLineEdit" name="dialogs_answer1_text1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="4">
-          <widget class="QLabel" name="label_57">
-           <property name="text">
-            <string>Player Answer 2:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Phrase2:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="11" column="6">
-          <widget class="QToolButton" name="answer1_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="1">
-          <widget class="QLineEdit" name="dialogs_line2_text2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="5">
-          <widget class="QLineEdit" name="dialogs_answer2_text2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_51">
-           <property name="text">
-            <string>Phrase1:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer1_line1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="2">
-          <widget class="QToolButton" name="phrase2_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="6">
-          <widget class="QToolButton" name="boss_answer2_1_toolButton">
-           <property name="text">
-            <string>...</string>
+            <string>Stage:</string>
            </property>
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="label_13">
            <property name="text">
-            <string>Dialog Person Name:</string>
+            <string>Stage Music:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="stages_tab_stage_combo"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
+           <property name="maxLength">
+            <number>30</number>
            </property>
           </widget>
          </item>
@@ -382,346 +68,615 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="4">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Dialog Person Face:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
+         <item row="3" column="1">
           <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="stages_tab_stage_combo"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_48">
-           <property name="text">
-            <string>Stage:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="5">
-          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
-         </item>
-         <item row="5" column="4">
+         <item row="4" column="0">
           <widget class="QLabel" name="label_63">
            <property name="text">
-            <string>Boss Weapon:</string>
+            <string>Gained Weapon:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="5">
-          <widget class="QComboBox" name="bossface_comboBox">
-           <property name="iconSize">
-            <size>
-             <width>32</width>
-             <height>32</height>
-            </size>
-           </property>
-          </widget>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>BG Music File:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="24" column="0">
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="6" column="1">
-          <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="1">
-            <widget class="QComboBox" name="dialogs_line1_face_combo">
-             <property name="iconSize">
-              <size>
-               <width>32</width>
-               <height>32</height>
-              </size>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="title">
+              <string>Boss Dialogs (Boss Room)</string>
              </property>
+             <layout class="QGridLayout" name="gridLayout_13">
+              <item row="5" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text2_line3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QToolButton" name="boss_phrase1_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QToolButton" name="boss_phrase2_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="boss_phrase2_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text1_line3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Phrase 1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QToolButton" name="boss_phrase1_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Phrase 2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QToolButton" name="boss_phrase2_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text2_line2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text2_line1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QToolButton" name="boss_phrase1_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text1_line2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="boss_dialog_text1_line1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
+              <string>Ally or Enemy Dialogs (Stage Start)</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <item row="6" column="2">
+               <widget class="QToolButton" name="phrase2_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QToolButton" name="phrase1_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="stages_tab_bossname_lineedit">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QToolButton" name="phrase2_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="2">
+               <widget class="QToolButton" name="phrase2_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QToolButton" name="phrase1_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QLineEdit" name="dialogs_line2_text1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QToolButton" name="personName_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="dialogs_line1_text3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="dialogs_line1_text2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Dialog Person Face:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Dialog Person Name:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
+               <widget class="QLineEdit" name="dialogs_line2_text2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="8" column="1">
+               <widget class="QLineEdit" name="dialogs_line2_text3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="dialogs_line1_face_combo">
+                <property name="iconSize">
+                 <size>
+                  <width>32</width>
+                  <height>32</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Dialog #2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_51">
+                <property name="text">
+                 <string>Dialog #1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="dialogs_line1_text1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="phrase1_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>Player Answers (Boss Room)</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_14">
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer2_line1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QToolButton" name="boss_answer1_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer1_line2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Player Answer 1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Player Answer 2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QToolButton" name="boss_answer2_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="boss_answer2_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer2_line3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer2_line2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QToolButton" name="boss_answer2_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer1_line1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="boss_dialog_answer1_line3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QToolButton" name="boss_answer1_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QToolButton" name="boss_answer1_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
+              <string>Player Answers (Stage Start)</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="dialogs_answer1_text2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="dialogs_answer1_text3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_57">
+                <property name="text">
+                 <string>Dialog #2:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="dialogs_answer2_text2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_55">
+                <property name="text">
+                 <string>Dialog #1:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="dialogs_answer2_text1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QToolButton" name="answer1_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QToolButton" name="answer1_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QToolButton" name="answer1_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="answer2_2_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QToolButton" name="answer2_1_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QLineEdit" name="dialogs_answer2_text3">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="dialogs_answer1_text1">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="maxLength">
+                 <number>30</number>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QToolButton" name="answer2_3_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>Dialog Properties</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_11">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_54">
+                <property name="text">
+                 <string>Dialog Player:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="dialogs_answer1_player"/>
+              </item>
+             </layout>
+             <zorder>groupBox_3</zorder>
+             <zorder>label_54</zorder>
+             <zorder>dialogs_answer1_player</zorder>
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="6" column="5">
-          <layout class="QGridLayout" name="gridLayout_8">
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="dialogs_answer1_player"/>
-           </item>
-          </layout>
-         </item>
-         <item row="6" column="4">
-          <widget class="QLabel" name="label_54">
-           <property name="text">
-            <string>Dialog Player:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Dialog Face:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="4">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Player Answer 1:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="Line" name="line">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="5">
-          <widget class="Line" name="line_2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <layout class="QGridLayout" name="gridLayout_12">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="stages_tab_bossname_lineedit">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="maxLength">
-              <number>30</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QToolButton" name="personName_toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="21" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text2_line2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="2">
-          <widget class="QToolButton" name="boss_phrase1_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="2">
-          <widget class="QToolButton" name="boss_phrase2_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="6">
-          <widget class="QToolButton" name="boss_answer1_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text1_line3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="6">
-          <widget class="QToolButton" name="boss_answer2_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text1_line2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text2_line1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="6">
-          <widget class="QToolButton" name="answer2_2_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="6">
-          <widget class="QToolButton" name="boss_answer2_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="6">
-          <widget class="QToolButton" name="answer2_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="2">
-          <widget class="QToolButton" name="boss_phrase2_3_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="1">
-          <widget class="QLineEdit" name="boss_dialog_text2_line3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="5">
-          <widget class="QLineEdit" name="dialogs_answer1_text2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer2_line3">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer2_line1">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="5">
-          <widget class="QLineEdit" name="boss_dialog_answer1_line2">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="6">
-          <widget class="QToolButton" name="boss_answer1_1_toolButton">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="1">
-          <widget class="Line" name="line_3">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="5">
-          <widget class="Line" name="line_5">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>

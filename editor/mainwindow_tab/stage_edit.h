@@ -23,12 +23,10 @@ public:
 	
 private slots:
 	void on_stages_tab_stage_combo_currentIndexChanged(int index);
-	void on_stages_tab_bossfaces_view_itemClicked(QListWidgetItem *item);
 	void on_dialogs_answer1_player_currentIndexChanged(int index);
     void on_stages_tab_bgmusic_combo_currentIndexChanged(const QString &arg1);
     void on_stages_tab_stage_name_lineedit_textChanged(const QString &arg1);
     void on_dialogs_line1_face_combo_currentIndexChanged(const QString &arg1);
-    void on_bossface_comboBox_currentIndexChanged(const QString &arg1);
     void on_personName_toolButton_clicked();
 
     void on_phrase1_1_toolButton_clicked();
