@@ -2,6 +2,7 @@
 #define GAMESCENES_H
 
 #include <QWidget>
+#include "scenes/scenesmediator.h"
 
 namespace Ui {
 class GameScenes;
@@ -15,8 +16,12 @@ public:
     explicit GameScenes(QWidget *parent = 0);
     ~GameScenes();
 
+private slots:
+    void on_company_scene_currentIndexChanged(int index);
+
 private:
     Ui::GameScenes *ui;
+    bool data_loading;
 };
 
 #endif // GAMESCENES_H

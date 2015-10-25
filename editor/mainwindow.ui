@@ -36,7 +36,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="game_tab">
        <attribute name="title">
@@ -184,7 +184,7 @@
       </widget>
       <widget class="QWidget" name="npc_tab">
        <attribute name="title">
-        <string>NPCs</string>
+        <string>Enemies</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_11">
         <item row="0" column="0">
@@ -406,6 +406,9 @@
    </property>
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>New Game</string>
    </property>
   </action>
   <action name="actionOpen">

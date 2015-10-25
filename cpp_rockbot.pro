@@ -10,7 +10,7 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2

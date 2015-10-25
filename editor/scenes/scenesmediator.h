@@ -2,6 +2,7 @@
 #define SCENESMEDIATOR_H
 
 #include <vector>
+#include <map>
 #include "defines.h"
 #include "file/format.h"
 
@@ -20,6 +21,8 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_music> playmusic_list;
 
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scenes_list;
+
+    std::map<Uint8, Uint8> game_scenes_map;
 
     int selected_scene;
 

@@ -49,6 +49,16 @@ namespace format_v4 {
         return load_from_disk<file_scene_show_text>("scenes_show_text.dat");
     }
 
+    std::map<Uint8, Uint8> fio_scenes::load_game_scenes()
+    {
+        std::map<Uint8, Uint8> res;
+        std::vector<st_game_scene_item> list = load_from_disk<st_game_scene_item>("game_scenes.dat");
+        for (int i=0; i<list.size(); i++) {
+            res.insert(std::pair<Uint8, Uint8>(list.at(i).id, list.at(i).scene_id));
+        }
+        return res;
+    }
+
     void fio_scenes::save_scenes_show_image(std::vector<file_scene_show_image> data)
     {
         save_data_to_disk<file_scene_show_image>("scenes_show_image.dat", data);
@@ -89,6 +99,15 @@ namespace format_v4 {
         save_data_to_disk<file_scene_clear_area>("scenes_clear_area.dat", data);
     }
 
+    void fio_scenes::save_game_scenes(std::map<Uint8, Uint8> data)
+    {
+        std::vector<st_game_scene_item> data_vector;
+        for (std::map<Uint8, Uint8>::iterator itr = data.begin(), itr_end = data.end(); itr != itr_end; ++itr) {
+            data_vector.push_back(st_game_scene_item(itr->first, itr->second));
+        }
+        save_data_to_disk<st_game_scene_item>("game_scenes.dat", data_vector);
+    }
+
     void fio_scenes::generate_files()
     {
         save_scenes_show_image(std::vector<file_scene_show_image>());
@@ -100,6 +119,7 @@ namespace format_v4 {
         save_scenes_clear_area(std::vector<file_scene_clear_area>());
 
         save_scenes(std::vector<file_scene_list>());
+        save_game_scenes(std::map<Uint8, Uint8>());
 
     }
 

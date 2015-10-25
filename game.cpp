@@ -192,7 +192,7 @@ void game::start_stage()
 
 
     /// @TODO - this must be on a single method in soundlib
-	players.at(0).set_position(st_position(80, -TILESIZE));
+    players.at(0).set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
 
 	soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
@@ -1091,7 +1091,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE1;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
