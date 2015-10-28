@@ -68,8 +68,5 @@ protected:
 
 public slots:
    void changeTile();
-   void saveGame(int game_n);
-
-
 
 };

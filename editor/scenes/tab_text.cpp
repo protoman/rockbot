@@ -22,6 +22,11 @@ void TabText::save_data()
     fio.save_scenes_show_text(ScenesMediator::get_instance()->text_list);
 }
 
+void TabText::reload()
+{
+    fill_data();
+}
+
 void TabText::fill_data()
 {
     data_loading = true;
@@ -32,7 +37,7 @@ void TabText::fill_data()
     if (list_size == 0) {
         change_fields_enabled(false);
     } else {
-        // fill
+        change_fields_enabled(true);
         for (int i=0; i<list_size; i++) {
             ui->select_comboBox->addItem(QString(ScenesMediator::get_instance()->text_list.at(i).name));
         }

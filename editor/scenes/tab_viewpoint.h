@@ -19,6 +19,7 @@ public:
     explicit tab_viewpoint(QWidget *parent = 0);
     ~tab_viewpoint();
     void save_data();
+    void reload();
 
 private:
     void change_fields_enabled(bool state);

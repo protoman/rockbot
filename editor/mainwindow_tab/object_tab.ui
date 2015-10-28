@@ -57,7 +57,7 @@
         <item row="8" column="0">
          <widget class="QLabel" name="label_63">
           <property name="text">
-           <string>Speed:</string>
+           <string>Movement Speed:</string>
           </property>
          </widget>
         </item>
@@ -346,14 +346,14 @@
         <item row="9" column="0">
          <widget class="QLabel" name="label_62">
           <property name="text">
-           <string>Limit:</string>
+           <string>Movement Limit:</string>
           </property>
          </widget>
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="label_61">
           <property name="text">
-           <string>Timer:</string>
+           <string>Timer Limit:</string>
           </property>
          </widget>
         </item>

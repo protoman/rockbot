@@ -67,6 +67,14 @@ void TabScenelist::save_data()
     fio.save_scenes(ScenesMediator::get_instance()->scenes_list);
 }
 
+void TabScenelist::reload()
+{
+    data_loading = true;
+    ScenesMediator::get_instance()->scenes_list = fio.load_scenes();
+    fill_data();
+    data_loading = false;
+}
+
 void TabScenelist::change_fields_enabled(bool value)
 {
     ui->sceneSelector->setEnabled(value);

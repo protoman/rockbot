@@ -33,7 +33,7 @@ void TabSfx::fill_data()
     if (list_size == 0) {
         change_fields_enabled(false);
     } else {
-        // fill
+        change_fields_enabled(true);
         for (int i=0; i<list_size; i++) {
             ui->select_comboBox->addItem(QString(ScenesMediator::get_instance()->playsfx_list.at(i).name));
         }
@@ -53,6 +53,11 @@ void TabSfx::set_fields(int index)
 void TabSfx::save_data()
 {
     fio.save_scenes_play_sfx(ScenesMediator::get_instance()->playsfx_list);
+}
+
+void TabSfx::reload()
+{
+    fill_data();
 }
 
 void TabSfx::on_add_pushButton_clicked()

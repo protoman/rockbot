@@ -20,6 +20,7 @@ public:
     explicit TabAnimation(QWidget *parent = 0);
     ~TabAnimation();
     void save_data();
+    void reload();
 
 private slots:
     void on_add_pushButton_clicked();

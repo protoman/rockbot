@@ -5,6 +5,8 @@
 #include <map>
 #include "defines.h"
 #include "file/format.h"
+#include "file/fio_scenes.h"
+
 
 class ScenesMediator
 {
@@ -30,6 +32,7 @@ private:
     ScenesMediator();
     ScenesMediator(ScenesMediator const&){};             // copy constructor is private
     ScenesMediator& operator=(ScenesMediator const&){};  // assignment operator is private
+    CURRENT_FILE_FORMAT::fio_scenes fio_scn;
 
 
 private:

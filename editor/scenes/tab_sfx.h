@@ -20,6 +20,7 @@ public:
     explicit TabSfx(QWidget *parent = 0);
     ~TabSfx();
     void save_data();
+    void reload();
 
 private:
     void change_fields_enabled(bool state);

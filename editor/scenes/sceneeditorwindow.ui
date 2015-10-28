@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Rockbot - Movie Editor</string>
+   <string>Rockbot Editor :: Movie Editor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -36,7 +36,7 @@
              <x>0</x>
              <y>0</y>
              <width>1007</width>
-             <height>464</height>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -59,8 +59,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -83,8 +83,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -107,8 +107,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -131,8 +131,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -155,8 +155,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -179,8 +179,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>28</height>
+             <width>1007</width>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -204,7 +204,7 @@
              <x>0</x>
              <y>0</y>
              <width>1007</width>
-             <height>464</height>
+             <height>432</height>
             </rect>
            </property>
           </widget>
@@ -235,7 +235,23 @@
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionSave"/>
+  </widget>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="../resources/icons/icons.qrc">
+     <normaloff>:/toolbar_icons/Save</normaloff>:/toolbar_icons/Save</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -246,6 +262,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -18,6 +18,7 @@ public:
     explicit tab_image(QWidget *parent = 0);
     ~tab_image();
     void save_data();
+    void reload();
 
 
 private slots:

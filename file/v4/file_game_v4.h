@@ -186,6 +186,12 @@ namespace format_v4 {
             animation_loop = true;
             frame_duration = 100;
             type = -1;
+            timer = 0;
+            speed = 2;
+            limit = 0;
+            animation_auto_start = true;
+            animation_reverse = false;
+            animation_loop = true;
         }
     };
 

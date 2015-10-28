@@ -31,11 +31,6 @@ void map_tab::reload()
     ui->animTile_Preview->update_properties();
 }
 
-void map_tab::save()
-{
-    ui->editArea->saveGame(Mediator::get_instance()->currentGame);
-}
-
 void map_tab::set_current_box(short n)
 {
     ui->toolBox->setCurrentIndex(n);

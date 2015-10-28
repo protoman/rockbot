@@ -38,6 +38,7 @@ public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void closeEvent(QCloseEvent *event);
 	void fillGraphicsList();
 	void fillMapList();
 	void fillNpcList();
@@ -168,7 +169,7 @@ private:
 	std::string _npcedit_tab_graphic;
 	int _npcedit_tab_selectednpc;
 	bool _data_loading;
-    SceneEditorWindow* scenes_window;
+    SceneEditorWindow scenes_window;
     AboutWindow* about_window;
     FilesEditor* files_editor_window;
     StringsEditor* strings_editor_window;

@@ -33,7 +33,7 @@ void TabMusic::fill_data()
     if (list_size == 0) {
         change_fields_enabled(false);
     } else {
-        // fill
+        change_fields_enabled(true);
         for (int i=0; i<list_size; i++) {
             ui->select_comboBox->addItem(QString(ScenesMediator::get_instance()->playmusic_list.at(i).name));
         }
@@ -53,6 +53,11 @@ void TabMusic::set_fields(int index)
 void TabMusic::save_data()
 {
     fio.save_scenes_play_music(ScenesMediator::get_instance()->playmusic_list);
+}
+
+void TabMusic::reload()
+{
+    fill_data();
 }
 
 void TabMusic::on_add_pushButton_clicked()

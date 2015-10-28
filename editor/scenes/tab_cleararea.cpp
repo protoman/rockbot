@@ -23,6 +23,11 @@ void TabClearArea::save_data()
     fio.save_scenes_clear_area(ScenesMediator::get_instance()->cleararea_list);
 }
 
+void TabClearArea::reload()
+{
+    fill_data();
+}
+
 void TabClearArea::change_fields_enabled(bool state)
 {
     ui->x_spinBox->setEnabled(state);
@@ -42,7 +47,7 @@ void TabClearArea::fill_data()
     if (list_size == 0) {
         change_fields_enabled(false);
     } else {
-        // fill
+        change_fields_enabled(true);
         for (int i=0; i<list_size; i++) {
             ui->select_comboBox->addItem(QString(ScenesMediator::get_instance()->cleararea_list.at(i).name));
         }

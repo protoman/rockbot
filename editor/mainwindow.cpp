@@ -78,16 +78,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     game_scenes_tab = new GameScenes();
     ui->gameScenes_scrollArea->setWidget(game_scenes_tab);
 
-    scenes_window = NULL;
+    scenes_window.hide();
 
 }
 
 MainWindow::~MainWindow()
 {
-	delete ui;
-    if (scenes_window != NULL) {
-        delete scenes_window;
+    delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor", tr("Save data before leaving?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    if (resBtn != QMessageBox::Yes) {
+        on_actionSave_triggered();
     }
+    event->accept();
 }
 
 void MainWindow::show_critial_error(QString error_msg)
@@ -152,7 +158,10 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    map_edit_tab->save();
+    Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
+    Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
+    Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
+
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -468,8 +477,8 @@ void MainWindow::on_actionSwap_Maps_triggered()
 
 void MainWindow::on_actionScenes_Editor_triggered()
 {
-    scenes_window = new SceneEditorWindow();
-    scenes_window->show();
+    scenes_window.reload();
+    scenes_window.show();
 }
 
 void MainWindow::on_actionObjects_toggled(bool arg1)
@@ -562,12 +571,8 @@ void MainWindow::on_load_game_accepted()
 
 void MainWindow::on_actionMovie_Editor_triggered()
 {
-    if (scenes_window != NULL) {
-        delete scenes_window;
-    }
-    scenes_window = new SceneEditorWindow();
-    scenes_window->show();
-
+    scenes_window.reload();
+    scenes_window.show();
 }
 
 void MainWindow::on_actionStrings_Editor_triggered()

@@ -22,6 +22,7 @@ public:
     explicit TabScenelist(QWidget *parent = 0);
     ~TabScenelist();
     void save_data();
+    void reload();
 
 private:
     void fill_data();

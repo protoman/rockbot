@@ -4,6 +4,7 @@
 #include "fio_scenes.h"
 
 namespace format_v4 {
+
     fio_scenes::fio_scenes()
     {
 

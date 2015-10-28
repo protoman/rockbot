@@ -902,14 +902,6 @@ void EditorArea::fill_area() {
 
 
 
-void EditorArea::saveGame(int game_n) {
-
-    Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
-    Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
-    Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
-}
-
-
 
 
 

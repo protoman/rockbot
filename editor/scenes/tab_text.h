@@ -21,6 +21,7 @@ public:
     explicit TabText(QWidget *parent = 0);
     ~TabText();
     void save_data();
+    void reload();
 
 
 private slots:

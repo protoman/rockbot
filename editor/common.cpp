@@ -24,6 +24,10 @@ common::~common()
 
 void common::fill_files_combo(std::string directory, QComboBox* combo, bool show_none)
 {
+    // ignore as game was not initialized yet. the form will need to call reload to work in this case
+    if (FILEPATH.length() == 0) {
+        return;
+    }
 
     combo->clear(); // delete all previous entries
 

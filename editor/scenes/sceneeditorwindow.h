@@ -2,6 +2,9 @@
 #define SCENEEDITORWINDOW_H
 
 #include <QMainWindow>
+#include <QMessageBox>
+#include <QCloseEvent>
+
 #include "scenes/tab_scenelist.h"
 #include "scenes/tab_text.h"
 #include "scenes/tab_image.h"
@@ -23,9 +26,14 @@ class SceneEditorWindow : public QMainWindow
 public:
     explicit SceneEditorWindow(QWidget *parent = 0);
     ~SceneEditorWindow();
+    void closeEvent (QCloseEvent *event);
+    void reload();
 
 private slots:
     void on_actionSave_triggered();
+
+private:
+    void save();
 
 private:
     Ui::SceneEditorWindow *ui;

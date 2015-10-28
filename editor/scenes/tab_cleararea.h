@@ -19,6 +19,7 @@ public:
     explicit TabClearArea(QWidget *parent = 0);
     ~TabClearArea();
     void save_data();
+    void reload();
 
 private:
     void change_fields_enabled(bool state);

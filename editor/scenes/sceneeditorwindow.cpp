@@ -37,7 +37,33 @@ SceneEditorWindow::~SceneEditorWindow()
     delete ui;
 }
 
+void SceneEditorWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor :: Movie Editor", tr("Save data before leaving?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    if (resBtn != QMessageBox::Yes) {
+        save();
+    }
+    event->accept();
+}
+
+void SceneEditorWindow::reload()
+{
+    image_tab->reload();
+    viewpoint_tab->reload();
+    text_tab->reload();
+    scenes_tab->reload();
+    sfx_tab->reload();
+    music_tab->reload();
+    cleararea_tab->reload();
+    animation_tab->reload();
+}
+
 void SceneEditorWindow::on_actionSave_triggered()
+{
+    save();
+}
+
+void SceneEditorWindow::save()
 {
     image_tab->save_data();
     viewpoint_tab->save_data();

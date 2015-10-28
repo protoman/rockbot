@@ -15,7 +15,6 @@ public:
     explicit map_tab(QWidget *parent = 0);
     ~map_tab();
     void reload();
-    void save();
     void set_current_box(short n);
     void update_edit_area();
 

@@ -28,6 +28,11 @@ void tab_viewpoint::save_data()
     fio.save_scenes_show_viewpoint(ScenesMediator::get_instance()->viewpoint_list);
 }
 
+void tab_viewpoint::reload()
+{
+    fill_data();
+}
+
 
 void tab_viewpoint::change_fields_enabled(bool state)
 {
@@ -56,7 +61,7 @@ void tab_viewpoint::fill_data()
     if (list_size == 0) {
         change_fields_enabled(false);
     } else {
-        // fill
+        change_fields_enabled(true);
         for (int i=0; i<list_size; i++) {
             ui->select_comboBox->addItem(QString(ScenesMediator::get_instance()->viewpoint_list.at(i).name));
         }
