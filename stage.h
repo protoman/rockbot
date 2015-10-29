@@ -20,15 +20,9 @@ public:
      *
      */
     ~stage();
-     /**
-     * @brief
-     * @return classMap
-     */
+    int get_number();
     void setNumber(int);
-    /**
-     * @brief
-     * @param int
-     */
+
     void loadStage();
     /**
      * @brief

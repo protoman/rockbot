@@ -31,7 +31,7 @@ public:
      *
      * @param stage
      */
-    void show_boss_dialog();
+    void show_boss_dialog(int stage_n);
     /**
      * @brief
      *

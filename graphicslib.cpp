@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
+#include <vector>
 using namespace std;
 
 
@@ -38,7 +39,11 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
+extern std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tiles;
+
 extern graphicsLib_gSurface _explosion_surface;
+
+
 
 #include "file/file_io.h"
 
@@ -1692,7 +1697,7 @@ void graphicsLib::preload_images()
 void graphicsLib::preload_anim_tiles()
 {
     for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
-        std::string file(game_data.anim_tiles[i].filename);
+        std::string file(anim_tiles.at(i).filename);
         if (file.length() < 1) {
             std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;
             break;
@@ -1704,7 +1709,7 @@ void graphicsLib::preload_anim_tiles()
             surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));
 
             int frames_n = ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1).width / TILESIZE;
-            anim_tile_timer anim_timer(frames_n, timer.getTimer() + game_data.anim_tiles[i].delay[0]);
+            anim_tile_timer anim_timer(frames_n, timer.getTimer() + anim_tiles.at(i).delay[0]);
             ANIM_TILES_TIMERS.push_back(anim_timer);
         }
     }

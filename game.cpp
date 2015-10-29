@@ -607,10 +607,9 @@ void game::map_present_boss(bool show_dialog)
 		// 4. show boss dialog
         if (stage_data.boss_dialog.text1_string_ids[0] != -1 && game_save.stages[currentStage] == 0) {
 			dialogs boss_dialog;
-            boss_dialog.show_boss_dialog();
+            boss_dialog.show_boss_dialog(loaded_stage->get_number());
 		}
 	}
-
 
 	show_stage(8, false);
 

@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
-#CONFIG += win32
+#CONFIG += linux
+CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
@@ -306,7 +306,6 @@ SOURCES += main.cpp \
     strings_map.cpp \
     file/fio_strings.cpp \
     aux_tools/stringutils.cpp \
-    file/fio_common.cpp \
     file/fio_common.cpp
 
 HEADERS += \

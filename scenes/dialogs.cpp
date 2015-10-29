@@ -87,7 +87,7 @@ void dialogs::show_stage_dialog()
 
 
 
-void dialogs::show_boss_dialog()
+void dialogs::show_boss_dialog(int stage_n)
 {
     CURRENT_FILE_FORMAT::fio_strings fio_str;
 
@@ -98,10 +98,11 @@ void dialogs::show_boss_dialog()
     for (int i=0; i<FS_DIALOG_LINES; i++) {
         lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]).value;
 	}
-    if (strlen(stage_data.boss.face_graphics_filename) <= 0) {
-        sprintf(stage_data.boss.face_graphics_filename, "%s", "dr_kanotus.png");
+    std::string boss_face(game_data.stage_face_filename[stage_n]);
+    if (boss_face.length() <= 0) {
+        boss_face = std::string("dr_kanotus.png");
 	}
-    show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
+    show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
 
     for (int i=0; i<FS_DIALOG_LINES; i++) {
         lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]).value;
@@ -112,7 +113,7 @@ void dialogs::show_boss_dialog()
         for (int i=0; i<FS_DIALOG_LINES; i++) {
             lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]).value;
 		}
-        show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
+        show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
 	}
 
 
@@ -120,7 +121,7 @@ void dialogs::show_boss_dialog()
         for (int i=0; i<FS_DIALOG_LINES; i++) {
             lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]).value;
         }
-        show_dialog(stage_data.boss.face_graphics_filename, stage_data.boss_dialog.top_side, lines, true);
+        show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
     }
 }
 
