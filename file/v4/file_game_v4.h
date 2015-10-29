@@ -381,7 +381,7 @@ namespace format_v4 {
         float version;
         char name[FS_CHAR_NAME_SIZE];
         //file_npc game_npcs[FS_GAME_MAX_NPCS];                           // 60 enemy types is more than good enought
-        file_object objects[FS_GAME_MAX_NPCS];
+        file_object objects[FS_GAME_MAX_OBJS];
         file_projectile projectiles[FS_MAX_PROJECTILES];
         file_weapon weapons[FS_MAX_WEAPONS];                            // 8 stage-bosses and 3 item-like
         file_player players[FS_MAX_PLAYERS];                            // up to 4 different players the user can select from

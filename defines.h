@@ -757,8 +757,7 @@ enum e_VIDEO_FILTERS {
 #define COLOR_COUNT 68
 
 // filesystem defines
-#define FS_GAME_MAX_OBJS 40
-#define FS_GAME_MAX_NPCS 100
+#define FS_GAME_MAX_OBJS 100
 #define FS_MAX_PROJECTILES 50
 #define FS_MAX_WEAPONS 20
 #define FS_MAX_PLAYERS 4

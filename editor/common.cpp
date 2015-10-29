@@ -145,7 +145,7 @@ void common::fill_object_combo(QComboBox* combo)
 {
     combo->clear(); // delete all previous entries
 
-    for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
+    for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
         QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.objects[i].name);
         combo->addItem(temp_str);
 	}
@@ -302,7 +302,7 @@ void common::fill_npc_listwidget(QListWidget *listWidget)
 
     listWidget->clear();
 
-    for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
+    for (int i=0; i<Mediator::get_instance()->enemy_list.size(); i++) {
         item = new QListWidgetItem;
         QString temp_str = QString("[");
         if (i < 10) {
@@ -329,7 +329,7 @@ void common::fill_object_listWidget(QListWidget *listWidget)
 
     listWidget->clear();
 
-    for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
+    for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
         item = new QListWidgetItem;
         QString temp_str = QString("[");
         if (i < 10) {
@@ -354,7 +354,7 @@ void common::fill_object_listWidget(QListWidget *listWidget)
 std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;
-    for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
+    for (int i=0; i<Mediator::get_instance()->enemy_list.size(); i++) {
         res.push_back(std::string(Mediator::get_instance()->enemy_list.at(i).name));
     }
     return res;

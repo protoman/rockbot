@@ -283,7 +283,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
             //std::cout << "EditorArea::paintEvent #5.0.A [" << i << "]" << std::endl;
             int npc_id = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc;
-            if (npc_id >= FS_GAME_MAX_NPCS || npc_id < 0) {
+            if (npc_id >= Mediator::get_instance()->enemy_list.size() || npc_id < 0) {
                 //std::cout << "EditorArea::paintEvent #5.0.B - stage[" << Mediator::get_instance()->currentStage << "], map[" << Mediator::get_instance()->currentMap << "], i[" << i << "], id_npc[" << npc_id << "] BAD" << std::endl;
                 Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc = -1;
                 continue;

@@ -48,14 +48,14 @@ namespace format_v4 {
 
 
 // -------------------------------------- OBJECTS -------------------------------------- //
-        // file_object objects[FS_GAME_MAX_NPCS];
+        // file_object objects[FS_GAME_MAX_OBJS];
         filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
             fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
         }
-        fp.write(reinterpret_cast<char *>(&data_in.objects), sizeof(file_object) * FS_GAME_MAX_NPCS);
+        fp.write(reinterpret_cast<char *>(&data_in.objects), sizeof(file_object) * FS_GAME_MAX_OBJS);
         fp.close();
 
 
@@ -216,7 +216,7 @@ namespace format_v4 {
 
 
 // -------------------------------------- OBJECTS -------------------------------------- //
-        // file_object objects[FS_GAME_MAX_NPCS];
+        // file_object objects[FS_GAME_MAX_OBJS];
         filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
@@ -224,7 +224,7 @@ namespace format_v4 {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.objects, sizeof(file_object), FS_GAME_MAX_NPCS, fp) != FS_GAME_MAX_NPCS) {
+        if (fread(&data_out.objects, sizeof(file_object), FS_GAME_MAX_OBJS, fp) != FS_GAME_MAX_OBJS) {
             std::cout << ">>file_io::read_game[objects] - Error reading data from game file '" << filename << "'." << std::endl;
             //exit(-1);
         }
