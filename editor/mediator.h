@@ -68,7 +68,8 @@ public:
     std::string getPallete();
     void setPallete(std::string filename);
 	void setPallete(char *value);
-    void loadGame();
+    void load_game();
+    void save_game();
 
 	int get_stage_n(const int map_n);
 
@@ -104,6 +105,12 @@ public:
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
     CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
+
+    std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
+    std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
+    std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
+
+
     CURRENT_FILE_FORMAT::file_io fio;
     CURRENT_FILE_FORMAT::fio_scenes fio_scenes;
     std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tiles;
@@ -122,6 +129,7 @@ private:
     int palleteX;
     int palleteY;
     std::string selectedTileset;
+    fio_common fio_cmm;
 };
 
 

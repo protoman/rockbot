@@ -380,7 +380,7 @@ namespace format_v4 {
     struct file_game {
         float version;
         char name[FS_CHAR_NAME_SIZE];
-        file_npc game_npcs[FS_GAME_MAX_NPCS];                           // 60 enemy types is more than good enought
+        //file_npc game_npcs[FS_GAME_MAX_NPCS];                           // 60 enemy types is more than good enought
         file_object objects[FS_GAME_MAX_NPCS];
         file_projectile projectiles[FS_MAX_PROJECTILES];
         file_weapon weapons[FS_MAX_WEAPONS];                            // 8 stage-bosses and 3 item-like
@@ -426,9 +426,7 @@ namespace format_v4 {
             for (int i=0; i<MAX_STAGES; i++) {
                 stage_face_filename[i][0] = '\0';
             }
-            for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
-                sprintf(game_npcs[i].name, "NPC [%d]", i);
-            }
+
             for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
                 sprintf(objects[i].name, "Object [%d]", i);
             }

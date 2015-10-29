@@ -306,7 +306,8 @@ SOURCES += main.cpp \
     strings_map.cpp \
     file/fio_strings.cpp \
     aux_tools/stringutils.cpp \
-    file/fio_common.cpp
+    file/fio_common.cpp \
+    game_mediator.cpp
 
 HEADERS += \
     character/character.h \
@@ -361,7 +362,8 @@ HEADERS += \
     aux_tools/stringutils.h \
     file/v4/file_strings.h \
     file/v4/file_map.h \
-    file/fio_common.h
+    file/fio_common.h \
+    game_mediator.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

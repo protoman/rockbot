@@ -66,6 +66,17 @@ Mediator::Mediator() {
     combobox_select_string = "-Select-";
 
     selectedTileset = FILEPATH + "/images/tilesets/default.png";
+
+    if (enemy_list.size() == 0) { // add one first item to avoid errors
+        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
+    }
+    if (object_list.size() == 0) { // add one first item to avoid errors
+        object_list.push_back(CURRENT_FILE_FORMAT::file_object());
+    }
+    if (ai_list.size() == 0) { // add one first item to avoid errors
+        ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
+    }
+
 }
 
 
@@ -112,10 +123,37 @@ void Mediator::setPallete(char *value) {
 
 
 
-void Mediator::loadGame() {
+void Mediator::load_game() {
     Mediator::get_instance()->fio.read_game(game_data);
     Mediator::get_instance()->fio.read_all_stages(stage_data);
     Mediator::get_instance()->fio.read_all_maps(maps_data);
+
+    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
+    if (enemy_list.size() == 0) { // add one first item to avoid errors
+        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
+    }
+    object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
+    if (object_list.size() == 0) { // add one first item to avoid errors
+        object_list.push_back(CURRENT_FILE_FORMAT::file_object());
+    }
+    ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
+    if (ai_list.size() == 0) { // add one first item to avoid errors
+        ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
+    }
+
+}
+
+void Mediator::save_game()
+{
+    Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
+    Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
+    Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
+    CURRENT_FILE_FORMAT::file_io fio;
+    fio.write_anim_tiles(Mediator::get_instance()->anim_tiles);
+
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
 }
 
 

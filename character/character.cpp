@@ -12,6 +12,8 @@ extern soundLib soundManager;
 #include "inputlib.h"
 extern inputLib input;
 
+#include "game_mediator.h"
+
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
@@ -2711,7 +2713,8 @@ bool character::is_weak_to_freeze()
     if (wpn_id == -1) {
         return false;
     }
-    if (game_data.game_npcs[_number].weakness[wpn_id].damage_multiplier == 0) {
+    //if (game_data.game_npcs[_number].weakness[wpn_id].damage_multiplier == 0) {
+    if (GameMediator::get_instance()->enemy_list.at(_number).weakness[wpn_id].damage_multiplier == 0) {
         return false;
     }
     return true;

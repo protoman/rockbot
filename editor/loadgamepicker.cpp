@@ -50,7 +50,7 @@ void loadGamePicker::on_buttonBox_accepted()
 
     FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
     GAMENAME = ui->gameList->currentItem()->text().toStdString();
-    Mediator::get_instance()->loadGame();
+    Mediator::get_instance()->load_game();
     emit game_picked();
 
 	//printf("DEBUG - loadGamePicker::on_buttonBox_accepted - selectedItem: %d\n", ui->gameList->currentRow());

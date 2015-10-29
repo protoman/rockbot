@@ -40,22 +40,21 @@ DialogNPCEdit::DialogNPCEdit(QWidget *parent) :
 
 
 
-
 void DialogNPCEdit::loadNPCData(int npc_n) {
 	std::cout << "DialogNPCEdit::loadNPCData::START" << std::endl;
-    ui->NpcName->setText(Mediator::get_instance()->game_data.game_npcs[npc_n].name);
-    ui->NpcHP->setValue(Mediator::get_instance()->game_data.game_npcs[npc_n].hp.total);
-    ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.width);
-    ui->npcGraphicSizeSpin_h->setValue(Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.height);
-    Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.width;
-    Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.height;
+    ui->NpcName->setText(Mediator::get_instance()->enemy_list.at(npc_n).name);
+    ui->NpcHP->setValue(Mediator::get_instance()->enemy_list.at(npc_n).hp.total);
+    ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->enemy_list.at(npc_n).frame_size.width);
+    ui->npcGraphicSizeSpin_h->setValue(Mediator::get_instance()->enemy_list.at(npc_n).frame_size.height);
+    Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(npc_n).frame_size.width;
+    Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(npc_n).frame_size.height;
 	for (int i=0; i<ui->npcListCombobox->count(); i++) {
-        if (ui->npcListCombobox->itemText(i) == QString(Mediator::get_instance()->game_data.game_npcs[npc_n].graphic_filename)) {
+        if (ui->npcListCombobox->itemText(i) == QString(Mediator::get_instance()->enemy_list.at(npc_n).graphic_filename)) {
 			ui->npcListCombobox->setCurrentIndex(i);
 			break;
 		}
 	}
-    if (Mediator::get_instance()->game_data.game_npcs[npc_n].is_ghost) {
+    if (Mediator::get_instance()->enemy_list.at(npc_n).is_ghost) {
 		ui->checkBoxCanShoot->setChecked(true);
 	}
 	/// @TODO
@@ -64,38 +63,38 @@ void DialogNPCEdit::loadNPCData(int npc_n) {
 		ui->isBossCheckbox->setChecked(true);
 	}
 	*/
-    ui->comboBoxShieldType->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[npc_n].shield_type);
+    ui->comboBoxShieldType->setCurrentIndex(Mediator::get_instance()->enemy_list.at(npc_n).shield_type);
 
-    ui->comboBoxIA->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[npc_n].IA_type);
+    ui->comboBoxIA->setCurrentIndex(Mediator::get_instance()->enemy_list.at(npc_n).IA_type);
 
-    ui->speed_spin->setValue(Mediator::get_instance()->game_data.game_npcs[npc_n].speed);
-    ui->range_spin->setValue(Mediator::get_instance()->game_data.game_npcs[npc_n].walk_range);
+    ui->speed_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).speed);
+    ui->range_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).walk_range);
 	std::cout << "DialogNPCEdit::loadNPCData::END" << std::endl;
 }
 
 
 
 void DialogNPCEdit::saveNPCData(int npc_n) {
-    if (Mediator::get_instance()->game_data.game_npcs[npc_n].id == -1) {
-        Mediator::get_instance()->game_data.game_npcs[npc_n].id = npc_n;
+    if (Mediator::get_instance()->enemy_list.at(npc_n).id == -1) {
+        Mediator::get_instance()->enemy_list.at(npc_n).id = npc_n;
 	}
-    sprintf(Mediator::get_instance()->game_data.game_npcs[npc_n].name, "%s", ui->NpcName->text().toStdString().c_str());
-    Mediator::get_instance()->game_data.game_npcs[npc_n].hp.total = ui->NpcHP->value();
-    Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.width = ui->npcGraphicSizeSpin_w->value();
-    Mediator::get_instance()->game_data.game_npcs[npc_n].frame_size.height = ui->npcGraphicSizeSpin_h->value();
-    sprintf(Mediator::get_instance()->game_data.game_npcs[npc_n].graphic_filename, ui->npcListCombobox->currentText().toStdString().c_str());
+    sprintf(Mediator::get_instance()->enemy_list.at(npc_n).name, "%s", ui->NpcName->text().toStdString().c_str());
+    Mediator::get_instance()->enemy_list.at(npc_n).hp.total = ui->NpcHP->value();
+    Mediator::get_instance()->enemy_list.at(npc_n).frame_size.width = ui->npcGraphicSizeSpin_w->value();
+    Mediator::get_instance()->enemy_list.at(npc_n).frame_size.height = ui->npcGraphicSizeSpin_h->value();
+    sprintf(Mediator::get_instance()->enemy_list.at(npc_n).graphic_filename, ui->npcListCombobox->currentText().toStdString().c_str());
 
 	if (ui->checkBoxCanShoot->isChecked()) {
-        Mediator::get_instance()->game_data.game_npcs[npc_n].is_ghost=1;
+        Mediator::get_instance()->enemy_list.at(npc_n).is_ghost=1;
 	} else {
-        Mediator::get_instance()->game_data.game_npcs[npc_n].is_ghost=0;
+        Mediator::get_instance()->enemy_list.at(npc_n).is_ghost=0;
 	}
 
-    Mediator::get_instance()->game_data.game_npcs[npc_n].shield_type = ui->comboBoxShieldType->currentIndex();
+    Mediator::get_instance()->enemy_list.at(npc_n).shield_type = ui->comboBoxShieldType->currentIndex();
 
-    Mediator::get_instance()->game_data.game_npcs[npc_n].IA_type = ui->comboBoxIA->currentIndex();
-    Mediator::get_instance()->game_data.game_npcs[npc_n].speed = ui->speed_spin->value();
-    Mediator::get_instance()->game_data.game_npcs[npc_n].walk_range = ui->range_spin->value();
+    Mediator::get_instance()->enemy_list.at(npc_n).IA_type = ui->comboBoxIA->currentIndex();
+    Mediator::get_instance()->enemy_list.at(npc_n).speed = ui->speed_spin->value();
+    Mediator::get_instance()->enemy_list.at(npc_n).walk_range = ui->range_spin->value();
 
 
 

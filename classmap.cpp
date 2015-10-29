@@ -14,6 +14,7 @@ using namespace std;
 #include "character/classboss.h"
 #include "colision_detection.h"
 #include "file/file_io.h"
+#include "game_mediator.h"
 
 extern string FILEPATH;
 extern graphicsLib graphLib;
@@ -452,7 +453,7 @@ void classMap::load_map_npcs()
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
                 new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
                 new_npc->set_stage_boss(true);
-            } else if (game_data.game_npcs[map_data[number].map_npcs[i].id_npc].is_boss == true) {
+            } else if (GameMediator::get_instance()->enemy_list.at(map_data[number].map_npcs[i].id_npc).is_boss == true) {
                 new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			} else {
                 new_npc = new classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);

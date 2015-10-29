@@ -131,12 +131,12 @@ void common::fill_npc_combo(QComboBox* combo)
 {
     combo->clear(); // delete all previous entries
 
-    for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
+    for (int i=0; i<Mediator::get_instance()->enemy_list.size(); i++) {
         QString temp_str = QString("[");
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.game_npcs[i].name);
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->enemy_list.at(i).name);
         combo->addItem(temp_str);
     }
 }
@@ -308,11 +308,11 @@ void common::fill_npc_listwidget(QListWidget *listWidget)
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.game_npcs[i].name);
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->enemy_list.at(i).name);
         item->setText(temp_str);
-        std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->game_data.game_npcs[i].graphic_filename;
+        std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(i).graphic_filename;
         QPixmap image(filename.c_str());
-        image = image.copy(0, 0, Mediator::get_instance()->game_data.game_npcs[i].frame_size.width, Mediator::get_instance()->game_data.game_npcs[i].frame_size.height);
+        image = image.copy(0, 0, Mediator::get_instance()->enemy_list.at(i).frame_size.width, Mediator::get_instance()->enemy_list.at(i).frame_size.height);
         if (image.isNull() == false && image.width() > 0) {
             image = image.scaled(32, 32);
         }
@@ -355,7 +355,7 @@ std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;
     for (int i=0; i<FS_GAME_MAX_NPCS; i++) {
-        res.push_back(std::string(Mediator::get_instance()->game_data.game_npcs[i].name));
+        res.push_back(std::string(Mediator::get_instance()->enemy_list.at(i).name));
     }
     return res;
 }

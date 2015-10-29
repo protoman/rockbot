@@ -291,8 +291,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
     //            std::cout << "EditorArea::paintEvent #5.0.B - i[" << i << "], id_npc[" << npc_id << "] GOOD" << std::endl;
             }
 
-            //std::cout << "EditorArea::paintEvent #5.0.C graphic_filename[" << game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].graphic_filename << "]" << std::endl;
-            std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].graphic_filename;
+            //std::cout << "EditorArea::paintEvent #5.0.C graphic_filename[" << enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).graphic_filename << "]" << std::endl;
+            std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).graphic_filename;
             if (filename.length() <= 0) {
                 continue;
             }
@@ -301,13 +301,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
             QPixmap temp_image(filename.c_str());
             if (!temp_image.isNull()) {
 
-                int total_w = Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.width*Mediator::get_instance()->zoom;
-                int total_h = Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.height*Mediator::get_instance()->zoom;
-                int sprite_adjust_x = Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].sprites_pos_bg.x;
-                int sprite_adjust_y = Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].sprites_pos_bg.y;
+                int total_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.width*Mediator::get_instance()->zoom;
+                int total_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height*Mediator::get_instance()->zoom;
+                int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).sprites_pos_bg.x;
+                int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).sprites_pos_bg.y;
 
 
-                std::string npc_bg_file(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].bg_graphic_filename);
+                std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).bg_graphic_filename);
                 if (npc_bg_file.length() > 0) {
                     std::string _bg_graphic_filename = FILEPATH + "/images/sprites/backgrounds/" + npc_bg_file;
                     QPixmap bg_image(_bg_graphic_filename.c_str());
@@ -326,20 +326,20 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
                 QRectF target(QPoint((Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x*16+sprite_adjust_x)*Mediator::get_instance()->zoom, (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y*16+sprite_adjust_y)*Mediator::get_instance()->zoom), QSize(total_w, total_h));
                 QRectF source;
-                if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].direction != ANIM_DIRECTION_RIGHT || temp_image.height() <= Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.height) {
-                    source = QRectF(QPoint(0, 0), QSize(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.width, Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.height));
+                if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].direction != ANIM_DIRECTION_RIGHT || temp_image.height() <= Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height) {
+                    source = QRectF(QPoint(0, 0), QSize(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.width, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height));
                 } else {
-                    source = QRectF(QPoint(0, Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.height), QSize(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.width, Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].frame_size.height));
+                    source = QRectF(QPoint(0, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height), QSize(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.width, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height));
                 }
                 if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_npc == Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc) {
                     // transparent green rectangle
                     painter.setBrush(QColor(0, 255, 0, 180));
                     painter.drawRect(target);
-                } else if (Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].is_boss) {
+                } else if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_boss) {
                     // transparent orange rectangle
                     painter.setBrush(QColor(255, 128, 35, 200));
                     painter.drawRect(target);
-                } else if (Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].is_sub_boss) {
+                } else if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss) {
                     // transparent bright-orange rectangle
                     painter.setBrush(QColor(241, 188, 87, 200));
                     painter.drawRect(target);
@@ -610,7 +610,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         for (int i=0; i<MAX_MAP_NPC_N; i++) {
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y == editor_selectedTileY) {
                 Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_npc = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc;
-                sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name, "%s", Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].name);
+                sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name, "%s", Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).name);
                 break;
             }
         }
@@ -622,7 +622,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         for (int i=0; i<MAX_MAP_NPC_N; i++) {
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y == editor_selectedTileY) {
                 std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_BOSS - FOUND NPC" << std::endl;
-                Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].is_sub_boss = !Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc].is_sub_boss;
+                Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss = !Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss;
                 break;
             }
         }

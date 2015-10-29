@@ -59,13 +59,13 @@ void remove_duplicated()
 }
 
 void adjust_sprites_size() {
-	for (int k=0; k<GAME_MAX_OBJS; k++) {
+    for (int k=0; k<Mediator::get_instance()->enemy_list.size(); k++) {
 		for (int l=0; l<ANIM_TYPE_COUNT; l++) {
 			for (int m=0; m<ANIM_FRAMES_COUNT; m++) {
-                Mediator::get_instance()->game_data.game_npcs[k].sprites[l][m].colision_rect.x = 0;
-                Mediator::get_instance()->game_data.game_npcs[k].sprites[l][m].colision_rect.y = 0;
-                Mediator::get_instance()->game_data.game_npcs[k].sprites[l][m].colision_rect.w = Mediator::get_instance()->game_data.game_npcs[k].frame_size.width;
-                Mediator::get_instance()->game_data.game_npcs[k].sprites[l][m].colision_rect.h = Mediator::get_instance()->game_data.game_npcs[k].frame_size.height;
+                Mediator::get_instance()->enemy_list.at(k).sprites[l][m].colision_rect.x = 0;
+                Mediator::get_instance()->enemy_list.at(k).sprites[l][m].colision_rect.y = 0;
+                Mediator::get_instance()->enemy_list.at(k).sprites[l][m].colision_rect.w = Mediator::get_instance()->enemy_list.at(k).frame_size.width;
+                Mediator::get_instance()->enemy_list.at(k).sprites[l][m].colision_rect.h = Mediator::get_instance()->enemy_list.at(k).frame_size.height;
 			}
 		}
 	}
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     } else if (game_list.size() == 1) {
         FILEPATH = GAMEPATH + std::string("/games/") + game_list.at(0) + std::string("/");
         GAMENAME = game_list.at(0);
-        Mediator::get_instance()->loadGame();
+        Mediator::get_instance()->load_game();
         w.reload();
         w.show();
     } else {

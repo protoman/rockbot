@@ -62,9 +62,11 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     ui->action6->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[5].action);
     ui->action7->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[6].action);
     ui->action8->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[7].action);
-    ui->near_action->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x+1);
-    ui->hit_action->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x+1);
-    ui->dead_action->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x+1);
+
+
+    ui->near_action->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x+1);
+    ui->hit_action->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x+1);
+    ui->dead_action->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x+1);
 
 
     /*
@@ -82,9 +84,9 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     common::fill_ai_options_combo(Mediator::get_instance()->game_data.ai_types[index].states[5].action, ui->parameter6);
     common::fill_ai_options_combo(Mediator::get_instance()->game_data.ai_types[index].states[6].action, ui->parameter7);
     common::fill_ai_options_combo(Mediator::get_instance()->game_data.ai_types[index].states[7].action, ui->parameter8);
-    common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x, ui->near_extra_parameter);
-    common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x, ui->hit_extra_parameter);
-    common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x, ui->dead_extra_parameter);
+    common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x, ui->near_extra_parameter);
+    common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x, ui->hit_extra_parameter);
+    common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x, ui->dead_extra_parameter);
 
     ui->parameter1->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[0].extra_parameter);
     //std::cout << "#0 - AI[" << index << "].states[1].extra_parameter: " << Mediator::get_instance()->game_data.ai_types[Mediator::get_instance()->current_ai].states[1].extra_parameter << std::endl;
@@ -95,9 +97,9 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     ui->parameter6->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[5].extra_parameter);
     ui->parameter7->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[6].extra_parameter);
     ui->parameter8->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[7].extra_parameter);
-    ui->near_extra_parameter->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.y);
-    ui->hit_extra_parameter->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.y);
-    ui->dead_extra_parameter->setCurrentIndex(Mediator::get_instance()->game_data.game_npcs[index].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.y);
+    ui->near_extra_parameter->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.y);
+    ui->hit_extra_parameter->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.y);
+    ui->dead_extra_parameter->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.y);
 
 	// go-tos
     ui->next1->setCurrentIndex(Mediator::get_instance()->game_data.ai_types[index].states[0].go_to);
@@ -151,11 +153,11 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
         Mediator::get_instance()->game_data.ai_types[Mediator::get_instance()->current_ai].states[index].extra_parameter = 0;
     // -1: near-player, -2: hit, -3: dead
     } else if (index == -1) {
-        Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x = action_n;
+        Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x = action_n;
     } else if (index == -2) {
-        Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x = action_n;
+        Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x = action_n;
     } else if (index == -3) {
-        Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x = action_n;
+        Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x = action_n;
     }
 	if (index == 0) {
         common::fill_ai_options_combo(Mediator::get_instance()->game_data.ai_types[Mediator::get_instance()->current_ai].states[index].action, ui->parameter1);
@@ -174,11 +176,11 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
     } else if (index == 7) {
         common::fill_ai_options_combo(Mediator::get_instance()->game_data.ai_types[Mediator::get_instance()->current_ai].states[index].action, ui->parameter8);
     } else if (index == -1) {
-        common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x, ui->near_extra_parameter);
+        common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x, ui->near_extra_parameter);
     } else if (index == -2) {
-        common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x, ui->hit_extra_parameter);
+        common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x, ui->hit_extra_parameter);
     } else if (index == -3) {
-        common::fill_ai_options_combo(Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x, ui->dead_extra_parameter);
+        common::fill_ai_options_combo(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x, ui->dead_extra_parameter);
     }
 }
 
@@ -613,7 +615,7 @@ void artificial_inteligence_tab::on_near_extra_parameter_currentIndexChanged(int
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][1].colision_rect.y = index;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.y = index;
 }
 
 void artificial_inteligence_tab::on_hit_extra_parameter_currentIndexChanged(int index)
@@ -621,7 +623,7 @@ void artificial_inteligence_tab::on_hit_extra_parameter_currentIndexChanged(int 
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][2].colision_rect.y = index;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.y = index;
 }
 
 void artificial_inteligence_tab::on_dead_extra_parameter_currentIndexChanged(int index)
@@ -629,7 +631,7 @@ void artificial_inteligence_tab::on_dead_extra_parameter_currentIndexChanged(int
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->game_data.game_npcs[Mediator::get_instance()->current_ai].sprites[ANIM_TYPE_TELEPORT][3].colision_rect.y = index;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_ai).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.y = index;
 }
 
 

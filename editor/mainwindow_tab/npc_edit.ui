@@ -629,7 +629,65 @@
          <property name="bottomMargin">
           <number>20</number>
          </property>
+         <item row="12" column="2">
+          <widget class="QCheckBox" name="isBoss_checkBox">
+           <property name="text">
+            <string>Is Boss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="20" column="0">
+          <widget class="QLabel" name="label_67">
+           <property name="text">
+            <string>Speed:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Attacks:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="22" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Weaknesses:</string>
+           </property>
+          </widget>
+         </item>
          <item row="22" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="npc_edit_tab_weakness_points"/>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_63">
+           <property name="text">
+            <string>Graphic:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLineEdit" name="npc_edit_tab_NpcName">
+           <property name="text">
+            <string>My NPC</string>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="2">
           <widget class="QSpinBox" name="respawn_time_spinBox">
            <property name="toolTip">
             <string>If different than zero, NPC will respawn even if is on-screen</string>
@@ -639,14 +697,28 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_70">
+         <item row="18" column="0">
+          <widget class="QLabel" name="label_65">
            <property name="text">
-            <string>Npc:</string>
+            <string>*IA Type:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_70">
+           <property name="text">
+            <string>Enemy:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_iatype">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
           <widget class="QSpinBox" name="npc_edit_tab_NpcHP">
            <property name="value">
             <number>5</number>
@@ -654,27 +726,13 @@
           </widget>
          </item>
          <item row="17" column="0">
-          <widget class="QLabel" name="label_65">
-           <property name="text">
-            <string>*IA Type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_iatype">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="0">
           <widget class="QLabel" name="label_66">
            <property name="text">
             <string>Shield Type:</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="2">
+         <item row="10" column="2">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="spacing">
             <number>0</number>
@@ -748,28 +806,42 @@
            </item>
           </layout>
          </item>
-         <item row="8" column="0">
+         <item row="9" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
             <string>Sprites Position </string>
            </property>
           </widget>
          </item>
-         <item row="22" column="0">
-          <widget class="QLabel" name="label_12">
+         <item row="13" column="2">
+          <widget class="QCheckBox" name="isSubBoss_checkbox">
            <property name="text">
-            <string>Auto-Respawn Delay:</string>
+            <string>Is Sub-Boss</string>
            </property>
           </widget>
          </item>
-         <item row="20" column="0">
+         <item row="21" column="0">
           <widget class="QLabel" name="label_68">
            <property name="text">
             <string>Range:</string>
            </property>
           </widget>
          </item>
-         <item row="20" column="2">
+         <item row="12" column="0">
+          <widget class="QCheckBox" name="npc_edit_tab_canshoot">
+           <property name="text">
+            <string>Is Ghost</string>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Auto-Respawn Delay:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="21" column="2">
           <widget class="QSpinBox" name="npc_edit_tab_range">
            <property name="minimum">
             <number>0</number>
@@ -782,24 +854,10 @@
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
-          <widget class="QCheckBox" name="npc_edit_tab_canshoot">
-           <property name="text">
-            <string>Is Ghost</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="2">
-          <widget class="QCheckBox" name="isSubBoss_checkbox">
-           <property name="text">
-            <string>Is Sub-Boss</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
+         <item row="5" column="2">
           <widget class="QComboBox" name="npc_edit_tab_graphiccombo"/>
          </item>
-         <item row="8" column="2">
+         <item row="9" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
             <widget class="QLabel" name="label_10">
@@ -837,7 +895,7 @@
            </item>
           </layout>
          </item>
-         <item row="13" column="2">
+         <item row="14" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <property name="rightMargin">
             <number>0</number>
@@ -853,7 +911,14 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="2">
+         <item row="13" column="0">
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>Can Fly</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_9">
            <property name="rightMargin">
             <number>0</number>
@@ -907,7 +972,7 @@
            </item>
           </layout>
          </item>
-         <item row="16" column="2">
+         <item row="17" column="2">
           <widget class="QComboBox" name="npc_edit_tab_shieldtype">
            <item>
             <property name="text">
@@ -936,28 +1001,7 @@
            </item>
           </widget>
          </item>
-         <item row="12" column="0">
-          <widget class="QCheckBox" name="checkBox">
-           <property name="text">
-            <string>Can Fly</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_62">
-           <property name="text">
-            <string>Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_64">
-           <property name="text">
-            <string>Hit Points:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="2">
+         <item row="20" column="2">
           <widget class="QSpinBox" name="npc_edit_tab_movespeed">
            <property name="minimum">
             <number>0</number>
@@ -970,7 +1014,14 @@
            </property>
           </widget>
          </item>
-         <item row="23" column="0">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_62">
+           <property name="text">
+            <string>Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="24" column="0">
           <spacer name="verticalSpacer_9">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -983,7 +1034,14 @@
            </property>
           </spacer>
          </item>
-         <item row="9" column="0">
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_64">
+           <property name="text">
+            <string>Hit Points:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
           <widget class="QLabel" name="label_13">
            <property name="text">
             <string>Hit Area:</string>
@@ -991,62 +1049,11 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
-         </item>
-         <item row="11" column="2">
-          <widget class="QCheckBox" name="isBoss_checkBox">
+          <widget class="QPushButton" name="addEnemy_pushButton">
            <property name="text">
-            <string>Is Boss</string>
+            <string>Add Enemy</string>
            </property>
           </widget>
-         </item>
-         <item row="21" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Weaknesses:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="0">
-          <widget class="QLabel" name="label_67">
-           <property name="text">
-            <string>Speed:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Attacks:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_63">
-           <property name="text">
-            <string>Graphic:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="npc_edit_tab_NpcName">
-           <property name="text">
-            <string>My NPC</string>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="npc_edit_tab_weakness_points"/>
-           </item>
-          </layout>
          </item>
         </layout>
        </widget>

@@ -97,6 +97,8 @@ private slots:
 
     void on_AddFrame_Button_clicked();
 
+    void on_addEnemy_pushButton_clicked();
+
 private:
 	void fill_data();
 

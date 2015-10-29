@@ -46,17 +46,6 @@ namespace format_v4 {
         fp.write(reinterpret_cast<char *>(&data_in.stage_face_filename), sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX);
         fp.close();
 
-// -------------------------------------- NPCS -------------------------------------- //
-        // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "game_npcs" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-
-        fp.write(reinterpret_cast<char *>(&data_in.game_npcs), sizeof(file_npc) * FS_GAME_MAX_NPCS);
-        fp.close();
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];
@@ -225,21 +214,6 @@ namespace format_v4 {
 
         fclose(fp);
 
-// -------------------------------------- NPCS -------------------------------------- //
-        // file_npc game_npcs[FS_GAME_MAX_NPCS]
-        filename = std::string(FILEPATH) + "game_npcs" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.game_npcs, sizeof(file_npc), FS_GAME_MAX_NPCS, fp) != FS_GAME_MAX_NPCS) {
-            std::cout << ">>file_io::read_game[game_npcs2] res: - Error reading data from game file '" << filename << "'." << std::endl;
-            //exit(-1);
-        }
-        fclose(fp);
 
 // -------------------------------------- OBJECTS -------------------------------------- //
         // file_object objects[FS_GAME_MAX_NPCS];

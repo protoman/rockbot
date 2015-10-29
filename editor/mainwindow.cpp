@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->setupUi(this);
     QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER);
     setWindowTitle(window_title);
-    Mediator::get_instance()->loadGame();
+    Mediator::get_instance()->load_game();
 
 
 	// insert NPC tab form
@@ -158,12 +158,7 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
-    Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
-    Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
-    CURRENT_FILE_FORMAT::file_io fio;
-    fio.write_anim_tiles(Mediator::get_instance()->anim_tiles);
-
+    Mediator::get_instance()->save_game();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -556,7 +551,7 @@ void MainWindow::on_new_game_accepted(QString name)
 
 
     /// @TODO: copy image files
-    Mediator::get_instance()->loadGame();
+    Mediator::get_instance()->load_game();
 
     GAMENAME = name.toStdString();
 
@@ -567,7 +562,7 @@ void MainWindow::on_new_game_accepted(QString name)
 
 void MainWindow::on_load_game_accepted()
 {
-    Mediator::get_instance()->loadGame();
+    Mediator::get_instance()->load_game();
     reload();
 }
 
