@@ -6,7 +6,7 @@
 #include "file/format/st_common.h"
 
 #define SCENE_TEXT_LINES_N 6
-#define SCENE_OBJECTS_N 20
+#define SCENE_OBJECTS_MAX 20
 
 namespace format_v4 {
 
@@ -210,6 +210,7 @@ namespace format_v4 {
         int delay_after;
         int repeat_type;
         int repeat_value;
+        bool run_in_background;
 
         file_scene_object() {
             type = SCENETYPE_CLEAR_SCREEN;
@@ -217,6 +218,7 @@ namespace format_v4 {
             delay_after = 0;
             repeat_type = 1;
             repeat_value = 1;
+            run_in_background = false;
         }
 
     };
@@ -224,7 +226,7 @@ namespace format_v4 {
     // header of one scene_list file
     struct file_scene_list {
         char name[FS_NAME_SIZE];
-        file_scene_object objects[SCENE_OBJECTS_N];
+        file_scene_object objects[SCENE_OBJECTS_MAX];
         file_scene_list() {
             name[0] = '\0';
         }

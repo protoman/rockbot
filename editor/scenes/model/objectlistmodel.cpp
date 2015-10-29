@@ -12,7 +12,7 @@ int ObjectListModel::rowCount(const QModelIndex &parent) const
         return 0;
     }
     int n = 0;
-    for (unsigned int i =0; i<SCENE_OBJECTS_N; i++) {
+    for (unsigned int i =0; i<SCENE_OBJECTS_MAX; i++) {
         if (ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[i].seek_n == -1) {
             break;
         }
@@ -24,7 +24,7 @@ int ObjectListModel::rowCount(const QModelIndex &parent) const
 
 int ObjectListModel::columnCount(const QModelIndex &parent) const
 {
-    return 4;
+    return 5;
 }
 
 QVariant ObjectListModel::data(const QModelIndex &index, int role) const
@@ -72,12 +72,14 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
             if (ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type == 0) {
                 return QString("Time (ms)");
             } else if (ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type == 1){
-                return QString("Repear Number");
+                return QString("Repeat Number");
             } else {
                 return QString("-Select-");
             }
         } else if (col == 3) {
             return QString::number(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value);
+        } else if (col == 4) {
+            return QVariant(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background);
         } else {
             return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() +1);
         }
@@ -88,6 +90,8 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
             return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type;
         } else if (col == 3) {
             return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value;
+        } else if (col == 4) {
+            return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background;
         }
     }
 
@@ -109,6 +113,8 @@ QVariant ObjectListModel::headerData(int section, Qt::Orientation orientation, i
                 return QString("Repeat Type");
             case 3:
                 return QString("Repeat Value");
+            case 4:
+                return QString("Run In Background");
             }
         }
     }
@@ -123,6 +129,9 @@ Qt::ItemFlags ObjectListModel::flags(const QModelIndex &index) const
 
     if (index.column() != 0) {
         result |= Qt::ItemIsEditable;
+    }
+    if (index.column() == 4) {
+        result |= Qt::ItemIsUserCheckable;
     }
 
     return result;
@@ -139,6 +148,8 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
         ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type = value.toInt();
     } else if (col == 3) {
         ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value = value.toInt();
+    } else if (col == 4) {
+        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background = value.toBool();
     }
 
 }

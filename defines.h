@@ -759,7 +759,7 @@ enum e_VIDEO_FILTERS {
 // filesystem defines
 #define FS_GAME_MAX_OBJS 40
 #define FS_GAME_MAX_NPCS 100
-#define FS_MAX_PROJECTILES 30
+#define FS_MAX_PROJECTILES 50
 #define FS_MAX_WEAPONS 20
 #define FS_MAX_PLAYERS 4
 #define FS_MAX_AI_TYPES 50

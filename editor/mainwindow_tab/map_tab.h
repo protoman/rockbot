@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "file/file_io.h"
+
 namespace Ui {
 class map_tab;
 }
@@ -50,22 +52,15 @@ private slots:
     void on_editTile_button_clicked();
     void on_editObject_button_clicked();
     void on_editLink_button_clicked();
-
     void on_editNpc_button_clicked();
-
     void on_editSetSubBoss_button_clicked();
-
     void on_editSetBoss_button_clicked();
-
     void on_editModeNormal_button_clicked();
-
     void on_editModeLock_button_clicked();
-
     void on_editModeErase_button_clicked();
-
     void on_addAnimTile_toolButton_clicked();
-
     void on_stageTileset_comboBox_currentIndexChanged(const QString &arg1);
+    void on_addTile_pushButton_clicked();
 
 private:
     void fill_data();
@@ -75,6 +70,7 @@ private:
 private:
     Ui::map_tab *ui;
     bool _data_loading;
+    CURRENT_FILE_FORMAT::file_io fio;
 };
 
 #endif // MAP_TAB_H

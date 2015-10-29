@@ -9,12 +9,15 @@ map_tab::map_tab(QWidget *parent) :
     ui(new Ui::map_tab),
     _data_loading(true)
 {
-    std::cout << ">>>>>>>>>>>>> DEBUG#1 <<<<<<<<<<<<<<<" << std::endl;
     ui->setupUi(this);
+
+    Mediator::get_instance()->anim_tiles = fio.read_anim_tiles();
+
     fill_data();
 
     ui->editTile_button->setChecked(true);
     ui->editModeNormal_button->setChecked(true);
+
 
     ui->editArea->repaint();
     QObject::connect(ui->pallete, SIGNAL(signalPalleteChanged()), ui->editArea, SLOT(repaint()));
@@ -27,6 +30,7 @@ map_tab::~map_tab()
 
 void map_tab::reload()
 {
+    Mediator::get_instance()->anim_tiles = fio.read_anim_tiles();
     fill_data();
     ui->animTile_Preview->update_properties();
 }
@@ -34,7 +38,6 @@ void map_tab::reload()
 void map_tab::set_current_box(short n)
 {
     ui->toolBox->setCurrentIndex(n);
-
     ui->editArea->repaint();
 }
 
@@ -95,13 +98,15 @@ void map_tab::fill_background_list()
 
 void map_tab::fill_anim_tiles_data()
 {
-    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
+    for (int i=0; i<Mediator::get_instance()->anim_tiles.size(); i++) {
         ui->current_anim_tile_combobox->addItem(QString::number(i));
     }
     common::fill_files_combo("images/tilesets/anim", ui->anim_tile_graphic_combobox);
-    std::string filename = Mediator::get_instance()->game_data.anim_tiles[0].filename;
-    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(filename.c_str()));
-    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[0].delay[0]);
+    if (Mediator::get_instance()->anim_tiles.size() > 0) {
+        std::string filename = Mediator::get_instance()->anim_tiles.at(0).filename;
+        ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(filename.c_str()));
+        ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->anim_tiles.at(0).delay[0]);
+    }
 }
 
 void map_tab::on_stageListCombo_currentIndexChanged(int index)
@@ -464,15 +469,15 @@ void map_tab::on_current_anim_tile_combobox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->selectedAnimTileset = index;
-    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->game_data.anim_tiles[index].filename));
-    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->game_data.anim_tiles[index].delay[0]);
+    ui->anim_tile_graphic_combobox->setCurrentIndex(ui->anim_tile_graphic_combobox->findText(Mediator::get_instance()->anim_tiles.at(index).filename));
+    ui->anim_tile_delay_spinbox->setValue(Mediator::get_instance()->anim_tiles.at(index).delay[index]);
     ui->animTile_Preview->update_properties();
 }
 
 void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) { return; }
-    sprintf(Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].filename, "%s", arg1.toStdString().c_str());
+    sprintf(Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).filename, "%s", arg1.toStdString().c_str());
     ui->animTile_Preview->update_properties();
 }
 
@@ -480,7 +485,14 @@ void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
     int selectedFrame = 0;
-    Mediator::get_instance()->game_data.anim_tiles[Mediator::get_instance()->selectedAnimTileset].delay[selectedFrame] = arg1;
+    Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[selectedFrame] = arg1;
     ui->animTile_Preview->update_properties();
 }
 
+
+void map_tab::on_addTile_pushButton_clicked()
+{
+    Mediator::get_instance()->anim_tiles.push_back(CURRENT_FILE_FORMAT::st_anim_map_tile());
+    ui->current_anim_tile_combobox->addItem(QString::number(Mediator::get_instance()->anim_tiles.size()-1));
+    ui->current_anim_tile_combobox->setCurrentIndex(Mediator::get_instance()->anim_tiles.size()-1);
+}

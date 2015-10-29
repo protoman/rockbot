@@ -157,10 +157,12 @@ namespace format_v4 {
         Uint8 id_projectile;
         char name[CHAR_NAME_SIZE];
         Uint8 damage;
+        Uint8 id_projectile_charged;
         file_weapon() {
             sprintf(name, "%s", "Weapon");
             damage = 1;
             id_projectile = 0;
+            id_projectile_charged = 0;
         }
     };
 
@@ -391,7 +393,6 @@ namespace format_v4 {
         // ** NEW IN FILE V3.0 ** //
         st_file_trophy trophies[TROPHIES_MAX];
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
-        st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX];
 
         // ** NEW IN FILE V4.0 ** //
         char boss_music_filename[FS_CHAR_NAME_SIZE];

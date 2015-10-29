@@ -305,7 +305,9 @@ SOURCES += main.cpp \
     scenes/sceneshow.cpp \
     strings_map.cpp \
     file/fio_strings.cpp \
-    aux_tools/stringutils.cpp
+    aux_tools/stringutils.cpp \
+    file/fio_common.cpp \
+    file/fio_common.cpp
 
 HEADERS += \
     character/character.h \
@@ -359,7 +361,8 @@ HEADERS += \
     file/fio_strings.h \
     aux_tools/stringutils.h \
     file/v4/file_strings.h \
-    file/v4/file_map.h
+    file/v4/file_map.h \
+    file/fio_common.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

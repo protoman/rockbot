@@ -30,6 +30,8 @@ private slots:
 
 	void on_weapon_damage_valueChanged(int arg1);
 
+    void on_weapon_charged_projectile_type_currentIndexChanged(int index);
+
 private:
 	Ui::weapon_edit *ui;
 	short _selected_weapon;

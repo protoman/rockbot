@@ -16,8 +16,12 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
     /// @TODO: find a way that works for both Qt4 and 5 - http://stackoverflow.com/questions/17535563/how-to-get-a-qtableview-to-fill-100-of-the-width
-    //ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
-    //ui->scenes_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch); // Qt4
+
+#if QT_VERSION >= 0x050000
+    ui->scenes_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
+#else
+    ui->scenes_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch); // Qt4
+#endif
 
     data_loading = true;
 
@@ -145,7 +149,7 @@ void TabScenelist::on_addButton_clicked()
     int seek_n = selectedList.at(0).row();
 
     // search for a free slot
-    for (unsigned int i = 0; i<SCENE_OBJECTS_N; i++) {
+    for (unsigned int i = 0; i<SCENE_OBJECTS_MAX; i++) {
         if (ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n == -1) {
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n = seek_n;
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].type = ui->sceneTypeSelector->currentIndex();
@@ -177,7 +181,7 @@ void TabScenelist::on_removeButton_clicked()
         int selectedRow = selectedList.at(i).row();
         //QMessageBox::information(this,"", QString::number(selectedRow));
         // move all above rows 1 level down
-        for (int j=selectedRow+1; j<SCENE_OBJECTS_N; j++) {
+        for (int j=selectedRow+1; j<SCENE_OBJECTS_MAX; j++) {
             ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j-1].seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j].seek_n;
             ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j-1].type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j].type;
             ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j-1].delay_after = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[j].delay_after;
@@ -187,11 +191,11 @@ void TabScenelist::on_removeButton_clicked()
         break;
     }
     // empty last line, as there is none above to move down
-    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_N-1].seek_n = -1;
-    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_N-1].type = -1;
-    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_N-1].delay_after = 100;
-    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_N-1].repeat_type = 0;
-    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_N-1].repeat_value = 0;
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_MAX-1].seek_n = -1;
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_MAX-1].type = -1;
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_MAX-1].delay_after = 100;
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_MAX-1].repeat_type = 0;
+    ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[SCENE_OBJECTS_MAX-1].repeat_value = 0;
 
     ui->scenes_tableView->setModel(&model_scenes);
     model_scenes.update();

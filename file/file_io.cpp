@@ -143,23 +143,6 @@ namespace format_v4 {
         fp.write(reinterpret_cast<char *>(&data_in.armor_pieces), sizeof(st_armor_piece) * FS_PLAYER_ARMOR_PIECES_MAX);
         fp.close();
 
-
-// -------------------------------------- ANIM_TILES -------------------------------------- //
-        // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "game_animTiles" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-        fp.write(reinterpret_cast<char *>(&data_in.anim_tiles), sizeof(st_anim_map_tile) * FS_ANIM_TILES_MAX);
-        fp.close();
-
-
-
-
-
-
     }
 
 
@@ -371,22 +354,6 @@ namespace format_v4 {
         fclose(fp);
 
 
-// -------------------------------------- ANIM_TILES -------------------------------------- //
-        // st_anim_map_tile anim_tiles[FS_ANIM_TILES_MAX]
-        filename = std::string(FILEPATH) + "game_animTiles" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.anim_tiles, sizeof(st_anim_map_tile), FS_ANIM_TILES_MAX, fp) != FS_ANIM_TILES_MAX) {
-            std::cout << ">>file_io::read_game[anim_tiles] - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        fclose(fp);
-
-
     }
 
 
@@ -483,6 +450,20 @@ namespace format_v4 {
         }
 
         fp.close();
+    }
+
+    std::vector<st_anim_map_tile> file_io::read_anim_tiles()
+    {
+        std::vector<st_anim_map_tile> res = fio_cmm.load_from_disk<st_anim_map_tile>(std::string("anim_tiles.dat"));
+        return res;
+    }
+
+
+
+
+    void file_io::write_anim_tiles(std::vector<st_anim_map_tile> tiles)
+    {
+        fio_cmm.save_data_to_disk<st_anim_map_tile>("anim_tiles.dat", tiles);
     }
 
     bool file_io::file_exists(std::string filename) const

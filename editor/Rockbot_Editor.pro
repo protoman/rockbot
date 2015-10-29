@@ -104,7 +104,8 @@ SOURCES += main.cpp \
     files_editor/stringseditor.cpp \
     ../file/fio_strings.cpp \
     ../aux_tools/stringutils.cpp \
-    model/stringeditmodel.cpp
+    model/stringeditmodel.cpp \
+    ../file/fio_common.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -177,7 +178,8 @@ HEADERS += mainwindow.h \
     ../file/fio_strings.h \
     ../aux_tools/stringutils.h \
     model/stringeditmodel.h \
-    ../file/v4/file_strings.h
+    ../file/v4/file_strings.h \
+    ../file/fio_common.hpp
 
 FORMS += mainwindow.ui \
     addwizard.ui \

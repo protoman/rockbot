@@ -106,6 +106,7 @@ public:
     CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
     CURRENT_FILE_FORMAT::file_io fio;
     CURRENT_FILE_FORMAT::fio_scenes fio_scenes;
+    std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tiles;
     bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
     std::string combobox_select_string;
 

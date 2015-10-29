@@ -161,6 +161,8 @@ void MainWindow::on_actionSave_triggered()
     Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
     Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
     Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
+    CURRENT_FILE_FORMAT::file_io fio;
+    fio.write_anim_tiles(Mediator::get_instance()->anim_tiles);
 
 }
 
