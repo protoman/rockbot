@@ -15,10 +15,11 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 	int i;
 
 	std::string projectile_filename;
-	if (Mediator::get_instance()->current_projectile == -1) {
+    std::string graphic_filename(Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).graphic_filename);
+    if (graphic_filename.length() == 0) {
         projectile_filename = FILEPATH + "/images/projectiles/projectile_normal.png";
 	} else {
-        projectile_filename = FILEPATH + "/images/projectiles/" + Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].graphic_filename;
+        projectile_filename = FILEPATH + "/images/projectiles/" + Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).graphic_filename;
 	}
 
 	QPixmap image(projectile_filename.c_str());
@@ -39,7 +40,7 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 	//printf("projectilePreviewArea::paintEvent - gSize: %d\n", Mediator::get_instance()->projectileGraphicSize_w);
 
    painter.setPen(QColor(0, 120, 0));
-   int step = Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.width*2;
+   int step = Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).size.width*2;
    int max = this->width()+1;
    if (step < 1) {
        step = 1;
@@ -50,7 +51,7 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
       painter.drawLine(line);
    }
    max = this->height()+1;
-   step = Mediator::get_instance()->game_data.projectiles[Mediator::get_instance()->current_projectile].size.height*2;
+   step = Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).size.height*2;
    if (step < 1) {
        step = 1;
    }

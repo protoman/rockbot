@@ -472,7 +472,6 @@ enum e_energy_types { ENERGY_TYPE_HP, ENERGY_TYPE_WEAPON };
 #define GAME_MAX_OBJS 60
 #define STAGE_MAX_LINKS 30
 #define STAGE_MAX_MAPS 3
-#define MAX_AI_TYPES 50
 #define MAX_AI_REACTIONS 3
 
 #define CHAR_NAME_SIZE 30
@@ -757,11 +756,8 @@ enum e_VIDEO_FILTERS {
 #define COLOR_COUNT 68
 
 // filesystem defines
-#define FS_GAME_MAX_OBJS 100
-#define FS_MAX_PROJECTILES 50
 #define FS_MAX_WEAPONS 20
 #define FS_MAX_PLAYERS 4
-#define FS_MAX_AI_TYPES 50
 #define FS_MAX_STAGES 20
 
 #define FS_CHAR_NAME_SIZE 30
@@ -791,13 +787,6 @@ enum e_VIDEO_FILTERS {
 enum e_ARMOR_PIECES {
     ARMOR_ARMS, ARMOR_BODY, ARMOR_LEGS, FS_PLAYER_ARMOR_PIECES_MAX
 };
-
-/*
-void armor_edit::fill_armor_abilities() {
-    std::string arm_abilities[] = {"Super-Shot", "Laser-Beam", "Always-Charged", "Freeze"};
-    std::string legs_abilities[] = {"Double Jump", "Air-Dash", "Wall-Grab"};
-    std::string body_abilities[] = {"Half-Damage", "Extended Immunity", "Spikes Immune", "No Push-Back"};
- */
 
 enum e_ARMOR_ABILITIES_ARMS {
     ARMOR_ABILITY_ARMS_SUPERSHOT, ARMOR_ABILITY_ARMS_LASERBEAM, ARMOR_ABILITY_ARMS_ALWAYSCHARGED, ARMOR_ABILITY_ARMS_MISSILE

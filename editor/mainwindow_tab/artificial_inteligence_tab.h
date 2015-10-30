@@ -116,6 +116,8 @@ private slots:
 
     void on_dead_action_currentIndexChanged(int index);
 
+    void on_pushButton_clicked();
+
 private:
     void fill_next_combos();
     void fill_next_combo(QComboBox *combo);

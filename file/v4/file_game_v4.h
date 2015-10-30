@@ -243,7 +243,7 @@ namespace format_v4 {
      */
         file_npc() {
             id = -1;
-            sprintf(name, "%s", "NPC");
+            sprintf(name, "%s", "Enemy Name");
             graphic_filename[0] = '\0';
             projectile_id[0] = -1;
             projectile_id[1] = -1;
@@ -380,12 +380,9 @@ namespace format_v4 {
     struct file_game {
         float version;
         char name[FS_CHAR_NAME_SIZE];
-        //file_npc game_npcs[FS_GAME_MAX_NPCS];                           // 60 enemy types is more than good enought
-        file_object objects[FS_GAME_MAX_OBJS];
-        file_projectile projectiles[FS_MAX_PROJECTILES];
+        //file_projectile projectiles[FS_MAX_PROJECTILES];
         file_weapon weapons[FS_MAX_WEAPONS];                            // 8 stage-bosses and 3 item-like
         file_player players[FS_MAX_PLAYERS];                            // up to 4 different players the user can select from
-        file_artificial_inteligence ai_types[FS_MAX_AI_TYPES];
         Sint8 semi_charged_projectile_id;                               // common to all players
         Sint8 player_items[FS_PLATER_ITEMS_N];                          // common to all players -> to be used in add_coil_object and add_jet_object
         char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX];
@@ -427,23 +424,13 @@ namespace format_v4 {
                 stage_face_filename[i][0] = '\0';
             }
 
-            for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
-                sprintf(objects[i].name, "Object [%d]", i);
-            }
-            for (int i=0; i<FS_MAX_PROJECTILES; i++) {
-                sprintf(projectiles[i].name, "Projectile [%d]", i);
-            }
             for (int i=0; i<FS_MAX_WEAPONS; i++) {
-                sprintf(projectiles[i].name, "Projectile [%d]", i);
+                sprintf(weapons[i].name, "Weapon [%d]", i);
             }
             for (int i=0; i<FS_MAX_PLAYERS; i++) {
                 sprintf(players[i].name, "Player [%d]", i);
                 sprintf(players[i].graphic_filename, "%s%d%s", "p", (i+1), ".png");
             }
-            for (int i=0; i<FS_MAX_AI_TYPES; i++) {
-                sprintf(ai_types[i].name, "A.I. [%d]", i);
-            }
-
         }
     };
 

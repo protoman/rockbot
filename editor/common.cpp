@@ -145,8 +145,8 @@ void common::fill_object_combo(QComboBox* combo)
 {
     combo->clear(); // delete all previous entries
 
-    for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.objects[i].name);
+    for (int i=0; i<Mediator::get_instance()->object_list.size(); i++) {
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->object_list.at(i).name);
         combo->addItem(temp_str);
 	}
 }
@@ -187,9 +187,8 @@ void common::fill_projectiles_combo(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
 
-    combo->addItem(QString("[") + QString::number(-1) + QString("] - ") + QString("DEFAULT"));
-    for (int i=0; i<FS_MAX_PROJECTILES; i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.projectiles[i].name);
+    for (int i=0; i<Mediator::get_instance()->projectile_list.size(); i++) {
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->projectile_list.at(i).name);
         combo->addItem(temp_str);
     }
 }
@@ -258,8 +257,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 void common::fill_ai_list(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
-    for (int i=0; i<MAX_AI_TYPES; i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.ai_types[i].name);
+    for (int i=0; i<Mediator::get_instance()->ai_list.size(); i++) {
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->ai_list.at(i).name);
 		combo->addItem(temp_str);
     }
 }
@@ -329,17 +328,18 @@ void common::fill_object_listWidget(QListWidget *listWidget)
 
     listWidget->clear();
 
-    for (int i=0; i<FS_GAME_MAX_OBJS; i++) {
+    for (int i=0; i<Mediator::get_instance()->object_list.size(); i++) {
         item = new QListWidgetItem;
         QString temp_str = QString("[");
         if (i < 10) {
             temp_str += "0";
         }
-        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->game_data.objects[i].name);
+
+        temp_str += QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->object_list.at(i).name);
         item->setText(temp_str);
-        std::string filename = FILEPATH + "/images/sprites/objects/" + Mediator::get_instance()->game_data.objects[i].graphic_filename;
+        std::string filename = FILEPATH + "/images/sprites/objects/" + Mediator::get_instance()->object_list.at(i).graphic_filename;
         QPixmap image(filename.c_str());
-        image = image.copy(0, 0, Mediator::get_instance()->game_data.objects[i].size.width, Mediator::get_instance()->game_data.objects[i].size.height);
+        image = image.copy(0, 0, Mediator::get_instance()->object_list.at(i).size.width, Mediator::get_instance()->object_list.at(i).size.height);
         if (image.isNull() == false && image.width() > 0) {
             image = image.scaled(32, 32);
         }

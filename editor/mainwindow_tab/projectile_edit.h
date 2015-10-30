@@ -39,13 +39,15 @@ private slots:
 
 	void on_damage_valueChanged(int arg1);
 
+    void on_pushButton_clicked();
+
 private:
     void fill_data();
     void set_edit_data(int index);
     
 private:
     Ui::projectile_edit *ui;
-	bool _ignore_name_change;
+    bool data_loading;
 };
 
 #endif // PROJECTILE_EDIT_H

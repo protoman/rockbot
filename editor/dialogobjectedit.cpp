@@ -93,19 +93,19 @@ void DialogObjectEdit::on_objectListCombobox_currentIndexChanged(QString item)
 
 void DialogObjectEdit::loadObjectData(int object_n) {
 
-    ui->NpcName->setText(Mediator::get_instance()->game_data.objects[object_n].name);
-    ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->game_data.objects[object_n].size.width);
-    ui->npcGraphicSizeSpin_h->setValue(Mediator::get_instance()->game_data.objects[object_n].size.height);
-    ui->comboBoxType->setCurrentIndex(Mediator::get_instance()->game_data.objects[object_n].type);
+    ui->NpcName->setText(Mediator::get_instance()->object_list.at(object_n).name);
+    ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->object_list.at(object_n).size.width);
+    ui->npcGraphicSizeSpin_h->setValue(Mediator::get_instance()->object_list.at(object_n).size.height);
+    ui->comboBoxType->setCurrentIndex(Mediator::get_instance()->object_list.at(object_n).type);
 
-    ui->spinBox_timer->setValue(Mediator::get_instance()->game_data.objects[object_n].timer);
-    ui->spinBox_speed->setValue(Mediator::get_instance()->game_data.objects[object_n].speed);
-    ui->spinBox_limit->setValue(Mediator::get_instance()->game_data.objects[object_n].limit);
+    ui->spinBox_timer->setValue(Mediator::get_instance()->object_list.at(object_n).timer);
+    ui->spinBox_speed->setValue(Mediator::get_instance()->object_list.at(object_n).speed);
+    ui->spinBox_limit->setValue(Mediator::get_instance()->object_list.at(object_n).limit);
 
-    Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->game_data.objects[object_n].size.width;
-    Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->game_data.objects[object_n].size.height;
+    Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->object_list.at(object_n).size.width;
+    Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->object_list.at(object_n).size.height;
 	for (int i=0; i<ui->objectListCombobox->count(); i++) {
-        if (ui->objectListCombobox->itemText(i) == QString(Mediator::get_instance()->game_data.objects[object_n].graphic_filename)) {
+        if (ui->objectListCombobox->itemText(i) == QString(Mediator::get_instance()->object_list.at(object_n).graphic_filename)) {
 			ui->objectListCombobox->setCurrentIndex(i);
 			break;
 		}
@@ -115,14 +115,14 @@ void DialogObjectEdit::loadObjectData(int object_n) {
 
 
 void DialogObjectEdit::saveObjectData(int object_n) {
-    strcpy (Mediator::get_instance()->game_data.objects[object_n].name, ui->NpcName->text().toLatin1());
-    Mediator::get_instance()->game_data.objects[object_n].type = ui->comboBoxType->currentIndex();
-    Mediator::get_instance()->game_data.objects[object_n].size.width = ui->npcGraphicSizeSpin_w->value();
-    Mediator::get_instance()->game_data.objects[object_n].size.height = ui->npcGraphicSizeSpin_h->value();
-    strcpy (Mediator::get_instance()->game_data.objects[object_n].graphic_filename, ui->objectListCombobox->currentText().toLatin1());
-    Mediator::get_instance()->game_data.objects[object_n].timer = ui->spinBox_timer->value();
-    Mediator::get_instance()->game_data.objects[object_n].speed = ui->spinBox_speed->value();
-    Mediator::get_instance()->game_data.objects[object_n].limit = ui->spinBox_limit->value();
+    strcpy (Mediator::get_instance()->object_list.at(object_n).name, ui->NpcName->text().toLatin1());
+    Mediator::get_instance()->object_list.at(object_n).type = ui->comboBoxType->currentIndex();
+    Mediator::get_instance()->object_list.at(object_n).size.width = ui->npcGraphicSizeSpin_w->value();
+    Mediator::get_instance()->object_list.at(object_n).size.height = ui->npcGraphicSizeSpin_h->value();
+    strcpy (Mediator::get_instance()->object_list.at(object_n).graphic_filename, ui->objectListCombobox->currentText().toLatin1());
+    Mediator::get_instance()->object_list.at(object_n).timer = ui->spinBox_timer->value();
+    Mediator::get_instance()->object_list.at(object_n).speed = ui->spinBox_speed->value();
+    Mediator::get_instance()->object_list.at(object_n).limit = ui->spinBox_limit->value();
 }
 
 

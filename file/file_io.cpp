@@ -47,29 +47,6 @@ namespace format_v4 {
         fp.close();
 
 
-// -------------------------------------- OBJECTS -------------------------------------- //
-        // file_object objects[FS_GAME_MAX_OBJS];
-        filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-        fp.write(reinterpret_cast<char *>(&data_in.objects), sizeof(file_object) * FS_GAME_MAX_OBJS);
-        fp.close();
-
-
-// -------------------------------------- PROJECTILES -------------------------------------- //
-        // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "game_projectiles" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-        fp.write(reinterpret_cast<char *>(&data_in.projectiles), sizeof(file_projectile) * FS_MAX_PROJECTILES);
-        fp.close();
-
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
@@ -93,19 +70,6 @@ namespace format_v4 {
         }
 
         fp.write(reinterpret_cast<char *>(&data_in.players), sizeof(file_player) * FS_MAX_PLAYERS);
-        fp.close();
-
-
-
-// -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
-        // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "game_ai" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-        fp.write(reinterpret_cast<char *>(&data_in.ai_types), sizeof(file_artificial_inteligence) * FS_MAX_AI_TYPES);
         fp.close();
 
 
@@ -215,38 +179,6 @@ namespace format_v4 {
         fclose(fp);
 
 
-// -------------------------------------- OBJECTS -------------------------------------- //
-        // file_object objects[FS_GAME_MAX_OBJS];
-        filename = std::string(FILEPATH) + "game_objects" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.objects, sizeof(file_object), FS_GAME_MAX_OBJS, fp) != FS_GAME_MAX_OBJS) {
-            std::cout << ">>file_io::read_game[objects] - Error reading data from game file '" << filename << "'." << std::endl;
-            //exit(-1);
-        }
-        fclose(fp);
-
-
-// -------------------------------------- PROJECTILES -------------------------------------- //
-        // file_projectile projectiles[FS_MAX_PROJECTILES]
-        filename = std::string(FILEPATH) + "game_projectiles" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.projectiles, sizeof(file_projectile), FS_MAX_PROJECTILES, fp) != FS_MAX_PROJECTILES) {
-            std::cout << ">>file_io::read_game[projectiles2] - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        fclose(fp);
-
-
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
@@ -274,23 +206,6 @@ namespace format_v4 {
         }
         if (fread(&data_out.players, sizeof(file_player), FS_MAX_PLAYERS, fp) != FS_MAX_PLAYERS) {
             std::cout << ">>file_io::read_game[players] - Error reading data from game file '" << filename << "'." << std::endl;
-            exit(-1);
-        }
-        fclose(fp);
-
-
-
-// -------------------------------------- ARTIFICIAL INTELIGENCE -------------------------------------- //
-        // file_artificial_inteligence ai_types[FS_MAX_AI_TYPES]
-        filename = std::string(FILEPATH) + "game_ai" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.ai_types, sizeof(file_artificial_inteligence), FS_MAX_AI_TYPES, fp) != FS_MAX_AI_TYPES) {
-            std::cout << ">>file_io::read_game[ai_types] - Error reading data from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
         fclose(fp);

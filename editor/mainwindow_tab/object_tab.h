@@ -46,6 +46,8 @@ private slots:
 
     void on_timer_valueChanged(int arg1);
 
+    void on_pushButton_clicked();
+
 private:
     Ui::object_tab *ui;
 	int _current_object;

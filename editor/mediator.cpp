@@ -76,6 +76,9 @@ Mediator::Mediator() {
     if (ai_list.size() == 0) { // add one first item to avoid errors
         ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     }
+    if (projectile_list.size() == 0) {
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    }
 
 }
 
@@ -140,6 +143,11 @@ void Mediator::load_game() {
     if (ai_list.size() == 0) { // add one first item to avoid errors
         ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     }
+    projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat");
+    if (projectile_list.size() == 0) {
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    }
+
 
 }
 
@@ -154,6 +162,7 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
 }
 
 

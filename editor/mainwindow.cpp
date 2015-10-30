@@ -90,7 +90,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor", tr("Save data before leaving?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
-    if (resBtn != QMessageBox::Yes) {
+    if (resBtn == QMessageBox::Yes) {
         on_actionSave_triggered();
     }
     event->accept();

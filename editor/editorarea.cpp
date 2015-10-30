@@ -356,56 +356,56 @@ void EditorArea::paintEvent(QPaintEvent *) {
             int obj_id = (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].id_object;
             if (obj_id != -1) {
                 //if (obj_id == 20) { std::cout << "************************** paintEvent - draw_objects[" << i << "].id: " << obj_id << std::endl; }
-                std::string filename = FILEPATH + "/images/sprites/objects/" + Mediator::get_instance()->game_data.objects[obj_id].graphic_filename;
+                std::string filename = FILEPATH + "/images/sprites/objects/" + Mediator::get_instance()->object_list.at(obj_id).graphic_filename;
                 QPixmap temp_image(filename.c_str());
                 if (temp_image.isNull()) {
                     std::cout << "****************** Could not load file '" << filename.c_str() << "'" << std::endl;
                     painter.setBrush(QColor(255, 255, 255, 180));
                     painter.drawRect(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
                 } else {
-                    int obj_type = Mediator::get_instance()->game_data.objects[obj_id].type;
+                    int obj_type = Mediator::get_instance()->object_list.at(obj_id).type;
                     int obj_direction = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].direction;
                     if (obj_type == OBJ_RAY_HORIZONTAL) {
                         int graphic_pos_x = 0;
-                        int graphic_pos_y = Mediator::get_instance()->game_data.objects[obj_id].size.height;
+                        int graphic_pos_y = Mediator::get_instance()->object_list.at(obj_id).size.height;
                         if (obj_direction == ANIM_DIRECTION_LEFT) {
-                            graphic_pos_x = Mediator::get_instance()->game_data.objects[obj_id].size.width - TILESIZE;
+                            graphic_pos_x = Mediator::get_instance()->object_list.at(obj_id).size.width - TILESIZE;
                             graphic_pos_y = 0;
                         }
                         //std::cout << "OBJ_RAY_HORIZONTAL - obj_direction: " << obj_direction << ", graphic_pos_x: " << graphic_pos_x << ", graphic_pos_y: " << graphic_pos_y << std::endl;
-                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom), QSize(TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->game_data.objects[obj_id].size.height*Mediator::get_instance()->zoom));
-                        QRectF source(QPoint(graphic_pos_x, graphic_pos_y), QSize(TILESIZE, Mediator::get_instance()->game_data.objects[obj_id].size.height));
+                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom), QSize(TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
+                        QRectF source(QPoint(graphic_pos_x, graphic_pos_y), QSize(TILESIZE, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         painter.drawPixmap(target, temp_image, source);
                     } else if (obj_type == OBJ_RAY_VERTICAL) {
-                        int graphic_pos_y = Mediator::get_instance()->game_data.objects[obj_id].size.height - TILESIZE;
+                        int graphic_pos_y = Mediator::get_instance()->object_list.at(obj_id).size.height - TILESIZE;
                         //std::cout << "OBJ_RAY_HORIZONTAL - graphic_pos_y: " << graphic_pos_y << std::endl;
-                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->game_data.objects[obj_id].size.height*Mediator::get_instance()->zoom));
-                        QRectF source(QPoint(0, graphic_pos_y), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width, Mediator::get_instance()->game_data.objects[obj_id].size.height));
+                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
+                        QRectF source(QPoint(0, graphic_pos_y), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         painter.drawPixmap(target, temp_image, source);
                     } else if (obj_type == OBJ_DEATHRAY_HORIZONTAL && obj_direction == ANIM_DIRECTION_LEFT) {
-                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom - (Mediator::get_instance()->game_data.objects[obj_id].size.width-TILESIZE)*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->game_data.objects[obj_id].size.height*Mediator::get_instance()->zoom));
-                        QRectF source(QPoint(0, 0), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width, Mediator::get_instance()->game_data.objects[obj_id].size.height));
+                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom - (Mediator::get_instance()->object_list.at(obj_id).size.width-TILESIZE)*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
+                        QRectF source(QPoint(0, 0), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         painter.drawPixmap(target, temp_image, source);
                     } else {
-                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->game_data.objects[obj_id].size.height*Mediator::get_instance()->zoom));
+                        QRectF target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
                         QRectF source;
-                        if (obj_direction == ANIM_DIRECTION_RIGHT && temp_image.height() >= Mediator::get_instance()->game_data.objects[obj_id].size.height) {
-                            source = QRectF(QPoint(0, Mediator::get_instance()->game_data.objects[obj_id].size.height), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width, Mediator::get_instance()->game_data.objects[obj_id].size.height));
+                        if (obj_direction == ANIM_DIRECTION_RIGHT && temp_image.height() >= Mediator::get_instance()->object_list.at(obj_id).size.height) {
+                            source = QRectF(QPoint(0, Mediator::get_instance()->object_list.at(obj_id).size.height), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         } else {
-                            source = QRectF(QPoint(0, 0), QSize(Mediator::get_instance()->game_data.objects[obj_id].size.width, Mediator::get_instance()->game_data.objects[obj_id].size.height));
+                            source = QRectF(QPoint(0, 0), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         }
                         painter.drawPixmap(target, temp_image, source);
                     }
                 }
                 // draw object-teleporter origin
                 if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].map_dest != -1) {
-                    int obj_w = Mediator::get_instance()->game_data.objects[obj_id].size.width;
-                    int obj_h = Mediator::get_instance()->game_data.objects[obj_id].size.height;
+                    int obj_w = Mediator::get_instance()->object_list.at(obj_id).size.width;
+                    int obj_h = Mediator::get_instance()->object_list.at(obj_id).size.height;
                     std::cout << "OBJ.w: " << obj_w << ", obj_h: " << obj_h << std::endl;
                     int dest_x = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom + (obj_w/2)*Mediator::get_instance()->zoom - TILESIZE/2;
                     int dest_y = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom + (obj_h/2)*Mediator::get_instance()->zoom - TILESIZE/2;
                     std::cout << "DRAW OBJECT TELEPORTER ORIGIN[" << i << "] - map: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].map_dest  << ", x: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x << ", y: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y << std::endl;
-                    if (Mediator::get_instance()->game_data.objects[obj_id].type == OBJ_FINAL_BOSS_TELEPORTER) {
+                    if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));
                     } else {
                         painter.setBrush(QColor(60, 160, 60, 180));
@@ -429,7 +429,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].map_dest == Mediator::get_instance()->currentMap) {
                     int obj_id = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].id_object;
                     std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.x << ", y: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.y << std::endl;
-                    if (Mediator::get_instance()->game_data.objects[obj_id].type == OBJ_FINAL_BOSS_TELEPORTER) {
+                    if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));
                     } else {
                         painter.setBrush(QColor(60, 160, 60, 180));
@@ -721,7 +721,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
                     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].direction = Mediator::get_instance()->object_direction;
                     editor_selected_object_pos_map = Mediator::get_instance()->currentMap;
                     // se item é teleportador, deve entrar no modo de colocar link de object
-                    if (Mediator::get_instance()->game_data.objects[Mediator::get_instance()->selectedNPC].type == OBJ_BOSS_TELEPORTER || Mediator::get_instance()->game_data.objects[Mediator::get_instance()->selectedNPC].type == OBJ_FINAL_BOSS_TELEPORTER) {
+                    if (Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type == OBJ_BOSS_TELEPORTER || Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         editor_selected_object_pos = i;
                         std::cout << "SET editor_selected_object_pos: " << editor_selected_object_pos << std::endl;
                         Mediator::get_instance()->editTool = EDITMODE_OBJECT_LINK_PLACING;
