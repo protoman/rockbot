@@ -145,6 +145,8 @@ enum ANIM_TYPE { ANIM_TYPE_STAND,
 
 #define TILESIZE 16
 
+#define GRAVITY_MAX_SPEED 12
+
 // for pre-loading
 
 

@@ -242,6 +242,12 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 
 void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
 {
+    if (filename == "/home/iuri/Desenvolvimento/rockbot/build//games/Rockbot2/images/projectiles/projectile_normal.png") {
+        std::cout << "DEBUG #1" << std::endl;
+    }
+    if (res == NULL) {
+        return;
+    }
     res->freeGraphic();
     res->set_surface(SDLSurfaceFromFile(filename));
 
@@ -1644,7 +1650,8 @@ void graphicsLib::preload_images()
         std::string filename(GameMediator::get_instance()->projectile_list.at(i).graphic_filename);
         filename = FILEPATH + "images/projectiles/" + filename;
 		if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
-			surfaceFromFile(filename, &projectile_surface[i]);
+            projectile_surface.push_back(graphicsLib_gSurface());
+            surfaceFromFile(filename, &projectile_surface.at(i));
 		}
 	}
 

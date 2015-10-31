@@ -40,10 +40,8 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _was_animation_reset = false;
     move_speed = 2.0;
 
-	accel_speed_y = 1;
+    accel_speed_y = 1;
     gravity_y = 0.25;
-    max_speed = TILESIZE-1;
-
 	position.y = 0;
 	position.x = 0;
     can_fly = false;
@@ -910,7 +908,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
 
 void character::reset_gravity_speed()
 {
-    accel_speed_y = 1.0;
+    accel_speed_y = 0.25;
 }
 
 
@@ -919,6 +917,9 @@ void character::reset_gravity_speed()
 // ********************************************************************************************** //
 bool character::gravity(bool boss_demo_mode=false)
 {
+
+    /// @TODO: gravity speed is starting at 1.25, it should start at 0.25
+
     if (_progressive_appear_pos != 0) {
         //std::cout << "CHAR::GRAVITY leave #1" << std::endl;
         reset_gravity_speed();
@@ -960,7 +961,7 @@ bool character::gravity(bool boss_demo_mode=false)
 			bool is_moved = false;
 			short int limit_speed = move_speed;
 			if (boss_demo_mode == true) {
-                limit_speed = max_speed;
+                limit_speed = GRAVITY_MAX_SPEED;
 			}
             if (limit_speed < 1) {
                 limit_speed = 1;
@@ -1016,24 +1017,24 @@ bool character::gravity(bool boss_demo_mode=false)
         accel_speed_y = accel_speed_y + accel_speed_y*gravity_y;
         //std::cout << "CHAR::GRAVITY [2] - accel_speed_y: " << accel_speed_y << std::endl;
 
-        if (accel_speed_y < 1.0) {
-            accel_speed_y = 1.0;
-        } else if (accel_speed_y > TILESIZE) {
-            accel_speed_y = TILESIZE;
-		} else if (accel_speed_y > max_speed) {
-			accel_speed_y = max_speed;
+        if (accel_speed_y < 0.25) {
+            accel_speed_y = 0.25;
+        } else if (accel_speed_y > GRAVITY_MAX_SPEED) {
+            accel_speed_y = GRAVITY_MAX_SPEED;
         }
 
         int adjusted_speed = accel_speed_y;
-
+        if (adjusted_speed < 1) {
+            adjusted_speed = 1;
+        }
 
 
 
 		if (state.animation_type == ANIM_TYPE_TELEPORT) {
             if (_teleport_minimal_y - position.y > TILESIZE) {
-                adjusted_speed = max_speed;
+                adjusted_speed = GRAVITY_MAX_SPEED;
             } else {
-                adjusted_speed = max_speed/2;
+                adjusted_speed = GRAVITY_MAX_SPEED/2;
             }
 		}
 
@@ -1042,7 +1043,7 @@ bool character::gravity(bool boss_demo_mode=false)
 
         st_map_colision map_col;
         bool was_moved = false;
-		for (int i=adjusted_speed; i>0; i--) {
+        for (int i=adjusted_speed; i>0; i--) {
             map_col = map_colision(0, i, map->getMapScrolling());
             int mapLock = map_col.block;
 
@@ -1072,7 +1073,7 @@ bool character::gravity(bool boss_demo_mode=false)
 				break;
             }
 			if (i == 1) {
-				accel_speed_y = 1;
+                reset_gravity_speed();
 			}
 		}
 
@@ -1098,7 +1099,7 @@ bool character::gravity(bool boss_demo_mode=false)
         check_platform_move(map_col.terrain_type);
 
 		// teleport finished
-		//std::cout << "NOT FALLING, RESET ACCEL_SPEED_Y" << std::endl;
+        //std::cout << "NOT FALLING, RESET ACCEL_SPEED_Y" << std::endl;
     }
     return false;
 }
@@ -1493,7 +1494,7 @@ bool character::jump(int jumpCommandStage, st_position mapScrolling)
         if (_force_jump == true) {
             _force_jump = false;
         }
-        //accel_speed_y = max_speed;
+        //accel_speed_y = GRAVITY_MAX_SPEED;
         gravity();
         return false;
     }
@@ -2473,7 +2474,7 @@ void character::teleport_out() {
     _obj_jump.finish();
     while (position.y > -(frameSize.height+TILESIZE)) {
         //std::cout << "teleport_out - position.y: " << position.y << std::endl;
-        position.y -= max_speed;
+        position.y -= GRAVITY_MAX_SPEED;
 		char_update_real_position();
 		map->showMap();
         map->show_npcs();

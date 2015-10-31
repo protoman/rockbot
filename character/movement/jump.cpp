@@ -28,7 +28,6 @@ void classjump::start(bool bigjump_mode)
     } else {
         acceleration = JUMP_ACCELERATION;
     }
-    std::cout << "classjump::START - acceleration[" << acceleration << "]" << std::endl;
     jumps_number++;
     speed = -JUMP_INITIAL_SPEED;
     moved = 0;
@@ -42,27 +41,23 @@ bool classjump::is_started()
 void classjump::execute()
 {
     if (!started) {
-        //std::cout << "ERROR::jump::execute - trying to jump but not started" << std::endl;
         return;
     }
-    std::cout << "classjump::execute - speed.pre[" << speed << "]";
+
     speed += acceleration;
     moved += std::abs((double)speed);
     std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {
-            //std::cout << ">>>> RESET JUMP[SPEED] - moved: " << moved << std::endl;
             state = JUMPDOWN;
         } else if (is_bigjump == false && std::abs((double)moved) > JUMP_LIMIT) { // hardcoded limit of 3 tiles
             state = JUMPDOWN;
             speed = 0;
-            //std::cout << ">>>> RESET JUMP[LIMIT] - moved: " << moved << ", LIMIT: " << JUMP_LIMIT << std::endl;
         }
     } else {
-        if (speed > JUMP_INITIAL_SPEED) { // do not surpass the speed limit
-            speed = JUMP_INITIAL_SPEED;
-            //jumps_number--; // count as finished
+        if (speed > GRAVITY_MAX_SPEED) { // do not surpass the speed limit
+            speed = GRAVITY_MAX_SPEED;
         }
     }
 }
@@ -70,11 +65,9 @@ void classjump::execute()
 void classjump::interrupt()
 {
     if (!started) {
-        //std::cout << "ERROR::jump::execute - trying to interrupt jump but not started" << std::endl;
         return;
     }
     if (state != JUMPUP) {
-        //std::cout << "ERROR::jump::execute - trying to interrupt jump not going up" << std::endl;
         state = JUMPDOWN;
         speed = 0;
         return;
