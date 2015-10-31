@@ -16,6 +16,7 @@
 #include "defines.h"
 #include "file/format/st_common.h"
 #include "file/format.h"
+#include "game_mediator.h"
 
 #ifdef PSP
 #include "ports/psp/psp_ram.h"
@@ -601,7 +602,7 @@ public:
 
 	// graphics used in several places
     graphicsLib_gSurface small_explosion;
-    graphicsLib_gSurface projectile_surface[FS_MAX_PROJECTILES];
+    std::vector<graphicsLib_gSurface> projectile_surface;
     graphicsLib_gSurface bomb_explosion_surface;
     graphicsLib_gSurface e_tank[2];
     graphicsLib_gSurface w_tank[2];

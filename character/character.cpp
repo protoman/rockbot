@@ -65,8 +65,6 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     last_execute_time = 0;
     _check_always_move_ahead = false;
     _dropped_from_stairs = false;
-    _fractional_move_speed_counter = 1;
-    _fractional_move_speed = 0;
     _jumps_number = 1;
     _dash_button_released = true;
     _damage_modifier = 0;
@@ -107,7 +105,7 @@ void character::char_update_real_position() {
 void character::charMove() {
     int mapLock = 0;
 	bool moved = false;
-    double temp_move_speed = move_speed;
+    float temp_move_speed = move_speed;
 
     bool did_hit_ground = hit_ground();
 
@@ -125,14 +123,6 @@ void character::charMove() {
 
     //if (is_player()) std::cout << "CHAR::CHARMOVE - _fractional_move_speed: " << _fractional_move_speed << std::endl;
 
-
-    if (_fractional_move_speed > 0) {
-        if (_fractional_move_speed_counter >= _fractional_move_speed) { // reached the time to move an extra pixel due to fractional move_speed
-            _fractional_move_speed_counter = 1;
-            temp_move_speed++;
-        }
-        _fractional_move_speed_counter++;
-    }
 
 	if (!map) {
 		return; // error - can't execute this action without an associated map
@@ -204,7 +194,9 @@ void character::charMove() {
 	}
 
 	if (moveCommands.left == 1 && position.x > 0 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        for (int i=temp_move_speed; i>=1; i--) {
+
+
+        for (float i=temp_move_speed; i>=0.1; i--) {
             st_map_colision map_col = map_colision(-i, 0, map->getMapScrolling());
             mapLock = map_col.block;
             if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
@@ -238,7 +230,7 @@ void character::charMove() {
     }
 
 	if (moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        for (int i=temp_move_speed; i>=1; i--) {
+        for (float i=temp_move_speed; i>=0.1; i--) {
             if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
                 hit_moved_back_n += temp_move_speed;
             }
@@ -647,11 +639,11 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
         }
 
-		if (game_data.projectiles[attack_id].trajectory == TRAJECTORY_CENTERED) {
+        if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
 		}
-        if (game_data.projectiles[attack_id].trajectory == TRAJECTORY_TARGET_DIRECTION || game_data.projectiles[attack_id].trajectory == TRAJECTORY_TARGET_EXACT || game_data.projectiles[attack_id].trajectory == TRAJECTORY_ARC_TO_TARGET || game_data.projectiles[attack_id].trajectory == TRAJECTORY_FOLLOW) {
+        if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_FOLLOW) {
 			if (!is_player() && map->_player_list.size() > 0) {
 				character* p_player = map->_player_list.at(0);
                 temp_proj.set_target_position(p_player->get_position_ref());
@@ -1366,7 +1358,7 @@ bool character::slide(st_position mapScrolling)
     _obj_jump.finish();
 
     // reduce progressively the jump-move value in oder to deal with colision
-    for (int i=move_speed*2; i>0; i--) {
+    for (float i=move_speed*2; i>0.0; i--) {
 
         int temp_i;
         if (state.direction == ANIM_DIRECTION_LEFT) {

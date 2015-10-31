@@ -24,6 +24,8 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
+    std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
+    std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tile_list;
 
 
 private:

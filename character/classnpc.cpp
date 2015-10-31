@@ -515,8 +515,8 @@ void classnpc::revive()
 {
     //std::cout << "**** classnpc::revive[" << name << " ****" << std::endl;
 	//position.x = start_point.x;
-	//position.y = start_point.y;
-    if (game_data.ai_types[GameMediator::get_instance()->enemy_list.at(_number).IA_type].states[_ai_chain_n].extra_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
+    //position.y = start_point.y;
+    if (GameMediator::get_instance()->ai_list.at(GameMediator::get_instance()->enemy_list.at(_number).IA_type).states[_ai_chain_n].extra_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
         position.y = -TILESIZE;
     }
 	hitPoints.current = hitPoints.total;

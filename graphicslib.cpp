@@ -39,8 +39,6 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
-extern std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tiles;
-
 extern graphicsLib_gSurface _explosion_surface;
 
 
@@ -1642,8 +1640,8 @@ void graphicsLib::preload_images()
 	surfaceFromFile(filename, &small_explosion);
 
 	// projectile images
-    for (int i=0; i<FS_MAX_PROJECTILES; i++) {
-		std::string filename(game_data.projectiles[i].graphic_filename);
+    for (int i=0; i<GameMediator::get_instance()->projectile_list.size(); i++) {
+        std::string filename(GameMediator::get_instance()->projectile_list.at(i).graphic_filename);
         filename = FILEPATH + "images/projectiles/" + filename;
 		if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
 			surfaceFromFile(filename, &projectile_surface[i]);
@@ -1696,8 +1694,8 @@ void graphicsLib::preload_images()
 
 void graphicsLib::preload_anim_tiles()
 {
-    for (int i=0; i<FS_ANIM_TILES_MAX; i++) {
-        std::string file(anim_tiles.at(i).filename);
+    for (int i=0; i<GameMediator::get_instance()->anim_tile_list.size(); i++) {
+        std::string file(GameMediator::get_instance()->anim_tile_list.at(i).filename);
         if (file.length() < 1) {
             std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;
             break;
@@ -1709,7 +1707,7 @@ void graphicsLib::preload_anim_tiles()
             surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));
 
             int frames_n = ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1).width / TILESIZE;
-            anim_tile_timer anim_timer(frames_n, timer.getTimer() + anim_tiles.at(i).delay[0]);
+            anim_tile_timer anim_timer(frames_n, timer.getTimer() + GameMediator::get_instance()->anim_tile_list.at(i).delay[0]);
             ANIM_TILES_TIMERS.push_back(anim_timer);
         }
     }

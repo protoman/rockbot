@@ -8,6 +8,10 @@
 
 QT += widgets
 
+    QMAKE_CCFLAGS += -fpermissive
+    QMAKE_CXXFLAGS += -fpermissive
+
+
 macosx {
     QMAKE_LIBS_QT =
     QMAKE_LIBS_QT_THREAD =
@@ -36,8 +40,8 @@ linux {
 }
 
 win32 {
-    QMAKE_CCFLAGS += -std=c++0x
-    QMAKE_CXXFLAGS += -std=c++0x
+    QMAKE_CCFLAGS += -std=c++0x -fpermissive
+    QMAKE_CXXFLAGS += -std=c++0x -fpermissive
     CXXFLAGS += -std=c++0x
     LIBS = -lmingw32 -mwindows -lqtmaind
     QT += core gui

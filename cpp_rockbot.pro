@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
-CONFIG += win32
+CONFIG += linux
+#CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
@@ -35,8 +35,8 @@ linux {
                 -I. \
                 -I./include \
                 -L/usr/lib
-        QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers
-        QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers
+        QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
+        QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
 
 }
 

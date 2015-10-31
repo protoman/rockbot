@@ -2,14 +2,18 @@
 #include <cmath>
 #include "jump.h"
 
-#define JUMP_INITIAL_SPEED 8
+
+// if not interrupted, jump takes 700 milisseconds
+// jump max high is 74 px
+
+#define JUMP_INITIAL_SPEED 4.875
 
 
 classjump::classjump() : started(false)
 {
-    //JUMP_ACCELERATION = 1.001;
-    JUMP_ACCELERATION = 0.4;
+    JUMP_ACCELERATION = 0.25;
     JUMP_LIMIT = (TILESIZE*3)-6;
+    JUMP_LIMIT = 240;
     state = NOJUMP;
     jumps_number = 0;
 }

@@ -678,9 +678,7 @@ protected:
     std::string name; /**< TODO */
     struct st_size frameSize; /**< TODO */
     unsigned int max_projectiles; // maximum number of simultaneuous projectiles the character can shot /**< TODO */
-    short move_speed; // how many pixels the character moves by cycle (default value) /**< TODO */
-    short _fractional_move_speed; // indicates we need to move an extra pixel even "n" times
-    short _fractional_move_speed_counter; // stores the value of times we moved, used by _fractional_move_speed above
+    float move_speed; // how many pixels the character moves by cycle (default value) /**< TODO */
 
 	// dynamic members
     st_hit_points hitPoints; /**< TODO */

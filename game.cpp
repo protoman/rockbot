@@ -958,10 +958,10 @@ void game::got_weapon()
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
 		std::string extra_name = "";
         if (currentStage == COIL_GOT_STAGE) {
-            std::string item_name = strings_map::get_instance()->toupper(std::string(game_data.objects[game_data.player_items[0]].name));
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
             extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
         } else if (currentStage == JET_GOT_STAGE) {
-            std::string item_name = strings_map::get_instance()->toupper(std::string(game_data.objects[game_data.player_items[1]].name));
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
             extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
         }
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
@@ -1090,7 +1090,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE1;
+    currentStage = INTRO_STAGE;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
@@ -1451,16 +1451,16 @@ void game::get_drop_item_ids()
     for (int i=0; i<DROP_ITEM_COUNT; i++) {
         _drop_item_list[i] = -1;
     }
-    for (int i=0; i<GAME_MAX_OBJS; i++) {
-        if (game_data.objects[i].type == OBJ_LIFE) {
+    for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
+        if (GameMediator::get_instance()->object_list.at(i).type == OBJ_LIFE) {
             _drop_item_list[DROP_ITEM_1UP] = i;
-        } else if (game_data.objects[i].type == OBJ_ENERGY_PILL_SMALL) {
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_SMALL) {
             _drop_item_list[DROP_ITEM_ENERGY_SMALL] = i;
-        } else if (game_data.objects[i].type == OBJ_ENERGY_PILL_BIG) {
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_BIG) {
             _drop_item_list[DROP_ITEM_ENERGY_BIG] = i;
-        } else if (game_data.objects[i].type == OBJ_WEAPON_PILL_SMALL) {
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_WEAPON_PILL_SMALL) {
             _drop_item_list[DROP_ITEM_WEAPON_SMALL] = i;
-        } else if (game_data.objects[i].type == OBJ_WEAPON_PILL_BIG) {
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_WEAPON_PILL_BIG) {
             _drop_item_list[DROP_ITEM_WEAPON_BIG] = i;
         }
     }

@@ -40,16 +40,16 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
 {
 	map = set_map;
 	_id = set_id;
-	name = std::string(game_data.objects[_id].name);
-	graphic_filename = game_data.objects[_id].graphic_filename;
-	type = game_data.objects[_id].type;
-	obj_timer = game_data.objects[_id].timer;
-	speed = game_data.objects[_id].speed;
-	limit = game_data.objects[_id].limit;
+    name = std::string(GameMediator::get_instance()->object_list.at(_id).name);
+    graphic_filename = GameMediator::get_instance()->object_list.at(_id).graphic_filename;
+    type = GameMediator::get_instance()->object_list.at(_id).type;
+    obj_timer = GameMediator::get_instance()->object_list.at(_id).timer;
+    speed = GameMediator::get_instance()->object_list.at(_id).speed;
+    limit = GameMediator::get_instance()->object_list.at(_id).limit;
 	direction = 0;
 	distance = 0;
-	framesize_w = game_data.objects[_id].size.width;
-	framesize_h = game_data.objects[_id].size.height;
+    framesize_w = GameMediator::get_instance()->object_list.at(_id).size.width;
+    framesize_h = GameMediator::get_instance()->object_list.at(_id).size.height;
 	frame = 0;
 	start_point.x = map_pos.x*TILESIZE;
 	start_point.y = map_pos.y*TILESIZE;
@@ -71,7 +71,7 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _command_up = false;
 	_command_down = false;
     _start_timer = 0;
-    _obj_frame_timer = timer.getTimer()+game_data.objects[_id].frame_duration;
+    _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
     _timer_limit = 0;
     _must_play_appearing_sfx = false;    _must_teleport_in = false;
     _teleport_state = 0;
@@ -344,9 +344,9 @@ void object::show(int adjust_y, int adjust_x)
 
 
 
-		//std::cout << "object::show - frame_duration: " << game_data.objects[_id].frame_duration << std::endl;
+        //std::cout << "object::show - frame_duration: " << GameMediator::get_instance()->object_list.at(_id).frame_duration << std::endl;
 
-        if ((game_data.objects[_id].animation_auto_start == true || (game_data.objects[_id].animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
+        if ((GameMediator::get_instance()->object_list.at(_id).animation_auto_start == true || (GameMediator::get_instance()->object_list.at(_id).animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
 			graphic_origin.x = frame * framesize_w;
             if (_obj_frame_timer < timer.getTimer()) {
 				if (_animation_finished == false) { //
@@ -356,7 +356,7 @@ void object::show(int adjust_y, int adjust_x)
 						frame--;
 					}
 				}
-                _obj_frame_timer = timer.getTimer()+game_data.objects[_id].frame_duration;
+                _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
 			}
 
 			if (frame <= 0) {
@@ -368,8 +368,8 @@ void object::show(int adjust_y, int adjust_x)
 				frame = 0;
 			}
 			if	(_animation_reversed == false && frame > max_frames) {
-				if (game_data.objects[_id].animation_loop == false) { // if animation loop is set to false, set this to show always the last frame
-					if (game_data.objects[_id].animation_reverse == false) { // don't need to reverse animation, finish it
+                if (GameMediator::get_instance()->object_list.at(_id).animation_loop == false) { // if animation loop is set to false, set this to show always the last frame
+                    if (GameMediator::get_instance()->object_list.at(_id).animation_reverse == false) { // don't need to reverse animation, finish it
 						_animation_finished = true;
                         frame = draw_lib.get_object_graphic(_id)->width/framesize_w-1;
 					} else {
@@ -445,7 +445,7 @@ void object::show_deathray_vertical(int adjust_y)
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
-            _obj_frame_timer = timer.getTimer() + game_data.objects[_id].frame_duration;
+            _obj_frame_timer = timer.getTimer() + GameMediator::get_instance()->object_list.at(_id).frame_duration;
             _teleport_state = !_teleport_state;
         }
 
@@ -491,7 +491,7 @@ void object::show_deathray_horizontal(int adjust_y)
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
-            _obj_frame_timer = timer.getTimer() + game_data.objects[_id].frame_duration;
+            _obj_frame_timer = timer.getTimer() + GameMediator::get_instance()->object_list.at(_id).frame_duration;
             _teleport_state = !_teleport_state;
         }
 
@@ -967,7 +967,7 @@ void object::reset_animation()
 {
     frame = 0;
     _animation_finished = false;
-    _obj_frame_timer = timer.getTimer()+game_data.objects[_id].frame_duration;
+    _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
 }
 
 void object::stop()

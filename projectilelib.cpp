@@ -35,8 +35,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 	if (_id == -1) {
 		_size.width = 6;
 		_size.height = 6;
-    } else if (game_data.projectiles[_id].speed > 0) {
-        _speed = game_data.projectiles[_id].speed;
+    } else if (GameMediator::get_instance()->projectile_list.at(_id).speed > 0) {
+        _speed = GameMediator::get_instance()->projectile_list.at(_id).speed;
     }
 
     _sin_x = 0;
@@ -152,7 +152,7 @@ st_size_int8 projectile::get_size() const
     if (_id == -1) {
         return st_size_int8(6, 6);
 	}
-    return game_data.projectiles[_id].size;
+    return GameMediator::get_instance()->projectile_list.at(_id).size;
 }
 
 void projectile::move_ahead(st_size &moved)
@@ -253,10 +253,10 @@ Uint8 projectile::get_damage() const
     if ((get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB) && _effect_n == 0) {
 		return 0;
 	}
-	if (game_data.projectiles[_id].damage <= 0) {
+    if (GameMediator::get_instance()->projectile_list.at(_id).damage <= 0) {
 		return PROJECTILE_DEFAULT_DAMAGE;
 	}
-    return game_data.projectiles[_id].damage;
+    return GameMediator::get_instance()->projectile_list.at(_id).damage;
 }
 
 Uint8 projectile::get_trajectory() const
@@ -264,7 +264,7 @@ Uint8 projectile::get_trajectory() const
     if (_id == -1) {
         return TRAJECTORY_LINEAR;
     }
-	return game_data.projectiles[_id].trajectory;
+    return GameMediator::get_instance()->projectile_list.at(_id).trajectory;
 }
 
 void projectile::set_trajectory(short new_trajectory)
@@ -337,7 +337,7 @@ st_rectangle projectile::get_area()
 
 short projectile::get_max_shots()
 {
-    return game_data.projectiles[_id].max_shots;
+    return GameMediator::get_instance()->projectile_list.at(_id).max_shots;
 }
 
 short projectile::get_id()
@@ -758,7 +758,7 @@ Uint8 projectile::get_move_type() const
     if (_id == -1) {
         return TRAJECTORY_LINEAR;
     }
-    return game_data.projectiles[_id].trajectory;
+    return GameMediator::get_instance()->projectile_list.at(_id).trajectory;
 }
 
 void projectile::set_y(int sety)

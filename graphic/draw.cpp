@@ -42,7 +42,7 @@ void draw::preload()
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
 
     // DROPABLE OBJECT GRAPHICS
-    for (int i=0; i<GAME_MAX_OBJS; i++) {
+    for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         for (int j=0; j<DROP_ITEM_COUNT; j++) {
             short obj_type_n = gameControl.get_drop_item_id(j);
             if (obj_type_n != -1) {
@@ -402,7 +402,7 @@ graphicsLib_gSurface *draw::get_object_graphic(int obj_id)
 
     it = objects_sprite_list.find(obj_id);
     if (it == objects_sprite_list.end()) { // there is no graphic with this key yet, add it
-        std::string graphic_filename(game_data.objects[obj_id].graphic_filename);
+        std::string graphic_filename(GameMediator::get_instance()->object_list.at(obj_id).graphic_filename);
         if (graphic_filename.length() > 0) {
             std::string complete_filename(FILEPATH + "images/sprites/objects/" + graphic_filename);
             graphLib.surfaceFromFile(complete_filename, &temp_sprite);

@@ -672,7 +672,7 @@ void artificial_inteligence::execute_ai()
     if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
         if (_reaction_type == 0) {
-            int delay = game_data.ai_types[_ai_id].states[_ai_chain_n].go_to_delay;
+            int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
             _ai_timer = timer.getTimer() + delay;
         } else {
             _ai_timer = timer.getTimer() + 200;
@@ -736,15 +736,15 @@ void artificial_inteligence::check_ai_reaction()
 
 void artificial_inteligence::define_ai_next_step()
 {
-    if (_initialized == false || game_data.ai_types[_ai_id].states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
+    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
         _initialized = true;
 		int rand_n = rand() % 100;
         if (name == "Giant Fly") std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
         bool found_chance = false;
         int chance_sum = 0;
         for (int i=0; i<AI_MAX_STATES; i++) {
-            //std::cout << "[" << i << "].chance: " << game_data.ai_types[_ai_id].states[i].chance << ", chance_sum: " << chance_sum << std::endl;
-            chance_sum += game_data.ai_types[_ai_id].states[i].chance;
+            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
+            chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
             if (rand_n < chance_sum) {
                 //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
 				_ai_chain_n = i;
@@ -757,7 +757,7 @@ void artificial_inteligence::define_ai_next_step()
 			_ai_chain_n = 0;
 		}
 	} else {
-        _ai_chain_n = game_data.ai_types[_ai_id].states[_ai_chain_n].go_to-1;
+        _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
         //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
@@ -932,13 +932,15 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
     //std::cout << "AI::execute_ai_action_trow_projectile[" << name << "]" << std::endl;
 
     // some projectile types are limited to one
-    if (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
+
+
+    if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
 
     // can't fire a player's targeted projectile if move_speed zero (can't turn) and facing the wrong side
-    if (move_speed == 0 && (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_ARC_TO_TARGET || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_DIRECTION || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_EXACT)) {
+    if (move_speed == 0 && (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT)) {
         struct_player_dist dist_players = dist_npc_players();
         if ((dist_players.pObj->getPosition().x > position.x && state.direction == ANIM_DIRECTION_LEFT) || (dist_players.pObj->getPosition().x < position.x && state.direction == ANIM_DIRECTION_RIGHT)) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -949,17 +951,17 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 
     unsigned int max_shots = 3;
     if (GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n] != -1) {
-        max_shots = game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].max_shots;
+        max_shots = GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).max_shots;
     }
     if (projectile_list.size() >= max_shots) {
-        //std::cout << "max_shots[" << GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n] << "]: " << game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].max_shots << std::endl;
+        //std::cout << "max_shots[" << GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n] << "]: " << GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).max_shots << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
 
 
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        //std::cout << "AI::execute_ai_action_trow_projectile - START, id: " << GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n] << ", trajectory: " << game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory << std::endl;
+        //std::cout << "AI::execute_ai_action_trow_projectile - START, id: " << GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n] << ", trajectory: " << GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory << std::endl;
         if (state.animation_type == ANIM_TYPE_WALK_AIR) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
         } else {
@@ -1006,12 +1008,12 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             projectile_list.push_back(projectile(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n], proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();
 
-            if (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_CENTERED) {
+            if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_CENTERED) {
                 temp_proj.set_owner_direction(&state.direction);
                 temp_proj.set_owner_position(&position);
             }
 
-            if (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_DIRECTION || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_EXACT || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_ARC_TO_TARGET || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_FOLLOW) {
+            if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_FOLLOW) {
                 if (!is_player() && map->_player_list.size() > 0) {
                     character* p_player = map->_player_list.at(0);
                     temp_proj.set_target_position(p_player->get_position_ref());
@@ -1222,12 +1224,12 @@ void artificial_inteligence::execute_ai_step_fly()
                 projectile_list.push_back(projectile(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n], proj_direction, proj_pos, map, is_player()));
                 projectile &temp_proj = projectile_list.back();
 
-                if (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_CENTERED) {
+                if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_CENTERED) {
                     temp_proj.set_owner_direction(&state.direction);
                     temp_proj.set_owner_position(&position);
                 }
 
-                if (game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_DIRECTION || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_TARGET_EXACT || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_ARC_TO_TARGET || game_data.projectiles[GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]].trajectory == TRAJECTORY_FOLLOW) {
+                if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_FOLLOW) {
                     if (!is_player() && map->_player_list.size() > 0) {
                         character* p_player = map->_player_list.at(0);
                         temp_proj.set_target_position(p_player->get_position_ref());
@@ -1703,8 +1705,8 @@ int artificial_inteligence::get_ai_type() {
     int type = -1;
 
     if (_reaction_state == 0) {
-        type = game_data.ai_types[_ai_id].states[_ai_chain_n].action;
-        _parameter = game_data.ai_types[_ai_id].states[_ai_chain_n].extra_parameter;
+        type = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].action;
+        _parameter = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].extra_parameter;
         //std::cout << ">> AI::get_ai_type - _ai_id: " << _ai_id << ", _ai_chain_n: " << _ai_chain_n << ", action: " << type << ", extra_parameter: " << _parameter << std::endl;
     } else {
         type = GameMediator::get_instance()->enemy_list.at(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.x;
@@ -1717,7 +1719,7 @@ int artificial_inteligence::get_ai_type() {
 
 bool artificial_inteligence::always_move_ahead() const
 {
-    if (game_data.ai_types[_ai_id].states[_ai_chain_n].go_to-1 == _ai_chain_n) {
+    if (GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1 == _ai_chain_n) {
         return true;
     }
     return false;
