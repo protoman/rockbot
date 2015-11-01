@@ -37,30 +37,6 @@
          <property name="bottomMargin">
           <number>10</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_48">
-           <property name="text">
-            <string>Stage:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Stage Music:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="stages_tab_stage_combo"/>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_49">
            <property name="text">
@@ -68,8 +44,11 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="stages_tab_stage_combo"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_63">
@@ -78,8 +57,43 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QComboBox" name="stage_boss_weapon_combo"/>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Stage Music:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_48">
+           <property name="text">
+            <string>Stage:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Auto-Scrolling:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QCheckBox" name="autoScrolling_checkBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -671,9 +685,6 @@
                <widget class="QComboBox" name="dialogs_answer1_player"/>
               </item>
              </layout>
-             <zorder>groupBox_3</zorder>
-             <zorder>label_54</zorder>
-             <zorder>dialogs_answer1_player</zorder>
             </widget>
            </item>
           </layout>

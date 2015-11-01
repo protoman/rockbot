@@ -86,6 +86,7 @@ void stage_edit::fill_stage_tab_data()
     common::fill_weapons_combo(ui->stage_boss_weapon_combo);
     ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
 
+
 	update_stage_data();
     _data_loading = false;
 }
@@ -151,6 +152,7 @@ void stage_edit::update_stage_data()
     ui->boss_dialog_answer2_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
     ui->boss_dialog_answer2_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
 
+    ui->autoScrolling_checkBox->setChecked(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll);
 
 }
 
@@ -345,3 +347,9 @@ void stage_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
 
 
 
+
+void stage_edit::on_autoScrolling_checkBox_toggled(bool checked)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll = checked;
+}

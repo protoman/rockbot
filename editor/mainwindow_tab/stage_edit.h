@@ -77,6 +77,8 @@ private slots:
 
     void on_boss_answer2_3_toolButton_clicked();
 
+    void on_autoScrolling_checkBox_toggled(bool checked);
+
 public slots:
     void on_string_selected(int string_id);
 
