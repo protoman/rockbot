@@ -224,11 +224,15 @@ void classMap::showMap()
 
             // don't draw easy-mode blocks if game difficulty not set to easy
 
-            game_save.difficulty = DIFFICULTY_EASY;
-            std::cout << "game_save.difficulty: " << (int)game_save.difficulty << std::endl;
+            game_save.difficulty = DIFFICULTY_NORMAL;
+            //std::cout << "game_save.difficulty: " << (int)game_save.difficulty << std::endl;
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+                pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny);
+            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDCODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_hardmode_block_tile(pos_destiny);
             } else {
                 pos_origin.x = map_data[number].tiles[i][j].tile1.x;
                 pos_origin.y = map_data[number].tiles[i][j].tile1.y;

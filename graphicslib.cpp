@@ -398,11 +398,16 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
 
 void graphicsLib::place_easymode_block_tile(st_position destiny)
 {
+    destiny.x += _screen_adjust.x;
+
+    std::cout << "place_easymode_block_tile, x: " << destiny.x << ", y: " << destiny.y << std::endl;
+
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), game_screen);
 }
 
 void graphicsLib::place_hardmode_block_tile(st_position destiny)
 {
+    destiny.x += _screen_adjust.x;
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), game_screen);
 }
 
