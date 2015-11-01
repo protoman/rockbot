@@ -396,6 +396,16 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
     copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
 }
 
+void graphicsLib::place_easymode_block_tile(st_position destiny)
+{
+    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), game_screen);
+}
+
+void graphicsLib::place_hardmode_block_tile(st_position destiny)
+{
+    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), game_screen);
+}
+
 void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, struct graphicsLib_gSurface* dest_surface)
 {
     if (!ANIM_TILES_SURFACES.at(anim_tile_id).get_surface()) {
@@ -831,6 +841,13 @@ void graphicsLib::load_icons()
 
     filename = FILEPATH + "images/backgrounds/btn_a.png";
     surfaceFromFile(filename, &_btn_a_surface);
+
+    filename = FILEPATH + "images/tilesets/blocks/easymode.png";
+    surfaceFromFile(filename, &_easymode_block);
+
+    filename = FILEPATH + "images/tilesets/blocks/hardmode.png";
+    surfaceFromFile(filename, &_hardmode_block);
+
 
 }
 

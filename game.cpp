@@ -932,7 +932,7 @@ void game::got_weapon()
 		/// @TODO
 		// show the "you got" screen
 		graphLib.blank_screen();
-        soundManager.load_music("got_weapon.mod");
+        soundManager.load_music(game_data.got_weapon_music_filename);
 		graphLib.blink_screen(255, 255, 255);
 		graphLib.blank_screen();
         soundManager.play_music();
@@ -1041,7 +1041,7 @@ void game::game_over()
 
     input.waitTime(200);
     input.clean();
-    soundManager.load_music("game_over.mod");
+    soundManager.load_music(game_data.game_over_music_filename);
     soundManager.play_music();
     graphLib.blank_screen();
 
@@ -1308,6 +1308,8 @@ std::string game::select_game_screen()
     std::vector<std::string> game_list = fio.read_game_list();
     if (game_list.size() < 1) {
         return std::string("");
+    } else if (game_list.size() == 1) {
+        return game_list.at(0);
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
     graphLib.draw_text(10, 10, "SELECT GAME:");

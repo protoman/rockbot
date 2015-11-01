@@ -1525,8 +1525,10 @@ void character::check_map_colision_point(int &map_block, int &new_map_lock, int 
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
             must_block = true;
-        } else if (new_map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty == 0) {
-            must_block = true;
+        } else if (new_map_lock == TERRAIN_EASYMODEBLOCK) {
+            if (game_save.difficulty == 0) {
+                must_block = true;
+            }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
             must_block = true;
 

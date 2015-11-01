@@ -133,15 +133,15 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>6</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>268</width>
+              <height>301</height>
              </rect>
             </property>
             <attribute name="label">
@@ -291,8 +291,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -325,7 +325,7 @@
                   <property name="topMargin">
                    <number>0</number>
                   </property>
-                  <item row="1" column="1">
+                  <item row="2" column="1">
                    <widget class="QComboBox" name="comboBox">
                     <property name="currentIndex">
                      <number>0</number>
@@ -342,7 +342,7 @@
                     </item>
                    </widget>
                   </item>
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QLabel" name="label">
                     <property name="text">
                      <string>Level:</string>
@@ -429,8 +429,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <attribute name="label">
@@ -578,8 +578,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -679,8 +679,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <attribute name="label">
@@ -774,8 +774,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>100</width>
+              <height>30</height>
              </rect>
             </property>
             <property name="toolTip">
@@ -843,8 +843,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>380</width>
-              <height>346</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">

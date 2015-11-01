@@ -90,6 +90,11 @@ public:
 
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
 
+    void place_easymode_block_tile(st_position destiny);
+
+    void place_hardmode_block_tile(st_position destiny);
+
+
     void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);
 
     void place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y);
@@ -641,6 +646,9 @@ private:
     struct graphicsLib_gSurface config_menu;
     struct graphicsLib_gSurface dialog_surface;
     struct graphicsLib_gSurface _btn_a_surface;
+
+    struct graphicsLib_gSurface _easymode_block;
+    struct graphicsLib_gSurface _hardmode_block;
 
     st_position _dialog_pos;
     st_position _config_menu_pos;

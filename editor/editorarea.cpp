@@ -192,7 +192,12 @@ void EditorArea::paintEvent(QPaintEvent *) {
 						terrainIcon = QString(":/toolbar_icons/system-switch-user.png"); // move right
                     } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == 11) {
 						terrainIcon = QString(":/toolbar_icons/Save"); // move right
-					}
+                    } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == 12) {
+                        terrainIcon = QString(":/toolbar_icons/draw-polygon.png"); // easy block
+                    } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == 13) {
+                        terrainIcon = QString(":/toolbar_icons/draw-square-inverted-corners.png"); // hard block
+
+                    }
 					QPixmap terrainImage(terrainIcon);
 					if (terrainImage.isNull()) {
 						printf("ERROR: EditorArea::paintEvent - terrainType - Could not load image file '%s'\n", qPrintable(terrainIcon));

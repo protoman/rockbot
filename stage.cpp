@@ -48,7 +48,7 @@ stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
 // ********************************************************************************************** //
 stage::~stage()
 {
-    std::cout << "stage[" << number << "] destructor" << std::endl;
+    std::cout << "stage[" << (int)number << "] destructor" << std::endl;
     clean_stage();
 }
 

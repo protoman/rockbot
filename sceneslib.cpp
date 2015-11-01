@@ -68,7 +68,7 @@ scenesLib::scenesLib() : _timer(0), _state(0)
 // ********************************************************************************************** //
 void scenesLib::preloadScenes() const
 {
-	soundManager.load_boss_music("boss_battle.mod");
+    soundManager.load_boss_music(game_data.boss_music_filename);
 }
 
 

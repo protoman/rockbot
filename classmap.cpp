@@ -223,20 +223,24 @@ void classMap::showMap()
         for (int j=0; j<MAP_H; j++) {
 
             // don't draw easy-mode blocks if game difficulty not set to easy
-            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty != 0) {
-                continue;
-            }
 
-            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+            game_save.difficulty = DIFFICULTY_EASY;
+            std::cout << "game_save.difficulty: " << (int)game_save.difficulty << std::endl;
 
-            if (pos_origin.x >= 0 && pos_origin.y >= 0) {
-                pos_destiny.y = j*TILESIZE;
-                graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen);
-            } else if (pos_origin.x < -1 && pos_origin.y == 0) {
-                int anim_tile_id = (pos_origin.x * -1) - 2;
-                pos_destiny.y = j*TILESIZE;
-                graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
+            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+                graphLib.place_easymode_block_tile(pos_destiny);
+            } else {
+                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+
+                if (pos_origin.x >= 0 && pos_origin.y >= 0) {
+                    pos_destiny.y = j*TILESIZE;
+                    graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen);
+                } else if (pos_origin.x < -1 && pos_origin.y == 0) {
+                    int anim_tile_id = (pos_origin.x * -1) - 2;
+                    pos_destiny.y = j*TILESIZE;
+                    graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
+                }
             }
         }
         n++;

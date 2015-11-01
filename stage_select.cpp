@@ -56,9 +56,9 @@ void stage_select::load_graphics() {
 	graphLib.surfaceFromFile(filename, &s_dark);
 
     if (game_save.selected_player == PLAYER_BETABOT) {
-        filename = FILEPATH + "images/faces/betabot_eyes.png";
+        filename = FILEPATH + "images/faces/yellow_eyes.png";
     } else if (game_save.selected_player == PLAYER_ROCKBOT) {
-        filename = FILEPATH + "images/faces/rockbot_eyes.png";
+        filename = FILEPATH + "images/faces/dark_eyes.png";
     } else {
         filename = FILEPATH + "images/faces/big_eyes.png";
     }
@@ -139,9 +139,9 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
     posY = posY+64+32;
 	if (erase_eyes) {
         if (game_save.selected_player == PLAYER_ROCKBOT) {
-			place_face("rockbot_no_eyes.png", "", st_position(1, 1));
+            place_face("player1.png", "", st_position(1, 1));
         } else if (game_save.selected_player == PLAYER_BETABOT) {
-			place_face("betabot_no_eyes.png", "", st_position(1, 1));
+            place_face("player2.png", "", st_position(1, 1));
         } else if (game_save.selected_player == PLAYER_CANDYBOT) {
             place_face("player3.png", "", st_position(1, 1));
         } else {
@@ -163,7 +163,7 @@ struct st_position stage_select::select() {
 	struct st_position spacing, highlight_pos;
 	int selection_end=0;
 
-	soundManager.load_music("menu.mod");
+    soundManager.load_music(game_data.stage_select_music_filename);
 	soundManager.play_music();
 	input.clean();
 	input.waitTime(300);
@@ -229,9 +229,9 @@ struct st_position stage_select::select() {
 
     if (finished_stages() < 9) {
         if (game_save.selected_player == PLAYER_ROCKBOT) {
-			place_face("rockbot_no_eyes.png", "", st_position(1, 1));
+            place_face("player1.png", "", st_position(1, 1));
         } else if (game_save.selected_player == PLAYER_BETABOT) {
-			place_face("betabot_no_eyes.png", "", st_position(1, 1));
+            place_face("player2.png", "", st_position(1, 1));
         } else if (game_save.selected_player == PLAYER_CANDYBOT) {
             place_face("player3.png", "", st_position(1, 1));
         } else {

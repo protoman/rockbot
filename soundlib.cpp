@@ -231,7 +231,6 @@ void soundLib::load_music(std::string music_file) {
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
-		exit(-1);
 	}
 }
 
@@ -248,7 +247,6 @@ void soundLib::load_boss_music(string music_file) {
 	boss_music = Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
         std::cout << "Error in soundLib::load_boss_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
-		exit(-1);
 	}
 }
 
