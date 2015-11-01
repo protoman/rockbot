@@ -801,7 +801,7 @@ int classMap::colision_rect_player_obj(character* playerObj, object* temp_obj, c
 }
 
 
-void classMap::colision_char_object(character* charObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
+void classMap::colision_char_object(character* charObj, const float x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
 {
     int blocked = 0;
     object* res_obj = NULL;

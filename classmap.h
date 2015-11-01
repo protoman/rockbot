@@ -102,7 +102,7 @@ public:
 
     int colision_rect_player_obj(character* playerObj, object* temp_obj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y, const short obj_xinc, const short obj_yinc);
 
-    void colision_char_object(character*, const short int, const short int, short int, short int);
+    void colision_char_object(character*, const float, const short int, short int, short int);
 
     object_colision get_obj_colision();
 

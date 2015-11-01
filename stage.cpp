@@ -28,7 +28,7 @@ stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
     if (tileset_name.length() == 0) {
         tileset_name = std::string("default.png");
     }
-    graphLib.load_custom_tileset(tileset_name);
+    graphLib.loadTileset(tileset_name);
 
     for (int i=0; i<PRELOAD_MAP_N; i++) {
         maps[i] = NULL;
@@ -122,6 +122,10 @@ Uint8 stage::getMapPointLock(st_position pos)
 // ********************************************************************************************** //
 void stage::changeScrolling(st_position pos, bool check_lock) const
 {
+    // debug for autoscrolling test
+    if (stage_data.autoscroll == true) {
+        pos.x = 1;
+    }
     maps[currentMap]->changeScrolling(pos, check_lock);
 }
 

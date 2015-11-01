@@ -1608,7 +1608,7 @@ void character::check_platform_move(short map_lock)
     }
 }
 
-st_map_colision character::map_colision(const short incx, const short incy, st_position mapScrolling)
+st_map_colision character::map_colision(const float incx, const short incy, st_position mapScrolling)
 {
     int py_adjust = 8;
     int terrain_type = TERRAIN_UNBLOCKED;
@@ -2504,29 +2504,42 @@ bool character::change_position(short xinc, short yinc)
     return true;
 }
 
-int character::change_position_x(short xinc)
+void character::change_position_x(short xinc)
 {
     if (xinc == 0) { // nothing todo
         return 0;
     }
-    if (test_change_position(xinc, 0)) { // can move max
-        return xinc;
-    } else { // check decrementing xinc
-        if (xinc > 0) {
-            for (int i=xinc; i>0; i--) {
-                if (test_change_position(i, 0)) {
-                    return i;
-                }
+    for (int i=xinc; i>=0.1; i--) {
+        if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
+            hit_moved_back_n += xinc;
+        }
+
+        st_map_colision map_col = map_colision(i, 0, map->getMapScrolling());
+        int mapLock = map_col.block;
+        //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
+        if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+            //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
+            if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
+                position.x += i - map->get_last_scrolled().x;
+            } else {
+                position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
             }
-        } else {
-            for (int i=xinc; i<0; i++) {
-                if (test_change_position(i, 0)) {
-                    return i;
-                }
+            if (state.animation_type != ANIM_TYPE_HIT) {
+                state.direction = ANIM_DIRECTION_RIGHT;
+            } else {
+                gravity(false);
+                return;
             }
+            if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                state.animation_timer = 0;
+            }
+            if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                set_animation_type(ANIM_TYPE_WALK);
+            }
+            position.x += xinc;
+            break;
         }
     }
-    return 0;
 }
 
 int character::change_position_y(short yinc)

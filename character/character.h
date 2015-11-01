@@ -333,7 +333,7 @@ public:
      * @param xinc
      * @return bool
      */
-    int change_position_x(short int xinc);
+    void change_position_x(short int xinc);
 
     /**
      * @brief
@@ -548,7 +548,7 @@ protected:
      * @param mapScrolling
      * @return short
      */
-    st_map_colision map_colision(const short int incx, const short int incy, st_position mapScrolling);
+    st_map_colision map_colision(const float incx, const short int incy, st_position mapScrolling);
 
 
     bool is_on_teleporter_capsulse(object* object);

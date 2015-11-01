@@ -1090,7 +1090,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE1;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
@@ -1110,6 +1110,10 @@ void game::quick_load_game()
 void game::update_stage_scrolling()
 {
     loaded_stage->changeScrolling(checkScrolling());
+    st_position p_pos = players.at(0).get_real_position();
+    if (p_pos.x < 0.0) {
+        players.at(0).change_position_x(1);
+    }
 }
 
 

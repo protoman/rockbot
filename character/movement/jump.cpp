@@ -46,7 +46,7 @@ void classjump::execute()
 
     speed += acceleration;
     moved += std::abs((double)speed);
-    std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
+    //std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {

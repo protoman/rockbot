@@ -119,6 +119,14 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
     Mediator::get_instance()->currentStage = index;
     ui->mapListCombo->setCurrentIndex(0);
     fill_background_list();
+
+    QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
+    if (tileset.length() > 0) {
+        ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
+        Mediator::get_instance()->setPallete(tileset.toStdString());
+    }
+
+
     ui->editArea->repaint();
     _data_loading = false;
 }

@@ -156,7 +156,7 @@ bool graphicsLib::initGraphics()
 void graphicsLib::preload()
 {
     load_icons();
-    loadTileset();
+    loadTileset("default.png");
     preload_faces();
     preload_images();
     preload_anim_tiles();
@@ -268,30 +268,22 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
 	}
 }
 
-void graphicsLib::loadTileset()
+void graphicsLib::loadTileset(std::string file)
 {
-    string filename = FILEPATH + "images/tilesets/default.png";
+    string filename = FILEPATH + "images/tilesets/" + file;
+
+    if (tileset != NULL) {
+        SDL_FreeSurface(tileset);
+    }
 
 	tileset = SDLSurfaceFromFile(filename);
 	if (tileset == NULL) {
-		cout << "ERROR: Could not find file '" << filename << "'\n";
+        cout << "ERROR::GRAPHLIB::loadTileset: Could not find file '" << filename << "'\n";
         show_debug_msg("EXIT #06");
 		exit(-1);
 	}
 }
 
-
-void graphicsLib::load_custom_tileset(string name)
-{
-    string filename = FILEPATH + std::string("images/tilesets/") + name;
-
-    tileset = SDLSurfaceFromFile(filename);
-    if (tileset == NULL) {
-        cout << "ERROR::load_custom_tileset: Could not find file '" << filename << "'\n";
-        show_debug_msg("EXIT #06");
-        exit(-1);
-    }
-}
 
 void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
 {
@@ -1585,7 +1577,7 @@ void graphicsLib::set_video_mode()
         game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
     }
 #elif defined(DREAMCAST)
-    game_screen = SDL_SetVideoMode(320, 240, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
     /*

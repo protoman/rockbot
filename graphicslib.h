@@ -86,9 +86,7 @@ public:
      */
     void updateScreen();
 
-    void load_custom_tileset(std::string name);
-
-    void loadTileset();
+    void loadTileset(std::string file);
 
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
 
