@@ -197,10 +197,6 @@ void soundLib::load_all_sfx() {
     sfx_list[SFX_DISAPPEARING_BLOCK] = Mix_LoadWAV(filename.c_str());
     i++;
 
-    filename = FILEPATH + "sfx/hadouken_girl.wav";
-    sfx_list[SFX_HADOUKEN_GIRL] = Mix_LoadWAV(filename.c_str());
-    i++;
-
     filename = FILEPATH + "sfx/shoryuken_girl.wav";
     sfx_list[SFX_SHORYUKEN_GIRL] = Mix_LoadWAV(filename.c_str());
     i++;
@@ -342,6 +338,17 @@ void soundLib::play_sfx_from_file(string filename, int repeat_n)
     filename = FILEPATH + "sfx/" + filename;
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
     Sint8 channel = Mix_PlayChannel(-1, sfx, repeat_n-1);
+}
 
+void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
+{
+    Mix_PlayChannel(-1, chunk, repeat_n-1);
+}
+
+Mix_Chunk* soundLib::sfx_from_file(string filename)
+{
+    filename = FILEPATH + "sfx/" + filename;
+    Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    return sfx;
 }
 

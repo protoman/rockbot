@@ -59,7 +59,7 @@ void player_edit::fill_players_data()
     ui->can_slide_checkbox->setChecked(Mediator::get_instance()->game_data.players[index].can_slide);
 
     common::fill_projectiles_combo(ui->chargedshot_combo);
-    ui->chargedshot_combo->setCurrentIndex(Mediator::get_instance()->game_data.players[index].full_charged_projectile_id+1);
+    ui->chargedshot_combo->setCurrentIndex(Mediator::get_instance()->game_data.players[index].full_charged_projectile_id);
 
     ui->ColorValueIndicator1->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r) + QString(", ") +  QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g) + QString(", ") +  QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
     ui->ColorValueIndicator2->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r) + QString(", ") +  QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g) + QString(", ") +  QString::number(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
@@ -282,7 +282,7 @@ void player_edit::on_color3_picker_clicked()
 void player_edit::on_chargedshot_combo_currentIndexChanged(int index)
 {
     if (_loading == true) { return; }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].full_charged_projectile_id = index-1;
+    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].full_charged_projectile_id = index;
 }
 
 void player_edit::on_weaponlist_combo_currentIndexChanged(int index)

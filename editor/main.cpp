@@ -100,10 +100,11 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
+    std::vector<std::string> game_list = Mediator::get_instance()->fio.read_game_list();
+
     MainWindow w;
     w.setWindowState(Qt::WindowMaximized);
 
-    std::vector<std::string> game_list = Mediator::get_instance()->fio.read_game_list();
 
     if (game_list.size() < 1) {
         NewGameDialog *new_game_dialog = new NewGameDialog();

@@ -41,6 +41,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_sfxFilename_comboBox_currentIndexChanged(const QString &arg1);
+
 private:
     void fill_data();
     void set_edit_data(int index);

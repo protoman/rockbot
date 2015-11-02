@@ -113,7 +113,7 @@ namespace format_v4 {
         bool can_double_jump;
         bool can_slide;                                                 // if false, dashes instead of sliding
         bool can_charge_shot;
-        Uint8 full_charged_projectile_id;
+        Sint8 full_charged_projectile_id;
         /// NEW IN FILE-FORMAT 3.0
         bool can_air_dash;
         Sint8 damage_modifier;
@@ -139,17 +139,13 @@ namespace format_v4 {
             have_shield = false;
             can_slide = false;
             can_charge_shot = false;
-            full_charged_projectile_id = 0;
+            full_charged_projectile_id = -1;
             can_air_dash = false;
             damage_modifier = 0;
             can_shot_diagonal = false;
             attack_frame = 0;
         }
     };
-
-
-
-
 
 
 
@@ -362,7 +358,6 @@ namespace format_v4 {
     struct st_armor_piece {
         int special_ability[FS_MAX_PLAYERS]; // each player can have a different ability
         // *** NEW IN 3.0.1 *** //
-        Sint8 projectile_id;                // for armor-arms you can get a different attack, defined here
         Sint8 got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
         st_armor_piece() {
@@ -372,7 +367,6 @@ namespace format_v4 {
                     got_message[i][j] = -1;
                 }
             }
-            projectile_id = -1;
         }
     };
 

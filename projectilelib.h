@@ -33,182 +33,43 @@ struct quake_info {
 };
 
 
-/**
- * @brief
- *
- */
+
 class projectile
 {
 public:
-/**
- * @brief
- *
- * @param id
- * @param set_direction
- * @param set_position
- * @param set_map
- */
     projectile(Uint8 id, Uint8 set_direction, st_position set_position, classMap *set_map, bool _owner_is_player); // common constructor
-    ///**
-    // * @brief
-    // *
-    // * @param sety
-    // */
-    //projectile(int projectile_id, int set_direction, int set_speed, st_position set_position, classMap *set_map, int damage, short int move_type, short wpn_id);
-    //projectile(int set_direction, int set_speed, st_position set_position, classMap *set_map, int damage, short int move_type, short wpn_id, std::string p_filename, st_size p_size); // overload for custom (not from data) projectile
-
     void set_is_permanent();
-
-    /**
-     * @brief
-     *
-     */
     void set_default_values(); // set some common values for all constructors
-    /**
-     * @brief
-     *
-     */
     ~projectile();
-    /**
-     * @brief
-     *
-     * @return st_size
-     */
     st_size move();
-    /**
-     * @brief
-     *
-     */
     void draw();
-    /**
-     * @brief
-     *
-     * @param set_map
-     */
     void set_map(classMap *set_map);
-    /**
-     * @brief
-     *
-     * @param enemy_pos
-     * @param pos_inc
-     * @return bool
-     */
     bool check_colision(st_rectangle enemy_pos, st_position pos_inc) const;
-    /**
-     * @brief
-     *
-     * @param pos_inc
-     * @return bool
-     */
     bool check_map_colision(st_position pos_inc) const;
-    /**
-     * @brief
-     *
-     * @return int
-     */
     Uint8 get_direction() const;
-    /**
-     * @brief
-     *
-     */
     void reflect();
-    /**
-     * @brief
-     *
-     * @return short
-     */
     Uint8 get_move_type() const;
-    /**
-     * @brief
-     *
-     * @param sety
-     */
     void set_y(int sety);
-
-    /**
-     * @brief
-     *
-     */
     void consume_projectile();
 
 
     void finish(); // force finish, used in char::clean_projectiles, handles effects that should be removed
-
-    /**
-     * @brief
-     *
-     * @param wpn_id
-     */
     void set_weapon_id(short wpn_id);
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short get_weapon_id() const;
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short get_effect_n() const;
-    /**
-     * @brief
-     *
-     * @param owner_position
-     */
     void set_owner_position(st_float_position *owner_position);
-    /**
-     * @brief
-     *
-     * @param owner_position
-     */
     void set_owner_direction(Uint8 *owner_direction);
-    /**
-     * @brief
-     *
-     * @return Uint8
-     */
     Uint8 get_speed() const;
-    /**
-     * @brief
-     *
-     * @return Uint8
-     */
     Uint8 get_damage() const;
-    /**
-     * @brief
-     *
-     * @return Uint8
-     */
     Uint8 get_trajectory() const;
-    /**
-     * @brief
-     *
-     * @param new_trajectory
-     */
     void set_trajectory(short new_trajectory);
-
-    /**
-     * @brief
-     *
-     * @param pos
-     */
     void set_target_position(st_float_position *pos);
-    /**
-     * @brief
-     *
-     * @return graphicsLib_gSurface
-     */
     graphicsLib_gSurface* get_surface();
-
     void inc_status(); // increase status, so we can explode a bomb or change centered (star circle) to linear
-
     st_rectangle get_area();
-
     short get_max_shots();
-
     short get_id();
+    void play_sfx();
 
 private:
     // methods that return properties taking in account id -1 (default projectile)

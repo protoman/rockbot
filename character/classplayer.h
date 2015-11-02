@@ -207,9 +207,7 @@ private:
 
     int get_hit_push_back_n();
 
-    bool have_super_shot();
-
-    bool have_laser_shot();
+    int get_armor_arms_attack_id();
 
     bool have_shoryuken();
 

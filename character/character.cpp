@@ -69,6 +69,7 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _hit_ground = false;
     _dashed_jump = false;
     _can_execute_airdash = true;
+    _player_must_reset_colors = false;
 }
 
 
@@ -517,15 +518,10 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         }
     }
 
-    // super charged-shot
-    if (have_super_shot() == true && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > SUPER_CHARGED_SHOT_TIME && attack_button_released == false) {
-        attack_id = 20;
-    // charged shot
-    } else if (_charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > CHARGED_SHOT_TIME && attack_button_released == false) {
-        //std::cout << "ATTACK 10" << std::endl;
+
+    if (_charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > CHARGED_SHOT_TIME && attack_button_released == false) {
         attack_id = _charged_shot_projectile_id;
     } else if (_charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > 400 && (timer.getTimer()-state.attack_timer) < CHARGED_SHOT_TIME && attack_button_released == false) {
-        //std::cout << "ATTACK (SEMI)" << std::endl;
         attack_id = game_data.semi_charged_projectile_id;
     }
 
@@ -535,7 +531,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
     if (moveCommands.attack == 0 && attack_button_released == false) {
         attack_button_released = true;
     }
-
 
     // change player colors if charging attack
     if (_charged_shot_projectile_id > 0 && (timer.getTimer()-state.attack_timer) > CHARGED_SHOT_INITIAL_TIME && (timer.getTimer()-state.attack_timer) < CHARGED_SHOT_TIME && attack_button_released == false) {
@@ -603,6 +598,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 				soundManager.stop_repeated_sfx();
 			}
 		}
+
+
         attack_button_released = false; // coment out this line to get "turbo" in button
 		//attack_state == ATTACK_NOT &&
 		//std::cout << "character::attack - shoot projectile" << std::endl;
@@ -616,9 +613,10 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
+        _player_must_reset_colors = true;
 
 
-        //std::cout << "attack_id: " << attack_id << ", auto_charged: " << auto_charged << std::endl;
+        // second projectile for player that fires multiple ones
         if ((attack_id == 0 || (attack_id == game_data.semi_charged_projectile_id && auto_charged == true)) && is_player() && _number == PLAYER_BETABOT) { /// @TODO - move number of simultaneous shots to character/data-file
             projectile_list.push_back(projectile(attack_id, state.direction, st_position(proj_pos.x-TILESIZE, proj_pos.y+5), map, is_player()));
             projectile &temp_proj2 = projectile_list.back();
@@ -637,6 +635,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
         }
 
+
+
         if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
@@ -653,12 +653,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             }
 		}
 
-        if (attack_id == 22) {
-            soundManager.play_sfx(SFX_HADOUKEN_GIRL);
-            // HADOUKEN can shot only one at a time
-        } else {
-            soundManager.play_sfx(SFX_PLAYER_SHOT);
-        }
+        temp_proj.play_sfx();
+
 
 		attack_state = ATTACK_START;
 		state.attack_timer = timer.getTimer();
@@ -672,8 +668,11 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 			//std::cout << "+++++++++++ CHARACTER - set animation to ANIM_TYPE_WALK_ATTACK" << std::endl;
             set_animation_type(ANIM_TYPE_WALK_ATTACK);
 		}
+
+
+        /// @TODO: here is the color bug
+        /*
         if (dont_update_colors == false) {
-            //state.animation_timer = 0;
             if (color_keys[0].r != -1) {
                 change_char_color(0, color_keys[0]);
             }
@@ -681,6 +680,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
                 change_char_color(1, color_keys[1]);
             }
         }
+        */
     }
 }
 
@@ -2759,20 +2759,14 @@ int character::get_hit_push_back_n()
     return TILESIZE;
 }
 
-bool character::have_super_shot()
-{
-    return false;
-}
-
-
-bool character::have_laser_shot()
-{
-    return false;
-}
-
 bool character::have_shoryuken()
 {
     return false;
+}
+
+int character::get_armor_arms_attack_id()
+{
+    return -1;
 }
 
 

@@ -223,6 +223,7 @@ void classMap::showMap()
         for (int j=0; j<MAP_H; j++) {
 
             // don't draw easy-mode blocks if game difficulty not set to easy
+            game_save.difficulty = DIFFICULTY_HARD;
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
                 pos_destiny.y = j*TILESIZE;

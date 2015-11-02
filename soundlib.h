@@ -42,6 +42,8 @@ public:
     void enable_sound();
 
     void play_sfx_from_file(std::string filename, int repeat_n);
+    void play_sfx_from_chunk(Mix_Chunk* chunk, int repeat_n);
+    Mix_Chunk *sfx_from_file(std::string filename);
 
 private:
 

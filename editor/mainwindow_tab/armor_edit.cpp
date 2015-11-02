@@ -1,5 +1,5 @@
 #include "armor_edit.h"
-
+#include "common.h"
 
 armor_edit::armor_edit(QWidget *parent) :
     QWidget(parent),
@@ -18,22 +18,6 @@ armor_edit::~armor_edit()
 
 void armor_edit::reload()
 {
-    ui->p1_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0]);
-    ui->p1_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[0]);
-    ui->p1_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[0]);
-
-    ui->p2_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1]);
-    ui->p2_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[1]);
-    ui->p2_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[1]);
-
-    ui->p3_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2]);
-    ui->p3_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[2]);
-    ui->p3_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[2]);
-
-    ui->p4_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3]);
-    ui->p4_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[3]);
-    ui->p4_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[3]);
-
     // === ARMS === //
     ui->arm_player1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0]).value);
     ui->arm_player1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][1]).value);
@@ -86,38 +70,41 @@ void armor_edit::reload()
     ui->legs_player4_text3->setText(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2]).value);
 
 
+    _data_loading = true;
+
+    ui->p1_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[0]);
+    ui->p1_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[0]);
+
+    ui->p2_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[1]);
+    ui->p2_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[1]);
+
+    ui->p3_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[2]);
+    ui->p3_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[2]);
+
+    ui->p4_legs_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].special_ability[3]);
+    ui->p4_body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].special_ability[3]);
+
+
+    common::fill_projectiles_combo(ui->p1_arm_comboBox, true);
+    ui->p1_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0]+1);
+
+    common::fill_projectiles_combo(ui->p2_arm_comboBox, true);
+    ui->p2_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1]+1);
+
+    common::fill_projectiles_combo(ui->p3_arm_comboBox, true);
+    ui->p3_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2]+1);
+
+    common::fill_projectiles_combo(ui->p4_arm_comboBox, true);
+    ui->p4_arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3]+1);
+    _data_loading = false;
+
 }
-/*
--------------------------------------------------------------------
-                legs           buster              body
--------------------------------------------------------------------
-* rockbot:      double         super-shot          half-damage
-* beta/dark:    double         double-charged      spike immune
-* candybot:     air-dash       laser-beam          2x intangible-time
-* kitty:        grab wall      hadouken            no push-back
-
-* rockbot:      (OK)double-jump      (OK)super-shot          (OK)half-damage
-* candybot:     (OK)air-dash         (OK)laser-beam          (OK)2x intangible-time
-* beta/dark:    (OK)air-dash         (OK)double-charged      (OK)spikes-immune
-* kitty:        ????                 (OK)Hadouken            (OK)no-push-back
-
-
-*/
-
-
 
 void armor_edit::fill_armor_abilities()
 {
-    std::string arm_abilities[] = {"Super-Shot", "Laser-Beam", "Always-Charged", "Hadouken"};
     std::string legs_abilities[] = {"Double Jump", "Air-Dash", "Shoryuken"};
     std::string body_abilities[] = {"Half-Damage", "Extended Immunity", "Spikes Immune", "No Push-Back"};
 
-    for (unsigned int i = 0; i<4; i++) {
-        ui->p1_arm_comboBox->addItem(arm_abilities[i].c_str());
-        ui->p2_arm_comboBox->addItem(arm_abilities[i].c_str());
-        ui->p3_arm_comboBox->addItem(arm_abilities[i].c_str());
-        ui->p4_arm_comboBox->addItem(arm_abilities[i].c_str());
-    }
 
     for (unsigned int i = 0; i<4; i++) {
         ui->p1_body_comboBox->addItem(body_abilities[i].c_str());
@@ -140,7 +127,7 @@ void armor_edit::fill_armor_abilities()
 void armor_edit::on_p1_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0] = index;
+    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[0] = index-1; // minus one because first one is empty (-1)
 }
 
 void armor_edit::on_p1_body_comboBox_currentIndexChanged(int index)
@@ -158,7 +145,7 @@ void armor_edit::on_p1_legs_comboBox_currentIndexChanged(int index)
 void armor_edit::on_p2_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1] = index;
+    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[1] = index-1; // minus one because first one is empty (-1)
 }
 
 void armor_edit::on_p2_body_comboBox_currentIndexChanged(int index)
@@ -176,7 +163,7 @@ void armor_edit::on_p2_legs_comboBox_currentIndexChanged(int index)
 void armor_edit::on_p3_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
-    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2] = index;
+    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[2] = index-1;  // minus one because first one is empty (-1)
 }
 
 void armor_edit::on_p3_body_comboBox_currentIndexChanged(int index)
@@ -195,7 +182,7 @@ void armor_edit::on_p4_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
     std::cout << "on_p4_arm_comboBox_currentIndexChanged - index: " << index << std::endl;
-    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3] = index;
+    Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].special_ability[3] = index-1;  // minus one because first one is empty (-1)
 }
 
 void armor_edit::on_p4_body_comboBox_currentIndexChanged(int index)

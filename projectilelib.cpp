@@ -152,6 +152,10 @@ st_size_int8 projectile::get_size() const
     if (_id == -1) {
         return st_size_int8(6, 6);
 	}
+    std::vector<CURRENT_FILE_FORMAT::file_projectile> list = GameMediator::get_instance()->projectile_list;
+    if (_id != 0) {
+        int a = 1;
+    }
     return GameMediator::get_instance()->projectile_list.at(_id).size;
 }
 
@@ -343,6 +347,17 @@ short projectile::get_max_shots()
 short projectile::get_id()
 {
     return _id;
+}
+
+void projectile::play_sfx()
+{
+    std::string projectile_sfx(GameMediator::get_instance()->projectile_list.at(_id).sfx_filename);
+    if (projectile_sfx.length() > 0) {
+        Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
+        soundManager.play_sfx_from_chunk(sfx, 1);
+    } else {
+        soundManager.play_sfx(SFX_PLAYER_SHOT);
+    }
 }
 
 st_size projectile::move() {

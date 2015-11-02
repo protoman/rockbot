@@ -216,7 +216,6 @@ enum SFX_LIST {
 	SFX_WATER_ENTER,
 	SFX_WATER_LEAVE,
     SFX_DISAPPEARING_BLOCK,
-    SFX_HADOUKEN_GIRL,
     SFX_SHORYUKEN_GIRL,
     SFX_BEAM,
 	SFX_COUNT // not used as sfx, this is a way to measure size of the enum list

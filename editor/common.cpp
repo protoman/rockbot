@@ -183,10 +183,13 @@ void common::fill_weapons_combo_plus(QComboBox *combo)
     combo->addItem(temp_str);
 }
 
-void common::fill_projectiles_combo(QComboBox *combo)
+void common::fill_projectiles_combo(QComboBox *combo, bool add_empty_slot)
 {
     combo->clear(); // delete all previous entries
 
+    if (add_empty_slot) {
+        combo->addItem(QString(""));
+    }
     for (int i=0; i<Mediator::get_instance()->projectile_list.size(); i++) {
         QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->projectile_list.at(i).name);
         combo->addItem(temp_str);

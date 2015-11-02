@@ -28,6 +28,7 @@ void projectile_edit::fill_data()
     data_loading = true;
     common::fill_projectiles_combo(ui->projectileList_combo);
     common::fill_files_combo(std::string("/images/projectiles"), ui->graphic_filename);
+    common::fill_files_combo(std::string("/sfx"), ui->sfxFilename_comboBox);
 	common::fill_trajectories_combo(ui->trajectory);
     Mediator::get_instance()->current_projectile = 0;
     set_edit_data(0);
@@ -43,6 +44,7 @@ void projectile_edit::set_edit_data(int index)
 	Mediator::get_instance()->current_projectile = index;
     ui->name->setText(QString(Mediator::get_instance()->projectile_list.at(index).name));
     ui->graphic_filename->setCurrentIndex(ui->graphic_filename->findText(QString(Mediator::get_instance()->projectile_list.at(index).graphic_filename)));
+    ui->sfxFilename_comboBox->setCurrentIndex(ui->sfxFilename_comboBox->findText(QString(Mediator::get_instance()->projectile_list.at(index).sfx_filename)));
     ui->trajectory->setCurrentIndex(Mediator::get_instance()->projectile_list.at(index).trajectory);
     ui->img_w->setValue(Mediator::get_instance()->projectile_list.at(index).size.width);
     ui->img_h->setValue(Mediator::get_instance()->projectile_list.at(index).size.height);
@@ -55,17 +57,6 @@ void projectile_edit::set_edit_data(int index)
     ui->max_shots->setValue(Mediator::get_instance()->projectile_list.at(index).max_shots);
     ui->speed->setValue(Mediator::get_instance()->projectile_list.at(index).speed);
     ui->damage->setValue(Mediator::get_instance()->projectile_list.at(index).damage);
-	// if project is DEFAUL, disable all fields
-    ui->name->setDisabled(false);
-    ui->graphic_filename->setDisabled(false);
-    ui->trajectory->setDisabled(false);
-    ui->img_w->setDisabled(false);
-    ui->img_h->setDisabled(false);
-    ui->projectileDestructibleCheckBox->setDisabled(false);
-    ui->projectileHitPointsSpinBox->setDisabled(false);
-    ui->max_shots->setDisabled(false);
-    ui->speed->setDisabled(false);
-    ui->damage->setDisabled(false);
 	ui->projectilePreviewAreaWidget->repaint();
     data_loading = false;
 }
@@ -89,6 +80,13 @@ void projectile_edit::on_graphic_filename_currentIndexChanged(const QString &arg
     if (data_loading) { return; }
     sprintf(Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).graphic_filename, "%s", arg1.toStdString().c_str());
 	ui->projectilePreviewAreaWidget->repaint();
+}
+
+
+void projectile_edit::on_sfxFilename_comboBox_currentIndexChanged(const QString &arg1)
+{
+    if (data_loading) { return; }
+    sprintf(Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).sfx_filename, "%s", arg1.toStdString().c_str());
 }
 
 void projectile_edit::on_trajectory_currentIndexChanged(int index)
@@ -148,3 +146,4 @@ void projectile_edit::on_pushButton_clicked()
     ui->projectileList_combo->addItem(QString("[") + QString::number(Mediator::get_instance()->projectile_list.size()-1) + QString("] Projectile Name"));
     ui->projectileList_combo->setCurrentIndex(Mediator::get_instance()->projectile_list.size()-1);
 }
+

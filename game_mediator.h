@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <SDL/SDL_mixer.h>
 
 #include "file/format.h"
 #include "file/fio_common.h"
@@ -13,6 +14,7 @@ class GameMediator
 {
 public:
     static GameMediator* get_instance();
+    Mix_Chunk *get_sfx(std::string filename);
 
 private:
     GameMediator();
@@ -27,9 +29,9 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
     std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tile_list;
 
-
 private:
     static GameMediator* _instance;
+    std::map<std::string, Mix_Chunk*> sfx_map;                                               // map of sfx files loaded, used in projectiles to avoid loading from disk every time
     fio_common fio_cmm;
 
 

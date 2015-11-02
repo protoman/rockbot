@@ -57,7 +57,7 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
 
     _charged_shot_projectile_id = game_data.players[_number].full_charged_projectile_id;
 
-    //std::cout << ">>> p[" << _number << "]._charged_shot_projectile_id: " << _charged_shot_projectile_id << std::endl;
+    std::cout << ">>> p[" << _number << "]._charged_shot_projectile_id: " << _charged_shot_projectile_id << std::endl;
 
     _simultaneous_shots = game_data.players[_number].simultaneous_shots;
     //std::cout << "classjump::set_acceleration - player[" << name << "], accel[" << game_data.players[_number].jump_gravity << "]" << std::endl;
@@ -286,9 +286,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (selected_weapon == WEAPON_DEFAULT) {
-        /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para ocmportar as poses/frames
-        /// de ataque para cima e para baixo
-        //std::cout << ">> classPlayer::attack() - NORMAL" << std::endl;
+        /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
         bool is_on_ground = hit_ground();
         if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
             character::attack(false, 1, auto_charged);
@@ -296,6 +294,10 @@ void classPlayer::attack(bool dont_update_colors)
             character::attack(false, -1, auto_charged);
         } else {
             character::attack(false, 0, auto_charged);
+        }
+        if (_player_must_reset_colors == true) {
+            _player_must_reset_colors = false;
+            change_player_color(true);
         }
         return;
     } else if (game_save.items.weapons[selected_weapon] <= 0) {
@@ -312,13 +314,11 @@ void classPlayer::attack(bool dont_update_colors)
     int used_weapon = selected_weapon;
     if (effect_type == TRAJECTORY_FREEZE) { // freeze can shoot normal projectiles
         if (max_projectiles > get_projectile_count()) {
-            //std::cout << "TRAJECTORY_FREEZE weapon detected!" << std::endl;
             character::attack(true, 0, auto_charged);
         }
         return;
     } else if (effect_type != -1) {
         if (moveCommands.attack != 0 && (timer.getTimer()-state.attack_timer) > 100 && attack_button_released == true) {
-            //std::cout << ">> classPlayer::attack() - already using an effect weapon" << std::endl;
             inc_effect_weapon_status(); // this method have a filter to inc only the types that are effect (centered, bomb, etc)
         }
         return;
@@ -1164,21 +1164,14 @@ int classPlayer::get_hit_push_back_n()
     }
 }
 
-bool classPlayer::have_super_shot()
+int classPlayer::get_armor_arms_attack_id()
 {
-    if (game_save.armor_pieces[ARMOR_ARMS] == true && game_data.armor_pieces[ARMOR_ARMS].special_ability[_number] == ARMOR_ABILITY_ARMS_SUPERSHOT) {
-        return true;
+    if (game_save.armor_pieces[ARMOR_ARMS] == true) {
+         return game_data.armor_pieces[ARMOR_ARMS].special_ability[_number];
     }
-    return false;
+    return -1;
 }
 
-bool classPlayer::have_laser_shot()
-{
-    if (game_save.armor_pieces[ARMOR_ARMS] == true && game_data.armor_pieces[ARMOR_ARMS].special_ability[_number] == ARMOR_ABILITY_ARMS_LASERBEAM) {
-        return true;
-    }
-    return false;
-}
 
 bool classPlayer::have_shoryuken()
 {
@@ -1196,12 +1189,11 @@ void classPlayer::update_armor_properties()
     if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
         hit_duration = 4000;
     }
-    if (have_laser_shot() == true) {
-        _charged_shot_projectile_id = 21;
+    int armor_attack_id = get_armor_arms_attack_id();
+    if (armor_attack_id != -1) {
+        _charged_shot_projectile_id = armor_attack_id;
     }
-    if (game_save.armor_pieces[ARMOR_ARMS] == true && game_data.armor_pieces[ARMOR_ARMS].special_ability[_number] == ARMOR_ABILITY_ARMS_MISSILE) {
-        _charged_shot_projectile_id = 22;
-    }
+
 }
 
 
