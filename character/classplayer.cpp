@@ -68,6 +68,13 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
     }
     _damage_modifier = game_data.players[_number].damage_modifier;
     update_armor_properties();
+
+    selected_weapon = 0;
+    reset_charging_shot();
+    change_player_color(true);
+
+
+
 }
 
 
@@ -578,6 +585,8 @@ void classPlayer::execute()
     }
     charMove();
     attack();
+
+
 }
 
 void classPlayer::execute_projectiles()
@@ -883,7 +892,7 @@ void classPlayer::death()
 
     Sint8 old_weapon_n = selected_weapon;
     selected_weapon = 0;
-    change_player_color(old_weapon_n, true);
+    change_player_color(true);
 
 
     set_weapon(WEAPON_DEFAULT);
@@ -907,7 +916,7 @@ void classPlayer::reset_hp()
 	hitPoints.current = hitPoints.total;
 }
 
-void classPlayer::change_player_color(Sint8 previous_weapon_n, bool full_change)
+void classPlayer::change_player_color(bool full_change)
 {
     //std::cout << "PLAYER::change_player_color - selected_weapon: " << selected_weapon << std::endl;
 	if (full_change == false) {
@@ -937,9 +946,8 @@ void classPlayer::change_player_color(Sint8 previous_weapon_n, bool full_change)
 
 void classPlayer::set_weapon(short weapon_n)
 {
-    Sint8 old_weapon_n = selected_weapon;
 	selected_weapon = weapon_n;
-    change_player_color(old_weapon_n, true);
+    change_player_color(true);
 }
 
 short classPlayer::get_weapon_value(int weapon_n)

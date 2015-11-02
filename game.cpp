@@ -78,7 +78,7 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
-	stringstream player_name;
+    stringstream player_name;
     player_name << "p" << game_save.selected_player;
     players.push_back(classPlayer(player_name.str(), game_save.selected_player));
     /// @TODO - optimization: make this uneeded
@@ -97,6 +97,8 @@ void game::initGame()
 	players.at(0).reset_hp();
     players.at(1).set_is_player(true);
     players.at(1).reset_hp();
+
+
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
 
 }
@@ -200,12 +202,12 @@ void game::start_stage()
 
     loaded_stage->reload_stage();
 
-    players.at(0).reset_charging_shot();
     players.at(0).cancel_slide();
 
     loaded_stage->showStage();
     loaded_stage->showAbove();
     draw_lib.update_screen();
+
 
 
     players.at(0).clean_projectiles();
@@ -221,6 +223,8 @@ void game::start_stage()
     players.at(0).set_teleport_minimal_y((min_y-3)*TILESIZE);
 
     show_ready();
+
+
 
     soundManager.play_music();
 

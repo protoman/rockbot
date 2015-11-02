@@ -208,16 +208,18 @@ private:
     SDL_Surface *gSurface;
 
 
-    SDL_Color get_pixel_color(Sint16 x, Sint16 y) const {
+    SDL_Color get_pixel_color(Uint32 pixel) const {
         if (!gSurface) {
             return SDL_Color();
         }
+        /*
         if (x >= gSurface->w || y >= gSurface->h) {
             return SDL_Color();
         }
+        */
 
         SDL_Color theKey;
-        Uint32 pixel = ((Uint32*)gSurface->pixels)[y * gSurface->pitch/4 + x];
+        //Uint32 pixel = ((Uint32*)gSurface->pixels)[y * gSurface->pitch/4 + x];
         SDL_GetRGB(pixel, gSurface->format, &theKey.r, &theKey.g, &theKey.b);
 
         return theKey;
@@ -231,12 +233,6 @@ private:
         if (x >= gSurface->w || y >= gSurface->h) {
             return 0;
         }
-
-        /*
-        Uint32 pixel = ((Uint32*)gSurface->pixels)[y * gSurface->pitch/4 + x];
-        return pixel;
-        */
-
 
         int bpp = gSurface->format->BytesPerPixel;
 
@@ -373,12 +369,6 @@ public:
             } catch (std::exception e) {}
         }
         gSurface = surface;
-        // store colorkey values into lists so we can change colors later using the lists
-        /*
-        if (gSurface) {
-            init_colorkeys();
-        }
-        */
     }
 
     void change_colorkey_color(Sint8 key_n, st_color new_color) {

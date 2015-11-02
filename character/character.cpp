@@ -743,6 +743,9 @@ void character::consume_projectile()
 //                                                                                                //
 // ********************************************************************************************** //
 void character::show() {
+
+
+
 	// update real position
 	char_update_real_position();
     if (!is_player() && is_on_visible_screen() == false) {

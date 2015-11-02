@@ -123,6 +123,11 @@ public:
 
     void damage(unsigned int damage_points, bool ignore_hit_timer);
 
+    /**
+     * @brief changes the colormap of stored frames surfaces for the current weapon color
+     * @param full_change indicates if must update all (true) or only current (false) frame
+     */
+    void change_player_color(bool full_change);
 
 
 private:
@@ -136,11 +141,6 @@ private:
      */
     void death();
 
-    /**
-     * @brief changes the colormap of stored frames surfaces for the current weapon color
-     * @param full_change indicates if must update all (true) or only current (false) frame
-     */
-    void change_player_color(Sint8 previous_weapon_n, bool full_change);
 
     /**
      * @brief load from game_data into class properties. @TODO: this should be replaced by using game_data directly if possible

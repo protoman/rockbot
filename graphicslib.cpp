@@ -417,8 +417,6 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
         exit(-1);
     }
 
-    //std::cout << "GRAPH::place_anim_tile::id: " << anim_tile_id << std::endl;
-
     struct st_rectangle origin_rectangle;
 
     origin_rectangle.x = ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos * TILESIZE;
