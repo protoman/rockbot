@@ -168,12 +168,16 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
         sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");
         sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (UP+DASH)");
-        sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", "");
+        sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
         sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "THIS FORTIFIED BODY WILL");
         sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "BE INTANGIBLE MORE TIME");
         sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TAKE HALF DAMAGE");
         sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "AVOID PUSH-BACK ON HIT");
         sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESIST SPIKES");
+        sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECT DIFFICULTY:");
+        sprintf(lines[strings_ingame_difficulty_easy], "%s", "EASY");
+        sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
+        sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
 
         /// @TODO: add assert to check that we set all the values from the enum
 

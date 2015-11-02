@@ -134,11 +134,11 @@ void scenesLib::main_screen()
 
 		picked_n = main_picker.pick();
 		if (picked_n == -1) {
-#if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            std::fflush(stdout);
-            leave_game = true;
-            return;
-#endif
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
         } else if (picked_n == 0) { // NEW GAME
 			repeat_menu = false;
         } else if (picked_n == 1) { // LOAD GAME
@@ -167,6 +167,7 @@ void scenesLib::main_screen()
     draw_lib.update_screen();
 
     if (picked_n == 0) {
+        game_save.difficulty = select_difficulty();
         game_save.selected_player = select_player();
     }
 }
@@ -820,11 +821,16 @@ Uint8 scenesLib::select_player() {
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
-	input.clean();
-	input.waitTime(200);
     int x = 0;
     int y = 0;
 
+	input.clean();
+    input.waitTime(100);
+
+
+    graphicsLib_gSurface lights_surface;
+    std::string filename_lights = FILEPATH + "images/backgrounds/lights.png";
+    graphLib.surfaceFromFile(filename_lights, &lights_surface);
 
     while (true) {
 		input.readInput();
@@ -832,10 +838,15 @@ Uint8 scenesLib::select_player() {
             soundManager.play_sfx(SFX_CURSOR);
             y = !y;
         } else if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
+            soundManager.play_sfx(SFX_CURSOR);
             x = !x;
-        } else if (input.p1_input[BTN_QUIT] == 1 || input.p2_input[BTN_QUIT] == 1) {
-            leave_game = true;
-        } else if (input.p1_input[BTN_START] == 1 || input.p2_input[BTN_START] == 1) {
+        } else if (input.p1_input[BTN_QUIT] == 1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
+        } else if (input.p1_input[BTN_START] == 1) {
             input.clean();
             draw_lib.update_screen();
             timer.delay(80);
@@ -844,17 +855,50 @@ Uint8 scenesLib::select_player() {
         // convert x/y into selected
         selected = x + y*2;
 
-
-        graphicsLib_gSurface lights_surface;
-        std::string filename = FILEPATH + "images/backgrounds/lights.png";
-        graphLib.surfaceFromFile(filename, &lights_surface);
-
         draw_lights_select_player(lights_surface, selected, adjustX, adjustY);
+
         input.clean();
-        timer.delay(10);
+        input.waitTime(10);
         draw_lib.update_screen();
-	}
-	return selected;
+    }
+    return selected;
+}
+
+Uint8 scenesLib::select_difficulty()
+{
+    short res = 0;
+    st_position config_text_pos;
+    std::vector<std::string> options;
+
+    graphLib.show_config_bg(0);
+    draw_lib.update_screen();
+    input.clean();
+    input.waitTime(300);
+
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard));
+
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
+
+    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select).c_str());
+
+    short selected_option = -2;
+    while (selected_option == -2) {
+        option_picker main_config_picker(false, config_text_pos, options, false);
+        selected_option = main_config_picker.pick();
+        if (selected_option == -1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
+        }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        draw_lib.update_screen();
+    }
+    return res;
 }
 
 

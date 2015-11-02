@@ -897,6 +897,10 @@ enum E_STRINGS_INGAME {
     strings_ingame_gotarmor_type_body_msg3,
     strings_ingame_gotarmor_type_body_msg4,
 
+    strings_ingame_difficulty_select,
+    strings_ingame_difficulty_easy,
+    strings_ingame_difficulty_normal,
+    strings_ingame_difficulty_hard,
 
 
 

@@ -1111,7 +1111,7 @@ void game::update_stage_scrolling()
 {
     loaded_stage->changeScrolling(checkScrolling());
     st_position p_pos = players.at(0).get_real_position();
-    std::cout << "p_pos.x: " << p_pos.x << std::endl;
+    //std::cout << "p_pos.x: " << p_pos.x << std::endl;
     if (p_pos.x < 0.0) {
         players.at(0).change_position_x(1);
         // out of screen, probably because was pushed out on a autoscroll stage
