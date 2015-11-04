@@ -54,6 +54,8 @@ bool have_save = false;
 #include "soundlib.h"
 #include "game.h"
 
+#include "aux_tools/stringutils.h"
+
 #define MAXPATHLEN 256
 
 #if defined(LINUX) || defined(OSX)
@@ -444,6 +446,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
+    GAME_FLAGS[FLAG_QUICKLOAD] = true;
+
     /// DEBUG ///
     //GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
@@ -480,6 +484,12 @@ int main(int argc, char *argv[])
     if (GAMENAME == "") {
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
         graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
+
+        std::string filename = GAMEPATH + "/games/";
+        filename = StringUtils::clean_filename(filename);
+
+        graphLib.draw_text(20, 44, filename);
+
         input.wait_keypress();
         SDL_Quit();
         return 0;

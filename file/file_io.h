@@ -56,7 +56,6 @@ namespace format_v4 {
         void write_anim_tiles(std::vector<st_anim_map_tile> tiles);
 
         bool file_exists(std::string filename) const;
-        bool directory_exists(std::string filename) const;
         std::vector<std::string> read_game_list() const;
         std::vector<std::string> read_directory_list(std::string filename, bool dir_only) const;
         std::vector<std::string> read_file_list(std::string filename) const;

@@ -559,7 +559,7 @@ protected:
      * @param mode_xy
      * @param map_pos
      */
-    void check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) const;
+    void check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
     /**
      * @brief
      *

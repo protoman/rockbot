@@ -1509,7 +1509,7 @@ bool character::jump(int jumpCommandStage, st_position mapScrolling)
 
 
 
-void character::check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) const // mode_xy 0 is x, 1 is y
+void character::check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
 {
     UNUSED(map_pos);
 
@@ -2436,7 +2436,7 @@ void character::execute_jump()
 
 	// reset command jump, if any
 	jump(0, map->getMapScrolling());
-	int initial_y = position.y;
+    int initial_y = (int)position.y;
 	jump(1, map->getMapScrolling());
 	std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (position.y != initial_y) {
@@ -2516,7 +2516,7 @@ bool character::change_position(short xinc, short yinc)
 void character::change_position_x(short xinc)
 {
     if (xinc == 0) { // nothing todo
-        return 0;
+        return;
     }
     for (int i=xinc; i>=0.1; i--) {
         if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {

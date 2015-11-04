@@ -367,26 +367,6 @@ namespace format_v4 {
         return res;
     }
 
-    bool file_io::directory_exists(std::string filename) const
-    {
-
-#ifndef PLAYSTATION2
-        struct stat info;
-        if (stat( filename.c_str(), &info) != 0) {
-            printf( "cannot access %s\n", filename.c_str() );
-            return false;
-        } else if (info.st_mode & S_IFDIR) { // S_ISDIR() doesn't exist on my windows
-            printf( "%s is a directory\n", filename.c_str() );
-            return true;
-        } else {
-            printf( "%s is no directory\n", filename.c_str() );
-            return false;
-        }
-#else
-        return false;
-#endif
-    }
-
     std::vector<std::string> file_io::read_game_list() const
     {
         std::string filename = GAMEPATH + "/games/";
@@ -394,21 +374,16 @@ namespace format_v4 {
         return read_directory_list(filename, true);
     }
 
+    // @TODO: make this work in multiplatform
+    // http://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
     std::vector<std::string> file_io::read_directory_list(std::string filename, bool dir_only) const
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
 
-        // check if games folder exists
-        if (!directory_exists(filename)) {
-            std::cout << "ERROR: games folder not found." << std::endl;
-            return res;
-        }
-
-#ifndef PLAYSTATION2
-
         DIR *dir = opendir(filename.c_str());
         struct dirent *entry = readdir(dir);
+
         while (entry != NULL) {
             std::string dir_name = std::string(entry->d_name);
             if (dir_name != "." && dir_name != "..") {
@@ -426,7 +401,6 @@ namespace format_v4 {
 
         }
         closedir(dir);
-#endif
         return res;
     }
 

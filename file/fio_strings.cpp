@@ -151,7 +151,7 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "ANALOG");
         sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
         sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
-        sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGIONE ERROR");
+        sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
         sprintf(lines[strings_ingame_nogames], "%s", "NO GAMES AVAILABLE");
         sprintf(lines[strings_ingame_quitgame], "%s", "QUIT GAME?");
         sprintf(lines[strings_ingame_life], "%s", "LIFE");
