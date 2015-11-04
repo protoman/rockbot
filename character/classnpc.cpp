@@ -342,25 +342,22 @@ void classnpc::move_projectiles()
                 continue;
             }
 
-            std::vector<classPlayer*>::iterator enemy_it;
-			for (enemy_it=map->_player_list.begin(); enemy_it != map->_player_list.end(); enemy_it++) {
-                if ((*it).check_colision(st_rectangle((*enemy_it)->getPosition().x, (*enemy_it)->getPosition().y, (*enemy_it)->get_size().width, (*enemy_it)->get_size().height), st_position(moved.width, moved.height)) == true) {
-                    if ((*enemy_it)->is_shielded((*it).get_direction()) == true) {
-                        (*it).reflect();
-                    } else if ((*enemy_it)->is_using_circle_weapon() == true) {
-                        std::cout << "NPC projectile hit player centered-weapon" << std::endl;
-                        (*it).consume_projectile();
-                        (*enemy_it)->consume_projectile();
-					} else {
-                        int damage_pts = (*it).get_damage();
-                        if (damage_pts < 2) {
-                            damage_pts = 2;
-                        }
-                        (*enemy_it)->damage(damage_pts, false);
-                        (*it).consume_projectile();
-					}
-				}
-			}
+            if ((*it).check_colision(st_rectangle(map->_player_ref->getPosition().x, map->_player_ref->getPosition().y, map->_player_ref->get_size().width, map->_player_ref->get_size().height), st_position(moved.width, moved.height)) == true) {
+                if (map->_player_ref->is_shielded((*it).get_direction()) == true) {
+                    (*it).reflect();
+                } else if (map->_player_ref->is_using_circle_weapon() == true) {
+                    std::cout << "NPC projectile hit player centered-weapon" << std::endl;
+                    (*it).consume_projectile();
+                    map->_player_ref->consume_projectile();
+                } else {
+                    int damage_pts = (*it).get_damage();
+                    if (damage_pts < 2) {
+                        damage_pts = 2;
+                    }
+                    map->_player_ref->damage(damage_pts, false);
+                    (*it).consume_projectile();
+                }
+            }
         } else { // NPC attacking other NPCs
             std::vector<classnpc*>::iterator enemy_it;
 			for (enemy_it=map->_npc_list.begin(); enemy_it != map->_npc_list.end(); enemy_it++) {

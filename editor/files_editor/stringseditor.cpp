@@ -101,7 +101,7 @@ void StringsEditor::fill_data()
 {
     std::string lang_dir_filename = FILEPATH + std::string("/lang/");
     lang_dir_filename = StringUtils::clean_filename(lang_dir_filename);
-    if (fio.directory_exists(lang_dir_filename) == false) {
+    if (QDir(lang_dir_filename.c_str()).exists() == false) {
         QDir().mkdir(lang_dir_filename.c_str());
         return;
     }

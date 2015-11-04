@@ -408,7 +408,7 @@ void map_tab::on_addAnimTile_toolButton_clicked()
     ui->addAnimTile_toolButton->setChecked(true);
 
     ui->editModeLock_button->setEnabled(false);
-    ui->editModeErase_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(true);
 
     set_current_box(6);
     Mediator::get_instance()->editMode = EDITMODE_ANIM_TILE;

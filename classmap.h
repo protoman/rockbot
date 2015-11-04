@@ -134,7 +134,7 @@ public:
 
     void clear_animations(); // remove all animations from map
 
-    void set_player_list(std::vector<classPlayer*> player_list);
+    void set_player(classPlayer* player_ref);
 
     classnpc *spawn_map_npc(short int npc_id, st_position npc_pos, short direction, bool player_friend, bool progressive_span);
 
@@ -199,7 +199,7 @@ private:
 
 public:
     std::vector<classnpc*> _npc_list; // vector npcs
-    std::vector<classPlayer*> _player_list; // vector players
+    classPlayer* _player_ref; // vector players
     std::vector<animation> animation_list;
 	// vector teleporters
 	// vector objects

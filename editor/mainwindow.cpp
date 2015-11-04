@@ -542,7 +542,8 @@ void MainWindow::on_new_game_accepted(QString name)
     fio_str.create_files();
 
     std::string scenes_filename = std::string(FILEPATH) + "/scenes/";
-    if (fio.directory_exists(scenes_filename.c_str()) == false) {
+
+    if (QDir(scenes_filename.c_str()).exists() == false) {
         QDir().mkdir(scenes_filename.c_str());
     }
 

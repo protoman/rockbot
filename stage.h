@@ -14,7 +14,7 @@
 class stage
 {
 public:
-	stage(int, std::vector<classPlayer> &set_player_list);
+    stage(int, classPlayer *set_player_ref);
     /**
      * @brief
      *
@@ -189,7 +189,7 @@ public:
 private:
     Sint8 number; /**< TODO */
     Uint8 currentMap; /**< TODO */
-    std::vector<classPlayer*> _player_list; /**< TODO */
+    classPlayer* _player_ref; /**< TODO */
 };
 
 #endif // STAGE_H

@@ -31,7 +31,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(-1), selected_weapon(WEAPON_DEFAULT), l_key_released(true), r_key_released(true)
+classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(WEAPON_DEFAULT), l_key_released(true), r_key_released(true)
 {
     _number = playerNumber;
     if (_number == 3 || _number == 0) {
@@ -44,10 +44,9 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
     hit_duration = 2000;
 	hitPoints.total = PLAYER_INITIAL_HP;
 	hitPoints.current = hitPoints.total;
-	name = set_name;
 	add_graphic();
 	init_weapon_colors();
-	initFrames();
+    //initFrames();
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
 	if (game_data.players[_number].can_slide == true) {
@@ -72,9 +71,11 @@ classPlayer::classPlayer(std::string set_name, int playerNumber) : teleporter_n(
     selected_weapon = 0;
     reset_charging_shot();
     change_player_color(true);
+}
 
-
-
+classPlayer::set_player_name(std::string set_name)
+{
+    name = set_name;
 }
 
 
@@ -475,8 +476,8 @@ void classPlayer::initFrames()
 
 	graphicsLib_gSurface playerSpriteSurface;
 	std::stringstream filename;
-    //filename << FILEPATH << "images/sprites/p" << (_number+1) << ".png";
-    filename << FILEPATH << "images/sprites/" << game_data.players[_number].graphic_filename;
+    filename << FILEPATH + "images/sprites/p" << (_number+1) << ".png";
+    //filename << FILEPATH << "images/sprites/" << game_data.players[_number].graphic_filename;
     //playerSpriteSurface.show_debug = true;
 	graphLib.surfaceFromFile(filename.str(), &playerSpriteSurface);
     if (playerSpriteSurface.get_surface() == NULL) {

@@ -17,7 +17,9 @@ public:
      * @param std::string the name of the player
      * @param int number of the player. to be later used when we re-add support for the simultaneous two player mode
      */
-    classPlayer(std::string set_name, int player_n);
+    classPlayer(int playerNumber);
+
+    set_player_name(std::string set_name);
 
     /**
      * @brief hardcoded method for setting each frame for a player (@TODO: replace by user driven data)

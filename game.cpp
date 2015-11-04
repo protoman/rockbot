@@ -54,7 +54,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 // ********************************************************************************************** //
 // class constructor                                                                              //
 // ********************************************************************************************** //
-game::game() : loaded_stage(NULL), _show_boss_hp(false), fps_timer(0)
+game::game() : loaded_stage(NULL), _show_boss_hp(false), fps_timer(0), player1(0)
 {
 	currentStage = 1;
 	fps_counter = 0;
@@ -79,25 +79,13 @@ game::~game()
 void game::initGame()
 {
     stringstream player_name;
-    player_name << "p" << game_save.selected_player;
-    players.push_back(classPlayer(player_name.str(), game_save.selected_player));
     /// @TODO - optimization: make this uneeded
-    // always insert all possible players, as it is used in cutscenes and such
-    for (int i=0; i<FS_MAX_PLAYERS; i++) {
-        if (i != game_save.selected_player) {
-            stringstream player_name2;
-            player_name2 << "p" << i;
-            players.push_back(classPlayer(player_name2.str(), i));
-        }
-    }
-    config_manager.set_player_ref(&players.at(0));
     unload_stage();
-    loaded_stage = new stage(currentStage, players);
-    players.at(0).set_is_player(true);
-	players.at(0).reset_hp();
-    players.at(1).set_is_player(true);
-    players.at(1).reset_hp();
-
+    loaded_stage = new stage(currentStage, &player1);
+    player1.initFrames();
+    player1.set_is_player(true);
+    player1.reset_hp();
+    config_manager.set_player_ref(&player1);
 
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
 
@@ -112,7 +100,7 @@ void game::showGame(bool can_characters_move)
     if (leave_game == true) {
         exit_game();
     }
-    if (players.at(0).is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
+    if (player1.is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
         input.readInput();
     } else {
         input.clean();
@@ -123,12 +111,12 @@ void game::showGame(bool can_characters_move)
     }
 
     /// @TODO - move this to the player, so we don't need to check every single loop
-    if (players.at(0).is_dead() == true) {
+    if (player1.is_dead() == true) {
         restart_stage();
         return;
     }
 
-    if (test_teleport(&players.at(0))) {
+    if (test_teleport(&player1)) {
         return;
     }
 
@@ -142,13 +130,13 @@ void game::showGame(bool can_characters_move)
     }
 
     if (can_characters_move == true) {
-        players.at(0).execute();
+        player1.execute();
         loaded_stage->move_npcs();
     }
 
     if (_dark_mode == false) {
         loaded_stage->show_npcs();
-        players.at(0).show();
+        player1.show();
         loaded_stage->show_objects();
         loaded_stage->showAbove();
     } else {
@@ -171,7 +159,7 @@ st_position game::checkScrolling()
 {
 	st_position move;
     st_position mapScroll = loaded_stage->getMapScrolling();
-    st_position p1Pos(players.at(0).getPosition().x,  players.at(0).getPosition().y);
+    st_position p1Pos(player1.getPosition().x,  player1.getPosition().y);
 
 	move.x += (p1Pos.x - mapScroll.x) - RES_W/2;
 
@@ -194,7 +182,7 @@ void game::start_stage()
 
 
     /// @TODO - this must be on a single method in soundlib
-    players.at(0).set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
+    player1.set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
 
 	soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
@@ -202,7 +190,7 @@ void game::start_stage()
 
     loaded_stage->reload_stage();
 
-    players.at(0).cancel_slide();
+    player1.cancel_slide();
 
     loaded_stage->showStage();
     loaded_stage->showAbove();
@@ -210,17 +198,17 @@ void game::start_stage()
 
 
 
-    players.at(0).clean_projectiles();
-	players.at(0).set_animation_type(ANIM_TYPE_TELEPORT);
-    players.at(0).set_direction(ANIM_DIRECTION_RIGHT);
-    players.at(0).set_map(loaded_stage->get_current_map());
-	players.at(0).refill_weapons();
-	players.at(0).reset_hp();
+    player1.clean_projectiles();
+    player1.set_animation_type(ANIM_TYPE_TELEPORT);
+    player1.set_direction(ANIM_DIRECTION_RIGHT);
+    player1.set_map(loaded_stage->get_current_map());
+    player1.refill_weapons();
+    player1.reset_hp();
 
 
     // find teleport stop point
     int min_y = loaded_stage->get_teleport_minimal_y(95); // x = 80 + half a player width (30)
-    players.at(0).set_teleport_minimal_y((min_y-3)*TILESIZE);
+    player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
 
     show_ready();
 
@@ -230,7 +218,7 @@ void game::start_stage()
 
 	/// @TODO: do not show twice
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
-		while (players.at(0).get_anim_type() == ANIM_TYPE_TELEPORT) {
+        while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
 			showGame();
             draw_lib.update_screen();
 		}
@@ -262,30 +250,30 @@ void game::restart_stage()
 {
 
     // remove any used teleporter
-    players.at(0).set_teleporter(-1);
+    player1.set_teleporter(-1);
     _player_teleporter.active = false;
 
 	_show_boss_hp = false;
 	input.clean();
     loaded_stage->reset_current_map();
 	// TODO - this must be on a single method in soundlib
-	players.at(0).set_position(st_position(checkpoint.x, -TILESIZE));
+    player1.set_position(st_position(checkpoint.x, -TILESIZE));
 
     soundManager.stop_music();
     soundManager.unload_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
-	players.at(0).clean_projectiles();
-	players.at(0).set_animation_type(ANIM_TYPE_TELEPORT);
+    player1.clean_projectiles();
+    player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
         int min_y = loaded_stage->get_teleport_minimal_y(95); // x = 80 + half a player width (30)
-        players.at(0).set_teleport_minimal_y((min_y-3)*TILESIZE);
+        player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
     } else {
-        players.at(0).set_teleport_minimal_y(checkpoint.y-TILESIZE/2);
+        player1.set_teleport_minimal_y(checkpoint.y-TILESIZE/2);
     }
-    players.at(0).set_map(loaded_stage->get_current_map());
-	players.at(0).reset_hp();
+    player1.set_map(loaded_stage->get_current_map());
+    player1.reset_hp();
     loaded_stage->reset_stage_maps();
     loaded_stage->showStage();
     loaded_stage->showAbove();
@@ -325,7 +313,7 @@ bool game::showIntro()
 	} else {
         currentStage = scenes.pick_stage();
         unload_stage();
-        loaded_stage = new stage(currentStage, players);
+        loaded_stage = new stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
         if (game_save.stages[currentStage] == 0) {
@@ -370,7 +358,7 @@ void game::fps_count()
 bool game::test_teleport(classPlayer *test_player) {
 
 
-	if (players.at(0).get_anim_type() == ANIM_TYPE_TELEPORT) {
+    if (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
 		return false;
 	}
 
@@ -466,7 +454,7 @@ bool game::test_teleport(classPlayer *test_player) {
                         test_player->set_teleporter(i);
                     }
                     link_type = stage_data.links[j].type;
-                    set_player_teleporter(i, st_position(players.at(0).getPosition().x, players.at(0).getPosition().y), false);
+                    set_player_teleporter(i, st_position(player1.getPosition().x, player1.getPosition().y), false);
 					break;
 				}
 			// only clean teleport when player is out of the teleporter
@@ -554,9 +542,9 @@ void game::set_current_map(int temp_map_n)
 {
     loaded_stage->set_current_map(temp_map_n);
     loaded_stage->reset_current_map_objects();
-    players.at(0).set_map(loaded_stage->get_current_map());
+    player1.set_map(loaded_stage->get_current_map());
 
-    if (loaded_stage->get_current_map() != players.at(0).map) {
+    if (loaded_stage->get_current_map() != player1.map) {
         graphLib.show_debug_msg("EXIT #03");
 		exit(-1);
 	}
@@ -577,17 +565,17 @@ void game::map_present_boss(bool show_dialog)
     soundManager.play_boss_music();
 
     // 1. keep showing game screen until player reaches ground
-	players.at(0).clear_move_commands();
+    player1.clear_move_commands();
 	bool loop_run = true;
 	while (loop_run == true) {
         loaded_stage->showStage();
-		players.at(0).charMove();
-        bool hit_ground = players.at(0).hit_ground();
-        int anim_type = players.at(0).get_anim_type();
+        player1.charMove();
+        bool hit_ground = player1.hit_ground();
+        int anim_type = player1.get_anim_type();
         if (hit_ground == true && anim_type == ANIM_TYPE_STAND) {
 			loop_run = false;
 		}
-		players.at(0).show();
+        player1.show();
         loaded_stage->showAbove();
 		input.waitTime(8);
         draw_lib.update_screen();
@@ -624,14 +612,9 @@ void game::map_present_boss(bool show_dialog)
 
 }
 
-character *game::get_player()
-{
-    return (character*)&players.at(0);
-}
-
 object* game::get_player_platform()
 {
-	return players.at(0).get_platform();
+    return player1.get_platform();
 }
 
 void game::check_player_return_teleport()
@@ -661,7 +644,7 @@ void game::fill_player_weapon(short weapon_n)
 {
     soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
     for (int i=0; i<PLAYER_INITIAL_HP; i++) {
-        graphLib.draw_hp_bar(i, players.at(0).get_number(), weapon_n);
+        graphLib.draw_hp_bar(i, player1.get_number(), weapon_n);
         draw_lib.update_screen();
         timer.delay(60);
     }
@@ -683,10 +666,7 @@ void game::reset_stage_maps() const
 // ********************************************************************************************** //
 void game::remove_all_projectiles()
 {
-	std::vector<classPlayer>::iterator p_it;
-	for (p_it=players.begin(); p_it!=players.end(); p_it++) {
-		(*p_it).clean_projectiles();
-	}
+    player1.clean_projectiles();
     loaded_stage->get_current_map()->clean_map_npcs_projectiles();
 }
 
@@ -697,10 +677,7 @@ void game::reset_beam_objects()
 
 void game::remove_players_slide()
 {
-    std::vector<classPlayer>::iterator p_it;
-    for (p_it=players.begin(); p_it!=players.end(); p_it++) {
-        (*p_it).cancel_slide();
-    }
+    player1.cancel_slide();
 }
 
 
@@ -848,7 +825,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 			}
 		}
         soundManager.play_sfx(SFX_DOOR_OPEN);
-        loaded_stage->redraw_boss_door(false, (downTile-upTile+1), tileX, tileY, players.at(0).get_number());//bool is_close, int nTiles, int tileX
+        loaded_stage->redraw_boss_door(false, (downTile-upTile+1), tileX, tileY, player1.get_number());//bool is_close, int nTiles, int tileX
 	}
 
 
@@ -857,22 +834,22 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         loaded_stage->changeScrolling(scroll_move, false);
         loaded_stage->showStage();
         loaded_stage->show_npcs();
-		players.at(0).show();
+        player1.show();
         loaded_stage->showAbove();
 #if defined(PC)
         input.waitTime(3);
 #endif
         draw_lib.update_screen();
 		if (i%(TILESIZE/2) == 0) {
-			players.at(0).set_position(st_position(players.at(0).getPosition().x+scroll_move.x, players.at(0).getPosition().y));
-			players.at(0).char_update_real_position();
+            player1.set_position(st_position(player1.getPosition().x+scroll_move.x, player1.getPosition().y));
+            player1.char_update_real_position();
 		}
 	}
     if (is_door == true) {
         soundManager.play_sfx(SFX_DOOR_OPEN);
-        loaded_stage->redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, players.at(0).get_number());
-        players.at(0).reset_charging_shot();
-        players.at(0).cancel_slide();
+        loaded_stage->redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, player1.get_number());
+        player1.reset_charging_shot();
+        player1.cancel_slide();
     }
 	input.waitTime(6);
     timer.unpause();
@@ -894,8 +871,8 @@ void game::got_weapon()
 
 
     // remove any projectiles, charged shots, slides, etc
-    players.at(0).clean_projectiles();
-    players.at(0).clear_move_commands();
+    player1.clean_projectiles();
+    player1.clear_move_commands();
 
     if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
 		// check witch is the boss that was killed
@@ -905,32 +882,32 @@ void game::got_weapon()
 		/// @TODO: teletransport if capsules
 
 		// fall to ground
-		players.at(0).fall();
+        player1.fall();
 
 
 		/// @TODO: walk to boss room middle, if inside a boss room (must create a way to check this), otherwise, just jump up
-		walk_character_to_screen_point_x(&players.at(0), RES_W/2);
+        walk_character_to_screen_point_x(&player1, RES_W/2);
 
 		// jump up, implosion, jump down and teleport out of the screen
-		players.at(0).execute_jump_up();
-        draw_implosion(players.at(0).get_real_position().x+players.at(0).get_size().width/2-6, players.at(0).get_real_position().y+players.at(0).get_size().height/2-4);
-        players.at(0).show();
+        player1.execute_jump_up();
+        draw_implosion(player1.get_real_position().x+player1.get_size().width/2-6, player1.get_real_position().y+player1.get_size().height/2-4);
+        player1.show();
         draw_lib.update_screen();
 
-        players.at(0).set_weapon(currentStage);
-        fill_player_weapon(players.at(0).get_selected_weapon());
-		players.at(0).fall();
+        player1.set_weapon(currentStage);
+        fill_player_weapon(player1.get_selected_weapon());
+        player1.fall();
 		soundManager.play_sfx(SFX_GOT_WEAPON);
 		input.waitTime(5000);
 
         // fall to ground
-        players.at(0).fall();
+        player1.fall();
         input.waitTime(500);
 
 
 		soundManager.play_sfx(SFX_TELEPORT);
-		players.at(0).teleport_out();
-        players.at(0).set_show_hp(false);
+        player1.teleport_out();
+        player1.set_show_hp(false);
         input.waitTime(1000);
 
 		/// @TODO
@@ -944,11 +921,11 @@ void game::got_weapon()
         graphLib.surfaceFromFile(FILEPATH+"images/backgrounds/stage_boss_intro.png", &temp_bg);
 		graphLib.showSurface(&temp_bg);
 
-        players.at(0).set_position(st_position(20, (RES_H * 0.5 - players.at(0).get_size().height/2)));
-		players.at(0).set_animation_type(ANIM_TYPE_ATTACK);
+        player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
+        player1.set_animation_type(ANIM_TYPE_ATTACK);
         loaded_stage->set_scrolling(st_position(0, 0));
-		players.at(0).char_update_real_position();
-		players.at(0).show();
+        player1.char_update_real_position();
+        player1.show();
 
         graphLib.start_stars_animation();
 
@@ -970,14 +947,14 @@ void game::got_weapon()
         }
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
 
-		players.at(0).show();
+        player1.show();
 
         graphLib.wait_and_update_screen(5000);
         graphLib.stop_stars_animation();
     } else {
-		players.at(0).teleport_out();
+        player1.teleport_out();
 	}
-    players.at(0).set_show_hp(true);
+    player1.set_show_hp(true);
 
     game_save.stages[currentStage] = 1;
 
@@ -1001,11 +978,11 @@ void game::leave_stage()
 
 
     // return to stage selection
-    players.at(0).reset_charging_shot();
-    players.at(0).set_weapon(WEAPON_DEFAULT);
+    player1.reset_charging_shot();
+    player1.set_weapon(WEAPON_DEFAULT);
     currentStage = scenes.pick_stage();
     unload_stage();
-    loaded_stage = new stage(currentStage, players);
+    loaded_stage = new stage(currentStage, &player1);
     // show boss intro with stars, if needed
     soundManager.stop_music();
     if (game_save.stages[currentStage] == 0) {
@@ -1081,9 +1058,9 @@ void game::show_ending(st_position boss_pos)
     game_config.game_finished = true;
     fio.save_config(game_config);
 
-    players.at(0).set_show_hp(false);
+    player1.set_show_hp(false);
     // reset player colors to original
-    players.at(0).set_weapon(0);
+    player1.set_weapon(0);
 
     /// @TODO add scene ending
     leave_game = true;
@@ -1114,13 +1091,13 @@ void game::quick_load_game()
 void game::update_stage_scrolling()
 {
     loaded_stage->changeScrolling(checkScrolling());
-    st_position p_pos = players.at(0).get_real_position();
+    st_position p_pos = player1.get_real_position();
     //std::cout << "p_pos.x: " << p_pos.x << std::endl;
     if (p_pos.x < 0.0) {
-        players.at(0).change_position_x(1);
+        player1.change_position_x(1);
         // out of screen, probably because was pushed out on a autoscroll stage
         if (p_pos.x < -(TILESIZE*2)) {
-                players.at(0).damage(999, true);
+                player1.damage(999, true);
             }
     }
 }
@@ -1142,7 +1119,7 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
 	while (timer.getTimer() < timerInit+2000) {
         loaded_stage->showStage();
         if (show_players) {
-            players.at(0).show();
+            player1.show();
         }
         loaded_stage->showAbove();
         for (int i=0; i<6; i++) {
@@ -1181,7 +1158,7 @@ void game::draw_implosion(short int centerX, short int centerY) {
 	// y = b + r * sin(t)
     while (distance > -second_distance) {
         loaded_stage->showStage();
-		players.at(0).show();
+        player1.show();
         loaded_stage->showAbove();
         if (distance > 0) {
             for (int i=0; i<6; i++) {
@@ -1209,46 +1186,46 @@ void game::draw_implosion(short int centerX, short int centerY) {
 	}
 }
 
-void game::show_player(Uint8 player_n)
+void game::show_player()
 {
-	players.at(player_n).show();
+    player1.show();
 }
 
-void game::set_player_position(st_position pos, Uint8 player_n)
+void game::set_player_position(st_position pos)
 {
-	players.at(player_n).set_position(pos);
-    players.at(player_n).char_update_real_position();
+    player1.set_position(pos);
+    player1.char_update_real_position();
 }
 
-void game::change_player_position(short xinc, short yinc, short player_n)
+void game::change_player_position(short xinc, short yinc)
 {
-	players.at(player_n).change_position(xinc, yinc);
-	players.at(player_n).char_update_real_position();
+    player1.change_position(xinc, yinc);
+    player1.char_update_real_position();
 }
 
-void game::set_player_anim_type(ANIM_TYPE anim_type, Uint8 player_n)
+void game::set_player_anim_type(ANIM_TYPE anim_type)
 {
-    players.at(player_n).set_animation_type(anim_type);
+    player1.set_animation_type(anim_type);
 }
 
-st_position game::get_player_position(Uint8 player_n)
+st_position game::get_player_position()
 {
-    return st_position(players.at(player_n).getPosition().x, players.at(player_n).getPosition().y);
+    return st_position(player1.getPosition().x, player1.getPosition().y);
 }
 
-st_size game::get_player_size(Uint8 player_n)
+st_size game::get_player_size()
 {
-	return players.at(player_n).get_size();
+    return player1.get_size();
 }
 
-void game::set_player_direction(Uint8 direction, Uint8 player_n)
+void game::set_player_direction(Uint8 direction)
 {
-	players.at(player_n).set_direction(direction);
+    player1.set_direction(direction);
 }
 
-void game::player_fall(Uint8 player_n)
+void game::player_fall()
 {
-	players.at(player_n).fall();
+    player1.fall();
 }
 
 void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
@@ -1262,7 +1239,7 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
             loaded_stage->showStage();
             loaded_stage->showAbove();
             loaded_stage->show_npcs();
-			players.at(0).show();
+            player1.show();
             draw_lib.update_screen();
 			timer.delay(20);
 		}
@@ -1274,7 +1251,7 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
             loaded_stage->showStage();
             loaded_stage->showAbove();
             loaded_stage->show_npcs();
-			players.at(0).show();
+            player1.show();
             draw_lib.update_screen();
 			timer.delay(20);
 		}
@@ -1304,7 +1281,7 @@ void game::remove_current_teleporter_from_list()
     if (_player_teleporter.teleporter_n != -1) {
         _last_stage_used_teleporters.erase(_player_teleporter.teleporter_n);
     }
-    players.at(0).set_teleporter(-1);
+    player1.set_teleporter(-1);
 }
 
 std::string game::select_game_screen()
@@ -1341,29 +1318,29 @@ void game::finish_player_teleporter()
 {
     remove_all_projectiles();
     remove_players_slide();
-    players.at(0).recharge(ENERGY_TYPE_HP, ENERGY_ITEM_BIG);
-    players.at(0).teleport_out();
+    player1.recharge(ENERGY_TYPE_HP, ENERGY_ITEM_BIG);
+    player1.teleport_out();
     timer.delay(1000);
 
     _player_teleporter.active = false;
     _last_stage_used_teleporters.insert(pair<int,bool>(_player_teleporter.teleporter_n, true));
 	// teleport out
 	soundManager.play_sfx(SFX_TELEPORT);
-	players.at(0).teleport_out();
+    player1.teleport_out();
     _player_teleporter.old_player_pos.y -= 5;
-    players.at(0).set_position(_player_teleporter.old_player_pos);
+    player1.set_position(_player_teleporter.old_player_pos);
     loaded_stage->set_current_map(_player_teleporter.old_map_n);
     if (_last_stage_used_teleporters.size() == 8) {
         // search for the final-boss teleporter capsule and start it
         loaded_stage->activate_final_boss_teleporter();
     }
-    players.at(0).set_map(loaded_stage->get_current_map());
+    player1.set_map(loaded_stage->get_current_map());
     loaded_stage->set_scrolling(st_position(_player_teleporter.old_map_scroll));
-    players.at(0).set_animation_type(ANIM_TYPE_STAND);
+    player1.set_animation_type(ANIM_TYPE_STAND);
     if (_player_teleporter.is_object == true) {
         loaded_stage->get_current_map()->finish_object_teleporter(_player_teleporter.teleporter_n);
     }
-    players.at(0).set_teleporter(-1);
+    player1.set_teleporter(-1);
     soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
     soundManager.play_music();
@@ -1379,7 +1356,7 @@ void game::show_stage(int wait_time, bool move_npcs)
 	}
     if (_dark_mode == false) {
         loaded_stage->show_npcs();
-        players.at(0).show();
+        player1.show();
         loaded_stage->showAbove();
     }
 	if (wait_time > 0) {
@@ -1400,8 +1377,8 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     if (_last_stage_used_teleporters.find(teleporter_id) != _last_stage_used_teleporters.end()) {
         return;
     }
-    set_player_teleporter(teleporter_id, st_position(players.at(0).getPosition().x, players.at(0).getPosition().y), true);
-    classPlayer* test_player = &players.at(0);
+    set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
+    classPlayer* test_player = &player1;
     test_player->teleport_out();
     graphLib.blank_screen();
     draw_lib.update_screen();
@@ -1481,9 +1458,9 @@ void game::get_drop_item_ids()
     }
 }
 
-classPlayer *game::get_player(Uint8 n)
+character *game::get_player()
 {
-    return &players.at(n);
+    return &player1;
 }
 
 st_position game::get_current_stage_scroll() const

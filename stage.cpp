@@ -14,7 +14,7 @@ extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
+stage::stage(int setStageN, classPlayer* set_player_ref)
 {
     //std::cout << "STAGE::CONSTRUCTOR - setStageN: " << setStageN << std::endl;
     std::fflush(stdout);
@@ -34,13 +34,7 @@ stage::stage(int setStageN, std::vector<classPlayer> &set_player_list)
         maps[i] = NULL;
     }
 
-    std::vector<classPlayer>::iterator it;
-    int n = 0;
-	for (it=set_player_list.begin(); it != set_player_list.end(); it++) {
-        //std::cout << "p[" << n << "] added to stage" << std::endl;
-        n++;
-        _player_list.push_back(&(*it));
-	}
+    _player_ref = set_player_ref;
 }
 
 // ********************************************************************************************** //
@@ -87,7 +81,7 @@ void stage::loadStage() {
         new_map->setMapNumber(i);
         new_map->setStageNumber(number);
         new_map->loadMap();
-        new_map->set_player_list(_player_list);
+        new_map->set_player(_player_ref);
         maps[i] = new_map;
     }
 }

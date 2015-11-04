@@ -505,11 +505,18 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         }
 
     } else if (Mediator::get_instance()->editMode == EDITMODE_ANIM_TILE) {
-        // we set x as anim_tile.id -2 and y as zero
-        int anim_tile_id = (Mediator::get_instance()->selectedAnimTileset*-1) - 2;
-        std::cout << "$$$$$$$$$$$$$$$$$ ADD-ANIM-TILE, anim_tile_id: " << anim_tile_id << std::endl;
-        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.x = anim_tile_id;
-        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.y = 0;
+        if (Mediator::get_instance()->editTool == EDITMODE_NORMAL) {
+            // we set x as anim_tile.id -2 and y as zero
+            int anim_tile_id = (Mediator::get_instance()->selectedAnimTileset*-1) - 2;
+            if (anim_tile_id < 0) {
+                return;
+            }
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.x = anim_tile_id;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.y = 0;
+        } else {
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.x = -1;
+            Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.y = -1;
+        }
 
 
 

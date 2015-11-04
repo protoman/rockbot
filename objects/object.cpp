@@ -231,7 +231,7 @@ void object::check_player_move(int xinc, int yinc) const
     }
 	if (gameControl.get_player_platform() == this) {
         //std::cout << "************* object::check_player_move - MOVE xinc: " << xinc << ", yinc: " << yinc << " **************" << std::endl;
-		gameControl.change_player_position(xinc, yinc, 0);
+        gameControl.change_player_position(xinc, yinc);
     }
 }
 

@@ -85,7 +85,6 @@ void classMap::clean_map()
         delete _npc_list.back();
         _npc_list.pop_back();
     }
-	_player_list.erase(_player_list.begin(), _player_list.end());
 
     while (!object_list.empty()) {
         object_list.back().remove_graphic();
@@ -1325,8 +1324,8 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 				}
 			}
 		}
-		_player_list.at(0)->show();
-		graphLib.draw_hp_bar(_player_list.at(0)->get_current_hp(), player_number, WEAPON_DEFAULT);
+        _player_ref->show();
+        graphLib.draw_hp_bar(_player_ref->get_current_hp(), player_number, WEAPON_DEFAULT);
 		//show_sprite(p1Obj->sprite, game_screen);
 		//draw_hp_bar(p1Obj);
         showAbove();
@@ -1353,9 +1352,9 @@ void classMap::clear_animations()
 	animation_list.erase(animation_list.begin(), animation_list.end());
 }
 
-void classMap::set_player_list(std::vector<classPlayer*> player_list)
+void classMap::set_player(classPlayer *player_ref)
 {
-	_player_list = player_list;
+    _player_ref = player_ref;
 }
 
 classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int direction, bool player_friend, bool progressive_span)

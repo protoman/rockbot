@@ -46,13 +46,13 @@ struct_player_dist artificial_inteligence::dist_npc_players()
         graphLib.show_debug_msg("EXIT #A.01");
         exit(-1);
     }
-    if (map->_player_list.size() == 0) {
+    if (map->_player_ref == NULL) {
         std::cout << "ERROR: trying to calc NPC-player distance before there is a player in the game or this NPC does not have set the player_list" << std::endl;
         graphLib.show_debug_msg("EXIT #01");
         exit(-1);
     }
 
-    res.pObj = map->_player_list.at(0);
+    res.pObj = map->_player_ref;
     dist = sqrt(pow((position.x - res.pObj->getPosition().x), 2) + pow((position.y - res.pObj->getPosition().y), 2));
     res.dist_xy.x = abs((float)position.x - res.pObj->getPosition().x);
     res.dist_xy.y = abs((float)position.y - res.pObj->getPosition().y);
@@ -67,20 +67,15 @@ struct_player_dist artificial_inteligence::dist_npc_players()
 
 void artificial_inteligence::ground_damage_players()
 {
-    std::vector<classPlayer*>::iterator player_it;
-	for (player_it=map->_player_list.begin(); player_it != map->_player_list.end(); player_it++) {
-		// check if player is on ground
-        st_float_position npc_pos = (*player_it)->getPosition();
-		npc_pos.x = (npc_pos.x + (*player_it)->get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + (*player_it)->get_size().height)/TILESIZE;
-        int lock = map->getMapPointLock(st_position(npc_pos.x, npc_pos.y));
-        //std::cout << "ground_damage_players - NPC[" << (*player_it)->getName() << "].lock: " << lock << ", x: " << npc_pos.x << ", y: " << npc_pos.y << std::endl;
-		if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_STAIR || lock == TERRAIN_WATER) {
-			continue;
-		} else {
-            //std::cout << "&&&&&&&&&&&&& ground_damage_players - DAMAGING PLAYER[" << (*player_it)->getName() << "]" << std::endl;
-            (*player_it)->damage(3, false);
-		}
+    // check if player is on ground
+    st_float_position npc_pos = map->_player_ref->getPosition();
+    npc_pos.x = (npc_pos.x + map->_player_ref->get_size().width/2)/TILESIZE;
+    npc_pos.y = (npc_pos.y + map->_player_ref->get_size().height)/TILESIZE;
+    int lock = map->getMapPointLock(st_position(npc_pos.x, npc_pos.y));
+    //std::cout << "ground_damage_players - NPC[" << _player_ref->getName() << "].lock: " << lock << ", x: " << npc_pos.x << ", y: " << npc_pos.y << std::endl;
+    if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_STAIR && lock != TERRAIN_WATER) {
+        //std::cout << "&&&&&&&&&&&&& ground_damage_players - DAMAGING PLAYER[" << _player_ref->getName() << "]" << std::endl;
+        map->_player_ref->damage(3, false);
     }
 }
 
@@ -1014,8 +1009,8 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             }
 
             if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_FOLLOW) {
-                if (!is_player() && map->_player_list.size() > 0) {
-                    character* p_player = map->_player_list.at(0);
+                if (!is_player() && map->_player_ref != NULL) {
+                    character* p_player = map->_player_ref;
                     temp_proj.set_target_position(p_player->get_position_ref());
                 }
             }
@@ -1230,8 +1225,8 @@ void artificial_inteligence::execute_ai_step_fly()
                 }
 
                 if (GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n]).trajectory == TRAJECTORY_FOLLOW) {
-                    if (!is_player() && map->_player_list.size() > 0) {
-                        character* p_player = map->_player_list.at(0);
+                    if (!is_player() && map->_player_ref != NULL) {
+                        character* p_player = map->_player_ref;
                         temp_proj.set_target_position(p_player->get_position_ref());
                     }
                 }

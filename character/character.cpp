@@ -642,8 +642,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             temp_proj.set_owner_position(&position);
 		}
         if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_FOLLOW) {
-			if (!is_player() && map->_player_list.size() > 0) {
-				character* p_player = map->_player_list.at(0);
+            if (!is_player() && map->_player_ref != NULL) {
+                character* p_player = map->_player_ref;
                 temp_proj.set_target_position(p_player->get_position_ref());
             } else {
                 classnpc* temp_npc = map->find_nearest_npc(st_position(position.x, position.y));

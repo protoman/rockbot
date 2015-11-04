@@ -131,14 +131,14 @@ public:
      *
      * @param player_n
      */
-    void show_player(Uint8 player_n);
+    void show_player();
     /**
      * @brief
      *
      * @param pos
      * @param player_n
      */
-    void set_player_position(st_position pos, Uint8 player_n);
+    void set_player_position(st_position pos);
 
     /**
      * @brief
@@ -147,41 +147,41 @@ public:
      * @param yinc
      * @param player_n
      */
-    void change_player_position(short xinc, short yinc, short player_n);
+    void change_player_position(short xinc, short yinc);
     /**
      * @brief
      *
      * @param anim_type
      * @param player_n
      */
-    void set_player_anim_type(ANIM_TYPE anim_type, Uint8 player_n);
+    void set_player_anim_type(ANIM_TYPE anim_type);
     /**
      * @brief
      *
      * @param player_n
      * @return st_position
      */
-    st_position get_player_position(Uint8 player_n);
+    st_position get_player_position();
     /**
      * @brief
      *
      * @param player_n
      * @return st_size
      */
-    st_size get_player_size(Uint8 player_n);
+    st_size get_player_size();
     /**
      * @brief
      *
      * @param direction
      * @param player_n
      */
-    void set_player_direction(Uint8 direction, Uint8 player_n);
+    void set_player_direction(Uint8 direction);
     /**
      * @brief
      *
      * @param player_n
      */
-    void player_fall(Uint8 player_n);
+    void player_fall();
     /**
      * @brief
      *
@@ -244,13 +244,6 @@ public:
      */
     void set_current_map(int);
 
-    /**
-     * @brief
-     *
-     * @param n
-     * @return classPlayer
-     */
-    classPlayer* get_player(Uint8 n);
     /**
      * @brief
      *
@@ -370,7 +363,7 @@ public:
 
 private:
     stage* loaded_stage; /**< TODO */
-    std::vector<classPlayer> players; /**< TODO */
+    classPlayer player1; /**< TODO */
     scenesLib scenes; /**< TODO */
     unsigned int fps_timer; /**< TODO */
     int fps_counter; /**< TODO */
