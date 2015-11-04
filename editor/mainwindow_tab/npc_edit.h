@@ -99,6 +99,8 @@ private slots:
 
     void on_addEnemy_pushButton_clicked();
 
+    void on_isAttackFrame_checkBox_toggled(bool checked);
+
 private:
 	void fill_data();
 

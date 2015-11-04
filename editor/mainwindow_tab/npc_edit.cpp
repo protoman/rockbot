@@ -175,7 +175,10 @@ void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
 
 void npc_edit::on_npc_edit_tab_graphicheight_valueChanged(int arg1)
 {
-    if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
+    if (_data_loading) {
+        return;
+    }
+    if (Mediator::get_instance()->enemy_list.size() == 0) {
         return;
     }
     ui->npc_edit_tab_previewarea->set_grid_h(arg1);
@@ -192,6 +195,7 @@ void npc_edit::on_npc_edit_tab_graphicheight_valueChanged(int arg1)
         ui->npc_edit_tab_previewarea->update();
     }
     Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height = arg1;
+    _data_loading = false;
 }
 
 void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
@@ -312,6 +316,15 @@ void npc_edit::on_frame_list_selector_currentIndexChanged(int index)
 		return;
 	}
     Mediator::get_instance()->current_sprite_type = index;
+
+
+    _data_loading = true;
+    if (ui->frame_list_selector->currentText() == "ATTACK") {
+        ui->isAttackFrame_checkBox->setEnabled(true);
+    } else {
+        ui->isAttackFrame_checkBox->setEnabled(false);
+    }
+    _data_loading = false;
 	reload_frame_list(index);
 }
 
@@ -417,6 +430,17 @@ void npc_edit::on_frameList_listWidget_currentRowChanged(int currentRow)
     ui->sprite_colision_y->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.y);
     ui->sprite_colision_w->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.w);
     ui->sprite_colision_h->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.h);
+
+    if (ui->frame_list_selector->currentText() == "ATTACK") {
+        std::cout << "attack_frame: " << (int)Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame << ", currentRow: " << currentRow << std::endl;
+        _data_loading = true;
+        if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame == currentRow) {
+            ui->isAttackFrame_checkBox->setChecked(true);
+        } else {
+            ui->isAttackFrame_checkBox->setChecked(false);
+        }
+        _data_loading = false;
+    }
 }
 
 void npc_edit::on_sprite_duration_spinBox_valueChanged(int arg1)
@@ -629,4 +653,16 @@ void npc_edit::on_addEnemy_pushButton_clicked()
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
     ui->npc_edit_tab_selectnpccombo->addItem(QString("[") + QString::number(Mediator::get_instance()->enemy_list.size()-1) + QString("] Enemy Name"));
     ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->enemy_list.size()-1);
+}
+
+void npc_edit::on_isAttackFrame_checkBox_toggled(bool checked)
+{
+    if (_data_loading == true) { return; }
+    if (ui->frame_list_selector->currentText() == "ATTACK") {
+        if (checked == true) {
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame = ui->frameList_listWidget->currentRow();
+        } else {
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame = 0;
+        }
+    }
 }

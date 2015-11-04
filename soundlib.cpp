@@ -296,8 +296,7 @@ void soundLib::load_stage_music(std::string filename) {
     if (filename.length() > 0) {
         load_music(filename);
 	} else {
-        std::cout << "soundLib::load_stage_music - USE DEFAULT" << std::endl;
-		load_music("bgmusic.mod");
+        std::cout << "soundLib::load_stage_music - NO MUSIC." << std::endl;
     }
 }
 
