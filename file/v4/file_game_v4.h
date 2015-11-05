@@ -255,6 +255,8 @@ namespace format_v4 {
             }
             respawn_delay = 0;
             attack_frame = 0;
+            frame_size.width = TILESIZE;
+            frame_size.height = TILESIZE;
         }
 
     };

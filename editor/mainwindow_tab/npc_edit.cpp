@@ -73,6 +73,12 @@ void npc_edit::fill_data()
         ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
 
         ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
+
+        ui->npc_edit_tab_graphicheight->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
+        ui->npc_edit_tab_graphicwidth->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
+        Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height;
+        Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width;
+
     }
 
 }
@@ -365,7 +371,11 @@ void npc_edit::reload_frame_list(int index)
                 image = image.scaled(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width*2, Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height*2);
                 item->setIcon(image);
             }
-            item->setSizeHint(QSize(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width*2, Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height*2+4));
+            int h = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height*2+4;
+            if (h < 24) {
+                h = 24;
+            }
+            item->setSizeHint(QSize(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width*2, h));
             ui->frameList_listWidget->addItem(item);
         }
     }
@@ -653,6 +663,7 @@ void npc_edit::on_addEnemy_pushButton_clicked()
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
     ui->npc_edit_tab_selectnpccombo->addItem(QString("[") + QString::number(Mediator::get_instance()->enemy_list.size()-1) + QString("] Enemy Name"));
     ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->enemy_list.size()-1);
+    ui->npc_edit_tab_graphiccombo->setCurrentIndex(-1);
 }
 
 void npc_edit::on_isAttackFrame_checkBox_toggled(bool checked)
