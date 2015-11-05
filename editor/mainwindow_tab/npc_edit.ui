@@ -419,6 +419,29 @@
               </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_2">
+                <item row="5" column="1">
+                 <widget class="QCheckBox" name="isAttackFrame_checkBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
+                   <string>Is Attack Frame:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QSpinBox" name="sprite_colision_y"/>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="sprite_colision_x"/>
+                </item>
                 <item row="0" column="1">
                  <widget class="QSpinBox" name="sprite_duration_spinBox">
                   <property name="maximum">
@@ -426,23 +449,30 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_x"/>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_y"/>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_6">
-                  <property name="text">
-                   <string>X:</string>
+                <item row="7" column="0">
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                 </widget>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label_7">
                   <property name="text">
                    <string>Y:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_6">
+                  <property name="text">
+                   <string>X:</string>
                   </property>
                  </widget>
                 </item>
@@ -455,19 +485,6 @@
                 </item>
                 <item row="4" column="1">
                  <widget class="QSpinBox" name="sprite_colision_h"/>
-                </item>
-                <item row="6" column="0">
-                 <spacer name="verticalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_8">
@@ -485,23 +502,6 @@
                 </item>
                 <item row="3" column="1">
                  <widget class="QSpinBox" name="sprite_colision_w"/>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QCheckBox" name="isAttackFrame_checkBox">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QLabel" name="label_18">
-                  <property name="text">
-                   <string>Is Attack Frame:</string>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </item>
@@ -600,38 +600,14 @@
          <property name="bottomMargin">
           <number>20</number>
          </property>
-         <item row="12" column="2">
-          <widget class="QCheckBox" name="isBoss_checkBox">
-           <property name="text">
-            <string>Is Boss</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="0">
-          <widget class="QLabel" name="label_67">
-           <property name="text">
-            <string>Speed:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
-         </item>
-         <item row="14" column="0">
+         <item row="15" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Attacks:</string>
            </property>
           </widget>
          </item>
-         <item row="22" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Weaknesses:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="22" column="2">
+         <item row="23" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
@@ -641,10 +617,10 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_63">
+         <item row="23" column="0">
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Graphic:</string>
+            <string>Weaknesses:</string>
            </property>
           </widget>
          </item>
@@ -658,7 +634,21 @@
            </property>
           </widget>
          </item>
-         <item row="23" column="2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_70">
+           <property name="text">
+            <string>Enemy:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_63">
+           <property name="text">
+            <string>Graphic:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="24" column="2">
           <widget class="QSpinBox" name="respawn_time_spinBox">
            <property name="toolTip">
             <string>If different than zero, NPC will respawn even if is on-screen</string>
@@ -668,24 +658,10 @@
            </property>
           </widget>
          </item>
-         <item row="18" column="0">
+         <item row="19" column="0">
           <widget class="QLabel" name="label_65">
            <property name="text">
             <string>*IA Type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_70">
-           <property name="text">
-            <string>Enemy:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_iatype">
-           <property name="enabled">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -696,10 +672,31 @@
            </property>
           </widget>
          </item>
-         <item row="17" column="0">
+         <item row="18" column="0">
           <widget class="QLabel" name="label_66">
            <property name="text">
             <string>Shield Type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_iatype">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="2">
+          <widget class="QCheckBox" name="isSubBoss_checkbox">
+           <property name="text">
+            <string>Is Sub-Boss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Sprites Position </string>
            </property>
           </widget>
          </item>
@@ -777,42 +774,28 @@
            </item>
           </layout>
          </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Sprites Position </string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="2">
-          <widget class="QCheckBox" name="isSubBoss_checkbox">
-           <property name="text">
-            <string>Is Sub-Boss</string>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="0">
-          <widget class="QLabel" name="label_68">
-           <property name="text">
-            <string>Range:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0">
-          <widget class="QCheckBox" name="npc_edit_tab_canshoot">
-           <property name="text">
-            <string>Is Ghost</string>
-           </property>
-          </widget>
-         </item>
-         <item row="23" column="0">
+         <item row="24" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Auto-Respawn Delay:</string>
            </property>
           </widget>
          </item>
-         <item row="21" column="2">
+         <item row="22" column="0">
+          <widget class="QLabel" name="label_68">
+           <property name="text">
+            <string>Range:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
+          <widget class="QCheckBox" name="npc_edit_tab_canshoot">
+           <property name="text">
+            <string>Is Ghost</string>
+           </property>
+          </widget>
+         </item>
+         <item row="22" column="2">
           <widget class="QSpinBox" name="npc_edit_tab_range">
            <property name="minimum">
             <number>0</number>
@@ -824,9 +807,6 @@
             <number>160</number>
            </property>
           </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_graphiccombo"/>
          </item>
          <item row="9" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -866,7 +846,10 @@
            </item>
           </layout>
          </item>
-         <item row="14" column="2">
+         <item row="5" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_graphiccombo"/>
+         </item>
+         <item row="15" column="2">
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <property name="rightMargin">
             <number>0</number>
@@ -882,11 +865,40 @@
            </item>
           </layout>
          </item>
-         <item row="13" column="0">
+         <item row="14" column="0">
           <widget class="QCheckBox" name="checkBox">
            <property name="text">
             <string>Can Fly</string>
            </property>
+          </widget>
+         </item>
+         <item row="18" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_shieldtype">
+           <item>
+            <property name="text">
+             <string>no shield</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>full shield</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>front shield</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>stand_shield</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
           </widget>
          </item>
          <item row="6" column="2">
@@ -943,36 +955,27 @@
            </item>
           </layout>
          </item>
-         <item row="17" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_shieldtype">
-           <item>
-            <property name="text">
-             <string>no shield</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>full shield</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>front shield</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>stand_shield</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string/>
-            </property>
-           </item>
+         <item row="25" column="0">
+          <spacer name="verticalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Hit Area:</string>
+           </property>
           </widget>
          </item>
-         <item row="20" column="2">
+         <item row="21" column="2">
           <widget class="QSpinBox" name="npc_edit_tab_movespeed">
            <property name="minimum">
             <number>0</number>
@@ -992,30 +995,10 @@
            </property>
           </widget>
          </item>
-         <item row="24" column="0">
-          <spacer name="verticalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="4" column="0">
           <widget class="QLabel" name="label_64">
            <property name="text">
             <string>Hit Points:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Hit Area:</string>
            </property>
           </widget>
          </item>
@@ -1025,6 +1008,54 @@
             <string>Add Enemy</string>
            </property>
           </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
+         </item>
+         <item row="13" column="2">
+          <widget class="QCheckBox" name="isBoss_checkBox">
+           <property name="text">
+            <string>Is Boss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="21" column="0">
+          <widget class="QLabel" name="label_67">
+           <property name="text">
+            <string>Speed:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_19">
+           <property name="text">
+            <string>Projectile Origin:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_21">
+             <property name="text">
+              <string>X:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="projectileOriginX_spinBox"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>Y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QSpinBox" name="projectileOriginY_spinBox"/>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>

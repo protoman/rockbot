@@ -79,6 +79,8 @@ void npc_edit::fill_data()
         Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height;
         Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width;
 
+        ui->projectileOriginX_spinBox->setValue(Mediator::get_instance()->enemy_list.at(0).attack_arm_pos.x);
+        ui->projectileOriginY_spinBox->setValue(Mediator::get_instance()->enemy_list.at(0).attack_arm_pos.y);
     }
 
 }
@@ -145,6 +147,9 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
     ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
 
     ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
+
+    ui->projectileOriginX_spinBox->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_arm_pos.x);
+    ui->projectileOriginY_spinBox->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_arm_pos.y);
 
 	_data_loading = false;
 }
@@ -662,8 +667,8 @@ void npc_edit::on_addEnemy_pushButton_clicked()
 {
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
     ui->npc_edit_tab_selectnpccombo->addItem(QString("[") + QString::number(Mediator::get_instance()->enemy_list.size()-1) + QString("] Enemy Name"));
-    ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->enemy_list.size()-1);
     ui->npc_edit_tab_graphiccombo->setCurrentIndex(-1);
+    ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->enemy_list.size()-1);
 }
 
 void npc_edit::on_isAttackFrame_checkBox_toggled(bool checked)
@@ -676,4 +681,16 @@ void npc_edit::on_isAttackFrame_checkBox_toggled(bool checked)
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame = 0;
         }
     }
+}
+
+void npc_edit::on_projectileOriginX_spinBox_valueChanged(int arg1)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_arm_pos.x = arg1;
+}
+
+void npc_edit::on_projectileOriginY_spinBox_valueChanged(int arg1)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_arm_pos.y = arg1;
 }

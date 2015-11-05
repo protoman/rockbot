@@ -40,7 +40,7 @@ void npcPreviewArea::set_grid_h(int new_h)
 void npcPreviewArea::set_sprite_pos(st_position s_pos)
 {
 	_sprites_pos.x = s_pos.x;
-	_sprites_pos.y = s_pos.y;
+    _sprites_pos.y = s_pos.y;
 }
 
 

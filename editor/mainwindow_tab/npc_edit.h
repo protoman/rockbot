@@ -101,6 +101,10 @@ private slots:
 
     void on_isAttackFrame_checkBox_toggled(bool checked);
 
+    void on_projectileOriginX_spinBox_valueChanged(int arg1);
+
+    void on_projectileOriginY_spinBox_valueChanged(int arg1);
+
 private:
 	void fill_data();
 
