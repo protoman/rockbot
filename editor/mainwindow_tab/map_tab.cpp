@@ -96,6 +96,9 @@ void map_tab::fill_background_list()
 
     ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
 
+    ui->autoScrollBG1_mode->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].auto_scroll);
+    ui->autoScrollBG2_mode->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll);
+
 }
 
 void map_tab::fill_anim_tiles_data()
@@ -512,4 +515,16 @@ void map_tab::on_mapGFX_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx = index;
+}
+
+void map_tab::on_autoScrollBG1_mode_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].auto_scroll = index;
+}
+
+void map_tab::on_autoScrollBG2_mode_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll = index;
 }

@@ -64,6 +64,10 @@ private slots:
 
     void on_mapGFX_comboBox_currentIndexChanged(int index);
 
+    void on_autoScrollBG1_mode_currentIndexChanged(int index);
+
+    void on_autoScrollBG2_mode_currentIndexChanged(int index);
+
 private:
     void fill_data();
     void fill_background_list();
