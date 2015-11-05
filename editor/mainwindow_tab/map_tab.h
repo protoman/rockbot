@@ -62,6 +62,8 @@ private slots:
     void on_stageTileset_comboBox_currentIndexChanged(const QString &arg1);
     void on_addTile_pushButton_clicked();
 
+    void on_mapGFX_comboBox_currentIndexChanged(int index);
+
 private:
     void fill_data();
     void fill_background_list();

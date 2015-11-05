@@ -94,6 +94,8 @@ void map_tab::fill_background_list()
     ss << "background-color: rgb(" << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b << ")";
     ui->bg_color_pick->setStyleSheet(ss.str().c_str());
 
+    ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
+
 }
 
 void map_tab::fill_anim_tiles_data()
@@ -126,6 +128,7 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
         Mediator::get_instance()->setPallete(tileset.toStdString());
     }
 
+    ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
 
     ui->editArea->repaint();
     _data_loading = false;
@@ -503,4 +506,10 @@ void map_tab::on_addTile_pushButton_clicked()
     Mediator::get_instance()->anim_tiles.push_back(CURRENT_FILE_FORMAT::st_anim_map_tile());
     ui->current_anim_tile_combobox->addItem(QString::number(Mediator::get_instance()->anim_tiles.size()-1));
     ui->current_anim_tile_combobox->setCurrentIndex(Mediator::get_instance()->anim_tiles.size()-1);
+}
+
+void map_tab::on_mapGFX_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx = index;
 }
