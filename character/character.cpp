@@ -525,9 +525,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         attack_id = game_data.semi_charged_projectile_id;
     }
 
-
-
-
     if (moveCommands.attack == 0 && attack_button_released == false) {
         attack_button_released = true;
     }
@@ -602,13 +599,14 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
         attack_button_released = false; // coment out this line to get "turbo" in button
 		//attack_state == ATTACK_NOT &&
-		//std::cout << "character::attack - shoot projectile" << std::endl;
-		st_position proj_pos;
-		if (state.direction == ANIM_DIRECTION_LEFT) {
+        //std::cout << "character::attack - shoot projectile" << std::endl;
+        st_position proj_pos;
+
+        if (state.direction == ANIM_DIRECTION_LEFT) {
             proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
-		} else {
+        } else {
             proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
-		}
+        }
 
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();

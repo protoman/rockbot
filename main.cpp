@@ -73,7 +73,7 @@ bool have_save = false;
 #if defined(DINGUX)
 	std::string EXEC_NAME("rockbot.dge");
 #elif defined(WIN32)
-	std::string EXEC_NAME("rockbot.exe");
+    std::string EXEC_NAME = std::string("rockbot.exe");
 #elif defined(PLAYSTATION2)
 	std::string EXEC_NAME("rockbot.elf");
 #elif defined(PSP)

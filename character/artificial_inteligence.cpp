@@ -995,11 +995,23 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             if (invert_direction == true) {
                 proj_direction = !proj_direction;
             }
-            if (proj_direction == ANIM_DIRECTION_LEFT) {
-                proj_pos = st_position(position.x+TILESIZE/2, position.y+frameSize.height/2);
+
+            st_position_int8 attack_arm_pos = GameMediator::get_instance()->enemy_list.at(_number).attack_arm_pos;
+            if (attack_arm_pos.x < 1 && attack_arm_pos.y < 1) {
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
+                } else {
+                    proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
+                }
             } else {
-                proj_pos = st_position(position.x+frameSize.width-TILESIZE*2, position.y+frameSize.height/2);
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
+                } else {
+                    proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
+                }
             }
+            std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
+
             projectile_list.push_back(projectile(GameMediator::get_instance()->enemy_list.at(_number).projectile_id[n], proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();
 

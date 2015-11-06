@@ -77,8 +77,8 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
 
     // draw attack_position, if set
     painter.setPen(QPen(QColor(255, 255, 255), 1, Qt::DashLine));
-    int attack_x = center_x + adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x;
-    int attack_y = center_y + adjust_y + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y;
+    int attack_x = center_x + adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2;
+    int attack_y = center_y + adjust_y + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y*2;
     // vertical line
     painter.drawLine(attack_x, (center_y + adjust_y), attack_x, (center_y + adjust_y + npc_h));
     // horizontal line
