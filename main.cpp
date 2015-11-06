@@ -446,8 +446,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-    GAME_FLAGS[FLAG_QUICKLOAD] = true;
-
     /// DEBUG ///
     //GAME_FLAGS[FLAG_QUICKLOAD] = true;
 

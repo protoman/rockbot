@@ -24,7 +24,6 @@ inputLib::inputLib() : _used_keyboard(false)
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
-		p2_input[i] = 0;
 	}
     _show_btn_debug = false;
 }
@@ -32,17 +31,13 @@ inputLib::inputLib() : _used_keyboard(false)
 void inputLib::init_joystick()
 {
 	SDL_JoystickEventState(SDL_ENABLE);
-	joystick1 = SDL_JoystickOpen(0);
-    joystick2 = SDL_JoystickOpen(1);
-// gamecube controller init
-#ifdef WII
-    for (int i=7; i>= 4; i--) {
-        SDL_Joystick *joy = SDL_JoystickOpen(i);
-        if (joy) {
-            printf(">>>>>>>>>>>>>>>>>> init controller #%d <<<<<<<<<<<<<<<<<<<<<<\n", i);
-        }
-    }
-#endif
+    joystick1 = SDL_JoystickOpen(game_config.selected_input_device);
+}
+
+void inputLib::change_joystick()
+{
+    SDL_JoystickClose(joystick1);
+    joystick1 = SDL_JoystickOpen(game_config.selected_input_device);
 }
 
 // ********************************************************************************************** //
@@ -52,7 +47,6 @@ void inputLib::clean()
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
-		p2_input[i] = 0;
 	}
     while (SDL_PollEvent(&event)) {
         SDL_PumpEvents(); // check keyboard events
@@ -269,9 +263,9 @@ int inputLib::waitScapeTime(int wait_period) {
 
 	while (now_time < wait_period) {
 		readInput();
-		if (p1_input[BTN_START] == 1 || p2_input[BTN_START] == 1) {
+        if (p1_input[BTN_START] == 1) {
 			return 1;
-        } else if (p1_input[BTN_QUIT] == 1 || p2_input[BTN_QUIT] == 1) {
+        } else if (p1_input[BTN_QUIT] == 1) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #2" << std::endl;
             leave_game = true;
@@ -291,7 +285,7 @@ void inputLib::wait_keypress()
     bool fim = false;
     while (!fim) {
         readInput();
-		if (p1_input[BTN_START] == 1 || p2_input[BTN_JUMP] == 1 || p1_input[BTN_JUMP] == 1 || p2_input[BTN_JUMP]) {
+        if (p1_input[BTN_START] == 1 || p1_input[BTN_JUMP] == 1) {
             fim = true;
         }
         graphLib.updateScreen();
@@ -326,4 +320,9 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
         waitTime(5);
     }
     return false;
+}
+
+int inputLib::get_joysticks_number()
+{
+    return SDL_NumJoysticks();
 }

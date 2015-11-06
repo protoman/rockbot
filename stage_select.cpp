@@ -257,14 +257,14 @@ struct st_position stage_select::select() {
 	while (selection_end == 0) {
 		input.readInput();
 
-		if (input.p1_input[BTN_QUIT] || input.p2_input[BTN_QUIT]) {
+        if (input.p1_input[BTN_QUIT]) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             std::cout << "LEAVE #7" << std::endl;
             leave_game = true;
 #endif
 		}
 
-		if (select_pos.y < 2 && (input.p1_input[BTN_DOWN] || input.p2_input[BTN_DOWN])) {
+        if (select_pos.y < 2 && input.p1_input[BTN_DOWN]) {
             if (finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
@@ -276,7 +276,7 @@ struct st_position stage_select::select() {
             move_highlight(0, spacing.y);
             input.waitTime(200);
             input.clean();
-		} else if (select_pos.y > 0 && (input.p1_input[BTN_UP] || input.p2_input[BTN_UP])) {
+        } else if (select_pos.y > 0 && input.p1_input[BTN_UP]) {
             if (finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
@@ -288,7 +288,7 @@ struct st_position stage_select::select() {
             move_highlight(0, -spacing.y);
             input.waitTime(200);
             input.clean();
-		} else if (select_pos.x > 0 && (input.p1_input[BTN_LEFT] || input.p2_input[BTN_LEFT])) {
+        } else if (select_pos.x > 0 && input.p1_input[BTN_LEFT]) {
             if (finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
@@ -300,7 +300,7 @@ struct st_position stage_select::select() {
             move_highlight(-spacing.x, 0);
             input.waitTime(200);
             input.clean();
-		} else if (select_pos.x < 2 && (input.p1_input[BTN_RIGHT] || input.p2_input[BTN_RIGHT])) {
+        } else if (select_pos.x < 2 && input.p1_input[BTN_RIGHT]) {
             if (finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
@@ -312,9 +312,9 @@ struct st_position stage_select::select() {
             move_highlight(spacing.x, 0);
             input.waitTime(200);
             input.clean();
-        } else if ((input.p1_input[BTN_START] || input.p2_input[BTN_START]) && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
+        } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
 			selection_end = 1;
-        } else if ((input.p1_input[BTN_START] || input.p2_input[BTN_START]) && finished_stages() >= 9) {
+        } else if (input.p1_input[BTN_START] && finished_stages() >= 9) {
 			selection_end = 1;
 		}
 		animate_highlight();

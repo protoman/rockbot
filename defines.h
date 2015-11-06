@@ -901,7 +901,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_difficulty_normal,
     strings_ingame_difficulty_hard,
 
-
+    strings_ingame_config_input_selected_joystick,
 
     strings_ingame_COUNT
 };

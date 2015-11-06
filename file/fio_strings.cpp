@@ -60,6 +60,7 @@ namespace format_v4 {
         std::string str;
         while (getline(fp, str)) {
             StringUtils::replace_all(str, "\n", "");
+            StringUtils::replace_all(str, "\r", "");
             res.push_back(str);
         }
         fp.close();
@@ -154,10 +155,10 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
         sprintf(lines[strings_ingame_nogames], "%s", "NO GAMES AVAILABLE");
         sprintf(lines[strings_ingame_quitgame], "%s", "QUIT GAME?");
-        sprintf(lines[strings_ingame_life], "%s", "LIFE");
-        sprintf(lines[strings_ingame_item], "%s", "ITEM");
         sprintf(lines[strings_ingame_yes], "%s", "YES");
         sprintf(lines[strings_ingame_no], "%s", "NO");
+        sprintf(lines[strings_ingame_life], "%s", "LIFE");
+        sprintf(lines[strings_ingame_item], "%s", "ITEM");
         sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
         sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
         sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
@@ -178,6 +179,8 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_difficulty_easy], "%s", "EASY");
         sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
         sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
+        sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
+
 
         /// @TODO: add assert to check that we set all the values from the enum
 

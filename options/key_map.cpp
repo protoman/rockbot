@@ -147,6 +147,18 @@ Sint8 key_map::draw_config_keys() const
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right));
     }
 
+    char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
+    sprintf(temp_char, "%d", game_config.selected_input_device);
+    std::string selected_joystick_str(temp_char);
+
+
+    sprintf(temp_char, "%d", input.get_joysticks_number());
+    std::string max_joystick_str(temp_char);
+
+
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
+
+
     Sint8 selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
@@ -178,7 +190,14 @@ void key_map::config_input()
             } else {
                 game_config.input_mode = INPUT_MODE_DIGITAL;
             }
-
+        } else if (selected_option == 12) {
+            // increases joystick number until reaches max-1, then returns to zero
+            if (input.get_joysticks_number() > game_config.selected_input_device+1) {
+                game_config.selected_input_device++;
+                input.change_joystick();
+            } else {
+                game_config.selected_input_device = 0;
+            }
         } else {
             INPUT_COMMANDS selected_key = BTN_JUMP;
             if (selected_option == 1) {
