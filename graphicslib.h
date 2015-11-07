@@ -189,13 +189,9 @@ public:
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
 
     void initSurface(struct st_size, graphicsLib_gSurface *);
-    /**
-     * @brief
-     *
-     * @param st_rectangle
-     * @param
-     * @return graphicsLib_gSurface
-     */
+
+    void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
+
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
     /**
      * @brief

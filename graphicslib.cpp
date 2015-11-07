@@ -225,17 +225,6 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         printf("IMG_LoadPNG_RW: %s\n", IMG_GetError());
     }
 
-    /*
-    display_surface = SDL_DisplayFormat(spriteCopy);
-    if (display_surface == NULL) {
-        printf("SDL_DisplayFormat: %s\n", IMG_GetError());
-    }
-
-    SDL_FreeSurface(spriteCopy);
-
-
-    return display_surface;
-    */
     return spriteCopy;
 }
 
@@ -554,24 +543,20 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
-    //gSurface->set_surface(SDL_DisplayFormat(temp_surface));
-
-
-    gSurface->set_surface(SDL_DisplayFormat(temp_surface));
+    gSurface->set_surface(temp_surface);
 
 
     if (!gSurface->get_surface()) {
-        //show_debug_msg("EXIT #21.INIT #2");
-        std::cout << "GRAPH::initSurface WARNING - can't convert to screen-format" << std::endl;
-        #ifdef PSP
-        std::cout << "GRAPH::initSurface - SDL_DisplayFormat failed. RAM='" << _ram_counter.ramAvailable() << "'" << std::endl;
-        #endif
-        gSurface->set_surface(temp_surface); // stay with the original file in case of error (should fix PSP crash issues)
-    } else {
-        SDL_FreeSurface(temp_surface); // free the original
+        show_debug_msg("EXIT #21.INIT #2");
+        exit(-1);
     }
 	gSurface->width = size.width;
     gSurface->height = size.height;
+}
+
+void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
+{
+    SDL_SetAlpha(surface.get_surface(), SDL_SRCALPHA, alpha);
 }
 
 
@@ -1627,9 +1612,7 @@ void graphicsLib::set_video_mode()
         if (game_screen != NULL) {
             SDL_FreeSurface(game_screen);
         }
-        SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
-        game_screen = SDL_DisplayFormat(temp_surface);
-        SDL_FreeSurface(temp_surface);
+        game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
     }
 #endif
 

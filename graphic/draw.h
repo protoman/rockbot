@@ -37,6 +37,9 @@ public:
     void remove_object_graphic(int obj_id);
     void show_ingame_warning(std::vector<std::string> message);
 
+    void fade_in_screen(int r, int g, int b);
+    void fade_out_screen(int r, int g, int b);
+
 private:
     /**
      * @brief

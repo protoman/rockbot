@@ -436,4 +436,42 @@ void draw::show_ingame_warning(std::vector<std::string> message)
     input.wait_keypress();
 }
 
+void draw::fade_in_screen(int r, int g, int b)
+{
+    graphicsLib_gSurface screen_copy;
+    graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
+    graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &screen_copy);
+
+    graphicsLib_gSurface transparent_area;
+    graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, r, g, b, transparent_area);
+
+    for (int i=255; i>=0; i--) {
+        graphLib.showSurface(&screen_copy);
+        graphLib.set_surface_alpha(i, transparent_area);
+        graphLib.showSurface(&transparent_area);
+        graphLib.updateScreen();
+        timer.delay(1);
+    }
+}
+
+void draw::fade_out_screen(int r, int g, int b)
+{
+    graphicsLib_gSurface screen_copy;
+    graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
+    graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &screen_copy);
+
+    graphicsLib_gSurface transparent_area;
+    graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, r, g, b, transparent_area);
+
+    for (int i=0; i<=255; i++) {
+        graphLib.showSurface(&screen_copy);
+        graphLib.set_surface_alpha(i, transparent_area);
+        graphLib.showSurface(&transparent_area);
+        graphLib.updateScreen();
+        timer.delay(1);
+    }
+}
+
 
