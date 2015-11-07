@@ -115,7 +115,7 @@ void key_map::redraw_line(short line) const
 
 
 
-Sint8 key_map::draw_config_keys() const
+Sint8 key_map::draw_config_input() const
 {
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
@@ -127,24 +127,11 @@ Sint8 key_map::draw_config_keys() const
 
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
     std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start));
-
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons));
     if (game_config.input_mode == INPUT_MODE_DIGITAL) {
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_digital));
     } else {
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_analog));
-    }
-    if (game_config.input_mode == INPUT_MODE_DIGITAL) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_up));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_down));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_left));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right));
     }
 
     char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
@@ -165,6 +152,36 @@ Sint8 key_map::draw_config_keys() const
     return selected_option;
 }
 
+Sint8 key_map::draw_config_buttons() const
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    input.waitTime(100);
+    input.clean();
+    input.waitTime(100);
+
+    graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
+    std::vector<std::string> options;
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_up));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_down));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_left));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right));
+
+    Sint8 selected_option = 0;
+    option_picker main_config_picker(false, config_text_pos, options, true);
+    selected_option = main_config_picker.pick();
+    return selected_option;
+}
+
 
 
 
@@ -175,22 +192,17 @@ void key_map::config_input()
     int selected_option = 0;
 
     while (selected_option != -1) {
-        selected_option = draw_config_keys();
+        selected_option = draw_config_input();
 
         if (selected_option == 0) {
-            game_config.set_default_keys();
-        } else if (selected_option == -1) {
-            // apply changes to game-config
-            apply_key_codes_changes(game_config_copy);
-            return;
-
-        } else if (selected_option == 8) {
+            config_buttons();
+        } else if (selected_option == 1) {
             if (game_config.input_mode == INPUT_MODE_DIGITAL) {
                 game_config.input_mode = INPUT_MODE_ANALOG;
             } else {
                 game_config.input_mode = INPUT_MODE_DIGITAL;
             }
-        } else if (selected_option == 12) {
+        } else if (selected_option == 2) {
             // increases joystick number until reaches max-1, then returns to zero
             if (input.get_joysticks_number() > game_config.selected_input_device+1) {
                 game_config.selected_input_device++;
@@ -198,8 +210,23 @@ void key_map::config_input()
             } else {
                 game_config.selected_input_device = 0;
             }
-        } else {
-            INPUT_COMMANDS selected_key = BTN_JUMP;
+        }
+    }
+    // apply changes to game-config
+    apply_key_codes_changes(game_config_copy);
+}
+
+void key_map::config_buttons()
+{
+    CURRENT_FILE_FORMAT::st_game_config game_config_copy = game_config;
+    int selected_option = 0;
+    while (selected_option != -1) {
+        selected_option = draw_config_buttons();
+
+        INPUT_COMMANDS selected_key = BTN_JUMP;
+        if (selected_option == 0) {
+            game_config.set_default_keys();
+        } else if (selected_option != -1) {
             if (selected_option == 1) {
                 selected_key = BTN_JUMP;
             } else if (selected_option == 2) {
@@ -233,6 +260,7 @@ void key_map::config_input()
     }
     // apply changes to game-config
     apply_key_codes_changes(game_config_copy);
+
 }
 
 // if any key is duplicated in the config, reset it to default value

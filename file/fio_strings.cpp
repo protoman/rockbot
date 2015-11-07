@@ -180,6 +180,8 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
         sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
         sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
+        sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
+
 
 
         /// @TODO: add assert to check that we set all the values from the enum

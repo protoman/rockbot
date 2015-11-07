@@ -332,31 +332,47 @@ public:
 	}
 
 
-    void init_colorkeys() {
+    bool is_on_tolerance(SDL_Color pixel_color, int r, int g, int b, int tolerance) {
+        if (pixel_color.r < r-tolerance || pixel_color.r > r+tolerance) {
+            return false;
+        }
+        if (pixel_color.g < g-tolerance || pixel_color.g > g+tolerance) {
+            return false;
+        }
+        if (pixel_color.b < b-tolerance || pixel_color.b > b+tolerance) {
+            return false;
+        }
+        return true;
+    }
 
-        Uint32 key_n1 = SDL_MapRGB(gSurface->format, COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
-        Uint32 key_n2 = SDL_MapRGB(gSurface->format, COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
-        Uint32 key_n3 = SDL_MapRGB(gSurface->format, COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
+
+    std::vector<st_position> get_color_points(int r, int g, int b) {
+        std::vector<st_position> res;
+        for (int tolerance=0; tolerance<=5; tolerance++) {
+            for (Sint16 y=0; y<gSurface->h; y++) {
+                for (Sint16 x=0; x<gSurface->w; x++) {
+                    Uint32 pixel = get_pixel(x, y);
+                    SDL_Color pixel_color = get_pixel_color(pixel);
+                    if (is_on_tolerance(pixel_color, r, g, b, tolerance) == true) {
+                        st_position pos = st_position(x, y);
+                        res.push_back(pos);
+                    }
+                }
+            }
+            if (res.size() > 0) {
+                break;
+            }
+        }
+        return res;
+    }
+
+    void init_colorkeys() {
 
         SDL_LockSurface(gSurface);
 
-        for (Sint16 y=0; y<gSurface->h; y++) {
-            for (Sint16 x=0; x<gSurface->w; x++) {
-                Uint32 pixel = get_pixel(x, y);
-                if (pixel == key_n1) {
-                    st_position pos = st_position(x, y);
-                    colorkey1_points.push_back(pos);
-                } else if (pixel == key_n2) {
-                    //if (show_debug == true) std::cout << "key_n2.add" << std::endl;
-                    st_position pos = st_position(x, y);
-                    colorkey2_points.push_back(pos);
-                } else if (pixel == key_n3) {
-                    //if (show_debug == true) std::cout << "key_n3.add" << std::endl;
-                    st_position pos = st_position(x, y);
-                    colorkey3_points.push_back(pos);
-                }
-            }
-        }
+        colorkey1_points = get_color_points(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
+        colorkey2_points = get_color_points(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
+        colorkey3_points = get_color_points(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
 
         SDL_UnlockSurface(gSurface);
 
