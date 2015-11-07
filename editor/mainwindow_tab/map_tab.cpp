@@ -99,6 +99,16 @@ void map_tab::fill_background_list()
     ui->autoScrollBG1_mode->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].auto_scroll);
     ui->autoScrollBG2_mode->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll);
 
+    QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
+    if (tileset.length() > 0) {
+        ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
+        Mediator::get_instance()->setPallete(tileset.toStdString());
+    } else {
+        ui->stageTileset_comboBox->setCurrentIndex(-1);
+    }
+
+
+
 }
 
 void map_tab::fill_anim_tiles_data()
@@ -119,6 +129,7 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
     if (_data_loading == true) {
         return;
     }
+    bool data_loading_before = _data_loading;
     _data_loading = true;
     Mediator::get_instance()->currentMap = 0;
     Mediator::get_instance()->currentStage = index;
@@ -129,12 +140,14 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
     if (tileset.length() > 0) {
         ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
         Mediator::get_instance()->setPallete(tileset.toStdString());
+    } else {
+        ui->stageTileset_comboBox->setCurrentIndex(-1);
     }
 
     ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
 
     ui->editArea->repaint();
-    _data_loading = false;
+    _data_loading = data_loading_before;
 }
 
 void map_tab::on_mapListCombo_currentIndexChanged(int index)
@@ -142,10 +155,11 @@ void map_tab::on_mapListCombo_currentIndexChanged(int index)
     if (index < 0) {
         return;
     }
+    bool data_loading_before = _data_loading;
     _data_loading = true;
     Mediator::get_instance()->currentMap = index;
     fill_background_list();
-    _data_loading = false;
+    _data_loading = data_loading_before;
     ui->editArea->repaint();
 }
 
