@@ -771,7 +771,7 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
     st_color color_white(235, 235, 235);
     st_color color_black(0, 0, 0);
 
-    Uint32 key_n = SDL_MapRGB(tileset->format, color_black.r, color_black.g, color_black.b);
+    Uint32 key_n = SDL_MapRGB(game_screen->format, color_black.r, color_black.g, color_black.b);
     for (int i=0; i<5; i++) {
         change_surface_color(key_n, color_white, &surface);
         showSurface(&surface);
