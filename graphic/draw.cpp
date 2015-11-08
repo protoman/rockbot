@@ -7,6 +7,7 @@
 #define RAIN_DELAY 160
 #define FLASH_DELAY 260
 #define FLASH_IMG_SIZE 8
+#define SNOW_DELAY 40
 
 extern graphicsLib graphLib;
 
@@ -24,7 +25,7 @@ extern game gameControl;
 extern inputLib input;
 
 
-draw::draw() : _rain_pos(0), _rain_timer(0), _rain_enabled(false), _flash_pos(0), _flash_timer(0), _flash_enabled(false)
+draw::draw() : _rain_pos(0), _effect_timer(0), _rain_enabled(false), _flash_pos(0), _flash_timer(0), _flash_enabled(false),_snow_effect_enabled(true)
 {
     for (int i=0; i<FLASH_POINTS_N; i++) {
         flash_points[i].x = rand() % RES_W;
@@ -56,6 +57,8 @@ void draw::update_screen()
 {
     if (_rain_enabled == true) {
         show_rain();
+    } else if (_snow_effect_enabled == true) {
+        show_snow_effect();
     }
     if (_flash_enabled == true) {
         show_flash();
@@ -88,12 +91,12 @@ void draw::show_rain()
             graphLib.showSurfaceRegionAt(&rain_obj, st_rectangle(_rain_pos*TILESIZE, 0, TILESIZE, TILESIZE), st_position(i*TILESIZE, j*TILESIZE));
         }
     }
-    if (timer.getTimer() > _rain_timer) {
+    if (timer.getTimer() > _effect_timer) {
         _rain_pos++;
         if (_rain_pos > 2) {
             _rain_pos = 0;
         }
-        _rain_timer = timer.getTimer() + RAIN_DELAY;
+        _effect_timer = timer.getTimer() + RAIN_DELAY;
     }
 }
 
@@ -471,6 +474,63 @@ void draw::fade_out_screen(int r, int g, int b)
         graphLib.showSurface(&transparent_area);
         graphLib.updateScreen();
         timer.delay(1);
+    }
+}
+
+void draw::generate_snow_particles()
+{
+    for (int i=0; i<SNOW_PARTICLES_NUMBER; i++) {
+        int rand_x = rand() % RES_W;
+        int rand_y = rand() % RES_H;
+        int rand_speed = rand() % 5;
+        if (rand_speed < 1) {
+            rand_speed = 1;
+        }
+        _snow_particles.push_back(st_snow_particle(st_float_position(rand_x, rand_y), rand_speed));
+    }
+}
+
+void draw::show_snow_effect()
+{
+    if (_snow_particles.size() == 0) {                  // generate snow particles, if needed
+        generate_snow_particles();
+    }
+    std::vector<st_snow_particle>::iterator it;
+
+
+    //std::cout << "timer.getTimer(): " << timer.getTimer() << ", _effect_timer: " << _effect_timer << std::endl;
+    if (timer.getTimer() > _effect_timer) {
+        for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
+            st_snow_particle *temp_particle = &(*it);
+            //std::cout << "SNOW.MOVE" << std::endl;
+            temp_particle->position.y += temp_particle->speed;
+            if (temp_particle->direction == ANIM_DIRECTION_LEFT) {
+                temp_particle->position.x--;
+            } else {
+                temp_particle->position.x++;
+            }
+            temp_particle->x_dist++;
+            if (temp_particle->x_dist > 8) {
+                temp_particle->x_dist = 0;
+                temp_particle->direction = !temp_particle->direction;
+            }
+            if (temp_particle->position.y > RES_H) {
+                temp_particle->position.x = rand() % RES_W;
+                temp_particle->speed = rand() % 5;
+                if (temp_particle->speed < 1) {
+                    temp_particle->speed = 1;
+                }
+                temp_particle->position.y = 0;
+
+            }
+            graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
+        }
+        _effect_timer = timer.getTimer() + SNOW_DELAY;
+    } else {
+        for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
+            st_snow_particle *temp_particle = &(*it);
+            graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
+        }
     }
 }
 

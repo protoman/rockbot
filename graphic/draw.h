@@ -4,19 +4,29 @@
 #include "graphicslib.h"
 
 #define FLASH_POINTS_N 10
+#define SNOW_PARTICLES_NUMBER 20
 
+struct st_snow_particle {
+    st_float_position position;
+    float speed;                    // vertical speed. horizontal speed is the same for all
+    float x_dist;                   // used to check how many pixels were moved in balance to change direction
+    short direction;                // if balancing left or right
+    st_snow_particle(st_float_position pos, float spd)
+    {
+        position = pos;
+        speed = spd;
+        x_dist = 0;
+        if ((int)position.x % 2 == 0) {
+            direction = ANIM_DIRECTION_LEFT;
+        } else {
+            direction = ANIM_DIRECTION_RIGHT;
+        }
+    }
+};
 
-/**
- * @brief
- *
- */
 class draw
 {
 public:
-/**
- * @brief
- *
- */
     draw();
 
 public:
@@ -40,6 +50,9 @@ public:
     void fade_in_screen(int r, int g, int b);
     void fade_out_screen(int r, int g, int b);
 
+    void generate_snow_particles();
+    void show_snow_effect();
+
 private:
     /**
      * @brief
@@ -52,7 +65,7 @@ private:
 
 private:
     graphicsLib_gSurface rain_obj;
-    unsigned int _rain_timer;
+    unsigned int _effect_timer;
     short int _rain_pos;
     bool _rain_enabled;
 
@@ -71,7 +84,9 @@ private:
     // GRAPHICS LISTS
     std::map<unsigned int, graphicsLib_gSurface> objects_sprite_list; // object_id, graphic
 
-
+    // USED IN SNOW EFFECT
+    bool _snow_effect_enabled;
+    std::vector<st_snow_particle> _snow_particles;
 
 
 };
