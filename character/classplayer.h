@@ -21,6 +21,9 @@ public:
 
     set_player_name(std::string set_name);
 
+    // called after game was picked and loaded, so we have player data
+    initialize();
+
     /**
      * @brief hardcoded method for setting each frame for a player (@TODO: replace by user driven data)
      */

@@ -1085,6 +1085,7 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
 	initGame();
+    player1.initialize();
     start_stage();
 }
 

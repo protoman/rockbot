@@ -38,7 +38,6 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
         //_obj_jump.set_jump_acceleration(0.95);
         _obj_jump.set_jump_limit(50);
     }
-	max_projectiles = game_data.players[_number].max_shots;
     position.y = -TILESIZE;
 	position.x = 80;
     hit_duration = 2000;
@@ -46,13 +45,27 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
 	hitPoints.current = hitPoints.total;
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
-	if (game_data.players[_number].can_slide == true) {
-		slide_type = 1;
-	}
     move_speed = PLAYER_MOVE_SPEED;
+    selected_weapon = 0;
+    reset_charging_shot();
+}
 
+classPlayer::set_player_name(std::string set_name)
+{
+    name = set_name;
+}
+
+classPlayer::initialize()
+{
+    max_projectiles = game_data.players[_number].max_shots;
+    // it is a player, can't have zero projectiles!!
+    if (max_projectiles < 1) {
+        max_projectiles = 1;
+    }
+    if (game_data.players[_number].can_slide == true) {
+        slide_type = 1;
+    }
     _charged_shot_projectile_id = game_data.players[_number].full_charged_projectile_id;
-
     std::cout << ">>> p[" << _number << "]._charged_shot_projectile_id: " << _charged_shot_projectile_id << std::endl;
 
     _simultaneous_shots = game_data.players[_number].simultaneous_shots;
@@ -64,15 +77,7 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     }
     _damage_modifier = game_data.players[_number].damage_modifier;
     update_armor_properties();
-
-    selected_weapon = 0;
-    reset_charging_shot();
     change_player_color(true);
-}
-
-classPlayer::set_player_name(std::string set_name)
-{
-    name = set_name;
 }
 
 
@@ -271,10 +276,12 @@ void classPlayer::attack(bool dont_update_colors)
 
 
     if (state.animation_type == ANIM_TYPE_HIT) { // can't fire when hit
+        std::cout << ">> PLAYER::attack()::LEAVE #1" << std::endl;
         return;
     }
 
     if (get_projectile_max_shots() <= projectile_list.size()) {
+        std::cout << ">> PLAYER::attack()::LEAVE #2, max-shots: " << (int)get_projectile_max_shots() << std::endl;
         return;
     }
 

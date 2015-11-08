@@ -2180,6 +2180,7 @@ Uint8 character::get_projectile_max_shots()
         }
     }
     if (all_projectiles_normal == true) {
+        std::cout << "CHAR::get_projectile_max_shots - All Normal" << std::endl;
         return max_projectiles;
     }
     return max_proj;
