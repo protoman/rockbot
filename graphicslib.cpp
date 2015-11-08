@@ -400,6 +400,10 @@ void graphicsLib::place_hardmode_block_tile(st_position destiny)
 
 void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, struct graphicsLib_gSurface* dest_surface)
 {
+    if (anim_tile_id >= ANIM_TILES_SURFACES.size()) {
+        std::cout << "place_anim_tile - ERROR Invalid anim-tile-id: " << anim_tile_id << " - ignoring..." << std::endl;
+        return;
+    }
     if (!ANIM_TILES_SURFACES.at(anim_tile_id).get_surface()) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
         show_debug_msg("EXIT place_anim_tile");
@@ -1694,7 +1698,9 @@ void graphicsLib::preload_images()
 
 void graphicsLib::preload_anim_tiles()
 {
-    for (int i=0; i<GameMediator::get_instance()->anim_tile_list.size(); i++) {
+    int max = GameMediator::get_instance()->anim_tile_list.size();
+    std::cout << "graphicsLib::preload_anim_tiles - max: " << max << std::endl;
+    for (int i=0; i<max; i++) {
         std::string file(GameMediator::get_instance()->anim_tile_list.at(i).filename);
         if (file.length() < 1) {
             std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;

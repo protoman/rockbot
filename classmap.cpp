@@ -211,6 +211,9 @@ void classMap::showMap()
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     draw_dynamic_backgrounds();
     int tile_x_ini = scroll.x/TILESIZE-1;
+    if (tile_x_ini < 0) {
+        tile_x_ini = 0;
+    }
 
     // draw the tiles of the screen region
     struct st_position pos_origin;
@@ -240,6 +243,7 @@ void classMap::showMap()
                 } else if (pos_origin.x < -1 && pos_origin.y == 0) {
                     int anim_tile_id = (pos_origin.x * -1) - 2;
                     pos_destiny.y = j*TILESIZE;
+                    std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
                     graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
                 }
             }

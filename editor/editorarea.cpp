@@ -148,6 +148,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     } else {
                         std::cout << ">>>>>>>> anim-file '" << anim_tile_filename.toStdString() << "' not found." << std::endl;
                     }
+                } else {
+                    std::cout << "Invalid anim-tile-id: " << anim_tile_id << std::endl;
                 }
             }
             // level 3

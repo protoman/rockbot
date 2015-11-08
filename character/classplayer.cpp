@@ -44,9 +44,6 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     hit_duration = 2000;
 	hitPoints.total = PLAYER_INITIAL_HP;
 	hitPoints.current = hitPoints.total;
-	add_graphic();
-	init_weapon_colors();
-    //initFrames();
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
 	if (game_data.players[_number].can_slide == true) {
@@ -473,6 +470,9 @@ void classPlayer::initFrames()
 {
 	frameSize.width = 29;
     frameSize.height = 29;
+
+    add_graphic();
+    init_weapon_colors();
 
 	graphicsLib_gSurface playerSpriteSurface;
 	std::stringstream filename;
