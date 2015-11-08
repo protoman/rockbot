@@ -127,7 +127,7 @@ Sint8 key_map::draw_config_input() const
 
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
     std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons));
     if (game_config.input_mode == INPUT_MODE_DIGITAL) {
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_digital));
     } else {
