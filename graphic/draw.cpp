@@ -25,7 +25,7 @@ extern game gameControl;
 extern inputLib input;
 
 
-draw::draw() : _rain_pos(0), _effect_timer(0), _rain_enabled(false), _flash_pos(0), _flash_timer(0), _flash_enabled(false),_snow_effect_enabled(true)
+draw::draw() : _rain_pos(0), _effect_timer(0), _rain_enabled(false), _flash_pos(0), _flash_timer(0), _flash_enabled(false), _snow_effect_enabled(false)
 {
     for (int i=0; i<FLASH_POINTS_N; i++) {
         flash_points[i].x = rand() % RES_W;
