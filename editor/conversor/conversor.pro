@@ -20,19 +20,19 @@ INCLUDEPATH += ..
 INCLUDEPATH += ../..
 
 win32 {
-        LIBS =  -lmingw32 -lSDLmain -lSDL -mwindows -LC:\Qt\5.5\mingw492_32\lib
+    LIBS =  -lmingw32 -lSDLmain -lSDL -mwindows -LC:\Qt\5.5\mingw492_32\lib
 
-        INCLUDES = -I/usr/include/SDL \
-        -I/usr/include \
-        -I/include \
-        -I. \
-        -I./include \
-        -L/usr/lib \
-        -I.. \
-        -I../..
+    INCLUDES = -I/usr/include/SDL \
+    -I/usr/include \
+    -I/include \
+    -I. \
+    -I./include \
+    -L/usr/lib \
+    -I.. \
+    -I../..
 
-        QMAKE_CCFLAGS += -DWIN32 -DPC
-        QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib
+    QMAKE_CCFLAGS += -DWIN32 -DPC
+    QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib
 }
 
 TEMPLATE = app
