@@ -21,18 +21,6 @@ private slots:
     void on_company_combo_currentIndexChanged(int index);
     void on_intro_combo_currentIndexChanged(int index);
     void on_intro_beaten_combo_currentIndexChanged(int index);
-    void on_pre_castle1_combo_currentIndexChanged(int index);
-    void on_castle1_stage1_combo_currentIndexChanged(int index);
-    void on_castle1_stage2_combo_currentIndexChanged(int index);
-    void on_castle1_stage3_combo_currentIndexChanged(int index);
-    void on_castle1_stage4_combo_currentIndexChanged(int index);
-    void on_castle1_stage5_combo_currentIndexChanged(int index);
-    void on_pre_castle2_combo_currentIndexChanged(int index);
-    void on_castle2_stage1_combo_currentIndexChanged(int index);
-    void on_castle2_stage2_combo_currentIndexChanged(int index);
-    void on_castle2_stage3_combo_currentIndexChanged(int index);
-    void on_castle2_stage4_combo_currentIndexChanged(int index);
-    void on_castle2_stage5_combo_currentIndexChanged(int index);
     void on_ending_player1_combo_currentIndexChanged(int index);
     void on_ending_player2_combo_currentIndexChanged(int index);
     void on_ending_player3_combo_currentIndexChanged(int index);

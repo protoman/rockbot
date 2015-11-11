@@ -354,6 +354,13 @@ void common::fill_object_listWidget(QListWidget *listWidget)
     listWidget->update();
 }
 
+void common::fill_scenes_combo(QComboBox *combo)
+{
+    for (int i=0; i<Mediator::get_instance()->scene_list.size(); i++) {
+        combo->addItem(Mediator::get_instance()->scene_list.at(i).name);
+    }
+}
+
 std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;

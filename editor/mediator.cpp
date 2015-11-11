@@ -79,6 +79,9 @@ Mediator::Mediator() {
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
     }
+    if (scene_list.size() == 0) {
+        scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
+    }
 
 }
 
@@ -148,6 +151,10 @@ void Mediator::load_game() {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
     }
 
+    scene_list = fio_scenes.load_scenes();
+    if (scene_list.size() == 0) {
+        scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
+    }
 
 }
 

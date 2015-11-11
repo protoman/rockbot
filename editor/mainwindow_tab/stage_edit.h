@@ -79,6 +79,10 @@ private slots:
 
     void on_autoScrolling_checkBox_toggled(bool checked);
 
+    void on_cutscenePre_comboBox_currentIndexChanged(int index);
+
+    void on_cutscenePos_comboBox_currentIndexChanged(int index);
+
 public slots:
     void on_string_selected(int string_id);
 

@@ -32,6 +32,7 @@ public:
     static void fill_map_list_combo(QComboBox *combo);
     static void fill_npc_listwidget(QListWidget* listWidget);
     static void fill_object_listWidget(QListWidget* listWidget);
+    static void fill_scenes_combo(QComboBox *combo);
     static std::vector<std::string> get_npc_names_list();
 
 private:

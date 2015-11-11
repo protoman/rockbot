@@ -86,6 +86,9 @@ void stage_edit::fill_stage_tab_data()
     common::fill_weapons_combo(ui->stage_boss_weapon_combo);
     ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
 
+    common::fill_scenes_combo(ui->cutscenePre_comboBox);
+
+    common::fill_scenes_combo(ui->cutscenePos_comboBox);
 
 	update_stage_data();
     _data_loading = false;
@@ -154,6 +157,9 @@ void stage_edit::update_stage_data()
 
     ui->autoScrolling_checkBox->setChecked(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll);
 
+
+    ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
+    ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
 }
 
 
@@ -352,4 +358,16 @@ void stage_edit::on_autoScrolling_checkBox_toggled(bool checked)
 {
     if (_data_loading == true) return;
     Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll = checked;
+}
+
+void stage_edit::on_cutscenePre_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre = index;
+}
+
+void stage_edit::on_cutscenePos_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos = index;
 }
