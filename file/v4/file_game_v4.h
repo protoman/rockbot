@@ -359,7 +359,6 @@ namespace format_v4 {
 
     struct st_armor_piece {
         int special_ability[FS_MAX_PLAYERS]; // each player can have a different ability
-        // *** NEW IN 3.0.1 *** //
         Sint8 got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
         st_armor_piece() {
@@ -383,11 +382,9 @@ namespace format_v4 {
         Sint8 player_items[FS_PLATER_ITEMS_N];                          // common to all players -> to be used in add_coil_object and add_jet_object
         char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX];
 
-        // ** NEW IN FILE V3.0 ** //
         st_file_trophy trophies[TROPHIES_MAX];
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
 
-        // ** NEW IN FILE V4.0 ** //
         char boss_music_filename[FS_CHAR_NAME_SIZE];
         char final_boss_music_filename[FS_CHAR_NAME_SIZE];
         char got_weapon_music_filename[FS_CHAR_NAME_SIZE];

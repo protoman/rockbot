@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 
+
 #define V1_FS_COLORCYCLE_MAX_ITEMS 10
 #define V1_FS_CHAR_FILENAME_SIZE 30
 #define V1_MAP_W 200
