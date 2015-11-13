@@ -226,7 +226,6 @@ namespace format_v4 {
         char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
         st_position sprites_pos_bg;                                 // holds position of sprites in relation with background
         bool is_boss;                                               // indicates if this NPC is a boss
-        Sint8 attack_frame_n[ANIM_TYPE_COUNT];                      // tells wich is the frame that ignites the attack
         bool is_sub_boss;                                           // a middle-stage boss, the doors will only open after it's dead
         int respawn_delay;                                          // if > 0, will respawn even if on-screen
         st_position_int8 attack_arm_pos;
@@ -250,9 +249,6 @@ namespace format_v4 {
             is_boss = false;
             speed = 3;
             is_sub_boss = false;
-            for (int i=0; i<ANIM_TYPE_COUNT; i++) {
-                attack_frame_n[i] = -1;
-            }
             respawn_delay = 0;
             attack_frame = 0;
             frame_size.width = TILESIZE;

@@ -5,8 +5,6 @@
 
 #include <iostream>
 
-#include <QApplication>
-
 #include "defines.h"
 #include "file/format/st_hitPoints.h"
 #include "../../file/format/st_common.h"
@@ -14,7 +12,7 @@
 #include "fio_v1.h"
 #include "file/file_io.h"
 
-#undef main
+//#undef main
 
 std::string FILEPATH;
 std::string GAMEPATH;
@@ -34,6 +32,7 @@ std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
 std::vector<std::string> common_strings;
 
 CURRENT_FILE_FORMAT::file_io fio;
+fio_common fio_cmm;
 
 void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_stage& stage_v2) {
     sprintf(stage_v2.intro_dialog.face_graphics_filename, "%s", stage_v1.intro_dialog.face_graphics_filename);
@@ -123,7 +122,7 @@ st_rectangle convert_rectangle(v1_st_rectangle v1_rect) {
 }
 
 
-void convert_stage_maps(int stage_id, v1_file_stage stage_v1) {
+void convert_stage_maps(int stage_id, v1_file_stage& stage_v1) {
     for (int i=0; i<V1_FS_STAGE_MAX_MAPS; i++) {
         for (int j=0; j<2; j++) {
             maps_data[stage_id][i].backgrounds[j].adjust_y = stage_v1.maps[i].backgrounds[j].adjust_y;
@@ -149,17 +148,17 @@ void convert_stage_maps(int stage_id, v1_file_stage stage_v1) {
         }
         for (int j=0; j<V1_MAP_W; j++) {
             for (int k=0; k<V1_MAP_H; k++) {
-                maps_data[stage_id][i].tiles[i][j].locked = stage_v1.maps[i].tiles[i][j].locked;
-                maps_data[stage_id][i].tiles[i][j].tile1.x = stage_v1.maps[i].tiles[i][j].tile1.x;
-                maps_data[stage_id][i].tiles[i][j].tile1.y = stage_v1.maps[i].tiles[i][j].tile1.y;
-                maps_data[stage_id][i].tiles[i][j].tile3.x = stage_v1.maps[i].tiles[i][j].tile3.x;
-                maps_data[stage_id][i].tiles[i][j].tile3.y = stage_v1.maps[i].tiles[i][j].tile3.y;
+                maps_data[stage_id][i].tiles[j][k].locked = stage_v1.maps[i].tiles[j][k].locked;
+                maps_data[stage_id][i].tiles[j][k].tile1.x = stage_v1.maps[i].tiles[j][k].tile1.x;
+                maps_data[stage_id][i].tiles[j][k].tile1.y = stage_v1.maps[i].tiles[j][k].tile1.y;
+                maps_data[stage_id][i].tiles[j][k].tile3.x = stage_v1.maps[i].tiles[j][k].tile3.x;
+                maps_data[stage_id][i].tiles[j][k].tile3.y = stage_v1.maps[i].tiles[j][k].tile3.y;
             }
         }
     }
 }
 
-void convert_stages_and_maps(v1_file_stages stages) {
+void convert_stages_and_maps(v1_file_stages& stages) {
     for (int i=0; i<V1_FS_MAX_STAGES; i++) {
         v1_file_stage temp_v1 = stages.stages[i];
         CURRENT_FILE_FORMAT::file_stage temp_v2;
@@ -190,7 +189,122 @@ void convert_stages_and_maps(v1_file_stages stages) {
     }
 }
 
-void convert_game(v1_file_game game_v1) {
+
+void convert_ai_types(v1_file_game& game_v1) {
+    for (int i=0; i<V1_FS_MAX_AI_TYPES; i++) {
+        CURRENT_FILE_FORMAT::file_artificial_inteligence new_ai;
+        sprintf(new_ai.name, "%s",  game_v1.ai_types[i].name);
+        for (int j=0; j<MAX_AI_REACTIONS; j++) {
+            new_ai.reactions[j].action = game_v1.ai_types[i].reactions[j].action;
+            new_ai.reactions[j].extra_parameter = game_v1.ai_types[i].reactions[j].extra_parameter;
+            new_ai.reactions[j].go_to = game_v1.ai_types[i].reactions[j].go_to;
+            new_ai.reactions[j].go_to_delay = game_v1.ai_types[i].reactions[j].go_to_delay;
+        }
+
+        for (int j=0; j<AI_MAX_STATES; j++) {
+            new_ai.states[j].action = game_v1.ai_types[i].states[j].action;
+            new_ai.states[j].chance = game_v1.ai_types[i].states[j].chance;
+            new_ai.states[j].extra_parameter = game_v1.ai_types[i].states[j].extra_parameter;
+            new_ai.states[j].go_to = game_v1.ai_types[i].states[j].go_to;
+            new_ai.states[j].go_to_delay = game_v1.ai_types[i].states[j].go_to_delay;
+        }
+        ai_list.push_back(new_ai);
+    }
+}
+
+void convert_game_npcs(v1_file_game& game_v1) {
+    for (int i=0; i<V1_FS_GAME_MAX_NPCS; i++) {
+        if (game_v1.game_npcs[i].id == -1) {
+            continue;
+        }
+        CURRENT_FILE_FORMAT::file_npc new_enemy;
+        new_enemy.attack_frame = 0;
+        sprintf(new_enemy.bg_graphic_filename, "%s", game_v1.game_npcs[i].bg_graphic_filename);
+        new_enemy.direction = game_v1.game_npcs[i].direction;
+        new_enemy.facing = game_v1.game_npcs[i].facing;
+        new_enemy.fly_flag = game_v1.game_npcs[i].fly_flag;
+        new_enemy.frame_size.width = game_v1.game_npcs[i].frame_size.width;
+        new_enemy.frame_size.height = game_v1.game_npcs[i].frame_size.height;
+        sprintf(new_enemy.graphic_filename, "%s", game_v1.game_npcs[i].graphic_filename);
+        new_enemy.hp.current = game_v1.game_npcs[i].hp.current;
+        new_enemy.hp.total = game_v1.game_npcs[i].hp.total;
+        new_enemy.IA_type = game_v1.game_npcs[i].IA_type;
+        new_enemy.id = game_v1.game_npcs[i].id;
+        new_enemy.is_boss = game_v1.game_npcs[i].is_boss;
+        new_enemy.is_ghost = game_v1.game_npcs[i].is_ghost;
+        new_enemy.is_sub_boss = game_v1.game_npcs[i].is_sub_boss;
+        sprintf(new_enemy.name, "%s", game_v1.game_npcs[i].name);
+        new_enemy.projectile_id[0] = game_v1.game_npcs[i].projectile_id[0];
+        new_enemy.projectile_id[1] = game_v1.game_npcs[i].projectile_id[1];
+        new_enemy.respawn_delay = game_v1.game_npcs[i].respawn_delay;
+        new_enemy.shield_type = game_v1.game_npcs[i].shield_type;
+        new_enemy.speed = game_v1.game_npcs[i].speed;
+        for (int j=0; j<V1_ANIM_TYPE_COUNT; j++) {
+            for (int k=0; k<V1_ANIM_FRAMES_COUNT; k++) {
+                new_enemy.sprites[j][k].colision_rect = convert_rectangle(game_v1.game_npcs[i].sprites[j][k].colision_rect);
+                new_enemy.sprites[j][k].duration = game_v1.game_npcs[i].sprites[j][k].duration;
+                new_enemy.sprites[j][k].sprite_graphic_pos_x = game_v1.game_npcs[i].sprites[j][k].sprite_graphic_pos_x;
+                new_enemy.sprites[j][k].used = game_v1.game_npcs[i].sprites[j][k].used;
+            }
+        }
+        new_enemy.sprites_pos_bg.x = game_v1.game_npcs[i].sprites_pos_bg.x;
+        new_enemy.sprites_pos_bg.y = game_v1.game_npcs[i].sprites_pos_bg.y;
+        new_enemy.start_point.x = game_v1.game_npcs[i].start_point.x;
+        new_enemy.start_point.y = game_v1.game_npcs[i].start_point.y;
+        new_enemy.walk_range = game_v1.game_npcs[i].walk_range;
+        for (int j=0; j<V1_FS_NPC_WEAKNESSES; j++) {
+            new_enemy.weakness[j].damage_multiplier = game_v1.game_npcs[i].weakness[j].damage_multiplier;
+            new_enemy.weakness[j].weapon_id = game_v1.game_npcs[i].weakness[j].weapon_id;
+        }
+        enemy_list.push_back(new_enemy);
+    }
+}
+
+void convert_game_objects(v1_file_game& game_v1) {
+    for (int i=0; i<V1_FS_GAME_MAX_NPCS; i++) {
+        CURRENT_FILE_FORMAT::file_object new_object;
+        new_object.animation_auto_start = game_v1.objects[i].animation_auto_start;
+        new_object.animation_loop = game_v1.objects[i].animation_loop;
+        new_object.animation_reverse = game_v1.objects[i].animation_reverse;
+        new_object.direction = game_v1.objects[i].direction;
+        new_object.distance = game_v1.objects[i].distance;
+        new_object.frame_duration = game_v1.objects[i].frame_duration;
+        sprintf(new_object.graphic_filename, "%s", game_v1.objects[i].graphic_filename);
+        new_object.limit = game_v1.objects[i].limit;
+        sprintf(new_object.name, "%s", game_v1.objects[i].name);
+        new_object.size.width = game_v1.objects[i].size.width;
+        new_object.size.height = game_v1.objects[i].size.height;
+        new_object.speed = game_v1.objects[i].speed;
+        new_object.timer = game_v1.objects[i].timer;
+        new_object.type = game_v1.objects[i].type;
+        object_list.push_back(new_object);
+    }
+}
+
+void convert_projectiles(v1_file_game& game_v1) {
+    for (int i=0; i<V1_FS_MAX_PROJECTILES; i++) {
+        CURRENT_FILE_FORMAT::file_projectile new_projectile;
+        new_projectile.can_be_reflected = game_v1.projectiles[i].can_be_reflected;
+        new_projectile.damage = game_v1.projectiles[i].damage;
+        sprintf(new_projectile.graphic_filename, "%s", game_v1.projectiles[i].graphic_filename);
+        new_projectile.hp = game_v1.projectiles[i].hp;
+        new_projectile.is_destructible = game_v1.projectiles[i].is_destructible;
+        new_projectile.max_shots = game_v1.projectiles[i].max_shots;
+        sprintf(new_projectile.name, "%s", game_v1.projectiles[i].name);
+        sprintf(new_projectile.sfx_filename, "%s", game_v1.projectiles[i].sfx_filename);
+        new_projectile.size.width = game_v1.projectiles[i].size.width;
+        new_projectile.size.height = game_v1.projectiles[i].size.height;
+        new_projectile.spawn_npc_id = game_v1.projectiles[i].spawn_npc_id;
+        new_projectile.spawn_npc_n = game_v1.projectiles[i].spawn_npc_n;
+        new_projectile.speed = game_v1.projectiles[i].speed;
+        new_projectile.trajectory = (int)game_v1.projectiles[i].trajectory;
+        projectile_list.push_back(new_projectile);
+    }
+
+}
+
+
+void convert_game(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_PLAYER_ARMOR_PIECES_MAX; i++) {
         for (int j=0; j<FS_MAX_PLAYERS; j++) {
             for (int k=0; k<FS_DIALOG_LINES; k++) {
@@ -255,11 +369,13 @@ void convert_game(v1_file_game game_v1) {
         sprintf(game_data.weapons[k].name, "%s", game_v1.weapons[k].name);
     }
 
-    /// @TODO: convert tyles that are on their own files now:
-    /// ai_types
-    /// game_npcs
-    /// objects
-    /// projectiles
+    convert_ai_types(game_v1);
+
+    convert_game_npcs(game_v1);
+
+    convert_game_objects(game_v1);
+
+    convert_projectiles(game_v1);
 }
 
 
@@ -274,8 +390,6 @@ int main(int argc, char *argv[])
 #endif
 
     std::cout << "AAA" << std::endl;
-
-    QApplication a(argc, argv);
 
     std::string argvString = std::string(argv[0]);
     GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
@@ -297,7 +411,16 @@ int main(int argc, char *argv[])
     fio.write_all_stages(stage_data);
     fio.write_all_maps(maps_data);
 
+    fio.write_game(game_data);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
+
+
 
     std::cout << "AAA" << std::endl;
+
+    return 1;
 
 }

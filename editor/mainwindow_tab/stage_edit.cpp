@@ -103,7 +103,7 @@ void stage_edit::update_stage_data()
 
 	// SET ITEMS
     ui->stages_tab_stage_name_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].name);
-    ui->stages_tab_bossname_lineedit->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name_string_id).value);
+    ui->stages_tab_bossname_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name);
     int combo_n = ui->stages_tab_bgmusic_combo->findText(QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].bgmusic_filename));
     //std::cout << "&&&&& currentStage: " << Mediator::get_instance()->currentStage << ", music-file: '" << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].bgmusic_filename << "'', combo_n: " << combo_n << std::endl;
     ui->stages_tab_bgmusic_combo->setCurrentIndex(combo_n);
@@ -160,6 +160,8 @@ void stage_edit::update_stage_data()
 
     ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
+
+    ui->stages_tab_bossname_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name);
 }
 
 
@@ -201,11 +203,6 @@ void stage_edit::on_dialogs_line1_face_combo_currentIndexChanged(const QString &
 
 // ------------------- string tooltip buttons ------------------- //
 // --- STAGE-DIALOG --- //
-void stage_edit::on_personName_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name_string_id), ui->stages_tab_bossname_lineedit);
-}
-
 void stage_edit::on_phrase1_1_toolButton_clicked()
 {
     string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[0]), ui->dialogs_line1_text1);
@@ -349,11 +346,6 @@ void stage_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
 }
 
 
-
-
-
-
-
 void stage_edit::on_autoScrolling_checkBox_toggled(bool checked)
 {
     if (_data_loading == true) return;
@@ -370,4 +362,10 @@ void stage_edit::on_cutscenePos_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
     Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos = index;
+}
+
+void stage_edit::on_stages_tab_bossname_lineedit_textChanged(const QString &arg1)
+{
+    if (_data_loading == true) return;
+    sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name, "%s", arg1.toStdString().c_str());
 }

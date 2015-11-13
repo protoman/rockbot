@@ -27,7 +27,6 @@ private slots:
     void on_stages_tab_bgmusic_combo_currentIndexChanged(const QString &arg1);
     void on_stages_tab_stage_name_lineedit_textChanged(const QString &arg1);
     void on_dialogs_line1_face_combo_currentIndexChanged(const QString &arg1);
-    void on_personName_toolButton_clicked();
 
     void on_phrase1_1_toolButton_clicked();
 
@@ -82,6 +81,8 @@ private slots:
     void on_cutscenePre_comboBox_currentIndexChanged(int index);
 
     void on_cutscenePos_comboBox_currentIndexChanged(int index);
+
+    void on_stages_tab_bossname_lineedit_textChanged(const QString &arg1);
 
 public slots:
     void on_string_selected(int string_id);

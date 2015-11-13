@@ -6,10 +6,13 @@
 
 CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 CONFIG -= app_bundle
+CONFIG -= qt
 CONFIG += console
+CONFIG -= app_bundle
 
-QT       += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       -= core
+QT       -= gui
+
 
 QMAKE_CCFLAGS += -fpermissive
 QMAKE_CXXFLAGS += -fpermissive
@@ -22,19 +25,20 @@ INCLUDEPATH += ..
 INCLUDEPATH += ../..
 
 win32 {
-    LIBS = -lmingw32 -mwindows -lqtmaind -LC:\Qt\5.5\mingw492_32\lib
+        LIBS =  -lSDL_mixer \
+                -lSDL_image \
+                -lSDL_ttf \
+                -lmingw32 -lSDLmain -lSDL \
+                -LC:\Qt\5.5\mingw492_32\lib
 
-    INCLUDES = -I/usr/include/SDL \
-    -I/usr/include \
-    -I/include \
-    -I. \
-    -I./include \
-    -L/usr/lib \
-    -I.. \
-    -I../..
 
-    QMAKE_CCFLAGS += -DWIN32 -DPC
-    QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib -lmingw32 -mwindows -lqtmaind
+                INCLUDES = -I/usr/include/SDL \
+                -I/usr/include \
+                -I. \
+                -I./include \
+                -L/usr/lib
+                QMAKE_CCFLAGS += -DWIN32 -DPC
+                QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib
 }
 
 TEMPLATE = app
