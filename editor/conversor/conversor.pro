@@ -11,10 +11,13 @@ CONFIG += console
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+QMAKE_CCFLAGS += -fpermissive
+QMAKE_CXXFLAGS += -fpermissive
+
 
 TARGET = conversor
 
-CONFIG += win32
+#CONFIG += win32
 INCLUDEPATH += ..
 INCLUDEPATH += ../..
 
