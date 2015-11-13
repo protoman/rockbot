@@ -48,13 +48,15 @@ SOURCES += main.cpp \
     fio_v1.cpp \
     ../../file/file_io.cpp \
     ../../file/fio_common.cpp \
-    ../../aux_tools/stringutils.cpp
+    ../../aux_tools/stringutils.cpp \
+    ../../file/fio_strings.cpp
 
 HEADERS += \
     v1.h \
     fio_v1.h \
     ../../file/file_io.h \
     ../../file/fio_common.h \
-    ../../aux_tools/stringutils.h
+    ../../aux_tools/stringutils.h \
+    ../../file/fio_strings.h
 
 

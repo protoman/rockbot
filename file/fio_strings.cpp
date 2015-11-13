@@ -5,6 +5,7 @@
 
 #include "defines.h"
 #include "aux_tools/stringutils.h"
+#include "file/fio_common.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -80,12 +81,11 @@ namespace format_v4 {
             fp << line.c_str();
         }
         fp.close();
-
     }
 
     std::string fio_strings::get_common_strings_filename()
     {
-        std::string filename = FILEPATH + STRINGS_COMMON_FILENAME;
+        std::string filename = STRINGS_COMMON_FILENAME;
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
@@ -328,6 +328,12 @@ namespace format_v4 {
             res.insert(std::pair<int, st_file_common_string>(id_list.at(i), item));
         }
         return res;
+    }
+
+    void fio_strings::save_common_strings(std::vector<CURRENT_FILE_FORMAT::st_file_common_string> data)
+    {
+        fio_common fio_cmm;
+        fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::st_file_common_string>(get_common_strings_filename(), data);
     }
 
     void fio_strings::create_files()

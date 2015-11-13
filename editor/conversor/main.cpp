@@ -11,6 +11,7 @@
 
 #include "fio_v1.h"
 #include "file/file_io.h"
+#include "file/fio_strings.h"
 
 //#undef main
 
@@ -28,10 +29,11 @@ std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
 std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
 std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
 std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
-
+std::vector<CURRENT_FILE_FORMAT::st_file_common_string> common_string_list;
 std::vector<std::string> common_strings;
 
 CURRENT_FILE_FORMAT::file_io fio;
+CURRENT_FILE_FORMAT::fio_strings fio_str;
 fio_common fio_cmm;
 
 void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_stage& stage_v2) {
@@ -192,6 +194,10 @@ void convert_stages_and_maps(v1_file_stages& stages) {
 
 void convert_ai_types(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_MAX_AI_TYPES; i++) {
+        std::string name(game_v1.ai_types[i].name);
+        if (name.length() < 1) {
+            continue;
+        }
         CURRENT_FILE_FORMAT::file_artificial_inteligence new_ai;
         sprintf(new_ai.name, "%s",  game_v1.ai_types[i].name);
         for (int j=0; j<MAX_AI_REACTIONS; j++) {
@@ -262,6 +268,10 @@ void convert_game_npcs(v1_file_game& game_v1) {
 
 void convert_game_objects(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_GAME_MAX_NPCS; i++) {
+        std::string name(game_v1.objects[i].name);
+        if (name.length() < 1 || name == "Object") {
+            continue;
+        }
         CURRENT_FILE_FORMAT::file_object new_object;
         new_object.animation_auto_start = game_v1.objects[i].animation_auto_start;
         new_object.animation_loop = game_v1.objects[i].animation_loop;
@@ -379,6 +389,16 @@ void convert_game(v1_file_game& game_v1) {
 }
 
 
+void convert_strings() {
+    //st_file_common_string> common_string_list;
+    for (int i=0; i<common_strings.size(); i++) {
+        char key_name[FS_COMMONSTRING_ID_SIZE];
+        sprintf(key_name, "%s", "%d", "ENTRY #", i);
+        CURRENT_FILE_FORMAT::st_file_common_string new_string(std::string(key_name), common_strings.at(i));
+        common_string_list.push_back(new_string);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     std::string EXEC_NAME("conversor");
@@ -417,6 +437,10 @@ int main(int argc, char *argv[])
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
 
+    convert_strings();
+
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    fio_str.save_common_strings(common_string_list);
 
 
     std::cout << "AAA" << std::endl;
