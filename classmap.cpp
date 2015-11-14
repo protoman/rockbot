@@ -71,20 +71,11 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(0), bg2_scroll(0
 // ********************************************************************************************** //
 classMap::~classMap()
 {
-    //std::cout << "MAP::DESTRUCTOR" << std::endl;
-    clean_map();
+    std::cout << "map[" << number << "] destructor" << std::endl;
 }
 
 void classMap::clean_map()
 {
-    // remove npc list
-    // TODO: find a fix for this
-	while (!_npc_list.empty()) {
-        //std::cout << "MAP::clean_map - deleting NPC[" << _npc_list.back()->getName() << "]" << std::endl;
-        _npc_list.back().clean_character_graphics_list();
-        _npc_list.pop_back();
-    }
-
     while (!object_list.empty()) {
         object_list.back().remove_graphic();
         object_list.pop_back();
@@ -98,9 +89,6 @@ void classMap::clean_map()
     while (!_level3_tiles.empty()) {
         _level3_tiles.pop_back();
     }
-
-	bg1_surface.freeGraphic();
-    bg2_surface.freeGraphic();
 }
 
 void classMap::reset_map()
