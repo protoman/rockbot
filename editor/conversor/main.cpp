@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
 #include <iostream>
+#include <map>
 
 #include "defines.h"
 #include "file/format/st_hitPoints.h"
@@ -31,6 +31,8 @@ std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
 std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
 std::vector<CURRENT_FILE_FORMAT::st_file_common_string> common_string_list;
 std::vector<std::string> common_strings;
+std::map<int, int> npc_id_list;
+std::map<int, int> object_id_list;
 
 CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::fio_strings fio_str;
@@ -134,10 +136,18 @@ void convert_stage_maps(int stage_id, v1_file_stage& stage_v1) {
         }
         maps_data[stage_id][i].background_color = convert_color(stage_v1.maps[i].background_color);
         for (int j=0; j<V1_FS_MAX_MAP_NPCS; j++) {
-            maps_data[stage_id][i].map_npcs[j].direction = stage_v1.maps[i].map_npcs[j].direction;
-            maps_data[stage_id][i].map_npcs[j].id_npc = stage_v1.maps[i].map_npcs[j].id_npc;
-            maps_data[stage_id][i].map_npcs[j].start_point.x = stage_v1.maps[i].map_npcs[j].start_point.x;
-            maps_data[stage_id][i].map_npcs[j].start_point.y = stage_v1.maps[i].map_npcs[j].start_point.y;
+            // check for invalid NPCs
+            std::map<int, int>::iterator it;
+            it = npc_id_list.find(stage_v1.maps[i].map_npcs[j].id_npc);
+            if (it == npc_id_list.end()) {
+                maps_data[stage_id][i].map_npcs[j].id_npc = -1;
+            } else {
+                int new_id = it->second;
+                maps_data[stage_id][i].map_npcs[j].direction = stage_v1.maps[i].map_npcs[j].direction;
+                maps_data[stage_id][i].map_npcs[j].id_npc = new_id;
+                maps_data[stage_id][i].map_npcs[j].start_point.x = stage_v1.maps[i].map_npcs[j].start_point.x;
+                maps_data[stage_id][i].map_npcs[j].start_point.y = stage_v1.maps[i].map_npcs[j].start_point.y;
+            }
         }
         for (int j=0; j<V1_FS_MAX_MAP_OBJECTS; j++) {
             maps_data[stage_id][i].map_objects[j].direction = stage_v1.maps[i].map_objects[j].direction;
@@ -179,15 +189,20 @@ void convert_stages_and_maps(v1_file_stages& stages) {
             temp_v2.links[i].id_map_destiny = temp_v1.links[i].id_map_destiny;
             temp_v2.links[i].id_map_origin = temp_v1.links[i].id_map_origin;
             temp_v2.links[i].is_door = temp_v1.links[i].is_door;
-            temp_v2.links[i].pos_destiny = convert_uint8_pos(temp_v1.links[i].pos_destiny);
-            temp_v2.links[i].pos_origin = convert_uint8_pos(temp_v1.links[i].pos_origin);
+            temp_v2.links[i].pos_destiny.x = temp_v1.links[i].pos_destiny.x;
+            temp_v2.links[i].pos_destiny.y = temp_v1.links[i].pos_destiny.y;
+            temp_v2.links[i].pos_origin.x = temp_v1.links[i].pos_origin.x;
+            temp_v2.links[i].pos_origin.y = temp_v1.links[i].pos_origin.y;
             temp_v2.links[i].size = temp_v1.links[i].size;
             temp_v2.links[i].type = temp_v1.links[i].type;
         }
         sprintf(temp_v2.name, "%s", temp_v1.name);
         sprintf(temp_v2.tileset_filename, "%s", "default.png");
 
+        stage_data.stages[i] = temp_v2;
+
         convert_stage_maps(i, temp_v1);
+
     }
 }
 
@@ -220,7 +235,10 @@ void convert_ai_types(v1_file_game& game_v1) {
 
 void convert_game_npcs(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_GAME_MAX_NPCS; i++) {
-        if (game_v1.game_npcs[i].id == -1) {
+        std::string name(game_v1.game_npcs[i].name);
+        // ignore ones using default name
+        if (name == "NPC") {
+            std::cout << "npc[" << i << "] invalid. id: " << (int)game_v1.game_npcs[i].id << std::endl;
             continue;
         }
         CURRENT_FILE_FORMAT::file_npc new_enemy;
@@ -263,6 +281,9 @@ void convert_game_npcs(v1_file_game& game_v1) {
             new_enemy.weakness[j].weapon_id = game_v1.game_npcs[i].weakness[j].weapon_id;
         }
         enemy_list.push_back(new_enemy);
+        // store the old npc position and the new one into a list so we can use in map-npcs
+        std::cout << "old-id: " << i << ", new-id: " << (enemy_list.size()-1) << std::endl;
+        npc_id_list.insert(std::pair<int, int>(i, (enemy_list.size()-1)));
     }
 }
 
@@ -424,11 +445,16 @@ int main(int argc, char *argv[])
     v1_file_stages stages_v1;
     fv1.read_all_stages(stages_v1);
 
-    convert_stages_and_maps(stages_v1);
-
     convert_game(game_v1);
 
+    convert_stages_and_maps(stages_v1);
+
     convert_strings();
+
+    /// @TODO: set the hardcoded parts:
+    /// music (boss battle, final boss, game_over, got_weapon)
+    /// projectiles (see doc code-changes)
+    /// armor-pieces weapon powers
 
     FILEPATH += "/out/";
     fio.write_all_stages(stage_data);
@@ -445,7 +471,7 @@ int main(int argc, char *argv[])
     fio_str.save_common_strings(common_string_list);
 
 
-    std::cout << "AAA" << std::endl;
+
 
     return 1;
 

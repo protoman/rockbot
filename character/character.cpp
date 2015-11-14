@@ -2180,6 +2180,7 @@ Uint8 character::get_projectile_max_shots()
         }
     }
     if (all_projectiles_normal == true) {
+        std::cout << "CHAR::get_projectile_max_shots - ALL NORMAL" << std::endl;
         return max_projectiles;
     }
     return max_proj;
@@ -2212,7 +2213,6 @@ void character::check_reset_stand()
             default:
                 state.animation_type = ANIM_TYPE_STAND;
                 break;
-
         }
 
     }
@@ -2727,7 +2727,7 @@ bool character::is_weak_to_freeze()
         return false;
     }
     //if (game_data.game_npcs[_number].weakness[wpn_id].damage_multiplier == 0) {
-    if (GameMediator::get_instance()->enemy_list.at(_number).weakness[wpn_id].damage_multiplier == 0) {
+    if (GameMediator::get_instance()->get_enemy(_number).weakness[wpn_id].damage_multiplier == 0) {
         return false;
     }
     return true;

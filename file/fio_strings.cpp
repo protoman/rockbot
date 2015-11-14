@@ -85,7 +85,7 @@ namespace format_v4 {
 
     std::string fio_strings::get_common_strings_filename()
     {
-        std::string filename = STRINGS_COMMON_FILENAME;
+        std::string filename = FILEPATH + STRINGS_COMMON_FILENAME;
         filename = StringUtils::clean_filename(filename);
         return filename;
     }

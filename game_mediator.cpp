@@ -44,6 +44,20 @@ int GameMediator::get_projectile_list_size()
     return projectile_list.size();
 }
 
+CURRENT_FILE_FORMAT::file_npc GameMediator::get_enemy(int n)
+{
+    if (n < 0 || n >= enemy_list.size()) {
+        std::cout << "GameMediator::get_enemy - invalid enemy position[" << n << "], list-size: " << enemy_list.size() << std::endl;
+        exit(-1);
+    }
+    return enemy_list.at(n);
+}
+
+int GameMediator::get_enemy_list_size()
+{
+    return enemy_list.size();
+}
+
 GameMediator::GameMediator()
 {
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");

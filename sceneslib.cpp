@@ -929,11 +929,11 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         //show_destrin_ship_intro();
     }
 
-    botname = GameMediator::get_instance()->enemy_list.at(stage_data.boss.id_npc).name;
+    botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc).name;
 
     intro_frames_n = 0;
     for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if (GameMediator::get_instance()->enemy_list.at(stage_data.boss.id_npc).sprites[ANIM_TYPE_INTRO][i].used == true) {
+        if (GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc).sprites[ANIM_TYPE_INTRO][i].used == true) {
             intro_frames_n++;
         }
     }

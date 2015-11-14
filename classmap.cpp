@@ -462,7 +462,7 @@ void classMap::load_map_npcs()
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
                 new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
                 new_npc->set_stage_boss(true);
-            } else if (GameMediator::get_instance()->enemy_list.at(map_data[number].map_npcs[i].id_npc).is_boss == true) {
+            } else if (GameMediator::get_instance()->get_enemy(map_data[number].map_npcs[i].id_npc).is_boss == true) {
                 new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			} else {
                 new_npc = new classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);

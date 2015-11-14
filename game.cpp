@@ -78,6 +78,7 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
+    player1.initialize();
     stringstream player_name;
     /// @TODO - optimization: make this uneeded
     unload_stage();
@@ -1085,7 +1086,6 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
 	initGame();
-    player1.initialize();
     start_stage();
 }
 

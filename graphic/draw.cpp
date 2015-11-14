@@ -128,9 +128,9 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     st_position sprite_size;
     graphicsLib_gSurface bgCopy, boss_graphics;
 
-    std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->enemy_list.at(boss_id).graphic_filename);
-    sprite_size.x = GameMediator::get_instance()->enemy_list.at(boss_id).frame_size.width;
-    sprite_size.y = GameMediator::get_instance()->enemy_list.at(boss_id).frame_size.height;
+    std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id).graphic_filename);
+    sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id).frame_size.width;
+    sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id).frame_size.height;
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
 
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
@@ -144,7 +144,7 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     int sprite_pos_y = RES_H/2 - sprite_size.y/2;
 
     for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if (GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].used == true) {
+        if (GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used == true) {
             intro_frames_n++;
         }
     }
@@ -162,11 +162,11 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     // show intro sprites
     if (intro_frames_n > 1) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-            if (GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].used == true) {
-                //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
+            if (GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used == true) {
+                //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
                 graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
-                graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
-                graphLib.wait_and_update_screen(GameMediator::get_instance()->enemy_list.at(boss_id).sprites[ANIM_TYPE_INTRO][i].duration);
+                graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
+                graphLib.wait_and_update_screen(GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration);
             }
         }
     } else { // just frow first sprite

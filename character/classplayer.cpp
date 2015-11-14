@@ -57,6 +57,9 @@ classPlayer::set_player_name(std::string set_name)
 
 classPlayer::initialize()
 {
+
+    std::cout << "PLAYER::INITIALIZE::max_shots: " << game_data.players[_number].max_shots << std::endl;
+
     max_projectiles = game_data.players[_number].max_shots;
     // it is a player, can't have zero projectiles!!
     if (max_projectiles < 1) {
@@ -451,7 +454,7 @@ void classPlayer::damage_ground_npcs()
 		}
 
 		// check if NPC is vulnerable to quake (all bosses except the one with weakness are not)
-        short damage = GameMediator::get_instance()->enemy_list.at((*enemy_it)->get_number()).weakness[weapon_n].damage_multiplier;
+        short damage = GameMediator::get_instance()->get_enemy((*enemy_it)->get_number()).weakness[weapon_n].damage_multiplier;
 
 		// check if NPC is on ground
         st_position npc_pos((*enemy_it)->getPosition().x, (*enemy_it)->getPosition().y);
@@ -692,7 +695,7 @@ void classPlayer::execute_projectiles()
                 }
 
                 if ((*it).get_damage() > 0) {
-                    int multiplier = GameMediator::get_instance()->enemy_list.at((*enemy_it)->get_number()).weakness[wpn_id].damage_multiplier;
+                    int multiplier = GameMediator::get_instance()->get_enemy((*enemy_it)->get_number()).weakness[wpn_id].damage_multiplier;
                     if (multiplier <= 0) {
                         multiplier = 1;
                     }
