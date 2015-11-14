@@ -11,7 +11,7 @@
 
 classjump::classjump() : started(false)
 {
-    JUMP_ACCELERATION = 0.25;
+    JUMP_ACCELERATION = 0.208;
     JUMP_LIMIT = (TILESIZE*3)-6;
     JUMP_LIMIT = 240;
     state = NOJUMP;
