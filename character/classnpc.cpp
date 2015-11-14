@@ -359,15 +359,15 @@ void classnpc::move_projectiles()
                 }
             }
         } else { // NPC attacking other NPCs
-            std::vector<classnpc*>::iterator enemy_it;
-			for (enemy_it=map->_npc_list.begin(); enemy_it != map->_npc_list.end(); enemy_it++) {
+
+            for (int i=0; i<map->_npc_list.size(); i++) {
 				//classnpc* enemy = (*enemy_it);
-                if ((*it).check_colision(st_rectangle((*enemy_it)->getPosition().x, (*enemy_it)->getPosition().y, (*enemy_it)->get_size().width, (*enemy_it)->get_size().height), st_position(moved.width, moved.height)) == true) {
+                if ((*it).check_colision(st_rectangle(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y, map->_npc_list.at(i).get_size().width, map->_npc_list.at(i).get_size().height), st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
-                    if ((*enemy_it)->is_shielded((*it).get_direction()) == true) {
+                    if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) {
                         (*it).reflect();
 					} else {
-                        (*enemy_it)->damage((*it).get_damage(), false);
+                        map->_npc_list.at(i).damage((*it).get_damage(), false);
                         if ((*it).get_move_type() != TRAJECTORY_CHAIN) { /// @TODO non-destructable types
                             (*it).consume_projectile();
 						}

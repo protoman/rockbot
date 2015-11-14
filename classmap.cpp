@@ -81,8 +81,7 @@ void classMap::clean_map()
     // TODO: find a fix for this
 	while (!_npc_list.empty()) {
         //std::cout << "MAP::clean_map - deleting NPC[" << _npc_list.back()->getName() << "]" << std::endl;
-        _npc_list.back()->clean_character_graphics_list();
-        delete _npc_list.back();
+        _npc_list.back().clean_character_graphics_list();
         _npc_list.pop_back();
     }
 
@@ -447,27 +446,25 @@ st_position classMap::getMapScrolling() const
 void classMap::load_map_npcs()
 {
     // remove all elements currently in the list
-	while (!_npc_list.empty()) {
-        if (_npc_list.back() != NULL) {
-            delete _npc_list.back();
-        }
+    while (!_npc_list.empty()) {
+        _npc_list.back().clean_character_graphics_list();
         _npc_list.pop_back();
     }
-    classnpc* new_npc;
+    classnpc new_npc;
 
 	//std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
-                new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
-                new_npc->set_stage_boss(true);
+                new_npc = classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
+                new_npc.set_stage_boss(true);
             } else if (GameMediator::get_instance()->get_enemy(map_data[number].map_npcs[i].id_npc).is_boss == true) {
-                new_npc = new classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
+                new_npc = classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			} else {
-                new_npc = new classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
+                new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
 			}
-			new_npc->set_map(this);
+            new_npc.set_map(this);
             _npc_list.push_back(new_npc); // insert new npc at the list-end
 		}
 	}
@@ -639,13 +636,11 @@ bool classMap::have_player_object()
 
 bool classMap::subboss_alive_on_left(short tileX)
 {
-    std::vector<classnpc*>::iterator npc_it;
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        classnpc* temp_obj = (*npc_it);
-        if (temp_obj->is_subboss() == true && temp_obj->is_dead() == false) {
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_subboss() == true && _npc_list.at(i).is_dead() == false) {
             std::cout << "Opa, achou um sub-boss!" << std::endl;
-            std::cout << "pos.x: " << temp_obj->getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
-            if (temp_obj->getPosition().x >= (tileX-20)*TILESIZE && temp_obj->getPosition().x<= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
+            std::cout << "pos.x: " << _npc_list.at(i).getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
+            if (_npc_list.at(i).getPosition().x >= (tileX-20)*TILESIZE && _npc_list.at(i).getPosition().x<= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
                 std::cout << "Opa, achou um sub-boss NA ESQUERDA!!" << std::endl;
                 return true;
             }
@@ -1030,9 +1025,8 @@ object_colision classMap::get_obj_colision()
 
 void classMap::clean_map_npcs_projectiles()
 {
-    std::vector<classnpc*>::iterator it;
-    for (it=_npc_list.begin(); it!=_npc_list.end(); it++) {
-		(*it)->clean_projectiles();
+    for (int i=0; i<_npc_list.size(); i++) {
+        _npc_list.at(i).clean_projectiles();
     }
 }
 
@@ -1122,47 +1116,43 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
 
     //std::cout << "colision_player_npcs - p1.x: " << p1.x << ", p1.y: " << p1.y << std::endl;
 
-	for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-		classnpc* temp_obj = (*npc_it);
-		if ((*npc_it)->is_player_friend() == true) {
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_player_friend() == true) {
 			//std::cout << "colision_player_npcs - FRIEND" << std::endl;
 			continue;
 		}
-		if ((*npc_it)->is_dead() == true) {
+        if (_npc_list.at(i).is_dead() == true) {
 			//std::cout << "colision_player_npcs - DEAD" << std::endl;
 			continue;
 		}
-		if ((*npc_it)->is_invisible() == true) {
+        if (_npc_list.at(i).is_invisible() == true) {
 			//std::cout << "colision_player_npcs - INVISIBLE" << std::endl;
 			continue;
 		}
 
-        if ((*npc_it)->is_on_visible_screen() == false) {
+        if (_npc_list.at(i).is_on_visible_screen() == false) {
             continue;
         }
 
 
-        npc_rect.x = temp_obj->getPosition().x;
-        npc_rect.w = temp_obj->get_size().width;
-        npc_rect.y = temp_obj->getPosition().y;
-        npc_rect.h = temp_obj->get_size().height;
+        npc_rect.x = _npc_list.at(i).getPosition().x;
+        npc_rect.w = _npc_list.at(i).get_size().width;
+        npc_rect.y = _npc_list.at(i).getPosition().y;
+        npc_rect.h = _npc_list.at(i).get_size().height;
 
-        if (temp_obj->get_size().width >= TILESIZE) { // why is this here??? O.o
-			npc_rect.x = temp_obj->getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
-			npc_rect.w = temp_obj->get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
+        if (_npc_list.at(i).get_size().width >= TILESIZE) { // why is this here??? O.o
+            npc_rect.x = _npc_list.at(i).getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
+            npc_rect.w = _npc_list.at(i).get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
 		}
-        if (temp_obj->get_size().height >= TILESIZE) {
-			npc_rect.y = temp_obj->getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
-            npc_rect.h = temp_obj->get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
+        if (_npc_list.at(i).get_size().height >= TILESIZE) {
+            npc_rect.y = _npc_list.at(i).getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
+            npc_rect.h = _npc_list.at(i).get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
 		}
-        //std::cout << "colision_player_npcs - checking NPC[" << (*npc_it)->getName() << "] - x: " << temp_obj->getPosition().x << std::endl;
-        //std::cout << "p_rect - x: " << p_rect.x << ", y: " << p_rect.y << ", w: " << p_rect.w << ", h: " << p_rect.h << std::endl;
-        //std::cout << "npc_rect - x: " << npc_rect.x << ", y: " << npc_rect.y << ", w: " << npc_rect.w << ", h: " << npc_rect.h << std::endl;
 
 		colision_detection rect_colision_obj;
 		if (rect_colision_obj.rect_overlap(npc_rect, p_rect) == true) {
             //std::cout << "colision_player_npcs[" << temp_obj->getName() << "] - COLISION!" << std::endl;
-			if (npc_rect.h > p_rect.h) {
+            if (npc_rect.h > p_rect.h) {
 				return 2;
 			} else {
 				return 1;
@@ -1194,39 +1184,38 @@ void classMap::colision_player_special_attack(character* playerObj, const short 
     p_rect.y = playerObj->getPosition().y + reduce_y;
     p_rect.h = playerObj->get_size().height;
 
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        classnpc* temp_obj = (*npc_it);
-        if ((*npc_it)->is_player_friend() == true) {
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_player_friend() == true) {
             continue;
         }
-        if ((*npc_it)->is_dead() == true) {
+        if (_npc_list.at(i).is_dead() == true) {
             continue;
         }
-        if ((*npc_it)->is_invisible() == true) {
-            continue;
-        }
-
-        if ((*npc_it)->is_on_visible_screen() == false) {
+        if (_npc_list.at(i).is_invisible() == true) {
             continue;
         }
 
-
-        npc_rect.x = temp_obj->getPosition().x;
-        npc_rect.w = temp_obj->get_size().width;
-        npc_rect.y = temp_obj->getPosition().y;
-        npc_rect.h = temp_obj->get_size().height;
-
-        if (temp_obj->get_size().width >= TILESIZE) { // why is this here??? O.o
-            npc_rect.x = temp_obj->getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
-            npc_rect.w = temp_obj->get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
+        if (_npc_list.at(i).is_on_visible_screen() == false) {
+            continue;
         }
-        if (temp_obj->get_size().height >= TILESIZE) {
-            npc_rect.y = temp_obj->getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
-            npc_rect.h = temp_obj->get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
+
+
+        npc_rect.x = _npc_list.at(i).getPosition().x;
+        npc_rect.w = _npc_list.at(i).get_size().width;
+        npc_rect.y = _npc_list.at(i).getPosition().y;
+        npc_rect.h = _npc_list.at(i).get_size().height;
+
+        if (_npc_list.at(i).get_size().width >= TILESIZE) { // why is this here??? O.o
+            npc_rect.x = _npc_list.at(i).getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
+            npc_rect.w = _npc_list.at(i).get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
+        }
+        if (_npc_list.at(i).get_size().height >= TILESIZE) {
+            npc_rect.y = _npc_list.at(i).getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
+            npc_rect.h = _npc_list.at(i).get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
         }
         colision_detection rect_colision_obj;
         if (rect_colision_obj.rect_overlap(npc_rect, p_rect) == true) {
-            temp_obj->damage(12, false);
+            _npc_list.at(i).damage(12, false);
         }
     }
 }
@@ -1237,23 +1226,23 @@ classnpc *classMap::find_nearest_npc(st_position pos)
     int min_dist = 9999;
     classnpc* min_dist_npc = NULL;
 
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        if ((*npc_it)->is_player_friend() == true) {
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_player_friend() == true) {
             //std::cout << "colision_player_npcs - FRIEND" << std::endl;
             continue;
         }
-        if ((*npc_it)->is_dead() == true) {
+        if (_npc_list.at(i).is_dead() == true) {
             //std::cout << "colision_player_npcs - DEAD" << std::endl;
             continue;
         }
-        if ((*npc_it)->is_invisible() == true) {
+        if (_npc_list.at(i).is_invisible() == true) {
             //std::cout << "colision_player_npcs - INVISIBLE" << std::endl;
             continue;
         }
-        if ((*npc_it)->is_on_visible_screen() == false) {
+        if (_npc_list.at(i).is_on_visible_screen() == false) {
             continue;
         }
-        float dist = sqrt(pow((pos.x - (*npc_it)->getPosition().x), 2) + pow((pos.y - (*npc_it)->getPosition().y), 2));
+        float dist = sqrt(pow((pos.x - _npc_list.at(i).getPosition().x), 2) + pow((pos.y - _npc_list.at(i).getPosition().y), 2));
         if (dist < min_dist) {
             min_dist_npc = (*npc_it);
             min_dist = dist;
@@ -1363,101 +1352,89 @@ void classMap::set_player(classPlayer *player_ref)
 
 classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int direction, bool player_friend, bool progressive_span)
 {
-	classnpc* new_npc;
-    new_npc = new classnpc(stage_number, number, npc_id, npc_pos, direction, player_friend);
-	new_npc->set_map(this);
+    classnpc new_npc(stage_number, number, npc_id, npc_pos, direction, player_friend);
+    new_npc.set_map(this);
     if (progressive_span == true) {
-        new_npc->set_progressive_appear_pos(new_npc->get_size().height);
+        new_npc.set_progressive_appear_pos(new_npc.get_size().height);
     }
     _npc_list.push_back(new_npc); // insert new npc at the list-end
     _break_npc_loop = true;
-    return _npc_list.back();
+    return &(_npc_list.back());
 }
 
 
 void classMap::move_npcs() /// @TODO - check out of screen
 {
 	int i = 0;
-    std::vector<classnpc*>::iterator npc_it;
     //std::cout << "*************** classMap::showMap - npc_list.size: " << npc_list.size() << std::endl;
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+    for (int i=0; i<_npc_list.size(); i++) {
         if (_break_npc_loop == true) {
             _break_npc_loop = false;
             break;
         }
 		// check if NPC is outside the visible area
-        classnpc* temp_npc = (*npc_it);
-        if (temp_npc == NULL) {
-            _npc_list.erase(npc_it);
-            break;
-        }
-        st_position npc_pos = temp_npc->get_real_position();
-		short dead_state = (*npc_it)->get_dead_state();
-		//if ((*npc_it)->getName() == "Brabuleta") std::cout << "npc[" << i << "] " << (*npc_it)->getName() << " - dead_state: " << dead_state << ", on_screen: " << (*npc_it)->is_on_screen() << std::endl;
+        st_position npc_pos = _npc_list.at(i).get_real_position();
+        short dead_state = _npc_list.at(i).get_dead_state();
 
 
-
-
-        if ((*npc_it)->is_on_screen() != true) {
-            if (dead_state == 2 && (*npc_it)->is_boss() == false && (*npc_it)->is_subboss()) {
-                (*npc_it)->revive();
+        if (_npc_list.at(i).is_on_screen() != true) {
+            if (dead_state == 2 && _npc_list.at(i).is_boss() == false && _npc_list.at(i).is_subboss()) {
+                _npc_list.at(i).revive();
             }
             continue; // no need for moving NPCs that are out of sight
-        } else if (dead_state == 2 && (*npc_it)->auto_respawn() == true && (*npc_it)->is_boss() == false) {
+        } else if (dead_state == 2 && _npc_list.at(i).auto_respawn() == true && _npc_list.at(i).is_boss() == false) {
             std::cout << "DEAD-NPC - reset and respawn" << std::endl;
-            (*npc_it)->reset_position();
-            (*npc_it)->revive();
+            _npc_list.at(i).reset_position();
+            _npc_list.at(i).revive();
             continue;
-        } else if (dead_state == 1 && (*npc_it)->is_spawn() == false && (*npc_it)->is_boss() == false) {// drop item
-            drop_item(st_position((*npc_it)->getPosition().x + (*npc_it)->get_size().width/2, (*npc_it)->getPosition().y + (*npc_it)->get_size().height/2));
+        } else if (dead_state == 1 && _npc_list.at(i).is_spawn() == false && _npc_list.at(i).is_boss() == false) {// drop item
+            drop_item(st_position(_npc_list.at(i).getPosition().x + _npc_list.at(i).get_size().width/2, _npc_list.at(i).getPosition().y + _npc_list.at(i).get_size().height/2));
         }
 
         // if is showing stage boss on a stage already finished, just teleport out, victory is yours!
-        if ((*npc_it)->is_stage_boss() == true && (*npc_it)->is_on_visible_screen() == true && game_save.stages[gameControl.currentStage] == 1 && gameControl.currentStage <= 8) {
+        if (_npc_list.at(i).is_stage_boss() == true && _npc_list.at(i).is_on_visible_screen() == true && game_save.stages[gameControl.currentStage] == 1 && gameControl.currentStage <= 8) {
             gameControl.got_weapon();
             return;
         }
 
-		//std::cout << ">>>>>>>>>>>>>>>>>> classMap::showMap - executing npc[" << i << "] '" << (*npc_it)->getName() << "'" << std::endl;
-
 
         if (dead_state == 0) {
-            (*npc_it)->execute(); // TODO: must pass scroll map to npcs somwhow...
+            _npc_list.at(i).execute(); // TODO: must pass scroll map to npcs somwhow...
         }
 
 
 
 
 		if (dead_state == 1) {
-            if ((*npc_it)->is_stage_boss() == false) {
-                (*npc_it)->execute_ai(); // to ensure death-reaction is run
+            if (_npc_list.at(i).is_stage_boss() == false) {
+                _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
                 // sub-boss have a different explosion
-                if ((*npc_it)->is_subboss()) {
+                if (_npc_list.at(i).is_subboss()) {
                     soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
-                    st_float_position pos1((*npc_it)->getPosition().x+2, (*npc_it)->getPosition().y+20);
-                    add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, (*npc_it)->get_direction(), st_size(56, 56));
+                    st_float_position pos1(_npc_list.at(i).getPosition().x+2, _npc_list.at(i).getPosition().y+20);
+                    add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(56, 56));
                     st_float_position pos2(pos1.x+50, pos1.y-30);
-                    add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, (*npc_it)->get_direction(), st_size(56, 56));
+                    add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(56, 56));
                 } else {
-                    add_animation(ANIMATION_STATIC, &graphLib.explosion32, (*npc_it)->getPosition(), st_position(-8, -8), 80, 2, (*npc_it)->get_direction(), st_size(32, 32));
+                    add_animation(ANIMATION_STATIC, &graphLib.explosion32, _npc_list.at(i).getPosition(), st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(32, 32));
                 }
                 // check if boss flag wasn't passed to a spawn on dying reaction AI
-                if ((*npc_it)->is_boss()) {
+                if (_npc_list.at(i).is_boss()) {
                     gameControl.check_player_return_teleport();
                 }
-                (*npc_it)->clean_projectiles();
+                _npc_list.at(i).clean_projectiles();
             } else {
                 // run npc move one more timer, so reaction is executed to test if it will spawn a new boss
-                (*npc_it)->execute_ai(); // to ensure death-reaction is run
-                (*npc_it)->execute_ai(); // to ensure death-reaction is run
-                if ((*npc_it)->is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
+                _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
+                _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
+                if (_npc_list.at(i).is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
                     gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
                     gameControl.fill_boss_hp_bar();
                     continue;
                 } else {
-                    (*npc_it)->clean_projectiles();
+                    _npc_list.at(i).clean_projectiles();
                     gameControl.remove_all_projectiles();
                     //std::cout << "classMap::showMap - killed boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));
@@ -1479,13 +1456,12 @@ void classMap::move_npcs() /// @TODO - check out of screen
 
 void classMap::show_npcs() /// @TODO - check out of screen
 {
-    std::vector<classnpc*>::iterator npc_it;
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        if (gameControl.must_show_boss_hp() && (*npc_it)->is_boss() && (*npc_it)->is_on_visible_screen() == true) {
-			graphLib.draw_hp_bar((*npc_it)->get_current_hp(), -1, -1);
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (gameControl.must_show_boss_hp() && _npc_list.at(i).is_boss() && _npc_list.at(i).is_on_visible_screen() == true) {
+            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1);
 		}
-		if ((*npc_it)->is_dead() == false) {
-			(*npc_it)->show();
+        if (_npc_list.at(i).is_dead() == false) {
+            _npc_list.at(i).show();
         }
     }
 }
@@ -1530,24 +1506,23 @@ void classMap::show_objects(int adjust_y)
 
 bool classMap::boss_hit_ground()
 {
-    std::vector<classnpc*>::iterator npc_it;
-	for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        if ((*npc_it)->is_boss() == true && (*npc_it)->is_on_visible_screen() == true) {
-            //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << (*npc_it)->getPosition().y << std::endl;
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_boss() == true && _npc_list.at(i).is_on_visible_screen() == true) {
+            //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << _npc_list.at(i).getPosition().y << std::endl;
 
-            int limit_y = (*npc_it)->get_start_position().y - TILESIZE;
+            int limit_y = _npc_list.at(i).get_start_position().y - TILESIZE;
             //std::cout << "#### limit_y: " << limit_y << std::endl;
             if (limit_y > RES_H/2) {
                 limit_y = RES_H/2;
             }
 
-            if ((*npc_it)->is_able_to_fly() == true) {
-                //std::cout << "MAP::boss_hit_ground - pos.y: " << (*npc_it)->getPosition().y << ", center: " << (RES_H/2 - (*npc_it)->get_size().height/2) << std::endl;
-                if ((*npc_it)->getPosition().y >= RES_H/2 - (*npc_it)->get_size().height/2) {
+            if (_npc_list.at(i).is_able_to_fly() == true) {
+                //std::cout << "MAP::boss_hit_ground - pos.y: " << _npc_list.at(i).getPosition().y << ", center: " << (RES_H/2 - _npc_list.at(i).get_size().height/2) << std::endl;
+                if (_npc_list.at(i).getPosition().y >= RES_H/2 - _npc_list.at(i).get_size().height/2) {
                     //std::cout << "boss_hit_ground #1" << std::endl;
                     return true;
                 }
-            } else if ((*npc_it)->getPosition().y >= limit_y && (*npc_it)->hit_ground()) {
+            } else if (_npc_list.at(i).getPosition().y >= limit_y && _npc_list.at(i).hit_ground()) {
                 //std::cout << "boss_hit_ground #2" << std::endl;
                 return true;
             }

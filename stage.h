@@ -184,12 +184,12 @@ public:
 
 
 public:
-    classMap* maps[PRELOAD_MAP_N]; /**< TODO */
+    classMap maps[PRELOAD_MAP_N];
 
 private:
-    Sint8 number; /**< TODO */
-    Uint8 currentMap; /**< TODO */
-    classPlayer* _player_ref; /**< TODO */
+    Sint8 number;
+    Uint8 currentMap;
+    classPlayer* _player_ref;
 };
 
 #endif // STAGE_H

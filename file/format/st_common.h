@@ -311,20 +311,25 @@ public:
     graphicsLib_gSurface(const graphicsLib_gSurface &original)
 	{
 		//std::cout << "graphicsLib_gSurface::COPY" << std::endl;
-		width = original.width;
-		height = original.height;
-		persistent = false;
-        video_screen = original.video_screen;
-        colorkey1_points = original.colorkey1_points;
-        colorkey2_points = original.colorkey2_points;
-        colorkey3_points = original.colorkey3_points;
-        show_debug = false;
-        if (original.width > 0) {
-			gSurface = SDL_DisplayFormat(original.gSurface);
-			//SDL_FreeSurface(original.gSurface);
-		} else {
-			gSurface = NULL;
-		}
+        if (original.gSurface == NULL) {
+            gSurface = NULL;
+        } else {
+            width = original.width;
+            height = original.height;
+            persistent = false;
+            video_screen = original.video_screen;
+            colorkey1_points = original.colorkey1_points;
+            colorkey2_points = original.colorkey2_points;
+            colorkey3_points = original.colorkey3_points;
+            show_debug = false;
+            if (original.width > 0) {
+                std::cout << "GRUSFACE::COPY::W: " << original.width << std::endl;
+                gSurface = SDL_DisplayFormat(original.gSurface);
+                //SDL_FreeSurface(original.gSurface);
+            } else {
+                gSurface = NULL;
+            }
+        }
 	}
     ~graphicsLib_gSurface()
 	{

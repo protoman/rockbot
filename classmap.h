@@ -198,7 +198,7 @@ private:
     void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface) const;
 
 public:
-    std::vector<classnpc*> _npc_list; // vector npcs
+    std::vector<classnpc> _npc_list; // vector npcs
     classPlayer* _player_ref; // vector players
     std::vector<animation> animation_list;
 	// vector teleporters

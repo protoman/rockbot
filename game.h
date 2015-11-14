@@ -274,9 +274,6 @@ public:
      */
     bool show_config(short finished_stage);
 
-
-    void unload_stage();
-
     void show_savegame_error();
 
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
@@ -357,30 +354,30 @@ private:
 
 
 public:
-    Uint8 currentStage; /**< TODO */
-    bool is_showing_boss_intro; /**< TODO */
+    Uint8 currentStage;
+    bool is_showing_boss_intro;
 
 
 private:
-    stage* loaded_stage; /**< TODO */
-    classPlayer player1; /**< TODO */
-    scenesLib scenes; /**< TODO */
-    unsigned int fps_timer; /**< TODO */
-    int fps_counter; /**< TODO */
-    std::stringstream fps_msg; /**< TODO */
-    char _fps_buffer[128]; /**< TODO */
-    struct CURRENT_FILE_FORMAT::st_game_config config; /**< TODO */
-    st_position selected_stage; /**< TODO */
-    class_config config_manager; /**< TODO */
-    dialogs game_dialogs; /**< TODO */
+    stage loaded_stage;
+    classPlayer player1;
+    scenesLib scenes;
+    unsigned int fps_timer;
+    int fps_counter;
+    std::stringstream fps_msg;
+    char _fps_buffer[128];
+    struct CURRENT_FILE_FORMAT::st_game_config config;
+    st_position selected_stage;
+    class_config config_manager;
+    dialogs game_dialogs;
 	// framerate timers
-    float _frame_duration; /**< TODO */
-    std::map<short, bool> _last_stage_used_teleporters; // list of used teleportes (they do not work anymore after added to this list) /**< TODO */
+    float _frame_duration;
+    std::map<short, bool> _last_stage_used_teleporters; // list of used teleportes (they do not work anymore after added to this list)
     used_teleporter _player_teleporter;
-    bool _show_boss_hp; // after set to true, will keep showing the boss HP bar on screen right side /**< TODO */
+    bool _show_boss_hp; // after set to true, will keep showing the boss HP bar on screen right side
 
     short _drop_item_list[DROP_ITEM_COUNT];
-    bool invencible_old_value; // used to store flag value in order we don't loose it when setting to true due to temporary "got weapon" invencibility /**< TODO */
+    bool invencible_old_value; // used to store flag value in order we don't loose it when setting to true due to temporary "got weapon" invencibility
     bool _dark_mode;                    // on dark mode we only show animation and projectiles
 
 #ifdef PSP

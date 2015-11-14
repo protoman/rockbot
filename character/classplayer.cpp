@@ -447,26 +447,24 @@ void classPlayer::damage_ground_npcs()
 		std::cout << "damage_ground_npcs - could not find weapon with projectile of id '" << weapon_n << "'" << std::endl;
 		return;
 	}
-    std::vector<classnpc*>::iterator enemy_it;
-	for (enemy_it=map->_npc_list.begin(); enemy_it != map->_npc_list.end(); enemy_it++) {
-        if ((*enemy_it)->is_on_visible_screen() == false) {
+
+    for (int i=0; i<map->_npc_list.size(); i++) {
+        if (map->_npc_list.at(i).is_on_visible_screen() == false) {
 			continue;
 		}
 
 		// check if NPC is vulnerable to quake (all bosses except the one with weakness are not)
-        short damage = GameMediator::get_instance()->get_enemy((*enemy_it)->get_number()).weakness[weapon_n].damage_multiplier;
+        short damage = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number()).weakness[weapon_n].damage_multiplier;
 
 		// check if NPC is on ground
-        st_position npc_pos((*enemy_it)->getPosition().x, (*enemy_it)->getPosition().y);
-		npc_pos.x = (npc_pos.x + (*enemy_it)->get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + (*enemy_it)->get_size().height)/TILESIZE;
+        st_position npc_pos(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y);
+        npc_pos.x = (npc_pos.x + map->_npc_list.at(i).get_size().width/2)/TILESIZE;
+        npc_pos.y = (npc_pos.y + map->_npc_list.at(i).get_size().height)/TILESIZE;
 		int lock = map->getMapPointLock(npc_pos);
-		//std::cout << "damage_ground_npcs - NPC[" << (*enemy_it)->getName() << "].lock: " << lock << ", x: " << npc_pos.x << ", y: " << npc_pos.y << std::endl;
 		if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_STAIR || lock == TERRAIN_WATER) {
 			continue;
 		} else {
-            //std::cout << "&&&&&&&&&&&&& damage_ground_npcs - DAMAGING NPC[" << (*enemy_it)->getName() << "]" << std::endl;
-            (*enemy_it)->damage(damage, false);
+            map->_npc_list.at(i).damage(damage, false);
 		}
 	}
 }
@@ -628,24 +626,24 @@ void classPlayer::execute_projectiles()
             continue;
         }
         // check colision agains enemies
-        std::vector<classnpc*>::iterator enemy_it;
-        for (enemy_it=map->_npc_list.begin(); enemy_it != map->_npc_list.end(); enemy_it++) {
+
+        for (int i=0; i<map->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
                 projectile_list.erase(it);
                 break;
             }
-            if ((*enemy_it)->is_on_visible_screen() == false) {
+            if (map->_npc_list.at(i).is_on_visible_screen() == false) {
                 continue;
             }
-            if ((*enemy_it)->is_dead() == true) {
+            if (map->_npc_list.at(i).is_dead() == true) {
                 continue;
             }
 
 
 
             //classnpc* enemy = (*enemy_it);
-            if ((*it).check_colision(st_rectangle((*enemy_it)->getPosition().x, (*enemy_it)->getPosition().y, (*enemy_it)->get_size().width, (*enemy_it)->get_size().height), st_position(moved.width, moved.height)) == true) {
-                if ((*enemy_it)->is_shielded((*it).get_direction()) == true) { // shielded NPC -> reflects shot
+            if ((*it).check_colision(st_rectangle(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y, map->_npc_list.at(i).get_size().width, map->_npc_list.at(i).get_size().height), st_position(moved.width, moved.height)) == true) {
+                if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) { // shielded NPC -> reflects shot
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {
@@ -653,53 +651,44 @@ void classPlayer::execute_projectiles()
                     }
                     continue;
                 }
-                if ((*enemy_it)->is_invisible() == true) { // invisible NPC -> ignore shot
+                if (map->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
                     continue;
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle enemy_hit_area = (*enemy_it)->get_hit_area();
-                st_size enemy_size = (*enemy_it)->get_size();
-                enemy_hit_area.x += (*enemy_it)->getPosition().x-1;
-                enemy_hit_area.y += (*enemy_it)->getPosition().y;
+                st_rectangle enemy_hit_area = map->_npc_list.at(i).get_hit_area();
+                st_size enemy_size = map->_npc_list.at(i).get_size();
+                enemy_hit_area.x += map->_npc_list.at(i).getPosition().x-1;
+                enemy_hit_area.y += map->_npc_list.at(i).getPosition().y;
 
-                //std::cout << ">> PLAYER::execute_projectiles[" << (*enemy_it)->getName() << "] - npc.h: " << enemy_size.height << ", hit_area.h: " << enemy_hit_area.h << std::endl;
                 if (enemy_hit_area.w != enemy_size.width || enemy_hit_area.h != enemy_size.height) {
-                    //std::cout << ">> PLAYER::execute_projectiles[" << (*enemy_it)->getName() << "] - use hit_area" << std::endl;
                     if ((*it).check_colision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
-                        //std::cout << ">> PLAYER::execute_projectiles[" << (*enemy_it)->getName() << "]Projectile missed - enemy_hit_area.w: " << enemy_hit_area.w << ", enemy_hit_area.h: " << enemy_hit_area.h << std::endl;
                         (*it).consume_projectile();
                         continue;
                     }
-                //} else {
-                    //std::cout << ">> PLAYER::execute_projectiles[" << (*enemy_it)->getName() << "] - DONT use hit_area" << std::endl;
                 }
 
                 short wpn_id = (*it).get_weapon_id();
 
-                //std::cout << "******* wpn_id: " << wpn_id << std::endl;
                 if (wpn_id < 0) {
                     wpn_id = 0;
                 }
 
-                //std::cout << ">> player weapon damage #1" << std::endl;
-                //std::cout << "******* (*enemy_it)->is_using_circle_weapon(): " << (*enemy_it)->is_using_circle_weapon() << ", (*it)->get_trajectory(): " << (*it)->get_trajectory() << ", TRAJECTORY_CHAIN: " << TRAJECTORY_CHAIN << std::endl;
                 // NPC using cicrcle weapon, is only be destroyed by CHAIN, but NPC won't take damage
-                if ((*enemy_it)->is_using_circle_weapon() == true) {
+                if (map->_npc_list.at(i).is_using_circle_weapon() == true) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
-                        //std::cout << "PLAYER projectile hit NPC centered-weapon" << std::endl;
-                        (*enemy_it)->consume_projectile();
+                        map->_npc_list.at(i).consume_projectile();
                     }
                     (*it).consume_projectile();
                     return;
                 }
 
                 if ((*it).get_damage() > 0) {
-                    int multiplier = GameMediator::get_instance()->get_enemy((*enemy_it)->get_number()).weakness[wpn_id].damage_multiplier;
+                    int multiplier = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number()).weakness[wpn_id].damage_multiplier;
                     if (multiplier <= 0) {
                         multiplier = 1;
                     }
-                    (*enemy_it)->damage((*it).get_damage() * multiplier, ignore_hit_timer);
+                    map->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
                 }
                 if ((*it).get_damage() > 0) {
                     (*it).consume_projectile();
@@ -1059,22 +1048,21 @@ classnpc *classPlayer::find_nearest_npc()
 	classnpc* ret = NULL;
     std::vector<classnpc*>::iterator enemy_it;
 
-    for (enemy_it=map->_npc_list.begin(); enemy_it != map->_npc_list.end(); enemy_it++) {
-        if ((*enemy_it)->is_on_visible_screen() == false) {
+    for (int i=0; i<map->_npc_list.size(); i++) {
+        if (map->_npc_list.at(i).is_on_visible_screen() == false) {
 			continue;
 		}
-        if ((*enemy_it)->is_dead() == true) {
+        if (map->_npc_list.at(i).is_dead() == true) {
             continue;
         }
 
-        st_position npc_pos((*enemy_it)->getPosition().x*TILESIZE, (*enemy_it)->getPosition().y*TILESIZE);
-		npc_pos.x = (npc_pos.x + (*enemy_it)->get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + (*enemy_it)->get_size().height)/TILESIZE;
+        st_position npc_pos(map->_npc_list.at(i).getPosition().x*TILESIZE, map->_npc_list.at(i).getPosition().y*TILESIZE);
+        npc_pos.x = (npc_pos.x + map->_npc_list.at(i).get_size().width/2)/TILESIZE;
+        npc_pos.y = (npc_pos.y + map->_npc_list.at(i).get_size().height)/TILESIZE;
 
         // pitagoras: raiz[ (x2-x1)^2 + (y2-y1)^2 ]
         int dist = sqrt(pow((float)(position.x - npc_pos.x), (float)2) + pow((float)(position.y - npc_pos.y ), (float)2));
         if (dist < lower_dist) {
-            //std::cout << "PLAYER::find_nearest_npc - found NPC[" << (*enemy_it)->getName() << "], dist: " << dist << std::endl;
             lower_dist = dist;
 			ret = (*enemy_it);
         }
