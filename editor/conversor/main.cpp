@@ -428,6 +428,9 @@ int main(int argc, char *argv[])
 
     convert_game(game_v1);
 
+    convert_strings();
+
+    FILEPATH += "/out/";
     fio.write_all_stages(stage_data);
     fio.write_all_maps(maps_data);
 
@@ -437,7 +440,6 @@ int main(int argc, char *argv[])
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
 
-    convert_strings();
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     fio_str.save_common_strings(common_string_list);

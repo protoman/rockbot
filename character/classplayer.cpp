@@ -358,7 +358,7 @@ void classPlayer::attack(bool dont_update_colors)
         }
 
         // check if projectiles limit from weapon/projectile os not reached
-        if (projectile_list.size() >= GameMediator::get_instance()->projectile_list.at(game_data.weapons[weapon_id].id_projectile).max_shots) {
+        if (projectile_list.size() >= GameMediator::get_instance()->get_projectile(game_data.weapons[weapon_id].id_projectile).max_shots) {
             std::cout << "#### PLAYER::ATTACK - can't shot, weapon number reached ###" << std::endl;
             return;
         }
@@ -374,7 +374,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         //std::cout << "weapon_id: " << weapon_id << ", projectile_id: " << game_data.weapons[weapon_id].id_projectile << std::endl;
 
-        int weapon_trajectory = GameMediator::get_instance()->projectile_list.at(game_data.weapons[weapon_id].id_projectile).trajectory;
+        int weapon_trajectory = GameMediator::get_instance()->get_projectile(game_data.weapons[weapon_id].id_projectile).trajectory;
         if (weapon_trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
@@ -421,8 +421,8 @@ void classPlayer::damage_ground_npcs()
 	/// @TODO - this part must be done only ONCE
 	// find quake in projectiles list
 	int projectile_n = -1;
-    for (int i =0; i<GameMediator::get_instance()->projectile_list.size(); i++) {
-        if (GameMediator::get_instance()->projectile_list.at(i).trajectory == TRAJECTORY_QUAKE) {
+    for (int i =0; i<GameMediator::get_instance()->get_projectile_list_size(); i++) {
+        if (GameMediator::get_instance()->get_projectile(i).trajectory == TRAJECTORY_QUAKE) {
 			projectile_n = i;
 			break;
 		}

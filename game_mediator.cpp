@@ -31,6 +31,19 @@ Mix_Chunk* GameMediator::get_sfx(std::string filename)
     }
 }
 
+CURRENT_FILE_FORMAT::file_projectile GameMediator::get_projectile(int n)
+{
+    if (n < 0 || n >= projectile_list.size()) {
+        return projectile_list.at(0);
+    }
+    return projectile_list.at(n);
+}
+
+int GameMediator::get_projectile_list_size()
+{
+    return projectile_list.size();
+}
+
 GameMediator::GameMediator()
 {
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");

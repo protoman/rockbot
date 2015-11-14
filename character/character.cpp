@@ -635,11 +635,11 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
 
 
-        if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_CENTERED) {
+        if (GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
 		}
-        if (GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->projectile_list.at(attack_id).trajectory == TRAJECTORY_FOLLOW) {
+        if (GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_FOLLOW) {
             if (!is_player() && map->_player_ref != NULL) {
                 character* p_player = map->_player_ref;
                 temp_proj.set_target_position(p_player->get_position_ref());
@@ -2180,7 +2180,6 @@ Uint8 character::get_projectile_max_shots()
         }
     }
     if (all_projectiles_normal == true) {
-        std::cout << "CHAR::get_projectile_max_shots - All Normal" << std::endl;
         return max_projectiles;
     }
     return max_proj;

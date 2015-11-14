@@ -35,8 +35,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 	if (_id == -1) {
 		_size.width = 6;
 		_size.height = 6;
-    } else if (GameMediator::get_instance()->projectile_list.at(_id).speed > 0) {
-        _speed = GameMediator::get_instance()->projectile_list.at(_id).speed;
+    } else if (GameMediator::get_instance()->get_projectile(_id).speed > 0) {
+        _speed = GameMediator::get_instance()->get_projectile(_id).speed;
     }
 
     _sin_x = 0;
@@ -152,11 +152,7 @@ st_size_int8 projectile::get_size() const
     if (_id == -1) {
         return st_size_int8(6, 6);
 	}
-    std::vector<CURRENT_FILE_FORMAT::file_projectile> list = GameMediator::get_instance()->projectile_list;
-    if (_id != 0) {
-        int a = 1;
-    }
-    return GameMediator::get_instance()->projectile_list.at(_id).size;
+    return GameMediator::get_instance()->get_projectile(_id).size;
 }
 
 void projectile::move_ahead(st_size &moved)
@@ -257,10 +253,10 @@ Uint8 projectile::get_damage() const
     if ((get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB) && _effect_n == 0) {
 		return 0;
 	}
-    if (GameMediator::get_instance()->projectile_list.at(_id).damage <= 0) {
+    if (GameMediator::get_instance()->get_projectile(_id).damage <= 0) {
 		return PROJECTILE_DEFAULT_DAMAGE;
 	}
-    return GameMediator::get_instance()->projectile_list.at(_id).damage;
+    return GameMediator::get_instance()->get_projectile(_id).damage;
 }
 
 Uint8 projectile::get_trajectory() const
@@ -268,7 +264,7 @@ Uint8 projectile::get_trajectory() const
     if (_id == -1) {
         return TRAJECTORY_LINEAR;
     }
-    return GameMediator::get_instance()->projectile_list.at(_id).trajectory;
+    return GameMediator::get_instance()->get_projectile(_id).trajectory;
 }
 
 void projectile::set_trajectory(short new_trajectory)
@@ -341,7 +337,7 @@ st_rectangle projectile::get_area()
 
 short projectile::get_max_shots()
 {
-    return GameMediator::get_instance()->projectile_list.at(_id).max_shots;
+    return GameMediator::get_instance()->get_projectile(_id).max_shots;
 }
 
 short projectile::get_id()
@@ -351,7 +347,7 @@ short projectile::get_id()
 
 void projectile::play_sfx()
 {
-    std::string projectile_sfx(GameMediator::get_instance()->projectile_list.at(_id).sfx_filename);
+    std::string projectile_sfx(GameMediator::get_instance()->get_projectile(_id).sfx_filename);
     if (projectile_sfx.length() > 0) {
         Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
         soundManager.play_sfx_from_chunk(sfx, 1);
@@ -773,7 +769,7 @@ Uint8 projectile::get_move_type() const
     if (_id == -1) {
         return TRAJECTORY_LINEAR;
     }
-    return GameMediator::get_instance()->projectile_list.at(_id).trajectory;
+    return GameMediator::get_instance()->get_projectile(_id).trajectory;
 }
 
 void projectile::set_y(int sety)

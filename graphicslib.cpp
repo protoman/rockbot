@@ -1643,8 +1643,8 @@ void graphicsLib::preload_images()
 	surfaceFromFile(filename, &small_explosion);
 
 	// projectile images
-    for (int i=0; i<GameMediator::get_instance()->projectile_list.size(); i++) {
-        std::string filename(GameMediator::get_instance()->projectile_list.at(i).graphic_filename);
+    for (int i=0; i<GameMediator::get_instance()->get_projectile_list_size(); i++) {
+        std::string filename(GameMediator::get_instance()->get_projectile(i).graphic_filename);
         filename = FILEPATH + "images/projectiles/" + filename;
 		if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
             projectile_surface.push_back(graphicsLib_gSurface());
