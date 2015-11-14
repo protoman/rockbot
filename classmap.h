@@ -124,8 +124,6 @@ public:
 
     void move_map(const short int move_x, const short int move_y);
 
-    void clean_map();
-
     void reset_map();
 
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
@@ -209,7 +207,6 @@ private:
     int stage_number;
     struct st_position scroll;
     st_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
-    std::vector<object> object_list;
     bool wall_scroll_lock[MAP_W];
     float bg1_scroll;
     float bg2_scroll;
@@ -220,6 +217,7 @@ private:
     st_rectangle _3rd_level_ignore_area;
     object_colision _obj_colision;
     std::vector<st_level3_tile> _level3_tiles;
+    std::vector<object> object_list;
     bool _break_npc_loop;                       // used to prevent looping through the npc list after adding a new one (needed because using vector instead of list, because of old-Dingux crashes)
 };
 

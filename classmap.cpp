@@ -74,22 +74,6 @@ classMap::~classMap()
     std::cout << "map[" << number << "] destructor" << std::endl;
 }
 
-void classMap::clean_map()
-{
-    while (!object_list.empty()) {
-        object_list.back().remove_graphic();
-        object_list.pop_back();
-    }
-
-
-    while (!animation_list.empty()) {
-        animation_list.pop_back();
-    }
-
-    while (!_level3_tiles.empty()) {
-        _level3_tiles.pop_back();
-    }
-}
 
 void classMap::reset_map()
 {
@@ -140,9 +124,12 @@ void classMap::loadMap()
 		return;
 	}
 
-	clean_map();
-
     _level3_tiles.clear();
+    object_list.clear();
+
+    std::cout << "MAP::load_map_npcs::loadMap::CLEAR::TOTAL: " << _npc_list.size() << std::endl;
+    _npc_list.clear();
+    animation_list.clear();
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
@@ -434,16 +421,17 @@ st_position classMap::getMapScrolling() const
 void classMap::load_map_npcs()
 {
     // remove all elements currently in the list
+    std::cout << "MAP::load_map_npcs::total::BEFORE: " << _npc_list.size() << std::endl;
     while (!_npc_list.empty()) {
         _npc_list.back().clean_character_graphics_list();
         _npc_list.pop_back();
     }
-    classnpc new_npc;
 
 	//std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
+            classnpc new_npc;
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
                 new_npc = classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
                 new_npc.set_stage_boss(true);
@@ -456,6 +444,7 @@ void classMap::load_map_npcs()
             _npc_list.push_back(new_npc); // insert new npc at the list-end
 		}
 	}
+    std::cout << "MAP::load_map_npcs::total::AFTER: " << _npc_list.size() << std::endl;
 }
 
 

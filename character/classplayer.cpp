@@ -279,12 +279,12 @@ void classPlayer::attack(bool dont_update_colors)
 
 
     if (state.animation_type == ANIM_TYPE_HIT) { // can't fire when hit
-        std::cout << ">> PLAYER::attack()::LEAVE #1" << std::endl;
+        //std::cout << ">> PLAYER::attack()::LEAVE #1" << std::endl;
         return;
     }
 
     if (get_projectile_max_shots() <= projectile_list.size()) {
-        std::cout << ">> PLAYER::attack()::LEAVE #2, max-shots: " << (int)get_projectile_max_shots() << std::endl;
+        //std::cout << ">> PLAYER::attack()::LEAVE #2, max-shots: " << (int)get_projectile_max_shots() << std::endl;
         return;
     }
 

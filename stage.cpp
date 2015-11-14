@@ -41,8 +41,6 @@ stage::stage(int setStageN, classPlayer* set_player_ref)
 // ********************************************************************************************** //
 stage::~stage()
 {
-    std::cout << "stage[" << (int)number << "] destructor" << std::endl;
-    clean_stage();
 }
 
 int stage::get_number()
@@ -77,11 +75,11 @@ void stage::loadStage() {
 	// load stage maps
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
         classMap new_map;
-        new_map.setMapNumber(i);
-        new_map.setStageNumber(number);
-        new_map.loadMap();
-        new_map.set_player(_player_ref);
         maps[i] = new_map;
+        maps[i].setMapNumber(i);
+        maps[i].setStageNumber(number);
+        maps[i].loadMap();
+        maps[i].set_player(_player_ref);
     }
 }
 
@@ -176,7 +174,6 @@ void stage::move_map(const short int move_x, const short int move_y) const
 
 void stage::reload_stage()
 {
-    clean_stage();
     loadStage();
 }
 
@@ -206,14 +203,6 @@ void stage::reset_stage_objects() const
     //std::cout << "================== stage::reset_stage_objects" << std::endl;
     for (int i=0; i<PRELOAD_MAP_N; i++) {
         maps[i].reset_map();
-    }
-}
-
-
-void stage::clean_stage()
-{
-    for (int i=0; i<PRELOAD_MAP_N; i++) {
-        maps[i].clean_map();
     }
 }
 

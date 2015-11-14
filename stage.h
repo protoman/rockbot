@@ -118,19 +118,7 @@ public:
      *
      */
     void reset_stage_objects() const;
-    /**
-     * @brief
-     *
-     */
-    void clean_stage();
-    /**
-     * @brief
-     *
-     * @param is_close
-     * @param nTiles
-     * @param tileX
-     * @param player_number
-     */
+
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number) const;
     /**
      * @brief

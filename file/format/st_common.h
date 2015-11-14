@@ -323,7 +323,6 @@ public:
             colorkey3_points = original.colorkey3_points;
             show_debug = false;
             if (original.width > 0) {
-                std::cout << "GRUSFACE::COPY::W: " << original.width << std::endl;
                 gSurface = SDL_DisplayFormat(original.gSurface);
                 //SDL_FreeSurface(original.gSurface);
             } else {
@@ -347,7 +346,6 @@ public:
             colorkey3_points = original.colorkey3_points;
             show_debug = false;
             if (original.width > 0) {
-                std::cout << "GRUSFACE::COPY::W: " << original.width << std::endl;
                 gSurface = SDL_DisplayFormat(original.gSurface);
                 //SDL_FreeSurface(original.gSurface);
             } else {
@@ -456,7 +454,7 @@ public:
 	{
         if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
             if (video_screen == false && gSurface != NULL) {
-                std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
+                //std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
                 width = -1;
                 height = -1;
                 SDL_FreeSurface(gSurface);
