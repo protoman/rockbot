@@ -117,7 +117,7 @@ std::string Mediator::getPallete() {
 
 void Mediator::setPallete(std::string filename)
 {
-    selectedTileset =  FILEPATH + std::string("/images/tilesets/") + filename;
+    selectedTileset =  filename;
 }
 
 void Mediator::setPallete(char *value) {

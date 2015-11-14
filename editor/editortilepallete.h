@@ -23,7 +23,6 @@ public:
     EditorTilePallete(QWidget *parent = 0);
     int selectedTileX, selectedTileY;
     QString getPallete();
-    QString currentPallete;
 
   // variables
   QWidget *myParent;

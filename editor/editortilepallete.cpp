@@ -5,27 +5,26 @@ EditorTilePallete::EditorTilePallete(QWidget *parent) : QWidget(parent) {
    printf("DEBUG.EditorTilePallete - constructor\n");
    selectedTileX=0;
    selectedTileY=0;
-   currentPallete.clear();
    myParent = parent;
    parent->resize(QSize(250, 200));
    this->show();
 }
 
 void EditorTilePallete::paintEvent(QPaintEvent *) {
-   QString *filename;
    QPixmap *image;
+
+   QString filename;
+   if (Mediator::get_instance()->getPallete().length() < 1) {
+        filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString("default.png");
+   } else {
+        filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
+   }
+
    //printf("DEBUG.EditorTilePallete - paintEvent, selectedTileX: %d, selectedTileY: %d\n", selectedTileX, selectedTileY);
    QPainter painter(this);
-   if (currentPallete.length() <= 0) {
-      std::string tempstr = Mediator::get_instance()->getPallete();
-      filename = new QString(tempstr.c_str());
-   } else {
-      filename = new QString(QString(FILEPATH.c_str())+"/images/tilesets/");
-      filename->append(currentPallete);
-   }
-   image = new QPixmap(*filename);
+   image = new QPixmap(filename);
    if (image->isNull()) {
-      printf("DEBUG.Tile - Could not load image file '%s'\n", qPrintable(*filename));
+      printf("DEBUG.Tile - Could not load image file '%s'\n", qPrintable(filename));
    }
    QRectF target(QPoint(0, 0), image->size());
    QRectF source(QPoint(0, 0), image->size());
@@ -40,8 +39,6 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
 
 void EditorTilePallete::changeTileSet(const QString &tileset) {
    printf("mudando paleta para %s\n", qPrintable(tileset));
-   currentPallete=QString();
-   currentPallete.append(tileset);
    signalPalleteChanged();
    repaint();
 }

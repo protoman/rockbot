@@ -134,10 +134,10 @@ void convert_stage_maps(int stage_id, v1_file_stage& stage_v1) {
         }
         maps_data[stage_id][i].background_color = convert_color(stage_v1.maps[i].background_color);
         for (int j=0; j<V1_FS_MAX_MAP_NPCS; j++) {
-            maps_data[stage_id][i].map_npcs[j].direction = stage_v1.maps[i].map_npcs[i].direction;
-            maps_data[stage_id][i].map_npcs[j].id_npc = stage_v1.maps[i].map_npcs[i].id_npc;
-            maps_data[stage_id][i].map_npcs[j].start_point.x = stage_v1.maps[i].map_npcs[i].start_point.x;
-            maps_data[stage_id][i].map_npcs[j].start_point.y = stage_v1.maps[i].map_npcs[i].start_point.y;
+            maps_data[stage_id][i].map_npcs[j].direction = stage_v1.maps[i].map_npcs[j].direction;
+            maps_data[stage_id][i].map_npcs[j].id_npc = stage_v1.maps[i].map_npcs[j].id_npc;
+            maps_data[stage_id][i].map_npcs[j].start_point.x = stage_v1.maps[i].map_npcs[j].start_point.x;
+            maps_data[stage_id][i].map_npcs[j].start_point.y = stage_v1.maps[i].map_npcs[j].start_point.y;
         }
         for (int j=0; j<V1_FS_MAX_MAP_OBJECTS; j++) {
             maps_data[stage_id][i].map_objects[j].direction = stage_v1.maps[i].map_objects[j].direction;
