@@ -60,7 +60,9 @@ void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
 
 
 QString EditorTilePallete::getPallete() {
-    return QString(Mediator::get_instance()->getPallete().c_str());
+    QString res(Mediator::get_instance()->getPallete().c_str());
+    std::cout << "EditorTilePallete::getPallete - res: " << res.toStdString() << std::endl;
+    return res;
 }
 
 //void EditorTilePallete::signalPalleteChanged() {

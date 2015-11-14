@@ -125,10 +125,6 @@ void Mediator::setPallete(char *value) {
 }
 
 
-
-
-
-
 void Mediator::load_game() {
     Mediator::get_instance()->fio.read_game(game_data);
     Mediator::get_instance()->fio.read_all_stages(stage_data);

@@ -30,7 +30,6 @@ class EditorArea : public QWidget
 public:
   // methods
   EditorArea(QWidget *parent = 0);
-  void setInfoPalette(EditorTilePallete *temp_pallete);
 
   // variables
   QWidget *myParent;
@@ -55,7 +54,6 @@ protected:
   int temp;
   int editor_selectedTileX, editor_selectedTileY;
   int tempX, tempY;
-  EditorTilePallete *my_pallete;
   int editor_selected_object_pos;
   int editor_selected_object_pos_map;
   void fill_area();

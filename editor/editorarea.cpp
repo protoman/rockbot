@@ -23,7 +23,6 @@ EditorArea::EditorArea(QWidget *parent) : QWidget(parent) {
     editor_selectedTileY = 0;
 	tempX = -1;
 	tempY = -1;
-    my_pallete = NULL;
     editor_selected_object_pos = 0;
     editor_selected_object_pos_map = 0;
     this->show();
@@ -35,14 +34,7 @@ void EditorArea::changeTile() {
 	repaint();
 }
 
-void EditorArea::setInfoPalette(EditorTilePallete *temp_pallete) {
-   if (temp_pallete != NULL) {
-      printf("DEBUG.EditorArea::setPallete - got pallete\n");
-   } else {
-      printf("DEBUG.EditorArea::setPallete - null pallete\n");
-   }
-   my_pallete = temp_pallete;
-}
+
 
 void EditorArea::paintEvent(QPaintEvent *) {
 
@@ -55,8 +47,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     QLineF line;
     QString filename;
 
-    filename = QString("");
-    filename.append(my_pallete->getPallete());
+    filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
     if (filename.length() <= 0) {
         return;
     }

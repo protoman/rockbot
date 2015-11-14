@@ -107,6 +107,10 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
     }
     ui->npc_edit_tab_graphicheight->setValue(Mediator::get_instance()->enemy_list.at(index).frame_size.height);
     ui->npc_edit_tab_graphicwidth->setValue(Mediator::get_instance()->enemy_list.at(index).frame_size.width);
+
+    ui->npc_edit_tab_previewarea->set_grid_w(Mediator::get_instance()->enemy_list.at(index).frame_size.width);
+    ui->npc_edit_tab_previewarea->set_grid_h(Mediator::get_instance()->enemy_list.at(index).frame_size.height);
+
     Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(index).frame_size.height;
     Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(index).frame_size.width;
     ui->npc_edit_tab_iatype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).IA_type);

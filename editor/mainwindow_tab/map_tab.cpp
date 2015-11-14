@@ -71,6 +71,17 @@ void map_tab::fill_data()
     fill_background_list();
     ui->npc_direction_combo->setCurrentIndex(Mediator::get_instance()->npc_direction);
     ui->object_direction_combo->setCurrentIndex(Mediator::get_instance()->object_direction);
+
+    QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
+    if (tileset.length() > 0) {
+        ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
+        Mediator::get_instance()->setPallete(tileset.toStdString());
+    } else {
+        ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(QString("default.png")));
+        Mediator::get_instance()->setPallete("default.png");
+    }
+
+
     _data_loading = false;
 }
 
@@ -141,12 +152,14 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
         ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
         Mediator::get_instance()->setPallete(tileset.toStdString());
     } else {
-        ui->stageTileset_comboBox->setCurrentIndex(-1);
+        ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(QString("default.png")));
+        Mediator::get_instance()->setPallete("default.png");
     }
 
     ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
 
     ui->editArea->repaint();
+    ui->pallete->repaint();
     _data_loading = data_loading_before;
 }
 
