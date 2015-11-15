@@ -53,6 +53,7 @@ bool have_save = false;
 #include "timerlib.h"
 #include "soundlib.h"
 #include "game.h"
+#include "aux_tools/fps_control.h"
 
 #include "aux_tools/stringutils.h"
 
@@ -573,6 +574,9 @@ int main(int argc, char *argv[])
 
     bool run_game = true;
 
+    fps_control fps_manager;
+    fps_manager.initialize();
+
     while (run_game) {
         #if !defined(DINGUX)
             timer.start_ticker();
@@ -593,10 +597,13 @@ int main(int argc, char *argv[])
             std::fflush(stdout);
             leave_game = true;
         }
+        /*
         unsigned int now_ticks = timer.get_ticks();
         if (now_ticks < (1000 / FRAMES_PER_SECOND)) {
             timer.delay((1000 / FRAMES_PER_SECOND) - now_ticks);
         }
+        */
+        fps_manager.limit();
 
     }
 	/// @TODO: sdl quit sub-systems

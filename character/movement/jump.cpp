@@ -6,12 +6,12 @@
 // if not interrupted, jump takes 700 milisseconds
 // jump max high is 74 px
 
-#define JUMP_INITIAL_SPEED 4.875
+#define JUMP_INITIAL_SPEED 5.375
 
 
 classjump::classjump() : started(false)
 {
-    JUMP_ACCELERATION = 0.208;
+    JUMP_ACCELERATION = 0.26;
     JUMP_LIMIT = (TILESIZE*3)-6;
     JUMP_LIMIT = 240;
     state = NOJUMP;

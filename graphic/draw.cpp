@@ -303,6 +303,7 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("--- PROGRAMMER ---");
     credits_list.push_back("IURI FIEDORUK");
     credits_list.push_back("DEMETRIO NETO");
+    credits_list.push_back("FELIPE ZACANI");
     credits_list.push_back("");
 
     credits_list.push_back("--- PORTING ---");
