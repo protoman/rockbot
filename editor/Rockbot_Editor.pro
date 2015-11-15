@@ -109,7 +109,8 @@ SOURCES += main.cpp \
     ../file/fio_strings.cpp \
     ../aux_tools/stringutils.cpp \
     model/stringeditmodel.cpp \
-    ../file/fio_common.cpp
+    ../file/fio_common.cpp \
+    mainwindow_tab/anim_tiles_edit.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -183,7 +184,8 @@ HEADERS += mainwindow.h \
     ../aux_tools/stringutils.h \
     model/stringeditmodel.h \
     ../file/v4/file_strings.h \
-    ../file/fio_common.hpp
+    ../file/fio_common.hpp \
+    mainwindow_tab/anim_tiles_edit.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -214,7 +216,8 @@ FORMS += mainwindow.ui \
     files_editor/fileseditor.ui \
     newgamedialog.ui \
     mainwindow_tab/gamescenes.ui \
-    files_editor/stringseditor.ui
+    files_editor/stringseditor.ui \
+    mainwindow_tab/anim_tiles_edit.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

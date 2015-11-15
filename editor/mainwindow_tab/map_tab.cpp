@@ -502,6 +502,8 @@ void map_tab::on_stageTileset_comboBox_currentIndexChanged(const QString &arg1)
         sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename, "%s", arg1.toStdString().c_str());
         Mediator::get_instance()->setPallete(arg1.toStdString());
     }
+    ui->pallete->repaint();
+    ui->editArea->repaint();
 }
 
 // ======================== ANIM TILE ======================== //
@@ -525,8 +527,7 @@ void map_tab::on_anim_tile_graphic_combobox_currentIndexChanged(const QString &a
 void map_tab::on_anim_tile_delay_spinbox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-    int selectedFrame = 0;
-    Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[selectedFrame] = arg1;
+    Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[ui->current_anim_tile_combobox->currentIndex()] = arg1;
     ui->animTile_Preview->update_properties();
 }
 

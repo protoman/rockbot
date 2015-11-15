@@ -501,7 +501,10 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         if (Mediator::get_instance()->editTool == EDITMODE_NORMAL) {
             // we set x as anim_tile.id -2 and y as zero
             int anim_tile_id = (Mediator::get_instance()->selectedAnimTileset*-1) - 2;
-            if (anim_tile_id < 0) {
+
+            std::cout << "Mediator::get_instance()->selectedAnimTileset: " << Mediator::get_instance()->selectedAnimTileset << ", anim_tile_id: " << anim_tile_id << std::endl;
+
+            if (anim_tile_id >= 0) {
                 return;
             }
             Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[editor_selectedTileX][editor_selectedTileY].tile1.x = anim_tile_id;
