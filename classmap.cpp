@@ -1342,8 +1342,7 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 
 void classMap::move_npcs() /// @TODO - check out of screen
 {
-	int i = 0;
-    //std::cout << "*************** classMap::showMap - npc_list.size: " << npc_list.size() << std::endl;
+    //std::cout << "*************** classMap::showMap - npc_list.size: " << _npc_list.size() << std::endl;
     for (int i=0; i<_npc_list.size(); i++) {
         if (_break_npc_loop == true) {
             _break_npc_loop = false;
@@ -1353,6 +1352,8 @@ void classMap::move_npcs() /// @TODO - check out of screen
         st_position npc_pos = _npc_list.at(i).get_real_position();
         short dead_state = _npc_list.at(i).get_dead_state();
 
+        std::string name(_npc_list.at(i).getName());
+
 
         if (_npc_list.at(i).is_on_screen() != true) {
             if (dead_state == 2 && _npc_list.at(i).is_boss() == false && _npc_list.at(i).is_subboss()) {
@@ -1360,7 +1361,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
             }
             continue; // no need for moving NPCs that are out of sight
         } else if (dead_state == 2 && _npc_list.at(i).auto_respawn() == true && _npc_list.at(i).is_boss() == false) {
-            std::cout << "DEAD-NPC - reset and respawn" << std::endl;
             _npc_list.at(i).reset_position();
             _npc_list.at(i).revive();
             continue;
@@ -1373,7 +1373,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
             gameControl.got_weapon();
             return;
         }
-
 
         if (dead_state == 0) {
             _npc_list.at(i).execute(); // TODO: must pass scroll map to npcs somwhow...
@@ -1427,7 +1426,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
 			}
 			return;
 		}
-		i++;
     }
 }
 

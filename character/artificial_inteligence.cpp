@@ -34,6 +34,213 @@ artificial_inteligence::~artificial_inteligence()
 
 }
 
+
+
+/*
+ * OK - IA_STAND
+  * OK - IA_FOLLOW
+ * OK - IA_ZIGZAG
+ * - IA_SIDETOSIDE: add a way so that walk-ahead only stops when hitting a wall, not by distance
+ * OK - IA_BAT
+ * OK - IA_ROOF_SHOOTER
+ * OK - IA_GROUND_SHOOTER
+ * OK - IA_SHOOT_AND_GO
+ * OK - IA_FLY_ZIG_ZAG
+ * OK - IA_BUTTERFLY
+ * - IA_HORIZONTAL_GO_AHEAD: works, but when reaching point, does not turn back (must also add a way to ignore distance)
+ * OK - IA_HORIZONTAL_TURN
+ * OK - IA_FIXED_JUMPER
+ * - IA_SIDE_SHOOTER
+ * OK - IA_GHOST: add a way to pass walls
+ * OK - IA_FISH
+ * IA_DOLPHIN
+ * IA_VERTICAL_ZIGZAG
+ *
+*/
+
+void artificial_inteligence::execute_ai()
+{
+    if (_ai_id == -1) {
+        _ai_id = GameMediator::get_instance()->get_enemy(_number).IA_type;
+        //std::cout << "AI::AI[" << name << "] - _number: " << _number << ", _ai_id: " << _ai_id << std::endl;
+        _current_ai_type = get_ai_type();
+    }
+    //std::cout << "AI::execute_ai::START[" << name << "]" << std::endl;
+    if (_check_always_move_ahead == true) {
+        _always_move_ahead = always_move_ahead();
+        _check_always_move_ahead = false;
+    }
+    check_ai_reaction();
+    if (timer.getTimer() < _ai_timer) {
+        return;
+    }
+    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
+    // check if action is finished
+    if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
+        //std::cout << "AI::execute_ai::FINISHED" << std::endl;
+        if (_reaction_type == 0) {
+            int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
+            _ai_timer = timer.getTimer() + delay;
+        } else {
+            _ai_timer = timer.getTimer() + 200;
+        }
+        _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+        define_ai_next_step();
+    } else {
+        execute_ai_step();
+    }
+}
+
+void artificial_inteligence::check_ai_reaction()
+{
+    //std::cout << "AI::check_ai_reaction::START - hitPoints.current: " << hitPoints.current << std::endl;
+    // check and reset state if needed
+    if (_reaction_state == 1) {
+        //std::cout << ">>>>> AI::check_ai_reaction - EXECUTING <<<<<" << std::endl;
+        if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
+            //std::cout << ">>>>> AI::check_ai_reaction - DONE <<<<<" << std::endl;
+            _reaction_state = 0;
+        }
+        return; // do not check again if already executing
+    }
+
+    bool start_reaction = false;
+    // near player
+    struct_player_dist dist_players = dist_npc_players();
+
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x >= 0) {
+        //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
+        _reaction_type = 1;
+        start_reaction = true;
+    // hit
+    } else if (_was_hit == true && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x >= 0) {
+        //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
+        _reaction_type = 2;
+        start_reaction = true;
+    // dead
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x >= 0) {
+        //std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
+        _reaction_type = 3;
+        start_reaction = true;
+    }
+
+    _was_hit = false; // reset flag
+
+    if (start_reaction == true) {
+
+        // do not start a walk-reaction in middle air
+        int react_type = GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.x;
+        //std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
+        if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
+            return;
+        }
+        _reaction_state = 1;
+        _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+        _ai_timer = timer.getTimer(); // start now, ignoring delay
+        _current_ai_type = get_ai_type();
+    }
+}
+
+void artificial_inteligence::define_ai_next_step()
+{
+    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
+        _initialized = true;
+        int rand_n = rand() % 100;
+        if (name == "Giant Fly") std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        bool found_chance = false;
+        int chance_sum = 0;
+        for (int i=0; i<AI_MAX_STATES; i++) {
+            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
+            chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
+            if (rand_n < chance_sum) {
+                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                _ai_chain_n = i;
+                found_chance = true;
+                break;
+            }
+        }
+        if (found_chance == false) {
+            //std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
+            _ai_chain_n = 0;
+        }
+    } else {
+        _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+    }
+    _current_ai_type = get_ai_type();
+    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+}
+
+/*
+    AI_ACTION_WALK,
+    AI_ACTION_FLY,
+    AI_ACTION_JUMP,
+    AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE,
+    AI_ACTION_SAVE_POINT,
+    AI_ACTION_SHOT_PROJECTILE_1,
+    AI_ACTION_SHOT_PROJECTILE_2,
+    AI_ACTION_SHOT_INVERT_PROJECTILE_1,
+    AI_ACTION_AIR_WALK,
+    AI_ACTION_FALL_TO_GROUND,
+    AI_ACTION_TELEPORT,
+    AI_ACTION_DASH,
+    AI_ACTION_GRAB_WALL,
+    AI_ACTION_SPAWN_NPC
+*/
+
+void artificial_inteligence::execute_ai_step()
+{
+    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
+    _ai_timer = timer.getTimer() + 20;
+    if (_current_ai_type == AI_ACTION_WALK) {
+        //std::cout << ">> AI:exec[" << name << "] WALK" << std::endl;
+        execute_ai_step_walk();
+    } else if (_current_ai_type == AI_ACTION_FLY) {
+        //if (name == "Giant Fly") std::cout << "AI::FLY - " << _ai_chain_n << std::endl;
+        execute_ai_step_fly();
+    } else if (_current_ai_type == AI_ACTION_JUMP) {
+        //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
+        execute_ai_step_jump();
+    } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
+        //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
+        execute_ai_action_wait_until_player_in_range();
+    } else if (_current_ai_type == AI_ACTION_SAVE_POINT) {
+        //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
+    } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_1) {
+        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
+        execute_ai_action_trow_projectile(0, false);
+    } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_2) {
+        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
+        execute_ai_action_trow_projectile(1, false);
+    } else if (_current_ai_type == AI_ACTION_SHOT_INVERT_PROJECTILE_1) {
+        //std::cout << ">> AI:exec[" << name << "] SHOT_INVERT_PROJECTILE_1 <<" << std::endl;
+        execute_ai_action_trow_projectile(1, true);
+    } else if (_current_ai_type == AI_ACTION_AIR_WALK) {
+        //std::cout << ">> AI:exec[" << name << "] AIR_WALK <<" << std::endl;
+        ia_action_air_walk();
+    } else if (_current_ai_type == AI_ACTION_FALL_TO_GROUND) {
+        //std::cout << ">> AI:exec[" << name << "] FALL_TO_GROUND <<" << std::endl;
+        ia_action_jump_fall();
+    } else if (_current_ai_type == AI_ACTION_TELEPORT) {
+        //std::cout << ">> AI:exec[" << name << "] TELEPORT <<" << std::endl;
+        ia_action_teleport();
+    } else if (_current_ai_type == AI_ACTION_DASH) {
+        //std::cout << ">> AI:exec[" << name << "] DASH <<" << std::endl;
+        execute_ai_step_dash();
+    } else if (_current_ai_type == AI_ACTION_GRAB_WALL) {
+        //std::cout << ">> AI:exec[" << name << "] GRAB_WALL <<" << std::endl;
+        execute_ai_step_jump_to_wall();
+    } else if (_current_ai_type == AI_ACTION_SPAWN_NPC) {
+        //std::cout << ">> AI:exec[" << name << "] SPAWN_NPC <<" << std::endl;
+        execute_ai_step_spawn_npc();
+    } else {
+        //std::cout << "********** AI number[" << _ai_id << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+    }
+}
+//enum IA_TYPE_LIST { IA_FOLLOW, IA_ZIGZAG, IA_SIDETOSIDE, IA_BAT, IA_ROOF_SHOOTER, IA_GROUND_SHOOTER, IA_SHOOT_AND_GO, IA_FLY_ZIG_ZAG, IA_BUTTERFLY, IA_HORIZONTAL_GO_AHEAD, IA_HORIZONTAL_TURN, IA_FIXED_JUMPER, IA_SIDE_SHOOTER, IA_GHOST, IA_FISH, IA_DOLPHIN, IA_VERTICAL_ZIGZAG, IA_TYPES_COUNT };
+
+
 // ********************************************************************************************** //
 // Find the nearest player and return a struct with distance and a reference to player            //
 // ********************************************************************************************** //
@@ -623,210 +830,6 @@ void artificial_inteligence::ia_dash()
 
 
 
-
-/*
- * OK - IA_STAND
-  * OK - IA_FOLLOW
- * OK - IA_ZIGZAG
- * - IA_SIDETOSIDE: add a way so that walk-ahead only stops when hitting a wall, not by distance
- * OK - IA_BAT
- * OK - IA_ROOF_SHOOTER
- * OK - IA_GROUND_SHOOTER
- * OK - IA_SHOOT_AND_GO
- * OK - IA_FLY_ZIG_ZAG
- * OK - IA_BUTTERFLY
- * - IA_HORIZONTAL_GO_AHEAD: works, but when reaching point, does not turn back (must also add a way to ignore distance)
- * OK - IA_HORIZONTAL_TURN
- * OK - IA_FIXED_JUMPER
- * - IA_SIDE_SHOOTER
- * OK - IA_GHOST: add a way to pass walls
- * OK - IA_FISH
- * IA_DOLPHIN
- * IA_VERTICAL_ZIGZAG
- *
-*/
-
-void artificial_inteligence::execute_ai()
-{
-    if (_ai_id == -1) {
-        _ai_id = GameMediator::get_instance()->get_enemy(_number).IA_type;
-        //std::cout << "AI::AI[" << name << "] - _number: " << _number << ", _ai_id: " << _ai_id << std::endl;
-        _current_ai_type = get_ai_type();
-    }
-    //std::cout << "AI::execute_ai::START[" << name << "]" << std::endl;
-    if (_check_always_move_ahead == true) {
-        _always_move_ahead = always_move_ahead();
-        _check_always_move_ahead = false;
-    }
-    check_ai_reaction();
-	if (timer.getTimer() < _ai_timer) {
-		return;
-	}
-    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
-	// check if action is finished
-    if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-        //std::cout << "AI::execute_ai::FINISHED" << std::endl;
-        if (_reaction_type == 0) {
-            int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
-            _ai_timer = timer.getTimer() + delay;
-        } else {
-            _ai_timer = timer.getTimer() + 200;
-        }
-        _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-		define_ai_next_step();
-    } else {
-        execute_ai_step();
-    }
-}
-
-void artificial_inteligence::check_ai_reaction()
-{
-    //std::cout << "AI::check_ai_reaction::START - hitPoints.current: " << hitPoints.current << std::endl;
-    // check and reset state if needed
-    if (_reaction_state == 1) {
-        //std::cout << ">>>>> AI::check_ai_reaction - EXECUTING <<<<<" << std::endl;
-        if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-            //std::cout << ">>>>> AI::check_ai_reaction - DONE <<<<<" << std::endl;
-            _reaction_state = 0;
-        }
-        return; // do not check again if already executing
-    }
-
-    bool start_reaction = false;
-    // near player
-    struct_player_dist dist_players = dist_npc_players();
-
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x >= 0) {
-        //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
-        _reaction_type = 1;
-        start_reaction = true;
-    // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x >= 0) {
-        //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
-        _reaction_type = 2;
-        start_reaction = true;
-    // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x >= 0) {
-        //std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
-        _reaction_type = 3;
-        start_reaction = true;
-    }
-
-    _was_hit = false; // reset flag
-
-    if (start_reaction == true) {
-
-        // do not start a walk-reaction in middle air
-        int react_type = GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.x;
-        //std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
-        if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
-            return;
-        }
-        _reaction_state = 1;
-        _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-        _ai_timer = timer.getTimer(); // start now, ignoring delay
-        _current_ai_type = get_ai_type();
-    }
-}
-
-void artificial_inteligence::define_ai_next_step()
-{
-    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
-        _initialized = true;
-		int rand_n = rand() % 100;
-        if (name == "Giant Fly") std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
-        bool found_chance = false;
-        int chance_sum = 0;
-        for (int i=0; i<AI_MAX_STATES; i++) {
-            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
-            chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
-            if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
-				_ai_chain_n = i;
-				found_chance = true;
-				break;
-			}
-		}
-        if (found_chance == false) {
-            //std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
-			_ai_chain_n = 0;
-		}
-	} else {
-        _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
-        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
-    }
-    _current_ai_type = get_ai_type();
-    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
-    _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-}
-
-/*
-    AI_ACTION_WALK,
-    AI_ACTION_FLY,
-    AI_ACTION_JUMP,
-    AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE,
-    AI_ACTION_SAVE_POINT,
-    AI_ACTION_SHOT_PROJECTILE_1,
-    AI_ACTION_SHOT_PROJECTILE_2,
-    AI_ACTION_SHOT_INVERT_PROJECTILE_1,
-    AI_ACTION_AIR_WALK,
-    AI_ACTION_FALL_TO_GROUND,
-    AI_ACTION_TELEPORT,
-    AI_ACTION_DASH,
-    AI_ACTION_GRAB_WALL,
-    AI_ACTION_SPAWN_NPC
-*/
-
-void artificial_inteligence::execute_ai_step()
-{
-    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
-	_ai_timer = timer.getTimer() + 20;
-    if (_current_ai_type == AI_ACTION_WALK) {
-        //std::cout << ">> AI:exec[" << name << "] WALK" << std::endl;
-		execute_ai_step_walk();
-    } else if (_current_ai_type == AI_ACTION_FLY) {
-        //if (name == "Giant Fly") std::cout << "AI::FLY - " << _ai_chain_n << std::endl;
-        execute_ai_step_fly();
-    } else if (_current_ai_type == AI_ACTION_JUMP) {
-        //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
-        execute_ai_step_jump();
-    } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
-        //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
-		execute_ai_action_wait_until_player_in_range();
-    } else if (_current_ai_type == AI_ACTION_SAVE_POINT) {
-        //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
-    } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_1) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
-		execute_ai_action_trow_projectile(0, false);
-    } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_2) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
-		execute_ai_action_trow_projectile(1, false);
-    } else if (_current_ai_type == AI_ACTION_SHOT_INVERT_PROJECTILE_1) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_INVERT_PROJECTILE_1 <<" << std::endl;
-		execute_ai_action_trow_projectile(1, true);
-    } else if (_current_ai_type == AI_ACTION_AIR_WALK) {
-        //std::cout << ">> AI:exec[" << name << "] AIR_WALK <<" << std::endl;
-        ia_action_air_walk();
-    } else if (_current_ai_type == AI_ACTION_FALL_TO_GROUND) {
-        //std::cout << ">> AI:exec[" << name << "] FALL_TO_GROUND <<" << std::endl;
-        ia_action_jump_fall();
-    } else if (_current_ai_type == AI_ACTION_TELEPORT) {
-        //std::cout << ">> AI:exec[" << name << "] TELEPORT <<" << std::endl;
-        ia_action_teleport();
-    } else if (_current_ai_type == AI_ACTION_DASH) {
-        //std::cout << ">> AI:exec[" << name << "] DASH <<" << std::endl;
-        execute_ai_step_dash();
-    } else if (_current_ai_type == AI_ACTION_GRAB_WALL) {
-        //std::cout << ">> AI:exec[" << name << "] GRAB_WALL <<" << std::endl;
-        execute_ai_step_jump_to_wall();
-    } else if (_current_ai_type == AI_ACTION_SPAWN_NPC) {
-        //std::cout << ">> AI:exec[" << name << "] SPAWN_NPC <<" << std::endl;
-        execute_ai_step_spawn_npc();
-    } else {
-        //std::cout << "********** AI number[" << _ai_id << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
-    }
-}
-//enum IA_TYPE_LIST { IA_FOLLOW, IA_ZIGZAG, IA_SIDETOSIDE, IA_BAT, IA_ROOF_SHOOTER, IA_GROUND_SHOOTER, IA_SHOOT_AND_GO, IA_FLY_ZIG_ZAG, IA_BUTTERFLY, IA_HORIZONTAL_GO_AHEAD, IA_HORIZONTAL_TURN, IA_FIXED_JUMPER, IA_SIDE_SHOOTER, IA_GHOST, IA_FISH, IA_DOLPHIN, IA_VERTICAL_ZIGZAG, IA_TYPES_COUNT };
 
 
 /// @TODO - jump if needed

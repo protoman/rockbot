@@ -265,6 +265,7 @@ void classnpc::initFrames()
 // ********************************************************************************************** //
 void classnpc::execute()
 {
+
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
         if (name == "Mage Bot") std::cout << ">>> FROZEN[" << name << "], Clean projectiles" << std::endl;
         clean_projectiles();
@@ -396,8 +397,6 @@ void classnpc::move() {
 
 	int mapScrollX = map->getMapScrolling().x;
 
-	// only move npcs that are in the current screen and are alive
-	//mapScrollX = -map_pos_x;
 
 
 	/// @TODO: this check must be placed in game.cpp and npc must have a set_frozen() method, for individual effect
@@ -415,11 +414,17 @@ void classnpc::move() {
 	}
 
 
-	//std::cout << "classnpc::move()::START::name: " << name << ", hitPoints.current: " << hitPoints.current << ", position.x: " << position.x << ", mapScrollX: " << mapScrollX << std::endl;
 
-    if (hitPoints.current > 0 && position.x+frameSize.width >= mapScrollX-TILESIZE*2 && position.x <= mapScrollX+RES_W+TILESIZE*2) {
-        //std::cout << "classnpc::move(" << name << ")::IA_type: " << IA_type << std::endl;
-		execute_ai();
+
+
+
+    if (hitPoints.current > 0) {
+        //std::cout << "classnpc::move(" << name << ")::ALIVE" << std::endl;
+        //std::cout << "pos.x+w: " << (position.x+frameSize.width) << ", min(>): " << (mapScrollX-TILESIZE*2) << ", pos.x: " << (position.x) << ", max(<): " << (mapScrollX+RES_W+TILESIZE*2) << std::endl;
+        if (position.x+frameSize.width >= mapScrollX-TILESIZE*2 && position.x <= mapScrollX+RES_W+TILESIZE*2) {
+            //std::cout << "classnpc::move(" << name << ")::IA_type: " << IA_type << std::endl;
+            execute_ai();
+        }
 	}
 
     //std::cout << "classnpc::move - position.y: " << position.y << std::endl;
