@@ -370,4 +370,13 @@ std::vector<std::string> common::get_npc_names_list()
     return res;
 }
 
+void common::fill_anim_block_combo(QComboBox *combo)
+{
+    combo->clear();
+    for (int i=0; i<Mediator::get_instance()->anim_block_list.size(); i++) {
+        QString name = QString::number(i);
+        combo->addItem(name);
+    }
+}
+
 

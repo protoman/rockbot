@@ -35,6 +35,8 @@ public:
     static void fill_scenes_combo(QComboBox *combo);
     static std::vector<std::string> get_npc_names_list();
 
+    static void fill_anim_block_combo(QComboBox *combo);
+
 private:
 
 

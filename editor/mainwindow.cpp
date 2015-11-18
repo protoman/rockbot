@@ -78,6 +78,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     game_scenes_tab = new GameScenes();
     ui->gameScenes_scrollArea->setWidget(game_scenes_tab);
 
+    anim_tiles_edit_tab = new anim_tiles_edit();
+    ui->anim_tab_scrollArea->setWidget(anim_tiles_edit_tab);
+
     scenes_window.hide();
 
 }

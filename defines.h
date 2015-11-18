@@ -922,7 +922,7 @@ enum E_DIFFICULTY_MODES  {
 // --- STRINGS  END --- //
 
 
-
+#define FS_ANIM_TILE_MAX_FRAMES 6 // is we want to use more than 6 frames, we are doing it wrong...
 
 #endif // DEFINES_H
 

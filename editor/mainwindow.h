@@ -19,6 +19,7 @@
 #include "mainwindow_tab/player_edit.h"
 #include "mainwindow_tab/armor_edit.h"
 #include "mainwindow_tab/gamescenes.h"
+#include "mainwindow_tab/anim_tiles_edit.h"
 #include "scenes/sceneeditorwindow.h"
 #include "aboutwindow.h"
 #include "files_editor/fileseditor.h"
@@ -163,6 +164,7 @@ private:
     player_edit *player_edit_tab;
     armor_edit *armor_edit_tab;
     GameScenes *game_scenes_tab;
+    anim_tiles_edit *anim_tiles_edit_tab;
 
 
     // USED IN NPC TAB

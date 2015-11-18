@@ -12,6 +12,7 @@
 #include "file/v4/file_map.h"
 #include "file/v4/file_game_v4.h"
 #include "file/v4/file_scene_v4.h"
+#include "file/v4/file_anim_block.h"
 
 
 #endif // FILE_FORMAT_H
