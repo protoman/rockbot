@@ -296,7 +296,16 @@
              <string notr="true">border: 2px solid black;</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_2">
-             <property name="margin">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
               <number>0</number>
              </property>
              <item>
@@ -334,7 +343,7 @@
                 <property name="autoFillBackground">
                  <bool>false</bool>
                 </property>
-                <widget class="npcPreviewArea" name="npcPreviewAreaWidget" native="true">
+                <widget class="framesPreviewArea" name="npcPreviewAreaWidget" native="true">
                  <property name="geometry">
                   <rect>
                    <x>0</x>
@@ -394,9 +403,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>npcPreviewArea</class>
+   <class>framesPreviewArea</class>
    <extends>QWidget</extends>
-   <header>npcpreviewarea.h</header>
+   <header>framespreviewarea.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

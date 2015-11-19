@@ -139,7 +139,7 @@
                <property name="autoFillBackground">
                 <bool>true</bool>
                </property>
-               <widget class="npcPreviewArea" name="npc_edit_tab_previewarea" native="true">
+               <widget class="framesPreviewArea" name="npc_edit_tab_previewarea" native="true">
                 <property name="geometry">
                  <rect>
                   <x>0</x>
@@ -1067,9 +1067,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>npcPreviewArea</class>
+   <class>framesPreviewArea</class>
    <extends>QWidget</extends>
-   <header>npcpreviewarea.h</header>
+   <header>framespreviewarea.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

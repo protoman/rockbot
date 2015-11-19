@@ -1,8 +1,8 @@
-#include "npcpreviewarea.h"
+#include "framespreviewarea.h"
 #include <iostream>
 #include <algorithm>
 
-npcPreviewArea::npcPreviewArea(QWidget *parent) : QWidget(parent), graphic_filename(""), img_grid_w(16), img_grid_h(16) {
+framesPreviewArea::framesPreviewArea(QWidget *parent) : QWidget(parent), graphic_filename(""), img_grid_w(16), img_grid_h(16) {
     myParent = parent;
 	editor_selectedTileX = 0;
 	editor_selectedTileY = 0;
@@ -10,41 +10,41 @@ npcPreviewArea::npcPreviewArea(QWidget *parent) : QWidget(parent), graphic_filen
     this->show();
 }
 
-void npcPreviewArea::set_graphicfile(std::string filename)
+void framesPreviewArea::set_graphicfile(std::string filename)
 {
     graphic_filename = filename;
 }
 
-std::string npcPreviewArea::get_graphicfile()
+std::string framesPreviewArea::get_graphicfile()
 {
     return graphic_filename;
 }
 
-void npcPreviewArea::set_bg_graphicfile(std::string filename)
+void framesPreviewArea::set_bg_graphicfile(std::string filename)
 {
     _bg_graphic_filename = filename;
 }
 
-void npcPreviewArea::set_grid_w(int new_w)
+void framesPreviewArea::set_grid_w(int new_w)
 {
 	img_grid_w = new_w;
 	repaint();
 }
 
-void npcPreviewArea::set_grid_h(int new_h)
+void framesPreviewArea::set_grid_h(int new_h)
 {
 	img_grid_h = new_h;
 	repaint();
 }
 
-void npcPreviewArea::set_sprite_pos(st_position s_pos)
+void framesPreviewArea::set_sprite_pos(st_position s_pos)
 {
 	_sprites_pos.x = s_pos.x;
     _sprites_pos.y = s_pos.y;
 }
 
 
-void npcPreviewArea::paintEvent(QPaintEvent *) {
+void framesPreviewArea::paintEvent(QPaintEvent *) {
 	QPainter painter(this);
     QLineF line;
     QRectF target, source;
@@ -76,16 +76,10 @@ void npcPreviewArea::paintEvent(QPaintEvent *) {
         bg_image_w = bg_image.width();
         bg_image_h = bg_image.height();
         bg_image = bg_image.scaled(bg_image.width()*2, bg_image.height()*2);
-        //std::cout << "Drawing bg_image (" << _bg_graphic_filename << ")" << std::endl;
     }
 
 
-	//printf("DEBUG - EditorArea.paintEvent\n");
-	// draw the picked tile in the tileset
-
-
     if (image.isNull() == true || image.width() <= 0) {
-        //std::cout << "NOT Drawing FG_image (" << graphic_filename << ")" << std::endl;
         return;
     }
     image_w = image.width();
@@ -135,7 +129,7 @@ void npcPreviewArea::paintEvent(QPaintEvent *) {
 }
 
 
-void npcPreviewArea::mousePressEvent(QMouseEvent *event) {
+void framesPreviewArea::mousePressEvent(QMouseEvent *event) {
 	printf(">> INSIDE npcPreviewArea::mousePressEvent, editMode: %d, editTool: %d\n", Mediator::get_instance()->editMode, Mediator::get_instance()->editTool);
 
 	QPoint pnt = event->pos();
@@ -151,7 +145,7 @@ void npcPreviewArea::mousePressEvent(QMouseEvent *event) {
 	}
 }
 
-int npcPreviewArea::get_cursor_pos()
+int framesPreviewArea::get_cursor_pos()
 {
 	return editor_selectedTileX;
 }

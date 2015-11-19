@@ -57,7 +57,7 @@
      <string>Fill NPC information:</string>
     </property>
    </widget>
-   <widget class="npcPreviewArea" name="npcPreviewAreaWidget" native="true">
+   <widget class="framesPreviewArea" name="npcPreviewAreaWidget" native="true">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -219,9 +219,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>npcPreviewArea</class>
+   <class>framesPreviewArea</class>
    <extends>QWidget</extends>
-   <header>npcpreviewarea.h</header>
+   <header>framespreviewarea.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

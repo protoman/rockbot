@@ -147,6 +147,7 @@ void MainWindow::reload()
     map_edit_tab->reload();
     player_edit_tab->reload();
     armor_edit_tab->reload();
+    anim_tiles_edit_tab->reload();
     this->show();
 }
 

@@ -8,14 +8,13 @@
 #include "mediator.h"
 
 
-class npcPreviewArea : public QWidget
+class framesPreviewArea : public QWidget
 {
   Q_OBJECT
 
 public:
   // methods
-  npcPreviewArea(QWidget *parent = 0);
-  void set_npc_id(int id);
+  framesPreviewArea(QWidget *parent = 0);
   void set_graphicfile(std::string filename);
   std::string get_graphicfile();
   void set_bg_graphicfile(std::string filename);

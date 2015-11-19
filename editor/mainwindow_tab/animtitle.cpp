@@ -11,10 +11,11 @@ animTitle::animTitle(QWidget *parent) : QWidget(parent)
     std::cout << "animTitle::CONSTRUCTOR" << std::endl;
     myParent = parent;
     _timer = new QTimer(this);
+    _sprite_n = 0;
     connect(_timer, SIGNAL(timeout()), this, SLOT(updateBG()));
     int delay = 100;
-    if (Mediator::get_instance()->anim_tiles.size() != 0) {
-        delay = Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[0];
+    if (Mediator::get_instance()->anim_block_list.size() != 0) {
+        delay = Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).frame_delay[_sprite_n];
     }
     if (delay < 10) {
         delay = 10;
@@ -26,11 +27,11 @@ animTitle::animTitle(QWidget *parent) : QWidget(parent)
 
 void animTitle::update_properties()
 {
-    if (Mediator::get_instance()->anim_tiles.size() == 0) {
+    if (Mediator::get_instance()->anim_block_list.size() == 0) {
         return;
     }
     std::cout << "animTitle::update_properties" << std::endl;
-    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).filename);
+    QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).filename);
     image = QImage(filename);
     if (image.isNull()) {
         _timer->stop();
@@ -46,14 +47,14 @@ void animTitle::update_properties()
 
     _sprite_n = 0;
     _timer->stop();
-    _timer->start(Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[0]);
+    _timer->start(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).frame_delay[_sprite_n]);
     repaint();
 }
 
 
 void animTitle::updateBG()
 {
-    if (Mediator::get_instance()->anim_tiles.size() == 0) {
+    if (Mediator::get_instance()->anim_block_list.size() == 0) {
         return;
     }
     _sprite_n++;
@@ -69,7 +70,7 @@ void animTitle::updateBG()
         _sprite_n = 0;
     }
     _timer->stop();
-    _timer->start(Mediator::get_instance()->anim_tiles.at(Mediator::get_instance()->selectedAnimTileset).delay[0]);
+    _timer->start(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).frame_delay[0]);
     repaint();
 }
 

@@ -59,7 +59,6 @@ SOURCES += main.cpp \
     editortilepallete.cpp \
     mediator.cpp \
     addwizard.cpp \
-    npcpreviewarea.cpp \
     loadgamepicker.cpp \
     dialognpcedit.cpp \
     dialogobjectedit.cpp \
@@ -110,7 +109,8 @@ SOURCES += main.cpp \
     ../aux_tools/stringutils.cpp \
     model/stringeditmodel.cpp \
     ../file/fio_common.cpp \
-    mainwindow_tab/anim_tiles_edit.cpp
+    mainwindow_tab/anim_tiles_edit.cpp \
+    framespreviewarea.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -118,7 +118,6 @@ HEADERS += mainwindow.h \
     mediator.h \
     addwizard.h \
     addwizard.h \
-    npcpreviewarea.h \
     loadgamepicker.h \
     dialognpcedit.h \
     dialogobjectedit.h \
@@ -185,7 +184,8 @@ HEADERS += mainwindow.h \
     model/stringeditmodel.h \
     ../file/v4/file_strings.h \
     ../file/fio_common.hpp \
-    mainwindow_tab/anim_tiles_edit.h
+    mainwindow_tab/anim_tiles_edit.h \
+    framespreviewarea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
