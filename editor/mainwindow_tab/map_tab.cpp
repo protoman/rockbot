@@ -11,8 +11,6 @@ map_tab::map_tab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    Mediator::get_instance()->anim_tiles = fio.read_anim_tiles();
-
     fill_data();
 
     ui->editTile_button->setChecked(true);
@@ -29,7 +27,6 @@ map_tab::~map_tab()
 
 void map_tab::reload()
 {
-    Mediator::get_instance()->anim_tiles = fio.read_anim_tiles();
     ui->animTilePaletteWidget->reload();
     fill_data();
 }

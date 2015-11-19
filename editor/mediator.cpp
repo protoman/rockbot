@@ -162,7 +162,6 @@ void Mediator::save_game()
     Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
     Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
     CURRENT_FILE_FORMAT::file_io fio;
-    fio.write_anim_tiles(Mediator::get_instance()->anim_tiles);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
