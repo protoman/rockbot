@@ -30,8 +30,10 @@ void animTitle::update_properties()
     if (Mediator::get_instance()->anim_block_list.size() == 0) {
         return;
     }
-    std::cout << "animTitle::update_properties" << std::endl;
     QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).filename);
+
+    std::cout << "animTitle::update_properties::filename: " << filename.toStdString() << ", selectedAnimTileset: " << Mediator::get_instance()->selectedAnimTileset << std::endl;
+
     image = QImage(filename);
     if (image.isNull()) {
         _timer->stop();
@@ -43,7 +45,7 @@ void animTitle::update_properties()
     this->resize(TILESIZE*2, TILESIZE*2);
     myParent->adjustSize();
     max_frames = image.width()/(TILESIZE*2);
-    std::cout << "animTitle::update_properties::max_frames: " << max_frames << std::endl;
+    //std::cout << "animTitle::update_properties::max_frames: " << max_frames << std::endl;
 
     _sprite_n = 0;
     _timer->stop();
@@ -70,7 +72,7 @@ void animTitle::updateBG()
         _sprite_n = 0;
     }
     _timer->stop();
-    _timer->start(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).frame_delay[0]);
+    _timer->start(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).frame_delay[_sprite_n]);
     repaint();
 }
 
