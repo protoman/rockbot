@@ -45,9 +45,6 @@ private slots:
     void on_checkBox_toggled(bool checked);
     void on_checkBox_2_toggled(bool checked);
     void on_checkBox_3_toggled(bool checked);
-    void on_current_anim_tile_combobox_currentIndexChanged(int index);
-    void on_anim_tile_graphic_combobox_currentIndexChanged(const QString &arg1);
-    void on_anim_tile_delay_spinbox_valueChanged(int arg1);
     void on_object_direction_combo_currentIndexChanged(int index);
     void on_editTile_button_clicked();
     void on_editObject_button_clicked();
@@ -58,15 +55,15 @@ private slots:
     void on_editModeNormal_button_clicked();
     void on_editModeLock_button_clicked();
     void on_editModeErase_button_clicked();
-    void on_addAnimTile_toolButton_clicked();
     void on_stageTileset_comboBox_currentIndexChanged(const QString &arg1);
-    void on_addTile_pushButton_clicked();
 
     void on_mapGFX_comboBox_currentIndexChanged(int index);
 
     void on_autoScrollBG1_mode_currentIndexChanged(int index);
 
     void on_autoScrollBG2_mode_currentIndexChanged(int index);
+
+    void on_addAnimTile_toolButton_clicked();
 
 private:
     void fill_data();

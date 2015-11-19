@@ -112,11 +112,11 @@ void EditorArea::paintEvent(QPaintEvent *) {
             } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x < -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y == 0) {
                 int anim_tile_id = (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x*-1) - 2;
 
-                std::cout << "********** (READ) anim-tile-id: " << anim_tile_id << std::endl;
+                //std::cout << "********** (READ) anim-tile-id: " << anim_tile_id << std::endl;
 
                 // check that the vector contains this
-                if (Mediator::get_instance()->anim_tiles.size() > 0 && anim_tile_id < Mediator::get_instance()->anim_tiles.size()) {
-                    CURRENT_FILE_FORMAT::st_anim_map_tile anim_tile = Mediator::get_instance()->anim_tiles.at(anim_tile_id);
+                if (Mediator::get_instance()->anim_block_list.size() > 0 && anim_tile_id < Mediator::get_instance()->anim_block_list.size()) {
+                    CURRENT_FILE_FORMAT::file_anim_block anim_tile = Mediator::get_instance()->anim_block_list.at(anim_tile_id);
                     QString anim_tile_filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/anim/") + QString(anim_tile.filename);
 
                     QPixmap anim_image(anim_tile_filename);

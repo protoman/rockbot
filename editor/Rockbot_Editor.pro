@@ -110,7 +110,8 @@ SOURCES += main.cpp \
     model/stringeditmodel.cpp \
     ../file/fio_common.cpp \
     mainwindow_tab/anim_tiles_edit.cpp \
-    framespreviewarea.cpp
+    framespreviewarea.cpp \
+    widgets/animtilepalette.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -185,7 +186,8 @@ HEADERS += mainwindow.h \
     ../file/v4/file_strings.h \
     ../file/fio_common.hpp \
     mainwindow_tab/anim_tiles_edit.h \
-    framespreviewarea.h
+    framespreviewarea.h \
+    widgets/animtilepalette.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
