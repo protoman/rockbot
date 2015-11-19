@@ -341,20 +341,6 @@ namespace format_v4 {
         fp.close();
     }
 
-    std::vector<st_anim_map_tile> file_io::read_anim_tiles()
-    {
-        std::vector<st_anim_map_tile> res = fio_cmm.load_from_disk<st_anim_map_tile>(std::string("anim_tiles.dat"));
-        return res;
-    }
-
-
-
-
-    void file_io::write_anim_tiles(std::vector<st_anim_map_tile> tiles)
-    {
-        fio_cmm.save_data_to_disk<st_anim_map_tile>("anim_tiles.dat", tiles);
-    }
-
     bool file_io::file_exists(std::string filename) const
     {
         bool res = false;

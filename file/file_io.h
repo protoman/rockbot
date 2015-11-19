@@ -51,10 +51,6 @@ namespace format_v4 {
         void write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
         void read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS]);
 
-        // anim tiles
-        std::vector<st_anim_map_tile> read_anim_tiles();
-        void write_anim_tiles(std::vector<st_anim_map_tile> tiles);
-
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list() const;
         std::vector<std::string> read_directory_list(std::string filename, bool dir_only) const;

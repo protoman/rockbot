@@ -21,19 +21,6 @@
 namespace format_v4 {
 
 
-    struct st_anim_map_tile {
-        int delay[ANIM_TILE_MAX_FRAMES]; // each frame can have its own delay, let the editr handle user wanting to set the same for all
-        char filename[FS_CHAR_FILENAME_SIZE];
-        st_anim_map_tile() {
-            for (int i=0; i<ANIM_TILE_MAX_FRAMES; i++) {
-                delay[i] = 100;
-            }
-            filename[0] = '\0';
-        }
-    };
-
-
-
     struct file_projectile {
         char name[CHAR_NAME_SIZE];
         char graphic_filename[FS_CHAR_NAME_SIZE];
