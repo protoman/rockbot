@@ -60,6 +60,13 @@ protected:
 
   int map_backup_n;
   bool mouse_released;
+  bool selection_started;
+
+  int selection_start_x;
+  int selection_start_y;
+  std::vector<std::vector<st_position> > selection_matrix;
+  int selection_current_x;
+  int selection_current_y;
 
 //signals:
 //     void save();

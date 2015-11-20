@@ -508,3 +508,22 @@ void map_tab::on_addAnimTile_toolButton_clicked()
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
 
 }
+
+void map_tab::on_toolButton_clicked()
+{
+    ui->editNpc_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editTile_button->setChecked(false);
+    ui->addAnimTile_toolButton->setChecked(false);
+
+    ui->editModeNormal_button->setEnabled(false);
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(false);
+
+    set_current_box(1);
+    Mediator::get_instance()->editMode = EDITMODE_SELECT;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+}

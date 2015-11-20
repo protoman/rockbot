@@ -25,6 +25,11 @@ EditorArea::EditorArea(QWidget *parent) : QWidget(parent) {
 	tempY = -1;
     editor_selected_object_pos = 0;
     editor_selected_object_pos_map = 0;
+    selection_started = false;
+    selection_start_x = 0;
+    selection_start_y = 0;
+    selection_current_x = 0;
+    selection_current_y = 0;
     this->show();
 }
 
@@ -444,6 +449,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
         }
     }
 
+    // === draw selection === //
+    if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {
+        std::cout << "PAINT::EDITMODE_SELECT" << std::endl;
+        painter.setBrush(QColor(0, 0, 255, 180));
+        painter.drawRect(selection_start_x*TILESIZE, selection_start_y*TILESIZE, abs(selection_current_x-selection_start_x)*TILESIZE, abs(selection_current_y-selection_start_y)*TILESIZE);
+    }
+
 
     QSize resizeMe(MAP_W*16*Mediator::get_instance()->zoom, MAP_H*16*Mediator::get_instance()->zoom);
     this->resize(resizeMe);
@@ -453,13 +465,22 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
 void EditorArea::mouseMoveEvent(QMouseEvent *event) {
 	QPoint pnt = event->pos();
+
+    if (Mediator::get_instance()->editMode != EDITMODE_SELECT) {
+        // forces "click" when moving
         if (editor_selectedTileX != pnt.x()/(16*Mediator::get_instance()->zoom) || editor_selectedTileY != pnt.y()/(16*Mediator::get_instance()->zoom)) {
-		mousePressEvent(event);
-	}
+            mousePressEvent(event);
+        }
+    } else {
+        selection_current_x = pnt.x()/(TILESIZE*Mediator::get_instance()->zoom);
+        selection_current_y = pnt.y()/(TILESIZE*Mediator::get_instance()->zoom);
+        repaint();
+    }
 }
 
 void EditorArea::mousePressEvent(QMouseEvent *event) {
-    if (mouse_released == false && (Mediator::get_instance()->editTool == EDITMODE_LINK || Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editMode == EDITMODE_NPC || Mediator::get_instance()->editMode == EDITMODE_OBJECT || Mediator::get_instance()->editMode == EDITMODE_SET_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS)) {
+    if (mouse_released == false && (Mediator::get_instance()->editTool == EDITMODE_LINK || Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editMode == EDITMODE_NPC || Mediator::get_instance()->editMode == EDITMODE_OBJECT || Mediator::get_instance()->editMode == EDITMODE_SET_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS || Mediator::get_instance()->editMode == EDITMODE_ANIM_TILE)) {
+        std::cout << "EDITORAREA::mousePressEvent - IGNORED" << std::endl;
 		return;
 	}
 
@@ -765,6 +786,16 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
 
 
+    } else if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {
+        std::cout << "EDITMODE_SELECT - selection_started: " << selection_started << std::endl;
+        if (selection_started == false) {
+            std::cout << "Start Selection." << std::endl;
+            selection_started = true;
+            selection_start_x = editor_selectedTileX;
+            selection_start_y = editor_selectedTileY;
+        } else {
+            std::cout << "selection already started, ignore mousePress..." << std::endl;
+        }
 
 
 	}
@@ -778,8 +809,41 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
     editor_selectedTileX = pnt.x()/(16*Mediator::get_instance()->zoom);
     editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom);
 
-    if (Mediator::get_instance()->editTool == EDITMODE_LINK && tempX != -1) {// && Mediator::get_instance()->link_type != LINK_FINAL_BOSS_ROOM) {
-		std::cout << "########### -> editorArea::mousePress - adding link - PART 2" << std::endl;
+
+
+    if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {
+        // copies points in the selection to the selection matrix
+        std::cout << "### EDITMODE_SELECT::FINISH!!!!" << std::endl;
+
+        selection_started = false;
+        if (selection_start_x == editor_selectedTileX || selection_start_y == editor_selectedTileY) {
+            mouse_released = true;
+            return;
+        }
+        int start_x = selection_start_x;
+        int end_x = editor_selectedTileX;
+        if (selection_start_x < editor_selectedTileX) {
+            start_x = editor_selectedTileX;
+            end_x = selection_start_x;
+        }
+        int start_y = selection_start_y;
+        int end_y = editor_selectedTileY;
+        if (selection_start_y < editor_selectedTileY) {
+            start_y = editor_selectedTileY;
+            end_y = selection_start_y;
+        }
+        selection_matrix.clear();
+        for (int i=start_x; i<end_x; i++) {
+            std::vector<st_position> temp;
+            for (int j=start_y; j<end_y; j++) {
+                int tile_x = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x;
+                int tile_y = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y;
+                temp.push_back(st_position(tile_x, tile_y));
+            }
+            selection_matrix.push_back(temp);
+        }
+    } else if (Mediator::get_instance()->editTool == EDITMODE_LINK && tempX != -1) {// && Mediator::get_instance()->link_type != LINK_FINAL_BOSS_ROOM) {
+        std::cout << "########### -> editorArea::mouseReleaseEvent - adding link - PART 2" << std::endl;
 		// TODO: add link
         Mediator::get_instance()->editTool = EDITMODE_LINK_DEST;
         QApplication::setOverrideCursor(Qt::CrossCursor);
@@ -795,13 +859,10 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
 		}
 		printf(">>>>>>>> added link in map: %d, pos: (%d, %d) with size: %d <<<<<<<<<<\n", link_map_origin, link_pos_x, link_pos_y, link_size);
 
-		//printf("editorArea::mouseReleaseEvent - tempX: %d, tempY: %d, p.X: %d, p.y: %d, LINK-SIZE: %d\n", tempX, tempY, editor_selectedTileX, editor_selectedTileY, game.map_links[i].link_size);
 		tempX = -1;
 		tempY = -1;
 		repaint();
-    //} else {
-        //std::cout << "########### -> editorArea::mousePress - ignore mouse release" << std::endl;
-        //std::cout << "######### edit_move: " << Mediator::get_instance()->editTool << ", tempX: " << tempX << std::endl;
+
     }
 	mouse_released = true;
 }
