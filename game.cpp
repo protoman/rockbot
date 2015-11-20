@@ -230,7 +230,7 @@ void game::start_stage()
     }
 }
 
-void game::show_ready() const
+void game::show_ready()
 {
     for (int i=0; i<4; i++) {
         draw_lib.show_ready();
@@ -544,7 +544,7 @@ void game::set_current_map(int temp_map_n)
 	}
 }
 
-Uint8 game::get_current_map() const
+Uint8 game::get_current_map()
 {
     return loaded_stage.get_current_map_n();;
 }
@@ -618,12 +618,12 @@ void game::check_player_return_teleport()
     }
 }
 
-bool game::must_show_boss_hp() const
+bool game::must_show_boss_hp()
 {
 	return _show_boss_hp;
 }
 
-void game::fill_boss_hp_bar() const
+void game::fill_boss_hp_bar()
 {
 	soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
 	for (int i=0; i<PLAYER_INITIAL_HP; i++) {
@@ -647,7 +647,7 @@ void game::fill_player_weapon(short weapon_n)
 
 
 
-void game::reset_stage_maps() const
+void game::reset_stage_maps()
 {
     loaded_stage.reset_stage_maps();
 }
@@ -1063,7 +1063,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE3;
+    currentStage = STAGE2;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
@@ -1263,7 +1263,7 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
     _player_teleporter.old_map_n = loaded_stage.get_current_map_n();
 }
 
-bool game::is_player_on_teleporter() const
+bool game::is_player_on_teleporter()
 {
     return _player_teleporter.active;
 }
@@ -1436,22 +1436,22 @@ character *game::get_player()
     return &player1;
 }
 
-st_position game::get_current_stage_scroll() const
+st_position game::get_current_stage_scroll()
 {
     return loaded_stage.getMapScrolling();
 }
 
-void game::reset_scroll() const
+void game::reset_scroll()
 {
     loaded_stage.reset_scrolling();
 }
 
-short game::get_drop_item_id(short type) const
+short game::get_drop_item_id(short type)
 {
     return _drop_item_list[type];
 }
 
-void game::show_map() const
+void game::show_map()
 {
     loaded_stage.showStage();
     loaded_stage.showAbove();

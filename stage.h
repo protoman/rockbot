@@ -28,7 +28,7 @@ public:
      * @brief
      *
      */
-    void showStage() const;
+    void showStage();
     /**
      * @brief
      *
@@ -42,19 +42,19 @@ public:
      * @param pos
      * @param check_lock
      */
-    void changeScrolling(st_position pos, bool check_lock=true) const;
+    void changeScrolling(st_position pos, bool check_lock=true);
     /**
      * @brief
      *
      * @return st_position
      */
-    st_position getMapScrolling() const;
+    st_position getMapScrolling();
     /**
      * @brief
      *
      * @param scroll_y
      */
-    void showAbove(int scroll_y=0) const;
+    void showAbove(int scroll_y=0);
     /**
      * @brief
      *
@@ -66,7 +66,7 @@ public:
      *
      * @return int
      */
-    Uint8 get_current_map_number() const;
+    Uint8 get_current_map_number();
     /**
      * @brief
      *
@@ -78,13 +78,13 @@ public:
      *
      * @return short
      */
-    Uint8 get_current_map_n() const;
+    Uint8 get_current_map_n();
     /**
      * @brief
      *
      * @param pos
      */
-    void set_scrolling(st_position pos) const;
+    void set_scrolling(st_position pos);
 
     void reset_scrolling();
 
@@ -94,7 +94,7 @@ public:
      * @param move_x
      * @param move_y
      */
-    void move_map(const short int move_x, const short int move_y) const;
+    void move_map(const short int move_x, const short int move_y);
     /**
      * @brief
      *
@@ -112,59 +112,59 @@ public:
      * @brief
      *
      */
-    void reset_current_map_objects() const;
+    void reset_current_map_objects();
     /**
      * @brief
      *
      */
-    void reset_stage_objects() const;
+    void reset_stage_objects();
 
-    void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number) const;
+    void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
     /**
      * @brief
      *
      */
-    void move_npcs() const;
+    void move_npcs();
     /**
      * @brief
      *
      */
-    void show_npcs() const;
+    void show_npcs();
     /**
      * @brief
      *
      */
-    void move_objects(bool paused=false) const;
+    void move_objects(bool paused=false);
 
 
-    void show_objects(int adjust=0) const;
+    void show_objects(int adjust=0);
     /**
      * @brief
      *
      * @return bool
      */
-    bool boss_hit_ground() const;
+    bool boss_hit_ground();
     /**
      * @brief
      *
      */
-    void reset_stage_maps() const;
+    void reset_stage_maps();
     /**
      * @brief
      *
      */
-    void reset_stage_npcs() const;
+    void reset_stage_npcs();
     /**
      * @brief
      *
      * @param x_pos
      * @return int
      */
-    int get_first_lock_on_left(int x_pos) const;
+    int get_first_lock_on_left(int x_pos);
 
-    int get_teleport_minimal_y(int xpos) const;
+    int get_teleport_minimal_y(int xpos);
 
-    void reset_objects_timers() const;
+    void reset_objects_timers();
 
     bool subboss_alive_on_left(short tileX);
 

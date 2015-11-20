@@ -207,12 +207,12 @@ public:
      *
      * @return bool
      */
-    bool must_show_boss_hp() const;
+    bool must_show_boss_hp();
     /**
      * @brief
      *
      */
-    void fill_boss_hp_bar() const;
+    void fill_boss_hp_bar();
 
 
     void fill_player_weapon(short weapon_n);
@@ -221,7 +221,7 @@ public:
      * @brief
      *
      */
-    void reset_stage_maps() const;
+    void reset_stage_maps();
     /**
      * @brief
      *
@@ -236,7 +236,7 @@ public:
      * @brief
      *
      */
-    void show_map() const;
+    void show_map();
     /**
      * @brief
      *
@@ -249,19 +249,19 @@ public:
      *
      * @return st_position
      */
-    st_position get_current_stage_scroll() const;
+    st_position get_current_stage_scroll();
     /**
      * @brief
      *
      */
-    void reset_scroll() const;
+    void reset_scroll();
     /**
      * @brief
      *
      * @param type
      * @return short
      */
-    short get_drop_item_id(short type) const;
+    short get_drop_item_id(short type);
     /**
      * @brief
      *
@@ -304,7 +304,7 @@ private:
     void start_stage();
 
 
-    void show_ready() const;
+    void show_ready();
 
     /**
      * @brief
@@ -327,7 +327,7 @@ private:
      *
      * @return short
      */
-    Uint8 get_current_map() const;
+    Uint8 get_current_map();
     /**
      * @brief
      *
@@ -343,7 +343,7 @@ private:
      */
     void set_player_teleporter(short set_teleport_n, st_position set_player_pos, bool is_object);
 
-    bool is_player_on_teleporter() const;
+    bool is_player_on_teleporter();
 
     void finish_player_teleporter();
 

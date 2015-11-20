@@ -20,7 +20,9 @@ QString animTilePalette::getPallete()
 void animTilePalette::reload()
 {
     image_list.clear();
-    for (int i=0; i<Mediator::get_instance()->anim_block_list.size(); i++) {
+    int max = Mediator::get_instance()->anim_block_list.size();
+    std::cout << "ANIMPALETTE::reload::max: " << max << std::endl;
+    for (int i=0; i<max; i++) {
         std::string filename = FILEPATH + "/images/tilesets/anim/" + std::string(Mediator::get_instance()->anim_block_list.at(i).filename);
         if (filename.find(".png") == std::string::npos) {
             continue;
@@ -29,6 +31,8 @@ void animTilePalette::reload()
         image = image.scaled(image.width()*2, image.height()*2);
         image_list.push_back(image);
     }
+    this->resize(QSize(max*TILESIZE*2, TILESIZE*2));
+    myParent->adjustSize();
 }
 
 void animTilePalette::paintEvent(QPaintEvent *event)
@@ -39,8 +43,6 @@ void animTilePalette::paintEvent(QPaintEvent *event)
             QRectF target(QPoint(i*TILESIZE*2, 0), QSize(TILESIZE*2, TILESIZE*2));
             QRectF source(QPoint(0, 0), QSize(TILESIZE*2, TILESIZE*2));
             painter.drawPixmap(target, image_list.at(i), source);
-            this->resize(image_list.at(i).size());
-            myParent->adjustSize();
         }
     }
     // draw the selection marker

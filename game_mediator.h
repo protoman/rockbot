@@ -30,7 +30,7 @@ private:
 public:
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
-    std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tile_list;
+    std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_tile_list;
 
 private:
     static GameMediator* _instance;

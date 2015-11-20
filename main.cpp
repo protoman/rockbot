@@ -107,7 +107,6 @@ CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::file_game game_data;
 CURRENT_FILE_FORMAT::file_stage stage_data;
 CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
-std::vector<CURRENT_FILE_FORMAT::st_anim_map_tile> anim_tiles;
 
 #include "defines.h"
 
@@ -498,7 +497,6 @@ int main(int argc, char *argv[])
     std::cout << "GAMENAME: " << GAMENAME << std::endl;
 
 	fio.read_game(game_data);
-    anim_tiles = fio.read_anim_tiles();
 
 
     //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG

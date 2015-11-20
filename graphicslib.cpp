@@ -1713,7 +1713,12 @@ void graphicsLib::preload_anim_tiles()
             surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));
 
             int frames_n = ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1).width / TILESIZE;
-            anim_tile_timer anim_timer(frames_n, timer.getTimer() + GameMediator::get_instance()->anim_tile_list.at(i).delay[0]);
+            anim_tile_timer anim_timer(frames_n, timer.getTimer() + GameMediator::get_instance()->anim_tile_list.at(i).frame_delay[0]);
+
+            for (int j=0; j<FS_ANIM_TILE_MAX_FRAMES; j++) {
+                anim_timer.frames_delay[j] = GameMediator::get_instance()->anim_tile_list.at(i).frame_delay[j];
+            }
+
             ANIM_TILES_TIMERS.push_back(anim_timer);
         }
     }

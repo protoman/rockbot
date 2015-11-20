@@ -64,7 +64,7 @@ GameMediator::GameMediator()
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat");
-    anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::st_anim_map_tile>("anim_tiles.dat");
+    anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
 
     // add some dummy data for game not to crash
     if (projectile_list.size() == 0) {

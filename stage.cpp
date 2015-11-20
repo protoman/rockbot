@@ -87,7 +87,7 @@ void stage::loadStage() {
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::showStage() const
+void stage::showStage()
 {
     maps[currentMap].showMap();
 }
@@ -95,7 +95,7 @@ void stage::showStage() const
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::showAbove(int scroll_y) const
+void stage::showAbove(int scroll_y)
 {
     maps[currentMap].showAbove(scroll_y);
 }
@@ -111,7 +111,7 @@ Uint8 stage::getMapPointLock(st_position pos)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::changeScrolling(st_position pos, bool check_lock) const
+void stage::changeScrolling(st_position pos, bool check_lock)
 {
     // debug for autoscrolling test
     if (stage_data.autoscroll == true) {
@@ -120,7 +120,7 @@ void stage::changeScrolling(st_position pos, bool check_lock) const
     maps[currentMap].changeScrolling(pos, check_lock);
 }
 
-void stage::set_scrolling(st_position pos) const
+void stage::set_scrolling(st_position pos)
 {
     maps[currentMap].set_scrolling(pos);
 }
@@ -133,7 +133,7 @@ void stage::reset_scrolling()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-st_position stage::getMapScrolling() const
+st_position stage::getMapScrolling()
 {
     //std::cout << ">> stage::getMapScrolling[" << currentMap << "].x: " << maps[currentMap].getMapScrolling().x << std::endl;
     return maps[currentMap].getMapScrolling();
@@ -151,7 +151,7 @@ classMap *stage::get_current_map()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-Uint8 stage::get_current_map_number() const
+Uint8 stage::get_current_map_number()
 {
 	return currentMap;
 }
@@ -162,12 +162,12 @@ void stage::set_current_map(int new_map_n)
 	currentMap = new_map_n;
 }
 
-Uint8 stage::get_current_map_n() const
+Uint8 stage::get_current_map_n()
 {
 	return currentMap;
 }
 
-void stage::move_map(const short int move_x, const short int move_y) const
+void stage::move_map(const short int move_x, const short int move_y)
 {
     maps[currentMap].move_map(move_x, move_y);
 }
@@ -192,13 +192,13 @@ void stage::reset_current_map()
     maps[currentMap].set_scrolling(st_position(checkpoint.map_scroll_x, 0));
 }
 
-void stage::reset_current_map_objects() const
+void stage::reset_current_map_objects()
 {
     maps[currentMap].reset_map();
     maps[currentMap].reset_map_npcs();
 }
 
-void stage::reset_stage_objects() const
+void stage::reset_stage_objects()
 {
     //std::cout << "================== stage::reset_stage_objects" << std::endl;
     for (int i=0; i<PRELOAD_MAP_N; i++) {
@@ -206,38 +206,38 @@ void stage::reset_stage_objects() const
     }
 }
 
-void stage::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number) const
+void stage::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number)
 {
 	//std::cout << "stage::redraw_boss_door - is_close: " << is_close << std::endl;
     maps[currentMap].redraw_boss_door(is_close, nTiles, tileX, tileY, player_number);
 }
 
-void stage::move_npcs() const
+void stage::move_npcs()
 {
     maps[currentMap].move_npcs();
 }
 
-void stage::show_npcs() const
+void stage::show_npcs()
 {
     maps[currentMap].show_npcs();
 }
 
-void stage::move_objects(bool paused) const
+void stage::move_objects(bool paused)
 {
     maps[currentMap].move_objects(paused);
 }
 
-void stage::show_objects(int adjust) const
+void stage::show_objects(int adjust)
 {
     maps[currentMap].show_objects(adjust);
 }
 
-bool stage::boss_hit_ground() const
+bool stage::boss_hit_ground()
 {
     return maps[currentMap].boss_hit_ground();
 }
 
-void stage::reset_stage_maps() const
+void stage::reset_stage_maps()
 {
     std::cout << "================== stage::reset_stage_maps" << std::endl;
     reset_stage_npcs();
@@ -247,7 +247,7 @@ void stage::reset_stage_maps() const
 
 
 
-void stage::reset_stage_npcs() const
+void stage::reset_stage_npcs()
 {
 	for (int i=0; i<PRELOAD_MAP_N; i++) {
         maps[i].reset_map_npcs();
@@ -256,12 +256,12 @@ void stage::reset_stage_npcs() const
 
 
 
-int stage::get_first_lock_on_left(int x_pos) const
+int stage::get_first_lock_on_left(int x_pos)
 {
     return maps[currentMap].get_first_lock_on_left(x_pos);
 }
 
-int stage::get_teleport_minimal_y(int xpos) const
+int stage::get_teleport_minimal_y(int xpos)
 {
     int tilex = xpos/TILESIZE;
     for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
@@ -283,7 +283,7 @@ int stage::get_teleport_minimal_y(int xpos) const
     return 0;
 }
 
-void stage::reset_objects_timers() const
+void stage::reset_objects_timers()
 {
     //std::cout << "================== stage::reset_objects_timers" << std::endl;
     maps[currentMap].reset_objects_timers();
