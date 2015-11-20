@@ -133,7 +133,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>6</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
@@ -544,7 +544,7 @@
                      <rect>
                       <x>10</x>
                       <y>0</y>
-                      <width>241</width>
+                      <width>251</width>
                       <height>71</height>
                      </rect>
                     </property>
@@ -1310,6 +1310,17 @@
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
          <normaloff>:/toolbar_icons/edit-copy.png</normaloff>:/toolbar_icons/edit-copy.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="paste_toolButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/document-encrypted.png</normaloff>:/toolbar_icons/document-encrypted.png</iconset>
        </property>
       </widget>
      </item>

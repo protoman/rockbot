@@ -67,6 +67,8 @@ private slots:
 
     void on_toolButton_clicked();
 
+    void on_paste_toolButton_clicked();
+
 private:
     void fill_data();
     void fill_background_list();

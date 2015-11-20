@@ -798,7 +798,22 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         }
 
 
-	}
+    } else if (Mediator::get_instance()->editMode == EDITMODE_PASTE) {
+        std::cout << "EDITMODE_PASTE, matrix size: " << selection_matrix.size() << std::endl;
+        if (selection_matrix.size() > 0) {
+            for (int i=0; i<selection_matrix.size(); i++) {
+                std::cout << "EDITMODE_PASTE[" << i << "].size: " << selection_matrix.at(i).size() << std::endl;
+                for (int j=0; j<selection_matrix.at(i).size(); j++) {
+                    st_position tile_pos = selection_matrix.at(i).at(j);
+                    int x = editor_selectedTileX+i;
+                    int y = editor_selectedTileY+j;
+                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile1.x = tile_pos.x;
+                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile1.y = tile_pos.y;
+                }
+            }
+            repaint();
+        }
+    }
     temp = 1;
     repaint();
 }
@@ -813,7 +828,7 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
 
     if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {
         // copies points in the selection to the selection matrix
-        std::cout << "### EDITMODE_SELECT::FINISH!!!!" << std::endl;
+
 
         selection_started = false;
         if (selection_start_x == editor_selectedTileX || selection_start_y == editor_selectedTileY) {
@@ -822,17 +837,20 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
         }
         int start_x = selection_start_x;
         int end_x = editor_selectedTileX;
-        if (selection_start_x < editor_selectedTileX) {
+        if (selection_start_x > editor_selectedTileX) {
             start_x = editor_selectedTileX;
             end_x = selection_start_x;
         }
         int start_y = selection_start_y;
         int end_y = editor_selectedTileY;
-        if (selection_start_y < editor_selectedTileY) {
+        if (selection_start_y > editor_selectedTileY) {
             start_y = editor_selectedTileY;
             end_y = selection_start_y;
         }
         selection_matrix.clear();
+
+        std::cout << "### EDITMODE_SELECT - start_x: " << start_x << ", end_x: " << end_x << ", start_y: " << start_y << ", end_y: " << end_y << std::endl;
+
         for (int i=start_x; i<end_x; i++) {
             std::vector<st_position> temp;
             for (int j=start_y; j<end_y; j++) {
