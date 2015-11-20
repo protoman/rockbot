@@ -472,8 +472,8 @@ void EditorArea::mouseMoveEvent(QMouseEvent *event) {
             mousePressEvent(event);
         }
     } else {
-        selection_current_x = pnt.x()/(TILESIZE*Mediator::get_instance()->zoom);
-        selection_current_y = pnt.y()/(TILESIZE*Mediator::get_instance()->zoom);
+        selection_current_x = pnt.x()/(TILESIZE*Mediator::get_instance()->zoom) + 1;
+        selection_current_y = pnt.y()/(TILESIZE*Mediator::get_instance()->zoom) + 1;
         repaint();
     }
 }
@@ -821,8 +821,8 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
 void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
 	QPoint pnt = event->pos();
-    editor_selectedTileX = pnt.x()/(16*Mediator::get_instance()->zoom);
-    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom);
+    editor_selectedTileX = pnt.x()/(16*Mediator::get_instance()->zoom) + 1;
+    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom) + 1;
 
 
 
