@@ -421,12 +421,18 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
 
     copySDLArea(origin_rectangle, pos_destiny, ANIM_TILES_SURFACES.at(anim_tile_id).get_surface(), dest_surface->get_surface());
 
-    if (ANIM_TILES_TIMERS.at(anim_tile_id).timer < timer.getTimer()) {
-        ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos++;
-        if (ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos >= ANIM_TILES_TIMERS.at(anim_tile_id).max_frames) {
-            ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos = 0;
+}
+
+void graphicsLib::update_anim_tiles_timers()
+{
+    for (int anim_tile_id=0; anim_tile_id<ANIM_TILES_TIMERS.size(); anim_tile_id++) {
+        if (ANIM_TILES_TIMERS.at(anim_tile_id).timer < timer.getTimer()) {
+            ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos++;
+            if (ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos >= ANIM_TILES_TIMERS.at(anim_tile_id).max_frames) {
+                ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos = 0;
+            }
+            ANIM_TILES_TIMERS.at(anim_tile_id).timer = timer.getTimer() + ANIM_TILES_TIMERS.at(anim_tile_id).frames_delay[ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos];
         }
-        ANIM_TILES_TIMERS.at(anim_tile_id).timer = timer.getTimer() + ANIM_TILES_TIMERS.at(anim_tile_id).frames_delay[ANIM_TILES_TIMERS.at(anim_tile_id).frame_pos];
     }
 }
 

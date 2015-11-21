@@ -97,6 +97,8 @@ public:
 
     void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);
 
+    void update_anim_tiles_timers();
+
     void place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y);
 
 

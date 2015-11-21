@@ -92,9 +92,22 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor", tr("Save data before leaving?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Rockbot Editor");
+    msgBox.setText("Save data before leaving?\n");
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setModal(true);
+    msgBox.setFocus(Qt::OtherFocusReason);
+
+    QMessageBox::StandardButton resBtn = msgBox.exec();
     if (resBtn == QMessageBox::Yes) {
         on_actionSave_triggered();
+    } else if (resBtn == QMessageBox::Cancel) {
+        event->ignore();
+        return;
     }
     event->accept();
 }

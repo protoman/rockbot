@@ -23,6 +23,7 @@ loadGamePicker::loadGamePicker(QWidget *parent) :
     for (int i=0; i<game_list.size(); i++) {
         ui->gameList->addItem(QString(game_list.at(i).c_str()));
     }
+    ui->gameList->setCurrentRow(0);
 
 
 }

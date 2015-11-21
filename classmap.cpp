@@ -236,6 +236,8 @@ void classMap::showMap()
             (*animation_it).execute(); // TODO: must pass scroll map to npcs somwhow...
         }
     }
+
+    graphLib.update_anim_tiles_timers();
 }
 
 
