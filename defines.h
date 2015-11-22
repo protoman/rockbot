@@ -926,6 +926,15 @@ enum E_DIFFICULTY_MODES  {
 
 #define FS_ANIM_TILE_MAX_FRAMES 6 // is we want to use more than 6 frames, we are doing it wrong...
 
+enum E_BG_SCROLL_MODE {
+    BG_SCROLL_MODE_NONE,
+    BG_SCROLL_MODE_UP,
+    BG_SCROLL_MODE_DOWN,
+    BG_SCROLL_MODE_LEFT,
+    BG_SCROLL_MODE_RIGHT,
+    BG_SCROLL_MODE_DIAGONAL
+};
+
 #endif // DEFINES_H
 
 

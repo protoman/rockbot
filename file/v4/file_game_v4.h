@@ -304,10 +304,13 @@ namespace format_v4 {
         int y; /**< TODO */
         int map_scroll_x; /**< TODO */
                 st_checkpoint() {
-                        map = 0;
-                        x = 50;
-                        y = -1;
-                        map_scroll_x = 0;
+                    reset();
+                }
+                void reset() {
+                    map = 0;
+                    x = RES_W/2-29/2;
+                    y = -1;
+                    map_scroll_x = 0;
                 }
         };
 

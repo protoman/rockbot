@@ -41,7 +41,7 @@ private:
      * @param x_inc
      * @param y_inc
      */
-    void move_highlight(Uint8 x_inc, Uint8 y_inc);
+    void move_highlight(Sint8 x_inc, Sint8 y_inc);
     /**
      * @brief
      *

@@ -26,7 +26,7 @@ extern game gameControl;
 
 
 stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
-    highlight_animation_white(false), timer_intro(0), highlight_pos(135-graphLib.RES_DIFF_W, 88)
+    highlight_animation_white(false), timer_intro(0), highlight_pos(135-graphLib.RES_DIFF_W, 90)
 {
 	int i;
 	for (i=0; i<STAGE_SELECT_COUNT; i++) {
@@ -71,7 +71,10 @@ void stage_select::load_graphics() {
 
 
 
-void stage_select::move_highlight(Uint8 x_inc, Uint8 y_inc) {
+void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
+
+    std::cout << "STAGESELECT::move_highlight  - xinc: " << (int)x_inc << ", yinc: " << (int)y_inc << std::endl;
+
 	graphLib.copyArea(highlight_pos, &s_dark, &graphLib.gameScreen);
 	highlight_pos.x += x_inc;
 	highlight_pos.y += y_inc;
@@ -159,8 +162,7 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 }
 
 struct st_position stage_select::select() {
-	//SDL_Surface *spriteCopy, *s_light=NULL, *s_dark, *eyes_surface, *eyes_bg, *light_mode;
-	struct st_position spacing, highlight_pos;
+    struct st_position spacing;
 	int selection_end=0;
 
     soundManager.load_music(game_data.stage_select_music_filename);
@@ -172,8 +174,8 @@ struct st_position stage_select::select() {
 	select_pos.y = 1;
 	spacing.x = 80;
     spacing.y = 68;
-    highlight_pos.x = 135;
-    highlight_pos.y = 88;
+    highlight_pos.x = 135-graphLib.RES_DIFF_W;
+    highlight_pos.y = 89;
 	graphLib.blank_screen();
 	light_mode = &s_light;
 
@@ -243,7 +245,6 @@ struct st_position stage_select::select() {
 
 	light_mode = &s_light;
 
-	graphLib.copyArea(st_position(highlight_pos.x, highlight_pos.y), &s_light, &graphLib.gameScreen);
     draw_lib.update_screen();
     std::string press_start_string = "STAGE SELECT - PRESS START";
     graphLib.draw_text(RES_W*0.5-(FONT_SIZE*press_start_string.length())/2, 227, press_start_string);
@@ -259,8 +260,11 @@ struct st_position stage_select::select() {
 
         if (input.p1_input[BTN_QUIT]) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            std::cout << "LEAVE #7" << std::endl;
-            leave_game = true;
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
 #endif
 		}
 

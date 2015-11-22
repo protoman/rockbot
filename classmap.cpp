@@ -333,9 +333,6 @@ void classMap::changeScrolling(st_position pos, bool check_lock)
     float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
     //std::cout << "*********** bg1_scroll: " << bg1_scroll << std::endl;
 
-    //std::cout << fixed << "bg1_speed: " << bg1_speed << std::endl;
-    //std::cout << fixed << "bg2_speed: " << bg2_speed << std::endl;
-
 	// moving player to right, screen to left
 	if (pos.x > 0 && ((scroll.x/TILESIZE+RES_W/TILESIZE)-1 < MAP_W)) {
 		//std::cout << "classMap::changeScrolling - MUST SCROLL #1" << std::endl;
@@ -345,19 +342,19 @@ void classMap::changeScrolling(st_position pos, bool check_lock)
 		}
 		int tile_x = (scroll.x+RES_W-TILESIZE+2)/TILESIZE;
 		if (check_lock == false || wall_scroll_lock[tile_x] == false) {
-            //std::cout << "#1 classMap::changeScrolling - 1 - tile-tested: " << ((scroll.x/TILESIZE+RES_W/TILESIZE)-1) << std::endl;
             scroll.x += x_change;
-            bg1_scroll -= ((float)x_change*bg1_speed);
-            //std::cout << "*********** bg1_scroll: " << bg1_scroll << std::endl;
-            if (bg1_scroll < -RES_W) {
-                bg1_scroll = 0;
+            if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
+                bg1_scroll -= ((float)x_change*bg1_speed);
+                if (bg1_scroll < -RES_W) {
+                    bg1_scroll = 0;
+                }
             }
-            bg2_scroll -= ((float)x_change*bg2_speed);
-            //std::cout << "Change RIGHT-BG1POS to:" << bg1_scroll << ", BG2POS: " << bg2_scroll << ", bg2_surface.width: " << bg2_surface.width << std::endl;
-            if (bg2_scroll < -RES_W) {
-                //std::cout << "RIGHT RESET BG2POS" << bg2_scroll << std::endl;
-				bg2_scroll = 0;
-			}
+            if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
+                bg2_scroll -= ((float)x_change*bg2_speed);
+                if (bg2_scroll < -RES_W) {
+                    bg2_scroll = 0;
+                }
+            }
 		}
 	} else if (pos.x < 0) {
 		int x_chance = pos.x;
@@ -452,6 +449,20 @@ void classMap::load_map_npcs()
 
 void classMap::draw_dynamic_backgrounds()
 {
+
+    float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
+    if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_LEFT) {
+        bg1_scroll -= ((float)1*bg1_speed);
+    } else if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_RIGHT) {
+        bg1_scroll -= ((float)1*bg1_speed);
+    }
+
+    if (bg1_scroll < -RES_W) {
+        bg1_scroll = 0;
+    }
+
+
+
     if (bg1_surface.width > 0) {
         // draw leftmost part
         graphLib.copyAreaWithAdjust(st_position(bg1_scroll, map_data[number].backgrounds[0].adjust_y), &bg1_surface, &graphLib.gameScreen);

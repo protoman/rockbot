@@ -982,8 +982,7 @@ void game::leave_stage()
     }
     checkpoint.map = 0;
     checkpoint.map_scroll_x = 0;
-    checkpoint.x = 50;
-    checkpoint.y = -1;
+    checkpoint.reset();
     start_stage();
 }
 
@@ -1063,7 +1062,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE2;
+    currentStage = STAGE3;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;

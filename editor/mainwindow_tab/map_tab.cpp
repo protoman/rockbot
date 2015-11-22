@@ -67,6 +67,7 @@ void map_tab::fill_data()
     ui->npc_direction_combo->setCurrentIndex(Mediator::get_instance()->npc_direction);
     ui->object_direction_combo->setCurrentIndex(Mediator::get_instance()->object_direction);
 
+    common::fill_files_combo("images/tilesets", ui->stageTileset_comboBox);
     QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
     if (tileset.length() > 0) {
         ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
