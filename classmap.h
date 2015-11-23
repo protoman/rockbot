@@ -189,6 +189,8 @@ private:
 
     void draw_dynamic_backgrounds();
 
+    void adjust_dynamic_background_position();
+
     bool value_in_range(int value, int min, int max) const;
 
     void create_dynamic_background_surfaces();
@@ -208,8 +210,8 @@ private:
     struct st_position scroll;
     st_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
-    float bg1_scroll;
-    float bg2_scroll;
+    st_float_position bg1_scroll;
+    st_float_position bg2_scroll;
     graphicsLib_gSurface bg1_surface;
     graphicsLib_gSurface bg2_surface;
     short _platform_leave_counter;

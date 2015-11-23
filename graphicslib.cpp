@@ -359,8 +359,6 @@ void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_
     int h = surfaceOrigin->height;
     st_rectangle origin_rectangle(0, 0, w, h);
     pos.x += _screen_adjust.x;
-    //pos.x += _screen_resolution_adjust.x;
-    //pos.y += _screen_resolution_adjust.y;
 
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
