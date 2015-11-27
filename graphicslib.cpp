@@ -1159,38 +1159,14 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 {
 	short int y, i;
 
-	st_color color1(255, 51, 0);
-	if (weapon_n == -1) {
-		color1.r = 127;
-		color1.g = 11;
-		color1.b = 0;
-	} else if (weapon_n == WEAPON_DEFAULT) {
-		if (player_n == 0) {
-			color1.r = 127;
-			color1.g = 11;
-			color1.b = 0;
-		}
-	} else {
-		color1.r = game_data.players[player_n].weapon_colors[weapon_n].color1.r;
-		color1.g = game_data.players[player_n].weapon_colors[weapon_n].color1.g;
-		color1.b = game_data.players[player_n].weapon_colors[weapon_n].color1.b;
-	}
-	st_color color2(188, 188, 188);
-	st_color color3(235, 235, 235);
+    int id = weapon_n;
+    if (weapon_n == -1) {
+        id = 0;
+    }
 
-	if (weapon_n == WEAPON_MUMMYBOT || weapon_n == WEAPON_ITEM_JET) {
-		color2.r = 97;
-		color2.g = 97;
-		color2.b = 97;
-		color3.r = 188;
-		color3.g = 188;
-		color3.b = 188;
-	}
-	if (weapon_n == WEAPON_APEBOT) {
-		color1.r = 255;
-		color1.g = 100;
-		color1.b = 100;
-	}
+    st_color color1(game_data.weapon_menu_colors[id].r, game_data.weapon_menu_colors[id].g, game_data.weapon_menu_colors[id].b);    // player color or weapon color
+    st_color color2(188, 188, 188); // dark grey
+    st_color color3(235, 235, 235); // light grey
 
 	st_position bar_pos(1, 2);
 	if (player_n == -1) {
@@ -1198,7 +1174,6 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 	} else if (weapon_n != WEAPON_DEFAULT) {
 		bar_pos.x = 10;
 	}
-
 
 	clear_area(bar_pos.x, bar_pos.y, 8, 57, color1.r, color1.g, color1.b);
 

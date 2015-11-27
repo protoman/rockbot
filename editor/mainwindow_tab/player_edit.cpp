@@ -147,6 +147,17 @@ void player_edit::on_color_selected3(const QColor &color)
     ui->player_preview_widget->repaint();
 }
 
+void player_edit::on_weapon_color_selected(const QColor &color)
+{
+
+    Mediator::get_instance()->game_data.weapon_menu_colors[Mediator::get_instance()->current_weapon].r = color.red();
+    Mediator::get_instance()->game_data.weapon_menu_colors[Mediator::get_instance()->current_weapon].g = color.green();
+    Mediator::get_instance()->game_data.weapon_menu_colors[Mediator::get_instance()->current_weapon].b = color.blue();
+
+    ui->WeaponColorValueIndicator->setStyleSheet(QString("background-color: rgb(") + QString::number(color.red()) + QString(", ") +  QString::number(color.green()) + QString(", ") +  QString::number(color.blue()) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
+    ui->player_preview_widget->repaint();
+}
+
 
 void player_edit::on_players_tab_list_combo_currentIndexChanged(int index)
 {
@@ -329,4 +340,12 @@ void player_edit::on_playerFace_comboBox_currentIndexChanged(const QString &arg1
 {
     if (_loading == true) { return; }
     sprintf(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].face_filename, "%s", arg1.toStdString().c_str());
+}
+
+
+void player_edit::on_weaponColor_picker_clicked()
+{
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(on_weapon_color_selected(QColor)));
+    colorDialog->show();
 }

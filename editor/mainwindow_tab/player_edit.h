@@ -27,6 +27,7 @@ public slots:
     void on_color_selected1(const QColor & color);
     void on_color_selected2(const QColor & color);
     void on_color_selected3(const QColor & color);
+    void on_weapon_color_selected(const QColor & color);
 
 private slots:
     void on_players_tab_list_combo_currentIndexChanged(int index);
@@ -78,6 +79,9 @@ private slots:
     void on_canShotDiagonal_toggled(bool checked);
 
     void on_playerFace_comboBox_currentIndexChanged(const QString &arg1);
+
+
+    void on_weaponColor_picker_clicked();
 
 private:
     void fill_players_data();

@@ -381,6 +381,9 @@ namespace format_v4 {
         Uint8 game_style;                                               // if 1, stages are executed one after another, like castlevania or ghouls & ghosts
         Uint8 final_boss_id;                                            // indicates who is the final boss, the id refers to the map_npc id, not to the npc itself
 
+
+        st_color weapon_menu_colors[MAX_WEAPON_N];
+
         // CONSTRUCTOR //
         file_game() {
             /// *** hardcoded parts *** ///
