@@ -2292,12 +2292,16 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 	if (is_player() && GAME_FLAGS[FLAG_INVENCIBLE] == true) {
 		return;
 	}
+    if (game_save.difficulty == DIFFICULTY_HARD && is_player() == false) {
+        damage_points = damage_points * 0.5;
+    }
     if (damage_points < 1) { // minimum damage is 1. if you don't want damage, don't call this method, ok? :)
         damage_points = 1;
     }
     if (damage_points + _damage_modifier > 0) {
         damage_points += _damage_modifier;
     }
+
 
 	//std::cout << "1. character::damage - damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
 
