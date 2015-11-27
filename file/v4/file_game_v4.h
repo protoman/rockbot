@@ -367,6 +367,7 @@ namespace format_v4 {
         Sint8 semi_charged_projectile_id;                               // common to all players
         Sint8 player_items[FS_PLATER_ITEMS_N];                          // common to all players -> to be used in add_coil_object and add_jet_object
         char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX];
+        char stages_face_name[MAX_STAGES][FS_CHAR8_NAME_SIZE];           // name of the boss to be shown in the stage-select screen
 
         st_file_trophy trophies[TROPHIES_MAX];
         st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];

@@ -44,6 +44,8 @@ private slots:
 
     void on_stageNumber_comboBox_currentIndexChanged(int index);
 
+    void on_bossName_lineEdit_textChanged(const QString &arg1);
+
 private:
     void fill_data();
     

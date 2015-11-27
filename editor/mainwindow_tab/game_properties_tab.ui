@@ -121,7 +121,7 @@
      <item row="6" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Stage-Select Faces:</string>
+        <string>Stage-Select Names/Faces:</string>
        </property>
       </widget>
      </item>
@@ -155,6 +155,13 @@
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QComboBox" name="stagefaces_stage_combo"/>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="bossName_lineEdit">
+         <property name="maxLength">
+          <number>8</number>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QComboBox" name="stagefaces_face_combo">

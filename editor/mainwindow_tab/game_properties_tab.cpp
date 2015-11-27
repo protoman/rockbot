@@ -39,6 +39,7 @@ void game_properties_tab::fill_data()
     ui->special_item2_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[1]);
     ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id+1);
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
+    ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[0]);
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
     ui->lineEdit->setText(Mediator::get_instance()->game_data.name);
 
@@ -95,6 +96,9 @@ void game_properties_tab::on_stagefaces_stage_combo_currentIndexChanged(int inde
     _current_stage = index;
     // set face from data
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
+    _data_loading = true;
+    ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[_current_stage]);
+    _data_loading = false;
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
 }
 
@@ -159,4 +163,10 @@ void game_properties_tab::on_stageNumber_comboBox_currentIndexChanged(int index)
     } else {
         Mediator::get_instance()->game_data.use_second_castle = true;
     }
+}
+
+void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
+{
+    if (_data_loading == true) return;
+    sprintf(Mediator::get_instance()->game_data.stages_face_name[ui->stagefaces_stage_combo->currentIndex()], "%s", arg1.toStdString().c_str());
 }
