@@ -22,7 +22,7 @@ stage::stage(int setStageN, classPlayer* set_player_ref)
     }
     std::fflush(stdout);
 	number = -1;
-	currentMap = 0;
+    set_current_map(0);
 	setNumber(setStageN);
     fio.read_stage(stage_data, setStageN);
     fio.read_stage_maps(setStageN, map_data);
@@ -81,6 +81,7 @@ void stage::loadStage() {
         maps[i].loadMap();
         maps[i].set_player(_player_ref);
     }
+    check_map_effect();
 }
 
 
@@ -160,6 +161,7 @@ void stage::set_current_map(int new_map_n)
 {
 	//std::cout << "------- stage::set_current_map to " << new_map_n << "-------" << std::endl;
 	currentMap = new_map_n;
+    check_map_effect();
 }
 
 Uint8 stage::get_current_map_n()
@@ -184,7 +186,7 @@ void stage::print_map_objects_number()
 
 void stage::reset_current_map()
 {
-	currentMap = checkpoint.map;
+    set_current_map(checkpoint.map);
     //std::cout << "STAGE::reset_current_map - currentMap: " << currentMap << std::endl;
     if (currentMap > PRELOAD_MAP_N) {
         return;
@@ -299,6 +301,14 @@ void stage::activate_final_boss_teleporter()
     for (int i=0; i<PRELOAD_MAP_N; i++) {
         std::cout << "stage::activate_final_boss_teleporter - currentMap: " << currentMap << std::endl;
         maps[currentMap].activate_final_boss_teleporter();
+    }
+}
+
+void stage::check_map_effect()
+{
+    std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
+    if (maps[currentMap].get_map_gfx() != draw_lib.get_gfx()) {
+        draw_lib.set_gfx(maps[currentMap].get_map_gfx());
     }
 }
 

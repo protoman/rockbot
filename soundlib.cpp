@@ -22,8 +22,6 @@ void soundLib::init_audio_system()
     if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
         std::cout << "Couldn't open audio. Error: " << SDL_GetError() << std::endl;
         exit(-1);
-    } else {
-        std::cout << "Audio initialized" << std::endl;
     }
 	load_all_sfx();
 }

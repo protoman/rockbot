@@ -58,8 +58,6 @@ classPlayer::set_player_name(std::string set_name)
 classPlayer::initialize()
 {
 
-    std::cout << "PLAYER::INITIALIZE::max_shots: " << game_data.players[_number].max_shots << std::endl;
-
     max_projectiles = game_data.players[_number].max_shots;
     // it is a player, can't have zero projectiles!!
     if (max_projectiles < 1) {
@@ -69,7 +67,6 @@ classPlayer::initialize()
         slide_type = 1;
     }
     _charged_shot_projectile_id = game_data.players[_number].full_charged_projectile_id;
-    std::cout << ">>> p[" << _number << "]._charged_shot_projectile_id: " << _charged_shot_projectile_id << std::endl;
 
     _simultaneous_shots = game_data.players[_number].simultaneous_shots;
     //std::cout << "classjump::set_acceleration - player[" << name << "], accel[" << game_data.players[_number].jump_gravity << "]" << std::endl;

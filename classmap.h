@@ -184,6 +184,8 @@ public:
 
     void activate_final_boss_teleporter();
 
+    Uint8 get_map_gfx();
+
 private:
     void load_map_npcs();
 

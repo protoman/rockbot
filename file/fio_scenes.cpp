@@ -145,7 +145,6 @@ namespace format_v4 {
                 res.push_back(out);
             }
         }
-        std::cout << ">>file_io::load_from_disk - size: " << res.size() << std::endl;
         fclose(fp);
         return res;
     }
@@ -159,8 +158,6 @@ namespace format_v4 {
             std::cout << ">> file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
             return;
         }
-
-        std::cout << ">>file_io::save_data_to_disk - size: " << data.size() << std::endl;
 
         for (int i=0; i<data.size(); i++) {
             int block_size = sizeof(T);

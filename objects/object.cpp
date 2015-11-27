@@ -1107,13 +1107,11 @@ unsigned int object::get_timer() const
 
 bool object::finished() const
 {
-    //std::cout << ">> object::finished: " << _finished << std::endl;
 	return _finished;
 }
 
 void object::set_finished(bool is_finished)
 {
-    std::cout << ">> object::set_finished[" << name << "]: " << is_finished << std::endl;
 	_finished = is_finished;
 }
 

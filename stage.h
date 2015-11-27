@@ -170,6 +170,9 @@ public:
 
     void activate_final_boss_teleporter();
 
+private:
+    void check_map_effect();
+
 
 public:
     classMap maps[PRELOAD_MAP_N];

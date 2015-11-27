@@ -25,7 +25,7 @@ extern game gameControl;
 extern inputLib input;
 
 
-draw::draw() : _rain_pos(0), _effect_timer(0), _rain_enabled(false), _flash_pos(0), _flash_timer(0), _flash_enabled(false), _snow_effect_enabled(false)
+draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
     for (int i=0; i<FLASH_POINTS_N; i++) {
         flash_points[i].x = rand() % RES_W;
@@ -55,28 +55,31 @@ void draw::preload()
 
 void draw::update_screen()
 {
-    if (_rain_enabled == true) {
+    if (screen_gfx == SCREEN_GFX_RAIN) {
         show_rain();
-    } else if (_snow_effect_enabled == true) {
+    } else if (screen_gfx == SCREEN_GFX_SNOW) {
         show_snow_effect();
     }
-    if (_flash_enabled == true) {
+    if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
     graphLib.updateScreen();
 }
 
-void draw::set_rain_enabled(bool enabled)
+void draw::set_gfx(Uint8 gfx)
 {
-    _rain_enabled = enabled;
+    screen_gfx = gfx;
+}
+
+Uint8 draw::get_gfx()
+{
+    return screen_gfx;
 }
 
 void draw::set_flash_enabled(bool enabled)
 {
-    //std::cout << "set_flash_enabled - " << enabled << std::endl;
-    _flash_enabled = enabled;
+    flash_effect_enabled = enabled;
 }
-
 
 
 void draw::show_rain()

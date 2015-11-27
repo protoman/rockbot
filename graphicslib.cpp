@@ -1686,7 +1686,6 @@ void graphicsLib::preload_anim_tiles()
             break;
         } else {
             std::string filename = FILEPATH + std::string("images/tilesets/anim/") + file;
-            std::cout << "### graphicsLib::preload_anim_tiles::filename: " << filename << std::endl;
 
             ANIM_TILES_SURFACES.push_back(graphicsLib_gSurface());
             surfaceFromFile(filename, &ANIM_TILES_SURFACES.at(ANIM_TILES_SURFACES.size()-1));

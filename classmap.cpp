@@ -64,7 +64,7 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(st_float_positio
 // ********************************************************************************************** //
 classMap::~classMap()
 {
-    std::cout << "map[" << number << "] destructor" << std::endl;
+    //std::cout << "map[" << number << "] destructor" << std::endl;
 }
 
 
@@ -120,7 +120,6 @@ void classMap::loadMap()
     _level3_tiles.clear();
     object_list.clear();
 
-    std::cout << "MAP::load_map_npcs::loadMap::CLEAR::TOTAL: " << _npc_list.size() << std::endl;
     _npc_list.clear();
     animation_list.clear();
 
@@ -406,7 +405,6 @@ st_position classMap::getMapScrolling() const
 void classMap::load_map_npcs()
 {
     // remove all elements currently in the list
-    std::cout << "MAP::load_map_npcs::total::BEFORE: " << _npc_list.size() << std::endl;
     while (!_npc_list.empty()) {
         _npc_list.back().clean_character_graphics_list();
         _npc_list.pop_back();
@@ -429,7 +427,6 @@ void classMap::load_map_npcs()
             _npc_list.push_back(new_npc); // insert new npc at the list-end
 		}
 	}
-    std::cout << "MAP::load_map_npcs::total::AFTER: " << _npc_list.size() << std::endl;
 }
 
 
@@ -689,6 +686,12 @@ void classMap::activate_final_boss_teleporter()
             temp_obj.start();
         }
     }
+}
+
+Uint8 classMap::get_map_gfx()
+{
+    std::cout << ">> MAP::get_map_gfx::number: " << number << std::endl;
+    return map_data[number].backgrounds[0].gfx;
 }
 
 

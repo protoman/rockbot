@@ -32,10 +32,9 @@ public:
 public:
     void preload();
     void update_screen(); // replaces external calls to graphLib.updateScreen
-    void set_rain_enabled(bool enabled);
+    void set_gfx(Uint8 gfx);
+    Uint8 get_gfx();
     void set_flash_enabled(bool enabled);
-    void show_rain();
-    void show_flash();
     void show_boss_intro_sprites(short boss_id, bool show_fall);
     void show_ready();
     void show_bubble(int x, int y);
@@ -50,29 +49,23 @@ public:
     void fade_in_screen(int r, int g, int b);
     void fade_out_screen(int r, int g, int b);
 
-    void generate_snow_particles();
-    void show_snow_effect();
 
 private:
-    /**
-     * @brief
-     *
-     * @param surface
-     * @param initial_line
-     */
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);
+    void show_rain();
+    void show_flash();
+    void generate_snow_particles();
+    void show_snow_effect();
 
 
 private:
     graphicsLib_gSurface rain_obj;
     unsigned int _effect_timer;
     short int _rain_pos;
-    bool _rain_enabled;
 
     graphicsLib_gSurface flash_obj;
     short int _flash_pos;
     unsigned int _flash_timer;
-    bool _flash_enabled;
     st_position flash_points[FLASH_POINTS_N];
 
     struct graphicsLib_gSurface ready_message;
@@ -85,8 +78,10 @@ private:
     std::map<unsigned int, graphicsLib_gSurface> objects_sprite_list; // object_id, graphic
 
     // USED IN SNOW EFFECT
-    bool _snow_effect_enabled;
     std::vector<st_snow_particle> _snow_particles;
+
+    Uint8 screen_gfx;
+    bool flash_effect_enabled;
 
 
 };

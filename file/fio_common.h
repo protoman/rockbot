@@ -63,7 +63,6 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
             res.push_back(out);
         }
     }
-    std::cout << ">>file_io::load_from_disk - size: " << res.size() << std::endl;
     fclose(fp);
     return res;
 }
