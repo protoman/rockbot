@@ -31,6 +31,7 @@ public:
 
 public:
     void preload();
+    void show_gfx();
     void update_screen(); // replaces external calls to graphLib.updateScreen
     void set_gfx(Uint8 gfx);
     Uint8 get_gfx();

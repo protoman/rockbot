@@ -230,6 +230,7 @@ void classMap::showMap()
     }
 
     graphLib.update_anim_tiles_timers();
+    draw_lib.show_gfx();
 }
 
 

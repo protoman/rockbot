@@ -53,7 +53,7 @@ void draw::preload()
     }
 }
 
-void draw::update_screen()
+void draw::show_gfx()
 {
     if (screen_gfx == SCREEN_GFX_RAIN) {
         show_rain();
@@ -63,6 +63,10 @@ void draw::update_screen()
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
+}
+
+void draw::update_screen()
+{
     graphLib.updateScreen();
 }
 
