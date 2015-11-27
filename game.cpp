@@ -249,6 +249,9 @@ void game::restart_stage()
     player1.set_teleporter(-1);
     _player_teleporter.active = false;
 
+    remove_all_projectiles();
+    remove_players_slide();
+
 	_show_boss_hp = false;
 	input.clean();
     loaded_stage.reset_current_map();
@@ -613,6 +616,8 @@ object* game::get_player_platform()
 
 void game::check_player_return_teleport()
 {
+    remove_all_projectiles();
+    remove_players_slide();
 	if (is_player_on_teleporter() == true) {
         finish_player_teleporter();
     }
@@ -662,6 +667,7 @@ void game::remove_all_projectiles()
 {
     player1.clean_projectiles();
     loaded_stage.get_current_map()->clean_map_npcs_projectiles();
+    player1.remove_freeze_effect();
 }
 
 void game::reset_beam_objects()

@@ -2185,6 +2185,12 @@ Uint8 character::get_projectile_max_shots()
     return max_proj;
 }
 
+void character::remove_freeze_effect()
+{
+    state.frozen = false;
+    state.frozen_timer = 0;
+}
+
 
 st_position character::get_int_position()
 {

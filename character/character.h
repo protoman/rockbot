@@ -16,7 +16,7 @@
 #include "character/movement/jump.h"
 #include "character/movement/inertia.h"
 
-extern graphicsLib graphLib; /**< TODO */
+extern graphicsLib graphLib;
 
 class object; // forward declaration
 
@@ -38,8 +38,8 @@ struct object_colision;
  *
  */
 struct st_spriteFrame {
-    unsigned int delay; // time in milisseconds this frame will be shown /**< TODO */
-    graphicsLib_gSurface frameSurface; /**< TODO */
+    unsigned int delay; // time in milisseconds this frame will be shown
+    graphicsLib_gSurface frameSurface;
 	st_spriteFrame() {
         frameSurface.set_surface(NULL);
 		delay = 20;
@@ -71,15 +71,15 @@ struct st_spriteFrame {
  *
  */
 struct st_characterMovements { // this instruction holds commands passed from player (joystick) and npc (AI) and is used to execute basic movements
-    short up; /**< TODO */
-    short down; /**< TODO */
-    short left; /**< TODO */
-    short right; /**< TODO */
-    short attack; /**< TODO */
-    short jump; /**< TODO */
-    short start; /**< TODO */
-    short dash; /**< TODO */
-    short shield; /**< TODO */
+    short up;
+    short down;
+    short left;
+    short right;
+    short attack;
+    short jump;
+    short start;
+    short dash;
+    short shield;
 	st_characterMovements()
 	{
 		up = 0;
@@ -255,7 +255,7 @@ public:
      * @param direction
      */
     void set_direction(int direction);
-    classMap *map;										// reference to the map this npc is in /**< TODO */
+    classMap *map;										// reference to the map this npc is in
     /**
      * @brief
      *
@@ -504,6 +504,9 @@ public:
 
     virtual int get_armor_arms_attack_id();
 
+    void remove_freeze_effect();
+
+
 protected:
     /**
      * @brief
@@ -664,42 +667,43 @@ protected:
     Uint8 get_projectile_max_shots();
 
 
+
 // members
 public:
 	// projectile list
-    std::vector<projectile> projectile_list; /**< TODO */
+    std::vector<projectile> projectile_list;
     //struct st_spriteFrame sprite_list[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]; // TODO - move to protected
 
 
 protected:
 	// members static that can be moved to use game_data
-    std::string name; /**< TODO */
-    struct st_size frameSize; /**< TODO */
-    unsigned int max_projectiles; // maximum number of simultaneuous projectiles the character can shot /**< TODO */
-    float move_speed; // how many pixels the character moves by cycle (default value) /**< TODO */
+    std::string name;
+    struct st_size frameSize;
+    unsigned int max_projectiles; // maximum number of simultaneuous projectiles the character can shot
+    float move_speed; // how many pixels the character moves by cycle (default value)
 
 	// dynamic members
-    st_hit_points hitPoints; /**< TODO */
-    unsigned int last_hit_time; /// time of last being hit /**< TODO */
-    unsigned int hit_duration; /// time the character is intangible after being hit (in milisseconds) /**< TODO */
-    unsigned int hit_animation_timer; /// used to control "blinking" effect when hit /**< TODO */
-    st_float_position position; /**< TODO */
-    st_position realPosition; /**< TODO */
-    unsigned int last_execute_time; /**< TODO */
-    struct st_characterMovements moveCommands; /**< TODO */
+    st_hit_points hitPoints;
+    unsigned int last_hit_time; /// time of last being hit
+    unsigned int hit_duration; /// time the character is intangible after being hit (in milisseconds)
+    unsigned int hit_animation_timer; /// used to control "blinking" effect when hit
+    st_float_position position;
+    st_position realPosition;
+    unsigned int last_execute_time;
+    struct st_characterMovements moveCommands;
 
 	// characteristics members
-    float accel_speed_y; // used for acceleration in jump/gravity /**< TODO */
-    float gravity_y; // used for acceleration in jump/gravity /**< TODO */
-    float max_speed; // used for acceleration in jump/gravity /**< TODO */
-    bool can_fly;                       // indicates if the character can fly in order to not be affected by gravity /**< TODO */
+    float accel_speed_y; // used for acceleration in jump/gravity
+    float gravity_y; // used for acceleration in jump/gravity
+    float max_speed; // used for acceleration in jump/gravity
+    bool can_fly;                       // indicates if the character can fly in order to not be affected by gravity
     bool _ignore_gravity;               // ignore gravity while this flag is true
-    unsigned int attack_state; // indicates if the player is attacking and what is the stage of the attack /**< TODO */
-    bool attack_button_released; // indicates if attack button was released between shots /**< TODO */
-    int charging_color_n; // holds information used when changing char colors on charging shot /**< TODO */
-    unsigned int charging_color_timer; // holds information used when changing char colors on charging shot /**< TODO */
-    bool jump_button_released; // indicates if jump button was released between jumps /**< TODO */
-    bool _dash_button_released; // indicates if dash button (or jump+down) was released between jumps /**< TODO */
+    unsigned int attack_state; // indicates if the player is attacking and what is the stage of the attack
+    bool attack_button_released; // indicates if attack button was released between shots
+    int charging_color_n; // holds information used when changing char colors on charging shot
+    unsigned int charging_color_timer; // holds information used when changing char colors on charging shot
+    bool jump_button_released; // indicates if jump button was released between jumps
+    bool _dash_button_released; // indicates if dash button (or jump+down) was released between jumps
     /**
      * @brief
      *
@@ -709,48 +713,48 @@ protected:
     st_position is_on_stairs(st_rectangle pos);		// check is character in over a staircase
 
 	// control members
-    st_characterState state; /**< TODO */
-    bool is_player_type; // used for some small tweaks /**< TODO */
+    st_characterState state;
+    bool is_player_type; // used for some small tweaks
 
 
 	// DEBUG
-    int hit_moved_back_n; /**< TODO */
+    int hit_moved_back_n;
 	// external members
 
 	// TODO - graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> character_graphics_list; /**< TODO */
-    static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list; /**< TODO */
-    static std::map<std::string, bool> _character_have_right_graphic; /**< TODO */
+    static std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> character_graphics_list;
+    static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list;
+    static std::map<std::string, bool> _character_have_right_graphic;
 
-    object* _platform; // used to move player when object moves /**< TODO */
+    object* _platform; // used to move player when object moves
 
-    bool dead; /**< TODO */
+    bool dead;
 
     st_color color_keys[3];
 
-    short int       shield_type;                        // same as for NPC, 0->no-shield, 1->full_shield, 2->front-shield /**< TODO */
+    short int       shield_type;                        // same as for NPC, 0->no-shield, 1->full_shield, 2->front-shield
 
-    unsigned int    _moving_platform_timer;             // used to control character movement when is over a moving platform /**< TODO */
+    unsigned int    _moving_platform_timer;             // used to control character movement when is over a moving platform
 
-    int             _number;                            // used for player or npc_id /**< TODO */
+    int             _number;                            // used for player or npc_id
 
-    bool            _super_jump;                        // indicates if the jump is super high /**< TODO */
-    bool            _force_jump;                        // when character is catapulted by an object, ignores jump button state until jump is finished (no matter if the jump button is released in the middle of jump, it will jump until reaching top) /**< TODO */
-    std::string     _debug_char_name; /**< TODO */
+    bool            _super_jump;                        // indicates if the jump is super high
+    bool            _force_jump;                        // when character is catapulted by an object, ignores jump button state until jump is finished (no matter if the jump button is released in the middle of jump, it will jump until reaching top)
+    std::string     _debug_char_name;
 
-    int             _teleport_minimal_y;                // do not stop teleport before reaching this point. (used on player's death) /**< TODO */
+    int             _teleport_minimal_y;                // do not stop teleport before reaching this point. (used on player's death)
 
-    int             _projectile_type_id;				// indicates the projectile ID (relation with file_projectile) /**< TODO */
+    int             _projectile_type_id;				// indicates the projectile ID (relation with file_projectile)
 
-    bool _is_falling; /**< TODO */
+    bool _is_falling;
 
-    int _dead_state; // 0 - alive, 1 - just died, 2 dead /**< TODO */
-    short slide_type; // 0 - dash (24 px height), 1 - slide (16px height) /**< TODO */
-    bool _water_splash;									// used to prevent making a new splash until completaly inside or outside water /**< TODO */
-    bool _has_background; /**< TODO */
-    st_position _frame_pos_adjust; /**< TODO */
-    bool _have_right_direction_graphics; /**< TODO */
-    short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input /**< TODO */
+    int _dead_state; // 0 - alive, 1 - just died, 2 dead
+    short slide_type; // 0 - dash (24 px height), 1 - slide (16px height)
+    bool _water_splash;									// used to prevent making a new splash until completaly inside or outside water
+    bool _has_background;
+    st_position _frame_pos_adjust;
+    bool _have_right_direction_graphics;
+    short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input
     short _charged_shot_projectile_id;
     short _hit_move_back_dist;
     bool _was_animation_reset;                               // inform that animation "looped" once
