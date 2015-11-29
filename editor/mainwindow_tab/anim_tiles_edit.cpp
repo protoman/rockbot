@@ -97,3 +97,9 @@ void anim_tiles_edit::on_currentBlock_combo_currentIndexChanged(int index)
     ui->animTilePreview_widget->update_properties();
     data_loading = false;
 }
+
+void anim_tiles_edit::on_pushButton_clicked()
+{
+    AnimPackImport *import_window = new AnimPackImport();
+    import_window->show();
+}

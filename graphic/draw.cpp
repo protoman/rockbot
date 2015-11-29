@@ -42,6 +42,12 @@ void draw::preload()
     filename = FILEPATH + "images/sprites/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
 
+    filename = FILEPATH + "images/sprites/snowflacke.png";
+    graphLib.surfaceFromFile(filename, &snow_flacke);
+
+    filename = FILEPATH + "/images/tilesets/rain.png";
+    graphLib.surfaceFromFile(filename, &rain_obj);
+
     // DROPABLE OBJECT GRAPHICS
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         for (int j=0; j<DROP_ITEM_COUNT; j++) {
@@ -88,11 +94,6 @@ void draw::set_flash_enabled(bool enabled)
 
 void draw::show_rain()
 {
-    if (rain_obj.get_surface() == NULL) {
-        // load rain
-        std::string filename = FILEPATH + "/images/tilesets/rain.png";
-        graphLib.surfaceFromFile(filename, &rain_obj);
-    }
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
             graphLib.showSurfaceRegionAt(&rain_obj, st_rectangle(_rain_pos*TILESIZE, 0, TILESIZE, TILESIZE), st_position(i*TILESIZE, j*TILESIZE));
@@ -510,7 +511,6 @@ void draw::show_snow_effect()
     if (timer.getTimer() > _effect_timer) {
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
-            //std::cout << "SNOW.MOVE" << std::endl;
             temp_particle->position.y += temp_particle->speed;
             if (temp_particle->direction == ANIM_DIRECTION_LEFT) {
                 temp_particle->position.x--;
@@ -531,13 +531,14 @@ void draw::show_snow_effect()
                 temp_particle->position.y = 0;
 
             }
-            graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
+            //graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
+            graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
         _effect_timer = timer.getTimer() + SNOW_DELAY;
     } else {
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
-            graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
+            graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
     }
 }

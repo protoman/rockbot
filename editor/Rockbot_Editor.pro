@@ -111,7 +111,8 @@ SOURCES += main.cpp \
     ../file/fio_common.cpp \
     mainwindow_tab/anim_tiles_edit.cpp \
     framespreviewarea.cpp \
-    widgets/animtilepalette.cpp
+    widgets/animtilepalette.cpp \
+    mainwindow_tab/anim/animpackimport.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -187,7 +188,8 @@ HEADERS += mainwindow.h \
     ../file/fio_common.hpp \
     mainwindow_tab/anim_tiles_edit.h \
     framespreviewarea.h \
-    widgets/animtilepalette.h
+    widgets/animtilepalette.h \
+    mainwindow_tab/anim/animpackimport.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -219,7 +221,8 @@ FORMS += mainwindow.ui \
     newgamedialog.ui \
     mainwindow_tab/gamescenes.ui \
     files_editor/stringseditor.ui \
-    mainwindow_tab/anim_tiles_edit.ui
+    mainwindow_tab/anim_tiles_edit.ui \
+    mainwindow_tab/anim/animpackimport.ui
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

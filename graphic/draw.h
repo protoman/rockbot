@@ -80,6 +80,7 @@ private:
 
     // USED IN SNOW EFFECT
     std::vector<st_snow_particle> _snow_particles;
+    graphicsLib_gSurface snow_flacke;
 
     Uint8 screen_gfx;
     bool flash_effect_enabled;
