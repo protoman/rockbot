@@ -53,8 +53,6 @@ void npc_edit::fill_data()
         ui->npc_edit_tab_previewarea->set_sprite_pos(Mediator::get_instance()->enemy_list.at(0).sprites_pos_bg);
         ui->npc_edit_tab_previewarea->repaint();
 
-
-
         ui->projectile1_comboBox->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).projectile_id[0]+1);
         ui->projectile2_comboBox->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).projectile_id[1]+1);
 
@@ -69,8 +67,17 @@ void npc_edit::fill_data()
 
         ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x);
         ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y);
-        ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
-        ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+
+        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0) {
+            ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
+        } else {
+            ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
+        }
+        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
+            ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+        } else {
+            ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
+        }
 
         ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
 
@@ -147,8 +154,17 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 
     ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x);
     ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y);
-    ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
-    ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0) {
+        ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
+    } else {
+        ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
+    }
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
+        ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+    } else {
+        ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
+    }
 
     ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
 
@@ -178,7 +194,6 @@ void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
     _data_loading = true;
     if (ui->hitarea_w_spinBox->value() == 0 || ui->hitarea_w_spinBox->value() == Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width) {
         ui->hitarea_w_spinBox->setValue(arg1);
-
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w) {
             Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w = arg1;
         }

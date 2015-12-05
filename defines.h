@@ -15,7 +15,7 @@ enum e_PLAYERS {
     PLAYER_KITTYBOT
 };
 
-#define WALK_FRAME_DELAY 100
+#define WALK_FRAME_DELAY 150
 
 // ==================== PHYSICS ==================== //
 

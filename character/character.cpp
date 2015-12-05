@@ -2288,8 +2288,12 @@ void character::clean_projectiles()
 
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
 {
+
+    std::cout << "CHAR::DAMAGE::START" << std::endl;
+
     UNUSED(ignore_hit_timer);
 	if (is_player() && GAME_FLAGS[FLAG_INVENCIBLE] == true) {
+        std::cout << "CHAR::DAMAGE::LEAVE #1" << std::endl;
 		return;
 	}
     if (game_save.difficulty == DIFFICULTY_HARD && is_player() == false) {
@@ -2306,6 +2310,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 	//std::cout << "1. character::damage - damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
 
 	if (hitPoints.current <= 0) { /// already dead
+        std::cout << "CHAR::DAMAGE::LEAVE #2" << std::endl;
 		return;
 	}
 
@@ -2317,24 +2322,20 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
 	unsigned int now_timer = timer.getTimer();
     if (now_timer < hit_duration+last_hit_time) { /// is still intangible from last hit
-        //std::cout << "#1 DAMAGE ignored - hit_duration: " << hit_duration << std::endl;
+        std::cout << "CHAR::DAMAGE::LEAVE #3" << std::endl;
         return;
     }
 
     _was_hit = true;
 
     if (is_in_stairs_frame() == true) {
-        //std::cout << "_dropped_from_stairs > SET" << std::endl;
         _dropped_from_stairs = true;
     }
 
-    //std::cout << ">>>>>> _is_boss: " << _is_boss << ", hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl;
     if (_is_boss == true && hit_animation_timer < now_timer) {
         if (map != NULL) {
-            //std::cout << "&&&& add animation boss" << std::endl;
             int repeat_times = 4;
             int frame_duration = BOSS_HIT_DURATION / (repeat_times*2); // one time for show, one time for hide
-            //std::cout << "repeat_times: " << repeat_times << ", frame_duration: " << frame_duration << std::endl;
             map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(0, 5), frame_duration, repeat_times, state.direction, st_size(24, 24));
         }
     }
@@ -2346,11 +2347,11 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
     }
     if (!is_player() || GAME_FLAGS[FLAG_INFINITE_HP] == false) {
         hitPoints.current -= damage_points;
+        std::cout << "CHAR::DAMAGE::damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
     }
 
 
     if (is_player() == true && state.animation_type != ANIM_TYPE_HIT) {
-        //std::cout << "2. character::damage - damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
         set_animation_type(ANIM_TYPE_HIT);
         if (_obj_jump.is_started() == true) {
             hit_moved_back_n = get_hit_push_back_n()/2;

@@ -490,20 +490,23 @@ void classPlayer::initFrames()
 		return;
 	}
 
+    // @TODO - automatically add inverse direction (right) sprites
+
 	// STAND
     addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAND, 3, 0, playerSpriteSurface, 5000);
 	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAND, 4, 0, playerSpriteSurface, 150);
     addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAND, 3, 1, playerSpriteSurface, 5000);
 	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAND, 4, 1, playerSpriteSurface, 150);
 	// WALK
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 6, 0, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 8, 0, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 6, 1, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 6, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+
     addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 7, 1, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 8, 1, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 7, 1, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 6, 1, playerSpriteSurface, WALK_FRAME_DELAY);
 	// JUMP
 	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_JUMP, 9, 0, playerSpriteSurface, 150);
 	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_JUMP, 9, 1, playerSpriteSurface, 150);
@@ -642,6 +645,7 @@ void classPlayer::execute_projectiles()
             if ((*it).check_colision(st_rectangle(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y, map->_npc_list.at(i).get_size().width, map->_npc_list.at(i).get_size().height), st_position(moved.width, moved.height)) == true) {
                 if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) { // shielded NPC -> reflects shot
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
+                        std::cout << "PROJ::END #1" << std::endl;
                         (*it).consume_projectile();
                     } else {
                         (*it).reflect();
@@ -660,6 +664,7 @@ void classPlayer::execute_projectiles()
 
                 if (enemy_hit_area.w != enemy_size.width || enemy_hit_area.h != enemy_size.height) {
                     if ((*it).check_colision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+                        std::cout << "PROJ::END #2" << std::endl;
                         (*it).consume_projectile();
                         continue;
                     }
@@ -674,8 +679,10 @@ void classPlayer::execute_projectiles()
                 // NPC using cicrcle weapon, is only be destroyed by CHAIN, but NPC won't take damage
                 if (map->_npc_list.at(i).is_using_circle_weapon() == true) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
+                        std::cout << "PROJ::END #3" << std::endl;
                         map->_npc_list.at(i).consume_projectile();
                     }
+                    std::cout << "PROJ::END #4" << std::endl;
                     (*it).consume_projectile();
                     return;
                 }
@@ -686,8 +693,11 @@ void classPlayer::execute_projectiles()
                         multiplier = 1;
                     }
                     map->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
+                } else {
+                    std::cout << "PLAYER::EXECUTE_PROJ - projectile damage is zero" << std::endl;
                 }
                 if ((*it).get_damage() > 0) {
+                    std::cout << "PROJ::END #5" << std::endl;
                     (*it).consume_projectile();
                     soundManager.play_sfx(SFX_NPC_HIT);
                 }

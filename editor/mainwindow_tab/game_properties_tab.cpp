@@ -38,9 +38,18 @@ void game_properties_tab::fill_data()
     ui->special_item1_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[0]);
     ui->special_item2_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[1]);
     ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id+1);
+
+
+    for (int i=0; i<MAX_STAGES; i++) {
+        std::cout << "face-name[" << i << "]: " << Mediator::get_instance()->game_data.stages_face_name[i] << std::endl;
+    }
+
+
+
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
-    ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[0]);
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
+
+    ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[0]);
     ui->lineEdit->setText(Mediator::get_instance()->game_data.name);
 
     // file-format 4.0 fields
@@ -97,6 +106,9 @@ void game_properties_tab::on_stagefaces_stage_combo_currentIndexChanged(int inde
     // set face from data
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
     _data_loading = true;
+
+
+    std::cout << "face-name #2: " << Mediator::get_instance()->game_data.stages_face_name[_current_stage] << std::endl;
     ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[_current_stage]);
     _data_loading = false;
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
@@ -168,5 +180,7 @@ void game_properties_tab::on_stageNumber_comboBox_currentIndexChanged(int index)
 void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.stages_face_name[ui->stagefaces_stage_combo->currentIndex()], "%s", arg1.toStdString().c_str());
+    sprintf(Mediator::get_instance()->game_data.stages_face_name[_current_stage], "%s", arg1.toStdString().c_str());
+
+    std::cout << "face-name #3: " << Mediator::get_instance()->game_data.stages_face_name[_current_stage] << std::endl;
 }

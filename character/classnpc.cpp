@@ -469,7 +469,12 @@ st_rectangle classnpc::get_hit_area()
     if (state.direction == ANIM_DIRECTION_RIGHT && _have_right_direction_graphics == true) {
         res.x = frameSize.width - res.w - res.x;
     }
-    //std::cout << "NPC::get_hit_area - res.x: " << res.x << ", res.y: " << res.y << ", res.w: " << res.w << ", res.h: " << res.h << ", w: " << frameSize.width << ", h: " << frameSize.height << std::endl;
+    if (res.w == 0) {
+        res.w = frameSize.width;
+    }
+    if (res.h == 0) {
+        res.h = frameSize.height;
+    }
     return res;
 }
 

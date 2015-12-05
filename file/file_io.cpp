@@ -44,6 +44,8 @@ namespace format_v4 {
         fp.write(reinterpret_cast<char *>(&data_in.semi_charged_projectile_id), sizeof(Sint8));
         fp.write(reinterpret_cast<char *>(&data_in.player_items), sizeof(Sint8) * FS_PLATER_ITEMS_N);
         fp.write(reinterpret_cast<char *>(&data_in.stage_face_filename), sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX);
+        fp.write(reinterpret_cast<char *>(&data_in.stages_face_name), sizeof(char) * MAX_STAGES * FS_CHAR8_NAME_SIZE);
+
         fp.close();
 
 
@@ -171,8 +173,12 @@ namespace format_v4 {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
-        if (unsigned int res = fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
+        if (fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
             std::cout << ">>file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
+            exit(-1);
+        }
+        if (fread(&data_out.stages_face_name, sizeof(char), (MAX_STAGES*FS_CHAR8_NAME_SIZE), fp) != MAX_STAGES*FS_CHAR8_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [stages_face_name] from game file '" << filename << "'." << std::endl;
             exit(-1);
         }
 
