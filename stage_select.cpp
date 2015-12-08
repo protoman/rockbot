@@ -185,7 +185,6 @@ struct st_position stage_select::select() {
     for (int i=0; i<=2; i++) {
         for (int j=0; j<=2; j++) {
             if (i == 1 && j == 1) {
-                stage_n++;
                 continue;
             }
             if (game_save.stages[stage_n] == 0) {

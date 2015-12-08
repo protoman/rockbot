@@ -903,6 +903,12 @@ Uint8 scenesLib::select_difficulty()
 
 
 void scenesLib::boss_intro(Uint8 pos_n) const {
+
+    if (stage_data.boss.id_npc == -1) {
+        std::cout << "WARNING: Ignoring boss intro, as boss is not set." << std::endl;
+        return;
+    }
+
     graphicsLib_gSurface spriteCopy;
     unsigned int intro_frames_n = 1;
     int text_x = RES_W*0.5 - 60;

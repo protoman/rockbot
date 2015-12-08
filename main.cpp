@@ -479,6 +479,10 @@ int main(int argc, char *argv[])
 
 
     GAMENAME = gameControl.select_game_screen();
+
+    // DEBUG PS2 //
+    //GAMENAME = std::string("Rockbot2");
+
     if (GAMENAME == "") {
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
         graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));

@@ -50,12 +50,12 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     reset_charging_shot();
 }
 
-classPlayer::set_player_name(std::string set_name)
+void classPlayer::set_player_name(std::string set_name)
 {
     name = set_name;
 }
 
-classPlayer::initialize()
+void classPlayer::initialize()
 {
 
     max_projectiles = game_data.players[_number].max_shots;
