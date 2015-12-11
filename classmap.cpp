@@ -55,6 +55,8 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(st_float_positio
     _3rd_level_ignore_area = st_rectangle(-1, -1, -1, -1);
     _level3_tiles = std::vector<struct st_level3_tile>();
     _break_npc_loop = false;
+    bg1_surface.width = 0;
+    bg2_surface.width = 0;
 
 }
 
@@ -751,6 +753,9 @@ void classMap::create_dynamic_background_surfaces()
     graphicsLib_gSurface temp_surface;
     if (strlen(map_data[number].backgrounds[0].filename) > 0) {
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + map_data[number].backgrounds[0].filename);
+
+        std::cout << "bg1_filename: '" << bg1_filename << "'" << std::endl;
+
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
         create_dynamic_background_surface(bg1_surface, temp_surface);
     } else {

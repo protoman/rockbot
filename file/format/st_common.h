@@ -313,6 +313,14 @@ public:
 		//std::cout << "graphicsLib_gSurface::COPY" << std::endl;
         if (original.gSurface == NULL) {
             gSurface = NULL;
+            width = 0;
+            height = 0;
+            persistent = false;
+            video_screen = original.video_screen;
+            colorkey1_points = original.colorkey1_points;
+            colorkey2_points = original.colorkey2_points;
+            colorkey3_points = original.colorkey3_points;
+            show_debug = false;
         } else {
             width = original.width;
             height = original.height;
@@ -336,6 +344,13 @@ public:
     {
         if (original.gSurface == NULL) {
             gSurface = NULL;
+            width = 0;
+            height = 0;
+            persistent = false;
+            video_screen = original.video_screen;
+            colorkey1_points = original.colorkey1_points;
+            colorkey2_points = original.colorkey2_points;
+            colorkey3_points = original.colorkey3_points;
         } else {
             width = original.width;
             height = original.height;
