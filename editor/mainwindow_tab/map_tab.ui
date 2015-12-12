@@ -1093,6 +1093,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Tileset</string>
+       </property>
        <property name="text">
         <string extracomment="Tileset">...</string>
        </property>
@@ -1113,12 +1116,15 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Enemies</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
-         <normaloff>:/toolbar_icons/Manager-icon.png</normaloff>:/toolbar_icons/Manager-icon.png</iconset>
+         <normaloff>:/toolbar_icons/face-normal.png</normaloff>:/toolbar_icons/face-normal.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -1133,12 +1139,15 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Set Sub-Boss</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
-         <normaloff>:/toolbar_icons/Knight-icon.png</normaloff>:/toolbar_icons/Knight-icon.png</iconset>
+         <normaloff>:/toolbar_icons/face-angry.png</normaloff>:/toolbar_icons/face-angry.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -1153,12 +1162,15 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Set Boss</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
-         <normaloff>:/toolbar_icons/4a6b77ae99a98d0d3a0a68a6b5491305.png</normaloff>:/toolbar_icons/4a6b77ae99a98d0d3a0a68a6b5491305.png</iconset>
+         <normaloff>:/toolbar_icons/face-devilish.png</normaloff>:/toolbar_icons/face-devilish.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -1172,6 +1184,9 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Objects</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -1193,6 +1208,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Map-Links</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -1207,6 +1225,9 @@
      </item>
      <item>
       <widget class="QToolButton" name="addAnimTile_toolButton">
+       <property name="toolTip">
+        <string>Anim Tiles</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -1247,6 +1268,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Edit</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -1266,6 +1290,9 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Terrain</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -1287,6 +1314,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Erase</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
@@ -1302,7 +1332,7 @@
      <item>
       <widget class="QToolButton" name="toolButton">
        <property name="toolTip">
-        <string notr="true" comment="Select" extracomment="Select"/>
+        <string notr="true" comment="Select" extracomment="Select">Copy</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -1315,12 +1345,15 @@
      </item>
      <item>
       <widget class="QToolButton" name="paste_toolButton">
+       <property name="toolTip">
+        <string>Paste</string>
+       </property>
        <property name="text">
         <string>...</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
-         <normaloff>:/toolbar_icons/document-encrypted.png</normaloff>:/toolbar_icons/document-encrypted.png</iconset>
+         <normaloff>:/toolbar_icons/edit-paste.png</normaloff>:/toolbar_icons/edit-paste.png</iconset>
        </property>
       </widget>
      </item>

@@ -93,5 +93,16 @@
         <file>draw-polygon.png</file>
         <file>draw-rectangle.png</file>
         <file>draw-square-inverted-corners.png</file>
+        <file>edit-paste.png</file>
+        <file>draw-triangle.png</file>
+        <file>edit-redo.png</file>
+        <file>edit-undo.png</file>
+        <file>games-highscores.png</file>
+        <file>input-gaming.png</file>
+        <file>input-keyboard.png</file>
+        <file>insert-text.png</file>
+        <file>speaker.png</file>
+        <file>face-angry.png</file>
+        <file>face-normal.png</file>
     </qresource>
 </RCC>

@@ -453,7 +453,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {
         std::cout << "PAINT::EDITMODE_SELECT" << std::endl;
         painter.setBrush(QColor(0, 0, 255, 180));
-        painter.drawRect(selection_start_x*TILESIZE, selection_start_y*TILESIZE, abs(selection_current_x-selection_start_x)*TILESIZE, abs(selection_current_y-selection_start_y)*TILESIZE);
+        painter.drawRect(selection_start_x*TILESIZE*Mediator::get_instance()->zoom, selection_start_y*TILESIZE*Mediator::get_instance()->zoom, abs(selection_current_x-selection_start_x)*TILESIZE*Mediator::get_instance()->zoom, abs(selection_current_y-selection_start_y)*TILESIZE*Mediator::get_instance()->zoom);
     }
 
 

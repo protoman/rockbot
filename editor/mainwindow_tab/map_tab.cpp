@@ -312,6 +312,7 @@ void map_tab::on_editTile_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editTile_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
+    ui->editModeNormal_button->setEnabled(true);
 
     //ui->editModeNormal_button->setEnabled(true);
     ui->editModeLock_button->setEnabled(true);
@@ -332,6 +333,7 @@ void map_tab::on_editObject_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editObject_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
+    ui->editModeNormal_button->setEnabled(true);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -351,6 +353,7 @@ void map_tab::on_editLink_button_clicked()
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
+    ui->editModeNormal_button->setEnabled(true);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -370,6 +373,7 @@ void map_tab::on_editNpc_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
+    ui->editModeNormal_button->setEnabled(true);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(true);
@@ -387,6 +391,7 @@ void map_tab::on_editSetSubBoss_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(true);
+    ui->editModeNormal_button->setEnabled(true);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(false);
@@ -405,6 +410,7 @@ void map_tab::on_editSetBoss_button_clicked()
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetBoss_button->setChecked(true);
+    ui->editModeNormal_button->setEnabled(true);
 
     ui->editModeLock_button->setEnabled(false);
     ui->editModeErase_button->setEnabled(false);
@@ -499,6 +505,7 @@ void map_tab::on_addAnimTile_toolButton_clicked()
     ui->editLink_button->setChecked(false);
     ui->editTile_button->setChecked(false);
     ui->addAnimTile_toolButton->setChecked(true);
+    ui->editModeNormal_button->setEnabled(true);
 
     //ui->editModeNormal_button->setEnabled(true);
     ui->editModeLock_button->setEnabled(false);
