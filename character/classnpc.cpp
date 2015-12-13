@@ -174,27 +174,13 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 			return;
 		}
 
-        // @204
         for (int i=0; i<ANIM_TYPE_COUNT; i++) {
             for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
                 if (GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].used == true) {
-                    //void character::addSpriteFrame(int anim_direction, int anim_type, int posX, int posY, graphicsLib_gSurface &spritesSurface, int delay)
-                    addSpriteFrame(ANIM_DIRECTION_LEFT, i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, 0, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
-                    if (npc_sprite_surface.height < GameMediator::get_instance()->get_enemy(main_id).frame_size.height*2-1) {
-                        if (name == "Giant Fly") std::cout << ">>>>>>>>>>>>>>>> NOT RIGHT #1 - npc.h: " << npc_sprite_surface.height << ", frame.h: " << (int)GameMediator::get_instance()->get_enemy(main_id).frame_size.height << ", frame.h*2: " << (GameMediator::get_instance()->get_enemy(main_id).frame_size.height*2) << std::endl;
-                        _character_have_right_graphic.insert(std::pair<std::string, bool>(name, false));
-                        _have_right_direction_graphics = false;
-                    } else {
-                        _character_have_right_graphic.insert(std::pair<std::string, bool>(name, true));
-                        addSpriteFrame(ANIM_DIRECTION_RIGHT, i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, 1, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
-                    }
+                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, 0, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
                 }
             }
         }
-    } else {
-        _have_right_direction_graphics = _character_have_right_graphic.find(name)->second;
-        if (name == "Giant Fly" && _have_right_direction_graphics == false) std::cout << ">>>>>>>>>>>>>>>> NOT RIGHT #2" << std::endl;
-        //std::cout << "$$$$$$$ NPC (" << name << ") - _have_right_direction_graphics: " << _have_right_direction_graphics << std::endl;
     }
 
 
@@ -466,7 +452,7 @@ short classnpc::get_dead_state()
 st_rectangle classnpc::get_hit_area()
 {
     st_rectangle res(GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
-    if (state.direction == ANIM_DIRECTION_RIGHT && _have_right_direction_graphics == true) {
+    if (state.direction == ANIM_DIRECTION_RIGHT) {
         res.x = frameSize.width - res.w - res.x;
     }
     if (res.w == 0) {

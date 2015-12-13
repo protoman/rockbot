@@ -33,6 +33,12 @@
 // ****************************************************************************** //
 
 
+enum e_flip_type {
+    flip_type_horizontal,
+    flip_type_vertical,
+    flip_type_both
+};
+
 struct anim_tile_timer {
     unsigned long timer;                        // timer animation was last executed
     Uint8 frame_pos;                            // current frame animation is
@@ -509,85 +515,24 @@ public:
      */
 
     void draw_path(st_position initial_point, st_position final_point, short duration);
+    graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
 
 
 private:
-    Uint32 getpixel(SDL_Surface *surface, int x, int y);
-    void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
-    /**
-     * @brief
-     *
-     * @param src
-     * @param dst
-     * @param smooth_scale
-     */
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale) const;
-    /**
-     * @brief
-     *
-     * @param pos
-     * @param hp
-     * @param player_n
-     */
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n=3);
-    /**
-     * @brief
-     *
-     * @param player_n
-     * @param weapon_n
-     */
     void draw_vertical_hp_bar(short int player_n, short int weapon_n);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param size
-     */
     void draw_star(short int x, short int y, int size);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param size
-     */
     void erase_star(short int x, short int y, int size);
-    /**
-     * @brief
-     *
-     */
     void preload_faces() const;
-    /**
-     * @brief
-     *
-     */
     void unload_faces() const;
-    /**
-     * @brief
-     *
-     */
     void init_stars();
-    /**
-     * @brief
-     *
-     */
     void anim_stars();
-    /**
-     * @brief
-     *
-     * @param fullscreen
-     */
     void set_video_mode();
-    /**
-     * @brief
-     *
-     */
     void preload_images();
-
     void preload_anim_tiles();
 
 

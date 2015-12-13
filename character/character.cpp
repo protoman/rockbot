@@ -29,7 +29,6 @@ extern int freeze_weapon_id;
 std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> character::character_graphics_list;
 std::map<std::string, graphicsLib_gSurface> character::_character_graphics_background_list;
 static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
-std::map<std::string, bool> character::_character_have_right_graphic;
 
 // init character with default values
 // ********************************************************************************************** //
@@ -50,7 +49,6 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _debug_char_name = "Bat";
     _frame_pos_adjust.x = 0;
     _frame_pos_adjust.y = 0;
-    _have_right_direction_graphics = true;
     _stairs_stopped_count = 0;
     _charged_shot_projectile_id = -1;
     _is_last_frame = false;
@@ -825,9 +823,6 @@ void character::show_sprite()
 			state.animation_timer = timer.getTimer() + 5000;
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
-            if (_have_right_direction_graphics == false) {
-                direction = ANIM_DIRECTION_LEFT;
-            }
             int delay = (character_graphics_list.find(name)->second)[direction][state.animation_type][state.animation_state].delay;
             //if (is_player()) std::cout << "character::show_sprite - delay: " << delay << std::endl;
             state.animation_timer = timer.getTimer() + delay;
@@ -853,12 +848,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     // NPCs use stand as teleport
     if (is_player() == false && type == ANIM_TYPE_TELEPORT) {
         type = ANIM_TYPE_STAND;
-    }
-
-    // if the graphic doesen't have RIGHT direction, keep using LEFT one
-    if (_have_right_direction_graphics == false) {
-        //std::cout << ">> character::show_sprite_graphic(" << name << ") without RIGHT graphics" << std::endl;
-        direction = ANIM_DIRECTION_LEFT;
     }
 
     std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>::iterator it_graphic;
@@ -1852,7 +1841,7 @@ bool character::is_on_teleporter_capsulse(object *object)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void character::addSpriteFrame(int anim_direction, int anim_type, int posX, int posY, graphicsLib_gSurface &spritesSurface, int delay)
+void character::addSpriteFrame(int anim_type, int posX, int posY, graphicsLib_gSurface &spritesSurface, int delay)
 {
 	struct st_rectangle spriteArea;
 
@@ -1863,19 +1852,30 @@ void character::addSpriteFrame(int anim_direction, int anim_type, int posX, int 
 
     if (is_player()) std::cout << "delay: " << delay << std::endl;
 
-	for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
-        if ((character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
-            if (i == 0) {
-                (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.enable_show_debug();
-                //std::cout << "==================== add frame ===============" << std::endl;
+    for (int anim_direction=0; anim_direction<=1; anim_direction++) {
+        for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
+            if ((character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
+
+                st_spriteFrame *sprite = &(character_graphics_list.find(name)->second)[anim_direction][anim_type][i];
+                graphicsLib_gSurface gsurface = graphLib.surfaceFromRegion(spriteArea, spritesSurface);
+
+                if (anim_direction != 0) {
+                    sprite->setSurface(gsurface);
+                } else {
+
+                    graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
+
+
+                    sprite->setSurface(gsurface_flip);
+                }
+
+
+                (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.init_colorkeys();
+                (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].delay = delay;
+                break;
             }
-            // AQUI, esse setsurface tem que usar o outro set_surface
-            (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].setSurface(graphLib.surfaceFromRegion(spriteArea, spritesSurface));
-            (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.init_colorkeys();
-			(character_graphics_list.find(name)->second)[anim_direction][anim_type][i].delay = delay;
-			break;
         }
-	}
+    }
 }
 
 
@@ -2064,10 +2064,6 @@ void character::show_hp()
 
 bool character::have_frame_graphic(int direction, int type, int pos)
 {
-    if (_have_right_direction_graphics == false) {
-        //std::cout << "character::have_frame_graphic(" << name << ") - using LEFT frame as there is no RIGHT one - state.animation_state: " << state.animation_state << std::endl;
-        direction = ANIM_DIRECTION_LEFT;
-    }
     if ((character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.width == 0 || (character_graphics_list.find(name)->second)[direction][type][pos].frameSurface.get_surface() == NULL) {
         //if (name == "Bat") std::cout << "character::have_frame_graphic(" << name << ")[" << direction << "][" << type << "][" << pos << "] - FALSE" << std::endl;
 		return false;

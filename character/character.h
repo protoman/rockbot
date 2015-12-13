@@ -44,21 +44,11 @@ struct st_spriteFrame {
         frameSurface.set_surface(NULL);
 		delay = 20;
 	}
-    /**
-     * @brief
-     *
-     * @param newDelay
-     */
     void setDelay(int newDelay)
 	{
 		delay = newDelay;
 	}
-    /**
-     * @brief
-     *
-     * @param newSurface
-     */
-    void setSurface(graphicsLib_gSurface newSurface)
+    void setSurface(graphicsLib_gSurface& newSurface)
 	{
 		graphLib.initSurface(st_size(newSurface.width, newSurface.height), &frameSurface);
 		graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);
@@ -173,7 +163,7 @@ public:
      * @param
      * @param int
      */
-    void addSpriteFrame(int, int, int, int, graphicsLib_gSurface&, int);
+    void addSpriteFrame(int, int, int, graphicsLib_gSurface&, int);
     /**
      * @brief
      *
@@ -724,7 +714,6 @@ protected:
 	// TODO - graphics list map, used in order to avoid duplication of graphics
     static std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> character_graphics_list;
     static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list;
-    static std::map<std::string, bool> _character_have_right_graphic;
 
     object* _platform; // used to move player when object moves
 
@@ -753,7 +742,6 @@ protected:
     bool _water_splash;									// used to prevent making a new splash until completaly inside or outside water
     bool _has_background;
     st_position _frame_pos_adjust;
-    bool _have_right_direction_graphics;
     short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input
     short _charged_shot_projectile_id;
     short _hit_move_back_dist;

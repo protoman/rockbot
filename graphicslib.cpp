@@ -1702,6 +1702,48 @@ void graphicsLib::preload_anim_tiles()
     }
 }
 
+graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_flip_type flip_mode)
+{
+    //Pointer to the soon to be flipped surface
+    SDL_Surface *flipped = NULL;
+    SDL_Surface *surface = original.get_surface();
+    graphicsLib_gSurface res = original;
+    //initSurface(st_size(original.width, original.height), &res);
+
+    //If the image is color keyed
+    if (SDL_SRCCOLORKEY) {
+        flipped = SDL_CreateRGBSurface( SDL_SWSURFACE, surface->w, surface->h, surface->format->BitsPerPixel, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, 0 );
+    } else {
+        flipped = SDL_CreateRGBSurface( SDL_SWSURFACE, surface->w, surface->h, surface->format->BitsPerPixel, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask );
+    }
+
+    //If the surface must be locked
+    if (SDL_MUSTLOCK( surface )) {
+        //Lock the surface
+        SDL_LockSurface( surface );
+    }
+
+    //Go through columns
+    for (int x = 0, rx = flipped->w - 1; x < flipped->w; x++, rx-- ) {
+        //Go through rows
+        for (int y = 0, ry = flipped->h - 1; y < flipped->h; y++, ry-- ) {
+            //Get pixel
+            Uint32 pixel = original.get_pixel(x, y);
+
+            //Copy pixel
+            if ((flip_mode == flip_type_both)) {
+                res.put_pixel(rx, ry, pixel);
+            } else if (flip_mode == flip_type_horizontal) {
+                res.put_pixel(rx, y, pixel );
+            } else if(flip_mode == flip_type_vertical) {
+                res.put_pixel(x, ry, pixel );
+            }
+        }
+    }
+    return res;
+}
+
+
 
 
 void graphicsLib::show_btn_a(st_position btn_pos)

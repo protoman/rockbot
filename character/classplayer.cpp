@@ -493,89 +493,60 @@ void classPlayer::initFrames()
     // @TODO - automatically add inverse direction (right) sprites
 
 	// STAND
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAND, 3, 0, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAND, 4, 0, playerSpriteSurface, 150);
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAND, 3, 1, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAND, 4, 1, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_STAND, 3, 0, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAND, 4, 0, playerSpriteSurface, 150);
 	// WALK
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 8, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK, 6, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 8, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 6, 0, playerSpriteSurface, WALK_FRAME_DELAY);
 
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 7, 1, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 8, 1, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 7, 1, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK, 6, 1, playerSpriteSurface, WALK_FRAME_DELAY);
 	// JUMP
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_JUMP, 9, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_JUMP, 9, 1, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_JUMP, 9, 0, playerSpriteSurface, 150);
 	// ATTACK
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 11, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_ATTACK, 11, 1, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_ATTACK, 11, 0, playerSpriteSurface, 150);
 	// ATTACK + JUMP
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_JUMP_ATTACK, 10, 0, playerSpriteSurface, 80);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_JUMP_ATTACK, 10, 1, playerSpriteSurface, 80);
+    addSpriteFrame(ANIM_TYPE_JUMP_ATTACK, 10, 0, playerSpriteSurface, 80);
 	// ATTACK + WALK
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK_ATTACK, 12, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK_ATTACK, 13, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_WALK_ATTACK, 14, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK_ATTACK, 12, 1, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK_ATTACK, 13, 1, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_WALK_ATTACK, 14, 1, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 12, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 13, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 14, 0, playerSpriteSurface, 150);
 	// HIT
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_HIT, 15, 1, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_HIT, 15, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_HIT, 15, 0, playerSpriteSurface, 150);
 	// TELEPORT
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_TELEPORT, 0, 0, playerSpriteSurface, 750);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_TELEPORT, 1, 0, playerSpriteSurface, 300);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_TELEPORT, 2, 0, playerSpriteSurface, 150);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_TELEPORT, 0, 1, playerSpriteSurface, 750);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_TELEPORT, 1, 1, playerSpriteSurface, 300);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_TELEPORT, 2, 1, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, 0, playerSpriteSurface, 750);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, 0, playerSpriteSurface, 300);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, 0, playerSpriteSurface, 150);
 	// STAIRS
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS, 17, 1, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
 	// stairs semi
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS_SEMI, 18, 0, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS_SEMI, 18, 1, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS_SEMI, 18, 0, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS_SEMI, 18, 1, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS, 17, 1, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, 0, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, 1, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
 	// stairs + move
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS_MOVE, 17, 0, playerSpriteSurface, 200);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS_MOVE, 17, 1, playerSpriteSurface, 200);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS_MOVE, 17, 0, playerSpriteSurface, 200);
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS_MOVE, 17, 1, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_STAIRS_MOVE, 17, 0, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_STAIRS_MOVE, 17, 1, playerSpriteSurface, 200);
 	// stairs + attack
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_STAIRS_ATTACK, 19, 1, playerSpriteSurface, 500);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_STAIRS_ATTACK, 19, 0, playerSpriteSurface, 500);
+    addSpriteFrame(ANIM_TYPE_STAIRS_ATTACK, 19, 0, playerSpriteSurface, 500);
 
     // slide
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_SLIDE, 20, 1, playerSpriteSurface, 1000);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_SLIDE, 20, 0, playerSpriteSurface, 1000);
+    addSpriteFrame(ANIM_TYPE_SLIDE, 20, 0, playerSpriteSurface, 1000);
 
     // throw
-    //addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_THROW, 21, 1, playerSpriteSurface, 1000);
-    //addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_THROW, 21, 0, playerSpriteSurface, 1000);
+    //addSpriteFrame(ANIM_TYPE_THROW, 21, 0, playerSpriteSurface, 1000);
 
 
 	// shield
-	addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_SHIELD, 22, 1, playerSpriteSurface, 100);
-	addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_SHIELD, 22, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_SHIELD, 22, 0, playerSpriteSurface, 100);
 
     // shoot-diagonal-up
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_ATTACK_DIAGONAL_UP, 23, 1, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK_DIAGONAL_UP, 23, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_UP, 23, 0, playerSpriteSurface, 100);
 
     // shoot-diagonal-down
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, 1, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, 0, playerSpriteSurface, 100);
 
     // special-attack
-    addSpriteFrame(ANIM_DIRECTION_LEFT, ANIM_TYPE_SPECIAL_ATTACK, 25, 1, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_SPECIAL_ATTACK, 25, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, 0, playerSpriteSurface, 100);
 
     playerSpriteSurface.freeGraphic();
 }
