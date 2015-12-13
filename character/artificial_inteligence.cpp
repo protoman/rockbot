@@ -925,20 +925,16 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
-    //std::cout << "AI::execute_ai_action_trow_projectile - BEGIN" << std::endl;
-
-    //std::cout << "AI::execute_ai_action_trow_projectile[" << name << "]" << std::endl;
-
+    int projectile_id_temp = GameMediator::get_instance()->get_enemy(_number).projectile_id[n];
+    CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(projectile_id_temp);
     // some projectile types are limited to one
-
-
-    if (GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
+    if (temp_projectile.trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
 
     // can't fire a player's targeted projectile if move_speed zero (can't turn) and facing the wrong side
-    if (move_speed == 0 && (GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT)) {
+    if (move_speed == 0 && (temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT)) {
         struct_player_dist dist_players = dist_npc_players();
         if ((dist_players.pObj->getPosition().x > position.x && state.direction == ANIM_DIRECTION_LEFT) || (dist_players.pObj->getPosition().x < position.x && state.direction == ANIM_DIRECTION_RIGHT)) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -949,17 +945,17 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 
     unsigned int max_shots = 3;
     if (GameMediator::get_instance()->get_enemy(_number).projectile_id[n] != -1) {
-        max_shots = GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).max_shots;
+        max_shots = temp_projectile.max_shots;
     }
     if (projectile_list.size() >= max_shots) {
-        //std::cout << "max_shots[" << GameMediator::get_instance()->get_enemy(_number).projectile_id[n] << "]: " << GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).max_shots << std::endl;
+        //std::cout << "max_shots[" << GameMediator::get_instance()->get_enemy(_number).projectile_id[n] << "]: " << temp_projectile.max_shots << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
 
 
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        //std::cout << "AI::execute_ai_action_trow_projectile - START, id: " << GameMediator::get_instance()->get_enemy(_number).projectile_id[n] << ", trajectory: " << GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory << std::endl;
+        //std::cout << "AI::execute_ai_action_trow_projectile - START, id: " << GameMediator::get_instance()->get_enemy(_number).projectile_id[n] << ", trajectory: " << temp_projectile.trajectory << std::endl;
         if (state.animation_type == ANIM_TYPE_WALK_AIR) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
         } else {
@@ -1018,12 +1014,12 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             projectile_list.push_back(projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n], proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();
 
-            if (GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_CENTERED) {
+            if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
                 temp_proj.set_owner_direction(&state.direction);
                 temp_proj.set_owner_position(&position);
             }
 
-            if (GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n]).trajectory == TRAJECTORY_FOLLOW) {
+            if (temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT || temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_FOLLOW) {
                 if (!is_player() && map->_player_ref != NULL) {
                     character* p_player = map->_player_ref;
                     temp_proj.set_target_position(p_player->get_position_ref());
@@ -1112,6 +1108,9 @@ void artificial_inteligence::execute_ai_step_fly()
                 state.direction = ANIM_DIRECTION_RIGHT;
             }
             _dest_point.x = dist_players.pObj->getPosition().x;
+
+            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::x: " << _dest_point.x << std::endl;
+
             _dest_point.y = position.y;
 
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
@@ -1137,6 +1136,9 @@ void artificial_inteligence::execute_ai_step_fly()
 
     // EXECUTION
 	} else {
+
+        struct_player_dist dist_players = dist_npc_players();
+
         if (state.animation_type == ANIM_TYPE_TURN && have_frame_graphic(state.direction, state.animation_type, (state.animation_state+1)) == false) {
             //std::cout << "*************** artificial_inteligence::execute_ai_step_fly - reached last turn frame, reset to stand" << std::endl;
             if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #9" << std::endl;
@@ -1252,7 +1254,17 @@ void artificial_inteligence::execute_ai_step_fly()
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
-            if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
+
+            if (dist_players.pObj->getPosition().x < position.x) {
+                state.direction = ANIM_DIRECTION_LEFT;
+            } else {
+                state.direction = ANIM_DIRECTION_RIGHT;
+            }
+            _dest_point.x = dist_players.pObj->getPosition().x;
+
+            if (dist_players.dist_xy.x < 2) {
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            } else if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
@@ -1338,8 +1350,6 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
 
     float block_speed_x = speed_x;
     float block_speed_y = speed_y;
-
-    //if (is_stage_boss()) std::cout << "AI::move_to_point - speed_x: " << speed_x << ", block_speed_x: " << block_speed_x << std::endl;
 
     if (can_pass_walls == true) {
         if (_ghost_move_speed_reducer > 0 && speed_x != 0) {
@@ -1459,7 +1469,6 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         return true;
     } else {
         if (can_move_x == true) {
-            //std::cout << ">> artificial_inteligence::move_to_point - xinc" << std::endl;
             position.x += xinc;
         }
         if (can_move_y == true) {
