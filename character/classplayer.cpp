@@ -33,6 +33,9 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 // ********************************************************************************************** //
 classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(WEAPON_DEFAULT), l_key_released(true), r_key_released(true)
 {
+
+    std::cout << "### PLAYER::CREATE::number: " << _number << std::endl;
+
     _number = playerNumber;
     if (_number == 3 || _number == 0) {
         //_obj_jump.set_jump_acceleration(0.95);
@@ -57,6 +60,14 @@ void classPlayer::set_player_name(std::string set_name)
 
 void classPlayer::initialize()
 {
+
+    _number = game_save.selected_player;
+    if (_number == 3 || _number == 0) {
+        //_obj_jump.set_jump_acceleration(0.95);
+        _obj_jump.set_jump_limit(50);
+    }
+
+    std::cout << "### PLAYER::INIT::number: " << _number << std::endl;
 
     max_projectiles = game_data.players[_number].max_shots;
     // it is a player, can't have zero projectiles!!

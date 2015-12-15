@@ -1069,7 +1069,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
     currentStage = STAGE2;
-    game_save.selected_player = PLAYER_ROCKBOT;
+    game_save.selected_player = PLAYER_BETABOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
     } else if (GAME_FLAGS[FLAG_PLAYER_BETABOT]) {
