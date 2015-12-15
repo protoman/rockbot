@@ -88,7 +88,6 @@ void classPlayer::initialize()
     }
     _damage_modifier = game_data.players[_number].damage_modifier;
     update_armor_properties();
-    change_player_color(true);
 }
 
 
@@ -560,6 +559,9 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, 0, playerSpriteSurface, 100);
 
     playerSpriteSurface.freeGraphic();
+
+    change_player_color(true);
+
 }
 
 
