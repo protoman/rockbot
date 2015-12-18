@@ -33,7 +33,7 @@
 
 // ************** CODE AND DEBUG flags ************** //
 #define DEBUG_SHOW_FPS 1
-//#define PS2LOADFROMFIXEDPOINT 1
+#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 #define PS2LINK 1
 #define DEBUG_OUTPUT 1 // will output all DEBUG_COUT messages, comments this out to disable all console output messages
@@ -364,37 +364,13 @@ int main(int argc, char *argv[])
 #ifdef PLAYSTATION2
     std::cout << "PS2.DEBUG #1" << std::endl; std::fflush(stdout);
 
-    #ifndef PS2LINK
-    SifIopReset(NULL, 0); // clean previous loading of irx by apps like ulaunchElf. Comment this line to get cout on ps2link
-    #endif
-
-    printf("DEBUG.PS2 #1.1\n");
-
-	/* SP193: Being creative (Do something while waiting for the slow IOP to be reset). =D */
-	int main_id = GetThreadId();
-    ChangeThreadPriority(main_id, 72);
-    std::cout << "PS2.DEBUG #1.1" << std::endl; std::fflush(stdout);
-    printf("DEBUG.PS2 #1.2\n");
-
-    #ifndef PS2LINK
-    while(SifIopSync()) {
-        std::cout << "PS2.SifIopSync()" << std::endl;
-    }
-    #endif
-	/* Initialize and connect to all SIF services on the IOP. */
-	SifInitRpc(0);
-	SifInitIopHeap();
-	SifLoadFileInit();
-	fioInit();
-    printf("DEBUG.PS2 #1.3\n");
-
-	/* Apply the SBV LMB patch to allow modules to be loaded from a buffer in EE RAM. */
-	sbv_patch_enable_lmb();
+    PS2_init();
 
     // --- DEBUG --- //
     //FILEPATH = "cdfs:/";
     // --- DEBUG --- //
 
+    //PS2_load_xio();
     std::cout << "PS2.DEBUG #2" << std::endl; std::fflush(stdout);
 
     if (FILEPATH.find("mass:") != std::string::npos) {
@@ -409,6 +385,7 @@ int main(int argc, char *argv[])
         FILEPATH = "cdfs:";
         PS2_load_CDROM();
     }
+
     printf("DEBUG.PS2 #2\n");
 
 
