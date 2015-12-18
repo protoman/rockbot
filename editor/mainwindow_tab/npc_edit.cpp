@@ -685,6 +685,8 @@ void npc_edit::on_AddFrame_Button_clicked()
 void npc_edit::on_addEnemy_pushButton_clicked()
 {
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
+    // add equivalent AI for enemy
+    Mediator::get_instance()->ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     ui->npc_edit_tab_selectnpccombo->addItem(QString("[") + QString::number(Mediator::get_instance()->enemy_list.size()-1) + QString("] Enemy Name"));
     ui->npc_edit_tab_graphiccombo->setCurrentIndex(-1);
     ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->enemy_list.size()-1);

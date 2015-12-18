@@ -145,40 +145,52 @@ void artificial_inteligence_tab::fill_data(int index)
 
 void artificial_inteligence_tab::change_action(int index, int action_n)
 {
+
+    std::cout << "AI::change_action - index: " << index << ", action_n: " << action_n << std::endl;
+
+    _filling_data = true;
+
     if (index >= 0) {
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action = action_n;
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].extra_parameter = 0;
     // -1: near-player, -2: hit, -3: dead
     } else if (index == -1) {
-        Mediator::get_instance()->ai_list.at(index).reactions[0].action = action_n;
+        Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).reactions[0].action = action_n;
     } else if (index == -2) {
-        Mediator::get_instance()->ai_list.at(index).reactions[1].action = action_n;
+        Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).reactions[1].action = action_n;
     } else if (index == -3) {
-        Mediator::get_instance()->ai_list.at(index).reactions[2].action = action_n;
+        Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).reactions[2].action = action_n;
     }
-	if (index == 0) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter1);
-	} else if (index == 1) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter2);
-	} else if (index == 2) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter3);
-	} else if (index == 3) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter4);
+
+    std::cout << "### AI::change_action #2 ###" << std::endl;
+
+    if (index == 0) {
+        common::fill_ai_options_combo(action_n, ui->parameter1);
+    } else if (index == 1) {
+        common::fill_ai_options_combo(action_n, ui->parameter2);
+    } else if (index == 2) {
+        common::fill_ai_options_combo(action_n, ui->parameter3);
+    } else if (index == 3) {
+        common::fill_ai_options_combo(action_n, ui->parameter4);
     } else if (index == 4) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter5);
+        common::fill_ai_options_combo(action_n, ui->parameter5);
     } else if (index == 5) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter6);
+        common::fill_ai_options_combo(action_n, ui->parameter6);
     } else if (index == 6) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter7);
+        common::fill_ai_options_combo(action_n, ui->parameter7);
     } else if (index == 7) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action, ui->parameter8);
+        common::fill_ai_options_combo(action_n, ui->parameter8);
     } else if (index == -1) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[0].extra_parameter, ui->near_extra_parameter);
+        common::fill_ai_options_combo(action_n, ui->near_extra_parameter);
     } else if (index == -2) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[1].extra_parameter, ui->hit_extra_parameter);
+        common::fill_ai_options_combo(action_n, ui->hit_extra_parameter);
     } else if (index == -3) {
-        common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[2].extra_parameter, ui->dead_extra_parameter);
+        common::fill_ai_options_combo(action_n, ui->dead_extra_parameter);
     }
+
+    _filling_data = false;
+
+    std::cout << "### AI::change_action #3 ###" << std::endl;
 }
 
 
@@ -587,7 +599,7 @@ void artificial_inteligence_tab::on_near_action_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    change_action(-1, index-1);
+    change_action(-1, index);
 }
 
 void artificial_inteligence_tab::on_hit_action_currentIndexChanged(int index)
@@ -595,7 +607,7 @@ void artificial_inteligence_tab::on_hit_action_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    change_action(-2, index-1);
+    change_action(-2, index);
 }
 
 
@@ -604,7 +616,7 @@ void artificial_inteligence_tab::on_dead_action_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    change_action(-3, index-1);
+    change_action(-3, index);
 }
 
 void artificial_inteligence_tab::on_near_extra_parameter_currentIndexChanged(int index)

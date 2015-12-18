@@ -226,7 +226,10 @@ void common::fill_ai_actions_combo(QComboBox *combo, bool include_null)
 
 void common::fill_ai_options_combo(int action, QComboBox *combo)
 {
+
     combo->clear(); // delete all previous entries
+
+    action--;
 
     std::vector<std::string> list;
 	if (action == AI_ACTION_WALK) {
@@ -247,6 +250,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         list = common::get_npc_names_list();
     } else if (action == AI_ACTION_SHOT_PROJECTILE_1 || action == AI_ACTION_SHOT_PROJECTILE_2) {
         list = AI_ACTION_SHOT_OPTIONS;
+    } else {
+        return;
     }
 
 	// add options
