@@ -8,6 +8,8 @@
 
 #ifdef DREAMCAST
 #include <kos.h>
+#elif PLAYSTATION2
+#include <fileXio_rpc.h>
 #endif
 
 extern std::string FILEPATH;
@@ -373,10 +375,14 @@ namespace format_v4 {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
 
+
         DIR *dir = opendir(filename.c_str());
         struct dirent *entry = readdir(dir);
 
         while (entry != NULL) {
+
+            std::cout << ">>>>>>>>> entry->d_name: " << entry->d_name << std::endl;
+
             std::string dir_name = std::string(entry->d_name);
             if (dir_name != "." && dir_name != "..") {
                 DIR *child_dir;
@@ -393,8 +399,15 @@ namespace format_v4 {
 
         }
         closedir(dir);
+
+#ifdef PLAYSTATION2
+        res.push_back(std::string("Rockbot2"));
+#endif
         return res;
+
     }
+
+
 
     std::vector<std::string> file_io::read_file_list(std::string filename) const
     {

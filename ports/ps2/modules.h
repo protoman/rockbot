@@ -13,6 +13,7 @@
 #include <sbv_patches.h>
 #include <libmc.h>
 #include <libcdvd.h>
+#include <fileXio_rpc.h>
 
 #include "cdvd_rpc.h"
 
@@ -25,6 +26,11 @@ extern unsigned int size_usbhdfsd; /**< TODO */
 // cdfs IRX
 extern unsigned char cdvd[]; /**< TODO */
 extern unsigned int size_cdvd; /**< TODO */
+
+//Declare fileXio module //
+extern unsigned char fileXio[]; /**< TODO */
+extern unsigned int size_fileXio; /**< TODO */
+
 
 // adds support for basic I/O such as MC
 #if 0
@@ -115,5 +121,51 @@ void PS2_load_MC()
 
 }
 
+
+void PS2_load_xio() {
+    int ret;
+
+    std::cout << ">>>>>>>>> PREPARE TO INIT fileXio..." << std::endl;
+    ret = SifExecModuleBuffer(fileXio, size_fileXio, 0, NULL, &ret);
+    if (ret < 0) {
+        std::cout << ">>>>>>>>> LOAD fileXio FAILED!" << std::endl;
+        exit(-1);
+    }
+    std::cout << ">>>>>>>>> fileXio module loaded, ret: " << ret << ". Calling init..." << std::endl;
+
+    fileXioInit();
+    std::cout << ">>>>>>>>> fileXioInit() DONE!" << std::endl;
+
+}
+
+void PS2_init() {
+    #ifndef PS2LINK
+    SifIopReset(NULL, 0); // clean previous loading of irx by apps like ulaunchElf. Comment this line to get cout on ps2link
+    #endif
+
+    printf("DEBUG.PS2 #1.1\n");
+
+    // SP193: Being creative (Do something while waiting for the slow IOP to be reset). =D
+    int main_id = GetThreadId();
+    ChangeThreadPriority(main_id, 72);
+    std::cout << "PS2.DEBUG #1.1" << std::endl; std::fflush(stdout);
+    printf("DEBUG.PS2 #1.2\n");
+
+
+    #ifndef PS2LINK
+    while(SifIopSync()) {
+        std::cout << "PS2.SifIopSync()" << std::endl;
+    }
+    #endif
+    // Initialize and connect to all SIF services on the IOP.
+    SifInitRpc(0);
+    SifInitIopHeap();
+    SifLoadFileInit();
+    fioInit();
+    printf("DEBUG.PS2 #1.3\n");
+
+    // Apply the SBV LMB patch to allow modules to be loaded from a buffer in EE RAM.
+    sbv_patch_enable_lmb();
+}
 
 
