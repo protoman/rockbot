@@ -108,17 +108,17 @@ void artificial_inteligence::check_ai_reaction()
     // near player
     struct_player_dist dist_players = dist_npc_players();
 
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][1].colision_rect.x >= 0) {
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[0].action >= 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
         _reaction_type = 1;
         start_reaction = true;
     // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][2].colision_rect.x >= 0) {
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[1].action >= 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
         _reaction_type = 2;
         start_reaction = true;
     // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][3].colision_rect.x >= 0) {
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[2].action >= 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
         _reaction_type = 3;
         start_reaction = true;
@@ -129,7 +129,7 @@ void artificial_inteligence::check_ai_reaction()
     if (start_reaction == true) {
 
         // do not start a walk-reaction in middle air
-        int react_type = GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.x;
+        int react_type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
         //std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
             return;
@@ -1033,7 +1033,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 
 void artificial_inteligence::execute_ai_step_fly()
 {
-    //if (name == "Giant Fly") std::cout << "AI::execute_ai_step_fly, _parameter: " << _parameter << std::endl;
+    //std::cout << "AI::execute_ai_step_fly, _parameter: " << _parameter << std::endl;
     // INITIALIZATION
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
@@ -1137,7 +1137,6 @@ void artificial_inteligence::execute_ai_step_fly()
     // EXECUTION
 	} else {
 
-        struct_player_dist dist_players = dist_npc_players();
 
         if (state.animation_type == ANIM_TYPE_TURN && have_frame_graphic(state.direction, state.animation_type, (state.animation_state+1)) == false) {
             //std::cout << "*************** artificial_inteligence::execute_ai_step_fly - reached last turn frame, reset to stand" << std::endl;
@@ -1255,16 +1254,24 @@ void artificial_inteligence::execute_ai_step_fly()
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
 
+            struct_player_dist dist_players = dist_npc_players();
+
+            _dest_point.x = dist_players.pObj->getPosition().x;
+
+
+            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X - x: " << position.x << ", p.x: " << dist_players.pObj->getPosition().x << std::endl;
+
             if (dist_players.pObj->getPosition().x < position.x) {
                 state.direction = ANIM_DIRECTION_LEFT;
             } else {
                 state.direction = ANIM_DIRECTION_RIGHT;
             }
-            _dest_point.x = dist_players.pObj->getPosition().x;
 
-            if (dist_players.dist_xy.x < 2) {
+            if (abs(dist_players.pObj->getPosition().x - position.x) < TILESIZE/2) {
+                std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::FINISH #1" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             } else if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
+                std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::FINISH #2" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
@@ -1723,16 +1730,16 @@ void artificial_inteligence::ia_action_teleport()
 int artificial_inteligence::get_ai_type() {
     int type = -1;
 
-    if (_reaction_state == 0) {
+    if (_reaction_state == 0 || GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action == -1) {
         type = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].action;
         _parameter = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].extra_parameter;
         //std::cout << ">> AI::get_ai_type - _ai_id: " << _ai_id << ", _ai_chain_n: " << _ai_chain_n << ", action: " << type << ", extra_parameter: " << _parameter << std::endl;
     } else {
-        type = GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.x;
-        _parameter = GameMediator::get_instance()->get_enemy(_ai_id).sprites[ANIM_TYPE_TELEPORT][_reaction_type].colision_rect.y;
+        type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
+        _parameter = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].extra_parameter;
         //std::cout << ">> AI::execute_ai_step - REACTION-MODE - _ai_id: " << _ai_id << ", _reaction_type: " << _reaction_type << ", type: " << type << ", _parameter: " << _parameter << std::endl;
     }
-    //if (name == "Giant Fly") std::cout << "AI::get_ai_type ==> _current_ai_type: " << _current_ai_type << ", new_type: " << type << ", _parameter: " << _parameter << std::endl;
+    //std::cout << "AI::get_ai_type ==> _current_ai_type: " << _current_ai_type << ", new_type: " << type << ", _parameter: " << _parameter << std::endl;
     return type;
 }
 
