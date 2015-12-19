@@ -383,17 +383,17 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
     copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
 }
 
-void graphicsLib::place_easymode_block_tile(st_position destiny)
+void graphicsLib::place_easymode_block_tile(st_position destiny, graphicsLib_gSurface& surface)
 {
     destiny.x += _screen_adjust.x;
 
-    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), game_screen);
+    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), surface.get_surface());
 }
 
-void graphicsLib::place_hardmode_block_tile(st_position destiny)
+void graphicsLib::place_hardmode_block_tile(st_position destiny, graphicsLib_gSurface &surface)
 {
     destiny.x += _screen_adjust.x;
-    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), game_screen);
+    copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), surface.get_surface());
 }
 
 void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, struct graphicsLib_gSurface* dest_surface)

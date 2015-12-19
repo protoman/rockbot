@@ -197,10 +197,10 @@ void classMap::showMap()
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
                 pos_destiny.y = j*TILESIZE;
-                graphLib.place_easymode_block_tile(pos_destiny);
+                graphLib.place_easymode_block_tile(pos_destiny, graphLib.gameScreen);
             } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDCODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
                 pos_destiny.y = j*TILESIZE;
-                graphLib.place_hardmode_block_tile(pos_destiny);
+                graphLib.place_hardmode_block_tile(pos_destiny, graphLib.gameScreen);
             } else {
                 pos_origin.x = map_data[number].tiles[i][j].tile1.x;
                 pos_origin.y = map_data[number].tiles[i][j].tile1.y;
@@ -1083,7 +1083,6 @@ graphicsLib_gSurface classMap::get_map_area_surface()
     }
 
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, mapSurface);
-    //draw_dynamic_backgrounds();
 
     draw_dynamic_backgrounds_into_surface(mapSurface);
 
@@ -1097,10 +1096,38 @@ graphicsLib_gSurface classMap::get_map_area_surface()
         int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
         pos_destiny.x = n*TILESIZE - diff;
         for (int j=0; j<MAP_H; j++) {
+            /*
             pos_origin.x = map_data[number].tiles[i][j].tile1.x;
             pos_origin.y = map_data[number].tiles[i][j].tile1.y;
             pos_destiny.y = j*TILESIZE;
             graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
+            */
+
+
+            // don't draw easy-mode blocks if game difficulty not set to easy
+            game_save.difficulty = DIFFICULTY_HARD;
+
+            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_easymode_block_tile(pos_destiny, mapSurface);
+            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDCODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_hardmode_block_tile(pos_destiny, mapSurface);
+            } else {
+                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+
+                if (pos_origin.x >= 0 && pos_origin.y >= 0) {
+                    pos_destiny.y = j*TILESIZE;
+                    graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
+                } else if (pos_origin.x < -1 && pos_origin.y == 0) {
+                    int anim_tile_id = (pos_origin.x * -1) - 2;
+                    pos_destiny.y = j*TILESIZE;
+                    graphLib.place_anim_tile(anim_tile_id, pos_destiny, &mapSurface);
+                }
+            }
+
+
         }
         n++;
     }

@@ -869,13 +869,15 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
         link_map_origin = Mediator::get_instance()->currentMap;
 		link_pos_x = tempX;
 		link_pos_y = tempY;
+
+
 		int tempSize = abs(editor_selectedTileX - tempX);
 		if (tempSize < 1 || tempSize > 20) {
 			link_size = 1;
 		} else {
-			link_size = abs(editor_selectedTileX - tempX) + 1;
+            link_size = abs(editor_selectedTileX - tempX);
 		}
-		printf(">>>>>>>> added link in map: %d, pos: (%d, %d) with size: %d <<<<<<<<<<\n", link_map_origin, link_pos_x, link_pos_y, link_size);
+        //printf(">>>>>>>> added link in map: %d, pos: (%d, %d) with size: %d <<<<<<<<<<\n", link_map_origin, link_pos_x, link_pos_y, link_size);
 
 		tempX = -1;
 		tempY = -1;

@@ -96,9 +96,9 @@ public:
 
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
 
-    void place_easymode_block_tile(st_position destiny);
+    void place_easymode_block_tile(st_position destiny, graphicsLib_gSurface &surface);
 
-    void place_hardmode_block_tile(st_position destiny);
+    void place_hardmode_block_tile(st_position destiny, graphicsLib_gSurface &surface);
 
 
     void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);
