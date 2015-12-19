@@ -140,7 +140,7 @@ void classMap::loadMap()
 	for (int i=0; i<MAP_W; i++) {
 		column_locked = true;
 		for (int j=0; j<MAP_H; j++) {
-            if (map_data[number].tiles[i][j].locked != 1 && map_data[number].tiles[i][j].locked != TERRAIN_DOOR && map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK) {
+            if (map_data[number].tiles[i][j].locked != TERRAIN_SOLID && map_data[number].tiles[i][j].locked != TERRAIN_DOOR && map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK && map_data[number].tiles[i][j].locked != TERRAIN_ICE && map_data[number].tiles[i][j].locked != TERRAIN_SPIKE) {
 				column_locked = false;
 				break;
 			}
