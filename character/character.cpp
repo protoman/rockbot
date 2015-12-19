@@ -264,32 +264,39 @@ void character::charMove() {
     }
 
     // Ice inertia
-    if (bottom_point_lock == TERRAIN_ICE || (_inertia_obj.is_started() && (bottom_point_lock == BLOCK_UNBLOCKED || bottom_point_lock == BLOCK_WATER))) {
+    if (bottom_point_lock == TERRAIN_ICE || (_inertia_obj.is_started() && (bottom_point_lock == TERRAIN_UNBLOCKED|| bottom_point_lock == TERRAIN_WATER))) {
+
         if (moved == true) {
             _inertia_obj.start();
         } else if (moveCommands.left == 0 && moveCommands.right == 0) {
             int inertia_xinc = _inertia_obj.execute();
             if (inertia_xinc != 0) {
                 if (state.direction == ANIM_DIRECTION_LEFT) {
-                    if (position.x-inertia_xinc < 0) {
+                    if (position.x - inertia_xinc < 0) {
+                        std::cout << "INERTIA::STOP #1" << std::endl;
                         _inertia_obj.stop();
                     } else {
                         st_map_colision map_col = map_colision(-inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            //std::cout << "inertia -1, pos.x: " << position.x << std::endl;
+                            std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x -= inertia_xinc;
+                        } else {
+                            std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 } else {
                     if (realPosition.x+inertia_xinc > RES_W) {
+                        std::cout << "INERTIA::STOP #2" << std::endl;
                         _inertia_obj.stop();
                     } else {
                         st_map_colision map_col = map_colision(inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            //std::cout << "inertia +1, inertia_xinc: " << inertia_xinc << ", pos.x: " << position.x << std::endl;
+                            std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x += inertia_xinc;
+                        } else {
+                            std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 }
@@ -299,11 +306,13 @@ void character::charMove() {
             gameControl.update_stage_scrolling();
         }
         char_update_real_position();
-    } else if (bottom_point_lock != BLOCK_WATER) {
+    } else if (bottom_point_lock != TERRAIN_WATER) {
+        //std::cout << "INERTIA::STOP #3, bottom_point_lock: " << bottom_point_lock << std::endl;
         _inertia_obj.stop();
     }
 
     if (_obj_jump.is_started() == true) {
+        std::cout << "INERTIA::STOP #4" << std::endl;
         _inertia_obj.stop();
     }
 
