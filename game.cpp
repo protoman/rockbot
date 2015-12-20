@@ -683,7 +683,6 @@ void game::remove_players_slide()
 
 //TRANSITION_TOP_TO_BOTTOM, TRANSITION_BOTTOM_TO_TOP
 void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj) {
-    timer.pause();
 	graphicsLib_gSurface temp_screen;
     short i = 0;
     graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
@@ -776,8 +775,6 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
     temp_screen.freeGraphic();
 	pObj->set_teleporter(-1);
 	pObj->char_update_real_position();
-    timer.unpause();
-
 }
 
 
@@ -794,7 +791,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 		scroll_move.x = 2;
 	}
 
-    timer.pause();
 	if (is_door == true) {
         remove_all_projectiles();
         remove_players_slide();
@@ -851,7 +847,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         player1.cancel_slide();
     }
 	input.waitTime(6);
-    timer.unpause();
     loaded_stage.showStage();
 }
 

@@ -104,6 +104,11 @@ void character::charMove() {
 	bool moved = false;
     float temp_move_speed = move_speed;
 
+    if (timer.is_paused() == true) {
+        return;
+    }
+
+
     bool did_hit_ground = hit_ground();
 
     if (_dashed_jump == true) {
@@ -279,24 +284,24 @@ void character::charMove() {
                         st_map_colision map_col = map_colision(-inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
+                            //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x -= inertia_xinc;
-                        } else {
-                            std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
+                        //} else {
+                            //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 } else {
                     if (realPosition.x+inertia_xinc > RES_W) {
-                        std::cout << "INERTIA::STOP #2" << std::endl;
+                        //std::cout << "INERTIA::STOP #2" << std::endl;
                         _inertia_obj.stop();
                     } else {
                         st_map_colision map_col = map_colision(inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
+                            //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x += inertia_xinc;
-                        } else {
-                            std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
+                        //} else {
+                            //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 }
@@ -307,12 +312,10 @@ void character::charMove() {
         }
         char_update_real_position();
     } else if (bottom_point_lock != TERRAIN_WATER) {
-        //std::cout << "INERTIA::STOP #3, bottom_point_lock: " << bottom_point_lock << std::endl;
         _inertia_obj.stop();
     }
 
     if (_obj_jump.is_started() == true) {
-        std::cout << "INERTIA::STOP #4" << std::endl;
         _inertia_obj.stop();
     }
 
@@ -749,6 +752,9 @@ void character::consume_projectile()
 // ********************************************************************************************** //
 void character::show() {
 
+    if (timer.is_paused() == true) {
+        return;
+    }
 
 
 	// update real position
@@ -793,7 +799,9 @@ void character::show() {
 
 void character::show_sprite()
 {
-    //if (is_player()) std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
+    if (name == "Snow Bear") std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
+
+
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
 
 		// change animation state to next frame
@@ -833,11 +841,8 @@ void character::show_sprite()
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
             int delay = (character_graphics_list.find(name)->second)[direction][state.animation_type][state.animation_state].delay;
-            //if (is_player()) std::cout << "character::show_sprite - delay: " << delay << std::endl;
             state.animation_timer = timer.getTimer() + delay;
         }
-        //std::cout << "char: " << name << ", delay: " << (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay << "\n";
-        //state.animation_timer = timer.getTimer() + 200;
     }
 }
 
@@ -2294,11 +2299,11 @@ void character::clean_projectiles()
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
 {
 
-    std::cout << "CHAR::DAMAGE::START" << std::endl;
+    //std::cout << "CHAR::DAMAGE::START" << std::endl;
 
     UNUSED(ignore_hit_timer);
 	if (is_player() && GAME_FLAGS[FLAG_INVENCIBLE] == true) {
-        std::cout << "CHAR::DAMAGE::LEAVE #1" << std::endl;
+        //std::cout << "CHAR::DAMAGE::LEAVE #1" << std::endl;
 		return;
 	}
     if (game_save.difficulty == DIFFICULTY_HARD && is_player() == false) {
@@ -2315,19 +2320,16 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 	//std::cout << "1. character::damage - damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
 
 	if (hitPoints.current <= 0) { /// already dead
-        std::cout << "CHAR::DAMAGE::LEAVE #2" << std::endl;
 		return;
 	}
 
     if (state.frozen == true && is_player()) {
-        std::cout << "CHAR::damage - is_player, remove frozen" << std::endl;
         state.frozen_timer = 0;
 		state.frozen = false;
 	}
 
 	unsigned int now_timer = timer.getTimer();
     if (now_timer < hit_duration+last_hit_time) { /// is still intangible from last hit
-        std::cout << "CHAR::DAMAGE::LEAVE #3" << std::endl;
         return;
     }
 
