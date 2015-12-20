@@ -320,16 +320,19 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
 // ********************************************************************************************** //
 void classMap::changeScrolling(st_position pos, bool check_lock)
 {
-    //std::cout << "classMap::changeScrolling - x-inc: " << pos.x << ", scroll.x/TILESIZE: " << (scroll.x/TILESIZE) << ", RES_W/TILESIZE: " << (RES_W/TILESIZE) << ", MAP_W: " << MAP_W << std::endl;
-	if (pos.x != 0) {
-		//scrolled = pos;
-	}
+
+    if (timer.is_paused() == true) {
+        return;
+    }
+
+    std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
+
+
     float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
     float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
 
 	// moving player to right, screen to left
 	if (pos.x > 0 && ((scroll.x/TILESIZE+RES_W/TILESIZE)-1 < MAP_W)) {
-		//std::cout << "classMap::changeScrolling - MUST SCROLL #1" << std::endl;
         int x_change = pos.x;
 		if (pos.x >= TILESIZE) { // if change is too big, do not update (TODO: must check all wall until lock)
             x_change = 1;

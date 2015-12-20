@@ -116,10 +116,10 @@ void game::showGame(bool can_characters_move)
         return;
     }
 
-    update_stage_scrolling();
-
-
-    loaded_stage.move_objects();
+    if (timer.is_paused() == false) {
+        update_stage_scrolling();
+        loaded_stage.move_objects();
+    }
 
     if (_dark_mode == false) {
         loaded_stage.showStage();
@@ -1082,6 +1082,9 @@ void game::quick_load_game()
 
 void game::update_stage_scrolling()
 {
+    if (timer.is_paused() == true) {
+        return;
+    }
     loaded_stage.changeScrolling(checkScrolling());
     st_position p_pos = player1.get_real_position();
     //std::cout << "p_pos.x: " << p_pos.x << std::endl;

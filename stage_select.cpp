@@ -181,7 +181,7 @@ struct st_position stage_select::select() {
 
 	graphLib.copyArea(st_position(0, 0), &background, &graphLib.gameScreen);
 
-    int stage_n = 0;
+    int stage_n = 1;
     for (int i=0; i<=2; i++) {
         for (int j=0; j<=2; j++) {
             if (i == 1 && j == 1) {

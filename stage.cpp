@@ -33,6 +33,8 @@ stage::stage(int setStageN, classPlayer* set_player_ref)
     }
     graphLib.loadTileset(tileset_name);
 
+    autoscroll_timer = 0;
+
     _player_ref = set_player_ref;
 }
 
@@ -116,7 +118,12 @@ void stage::changeScrolling(st_position pos, bool check_lock)
 {
     // debug for autoscrolling test
     if (stage_data.autoscroll == true) {
-        pos.x = 1;
+        if (timer.is_paused() == false && autoscroll_timer < timer.getTimer()) {
+            autoscroll_timer = timer.getTimer()+20;
+            pos.x = 1;
+        } else {
+            pos.x = 0;
+        }
     }
     maps[currentMap].changeScrolling(pos, check_lock);
 }

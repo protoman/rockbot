@@ -181,6 +181,7 @@ private:
     Sint8 number;
     Uint8 currentMap;
     classPlayer* _player_ref;
+    unsigned int autoscroll_timer;
 };
 
 #endif // STAGE_H
