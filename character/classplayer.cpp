@@ -503,60 +503,59 @@ void classPlayer::initFrames()
     // @TODO - automatically add inverse direction (right) sprites
 
 	// STAND
-    addSpriteFrame(ANIM_TYPE_STAND, 3, 0, playerSpriteSurface, 5000);
-    addSpriteFrame(ANIM_TYPE_STAND, 4, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_STAND, 3, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAND, 4, playerSpriteSurface, 150);
 	// WALK
-    addSpriteFrame(ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_TYPE_WALK, 8, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_TYPE_WALK, 7, 0, playerSpriteSurface, WALK_FRAME_DELAY);
-    addSpriteFrame(ANIM_TYPE_WALK, 6, 0, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 7, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 8, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 7, playerSpriteSurface, WALK_FRAME_DELAY);
+    addSpriteFrame(ANIM_TYPE_WALK, 6, playerSpriteSurface, WALK_FRAME_DELAY);
 
 	// JUMP
-    addSpriteFrame(ANIM_TYPE_JUMP, 9, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_JUMP, 9, playerSpriteSurface, 150);
 	// ATTACK
-    addSpriteFrame(ANIM_TYPE_ATTACK, 11, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_ATTACK, 11, playerSpriteSurface, 150);
 	// ATTACK + JUMP
-    addSpriteFrame(ANIM_TYPE_JUMP_ATTACK, 10, 0, playerSpriteSurface, 80);
+    addSpriteFrame(ANIM_TYPE_JUMP_ATTACK, 10, playerSpriteSurface, 80);
 	// ATTACK + WALK
-    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 12, 0, playerSpriteSurface, 150);
-    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 13, 0, playerSpriteSurface, 150);
-    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 14, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 12, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 13, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 14, playerSpriteSurface, 150);
 	// HIT
-    addSpriteFrame(ANIM_TYPE_HIT, 15, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 150);
 	// TELEPORT
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, 0, playerSpriteSurface, 750);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, 0, playerSpriteSurface, 300);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, 0, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 750);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 300);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, playerSpriteSurface, 150);
 	// STAIRS
-    addSpriteFrame(ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS, 17, playerSpriteSurface, 5000);
 	// stairs semi
-    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, 0, playerSpriteSurface, 5000);
-    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, 1, playerSpriteSurface, 5000);
-    addSpriteFrame(ANIM_TYPE_STAIRS, 17, 0, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, playerSpriteSurface, 5000);
+    addSpriteFrame(ANIM_TYPE_STAIRS, 17, playerSpriteSurface, 5000);
 	// stairs + move
-    addSpriteFrame(ANIM_TYPE_STAIRS_MOVE, 17, 0, playerSpriteSurface, 200);
-    addSpriteFrame(ANIM_TYPE_STAIRS_MOVE, 17, 1, playerSpriteSurface, 200);
-	// stairs + attack
-    addSpriteFrame(ANIM_TYPE_STAIRS_ATTACK, 19, 0, playerSpriteSurface, 500);
+    addSpriteFrame(ANIM_TYPE_STAIRS_MOVE, 17, playerSpriteSurface, 200);
+    // stairs + attack
+    addSpriteFrame(ANIM_TYPE_STAIRS_ATTACK, 19, playerSpriteSurface, 500);
 
     // slide
-    addSpriteFrame(ANIM_TYPE_SLIDE, 20, 0, playerSpriteSurface, 1000);
+    addSpriteFrame(ANIM_TYPE_SLIDE, 20, playerSpriteSurface, 1000);
 
     // throw
     //addSpriteFrame(ANIM_TYPE_THROW, 21, 0, playerSpriteSurface, 1000);
 
 
 	// shield
-    addSpriteFrame(ANIM_TYPE_SHIELD, 22, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_SHIELD, 22, playerSpriteSurface, 100);
 
     // shoot-diagonal-up
-    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_UP, 23, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_UP, 23, playerSpriteSurface, 100);
 
     // shoot-diagonal-down
-    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, playerSpriteSurface, 100);
 
     // special-attack
-    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, 0, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, playerSpriteSurface, 100);
 
     playerSpriteSurface.freeGraphic();
 
@@ -681,7 +680,6 @@ void classPlayer::execute_projectiles()
                     std::cout << "PLAYER::EXECUTE_PROJ - projectile damage is zero" << std::endl;
                 }
                 if ((*it).get_damage() > 0) {
-                    std::cout << "PROJ::END #5" << std::endl;
                     (*it).consume_projectile();
                     soundManager.play_sfx(SFX_NPC_HIT);
                 }

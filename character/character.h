@@ -163,7 +163,7 @@ public:
      * @param
      * @param int
      */
-    void addSpriteFrame(int, int, int, graphicsLib_gSurface&, int);
+    void addSpriteFrame(int, int, graphicsLib_gSurface&, int);
     /**
      * @brief
      *

@@ -756,7 +756,6 @@ void character::show() {
         return;
     }
 
-
 	// update real position
 	char_update_real_position();
     if (!is_player() && is_on_visible_screen() == false) {
@@ -799,8 +798,7 @@ void character::show() {
 
 void character::show_sprite()
 {
-    if (name == "Snow Bear") std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
-
+    //if (name == "Snow Bear") std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
 
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
 
@@ -1855,14 +1853,16 @@ bool character::is_on_teleporter_capsulse(object *object)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void character::addSpriteFrame(int anim_type, int posX, int posY, graphicsLib_gSurface &spritesSurface, int delay)
+void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &spritesSurface, int delay)
 {
 	struct st_rectangle spriteArea;
 
 	spriteArea.x = posX*frameSize.width;
-    spriteArea.y = posY*frameSize.height;
+    spriteArea.y = 0;
 	spriteArea.w = frameSize.width;
     spriteArea.h = frameSize.height;
+
+    // ANIM_TYPE_STAIRS_MOVE and ANIM_TYPE_STAIRS_SEMI have an extra frame that is the mirror of the first one
 
     if (is_player()) std::cout << "delay: " << delay << std::endl;
 
@@ -1873,19 +1873,32 @@ void character::addSpriteFrame(int anim_type, int posX, int posY, graphicsLib_gS
                 st_spriteFrame *sprite = &(character_graphics_list.find(name)->second)[anim_direction][anim_type][i];
                 graphicsLib_gSurface gsurface = graphLib.surfaceFromRegion(spriteArea, spritesSurface);
 
+                // RIGHT
                 if (anim_direction != 0) {
                     sprite->setSurface(gsurface);
+                // LEFT
                 } else {
-
                     graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
-
-
                     sprite->setSurface(gsurface_flip);
                 }
 
 
                 (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].frameSurface.init_colorkeys();
                 (character_graphics_list.find(name)->second)[anim_direction][anim_type][i].delay = delay;
+
+                if (anim_type == ANIM_TYPE_STAIRS_MOVE || anim_type == ANIM_TYPE_STAIRS_SEMI) {
+                    st_spriteFrame *sprite = &(character_graphics_list.find(name)->second)[anim_direction][anim_type][i+1];
+                    if (anim_direction != 0) {
+                        graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
+                        sprite->setSurface(gsurface_flip);
+                    } else {
+                        sprite->setSurface(gsurface);
+                    }
+                    (character_graphics_list.find(name)->second)[anim_direction][anim_type][i+1].frameSurface.init_colorkeys();
+                    (character_graphics_list.find(name)->second)[anim_direction][anim_type][i+1].delay = delay;
+                }
+
+
                 break;
             }
         }

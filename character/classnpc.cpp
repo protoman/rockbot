@@ -177,7 +177,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         for (int i=0; i<ANIM_TYPE_COUNT; i++) {
             for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
                 if (GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].used == true) {
-                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, 0, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
+                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
                 }
             }
         }
