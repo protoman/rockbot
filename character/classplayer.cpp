@@ -1193,12 +1193,17 @@ void classPlayer::reset_charging_shot()
     state.attack_timer = 0;
     attack_button_released = true;
     soundManager.stop_repeated_sfx();
+
+    change_player_color(true);
+
+    /*
     if (color_keys[0].r != -1) {
         change_char_color(0, color_keys[0], true);
     }
     if (color_keys[1].r != -1) {
         change_char_color(1, color_keys[1], true);
     }
+    */
     // also reset slide/dash
     if (state.animation_type == ANIM_TYPE_SLIDE) {
         set_animation_type(ANIM_TYPE_WALK);
