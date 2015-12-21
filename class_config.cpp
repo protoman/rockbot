@@ -336,11 +336,11 @@ bool class_config::execute_ingame_menu()
         }
         ingame_menu_active = !ingame_menu_active;
 
+        input.clean();
+        input.waitTime(300);
+
         if (ingame_menu_active) {
-            input.p1_input[BTN_START] = 0;
             gameControl.game_pause();
-            input.clean();
-            input.waitTime(300);
             generate_weapons_matrix();
             draw_ingame_menu();
         } else {
