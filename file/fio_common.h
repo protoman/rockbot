@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <stdio.h>
 
 extern std::string FILEPATH;
 
