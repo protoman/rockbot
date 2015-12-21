@@ -172,6 +172,8 @@ bool dialogs::show_leave_game_dialog() const
 
     gameControl.game_pause();
 
+    input.clean();
+
     graphicsLib_gSurface bgCopy;
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bgCopy);

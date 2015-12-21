@@ -328,6 +328,10 @@ bool class_config::execute_ingame_menu()
 
 
     if (input.p1_input[BTN_START] == 1) {
+
+        input.clean();
+        input.waitTime(300);
+
         // leaving menu, removes pause
         if (ingame_menu_active == true) {
             gameControl.game_unpause();
@@ -336,8 +340,6 @@ bool class_config::execute_ingame_menu()
         }
         ingame_menu_active = !ingame_menu_active;
 
-        input.clean();
-        input.waitTime(300);
 
         if (ingame_menu_active) {
             gameControl.game_pause();
@@ -395,6 +397,7 @@ bool class_config::execute_ingame_menu()
         input.clean();
         input.waitTime(MENU_CHANGE_DELAY);
     }
+
     return ingame_menu_active;
 }
 

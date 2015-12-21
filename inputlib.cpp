@@ -46,7 +46,9 @@ void inputLib::change_joystick()
 void inputLib::clean()
 {
 	for (int i=0; i<BTN_COUNT; i++) {
-		p1_input[i] = 0;
+        if (i != BTN_ATTACK) { // don't clean attack to save charging
+            p1_input[i] = 0;
+        }
 	}
     while (SDL_PollEvent(&event)) {
         SDL_PumpEvents(); // check keyboard events

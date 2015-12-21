@@ -937,9 +937,6 @@ void classPlayer::change_player_color(bool full_change)
 void classPlayer::save_input()
 {
     saved_move_commands = moveCommands;
-    for (int i=0; i<BTN_COUNT; i++) {
-        saved_input[i] = input.p1_input[i];
-    }
     std::cout << "PLAYER::save_input::ATTACK: " << moveCommands.attack << ", BTN-ATTACK: " << (int)saved_input[BTN_ATTACK] << std::endl;
 }
 
@@ -947,9 +944,6 @@ void classPlayer::restore_input()
 {
     std::cout << "PLAYER::restore_input::OLD-ATTACK: " << saved_move_commands.attack << std::endl;
     moveCommands = saved_move_commands;
-    for (int i=0; i<BTN_COUNT; i++) {
-        input.p1_input[i] = saved_input[i];
-    }
     std::cout << "PLAYER::restore_input::ATTACK: " << moveCommands.attack << ", BTN-ATTACK: " << (int)input.p1_input[BTN_ATTACK] << std::endl;
 }
 
