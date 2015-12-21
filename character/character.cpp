@@ -467,6 +467,7 @@ void character::clear_move_commands()
 	moveCommands.down = 0;
 	moveCommands.left = 0;
 	moveCommands.right = 0;
+    //std::cout << ">>> moveCommands.attack::RESET #3" << std::endl;
 	moveCommands.attack = 0;
 	moveCommands.jump = 0;
     moveCommands.start = 0;
@@ -499,6 +500,10 @@ void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool ful
 /// @TODO: this must be moved to player, as character attack must be very simple
 void character::attack(bool dont_update_colors, short updown_trajectory, bool auto_charged)
 {
+
+    if (timer.is_paused()) {
+        return;
+    }
 
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         //std::cout << "character::attack - LEAVE #1" << std::endl;

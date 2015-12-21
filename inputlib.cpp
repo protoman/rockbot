@@ -51,7 +51,6 @@ void inputLib::clean()
     while (SDL_PollEvent(&event)) {
         SDL_PumpEvents(); // check keyboard events
     }
-
 }
 
 
@@ -82,6 +81,7 @@ void inputLib::readInput()
             } else if (event.type == SDL_KEYUP) {
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
+                        if (i == BTN_ATTACK) std::cout << "INPUT::readInput::KEYUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         _used_keyboard = true;
                         if (i == BTN_JUMP) {
@@ -119,6 +119,7 @@ void inputLib::readInput()
                 //std::cout << "#2 INPUT::readInput - joystick button[" << event.jbutton.button << "] released" << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.button_codes[i] != -1 && game_config.button_codes[i] == event.jbutton.button) {
+                        if (i == BTN_ATTACK) std::cout << "INPUT::readInput::BUTTONUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = 0;

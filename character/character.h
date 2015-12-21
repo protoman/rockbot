@@ -681,6 +681,8 @@ protected:
     st_position realPosition;
     unsigned int last_execute_time;
     struct st_characterMovements moveCommands;
+    struct st_characterMovements saved_move_commands;
+    Uint8 saved_input[BTN_COUNT];
 
 	// characteristics members
     float accel_speed_y; // used for acceleration in jump/gravity

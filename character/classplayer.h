@@ -134,6 +134,9 @@ public:
      */
     void change_player_color(bool full_change);
 
+    // to be used when game is paused
+    void save_input();
+    void restore_input();
 
 private:
     /**

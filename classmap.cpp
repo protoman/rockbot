@@ -325,8 +325,7 @@ void classMap::changeScrolling(st_position pos, bool check_lock)
         return;
     }
 
-    std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
-
+    //std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
 
     float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
     float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;

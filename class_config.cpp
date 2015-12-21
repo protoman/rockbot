@@ -328,16 +328,19 @@ bool class_config::execute_ingame_menu()
 
 
     if (input.p1_input[BTN_START] == 1) {
-        input.clean();
-        input.waitTime(300);
         // leaving menu, removes pause
         if (ingame_menu_active == true) {
-            timer.unpause();
+            gameControl.game_unpause();
+            ingame_menu_active = !ingame_menu_active;
+            return ingame_menu_active;
         }
         ingame_menu_active = !ingame_menu_active;
 
         if (ingame_menu_active) {
-            timer.pause();
+            input.p1_input[BTN_START] = 0;
+            gameControl.game_pause();
+            input.clean();
+            input.waitTime(300);
             generate_weapons_matrix();
             draw_ingame_menu();
         } else {
@@ -368,7 +371,7 @@ bool class_config::execute_ingame_menu()
         } else if (input.p1_input[BTN_R] == 1) {
             if (gameControl.show_config(game_save.stages[gameControl.currentStage]) == true) { // player picked "leave stage" option
                 ingame_menu_active = false;
-                timer.unpause();
+                gameControl.game_unpause();
                 return true;
             }
             draw_ingame_menu();

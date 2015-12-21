@@ -17,6 +17,9 @@ extern draw draw_lib;
 extern timerLib timer;
 
 
+#include "game.h"
+extern game gameControl;
+
 #include "graphic/option_picker.h"
 #include "strings_map.h"
 
@@ -135,7 +138,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
         return;
     }
 
-    timer.pause();
+    gameControl.game_pause();
 
 	draw_dialog_bg(show_btn);
     draw_lib.update_screen();
@@ -157,7 +160,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 	}
 
     input.wait_keypress();
-    timer.unpause();
+    gameControl.game_unpause();
 
 }
 
@@ -167,7 +170,7 @@ bool dialogs::show_leave_game_dialog() const
     bool repeat_menu = true;
     int picked_n = -1;
 
-    timer.pause();
+    gameControl.game_pause();
 
     graphicsLib_gSurface bgCopy;
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
@@ -198,7 +201,7 @@ bool dialogs::show_leave_game_dialog() const
     input.waitTime(200);
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
-    timer.unpause();
+    gameControl.game_unpause();
 
     return res;
 }
@@ -209,7 +212,7 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 	std::string temp_text;
 	char temp_char;
 
-    timer.pause();
+    gameControl.game_pause();
 
 	draw_dialog_bg(show_btn);
     draw_lib.update_screen();
@@ -230,7 +233,7 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 		}
 	}
     input.waitTime(delay);
-    timer.unpause();
+    gameControl.game_unpause();
 }
 
 

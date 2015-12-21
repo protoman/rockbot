@@ -843,7 +843,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     if (is_door == true) {
         soundManager.play_sfx(SFX_DOOR_OPEN);
         loaded_stage.redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, player1.get_number());
-        player1.reset_charging_shot();
+        //player1.reset_charging_shot();
         player1.cancel_slide();
     }
 	input.waitTime(6);
@@ -985,6 +985,20 @@ void game::leave_stage()
     checkpoint.map_scroll_x = 0;
     checkpoint.reset();
     start_stage();
+}
+
+void game::game_pause()
+{
+    timer.pause();
+    // @TODO - save-player-input
+    player1.save_input();
+}
+
+void game::game_unpause()
+{
+    timer.unpause();
+    input.readInput();
+    player1.restore_input();
 }
 
 void game::exit_game()

@@ -98,7 +98,8 @@ public:
      */
     void leave_stage();
 
-
+    void game_pause();
+    void game_unpause();
 
     /**
      * @brief
