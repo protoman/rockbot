@@ -84,6 +84,8 @@ void artificial_inteligence::execute_ai()
         } else {
             _ai_timer = timer.getTimer() + 200;
         }
+
+        //std::cout << ">> SET INITIAL #2 <<" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
         define_ai_next_step();
     } else {
@@ -108,17 +110,17 @@ void artificial_inteligence::check_ai_reaction()
     // near player
     struct_player_dist dist_players = dist_npc_players();
 
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[0].action >= 0) {
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[0].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
         _reaction_type = 1;
         start_reaction = true;
     // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[1].action >= 0) {
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[1].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
         _reaction_type = 2;
         start_reaction = true;
     // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[2].action >= 0) {
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[2].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
         _reaction_type = 3;
         start_reaction = true;
@@ -130,11 +132,14 @@ void artificial_inteligence::check_ai_reaction()
 
         // do not start a walk-reaction in middle air
         int react_type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
-        //std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
+        react_type--;
+        std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
             return;
         }
         _reaction_state = 1;
+
+        //std::cout << ">> SET INITIAL #3 <<" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
         _ai_timer = timer.getTimer(); // start now, ignoring delay
         _current_ai_type = get_ai_type();
@@ -146,29 +151,32 @@ void artificial_inteligence::define_ai_next_step()
     if (_initialized == false || GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
         _initialized = true;
         int rand_n = rand() % 100;
-        if (name == "Giant Fly") std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+
+        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+
         bool found_chance = false;
         int chance_sum = 0;
         for (int i=0; i<AI_MAX_STATES; i++) {
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
             if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
             }
         }
         if (found_chance == false) {
-            //std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
+            std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
             _ai_chain_n = 0;
         }
     } else {
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
-        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+        std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
-    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
 
@@ -329,12 +337,14 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
     }
 
     if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_INITIAL) {
-        //std::cout << "AI::ia_action_jump_to_point - START" << std::endl;
+        std::cout << "AI::ia_action_jump_to_point - START. position.x: " << position.x << ", point.x: " << point.x << std::endl;
         int jump_dist = abs(position.x - point.x);
         if (jump_dist < TILESIZE/2) { // avoid too short jumps
             std::cout << "AI::ia_action_jump_to_point - jump is too short (" << jump_dist << ")" << std::endl;
             _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
             return;
+        } else {
+            std::cout << "AI::ia_action_jump_to_point - jump_dist: " << jump_dist << std::endl;
         }
         if (position.x < point.x) {
             state.direction = ANIM_DIRECTION_RIGHT;
@@ -453,12 +463,13 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                     if (can_move_y == true) {
                         yinc = i;
                         found_point = true;
+                        std::cout << "AI::ia_action_jump_to_point - Ffound move-point, yinc: " << yinc << std::endl;
                         break;
                     }
                 }
             }
             if (found_point == false) {
-                //std::cout << "AI::ia_action_jump_to_point - FINISHED #3 (hit-ground)" << std::endl;
+                std::cout << "AI::ia_action_jump_to_point - FINISHED #3 (hit-ground). xinc: " << xinc << std::endl;
                 if (_trajectory_parabola != NULL) {
                     delete _trajectory_parabola;
                 }
@@ -506,7 +517,7 @@ void artificial_inteligence::ia_action_jump_to_random()
 void artificial_inteligence::ia_action_jump_ahead()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        //std::cout << "AI::ia_action_jump_ahead::INIT" << std::endl;
+        std::cout << "AI::ia_action_jump_ahead::INIT" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             _origin_point.x = position.x - frameSize.width/2 - walk_range;
             _dest_point.x = position.x - TILESIZE*4;
@@ -541,6 +552,7 @@ void artificial_inteligence::ia_action_jump_ahead()
 void artificial_inteligence::ia_action_jump_once()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        std::cout << "AI::ia_action_jump_once::INIT" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             _origin_point.x = position.x - frameSize.width/2 - walk_range;
             _dest_point.x = position.x - TILESIZE*4;
@@ -842,16 +854,17 @@ void artificial_inteligence::execute_ai_step_walk()
 
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
 
-        //std::cout << "execute_ai_step_walk::INIT" << std::endl;
+        std::cout << "execute_ai_step_walk::INIT" << std::endl;
 
         // if not on ground and can't fly, leave
         if (hit_ground() == false && can_fly == false) {
             //std::cout << "**** AI::execute_ai_step_walk - INIT - can't walk on midair" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            set_animation_type(ANIM_TYPE_STAND);
             return;
         }
 
-        //std::cout << "**** AI::execute_ai_step_walk - move_type: " << move_type << std::endl;
+        std::cout << "**** AI::execute_ai_step_walk - move_type: " << move_type << std::endl;
 
         if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_TURN || move_type == AI_ACTION_WALK_OPTION_TURN_TO_PLAYER) {
             //std::cout << "AI::execute_ai_step_walk::init - TURN::INIT" << std::endl;
@@ -901,6 +914,7 @@ void artificial_inteligence::execute_ai_step_walk()
         } else {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
                 //std::cout << "AI::execute_ai_step_walk::exec - reached point or is blocked" << std::endl;
+                set_animation_type(ANIM_TYPE_STAND);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         }
@@ -1259,7 +1273,7 @@ void artificial_inteligence::execute_ai_step_fly()
             _dest_point.x = dist_players.pObj->getPosition().x;
 
 
-            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X - x: " << position.x << ", p.x: " << dist_players.pObj->getPosition().x << std::endl;
+            //std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X - x: " << position.x << ", p.x: " << dist_players.pObj->getPosition().x << std::endl;
 
             if (dist_players.pObj->getPosition().x < position.x) {
                 state.direction = ANIM_DIRECTION_LEFT;
@@ -1465,6 +1479,9 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
                 /// @TODO - implement have a way to change AI type only for a short period then return to the current one
                 _current_ai_type = AI_ACTION_JUMP;
                 _parameter = AI_ACTION_JUMP_OPTION_ONCE;
+
+
+                //std::cout << ">> SET INITIAL #1 <<" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
                 _ai_state.main_status = 0;
                 return false;
@@ -1566,14 +1583,19 @@ enum AI_ACTION_JUMP_OPTION_LIST {
     AI_ACTION_JUMP_OPTION_TO_SAVED_POINT };
 */
     if (_parameter == AI_ACTION_JUMP_OPTION_TO_ROOF) {
+        std::cout << ">> AI:exec[" << name << "] JUMP TO ROOF <<" << std::endl;
         ia_action_jump_to_roof();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_TO_PLAYER) {
+        std::cout << ">> AI:exec[" << name << "] JUMP TO PLAYER <<" << std::endl;
         ia_action_jump_to_player();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_AHEAD) {
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO AHEAD <<" << std::endl;
         ia_action_jump_ahead();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_TO_RANDOM_POINT) {
+        std::cout << ">> AI:exec[" << name << "] JUMP TO RANDOM <<" << std::endl;
         ia_action_jump_to_random();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_ONCE) {
+        std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
         ia_action_jump_once();
     } else {
         std::cout << "*********** artificial_inteligence::execute_ai_step_jump - extra-parameter _parameter[" << _parameter << "] not implemented ******" << std::endl;

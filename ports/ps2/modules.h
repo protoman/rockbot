@@ -125,6 +125,7 @@ void PS2_load_MC()
 void PS2_load_xio() {
     int ret;
 
+    /*
     std::cout << ">>>>>>>>> PREPARE TO INIT fileXio..." << std::endl;
     ret = SifExecModuleBuffer(fileXio, size_fileXio, 0, NULL, &ret);
     if (ret < 0) {
@@ -135,6 +136,7 @@ void PS2_load_xio() {
 
     fileXioInit();
     std::cout << ">>>>>>>>> fileXioInit() DONE!" << std::endl;
+    */
 
 }
 

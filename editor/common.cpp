@@ -229,7 +229,7 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 
     combo->clear(); // delete all previous entries
 
-    action--;
+    //action--;
 
     std::vector<std::string> list;
 	if (action == AI_ACTION_WALK) {

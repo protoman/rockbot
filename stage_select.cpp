@@ -188,6 +188,7 @@ struct st_position stage_select::select() {
                 continue;
             }
             if (game_save.stages[stage_n] == 0) {
+                // @TODO: name could miss \n, so get only 8 characters
                 place_face(game_data.stage_face_filename[stage_n], game_data.stages_face_name[stage_n], st_position(j, i));
             } else {
                 place_face(std::string(""), game_data.stages_face_name[stage_n], st_position(j, i));

@@ -8,8 +8,8 @@
 
 #ifdef DREAMCAST
 #include <kos.h>
-#elif PLAYSTATION2
-#include <fileXio_rpc.h>
+//#elif PLAYSTATION2
+//#include <fileXio_rpc.h>
 #endif
 
 extern std::string FILEPATH;
