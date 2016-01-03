@@ -327,6 +327,10 @@ void classnpc::move_projectiles()
             if ((*it).get_move_type() == TRAJECTORY_QUAKE) {
                 ground_damage_players();
                 continue;
+            } else if ((*it).get_move_type() == TRAJECTORY_PUSH_BACK) {
+                //@TODO
+                push_back_players(!state.direction);
+                continue;
             }
 
             if ((*it).check_colision(st_rectangle(map->_player_ref->getPosition().x, map->_player_ref->getPosition().y, map->_player_ref->get_size().width, map->_player_ref->get_size().height), st_position(moved.width, moved.height)) == true) {

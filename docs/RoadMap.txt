@@ -9,7 +9,7 @@ SEQUENCE - Ape, Dynamite, Mage, Seahorse, Daisie, Techno, Mummy, Spike (Daisie, 
 key_n1: 14304, key_n2: 63519, key_n3: 2047
 
 
-47x34 x 4 frames: 188x34
+53x41 x 4 = 212x41
 
 *******************************************************************************************
                                         2.0.0b1

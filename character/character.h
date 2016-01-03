@@ -496,6 +496,8 @@ public:
 
     void remove_freeze_effect();
 
+    void push_back(short direction);
+
 
 protected:
     /**
@@ -655,6 +657,7 @@ protected:
     virtual bool can_air_dash();
 
     Uint8 get_projectile_max_shots();
+
 
 
 

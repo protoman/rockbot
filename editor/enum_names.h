@@ -33,6 +33,7 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("TARGET_EXACT");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("TRAJECTORY FALL BOMB");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("LASER");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("PUSH BACK");
     // -------------------------------------------------------------- //
     AI_ACTION_NAMES.push_back("WALK");
     AI_ACTION_NAMES.push_back("FLY");

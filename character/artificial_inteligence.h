@@ -63,6 +63,8 @@ public:
      */
     void ground_damage_players();
 
+    void push_back_players(short direction);
+
     bool auto_respawn() const;
 
     // NEW AI

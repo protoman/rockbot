@@ -296,6 +296,11 @@ void artificial_inteligence::ground_damage_players()
     }
 }
 
+void artificial_inteligence::push_back_players(short direction)
+{
+    map->_player_ref->push_back(direction);
+}
+
 bool artificial_inteligence::auto_respawn() const
 {
     if (GameMediator::get_instance()->get_enemy(_number).respawn_delay > 0 && timer.getTimer() > _auto_respawn_timer)  {

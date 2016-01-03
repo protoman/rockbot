@@ -2185,6 +2185,8 @@ int character::is_executing_effect_weapon()
             return TRAJECTORY_FREEZE;
         } else if (move_type == TRAJECTORY_CENTERED) {
             return TRAJECTORY_CENTERED;
+        } else if (move_type == TRAJECTORY_PUSH_BACK) {
+            return TRAJECTORY_PUSH_BACK;
         }
     }
     return -1;
@@ -2211,6 +2213,15 @@ Uint8 character::get_projectile_max_shots()
         return max_projectiles;
     }
     return max_proj;
+}
+
+void character::push_back(short direction)
+{
+    if (direction == ANIM_DIRECTION_LEFT) {
+        position.x += move_speed-0.2;
+    } else {
+        position.x -= move_speed-0.2;
+    }
 }
 
 void character::remove_freeze_effect()

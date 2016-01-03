@@ -376,6 +376,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_TARGET_EXACT,            // will go exactly to the point the target is in
     TRAJECTORY_FALL_BOMB,               // falls until ground then explodes
     TRAJECTORY_LASER,
+    TRAJECTORY_PUSH_BACK,               // pushes player or enemies into opposite direction
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 

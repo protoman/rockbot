@@ -593,9 +593,8 @@ st_size projectile::move() {
         }
 
 
-
-
-
+    } else if (_move_type == TRAJECTORY_PUSH_BACK) {
+        // do nothing, will be handled by move_projectiles() in player/npc classes
     } else {
         std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << _move_type << std::endl;
 	}
@@ -617,7 +616,7 @@ void projectile::draw() {
 		return;
 	}
 
-	if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE) { /// QTODO: freeze could use some "sparkling" effect
+    if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK) { /// QTODO: freeze could use some "sparkling" effect
 		//std::cout << "projectile::draw - invisible type" << std::endl;
 		return;
 	}
@@ -689,7 +688,7 @@ void projectile::draw() {
 // TODO: width/height must come from editor instead of using graphLib.projectile_surface
 bool projectile::check_colision(st_rectangle enemy_pos, st_position pos_inc) const
 {
-    if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE) {
+    if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK) {
         return false;
     }
 
