@@ -94,6 +94,8 @@ protected:
 
     void ia_action_jump_once();
 
+    void ia_action_jump_up();
+
     /**
      * @brief
      */
@@ -194,6 +196,8 @@ protected:
      * @brief
      */
     void execute_ai_step_fly();
+
+    void execute_ai_save_point();
 
     /**
      * @brief

@@ -26,6 +26,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _parameter = 0;
     _show_reset_stand = false;
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
+    _dest_point = position;
 }
 
 
@@ -214,6 +215,7 @@ void artificial_inteligence::execute_ai_step()
         //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
         execute_ai_action_wait_until_player_in_range();
     } else if (_current_ai_type == AI_ACTION_SAVE_POINT) {
+        execute_ai_save_point();
         //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_1) {
         //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
@@ -572,6 +574,37 @@ void artificial_inteligence::ia_action_jump_once()
     }
 }
 
+void artificial_inteligence::ia_action_jump_up()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        //std::cout << "AI::ia_action_jump_up::INIT" << std::endl;
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        _ai_state.action_status = 0;
+        set_animation_type(ANIM_TYPE_JUMP);
+        _obj_jump.start(false);
+        moveCommands.jump = 1;
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        if (_ai_state.action_status == 0) {
+            //std::cout << "AI::ia_action_jump_up::EXECUTE.FIRST" << std::endl;
+            moveCommands.jump = 1;
+            _ai_state.action_status++;
+        } else {
+            std::cout << "AI::ia_action_jump_up::EXECUTE.RUN" << std::endl;
+            moveCommands.jump = 1;
+            float speed = _obj_jump.get_speed();
+            std::cout << "AI::ia_action_jump_up::speed: " << speed << std::endl;
+            if (speed >= 0 && hit_ground() == true) {
+                moveCommands.jump = 0;
+                std::cout << "AI::ia_action_jump_up::HIT_GROUND" << std::endl;
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+                set_animation_type(ANIM_TYPE_STAND);
+                _ai_state.action_status = 0;
+                _obj_jump.finish();
+            }
+        }
+    }
+}
+
 void artificial_inteligence::ia_action_jump_to_roof()
 {
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
@@ -637,6 +670,7 @@ void artificial_inteligence::ia_action_jump_fall()
     //std::cout << "******** artificial_inteligence::ia_action_jump_fall - speed_y: " << speed_y << std::endl;
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        set_animation_type(ANIM_TYPE_JUMP);
         speed_y = 5;
 	} else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
 		ia_accelerate_down();
@@ -1311,6 +1345,15 @@ void artificial_inteligence::execute_ai_step_fly()
     }
 }
 
+void artificial_inteligence::execute_ai_save_point()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _dest_point = position;
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        last_execute_time = timer.getTimer() + 20;
+    }
+}
+
 void artificial_inteligence::execute_ai_step_dash()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
@@ -1597,6 +1640,9 @@ enum AI_ACTION_JUMP_OPTION_LIST {
     } else if (_parameter == AI_ACTION_JUMP_OPTION_ONCE) {
         std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
         ia_action_jump_once();
+    } else if (_parameter == AI_ACTION_JUMP_OPTION_UP) {
+        std::cout << ">> AI:exec[" << name << "] JUMP TO UP <<" << std::endl;
+        ia_action_jump_up();
     } else {
         std::cout << "*********** artificial_inteligence::execute_ai_step_jump - extra-parameter _parameter[" << _parameter << "] not implemented ******" << std::endl;
     }

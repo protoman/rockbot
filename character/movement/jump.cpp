@@ -30,6 +30,9 @@ void classjump::start(bool bigjump_mode)
     }
     jumps_number++;
     speed = -JUMP_INITIAL_SPEED;
+
+    std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
+
     moved = 0;
 }
 
@@ -44,15 +47,19 @@ void classjump::execute()
         return;
     }
 
+
+    std::cout << "CLASSJUMP::EXECUTE[#1]::speed: " << speed << std::endl;
     speed += acceleration;
     moved += std::abs((double)speed);
-    //std::cout << ", speed.pos[" << speed << "], acceleration[" << acceleration << "]" << std::endl;
+
+    std::cout << "CLASSJUMP::EXECUTE[#2]::speed: " << speed << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {
             state = JUMPDOWN;
         } else if (is_bigjump == false && std::abs((double)moved) > JUMP_LIMIT) { // hardcoded limit of 3 tiles
             state = JUMPDOWN;
+            std::cout << "OBJUMP RESET SPEED #3" << std::endl;
             speed = 0;
         }
     } else {
@@ -69,6 +76,7 @@ void classjump::interrupt()
     }
     if (state != JUMPUP) {
         state = JUMPDOWN;
+        std::cout << "OBJUMP RESET SPEED #4" << std::endl;
         speed = 0;
         return;
     }
@@ -78,6 +86,8 @@ void classjump::interrupt()
     }
 
     state = JUMPDOWN;
+
+    std::cout << "OBJUMP RESET SPEED #1" << std::endl;
     speed = 0;
 }
 
@@ -85,11 +95,13 @@ void classjump::finish()
 {
     jumps_number = 0;
     state = NOJUMP;
+
+    std::cout << "OBJUMP RESET SPEED #2" << std::endl;
     speed = 0;
     started = false;
 }
 
-int classjump::get_speed()
+float classjump::get_speed()
 {
     return speed;
 }

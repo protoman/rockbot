@@ -19,7 +19,7 @@ public:
     void execute();
     void interrupt(); // used to interrupt a jump-up by releasing the button
     void finish(); // hit ground, must stop all jumping
-    int get_speed();
+    float get_speed();
     short get_jumps_number();
     void set_jump_acceleration(double value);
     void set_jump_limit(int value);
