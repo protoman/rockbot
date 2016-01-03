@@ -347,7 +347,18 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.setBrush(QColor(241, 188, 87, 200));
                     painter.drawRect(target);
                 }
-                painter.drawPixmap(target, temp_image, source);
+
+
+                int direction = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].direction;
+                std::cout << "direction: " << direction << ", ANIM_DIRECTION_LEFT: " << std::endl;
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    QImage temp_img(filename.c_str());
+                    QImage mirror_image = temp_img.copy(source.x(), source.y(), source.width(), source.height());
+                    mirror_image = mirror_image.mirrored(true, false);
+                    painter.drawPixmap(target, QPixmap().fromImage(mirror_image), source);
+                } else {
+                    painter.drawPixmap(target, temp_image, source);
+                }
             }
         }
     }
