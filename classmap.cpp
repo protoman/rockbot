@@ -439,15 +439,29 @@ void classMap::draw_dynamic_backgrounds()
 {
 
     float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
-    if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_LEFT) {
+    int bg1_scroll_mode = map_data[number].backgrounds[0].auto_scroll;
+    if (bg1_scroll_mode == BG_SCROLL_MODE_LEFT) {
         bg1_scroll.x -= ((float)1*bg1_speed);
-    } else if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_RIGHT) {
+    } else if (bg1_scroll_mode == BG_SCROLL_MODE_RIGHT) {
         bg1_scroll.x += ((float)1*bg1_speed);
-    } else if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_UP) {
+    } else if (bg1_scroll_mode == BG_SCROLL_MODE_UP) {
         bg1_scroll.y -= ((float)1*bg1_speed);
-    } else if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_DOWN) {
+    } else if (bg1_scroll_mode == BG_SCROLL_MODE_DOWN) {
         bg1_scroll.y += ((float)1*bg1_speed);
     }
+
+    float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
+    int bg2_scroll_mode = map_data[number].backgrounds[1].auto_scroll;
+    if (bg2_scroll_mode == BG_SCROLL_MODE_LEFT) {
+        bg2_scroll.x -= ((float)1*bg2_speed);
+    } else if (bg2_scroll_mode == BG_SCROLL_MODE_RIGHT) {
+        bg2_scroll.x += ((float)1*bg2_speed);
+    } else if (bg2_scroll_mode == BG_SCROLL_MODE_UP) {
+        bg2_scroll.y -= ((float)1*bg2_speed);
+    } else if (bg2_scroll_mode == BG_SCROLL_MODE_DOWN) {
+        bg2_scroll.y += ((float)1*bg2_speed);
+    }
+
     adjust_dynamic_background_position();
 
     int x1 = bg1_scroll.x;
@@ -462,14 +476,7 @@ void classMap::draw_dynamic_backgrounds()
     //std::cout << "## bg1_scroll.y: " << bg1_scroll.y << std::endl;
 
     int y1 = bg1_scroll.y + map_data[number].backgrounds[0].adjust_y;
-    if (y1 > 0) { // moving to right
-        y1 = (RES_H - y1) * -1;
-    }
     int y2 = bg2_scroll.y + map_data[number].backgrounds[1].adjust_y;
-    if (y2 > 0) { // moving to right
-        y2 = (RES_H - y2) * -1;
-    }
-
 
     if (bg1_surface.width > 0) {
         // draw leftmost part
