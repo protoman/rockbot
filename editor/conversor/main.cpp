@@ -430,8 +430,6 @@ int main(int argc, char *argv[])
     EXEC_NAME = "conversor.exe";
 #endif
 
-    std::cout << "AAA" << std::endl;
-
     std::string argvString = std::string(argv[0]);
     GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     FILEPATH = GAMEPATH;
