@@ -78,6 +78,7 @@ void map_tab::fill_data()
     }
 
 
+
     _data_loading = false;
 }
 
@@ -113,6 +114,7 @@ void map_tab::fill_background_list()
     } else {
         ui->stageTileset_comboBox->setCurrentIndex(-1);
     }
+    ui->mapAutoScroll_checkBox->setChecked(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll[Mediator::get_instance()->currentMap]);
 
 
 
@@ -553,4 +555,10 @@ void map_tab::on_paste_toolButton_clicked()
     set_current_box(1);
     Mediator::get_instance()->editMode = EDITMODE_PASTE;
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+}
+
+void map_tab::on_mapAutoScroll_checkBox_clicked(bool checked)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll[Mediator::get_instance()->currentMap] = checked;
 }

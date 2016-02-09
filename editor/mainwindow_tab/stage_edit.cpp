@@ -155,9 +155,6 @@ void stage_edit::update_stage_data()
     ui->boss_dialog_answer2_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
     ui->boss_dialog_answer2_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
 
-    ui->autoScrolling_checkBox->setChecked(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll);
-
-
     ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
 
@@ -345,12 +342,6 @@ void stage_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
     strings_editor_window->show();
 }
 
-
-void stage_edit::on_autoScrolling_checkBox_toggled(bool checked)
-{
-    if (_data_loading == true) return;
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll = checked;
-}
 
 void stage_edit::on_cutscenePre_comboBox_currentIndexChanged(int index)
 {

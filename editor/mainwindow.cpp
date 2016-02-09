@@ -595,3 +595,19 @@ void MainWindow::on_actionStrings_Editor_triggered()
     strings_editor_window = new StringsEditor(this, false);
     strings_editor_window->show();
 }
+
+void MainWindow::on_actionReset_Stage_Links_triggered()
+{
+    for (int i=0; i<FS_STAGE_MAX_LINKS; i++) {
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].bidirecional = true;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny = -1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin = -1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].is_door = false;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_destiny.x = 0;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_destiny.y = 0;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x = 0;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y = 0;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].size = 1;
+        Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type = LINK_VERTICAL;
+    }
+}

@@ -69,6 +69,8 @@ private slots:
 
     void on_paste_toolButton_clicked();
 
+    void on_mapAutoScroll_checkBox_clicked(bool checked);
+
 private:
     void fill_data();
     void fill_background_list();

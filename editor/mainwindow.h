@@ -151,6 +151,8 @@ private slots:
 
     void on_actionStrings_Editor_triggered();
 
+    void on_actionReset_Stage_Links_triggered();
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;

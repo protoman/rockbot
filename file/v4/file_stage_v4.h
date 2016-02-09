@@ -79,13 +79,15 @@ struct file_stage {
     file_dialog intro_dialog;
     file_dialog boss_dialog;
     char tileset_filename[FS_CHAR_FILENAME_SIZE];
-    bool autoscroll;
+    bool autoscroll[FS_STAGE_MAX_MAPS];
     Sint8 cutscene_pre;
     Sint8 cutscene_pos;
 
     // CONSTRUCTOR //
     file_stage() {
-        autoscroll = false;
+        for (int i=0; i<FS_STAGE_MAX_MAPS; i++) {
+            autoscroll[i] = false;
+        }
         boss = file_boss();
         sprintf(name, "%s", "Stage");
         bgmusic_filename[0] = '\0';

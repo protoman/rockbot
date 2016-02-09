@@ -275,10 +275,7 @@ void common::fill_stages_combo(QComboBox *combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<FS_MAX_STAGES; i++) {
-        if (strlen(Mediator::get_instance()->stage_data.stages[i].name) > 0) {
-            //std::cout << "STAGE: '" << stage_data.stages[i].name << "'" << std::endl;
-            combo->addItem(QString(Mediator::get_instance()->stage_data.stages[i].name));
-        }
+        combo->addItem(QString("[") + QString::number(i) + QString("]: ") + QString(Mediator::get_instance()->stage_data.stages[i].name));
     }
 }
 

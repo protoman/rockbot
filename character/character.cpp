@@ -272,6 +272,12 @@ void character::charMove() {
     if (bottom_point_lock == TERRAIN_ICE || (_inertia_obj.is_started() && (bottom_point_lock == TERRAIN_UNBLOCKED|| bottom_point_lock == TERRAIN_WATER))) {
 
         if (moved == true) {
+            if (moveCommands.right == 1) {
+                position.x++;
+            } else if (moveCommands.left == 1) {
+                position.x--;
+            }
+            std::cout << "ICE INERTIA MOVE" << std::endl;
             _inertia_obj.start();
         } else if (moveCommands.left == 0 && moveCommands.right == 0) {
             int inertia_xinc = _inertia_obj.execute();

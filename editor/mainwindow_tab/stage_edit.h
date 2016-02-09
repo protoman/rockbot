@@ -76,8 +76,6 @@ private slots:
 
     void on_boss_answer2_3_toolButton_clicked();
 
-    void on_autoScrolling_checkBox_toggled(bool checked);
-
     void on_cutscenePre_comboBox_currentIndexChanged(int index);
 
     void on_cutscenePos_comboBox_currentIndexChanged(int index);
