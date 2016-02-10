@@ -99,7 +99,7 @@ void game::showGame(bool can_characters_move)
     if (player1.is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
         input.readInput();
     } else {
-        input.clean();
+        //input.clean();
     }
 
     if (config_manager.execute_ingame_menu()) { // game is paused
@@ -232,6 +232,7 @@ void game::start_stage()
 
 void game::show_ready()
 {
+    std::cout << "SHOW READY CALL" << std::endl;
     for (int i=0; i<4; i++) {
         draw_lib.show_ready();
         timer.delay(400);

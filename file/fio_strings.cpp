@@ -148,8 +148,8 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_key_pressnew], "%s", "PRESS NEW KEY/BUTTON");
         sprintf(lines[strings_ingame_config_key_reset], "%s", "RESET TO DEFAULT");
         sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
-        sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "DIGITAL");
-        sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "ANALOG");
+        sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOG");
+        sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
         sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
         sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
         sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");

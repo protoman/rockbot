@@ -48,11 +48,11 @@ void classjump::execute()
     }
 
 
-    std::cout << "CLASSJUMP::EXECUTE[#1]::speed: " << speed << std::endl;
+    //std::cout << "CLASSJUMP::EXECUTE[#1]::speed: " << speed << std::endl;
     speed += acceleration;
     moved += std::abs((double)speed);
 
-    std::cout << "CLASSJUMP::EXECUTE[#2]::speed: " << speed << std::endl;
+    //std::cout << "CLASSJUMP::EXECUTE[#2]::speed: " << speed << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {

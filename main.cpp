@@ -531,6 +531,10 @@ int main(int argc, char *argv[])
 
 
 
+    input.clean();
+    input.p1_input[BTN_START] = 0;
+    input.waitTime(200);
+    input.clean();
 
 
 	// INIT GAME
@@ -546,10 +550,6 @@ int main(int argc, char *argv[])
         //return 1;
     }
 
-	input.clean();
-	input.p1_input[BTN_START] = 0;
-	input.waitTime(200);
-	input.clean();
 
     bool run_game = true;
 
@@ -576,12 +576,6 @@ int main(int argc, char *argv[])
             std::fflush(stdout);
             leave_game = true;
         }
-        /*
-        unsigned int now_ticks = timer.get_ticks();
-        if (now_ticks < (1000 / FRAMES_PER_SECOND)) {
-            timer.delay((1000 / FRAMES_PER_SECOND) - now_ticks);
-        }
-        */
         fps_manager.limit();
 
     }

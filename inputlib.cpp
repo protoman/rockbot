@@ -1,5 +1,6 @@
 #include "inputlib.h"
 
+#include<iostream>
 #include <SDL/SDL_joystick.h>
 
 extern SDL_Event event;
@@ -45,6 +46,7 @@ void inputLib::change_joystick()
 // ********************************************************************************************** //
 void inputLib::clean()
 {
+    //std::cout << "INPUT::CLEAN CALL" << std::endl;
 	for (int i=0; i<BTN_COUNT; i++) {
         if (i != BTN_ATTACK) { // don't clean attack to save charging
             p1_input[i] = 0;
@@ -63,6 +65,8 @@ void inputLib::clean()
 void inputLib::readInput()
 {
     _used_keyboard = false;
+
+
     while (SDL_PollEvent(&event)) {
 
         if (_show_btn_debug == false) {
@@ -71,6 +75,8 @@ void inputLib::readInput()
 
         if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
             if (event.type == SDL_KEYDOWN) {
+
+
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
                         p1_input[i] = 1;

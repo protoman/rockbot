@@ -277,7 +277,6 @@ void character::charMove() {
             } else if (moveCommands.left == 1) {
                 position.x--;
             }
-            std::cout << "ICE INERTIA MOVE" << std::endl;
             _inertia_obj.start();
         } else if (moveCommands.left == 0 && moveCommands.right == 0) {
             int inertia_xinc = _inertia_obj.execute();

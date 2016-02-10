@@ -99,9 +99,10 @@ void stage_select::place_face(std::string face_file, std::string botname, st_pos
 	if (face_file.size() > 0) {
         graphLib.place_face(face_file, st_position(pos.x*80+63, pos.y*68+28));
     }
+    botname = botname.substr(0, FS_CHAR8_NAME_SIZE);
     txtPosX = pos.x*80+76-(botname.size()*7)*0.5;
     txtPosY = pos.y*68+71;
-	graphLib.draw_text(txtPosX, txtPosY, botname);
+    graphLib.draw_text(txtPosX, txtPosY, botname);
 }
 
 

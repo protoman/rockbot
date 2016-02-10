@@ -46,9 +46,11 @@ int GameMediator::get_projectile_list_size()
 
 CURRENT_FILE_FORMAT::file_npc GameMediator::get_enemy(int n)
 {
+    // boss not yet set
     if (n < 0 || n >= enemy_list.size()) {
-        std::cout << "GameMediator::get_enemy - invalid enemy position[" << n << "], list-size: " << enemy_list.size() << std::endl;
-        exit(-1);
+        std::cout << "ERROR: GameMediator::get_enemy - invalid enemy position[" << n << "], list-size: " << enemy_list.size() << std::endl;
+        // return first NPC to avoid errors
+        n = 0;
     }
     return enemy_list.at(n);
 }

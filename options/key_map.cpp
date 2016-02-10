@@ -135,7 +135,7 @@ Sint8 key_map::draw_config_input() const
     }
 
     char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
-    sprintf(temp_char, "%d", game_config.selected_input_device);
+    sprintf(temp_char, "%d", (game_config.selected_input_device+1)); // +1 because count start in zero
     std::string selected_joystick_str(temp_char);
 
 
@@ -203,8 +203,14 @@ void key_map::config_input()
                 game_config.input_mode = INPUT_MODE_DIGITAL;
             }
         } else if (selected_option == 2) {
+
+            int sel_joy = int(game_config.selected_input_device);
+            std::stringstream key_n_ss;
+            key_n_ss << "SELECT JOYSTICK. Number: " << (input.get_joysticks_number()) << ", selected: " + sel_joy << std::endl;
+            std::cout << key_n_ss.str() << std::endl;
+
             // increases joystick number until reaches max-1, then returns to zero
-            if (input.get_joysticks_number() > game_config.selected_input_device+1) {
+            if (input.get_joysticks_number() > sel_joy+1) {
                 game_config.selected_input_device++;
                 input.change_joystick();
             } else {

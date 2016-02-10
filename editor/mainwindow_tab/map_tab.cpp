@@ -114,7 +114,12 @@ void map_tab::fill_background_list()
     } else {
         ui->stageTileset_comboBox->setCurrentIndex(-1);
     }
-    ui->mapAutoScroll_checkBox->setChecked(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll[Mediator::get_instance()->currentMap]);
+    CURRENT_FILE_FORMAT::file_stage temp_stage = Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage];
+    bool autoscroll_checked = (bool)temp_stage.autoscroll[Mediator::get_instance()->currentMap];
+    if (autoscroll_checked != true) {
+        autoscroll_checked = false;
+    }
+    ui->mapAutoScroll_checkBox->setChecked(autoscroll_checked);
 
 
 
