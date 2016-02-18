@@ -11,9 +11,33 @@ key_n1: 14304, key_n2: 63519, key_n3: 2047
 
 53x41 x 4 = 212x41
 
+Para estágio intro:
+- abelha gorda que voa em forma senóide
+- inimigo que atira em arco bem curto (atira para cima, e tiro cai logo em frente dele)
+- mola-molenga (fica pulando para a frente, se bater el algo muda direção. tem chance de dar pulo longo
+
+
+- games-styles:
+    * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
+    * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
+
+
+
+OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
+OK - adicionar sistema de Xp/level ao save
+adicionar suporte a heart-containers (mmx)
+adicionar grab edge (metroid, prince of persia)
+adicionar wall-slide/jump (mmx)
+adicionar sistema de colisão que permite diagonais
+??????? mais features de metroidvania e mmx
+
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
+- tornar players e inimigos transparentes quando atingidos
+- manter scroll do fundo quando troca de tela se background for o mesmo (ou sempre...)
+
+
 => update script files to copy font to GAMEDIR, remove non-used fonts
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
 => remove support for game data in the old data dir, always use the new "games" folder

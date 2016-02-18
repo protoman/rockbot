@@ -377,6 +377,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_FALL_BOMB,               // falls until ground then explodes
     TRAJECTORY_LASER,
     TRAJECTORY_PUSH_BACK,               // pushes player or enemies into opposite direction
+    TRAJECTORY_ARC_SMALL,
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 
@@ -788,8 +789,9 @@ enum e_VIDEO_FILTERS {
 #define FS_NPC_PROJECTILE_N 2
 
 
+#define FS_PLAYER_ARMOR_PIECES_MAX 50 // allow more pieces in the future
 enum e_ARMOR_PIECES {
-    ARMOR_ARMS, ARMOR_BODY, ARMOR_LEGS, FS_PLAYER_ARMOR_PIECES_MAX
+    ARMOR_ARMS, ARMOR_BODY, ARMOR_LEGS
 };
 
 enum e_ARMOR_ABILITIES_ARMS {

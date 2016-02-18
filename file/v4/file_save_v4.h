@@ -69,6 +69,8 @@ namespace format_v4 {
         bool used_countinue;
         bool armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_collect_items collect_items[FS_COMMON_ITEMS_MAX];
+        int xp_points;
+        int level;
 
         st_save() {
             finished_stages = 0;
@@ -82,6 +84,8 @@ namespace format_v4 {
             for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX; i++) {
                 armor_pieces[i] = false;
             }
+            xp_points = 0;
+            level = 0;
         }
     };
 

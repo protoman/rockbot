@@ -62,7 +62,9 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         position0.x = position.x;
         position0.y = position.y;
         _trajectory_parabola = trajectory_parabola(RES_W/3);
-
+    } else if (_move_type == TRAJECTORY_ARC_SMALL) {
+        position0.x = position.x;
+        position0.y = position.y;
     } else if (_move_type == TRAJECTORY_ARC_TO_TARGET) {
         position0.x = position.x;
     } else if (_move_type == TRAJECTORY_SIN) {
@@ -107,7 +109,6 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _change_direction_counter = 0;
     _chain_width = 0;
 
-
     //std::cout << ">> Added projectyle, move_type: " << _move_type << ", TRAJECTORY_FOLLOW: " << TRAJECTORY_FOLLOW << ", w: " << _size.width << ", h: " << _size.height << std::endl;
 
     // for size, use getsize
@@ -115,6 +116,10 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     // for damage, use get_damage
     // for trajectory, get_trajectory
 
+    _speed_x = 8;
+    _accel_x = 0.95;
+
+    std::cout << "_accel_x: " << _accel_x << std::endl;
 }
 
 void projectile::set_is_permanent()
@@ -391,6 +396,29 @@ st_size projectile::move() {
         }
         move_ahead(moved);
         position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
+
+    } else if (_move_type == TRAJECTORY_ARC_SMALL) {
+        if (position.y < _size.height || position.y > RES_H) {
+            is_finished = true;
+            return st_size(0, 0);
+        }
+
+        if (_speed_x > 0) {
+            if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
+                position.x -= _speed_x;
+                moved.width -= _speed_x;
+            } else {
+                position.x += _speed_x;
+                moved.width += _speed_x;
+            }
+            _speed_x -= _accel_x;
+            std::cout << "ARC::SMALL::speed_x: " << _speed_x << std::endl;
+            if (_speed_x < 0) {
+                _speed_x = 0;
+            }
+        }
+        position.y += get_speed();
+
     } else if (_move_type == TRAJECTORY_ARC_TO_TARGET) {
         move_ahead(moved);
         position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
@@ -596,7 +624,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_PUSH_BACK) {
         // do nothing, will be handled by move_projectiles() in player/npc classes
     } else {
-        std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << _move_type << std::endl;
+        std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
 	}
 
 	realPosition.x = position.x - map->getMapScrolling().x;

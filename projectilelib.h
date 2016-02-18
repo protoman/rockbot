@@ -137,6 +137,8 @@ private:
     short _change_direction_counter;                    // used to prevent changing frames too fast
     float _sin_x;                                       // used for sinoidal movement
     int _chain_width;
+    float _accel_x;                                       // used for arc
+    float _speed_x;                                       // used for arc
 
 };
 #endif // PROJECTILELIB_H
