@@ -13,6 +13,7 @@ public:
 signals:
 
 public slots:
+    void update_sprites();
 
 
 
@@ -26,12 +27,13 @@ protected:
   void paintEvent(QPaintEvent *event);
 
 private:
-  int get_colorn_from_rgb(QImage &image, int r, int g, int b);
-
+    void replace_colors();
 
 private:
 	int selected_player;
 	QWidget *myParent;
+    QImage _colored_sprites;
+    QImage _original_sprites;
 };
 
 #endif // PLAYER_PREVIEW_AREA_H

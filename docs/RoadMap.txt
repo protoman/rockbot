@@ -34,6 +34,10 @@ adicionar sistema de colisão que permite diagonais
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
+
+- olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
+
+
 - tornar players e inimigos transparentes quando atingidos
 - manter scroll do fundo quando troca de tela se background for o mesmo (ou sempre...)
 

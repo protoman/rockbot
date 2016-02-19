@@ -19,9 +19,7 @@ public:
 
 
 public slots:
-    void pick_player_color1();
-    void pick_player_color2();
-    void pick_player_color3();
+
     void pick_bg_color();
 
     void on_color_selected1(const QColor & color);
