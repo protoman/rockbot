@@ -1176,12 +1176,9 @@ void artificial_inteligence::execute_ai_step_fly()
             } else {
                 _dest_point.x = position.x + frameSize.width/2 + walk_range;
             }
-            _dest_point.y = position.y;
             _ai_state.initial_position.x = 0;
+            _dest_point.y = position.y;
             _ai_state.initial_position.y = position.y;
-
-        } else {
-            if (name == "Giant Fly") std::cout << "AI::FLY - UNKNOWN sub-action: " << _parameter << std::endl;
         }
 
         set_animation_type(ANIM_TYPE_WALK);
@@ -1334,15 +1331,22 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD) {
             if (position.x != _dest_point.x) {
                 if (_ai_state.initial_position.y == position.y) {
-                        _dest_point.y = position.y - TILESIZE;
+                    _dest_point.y = position.y - TILESIZE;
                 } else if (position.y <= _ai_state.initial_position.y - TILESIZE) {
                     _dest_point.y = position.y + TILESIZE;
                 }
             }
 
-            if (move_to_point(_dest_point, move_speed, 2, is_ghost) == true) {
+            int pos_x_before = position.x;
+
+            if (move_to_point(_dest_point, move_speed, 2, is_ghost) == true || (move_speed != 0 && pos_x_before == position.x)) {
+                state.direction = !state.direction;
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    _dest_point.x = position.x - frameSize.width/2 - walk_range;
+                } else {
+                    _dest_point.x = position.x + frameSize.width/2 + walk_range;
+                }
                 //std::cout << "AI::execute_ai_step_fly - HORIZONTAL RIGHT - FINISHED" << std::endl;
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else {
             std::cout << "AI::FLY(EXECUTE) - unknown parameter #" << _parameter << std::endl;
@@ -1447,7 +1451,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         bool test_x_move = test_change_position(block_speed_x, 0);
         bool test_y_move = test_change_position(0, block_speed_y);
 
-        if (name == "Giant Fly") std::cout << "AI::move_to_point - test_x_move: " << test_x_move << ", block_speed_x: " << block_speed_x << std::endl;
+        //if (name == "Giant Fly") std::cout << "AI::move_to_point - test_x_move: " << test_x_move << ", block_speed_x: " << block_speed_x << std::endl;
 
 
         if (test_x_move == false) {
@@ -1479,6 +1483,10 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     if (can_pass_walls == false) {
         can_move_x = test_change_position(xinc, 0);
         can_move_y = test_change_position(0, yinc);
+    }
+
+    if (name == "Bee Fly Arc") {
+        std::cout << "AI::MOVE_TO_POINT - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
     }
 
 

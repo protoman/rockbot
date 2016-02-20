@@ -6,6 +6,7 @@
 #include "file/format/st_common.h"
 #include "graphicslib.h"
 #include "character/classnpc.h"
+#include "character/classboss.h"
 #include "objects/object.h"
 #include "graphic/animation.h"
 #include <list>
@@ -185,6 +186,12 @@ public:
     void activate_final_boss_teleporter();
 
     Uint8 get_map_gfx();
+
+    st_float_position get_bg1_scroll();
+    st_float_position get_bg2_scroll();
+    void set_bg1_scroll(st_float_position pos);
+    void set_bg2_scroll(st_float_position pos);
+
 
 private:
     void load_map_npcs();

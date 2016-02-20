@@ -117,7 +117,7 @@ void classMap::loadMap()
 	if (number == -1) {
 		cout << "ERROR::map::loadMap - map number was not set, can't load it before setting the number.\n";
 		return;
-	}
+    }
 
     _level3_tiles.clear();
     object_list.clear();
@@ -415,22 +415,21 @@ void classMap::load_map_npcs()
         _npc_list.pop_back();
     }
 
-	//std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
+    //std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
-            classnpc new_npc;
+            classnpc new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
+            new_npc.set_map(this);
+
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
-                new_npc = classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
                 new_npc.set_stage_boss(true);
             } else if (GameMediator::get_instance()->get_enemy(map_data[number].map_npcs[i].id_npc).is_boss == true) {
-                new_npc = classboss(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
-			} else {
-                new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
-			}
-            new_npc.set_map(this);
+                new_npc.set_is_boss(true);
+            }
+
             _npc_list.push_back(new_npc); // insert new npc at the list-end
-		}
+        }
 	}
 }
 
@@ -704,6 +703,26 @@ Uint8 classMap::get_map_gfx()
 {
     std::cout << ">> MAP::get_map_gfx::number: " << number << std::endl;
     return map_data[number].backgrounds[0].gfx;
+}
+
+st_float_position classMap::get_bg1_scroll()
+{
+    return bg1_scroll;
+}
+
+st_float_position classMap::get_bg2_scroll()
+{
+    return bg2_scroll;
+}
+
+void classMap::set_bg1_scroll(st_float_position pos)
+{
+    bg1_scroll = pos;
+}
+
+void classMap::set_bg2_scroll(st_float_position pos)
+{
+    bg2_scroll = pos;
 }
 
 
@@ -1436,7 +1455,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
             _break_npc_loop = false;
             break;
         }
-		// check if NPC is outside the visible area
+        // check if NPC is outside the visible area
         st_position npc_pos = _npc_list.at(i).get_real_position();
         short dead_state = _npc_list.at(i).get_dead_state();
 

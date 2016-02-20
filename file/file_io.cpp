@@ -512,8 +512,8 @@ namespace format_v4 {
         }
         */
         //data_out.stages[MAGEBOT] = 0;
-        data_out.stages[INTRO_STAGE] = 1;
-        data_out.stages[STAGE2] = 1;
+        //data_out.stages[INTRO_STAGE] = 1;
+        //data_out.stages[STAGE2] = 1;
         /*
         //data_out.stages[MUMMYBOT] = 1;
         //data_out.items.lifes = 0;

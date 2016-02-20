@@ -2057,7 +2057,6 @@ void character::clean_character_graphics_list()
         std::cout << "CHAR::clean_character_graphics_list[" << name << "]" << std::endl;
         character_graphics_list.erase(it);
     }
-
 }
 
 bool character::have_background_graphics()

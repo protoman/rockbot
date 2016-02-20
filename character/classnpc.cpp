@@ -13,6 +13,9 @@
 #include "inputlib.h"
 extern inputLib input;
 
+#include "game.h"
+extern game gameControl;
+
 
 extern std::string FILEPATH;
 
@@ -36,6 +39,8 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 	clean_projectiles();
     facing = 0;
     _is_spawn = false;
+    _initialized = false;
+    _screen_blinked = false;
 }
 
 
@@ -50,6 +55,8 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     position.x = start_point.x;
     position.y = start_point.y;
     _is_spawn = false;
+    _initialized = false;
+    _screen_blinked = false;
 }
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend) // spawned npc
@@ -63,6 +70,8 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     position.x = npc_pos.x;
     position.y = npc_pos.y;
     _is_spawn = true;
+    _initialized = false;
+    _screen_blinked = false;
 }
 
 
@@ -78,6 +87,8 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
 	add_graphic();
     facing = 0;
     _is_spawn = false;
+    _initialized = false;
+    _screen_blinked = false;
 }
 
 
@@ -257,8 +268,65 @@ void classnpc::execute()
         clean_projectiles();
         return;
     }
-    move();
-	charMove();
+    if (is_boss() || is_stage_boss()) {
+        boss_move();
+    } else {
+        move();
+    }
+    charMove();
+}
+
+void classnpc::boss_move()
+{
+    std::cout << "NPC::boss::execute::START" << std::endl;
+    if (hitPoints.current <= 0 || position.x < map->getMapScrolling().x-TILESIZE*2 || position.x > map->getMapScrolling().x+RES_W+TILESIZE*2) {
+        std::cout << "classboss::execute - LEAVE #1" << std::endl;
+        return;
+    }
+    if (last_execute_time > timer.getTimer()) {
+        std::cout << "classboss::execute - LEAVE #2" << std::endl;
+        return;
+    }
+    if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
+        std::cout << "classboss::execute - LEAVE #3" << std::endl;
+        clean_projectiles();
+        return;
+    }
+    std::cout << "classboss::execute" << std::endl;
+
+    std::cout << "classboss::boss_move[" << name << "] - _initialized: " << _initialized << std::endl;
+
+    move_projectiles();
+    //std::cout << "classboss::boss_move - A" << std::endl;
+
+    if (_initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
+        std::cout << "classboss::boss_move - B" << std::endl;
+        _initialized++;
+        set_animation_type(ANIM_TYPE_TELEPORT);
+        gameControl.map_present_boss(_is_boss);
+        //std::cout << "classboss::boss_move - unitialized, set teleport" << std::endl;
+        return;
+    } else if (_initialized == 1 && _is_boss == true) {
+        //std::cout << "classboss::boss_move - C" << std::endl;
+        std::cout << "classboss::boss_move - #5 - _initialized: " << _initialized << std::endl;
+        if (position.x > RES_H/3 && gravity(true) == false) {
+            _initialized++;
+        }
+        return;
+    }
+    std::cout << "classboss::boss_move - D" << std::endl;
+
+
+    if (first_run == 0) {
+        first_run = 1;
+    }
+
+    if (_ai_timer > timer.getTimer()) {
+        return;
+    }
+
+    execute_ai();
+    gravity(false);
 }
 
 
@@ -474,9 +542,12 @@ void classnpc::death()
     _obj_jump.finish();
     dead = true;
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
-	//std::cout << "classnpc::death" << std::endl;
+    //std::cout << "classnpc::death" << std::endl;
     if (_ai_state.main_status == IA_STATE_QUAKE_ATTACK) {
         graphLib.set_screen_adjust(st_position(0, 0));
+    }
+    if (is_stage_boss()) {
+        map->clear_animations();
     }
 }
 
@@ -491,6 +562,14 @@ bool classnpc::is_boss()
 void classnpc::set_is_boss(bool set_boss)
 {
     _is_boss = set_boss;
+    if (_is_boss == true) {
+        _screen_blinked = false;
+        _ai_state.initial_position.y = -(frameSize.height+1);
+        position.y = _ai_state.initial_position.y;
+        hitPoints.total = PLAYER_INITIAL_HP;
+        hitPoints.current = hitPoints.total;
+        hit_duration = BOSS_HIT_DURATION;
+    }
 }
 
 bool classnpc::is_player_friend()

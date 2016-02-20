@@ -290,7 +290,6 @@ SOURCES += main.cpp \
     graphic/option_picker.cpp \
     scenes/dialogs.cpp \
     file/file_io.cpp \
-    character/classboss.cpp \
     graphic/animation.cpp \
     colision_detection.cpp \
     character/artificial_inteligence.cpp \
@@ -331,7 +330,6 @@ HEADERS += \
     scenes/dialogs.h \
     file/format.h \
     file/file_io.h \
-    character/classboss.h \
     graphic/animation.h \
     colision_detection.h \
     character/artificial_inteligence.h \

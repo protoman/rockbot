@@ -35,7 +35,12 @@ adicionar sistema de colisão que permite diagonais
                                         2.0.0b1
 *******************************************************************************************
 
-- olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
+OK - olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
+- abelhas zig-zag as vezes atravessam a parede
+- objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
+- chefe não está aparecendo no fim da fase
+    * porque tem um set boss no mapa se não funciona se o NPC ele mesmo não tiver flag de boss?
+- is_ghost está ligado por padrão ao criar novo inimigo
 
 
 - tornar players e inimigos transparentes quando atingidos

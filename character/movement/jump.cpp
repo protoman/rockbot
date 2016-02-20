@@ -87,7 +87,6 @@ void classjump::interrupt()
 
     state = JUMPDOWN;
 
-    std::cout << "OBJUMP RESET SPEED #1" << std::endl;
     speed = 0;
 }
 
@@ -96,7 +95,6 @@ void classjump::finish()
     jumps_number = 0;
     state = NOJUMP;
 
-    std::cout << "OBJUMP RESET SPEED #2" << std::endl;
     speed = 0;
     started = false;
 }
