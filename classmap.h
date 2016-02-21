@@ -6,7 +6,6 @@
 #include "file/format/st_common.h"
 #include "graphicslib.h"
 #include "character/classnpc.h"
-#include "character/classboss.h"
 #include "objects/object.h"
 #include "graphic/animation.h"
 #include <list>
@@ -145,7 +144,7 @@ public:
 
     std::vector<object*> check_collision_with_objects(st_rectangle collision_area);
 
-    void show_objects(int adjust_y=0);
+    void show_objects(int adjust_y=0, int adjust_x=0);
 
     bool boss_hit_ground();
 

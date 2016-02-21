@@ -744,26 +744,32 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
 			pObj->char_update_real_position();
 			pObj->show();
 
+
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
                 loaded_stage.showAbove(-i*TRANSITION_STEP);
                 loaded_stage.get_current_map()->show_objects(-i*TRANSITION_STEP);
                 int temp_map_3rdlevel_pos = (RES_H+TILESIZE*0.5) - i*TRANSITION_STEP - 8;
-                temp_map.show_objects(temp_map_3rdlevel_pos);
+                temp_map.show_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map.showAbove(temp_map_3rdlevel_pos, adjust_x);
 			} else {
                 loaded_stage.showAbove(i*TRANSITION_STEP);
                 loaded_stage.get_current_map()->show_objects(i*TRANSITION_STEP);
                 int temp_map_3rdlevel_pos = -(RES_H+TILESIZE*0.5) + i*TRANSITION_STEP + 8; // 8 is a adjust for some error I don't know the reason
-                temp_map.show_objects(temp_map_3rdlevel_pos);
+                temp_map.show_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map.showAbove(temp_map_3rdlevel_pos, adjust_x);
 			}
 
 
             draw_lib.update_screen();
 #if !defined(PLAYSTATION2) && !defined(ANDROID)
-            input.waitTime(8);
+            input.waitTime(20);
 #endif
 		}
+
+
+        std::cout << "DONE!!" << std::endl;
+        input.waitTime(1000);
+
         if (type == TRANSITION_TOP_TO_BOTTOM) {
             temp_map.changeScrolling(st_position(temp_map.getMapScrolling().x, 0));
         }

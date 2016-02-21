@@ -11,7 +11,6 @@ using namespace std;
 #include "classmap.h"
 #include "objects/object.h"
 #include "character/character.h"
-#include "character/classboss.h"
 #include "colision_detection.h"
 #include "file/file_io.h"
 #include "game_mediator.h"
@@ -1577,12 +1576,12 @@ std::vector<object*> classMap::check_collision_with_objects(st_rectangle collisi
     return res;
 }
 
-void classMap::show_objects(int adjust_y)
+void classMap::show_objects(int adjust_y, int adjust_x)
 {
     /// @TODO - update timers
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        (*object_it).show(adjust_y, 0); // TODO: must pass scroll map to npcs somwhow...
+        (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
     }
 }
 

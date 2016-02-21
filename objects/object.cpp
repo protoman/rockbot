@@ -291,6 +291,11 @@ void object::show(int adjust_y, int adjust_x)
 		return;
 	}
 
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+
     if (draw_lib.get_object_graphic(_id) == NULL) {
 		//std::cout << "object::show - could not find graphic for object with id " << _id << std::endl;
 		return;
@@ -304,15 +309,10 @@ void object::show(int adjust_y, int adjust_x)
 
     if (_must_teleport_in) {
         if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
-            draw_lib.show_teleport_small(position.x - map->getMapScrolling().x, position.y);
+            draw_lib.show_teleport_small(position.x - scroll_x, position.y);
             return;
         }
     }
-
-    if (is_on_screen() == false) { // no need to show graphics if object is just not visible
-        return;
-    }
-
 
     // ray have a different way to show itself
     if (type == OBJ_RAY_VERTICAL) {
@@ -335,13 +335,10 @@ void object::show(int adjust_y, int adjust_x)
     int max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
 
 
-    //if (name == "Disappearing Block #1") std::cout << "OBJ::show::max_frames: " << max_frames << std::endl;
 
 	// checks if the Object is near the screen to show it
-	if (position.x+16 >= abs((float)map->getMapScrolling().x) && position.x-16 <= abs((float)map->getMapScrolling().x)+RES_W) {
+    if (position.x+TILESIZE >= abs(scroll_x) && position.x-TILESIZE <= abs(scroll_x)+RES_W) {
 		// animation
-
-
 
 
         //std::cout << "object::show - frame_duration: " << GameMediator::get_instance()->object_list.at(_id).frame_duration << std::endl;
@@ -410,13 +407,16 @@ void object::show(int adjust_y, int adjust_x)
 		graphic_origin.h = framesize_h;
 
 		// parte que vai ser colada
-		graphic_destiny.x = position.x - map->getMapScrolling().x;
+        graphic_destiny.x = position.x - scroll_x;
 		graphic_destiny.y = position.y + map->getMapScrolling().y;
 		//std::cout << "searching for graphic '" << name << "'" << std::endl;
-        //std::cout << "object::show - map->getMapScrolling().x: " << map->getMapScrolling().x << ", map->getMapScrolling().y: " << map->getMapScrolling().y << ", position.y: " << position.y << ", graphic_destiny.x: " << graphic_destiny.x << ", graphic_destiny.y: " << graphic_destiny.y << std::endl;
+        //std::cout << "object::show - scroll_x: " << scroll_x << ", map->getMapScrolling().y: " << map->getMapScrolling().y << ", position.y: " << position.y << ", graphic_destiny.x: " << graphic_destiny.x << ", graphic_destiny.y: " << graphic_destiny.y << std::endl;
+
+        std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
+
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
-            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x+adjust_x, graphic_destiny.y+adjust_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y+adjust_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // disappearning block has a shadow under it
             if (type == OBJ_DISAPPEARING_BLOCK) {
                 graphLib.clear_area(graphic_destiny.x, graphic_destiny.y+framesize_h+adjust_y, framesize_w, 6, 0, 0, 0);
