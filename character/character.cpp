@@ -2414,7 +2414,11 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         jump_button_released = false;
         if (is_player() == true) { /// @TODO - remove all animations when boss is defeated
             if (map != NULL) {
-                map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(0, 5), 150, 4, state.direction, st_size(24, 24));
+                int hit_anim_x = 0;
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    hit_anim_x = 3;
+                }
+                map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(hit_anim_x, 5), 150, 4, state.direction, st_size(24, 24));
             }
         }
 	}

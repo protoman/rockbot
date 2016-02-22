@@ -42,8 +42,7 @@ OK - objetos do mapa antigo ficam na mesma posição no mapa novo, na transiçã
 OK - "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
 OK - is_ghost está ligado por padrão ao criar novo inimigo
 OK - está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
-
-- ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
+OK - ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
 
 - chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
 - manter scroll do fundo quando troca de tela se background for o mesmo (ou sempre...)
