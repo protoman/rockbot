@@ -680,6 +680,7 @@ protected:
     unsigned int last_hit_time; /// time of last being hit
     unsigned int hit_duration; /// time the character is intangible after being hit (in milisseconds)
     unsigned int hit_animation_timer; /// used to control "blinking" effect when hit
+    unsigned int hit_animation_count;   // to control number of times blinking uses
     st_float_position position;
     st_position realPosition;
     unsigned int last_execute_time;

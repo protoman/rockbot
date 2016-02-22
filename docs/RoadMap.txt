@@ -38,11 +38,15 @@ adicionar sistema de colisão que permite diagonais
 OK - olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
 OK - abelhas zig-zag as vezes atravessam a parede
 OK - chefe não está aparecendo no fim da fase
+OK - objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
 
-- objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
+
+- "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
+    * se for player ou boss, mostrar logo que atingido imagem de hit
+- está saindo do ANIM_HIT as vezes
+
 - is_ghost está ligado por padrão ao criar novo inimigo
-- chefe derrotado está aparecendo quando se entra na sala
-- tornar players e inimigos transparentes quando atingidos
+- chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
 - manter scroll do fundo quando troca de tela se background for o mesmo (ou sempre...)
 
 

@@ -68,6 +68,7 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _dashed_jump = false;
     _can_execute_airdash = true;
     _player_must_reset_colors = false;
+    hit_animation_count = 0;
 }
 
 
@@ -897,11 +898,21 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     /// blinking when hit
     unsigned int now_timer = timer.getTimer();
     if (now_timer < hit_duration+last_hit_time) {
+
+        if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
+
         if (hit_animation_timer > now_timer) {
             graphLib.show_white_surface_at(&it_graphic->second[direction][type][frame_n].frameSurface, frame_pos);
+            if (is_player()) { std::cout << "PLATER::HIT::SHOW" << std::endl; }
+            hit_animation_count = 0;
             return;
         } else if ((hit_animation_timer+HIT_BLINK_ANIMATION_LAPSE) < now_timer) {
-            hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
+            if (is_player()) { std::cout << "PLATER::HIT::HIDE" << std::endl; }
+            hit_animation_count++;
+            if (hit_animation_count > 2) {
+                hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
+            }
+            return;
         }
     }
     if (_progressive_appear_pos == 0) {

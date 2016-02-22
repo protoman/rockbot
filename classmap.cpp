@@ -219,17 +219,6 @@ void classMap::showMap()
     }
 
 
-    /// @TODO: remove "finished" animations
-    std::vector<animation>::iterator animation_it;
-    for (animation_it = animation_list.begin(); animation_it != animation_list.end(); animation_it++) {
-        if ((*animation_it).finished() == true) {
-            animation_list.erase(animation_it);
-            break;
-        } else {
-            (*animation_it).execute(); // TODO: must pass scroll map to npcs somwhow...
-        }
-    }
-
     graphLib.update_anim_tiles_timers();
     draw_lib.show_gfx();
 }
@@ -283,6 +272,20 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x)
             _water_bubble.pos.y = -1;
         }
     }
+
+    // animations
+    /// @TODO: remove "finished" animations
+    std::vector<animation>::iterator animation_it;
+    for (animation_it = animation_list.begin(); animation_it != animation_list.end(); animation_it++) {
+        if ((*animation_it).finished() == true) {
+            animation_list.erase(animation_it);
+            break;
+        } else {
+            (*animation_it).execute(); // TODO: must pass scroll map to npcs somwhow...
+        }
+    }
+
+
 }
 
 bool classMap::is_point_solid(st_position pos) const
