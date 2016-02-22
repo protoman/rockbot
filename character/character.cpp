@@ -179,6 +179,9 @@ void character::charMove() {
 	}
 
     if (state.animation_type == ANIM_TYPE_HIT) {
+
+        if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
+
         if (hit_moved_back_n < get_hit_push_back_n()) {
             //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
             if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -188,7 +191,7 @@ void character::charMove() {
                 moveCommands.left = 1;
                 moveCommands.right = 0;
             }
-            temp_move_speed = 1.0;
+            temp_move_speed = 0.5;
         } else {
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Z" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
@@ -899,15 +902,13 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     unsigned int now_timer = timer.getTimer();
     if (now_timer < hit_duration+last_hit_time) {
 
-        if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
+        //if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
 
         if (hit_animation_timer > now_timer) {
             graphLib.show_white_surface_at(&it_graphic->second[direction][type][frame_n].frameSurface, frame_pos);
-            if (is_player()) { std::cout << "PLATER::HIT::SHOW" << std::endl; }
             hit_animation_count = 0;
             return;
         } else if ((hit_animation_timer+HIT_BLINK_ANIMATION_LAPSE) < now_timer) {
-            if (is_player()) { std::cout << "PLATER::HIT::HIDE" << std::endl; }
             hit_animation_count++;
             if (hit_animation_count > 2) {
                 hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
@@ -2813,9 +2814,9 @@ void character::cancel_slide()
     }
 }
 
-int character::get_hit_push_back_n()
+float character::get_hit_push_back_n()
 {
-    return TILESIZE;
+    return TILESIZE*0.8;
 }
 
 bool character::have_shoryuken()

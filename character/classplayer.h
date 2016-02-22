@@ -213,7 +213,7 @@ private:
     bool can_air_dash();
 
 
-    int get_hit_push_back_n();
+    float get_hit_push_back_n();
 
     int get_armor_arms_attack_id();
 

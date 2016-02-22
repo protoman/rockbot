@@ -225,21 +225,25 @@ namespace format_v4 {
      */
         file_npc() {
             id = -1;
-            sprintf(name, "%s", "Enemy Name");
-            graphic_filename[0] = '\0';
             projectile_id[0] = -1;
             projectile_id[1] = -1;
-            bg_graphic_filename[0] = '\0';
-            walk_range = 160;
-            fly_flag = 0;
-            IA_type = 0;
-            is_boss = false;
+            sprintf(name, "%s", "Enemy Name");
+            graphic_filename[0] = '\0';
+            direction = ANIM_DIRECTION_LEFT;
             speed = 3;
+            walk_range = 160;
+            facing = ANIM_DIRECTION_LEFT;
+            frame_size.width = TILESIZE;
+            frame_size.height = TILESIZE;
+            is_ghost = false;
+            shield_type = 0;
+            IA_type = 0;
+            fly_flag = 0;
+            bg_graphic_filename[0] = '\0';
+            is_boss = false;
             is_sub_boss = false;
             respawn_delay = 0;
             attack_frame = 0;
-            frame_size.width = TILESIZE;
-            frame_size.height = TILESIZE;
         }
 
     };

@@ -488,7 +488,7 @@ public:
 
     void cancel_slide();
 
-    virtual int get_hit_push_back_n();
+    virtual float get_hit_push_back_n();
 
     virtual bool have_shoryuken();
 
@@ -714,7 +714,7 @@ protected:
 
 
 	// DEBUG
-    int hit_moved_back_n;
+    float hit_moved_back_n;
 	// external members
 
 	// TODO - graphics list map, used in order to avoid duplication of graphics

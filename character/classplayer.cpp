@@ -1158,7 +1158,7 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
     character::damage(damage_points, ignore_hit_timer);
 }
 
-int classPlayer::get_hit_push_back_n()
+float classPlayer::get_hit_push_back_n()
 {
     if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_NOPUSHBACK) {
         return 0;
