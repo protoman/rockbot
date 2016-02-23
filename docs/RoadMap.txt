@@ -43,9 +43,9 @@ OK - "tornar players e inimigos transparentes"piscar" personagens quando atingid
 OK - is_ghost está ligado por padrão ao criar novo inimigo
 OK - está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
 OK - ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
+OK - manter scroll do fundo quando troca de tela
 
 - chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
-- manter scroll do fundo quando troca de tela se background for o mesmo (ou sempre...)
 
 
 => update script files to copy font to GAMEDIR, remove non-used fonts

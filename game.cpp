@@ -762,13 +762,12 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
 
             draw_lib.update_screen();
 #if !defined(PLAYSTATION2) && !defined(ANDROID)
-            input.waitTime(20);
+            input.waitTime(10);
 #endif
 		}
 
 
         std::cout << "DONE!!" << std::endl;
-        input.waitTime(1000);
 
         if (type == TRANSITION_TOP_TO_BOTTOM) {
             temp_map.changeScrolling(st_position(temp_map.getMapScrolling().x, 0));
@@ -1088,7 +1087,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE2;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
