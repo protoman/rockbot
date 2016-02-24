@@ -69,6 +69,8 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _can_execute_airdash = true;
     _player_must_reset_colors = false;
     hit_animation_count = 0;
+    _attack_frame_n = -1;
+    _is_attack_frame = false;
 }
 
 
@@ -221,6 +223,7 @@ void character::charMove() {
                     return;
 				}
 				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                    std::cout << "## RESET ANIM TIMER #2 ##" << std::endl;
 					state.animation_timer = 0;
 				}
                 if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -258,6 +261,7 @@ void character::charMove() {
                     return;
                 }
 				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                    std::cout << "## RESET ANIM TIMER #3 ##" << std::endl;
 					state.animation_timer = 0;
                 }
                 if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -441,14 +445,12 @@ void character::charMove() {
 			//if (is_player()) std::cout << "********* reset to stand - on_stairs_frame: " << is_in_stairs_frame() << ", state.animation_type: " << state.animation_type << std::endl;
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
-			//state.animation_timer = 0;
 		}
 		//std::cout << "charMove - ANIM_TYPE_HIT: " << ANIM_TYPE_HIT << ", animation_type: " << state.animation_type << ", timer.getTimer(): " << timer.getTimer() << ", hit_duration+last_hit_time: " << hit_duration+last_hit_time << std::endl;
 		if (state.animation_type == ANIM_TYPE_HIT && timer.getTimer() > hit_duration/2+last_hit_time) { // finished hit time
 			//if (is_player()) std::cout << "state.animation_type SET to STAND " << std::endl;
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #E" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
-			//state.animation_timer = 0;
 		}
 	}
 
@@ -776,6 +778,17 @@ void character::show() {
 		return;
 	}
 
+
+    // check attack frame
+
+    if (is_player() == false) { std::cout << "is_on_attack_frame(): " << is_on_attack_frame() << ", _attack_frame_n: " << _attack_frame_n << ", state.animation_state: " << state.animation_state << std::endl; }
+
+    if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state == _attack_frame_n) {
+        _is_attack_frame = true;
+    } else {
+        _is_attack_frame = false;
+    }
+
     // show background, if any
     if (have_background_graphics() == true) {
         graphLib.showSurfaceAt(&(_character_graphics_background_list.find(name)->second), realPosition, false);
@@ -815,6 +828,10 @@ void character::show_sprite()
     //if (name == "Snow Bear") std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
 
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
+
+        if (is_player() == false) {
+            std::cout << "CHAR::SHOW_SPRITE::INC - state.animation_timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
+        }
 
 		// change animation state to next frame
 		int frame_inc = 1;
@@ -2233,10 +2250,15 @@ Uint8 character::get_projectile_max_shots()
 
 void character::push_back(short direction)
 {
+    int xinc = -(move_speed-0.2);
     if (direction == ANIM_DIRECTION_LEFT) {
-        position.x += move_speed-0.2;
-    } else {
-        position.x -= move_speed-0.2;
+        xinc = move_speed-0.2;
+    }
+
+    std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;
+
+    if (test_change_position(xinc, 0)) {
+        position.x += xinc;
     }
 }
 
@@ -2604,6 +2626,7 @@ void character::change_position_x(short xinc)
                 return;
             }
             if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                std::cout << "## RESET ANIM TIMER #1 ##" << std::endl;
                 state.animation_timer = 0;
             }
             if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -2774,7 +2797,6 @@ void character::set_progressive_appear_pos(int pos)
 
 bool character::is_stage_boss()
 {
-    //std::cout << ">>> character::is_stage_boss: " << _is_stage_boss << std::endl;
     return _is_stage_boss;
 }
 

@@ -752,7 +752,9 @@ protected:
     short _charged_shot_projectile_id;
     short _hit_move_back_dist;
     bool _was_animation_reset;                               // inform that animation "looped" once
-    bool _is_last_frame;
+    bool _is_last_frame;                                     // inform that reached the end of that animation loop
+    bool _is_attack_frame;                                   // inform that NPC reached the attack-frame number (so it can attack before attack animation reaches the final frame)
+    short _attack_frame_n;                                   // what is the attack frame number, by default it is -1, that means we use the last one
     bool _was_hit;                                           // indicates if the character was hit during the current cicle/loop
     short int _simultaneous_shots;                            // how many shots at a time the character can fire
     bool _is_boss;

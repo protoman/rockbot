@@ -243,7 +243,7 @@ namespace format_v4 {
             is_boss = false;
             is_sub_boss = false;
             respawn_delay = 0;
-            attack_frame = 0;
+            attack_frame = -1;
         }
 
     };

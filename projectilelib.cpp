@@ -85,19 +85,20 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         freeze_weapon_id = _id;
 		graphLib.blink_screen(235, 235, 235);
         draw_lib.set_flash_enabled(true);
+    } else if (_move_type == TRAJECTORY_PUSH_BACK) {
+        _effect_timer = timer.getTimer() + 2000;
+    } else if (_move_type == TRAJECTORY_LASER) {
+        status = TRAJECTORY_LINEAR; // we use status as the real trajectory in laser
+    } else if (_move_type == TRAJECTORY_CENTERED) {
+        _points = 3;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
         //std::cout << ">> position0.x: " << position0.x << ", position.x: " << position.x << std::endl;
 	}
 
-    if (_move_type == TRAJECTORY_LASER) {
-        status = TRAJECTORY_LINEAR; // we use status as the real trajectory in laser
-    }
 
-    if (_move_type == TRAJECTORY_CENTERED) {
-        _points = 3;
-    }
+
     //_target_distance = 0;
     _effect_timer = timer.getTimer() + 3600;
     animation_pos = 0;
@@ -622,7 +623,10 @@ st_size projectile::move() {
 
 
     } else if (_move_type == TRAJECTORY_PUSH_BACK) {
-        // do nothing, will be handled by move_projectiles() in player/npc classes
+        // execution will be handled by move_projectiles() in player/npc classes, only control duration
+        if (timer.getTimer() > _effect_timer) {
+            is_finished = true;
+        }
     } else {
         std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
 	}

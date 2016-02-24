@@ -1025,7 +1025,8 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             }
         }
 		state.animation_state = 0;
-		state.animation_timer = 0;
+        state.animation_timer = timer.getTimer() + (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay;
+        std::cout << "## RESET ANIM TIMER #4 ##" << std::endl;
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
 	} else {
@@ -1040,7 +1041,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
                 if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #8" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
             }
-        } else if (_is_last_frame == true && _did_shot == false) { // only shoot when reached the last frame in animation attack
+        } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
             //std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
             st_position proj_pos;
             int proj_direction = state.direction;

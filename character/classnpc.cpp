@@ -152,6 +152,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     shield_type = GameMediator::get_instance()->get_enemy(main_id).shield_type;
 	_is_boss = false;
 
+    _attack_frame_n = GameMediator::get_instance()->get_enemy(main_id).attack_frame;
+
+
+    std::cout << "NPC::BUILD_BASIC::_attack_frame_n[" << name << "]: " << _attack_frame_n << std::endl;
     IA_type = GameMediator::get_instance()->get_enemy(main_id).IA_type;
 
 
