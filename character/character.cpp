@@ -223,7 +223,6 @@ void character::charMove() {
                     return;
 				}
 				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-                    std::cout << "## RESET ANIM TIMER #2 ##" << std::endl;
 					state.animation_timer = 0;
 				}
                 if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -261,7 +260,6 @@ void character::charMove() {
                     return;
                 }
 				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-                    std::cout << "## RESET ANIM TIMER #3 ##" << std::endl;
 					state.animation_timer = 0;
                 }
                 if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -781,8 +779,6 @@ void character::show() {
 
     // check attack frame
 
-    if (is_player() == false) { std::cout << "is_on_attack_frame(): " << is_on_attack_frame() << ", _attack_frame_n: " << _attack_frame_n << ", state.animation_state: " << state.animation_state << std::endl; }
-
     if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state == _attack_frame_n) {
         _is_attack_frame = true;
     } else {
@@ -825,13 +821,7 @@ void character::show() {
 
 void character::show_sprite()
 {
-    //if (name == "Snow Bear") std::cout << "character::show_sprite - state.animation_state: " << state.animation_state << ", timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
-
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
-
-        if (is_player() == false) {
-            std::cout << "CHAR::SHOW_SPRITE::INC - state.animation_timer: " << state.animation_timer << ", timer.getTimer(): " << timer.getTimer() << std::endl;
-        }
 
 		// change animation state to next frame
 		int frame_inc = 1;
@@ -2626,7 +2616,6 @@ void character::change_position_x(short xinc)
                 return;
             }
             if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-                std::cout << "## RESET ANIM TIMER #1 ##" << std::endl;
                 state.animation_timer = 0;
             }
             if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {

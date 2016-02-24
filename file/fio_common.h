@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 extern std::string FILEPATH;
-
+extern std::string GAMEPATH;
 
 class fio_common
 {

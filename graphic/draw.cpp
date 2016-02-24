@@ -39,13 +39,13 @@ void draw::preload()
     std::string filename = FILEPATH + "images/animations/ready.png";
     graphLib.surfaceFromFile(filename, &ready_message);
 
-    filename = FILEPATH + "images/sprites/teleport_small.png";
+    filename = GAMEPATH + "shared/images/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
 
-    filename = FILEPATH + "images/sprites/snowflacke.png";
+    filename = GAMEPATH + "shared/images/snowflacke.png";
     graphLib.surfaceFromFile(filename, &snow_flacke);
 
-    filename = FILEPATH + "/images/tilesets/rain.png";
+    filename = GAMEPATH + "shared/images/rain.png";
     graphLib.surfaceFromFile(filename, &rain_obj);
 
     // DROPABLE OBJECT GRAPHICS
@@ -112,7 +112,7 @@ void draw::show_flash()
 {
     if (flash_obj.get_surface() == NULL) {
         // load rain
-        std::string filename = FILEPATH + "/images/tilesets/flash.png";
+        std::string filename = GAMEPATH + "/shared/images/flash.png";
         graphLib.surfaceFromFile(filename, &flash_obj);
     }
     for (int i=0; i<FLASH_POINTS_N; i++) {
@@ -194,7 +194,7 @@ void draw::show_ready()
 void draw::show_bubble(int x, int y)
 {
     if (_bubble_gfx.get_surface() == NULL) {
-        std::string filename = FILEPATH + "images/tilesets/bubble.png";
+        std::string filename = GAMEPATH + "shared/images/bubble.png";
         graphLib.surfaceFromFile(filename, &_bubble_gfx);
     }
     graphLib.showSurfaceAt(&_bubble_gfx, st_position(x, y), false);

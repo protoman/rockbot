@@ -89,7 +89,7 @@ void inputLib::readInput()
             } else if (event.type == SDL_KEYUP) {
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
-                        if (i == BTN_ATTACK) std::cout << "INPUT::readInput::KEYUP::ATTACK" << std::endl;
+                        //if (i == BTN_ATTACK) std::cout << "INPUT::readInput::KEYUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         _used_keyboard = true;
                         if (i == BTN_JUMP) {

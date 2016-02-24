@@ -174,7 +174,9 @@ void convert_stages_and_maps(v1_file_stages& stages) {
     for (int i=0; i<V1_FS_MAX_STAGES; i++) {
         v1_file_stage temp_v1 = stages.stages[i];
         CURRENT_FILE_FORMAT::file_stage temp_v2;
-        temp_v2.autoscroll = false;
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            temp_v2.autoscroll[j] = false;
+        }
         sprintf(temp_v2.bgmusic_filename, "%s", temp_v1.bgmusic_filename);
         temp_v2.boss.id_npc = temp_v1.boss.id_npc;
         temp_v2.boss.id_weapon = temp_v1.boss.id_weapon;
