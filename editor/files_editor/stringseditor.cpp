@@ -41,7 +41,7 @@ StringsEditor::StringsEditor(QWidget *parent, bool pick_mode) : QDialog(parent),
 
     // ==================== COMMON STRINGS ==================== //
 
-    std::vector<CURRENT_FILE_FORMAT::st_file_common_string> common_string_list = fio_str.get_common_strings();
+    std::vector<std::string> common_string_list = fio_str.get_common_strings();
     /*
     common_string_list.push_back(CURRENT_FILE_FORMAT::st_file_common_string("NOME #1", "VALOR #1"));
     common_string_list.push_back(CURRENT_FILE_FORMAT::st_file_common_string("NOME #2", "VALOR #2"));
@@ -73,8 +73,7 @@ void StringsEditor::save_data()
     if (current_lang.length() != 2) {
         return;
     }
-    std::string path_new = FILEPATH + std::string("/lang/strings_ingame_") + current_lang + std::string(".dat");
-    fio_str.save_game_strings(translation_string_list, path_new);
+    fio_str.save_game_strings(translation_string_list, fio_str.get_game_strings_filename());
 }
 
 void StringsEditor::set_target_qline(QLineEdit *line)

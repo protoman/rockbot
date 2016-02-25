@@ -105,6 +105,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 	}
 
 
+
     // draw tiles
     for (i=0; i<MAP_W; i++) {
         for (j=0; j<MAP_H; j++) {
@@ -350,7 +351,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
 
                 int direction = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].direction;
-                std::cout << "direction: " << direction << ", ANIM_DIRECTION_LEFT: " << std::endl;
+                //std::cout << "direction: " << direction << ", ANIM_DIRECTION_LEFT: " << std::endl;
                 if (direction == ANIM_DIRECTION_LEFT) {
                     QImage temp_img(filename.c_str());
                     QImage mirror_image = temp_img.copy(source.x(), source.y(), source.width(), source.height());
@@ -362,6 +363,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
             }
         }
     }
+
+
 
     if (Mediator::get_instance()->show_objects_flag == true) {
         /// draw objects
@@ -436,25 +439,40 @@ void EditorArea::paintEvent(QPaintEvent *) {
             }
         }
 
+
+
         for (int k=0; k<FS_STAGE_MAX_MAPS; k++) {
-            for (int i=0; i<FS_MAX_MAP_OBJECTS; i++) {
+            for (int m=0; m<FS_MAX_MAP_OBJECTS; m++) {
+
+                CURRENT_FILE_FORMAT::file_map_object map_obj = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[m];
+                int obj_id = map_obj.id_object;
+                if (obj_id == -1 || obj_id >= Mediator::get_instance()->object_list.size()) { // old format style or invalid object
+                    continue;
+                }
+
                 // draw teleport destiny links
-                //std::cout << "OBJ[" << i << "].map_dest: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].map_dest << ", currentMap: " << k << std::endl;
-                if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].map_dest == Mediator::get_instance()->currentMap) {
-                    int obj_id = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].id_object;
-                    std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.x << ", y: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.y << std::endl;
+                //std::cout << "OBJ[" << i << "].map_dest: " << (int)map_obj.map_dest << ", currentMap: " << k << std::endl;
+                if (map_obj.map_dest == Mediator::get_instance()->currentMap) {
+
+
+
+                    //std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)map_obj.link_dest.x << ", y: " << (int)map_obj.link_dest.y << std::endl;
+
                     if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));
                     } else {
                         painter.setBrush(QColor(60, 160, 60, 180));
                     }
-                    painter.drawEllipse(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
+
+                    painter.drawEllipse(map_obj.link_dest.x*16*Mediator::get_instance()->zoom, map_obj.link_dest.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
                     // cyan border
                     painter.setBrush(Qt::NoBrush);
                     painter.setPen(QColor(0, 255, 255, 255));
-                    painter.drawEllipse(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
+
+                    painter.drawEllipse(map_obj.link_dest.x*16*Mediator::get_instance()->zoom, map_obj.link_dest.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
+
                     painter.setPen(QColor(0, 0, 0, 255));
-                    painter.drawText(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.x*16*Mediator::get_instance()->zoom + 3*Mediator::get_instance()->zoom, (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][k].map_objects[i].link_dest.y+1)*16*Mediator::get_instance()->zoom -2*Mediator::get_instance()->zoom, QString::number(i));
+                    painter.drawText(map_obj.link_dest.x*16*Mediator::get_instance()->zoom + 3*Mediator::get_instance()->zoom, (map_obj.link_dest.y+1)*16*Mediator::get_instance()->zoom -2*Mediator::get_instance()->zoom, QString::number(i));
                 }
             }
         }
@@ -728,17 +746,17 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
 		int found_object = -1;
 		// search if there is an existing object in ths position, and if yes, remove it
-        for (int i=0; i<FS_MAX_MAP_OBJECTS; i++) {
-            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].id_object != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y == editor_selectedTileY) {
-				found_object = i;
+        for (int m=0; m<FS_MAX_MAP_OBJECTS; m++) {
+            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].id_object != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.y == editor_selectedTileY) {
+                found_object = m;
 				break;
 			}
 		}
 		// clean old-format trash
-        for (int i=0; i<FS_MAX_MAP_OBJECTS; i++) {
-            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x == -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y == -1) {
-                std::cout << "reseting free-slot - i: " << i << ", id: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].id_object << ", x: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x << ", y: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y << std::endl;
-                Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].id_object = -1;
+        for (int m=0; m<FS_MAX_MAP_OBJECTS; m++) {
+            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.x == -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.y == -1) {
+                std::cout << "reseting free-slot - m: " << m << ", id: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].id_object << ", x: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.x << ", y: " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].start_point.y << std::endl;
+                Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[m].id_object = -1;
 			}
 		}
 

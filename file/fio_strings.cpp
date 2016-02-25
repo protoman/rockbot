@@ -38,8 +38,7 @@ namespace format_v4 {
 
     std::vector<std::string> fio_strings::load_game_strings()
     {
-        std::string filename = std::string(GAMEPATH) + STRINGS_INGAME_FILENAME;
-        return load_game_strings_from_file(filename);
+        return load_game_strings_from_file(get_game_strings_filename());
     }
 
     std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename)
@@ -47,11 +46,14 @@ namespace format_v4 {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
         std::ifstream fp(filename.c_str());
-        //fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
 
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
-            create_default_ingame_strings();
+            if (filename == get_game_strings_filename()) {
+                create_default_ingame_strings();
+            } else if (filename == get_common_strings_filename()) {
+                create_default_common_strings();
+            }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
             if (!fp.is_open()) {
                 std::cout << "[WARNING] file_io::load_game_strings - Critical error, can't open' '" << filename << "' for reading." << std::endl;
@@ -65,6 +67,15 @@ namespace format_v4 {
             res.push_back(str);
         }
         fp.close();
+
+        if (res.size() == 0) {
+            if (filename == get_game_strings_filename()) {
+                create_default_ingame_strings();
+            } else if (filename == get_common_strings_filename()) {
+                create_default_common_strings();
+            }
+        }
+
         return res;
     }
 
@@ -86,6 +97,13 @@ namespace format_v4 {
     std::string fio_strings::get_common_strings_filename()
     {
         std::string filename = FILEPATH + STRINGS_COMMON_FILENAME;
+        filename = StringUtils::clean_filename(filename);
+        return filename;
+    }
+
+    std::string fio_strings::get_game_strings_filename()
+    {
+        std::string filename = std::string(GAMEPATH) + "/shared/" + STRINGS_INGAME_FILENAME;
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
@@ -118,8 +136,8 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
         sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
         sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
-        sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2015 UPPERLAND STUDIOS");
-        //sprintf(lines[strings_ingame_copyrightline], "%s", "(c) 2009-2015 UPPERLAND STUDIOS");
+        sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2016 UPPERLAND STUDIOS");
+        //sprintf(lines[strings_ingame_copyrightline], "%s", "(c) 2009-2016 UPPERLAND STUDIOS");
         sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
         sprintf(lines[strings_ingame_input], "%s", "INPUT");
         sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -187,41 +205,33 @@ namespace format_v4 {
         /// @TODO: add assert to check that we set all the values from the enum
 
 
-        std::string filename = std::string(GAMEPATH) + STRINGS_INGAME_FILENAME;
-
-        std::ofstream fp(filename.c_str());
-        if (!fp.is_open()) {
-            std::cout << ">> fio_strings::create_default_ingame_strings: Could not open '" << filename << "' for writting." << std::endl;
-            exit(-1);
-        }
-
+        std::vector<std::string> res;
         for (int i=0; i<strings_ingame_COUNT; i++) {
             std::string line = std::string(lines[i]) + std::string("\n");
-            fp << line.c_str();
+
+            std::cout << "fio_strings::create_default_ingame_strings[" << i << "]: " << line << std::endl;
+            res.push_back(line);
         }
-        fp.close();
+
+        save_game_strings(res, get_game_strings_filename());
 
     }
 
     void fio_strings::create_default_common_strings()
     {
-        std::vector<st_file_common_string> res;
+        std::vector<std::string> res;
         for (int i=0; i<FS_MAX_STAGES; i++) {
-            char line_id[FS_COMMONSTRING_ID_SIZE];
-            sprintf(line_id, "STAGE_DLG_NAME_%d", i);
             char line_value[FS_CHAR_NAME_SIZE];
             sprintf(line_value, "DIALOG_PERSON_NAME #%d", i);
-            res.push_back(st_file_common_string(line_id, line_value));
+            res.push_back(line_value);
         }
 
         // stage-start dialogs
         for (int i=0; i<FS_MAX_STAGES; i++) {
             // person dialogs
-            char line_id[FS_COMMONSTRING_ID_SIZE];
             char line_value[FS_COMMON_STRINGS_DIALOG];
-            sprintf(line_id, "STAGE_DLG_%d", i);
             sprintf(line_value, "START-STAGE DIALOG #%d", i);
-            res.push_back(st_file_common_string(line_id, line_value));
+            res.push_back(line_value);
             // players dialogs
             for (int j=0; j<4; j++) {
                 for (int k=0; k<3; k++) {
@@ -229,7 +239,7 @@ namespace format_v4 {
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
                     sprintf(player_line_id, "STAGE_DLG_PLAYER_%d_%d_%d", j, i, k);
                     sprintf(player_line_value, "STAGE DIALOG PLAYER %d %d %d", j, i, k);
-                    res.push_back(st_file_common_string(player_line_id, player_line_value));
+                    res.push_back(player_line_value);
                 }
             }
         }
@@ -238,11 +248,9 @@ namespace format_v4 {
         // stage-boss dialogs
         for (int i=0; i<FS_MAX_STAGES; i++) {
             // person dialogs
-            char line_id[FS_COMMONSTRING_ID_SIZE];
             char line_value[FS_COMMON_STRINGS_DIALOG];
-            sprintf(line_id, "BOSS_DLG_%d", i);
             sprintf(line_value, "BOSS DIALOG #%d", i);
-            res.push_back(st_file_common_string(line_id, line_value));
+            res.push_back(line_value);
             // players dialogs
             for (int j=0; j<4; j++) {
                 // 3 lines
@@ -251,89 +259,58 @@ namespace format_v4 {
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
                     sprintf(player_line_id, "BOSS_DLG_PLAYER_%d_%d %d", j, i, k);
                     sprintf(player_line_value, "BOSS DIALOG PLAYER %d %d %d", j, i, k);
-                    res.push_back(st_file_common_string(player_line_id, player_line_value));
+                    res.push_back(player_line_value);
                 }
             }
         }
 
-        std::ofstream fp;
-        fp.open(get_common_strings_filename().c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::create_default_common_strings - could not create file '" << get_common_strings_filename() << "'" << std::endl;
-            exit(-1);
-        }
-        for (unsigned int i=0; i<res.size(); i++) {
-            st_file_common_string item = res.at(i);
-            fp.write(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
-        }
-        fp.close();
-
+        save_common_strings(res);
     }
 
 
 
 
-    std::vector<st_file_common_string> fio_strings::get_common_strings()
+    std::vector<std::string> fio_strings::get_common_strings()
     {
-        std::vector<st_file_common_string> res;
-        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
-        if (!fp.is_open()) {
-            create_default_common_strings();
-            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
-        }
-        while (!fp.eof()) {
-            st_file_common_string item;
-            fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
-            res.push_back(item);
-        }
-        return res;
-    }
-
-    st_file_common_string fio_strings::get_common_string(int id)
-    {
-        if (id == -1) {
-            return st_file_common_string(std::string(""), std::string("UNSET"));
-        }
-
         if (FILEPATH == "") {
-            return st_file_common_string(std::string(""), std::string("LOADING..."));
+            std::cout << "FIO_STRINGS - NO FILEPATH count: " << common_strings_list.size() << std::endl;
+            return common_strings_list;
         }
 
-        st_file_common_string item;
-        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
-        if (!fp.is_open()) {
-            create_default_common_strings();
-            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
+        if (common_strings_list.size() == 0) {
+            std::cout << "FIO_STRINGS - LOAD count: " << common_strings_list.size() << std::endl;
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename());
         }
-        int fpos = id * sizeof(st_file_common_string);
-        fp.seekg(fpos, std::ios::beg);
-        fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
-        return item;
+        return common_strings_list;
+    }
+
+    std::string fio_strings::get_common_string(int id)
+    {
+
+        if (id == -1) {
+            return std::string("");
+        }
+        if (FILEPATH == "") {
+            return std::string("");
+        }
+
+        std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
+
+        if (common_strings_list.size() == 0) {
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename());
+        }
+
+        if (id >= common_strings_list.size()) {
+            return std::string("");
+        }
+
+        return common_strings_list.at(id);
     }
 
 
-    std::map<int, st_file_common_string> fio_strings::get_common_strings_map(std::vector<int> id_list)
+    void fio_strings::save_common_strings(std::vector<std::string> data)
     {
-        std::map<int, st_file_common_string> res;
-        std::ifstream fp(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
-        if (!fp.is_open()) {
-            create_default_common_strings();
-            fp.open(get_common_strings_filename().c_str(), std::ios::in | std::ios::binary);
-        }
-        for (int i=0; i<id_list.size(); i++) {
-            st_file_common_string item;
-            int fpos = id_list.at(i) * sizeof(st_file_common_string);
-            fp.seekg(fpos, std::ios::beg);
-            fp.read(reinterpret_cast<char *>(&item), sizeof(st_file_common_string));
-            res.insert(std::pair<int, st_file_common_string>(id_list.at(i), item));
-        }
-        return res;
-    }
-
-    void fio_strings::save_common_strings(std::vector<CURRENT_FILE_FORMAT::st_file_common_string> data)
-    {
-        fio_common fio_cmm;
-        fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::st_file_common_string>(get_common_strings_filename(), data);
+        save_game_strings(data, get_common_strings_filename());
     }
 
     void fio_strings::create_files()

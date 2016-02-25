@@ -50,12 +50,12 @@ void TabText::fill_data()
 
 void TabText::set_fields(int index)
 {
-    ui->lineEdit1->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[0]).value);
-    ui->lineEdit2->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[1]).value);
-    ui->lineEdit3->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[2]).value);
-    ui->lineEdit4->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[3]).value);
-    ui->lineEdit5->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[4]).value);
-    ui->lineEdit6->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[5]).value);
+    ui->lineEdit1->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[0]).c_str()));
+    ui->lineEdit2->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[1]).c_str()));
+    ui->lineEdit3->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[2]).c_str()));
+    ui->lineEdit4->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[3]).c_str()));
+    ui->lineEdit5->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[4]).c_str()));
+    ui->lineEdit6->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(index).line_string_id[5]).c_str()));
     ui->positionType->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(index).position_type);
     change_x_y_fields_enabled();
     ui->textX_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(index).x);
@@ -133,12 +133,12 @@ void TabText::on_select_comboBox_currentIndexChanged(int index)
 {
     data_loading = true;
 
-    ui->lineEdit1->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[0]).value);
-    ui->lineEdit2->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[1]).value);
-    ui->lineEdit3->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[2]).value);
-    ui->lineEdit4->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[3]).value);
-    ui->lineEdit5->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[4]).value);
-    ui->lineEdit6->setText(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5]).value);
+    ui->lineEdit1->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[0]).c_str()));
+    ui->lineEdit2->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[1]).c_str()));
+    ui->lineEdit3->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[2]).c_str()));
+    ui->lineEdit4->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[3]).c_str()));
+    ui->lineEdit5->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[4]).c_str()));
+    ui->lineEdit6->setText(QString(fio_str.get_common_string(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).line_string_id[5]).c_str()));
 
     ui->positionType->setCurrentIndex(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).position_type);
     ui->textX_spinBox->setValue(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).x);
@@ -156,7 +156,7 @@ void TabText::on_string_selected(int string_id)
     Sint8* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
-    qline->setText(fio_str.get_common_string(string_id).value);
+    qline->setText(QString(fio_str.get_common_string(string_id).c_str()));
 }
 
 void TabText::string_tooltip_click(Sint8 *property, QLineEdit *qline)

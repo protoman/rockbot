@@ -118,6 +118,9 @@ void scenesLib::draw_main()
 void scenesLib::main_screen()
 {
 
+    soundManager.stop_music();
+    soundManager.load_music(game_data.game_start_screen_music_filename);
+    soundManager.play_music();
 	draw_main();
     option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 

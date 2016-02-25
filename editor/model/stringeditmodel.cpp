@@ -8,7 +8,7 @@ StringEditModel::StringEditModel(QObject *parent)
 
 int StringEditModel::columnCount(const QModelIndex &parent) const
 {
-    return 2;
+    return 1;
 }
 
 int StringEditModel::rowCount(const QModelIndex &parent) const
@@ -24,8 +24,6 @@ QVariant StringEditModel::headerData(int section, Qt::Orientation orientation, i
             switch (section)
             {
             case 0:
-                return QString("Name");
-            case 1:
                 return QString("Value");
             }
         }
@@ -46,11 +44,9 @@ QVariant StringEditModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         if (col == 0) {
-            return QString(string_list.at(row).name);
-        } else if (col == 1) {
-            return QString(string_list.at(row).value);
-        } else {
-            return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() +1);
+            QString res = QString(string_list.at(index.row()).c_str());
+            std::cout << "StringEditModel::col0[" << res.toStdString() << "]" << std::endl;
+            return res;
         }
     }
 
@@ -79,16 +75,14 @@ bool StringEditModel::setData(const QModelIndex &index, const QVariant &value, i
 
     std::string str_value = value.toString().toStdString();
     if (col == 0) {
-        string_list.at(row).set_name(str_value);
+        string_list.at(row) = str_value;
         //emit selected_image_changed(list_directories.at(row) + std::string("/") + str_value);
-    } else if (col == 1) {
-        string_list.at(row).set_value(str_value);
     }
 
     return true;
 }
 
-void StringEditModel::set_data(std::vector<format_v4::st_file_common_string> data)
+void StringEditModel::set_data(std::vector<std::string> data)
 {
     string_list = data;
 }

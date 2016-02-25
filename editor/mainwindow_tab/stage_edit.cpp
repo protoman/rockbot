@@ -122,38 +122,38 @@ void stage_edit::update_stage_data()
 
 
 
-    ui->dialogs_line1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[0]).value);
-    ui->dialogs_line1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[1]).value);
-    ui->dialogs_line1_text3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[2]).value);
+    ui->dialogs_line1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[0]).c_str()));
+    ui->dialogs_line1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[1]).c_str()));
+    ui->dialogs_line1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[2]).c_str()));
 
-    ui->dialogs_line2_text1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[0]).value);
-    ui->dialogs_line2_text2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[1]).value);
-    ui->dialogs_line2_text3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[2]).value);
+    ui->dialogs_line2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[0]).c_str()));
+    ui->dialogs_line2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[1]).c_str()));
+    ui->dialogs_line2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[2]).c_str()));
 
-    ui->dialogs_answer1_text1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).value);
-    ui->dialogs_answer1_text2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
-    ui->dialogs_answer1_text3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
+    ui->dialogs_answer1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).c_str()));
+    ui->dialogs_answer1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).c_str()));
+    ui->dialogs_answer1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).c_str()));
 
-    ui->dialogs_answer2_text1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).value);
-    ui->dialogs_answer2_text2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
-    ui->dialogs_answer2_text3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
+    ui->dialogs_answer2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).c_str()));
+    ui->dialogs_answer2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).c_str()));
+    ui->dialogs_answer2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).c_str()));
 
 
-    ui->boss_dialog_text1_line1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[0]).value);
-    ui->boss_dialog_text1_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[1]).value);
-    ui->boss_dialog_text1_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[2]).value);
+    ui->boss_dialog_text1_line1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[0]).c_str()));
+    ui->boss_dialog_text1_line2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[1]).c_str()));
+    ui->boss_dialog_text1_line3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[2]).c_str()));
 
-    ui->boss_dialog_text2_line1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[0]).value);
-    ui->boss_dialog_text2_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[1]).value);
-    ui->boss_dialog_text2_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[2]).value);
+    ui->boss_dialog_text2_line1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[0]).c_str()));
+    ui->boss_dialog_text2_line2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[1]).c_str()));
+    ui->boss_dialog_text2_line3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[2]).c_str()));
 
-    ui->boss_dialog_answer1_line1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).value);
-    ui->boss_dialog_answer1_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
-    ui->boss_dialog_answer1_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
+    ui->boss_dialog_answer1_line1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).c_str()));
+    ui->boss_dialog_answer1_line2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).c_str()));
+    ui->boss_dialog_answer1_line3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).c_str()));
 
-    ui->boss_dialog_answer2_line1->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).value);
-    ui->boss_dialog_answer2_line2->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).value);
-    ui->boss_dialog_answer2_line3->setText(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).value);
+    ui->boss_dialog_answer2_line1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]).c_str()));
+    ui->boss_dialog_answer2_line2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]).c_str()));
+    ui->boss_dialog_answer2_line3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]).c_str()));
 
     ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
@@ -330,7 +330,7 @@ void stage_edit::on_string_selected(int string_id)
     Sint8* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
-    qline->setText(fio_str.get_common_string(string_id).value);
+    qline->setText(QString(fio_str.get_common_string(string_id).c_str()));
 }
 
 void stage_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)

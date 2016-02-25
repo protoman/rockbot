@@ -182,7 +182,7 @@ void character::charMove() {
 
     if (state.animation_type == ANIM_TYPE_HIT) {
 
-        if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
+        //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
             //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;

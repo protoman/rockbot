@@ -363,6 +363,10 @@ namespace format_v4 {
 
 
     struct file_game {
+
+        // *** WARNINGN *** //
+        // any changes made here must be reflected into file_io::write_game() and file_io::read_game() //
+
         float version;
         char name[FS_CHAR_NAME_SIZE];
         //file_projectile projectiles[FS_MAX_PROJECTILES];
@@ -381,6 +385,7 @@ namespace format_v4 {
         char got_weapon_music_filename[FS_CHAR_NAME_SIZE];
         char game_over_music_filename[FS_CHAR_NAME_SIZE];
         char stage_select_music_filename[FS_CHAR_NAME_SIZE];
+        char game_start_screen_music_filename[FS_CHAR_NAME_SIZE];
         bool use_second_castle;
         Uint8 game_style;                                               // if 1, stages are executed one after another, like castlevania or ghouls & ghosts
         Uint8 final_boss_id;                                            // indicates who is the final boss, the id refers to the map_npc id, not to the npc itself
@@ -403,6 +408,7 @@ namespace format_v4 {
             got_weapon_music_filename[0] = '\0';
             game_over_music_filename[0] = '\0';
             stage_select_music_filename[0] = '\0';
+            game_start_screen_music_filename[0] = '\0';
             game_style = 0;
             use_second_castle = false;
             final_boss_id = -1;

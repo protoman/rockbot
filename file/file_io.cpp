@@ -41,12 +41,26 @@ namespace format_v4 {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
             fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
         }
+
+
+
         fp.write(reinterpret_cast<char *>(&data_in.version), sizeof(float));
         fp.write(reinterpret_cast<char *>(&data_in.name), sizeof(char) * FS_CHAR_NAME_SIZE);
         fp.write(reinterpret_cast<char *>(&data_in.semi_charged_projectile_id), sizeof(Sint8));
         fp.write(reinterpret_cast<char *>(&data_in.player_items), sizeof(Sint8) * FS_PLATER_ITEMS_N);
         fp.write(reinterpret_cast<char *>(&data_in.stage_face_filename), sizeof(char) * MAX_STAGES * FS_FACE_FILENAME_MAX);
         fp.write(reinterpret_cast<char *>(&data_in.stages_face_name), sizeof(char) * MAX_STAGES * FS_CHAR8_NAME_SIZE);
+
+        fp.write(reinterpret_cast<char *>(&data_in.boss_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+        fp.write(reinterpret_cast<char *>(&data_in.final_boss_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+        fp.write(reinterpret_cast<char *>(&data_in.got_weapon_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+        fp.write(reinterpret_cast<char *>(&data_in.game_over_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+        fp.write(reinterpret_cast<char *>(&data_in.stage_select_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+        fp.write(reinterpret_cast<char *>(&data_in.game_start_screen_music_filename), sizeof(char) * FS_CHAR_NAME_SIZE);
+
+        fp.write(reinterpret_cast<char *>(&data_in.use_second_castle), sizeof(bool));
+        fp.write(reinterpret_cast<char *>(&data_in.game_style), sizeof(Uint8));
+        fp.write(reinterpret_cast<char *>(&data_in.final_boss_id), sizeof(Uint8));
 
         fp.close();
 
@@ -64,7 +78,7 @@ namespace format_v4 {
         fp.close();
 
 
-// -------------------------------------- WEAPONS -------------------------------------- //
+// -------------------------------------- PLAYERS -------------------------------------- //
         // file_player players[FS_MAX_PLAYERS]
         filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
@@ -99,6 +113,18 @@ namespace format_v4 {
         }
         fp.write(reinterpret_cast<char *>(&data_in.armor_pieces), sizeof(st_armor_piece) * FS_PLAYER_ARMOR_PIECES_MAX);
         fp.close();
+
+
+// -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
+                // st_color weapon_menu_colors[MAX_WEAPON_N];
+                filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
+                fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+                if (!fp.is_open()) {
+                    std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
+                    fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+                }
+                fp.write(reinterpret_cast<char *>(&data_in.weapon_menu_colors), sizeof(st_color) * MAX_WEAPON_N);
+                fp.close();
 
     }
 
@@ -161,26 +187,80 @@ namespace format_v4 {
 
         if (unsigned int res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
             std::cout << ">>file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
-            //exit(-1);
+            fclose(fp);
+            exit(-1);
         }
         if (unsigned int res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
             std::cout << ">>file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp) != 1) {
             std::cout << ">>file_io::read_game - Error reading struct data [semi_charged_projectile_id] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != FS_PLATER_ITEMS_N) {
             std::cout << ">>file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         if (fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
             std::cout << ">>file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         if (fread(&data_out.stages_face_name, sizeof(char), (MAX_STAGES*FS_CHAR8_NAME_SIZE), fp) != MAX_STAGES*FS_CHAR8_NAME_SIZE) {
             std::cout << ">>file_io::read_game res: - Error reading struct data [stages_face_name] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+
+        if (fread(&data_out.boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [boss_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.final_boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [final_boss_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.got_weapon_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [got_weapon_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.game_over_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [game_over_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.stage_select_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+
+        if (fread(&data_out.game_start_screen_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+
+        if (fread(&data_out.use_second_castle, sizeof(bool), 1, fp) != 1) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [use_second_castle] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.game_style, sizeof(Uint8), 1, fp) != 1) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [game_style] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        if (fread(&data_out.final_boss_id, sizeof(Uint8), 1, fp) != 1) {
+            std::cout << ">>file_io::read_game res: - Error reading struct data [final_boss_id] from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
 
@@ -198,6 +278,7 @@ namespace format_v4 {
         }
         if (fread(&data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
             std::cout << ">>file_io::read_game[weapons] - Error reading data from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         fclose(fp);
@@ -214,6 +295,7 @@ namespace format_v4 {
         }
         if (fread(&data_out.players, sizeof(file_player), FS_MAX_PLAYERS, fp) != FS_MAX_PLAYERS) {
             std::cout << ">>file_io::read_game[players] - Error reading data from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         fclose(fp);
@@ -230,6 +312,7 @@ namespace format_v4 {
         }
         if (fread(&data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
             std::cout << ">>file_io::read_game[trophies] - Error reading data from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         fclose(fp);
@@ -246,11 +329,29 @@ namespace format_v4 {
         }
         if (fread(&data_out.armor_pieces, sizeof(st_armor_piece), FS_PLAYER_ARMOR_PIECES_MAX, fp) != FS_PLAYER_ARMOR_PIECES_MAX) {
             std::cout << ">>file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
+            fclose(fp);
             exit(-1);
         }
         fclose(fp);
 
 
+
+// -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
+        // st_color weapon_menu_colors[MAX_WEAPON_N];
+        filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
+        filename = StringUtils::clean_filename(filename);
+
+        fp = fopen(filename.c_str(), "rb");
+        if (!fp) {
+            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
+            return;
+        }
+        if (fread(&data_out.weapon_menu_colors, sizeof(st_color), MAX_WEAPON_N, fp) != MAX_WEAPON_N) {
+            std::cout << ">>file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
+            fclose(fp);
+            exit(-1);
+        }
+        fclose(fp);
     }
 
 

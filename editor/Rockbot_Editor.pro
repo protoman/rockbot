@@ -35,8 +35,8 @@ macosx {
 }
 
 linux {
-    QMAKE_CCFLAGS += -std=c++0x
-    QMAKE_CXXFLAGS += -std=c++0x
+    QMAKE_CCFLAGS += -std=c++0x -g
+    QMAKE_CXXFLAGS += -std=c++0x -g
 }
 
 win32 {

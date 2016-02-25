@@ -31,10 +31,10 @@ public:
 
     // === COMMON STRINGS === //
     std::string get_common_strings_filename();
-    std::vector<st_file_common_string> get_common_strings();
-    st_file_common_string get_common_string(int id);
-    std::map<int, st_file_common_string> get_common_strings_map(std::vector<int> id_list);
-    void save_common_strings(std::vector<CURRENT_FILE_FORMAT::st_file_common_string> data);
+    std::string get_game_strings_filename();
+    std::vector<std::string> get_common_strings();
+    std::string get_common_string(int id);
+    void save_common_strings(std::vector<std::string> data);
     void create_files();
 
 private:
@@ -47,6 +47,7 @@ private:
 
 private:
     std::vector<std::string> string_list;
+    std::vector<std::string> common_strings_list;
 
 };
 } // namespace

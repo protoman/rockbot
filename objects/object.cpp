@@ -409,10 +409,8 @@ void object::show(int adjust_y, int adjust_x)
 		// parte que vai ser colada
         graphic_destiny.x = position.x - scroll_x;
 		graphic_destiny.y = position.y + map->getMapScrolling().y;
-		//std::cout << "searching for graphic '" << name << "'" << std::endl;
-        //std::cout << "object::show - scroll_x: " << scroll_x << ", map->getMapScrolling().y: " << map->getMapScrolling().y << ", position.y: " << position.y << ", graphic_destiny.x: " << graphic_destiny.x << ", graphic_destiny.y: " << graphic_destiny.y << std::endl;
 
-        std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
+        //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it

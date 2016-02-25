@@ -29,7 +29,6 @@ std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
 std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
 std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
 std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
-std::vector<CURRENT_FILE_FORMAT::st_file_common_string> common_string_list;
 std::vector<std::string> common_strings;
 std::map<int, int> npc_id_list;
 std::map<int, int> object_id_list;
@@ -41,61 +40,120 @@ fio_common fio_cmm;
 void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_stage& stage_v2) {
     sprintf(stage_v2.intro_dialog.face_graphics_filename, "%s", stage_v1.intro_dialog.face_graphics_filename);
     stage_v2.intro_dialog.top_side = stage_v1.intro_dialog.top_side;
+
+
     // *** INTRO DIALOGS *** //
     // line-1
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
-        common_strings.push_back(std::string(stage_v1.intro_dialog.line1[i]));
-        stage_v2.intro_dialog.text1_string_ids[i] = common_strings.size()-1;
+        std::string line = std::string(stage_v1.intro_dialog.line1[i]);
+        if (line.length() > 0) {
+            std::cout << "LINE#1[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            common_strings.push_back(line);
+            stage_v2.intro_dialog.text1_string_ids[i] = common_strings.size()-1;
+        } else {
+            stage_v2.intro_dialog.text1_string_ids[i] = -1;
+        }
     }
 
     // line-2
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
-        common_strings.push_back(std::string(stage_v1.intro_dialog.line2[i]));
-        stage_v2.intro_dialog.text2_string_ids[i] = common_strings.size()-1;
+        std::string line = std::string(stage_v1.intro_dialog.line2[i]);
+
+
+        if (line.length() > 0) {
+            std::cout << "LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            common_strings.push_back(line);
+            stage_v2.intro_dialog.text2_string_ids[i] = common_strings.size()-1;
+        } else {
+            stage_v2.intro_dialog.text2_string_ids[i] = -1;
+        }
     }
 
     // answer-1
     for (int i=0; i<V1_FS_MAX_PLAYERS; i++) {
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
-            common_strings.push_back(std::string(stage_v1.intro_dialog.answer1[i][j]));
-            stage_v2.intro_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
+
+            std::string line = std::string(stage_v1.intro_dialog.answer1[i][j]);
+
+
+            if (line.length() > 0) {
+                std::cout << "ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                common_strings.push_back(line);
+                stage_v2.intro_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
+            } else {
+                stage_v2.intro_dialog.answer1_string_ids[i][j] = -1;
+            }
         }
     }
 
     // answer-2
     for (int i=0; i<V1_FS_MAX_PLAYERS; i++) {
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
-            common_strings.push_back(std::string(stage_v1.intro_dialog.answer2[i][j]));
-            stage_v2.intro_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
+            std::string line = std::string(stage_v1.intro_dialog.answer2[i][j]);
+
+
+            if (line.length() > 0) {
+                std::cout << "ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                common_strings.push_back(line);
+                stage_v2.intro_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
+            } else {
+                stage_v2.intro_dialog.answer2_string_ids[i][j] = -1;
+            }
         }
     }
 
     // *** BOSS DIALOGS *** //
     // line-1
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
-        common_strings.push_back(std::string(stage_v1.boss_dialog.line1[i]));
-        stage_v2.boss_dialog.text1_string_ids[i] = common_strings.size()-1;
+        std::string line = std::string(stage_v1.boss_dialog.line1[i]);
+        if (line.length() > 0) {
+
+            std::cout << "BOSS-LINE#1[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+
+            common_strings.push_back(line);
+            stage_v2.boss_dialog.text1_string_ids[i] = common_strings.size()-1;
+        } else {
+            stage_v2.boss_dialog.text1_string_ids[i] = -1;
+        }
     }
 
     // line-2
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
-        common_strings.push_back(std::string(stage_v1.boss_dialog.line2[i]));
-        stage_v2.boss_dialog.text2_string_ids[i] = common_strings.size()-1;
+        std::string line = std::string(stage_v1.boss_dialog.line2[i]);
+        if (line.length() > 0) {
+            std::cout << "BOSS-LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            common_strings.push_back(line);
+            stage_v2.boss_dialog.text2_string_ids[i] = common_strings.size()-1;
+        } else {
+            stage_v2.boss_dialog.text2_string_ids[i] = -1;
+        }
     }
 
     // answer-1
     for (int i=0; i<V1_FS_MAX_PLAYERS; i++) {
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
-            common_strings.push_back(std::string(stage_v1.boss_dialog.answer1[i][j]));
-            stage_v2.boss_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
+            std::string line = std::string(stage_v1.boss_dialog.answer1[i][j]);
+            if (line.length() > 0) {
+                std::cout << "BOSS-ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                common_strings.push_back(line);
+                stage_v2.boss_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
+            } else {
+                stage_v2.boss_dialog.answer1_string_ids[i][j] = -1;
+            }
         }
     }
 
     // answer-2
     for (int i=0; i<V1_FS_MAX_PLAYERS; i++) {
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
-            common_strings.push_back(std::string(stage_v1.boss_dialog.answer2[i][j]));
-            stage_v2.boss_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
+            std::string line = std::string(stage_v1.boss_dialog.answer2[i][j]);
+            if (line.length() > 0) {
+                std::cout << "BOSS-ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                common_strings.push_back(line);
+                stage_v2.boss_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
+            } else {
+                stage_v2.boss_dialog.answer2_string_ids[i][j] = -1;
+            }
         }
     }
 }
@@ -284,7 +342,7 @@ void convert_game_npcs(v1_file_game& game_v1) {
         }
         enemy_list.push_back(new_enemy);
         // store the old npc position and the new one into a list so we can use in map-npcs
-        std::cout << "old-id: " << i << ", new-id: " << (enemy_list.size()-1) << std::endl;
+        //std::cout << "old-id: " << i << ", new-id: " << (enemy_list.size()-1) << std::endl;
         npc_id_list.insert(std::pair<int, int>(i, (enemy_list.size()-1)));
     }
 }
@@ -341,8 +399,13 @@ void convert_game(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_PLAYER_ARMOR_PIECES_MAX; i++) {
         for (int j=0; j<FS_MAX_PLAYERS; j++) {
             for (int k=0; k<FS_DIALOG_LINES; k++) {
-                common_strings.push_back(std::string(game_v1.armor_pieces[i].got_message[j][k]));
-                game_data.armor_pieces[i].got_message[j][k] = common_strings.size()-1;
+                std::string line = std::string(game_v1.armor_pieces[i].got_message[j][k]);
+                if (line.length() > 0) {
+                    common_strings.push_back(line);
+                    game_data.armor_pieces[i].got_message[j][k] = common_strings.size()-1;
+                } else {
+                    game_data.armor_pieces[i].got_message[j][k] = -1;
+                }
             }
         }
         for (int j=0; j<FS_MAX_PLAYERS; j++) {
@@ -412,14 +475,35 @@ void convert_game(v1_file_game& game_v1) {
 }
 
 
-void convert_strings() {
-    //st_file_common_string> common_string_list;
-    for (int i=0; i<common_strings.size(); i++) {
-        char key_name[FS_COMMONSTRING_ID_SIZE];
-        sprintf(key_name, "%s", "%d", "ENTRY #", i);
-        CURRENT_FILE_FORMAT::st_file_common_string new_string(std::string(key_name), common_strings.at(i));
-        common_string_list.push_back(new_string);
-    }
+void set_rockbot1_hardcoded() {
+    /// @TODO: set the hardcoded parts:
+    // ROCKBOT 1 HARDCODED PARTS //
+    game_data.game_style = 0;
+    sprintf(game_data.stages_face_name[0], "%s", "INTRO");
+    sprintf(game_data.stages_face_name[1], "%s", "APE");
+    sprintf(game_data.stages_face_name[2], "%s", "DAISIE");
+    sprintf(game_data.stages_face_name[3], "%s", "SEAHORSE");
+    sprintf(game_data.stages_face_name[4], "%s", "MUMMY");
+    sprintf(game_data.stages_face_name[5], "%s", "MAGE");
+    sprintf(game_data.stages_face_name[6], "%s", "DYNAMITE");
+    sprintf(game_data.stages_face_name[7], "%s", "SPIKE");
+    sprintf(game_data.stages_face_name[8], "%s", "TECHNO");
+    sprintf(game_data.stages_face_name[9], "%s", "CASTLE");
+
+    /// music (boss battle, final boss, game_over, got_weapon)
+    sprintf(game_data.boss_music_filename, "%s", "boss_battle.mod");
+    sprintf(game_data.final_boss_music_filename, "%s", "final_boss.mod");
+    sprintf(game_data.got_weapon_music_filename, "%s", "got_weapon.mod");
+    sprintf(game_data.game_over_music_filename, "%s", "OTHER.xm");
+    sprintf(game_data.stage_select_music_filename, "%s", "menu.mod");
+    sprintf(game_data.game_start_screen_music_filename, "%s", "opening.mod");
+
+
+    /// projectiles (see doc code-changes)
+
+    /// armor-pieces weapon powers
+
+    /// anim tiles
 }
 
 int main(int argc, char *argv[])
@@ -451,14 +535,12 @@ int main(int argc, char *argv[])
 
     convert_strings();
 
-    /// @TODO: set the hardcoded parts:
-    /// music (boss battle, final boss, game_over, got_weapon)
-    /// projectiles (see doc code-changes)
-    /// armor-pieces weapon powers
+    set_rockbot1_hardcoded();
 
     FILEPATH += "/out/";
     fio.write_all_stages(stage_data);
     fio.write_all_maps(maps_data);
+
 
     fio.write_game(game_data);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
@@ -468,7 +550,7 @@ int main(int argc, char *argv[])
 
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    fio_str.save_common_strings(common_string_list);
+    fio_str.save_common_strings(common_strings);
 
 
 
