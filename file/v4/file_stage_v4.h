@@ -10,10 +10,10 @@ namespace format_v4 {
 struct file_dialog { // DONE - Stage x2
     char face_graphics_filename[20];
     bool top_side;
-    Sint8 text1_string_ids[FS_DIALOG_LINES];
-    Sint8 text2_string_ids[FS_DIALOG_LINES];
-    Sint8 answer1_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
-    Sint8 answer2_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
+    int text1_string_ids[FS_DIALOG_LINES];
+    int text2_string_ids[FS_DIALOG_LINES];
+    int answer1_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
+    int answer2_string_ids[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
 
     file_dialog() {

@@ -44,6 +44,9 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
 
     // *** INTRO DIALOGS *** //
     // line-1
+
+
+
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
         std::string line = std::string(stage_v1.intro_dialog.line1[i]);
         if (line.length() > 0) {
@@ -55,13 +58,15 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
         }
     }
 
+    std::cout << "####################################" << std::endl;
+
     // line-2
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
         std::string line = std::string(stage_v1.intro_dialog.line2[i]);
 
 
         if (line.length() > 0) {
-            std::cout << "LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            //std::cout << "LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
             common_strings.push_back(line);
             stage_v2.intro_dialog.text2_string_ids[i] = common_strings.size()-1;
         } else {
@@ -77,7 +82,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
 
 
             if (line.length() > 0) {
-                std::cout << "ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                //std::cout << "ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
                 common_strings.push_back(line);
                 stage_v2.intro_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
             } else {
@@ -93,7 +98,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
 
 
             if (line.length() > 0) {
-                std::cout << "ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                //std::cout << "ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
                 common_strings.push_back(line);
                 stage_v2.intro_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
             } else {
@@ -108,7 +113,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
         std::string line = std::string(stage_v1.boss_dialog.line1[i]);
         if (line.length() > 0) {
 
-            std::cout << "BOSS-LINE#1[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            //std::cout << "BOSS-LINE#1[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
 
             common_strings.push_back(line);
             stage_v2.boss_dialog.text1_string_ids[i] = common_strings.size()-1;
@@ -121,7 +126,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
         std::string line = std::string(stage_v1.boss_dialog.line2[i]);
         if (line.length() > 0) {
-            std::cout << "BOSS-LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+            //std::cout << "BOSS-LINE#2[" << i << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
             common_strings.push_back(line);
             stage_v2.boss_dialog.text2_string_ids[i] = common_strings.size()-1;
         } else {
@@ -134,7 +139,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
             std::string line = std::string(stage_v1.boss_dialog.answer1[i][j]);
             if (line.length() > 0) {
-                std::cout << "BOSS-ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                //std::cout << "BOSS-ANSWER#1[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
                 common_strings.push_back(line);
                 stage_v2.boss_dialog.answer1_string_ids[i][j] = common_strings.size()-1;
             } else {
@@ -148,7 +153,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
         for (int j=0; j<V1_FS_DIALOG_LINES; j++) {
             std::string line = std::string(stage_v1.boss_dialog.answer2[i][j]);
             if (line.length() > 0) {
-                std::cout << "BOSS-ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
+                //std::cout << "BOSS-ANSWER#2[" << i << "][" << j << "]: " << line << ", common_strings.size(): " << common_strings.size() << std::endl;
                 common_strings.push_back(line);
                 stage_v2.boss_dialog.answer2_string_ids[i][j] = common_strings.size()-1;
             } else {
@@ -532,8 +537,6 @@ int main(int argc, char *argv[])
     convert_game(game_v1);
 
     convert_stages_and_maps(stages_v1);
-
-    convert_strings();
 
     set_rockbot1_hardcoded();
 

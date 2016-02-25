@@ -70,7 +70,7 @@ private:
     void change_x_y_fields_enabled();
     void fill_data();
     void set_fields(int index);
-    void string_tooltip_click(Sint8 *property, QLineEdit* qline);
+    void string_tooltip_click(int *property, QLineEdit* qline);
 
 private:
     Ui::TabText *ui;

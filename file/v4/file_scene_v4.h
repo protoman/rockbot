@@ -156,7 +156,7 @@ namespace format_v4 {
 
     struct file_scene_show_text {
         char name[FS_NAME_SIZE];
-        Sint8 line_string_id[SCENE_TEXT_LINES_N]; // points to a key in a dat file that holds the text
+        int line_string_id[SCENE_TEXT_LINES_N]; // points to a key in a dat file that holds the text
         int x;
         int y;
         int transition_type; ///@TODO: convert to enum

@@ -349,7 +349,7 @@ namespace format_v4 {
 
     struct st_armor_piece {
         int special_ability[FS_MAX_PLAYERS]; // each player can have a different ability
-        Sint8 got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES];
+        int got_message[FS_MAX_PLAYERS][FS_DIALOG_LINES];
 
         st_armor_piece() {
             for (int i=0; i<FS_MAX_PLAYERS; i++) {

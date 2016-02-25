@@ -86,12 +86,12 @@ QLineEdit *StringsEditor::get_target_qline()
     return target_qline;
 }
 
-void StringsEditor::set_target_property(Sint8 *prop)
+void StringsEditor::set_target_property(int *prop)
 {
     target_property = prop;
 }
 
-Sint8 *StringsEditor::get_target_property()
+int *StringsEditor::get_target_property()
 {
     return target_property;
 }

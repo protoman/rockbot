@@ -88,7 +88,7 @@ public slots:
 private:
 	void fill_stage_tab_data();
     void update_stage_data();
-    void string_tooltip_click(Sint8 *property, QLineEdit* qline);
+    void string_tooltip_click(int *property, QLineEdit* qline);
 
 private:
 	Ui::stage_edit *ui;

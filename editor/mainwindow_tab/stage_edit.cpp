@@ -327,13 +327,13 @@ void stage_edit::on_boss_answer2_3_toolButton_clicked()
 void stage_edit::on_string_selected(int string_id)
 {
     StringsEditor* strings_editor_window = (StringsEditor*)sender();
-    Sint8* value_property = strings_editor_window->get_target_property();
+    int* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
     qline->setText(QString(fio_str.get_common_string(string_id).c_str()));
 }
 
-void stage_edit::string_tooltip_click(Sint8 *property, QLineEdit *qline)
+void stage_edit::string_tooltip_click(int *property, QLineEdit *qline)
 {
     StringsEditor* strings_editor_window = new StringsEditor(this, true);
     QObject::connect(strings_editor_window, SIGNAL(on_accepted(int)), this, SLOT(on_string_selected(int)));

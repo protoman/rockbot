@@ -80,7 +80,7 @@ public slots:
 
 private:
     void fill_armor_abilities();
-    void string_tooltip_click(Sint8 *property, QLineEdit* qline);
+    void string_tooltip_click(int *property, QLineEdit* qline);
 
 private:
     Ui::armor_edit *ui;

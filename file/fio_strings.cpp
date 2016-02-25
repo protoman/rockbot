@@ -87,7 +87,7 @@ namespace format_v4 {
             return;
         }
 
-        for (int i=0; i<strings_ingame_COUNT; i++) {
+        for (int i=0; i<list.size(); i++) {
             std::string line = list.at(i) + std::string("\n");
             fp << line.c_str();
         }

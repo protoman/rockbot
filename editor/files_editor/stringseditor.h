@@ -29,8 +29,8 @@ public:
     void save_data();
     void set_target_qline(QLineEdit* line);
     QLineEdit* get_target_qline();
-    void set_target_property(Sint8 *prop);
-    Sint8 *get_target_property();
+    void set_target_property(int *prop);
+    int *get_target_property();
 
 private:
     void fill_data();
@@ -69,7 +69,7 @@ private:
     // target QLineEdit
     QLineEdit* target_qline;
     // target int property
-    Sint8* target_property;
+    int* target_property;
 };
 
 #endif // STRINGSEDITOR_H
