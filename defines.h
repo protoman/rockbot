@@ -154,33 +154,6 @@ enum ANIM_TYPE { ANIM_TYPE_STAND,
  * @brief
  *
  */
-enum INTRO_SURFACES_ENUM {
-    INTRO_SURFACES_PRESENTS, //presents.png
-    INTRO_SURFACES_UPPERLAND, //upperland.png
-	INTRO_SURFACES_CITY_BG, //scenes/city_bg.png
-	INTRO_SURFACES_KANOTUS, //sprites/canotus.png
-	INTRO_SURFACES_ROCKBOT, //sprites/p1.png
-	INTRO_SURFACES_BETABOT, //sprites/p2.png
-	INTRO_SURFACES_LAB_BG, //scenes/lab_intro1.png
-	INTRO_SURFACES_INTRO_SCREEN, //logo.png
-	INTRO_SURFACES_PLAYER_SELECT_BG, //backgrounds/player_select.png
-	INTRO_SURFACES_PLAYER_SELECT_LIGHTS, //backgrounds/lights.png
-	INTRO_SURFACES_CAPSULES, //backgrounds/capsules.png
-	INTRO_SURFACES_ROCKBOT_BIG, //scenes/rockbot.png
-	INTRO_SURFACES_ROCKBOT_BIG_HALF_SLEEP, //scenes/rockbot_half_sleep.png
-	INTRO_SURFACES_ROCKBOT_BIG_FULL_SLEEP, //scenes/rockbot_full_sleep.png
-	INTRO_SURFACES_BETABOT_BIG, //scenes/betabot.png
-	INTRO_SURFACES_KANOTUS_BIG, //scenes/kanotus.png
-
-
-	/// Last line
-	INTRO_SURFACES_COUNT
-};
-
-/**
- * @brief
- *
- */
 enum STAGE_SELECT_ENUM {
 	INTRO_SURFACES_STAGE_SELECT_BG,
 	STAGE_SELECT_COUNT

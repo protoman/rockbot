@@ -51,12 +51,15 @@ public:
     void fade_out_screen(int r, int g, int b);
 
 
+    void add_weapon_tooltip(short weapon_n, const st_float_position &player_pos, const Uint8 &direction);
+
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);
     void show_rain();
     void show_flash();
     void generate_snow_particles();
     void show_snow_effect();
+    void show_weapon_tooltip();
 
 
 private:
@@ -85,6 +88,11 @@ private:
     Uint8 screen_gfx;
     bool flash_effect_enabled;
 
+    // WEAPON ICON TOOLTIP
+    const st_float_position* _weapon_tooltip_pos_ref;   // holds a pointer to the position it must follow in dynamic animation type
+    int _weapon_tooltip_timer;                          // timer, if less than current time, will show the tooltip
+    short _weapon_tooltip_n;                            // weapon number to show
+    const Uint8* _weapon_tooltip_direction_ref;         // reference to player direction, so we can draw the icon in the correct position
 
 };
 

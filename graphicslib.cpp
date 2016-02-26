@@ -874,6 +874,11 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
     }
 }
 
+void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position)
+{
+    showSurfaceRegionAt(&weapon_icons.at(weapon_n), st_rectangle(0, 0, 14, 14), position);
+}
+
 void graphicsLib::draw_menu_item(int x_pos)
 {
 	graphicsLib_gSurface* spriteCopy;

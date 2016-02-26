@@ -206,15 +206,10 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     }
 
     std::vector<std::string> text_lines;
-    std::map<int, CURRENT_FILE_FORMAT::st_file_common_string> text_map = fio_str.get_common_strings_map(string_id_list);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-        std::map<int, CURRENT_FILE_FORMAT::st_file_common_string>::iterator it;
-        it = text_map.find(text.line_string_id[i]);
-        std::string line = "";
-        if (it != text_map.end()) {
-            CURRENT_FILE_FORMAT::st_file_common_string common_string = it->second;
-            line = common_string.value;
-        }
+
+        std::string line = fio_str.get_common_string(text.line_string_id[i]);
+
         if (line.size() > 0) {
             text_lines.push_back(line);
             if (line.size() > max_line_w) {

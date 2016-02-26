@@ -424,6 +424,12 @@ namespace format_v4 {
                 sprintf(players[i].name, "Player [%d]", i);
                 sprintf(players[i].graphic_filename, "%s%d%s", "p", (i+1), ".png");
             }
+            players[0].weapon_colors[0].color1 = st_color(143, 0, 119);
+            players[0].weapon_colors[0].color2 = st_color(0, 115, 239);
+
+            players[1].weapon_colors[0].color1 = st_color(255, 51, 0);
+            players[1].weapon_colors[0].color2 = st_color(255, 155, 59);
+            players[1].weapon_colors[0].color3 = st_color(230, 255, 0);
         }
     };
 

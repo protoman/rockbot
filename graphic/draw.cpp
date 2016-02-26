@@ -31,6 +31,10 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
         flash_points[i].x = rand() % RES_W;
         flash_points[i].y = rand() % RES_H;
     }
+    _weapon_tooltip_timer = 0;
+    _weapon_tooltip_n = 0;
+    _weapon_tooltip_pos_ref = NULL;
+    _weapon_tooltip_direction_ref = NULL;
 
 }
 
@@ -69,6 +73,7 @@ void draw::show_gfx()
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
+    show_weapon_tooltip();
 }
 
 void draw::update_screen()
@@ -486,6 +491,28 @@ void draw::fade_out_screen(int r, int g, int b)
     }
 }
 
+void draw::add_weapon_tooltip(short weapon_n, const st_float_position &player_pos, const Uint8 &direction)
+{
+    _weapon_tooltip_n = weapon_n;
+    _weapon_tooltip_pos_ref = &player_pos;
+    _weapon_tooltip_timer = timer.getTimer() + 1500;
+    _weapon_tooltip_direction_ref = &direction;
+}
+
+void draw::show_weapon_tooltip()
+{
+    if (timer.getTimer() < _weapon_tooltip_timer) {
+        int adjust_x = 5;
+        int adjust_y = 4-TILESIZE;
+        Uint8 direction_value = *_weapon_tooltip_direction_ref;
+        if (direction_value == ANIM_DIRECTION_LEFT) {
+            adjust_x = 10;
+        }
+        graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y));
+    }
+}
+
+
 void draw::generate_snow_particles()
 {
     for (int i=0; i<SNOW_PARTICLES_NUMBER; i++) {
@@ -542,5 +569,6 @@ void draw::show_snow_effect()
         }
     }
 }
+
 
 

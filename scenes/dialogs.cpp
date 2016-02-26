@@ -64,25 +64,25 @@ void dialogs::show_stage_dialog()
 
     std::string lines[FS_DIALOG_LINES];
     for (int i=0; i<FS_DIALOG_LINES; i++) {
-        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]).value;
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]);
 	}
     show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
 
     for (int i=0; i<FS_DIALOG_LINES; i++) {
-        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]).value;
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]);
 	}
     show_dialog(game_data.players[game_save.selected_player].face_filename, stage_data.intro_dialog.top_side, lines, true); /// @TODO: create "extern" for player number
 
     if (stage_data.boss_dialog.text2_string_ids[0] != -1) {
         for (int i=0; i<FS_DIALOG_LINES; i++) {
-            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]).value;
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]);
         }
         show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
 	}
 
     if (stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][0] != -1) {
         for (int i=0; i<FS_DIALOG_LINES; i++) {
-            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]).value;
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]);
         }
         show_dialog(stage_data.intro_dialog.face_graphics_filename, stage_data.intro_dialog.top_side, lines, true);
     }
@@ -99,7 +99,7 @@ void dialogs::show_boss_dialog(int stage_n)
 	}
     std::string lines[FS_DIALOG_LINES];
     for (int i=0; i<FS_DIALOG_LINES; i++) {
-        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]).value;
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text1_string_ids[i]);
 	}
     std::string boss_face(game_data.stage_face_filename[stage_n]);
     if (boss_face.length() <= 0) {
@@ -108,13 +108,13 @@ void dialogs::show_boss_dialog(int stage_n)
     show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
 
     for (int i=0; i<FS_DIALOG_LINES; i++) {
-        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]).value;
+        lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer1_string_ids[game_save.selected_player][i]);
 	}
     show_dialog(game_data.players[game_save.selected_player].face_filename, stage_data.boss_dialog.top_side, lines, true); /// @TODO: create "extern" for player number
 
     if (stage_data.boss_dialog.text2_string_ids[0] != -1) {
         for (int i=0; i<FS_DIALOG_LINES; i++) {
-            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]).value;
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.text2_string_ids[i]);
 		}
         show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
 	}
@@ -122,7 +122,7 @@ void dialogs::show_boss_dialog(int stage_n)
 
     if (stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][0] != -1) {
         for (int i=0; i<FS_DIALOG_LINES; i++) {
-            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]).value;
+            lines[i] = fio_str.get_common_string(stage_data.boss_dialog.answer2_string_ids[game_save.selected_player][i]);
         }
         show_dialog(boss_face, stage_data.boss_dialog.top_side, lines, true);
     }

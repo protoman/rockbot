@@ -348,7 +348,7 @@ bool class_config::execute_ingame_menu()
         } else {
             // change player color/weapon
             if (ingame_menu_pos.y != 6) {
-                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos));
+                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
             } else {
                 // use item
                 use_tank(ingame_menu_pos.x);

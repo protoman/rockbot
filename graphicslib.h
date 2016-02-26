@@ -304,6 +304,9 @@ public:
      * @param active
      */
     void draw_weapon_icon(short, st_position menu_pos, bool active);
+
+    void draw_weapon_tooltip_icon(short weapon_n, st_position position);
+
     /**
      * @brief
      *

@@ -50,6 +50,9 @@ public:
      * @return bool
      */
     bool showIntro();
+
+    void show_notice();
+
     /**
      * @brief
      *

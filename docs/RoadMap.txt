@@ -36,29 +36,46 @@ adicionar sistema de colisão que permite diagonais
 *******************************************************************************************
 
 
+
+
+- revisar arquivos do template
+    * setar por padrão algumas coisas comuns do template:
+        # cores dos jogadores
+        # músicas do jogo
+        # nomes das fases
+    * criar uma fase do megaman 9 para testar template
+
 - inercia está colocando o jogador dentro de paredes
+
+
+
 - está desenhando items uma posição atrasada em relação ao scroll
 
 - chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
     * idem para chefe normal, aparece antes de descer
 
+- EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
+- ver como colocar app na amazon
+
+
+##################################
+             DONE
+##################################
+- colocar aviso de copyright e engine antes da tela de abertura independente de se tem intro
 - quando trocar arma com L/R, mostrar ícone acima da cabeça do player por 1 segundo e meio
-
-
 - corrigir FIO para salvar e carregar dados novos de game properties
-
-OK - air thrower está movendo jogador para dentro de paredes ignorando colisão
-OK - mudar default do attack_n de npcs para -1 (está sempre setando o primeiro frame)
-OK - implementar attack_n no jogo
-OK - olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
-OK - abelhas zig-zag as vezes atravessam a parede
-OK - chefe não está aparecendo no fim da fase
-OK - objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
-OK - "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
-OK - is_ghost está ligado por padrão ao criar novo inimigo
-OK - está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
-OK - ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
-OK - manter scroll do fundo quando troca de tela
+- air thrower está movendo jogador para dentro de paredes ignorando colisão
+- mudar default do attack_n de npcs para -1 (está sempre setando o primeiro frame)
+- implementar attack_n no jogo
+- olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
+- abelhas zig-zag as vezes atravessam a parede
+- chefe não está aparecendo no fim da fase
+- objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
+- "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
+- is_ghost está ligado por padrão ao criar novo inimigo
+- está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
+- ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
+- manter scroll do fundo quando troca de tela
 
 
 => update script files to copy font to GAMEDIR, remove non-used fonts

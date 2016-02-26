@@ -52,6 +52,13 @@ StringsEditor::StringsEditor(QWidget *parent, bool pick_mode) : QDialog(parent),
     string_edit_model.set_pick_mode(pick_mode_enabled);
     ui->commonStrings_tableView->setModel(&string_edit_model);
 
+#if QT_VERSION >= 0x050000
+    ui->commonStrings_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
+#else
+    ui->commonStrings_tableView->horizontalHeader()->setStretchLastSection(true); // Qt4
+#endif
+
+
     data_loading = false;
 
     if (pick_mode_enabled == true) {

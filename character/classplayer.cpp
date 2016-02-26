@@ -768,7 +768,7 @@ void classPlayer::move()
 		int selected_weapon_c = selected_weapon;
 		selected_weapon_c = find_next_weapon(selected_weapon, -1);
         if (selected_weapon_c != -1) {
-            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c);
+            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c, true);
         }
 		l_key_released = false;
         //std::cout << ">>> LBUTTON - selected_weapon: " << selected_weapon << ", selected_weapon_c: " << selected_weapon_c << ", WEAPON_COUNT: " << WEAPON_COUNT << std::endl;
@@ -784,7 +784,7 @@ void classPlayer::move()
 			selected_weapon_c = WEAPON_DEFAULT;
 		}
         if (selected_weapon_c != -1) {
-            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c);
+            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c, true);
         }
 		r_key_released = false;
         //std::cout << ">>> RBUTTON - selected_weapon: " << selected_weapon << ", selected_weapon_c: " << selected_weapon_c << ", WEAPON_COUNT: " << WEAPON_COUNT << std::endl;
@@ -885,7 +885,7 @@ void classPlayer::death()
     change_player_color(true);
 
 
-    set_weapon(WEAPON_DEFAULT);
+    set_weapon(WEAPON_DEFAULT, false);
     _inertia_obj.stop();
     clear_move_commands();
 	input.clean();
@@ -947,9 +947,12 @@ void classPlayer::restore_input()
     //std::cout << "PLAYER::restore_input::ATTACK: " << moveCommands.attack << ", BTN-ATTACK: " << (int)input.p1_input[BTN_ATTACK] << std::endl;
 }
 
-void classPlayer::set_weapon(short weapon_n)
+void classPlayer::set_weapon(short weapon_n, bool show_tooltip_icon)
 {
 	selected_weapon = weapon_n;
+    if (show_tooltip_icon == true) {
+        draw_lib.add_weapon_tooltip(selected_weapon, position, state.direction);
+    }
     change_player_color(true);
 }
 

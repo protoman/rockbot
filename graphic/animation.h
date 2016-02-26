@@ -58,22 +58,6 @@ private:
 };
 
 
-class simple_animation {
-public:
-    simple_animation(std::string filename, int repeat_times, int delay, int width, st_position pos);
-    void execute();
-    void set_position(st_position new_pos);
 
-private:
-    Uint8 _repeat_times;
-    int _delay;
-    int _width;
-    int _timer;
-    Uint8 _max_frames;
-    Uint8 _frame_n;
-    st_position _pos;
-    graphicsLib_gSurface _surface;
-
-};
 
 #endif // ANIMATION_H

@@ -487,8 +487,6 @@ int main(int argc, char *argv[])
 	soundManager.init_audio_system();
 
 
-
-
     // define SAVEPATH
     #ifdef PLAYSTATION2
         PS2_load_MC();

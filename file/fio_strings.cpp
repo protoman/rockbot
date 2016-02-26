@@ -219,6 +219,9 @@ namespace format_v4 {
 
     void fio_strings::create_default_common_strings()
     {
+
+        /// @TODO - set the IDS for each line
+
         std::vector<std::string> res;
         for (int i=0; i<FS_MAX_STAGES; i++) {
             char line_value[FS_CHAR_NAME_SIZE];

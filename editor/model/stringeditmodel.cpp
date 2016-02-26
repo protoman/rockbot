@@ -8,7 +8,7 @@ StringEditModel::StringEditModel(QObject *parent)
 
 int StringEditModel::columnCount(const QModelIndex &parent) const
 {
-    return 1;
+    return 2;
 }
 
 int StringEditModel::rowCount(const QModelIndex &parent) const
@@ -42,8 +42,11 @@ QVariant StringEditModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         if (col == 0) {
+            QString res = QString::number(row);
+            return res;
+        } else if (col == 1) {
             QString res = QString(string_list.at(index.row()).c_str());
             std::cout << "StringEditModel::col0[" << res.toStdString() << "]" << std::endl;
             return res;
@@ -60,10 +63,9 @@ Qt::ItemFlags StringEditModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags result = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (pick_mode_enabled == false) {
+    if (pick_mode_enabled == false && index.column() == 1) {
         result |= Qt::ItemIsEditable;
     }
-
 
     return result;
 }
@@ -74,7 +76,7 @@ bool StringEditModel::setData(const QModelIndex &index, const QVariant &value, i
     int col = index.column();
 
     std::string str_value = value.toString().toStdString();
-    if (col == 0) {
+    if (col == 1) {
         string_list.at(row) = str_value;
         //emit selected_image_changed(list_directories.at(row) + std::string("/") + str_value);
     }

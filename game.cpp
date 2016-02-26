@@ -294,6 +294,9 @@ bool game::showIntro()
     std::cout << "showIntro::RAM::BFR='" << _ram_counter.ramAvailable() << "'" << std::endl;
 #endif
 
+
+    show_notice();
+
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
@@ -327,6 +330,51 @@ bool game::showIntro()
 
 
     return true;
+}
+
+void game::show_notice()
+{
+    graphLib.blank_screen();
+        draw_lib.update_screen();
+
+        graphicsLib_gSurface upperland_surface;
+        graphLib.surfaceFromFile(GAMEPATH + "/shared/images/upperland.png", &upperland_surface);
+        graphicsLib_gSurface presents_surface;
+        graphLib.surfaceFromFile(GAMEPATH + "/shared/images/presents.png", &presents_surface);
+
+        st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
+        graphLib.copyArea(st_rectangle(0, 0, presents_surface.width, presents_surface.height), st_position(RES_W*0.5-presents_surface.width*0.5, logo_pos.y + upperland_surface.height + 7), &presents_surface, &graphLib.gameScreen);
+        draw_lib.update_screen();
+
+
+        //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
+        graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+        draw_lib.update_screen();
+        input.waitScapeTime(400);
+        for (int i=1; i<6; i++) {
+            graphLib.copyArea(st_rectangle((upperland_surface.width/6)*i, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+            draw_lib.update_screen();
+            input.waitScapeTime(30);
+        }
+        graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+        draw_lib.update_screen();
+
+        input.waitScapeTime(1000);
+
+        graphLib.blank_screen();
+
+        graphLib.draw_centered_text(30, "ROCKBOT ENGINE", graphLib.gameScreen, st_color(199, 215, 255));
+        graphLib.draw_centered_text(60, "THIS GAME RUNS WITH", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(120, "THE SOURCE-CODE IS LICENSED UNDER", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(140, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(160, "GAME CONTENT IS COPYRIGHT OF ITS", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(180, "RESPECTIVE CONTENT CREATOR.", graphLib.gameScreen, st_color(255, 255, 255));
+
+        draw_lib.update_screen();
+        input.waitScapeTime(3000);
+
+        graphLib.blank_screen();
 }
 
 // ********************************************************************************************** //
@@ -898,7 +946,7 @@ void game::got_weapon()
         player1.show();
         draw_lib.update_screen();
 
-        player1.set_weapon(currentStage);
+        player1.set_weapon(currentStage, false);
         fill_player_weapon(player1.get_selected_weapon());
         player1.fall();
 		soundManager.play_sfx(SFX_GOT_WEAPON);
@@ -983,7 +1031,7 @@ void game::leave_stage()
 
     // return to stage selection
     player1.reset_charging_shot();
-    player1.set_weapon(WEAPON_DEFAULT);
+    player1.set_weapon(WEAPON_DEFAULT, false);
     currentStage = scenes.pick_stage();
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
@@ -1076,7 +1124,7 @@ void game::show_ending(st_position boss_pos)
 
     player1.set_show_hp(false);
     // reset player colors to original
-    player1.set_weapon(0);
+    player1.set_weapon(0, false);
 
     /// @TODO add scene ending
     leave_game = true;
@@ -1087,7 +1135,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE2;
+    currentStage = INTRO_STAGE;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;

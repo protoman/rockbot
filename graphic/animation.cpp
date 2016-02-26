@@ -35,6 +35,7 @@ animation::animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, co
     _executed_times = 0;
 }
 
+
 animation::~animation()
 {
 }
@@ -78,35 +79,4 @@ void animation::execute()
             }
         }
     }
-}
-
-
-simple_animation::simple_animation(std::string filename, int repeat_times, int delay, int width, st_position pos)
-{
-    graphLib.surfaceFromFile(filename, &_surface);
-    _repeat_times = repeat_times;
-    _delay = delay;
-    _width = width;
-    _timer = timer.getTimer() + _delay;
-    _max_frames = _surface.width / _width;
-    _frame_n = 0;
-    _pos = pos;
-}
-
-void simple_animation::execute()
-{
-    //std::cout << "simple_animation::execute - pos.x: " << _pos.x << ", pos.y: " << _pos.y << std::endl;
-    graphLib.showSurfaceRegionAt(&_surface, st_rectangle(_width*_frame_n, 0, _width, _surface.height), _pos);
-    if ((int)timer.getTimer() > _timer) {
-        _timer = timer.getTimer() + _delay;
-        _frame_n++;
-        if (_frame_n >= _max_frames) {
-            _frame_n = 0;
-        }
-    }
-}
-
-void simple_animation::set_position(st_position new_pos)
-{
-    _pos = new_pos;
 }

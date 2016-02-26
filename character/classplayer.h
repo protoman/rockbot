@@ -65,7 +65,7 @@ public:
      * @brief change the weapon player is using
      * @param weapon_n id of the weapon to be set
      */
-    void set_weapon(short weapon_n);
+    void set_weapon(short weapon_n, bool show_tooltip_icon);
 
     /**
      * @brief get the number of energy a given weapon still has (the number decreases as the weapon is used)
