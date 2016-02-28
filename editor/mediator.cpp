@@ -85,6 +85,18 @@ Mediator::Mediator() {
 
 }
 
+void Mediator::save_dialogs()
+{
+    std::map<int, std::vector<std::string> >::iterator it;
+    for (it = stage_dialog_list.begin(); it != stage_dialog_list.end(); it++) {
+        std::vector<std::string> list_copy = it->second;
+        for (int i=0; i<list_copy.size(); i++) {
+            list_copy.at(i) = list_copy.at(i) + "\n";
+        }
+        fio_str.save_stage_dialogs(it->first, list_copy);
+    }
+}
+
 
 Mediator *Mediator::get_instance()
 {
@@ -172,6 +184,8 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
+
+    save_dialogs();
 
 }
 

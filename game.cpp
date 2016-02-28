@@ -344,8 +344,11 @@ void game::show_notice()
 
         st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
         graphLib.copyArea(st_rectangle(0, 0, presents_surface.width, presents_surface.height), st_position(RES_W*0.5-presents_surface.width*0.5, logo_pos.y + upperland_surface.height + 7), &presents_surface, &graphLib.gameScreen);
-        draw_lib.update_screen();
 
+        graphLib.draw_centered_text(160, "PLEASE SUPPORT US ON PATREON:", graphLib.gameScreen, st_color(255, 255, 255));
+        graphLib.draw_centered_text(180, "HTTP://WWW.PATREON.COM/ROCKBOT", graphLib.gameScreen, st_color(255, 255, 255));
+
+        draw_lib.update_screen();
 
         //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
         graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
@@ -359,7 +362,7 @@ void game::show_notice()
         graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
 
-        input.waitScapeTime(1000);
+        input.waitScapeTime(2000);
 
         graphLib.blank_screen();
 
@@ -560,7 +563,7 @@ bool game::test_teleport(classPlayer *test_player) {
         currentMap = temp_map_n;
         new_map_pos_x = (stage_data.links[j].pos_destiny.x * TILESIZE) - TILESIZE*2;
     } else {
-        transitionScreen(transition_type, temp_map_n, new_map_pos_x, test_player);
+        transition_screen(transition_type, temp_map_n, new_map_pos_x, test_player);
     }
 
     st_float_position bg1_pos = loaded_stage.get_current_map()->get_bg1_scroll();
@@ -735,7 +738,7 @@ void game::remove_players_slide()
 
 
 //TRANSITION_TOP_TO_BOTTOM, TRANSITION_BOTTOM_TO_TOP
-void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj) {
+void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj) {
 	graphicsLib_gSurface temp_screen;
     short i = 0;
     graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
@@ -810,7 +813,7 @@ void game::transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPl
 
             draw_lib.update_screen();
 #if !defined(PLAYSTATION2) && !defined(ANDROID)
-            input.waitTime(10);
+            input.waitTime(6);
 #endif
 		}
 
@@ -890,7 +893,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         player1.show();
         loaded_stage.showAbove();
 #if defined(PC)
-        input.waitTime(3);
+        input.waitTime(1);
 #endif
         draw_lib.update_screen();
 		if (i%(TILESIZE/2) == 0) {

@@ -25,6 +25,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 {
     set_default_values();
 	_id = id; // -1 is default projectile
+
     map = set_map;
     position = set_position;
     direction = set_direction;
@@ -57,6 +58,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         }
     }
 
+    //std::cout << ">>>>>>>>>>>> PROJECTILE::PROJECTILE::ID: " << (int)_id << ", trajectory: " << (int)_move_type << ", follow: " << TRAJECTORY_FOLLOW << std::endl;
 
     if (_move_type == TRAJECTORY_ARC) {
         position0.x = position.x;
@@ -120,7 +122,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _speed_x = 8;
     _accel_x = 0.95;
 
-    std::cout << "_accel_x: " << _accel_x << std::endl;
+    //std::cout << "_accel_x: " << _accel_x << std::endl;
 }
 
 void projectile::set_is_permanent()
@@ -413,7 +415,7 @@ st_size projectile::move() {
                 moved.width += _speed_x;
             }
             _speed_x -= _accel_x;
-            std::cout << "ARC::SMALL::speed_x: " << _speed_x << std::endl;
+            //std::cout << "ARC::SMALL::speed_x: " << _speed_x << std::endl;
             if (_speed_x < 0) {
                 _speed_x = 0;
             }
@@ -506,8 +508,8 @@ st_size projectile::move() {
 		if (_owner_position == NULL) {
             std::cout << "ERROR: owner positoon NOT set in centered projectile" << std::endl;
 		} else {
-			position.x = _owner_position->x - 15;
-			position.y = _owner_position->y - 7;
+            position.x = _owner_position->x - 15;
+            position.y = _owner_position->y - 10;
 			if (_owner_direction != NULL) {
 				direction = *_owner_direction;
 			}
@@ -713,7 +715,11 @@ void projectile::draw() {
             }
         }
 		//std::cout << "projectile::draw - inc anim_pos to " << animation_pos << std::endl;
-		animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME;
+        if (_move_type == TRAJECTORY_CENTERED) {
+            animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/2;
+        } else {
+            animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME;
+        }
 	}
 }
 

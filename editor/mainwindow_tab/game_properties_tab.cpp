@@ -40,12 +40,6 @@ void game_properties_tab::fill_data()
     ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id+1);
 
 
-    for (int i=0; i<MAX_STAGES; i++) {
-        std::cout << "face-name[" << i << "]: " << Mediator::get_instance()->game_data.stages_face_name[i] << std::endl;
-    }
-
-
-
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
 

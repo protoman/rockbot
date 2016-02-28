@@ -376,6 +376,9 @@ void classPlayer::attack(bool dont_update_colors)
 
         soundManager.play_sfx(SFX_PLAYER_SHOT);
 
+
+        //std::cout << "############ weapon_id: " << weapon_id << std::endl;
+
         projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();

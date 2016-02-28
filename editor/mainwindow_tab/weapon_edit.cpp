@@ -42,8 +42,8 @@ void weapon_edit::on_weapon_select_combo_currentIndexChanged(int index)
     ui->weapon_name->setText(QString(Mediator::get_instance()->game_data.weapons[_selected_weapon].name));
     ui->weapon_damage->setValue(Mediator::get_instance()->game_data.weapons[_selected_weapon].damage);
     //std::cout << "weapon.projectile_id: " << (int)Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile << std::endl;
-    ui->weapon_projectile_type->setCurrentIndex(Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile+1); // +1 because of the -1 default projectile
-    ui->weapon_charged_projectile_type->setCurrentIndex(Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile_charged+1); // +1 because of the -1 default projectile
+    ui->weapon_projectile_type->setCurrentIndex(Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile); // +1 because of the -1 default projectile
+    ui->weapon_charged_projectile_type->setCurrentIndex(Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile_charged); // +1 because of the -1 default projectile
     _loaded = true;
 }
 
@@ -62,7 +62,7 @@ void weapon_edit::on_weapon_projectile_type_currentIndexChanged(int index)
         return;
     }
     //std::cout << ">> on_weapon_projectile_type_currentIndexChanged - _selected_weapon: " << _selected_weapon << ", index: " << index << std::endl;
-    Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile = index-1; //-1 is because default weapon (-1)
+    Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile = index;
 }
 
 void weapon_edit::on_weapon_damage_valueChanged(int arg1)
@@ -77,5 +77,5 @@ void weapon_edit::on_weapon_damage_valueChanged(int arg1)
 void weapon_edit::on_weapon_charged_projectile_type_currentIndexChanged(int index)
 {
     if (_loaded == false) { return; }
-    Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile_charged = index-1; //-1 is because default weapon (-1)
+    Mediator::get_instance()->game_data.weapons[_selected_weapon].id_projectile_charged = index; //-1 is because default weapon (-1)
 }

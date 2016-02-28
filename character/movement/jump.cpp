@@ -31,7 +31,7 @@ void classjump::start(bool bigjump_mode)
     jumps_number++;
     speed = -JUMP_INITIAL_SPEED;
 
-    std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
+    //std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
 
     moved = 0;
 }

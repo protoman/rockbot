@@ -325,7 +325,7 @@ private:
      * @param adjust_x
      * @param pObj
      */
-    void transitionScreen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj);
+    void transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj);
     /**
      * @brief
      *

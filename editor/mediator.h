@@ -4,6 +4,7 @@
 #include "file/format.h"
 #include "file/file_io.h"
 #include "file/fio_scenes.h"
+#include "file/fio_strings.h"
 
 struct st_player_graphics_data {
 	st_size frame_size;
@@ -120,11 +121,17 @@ public:
     bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
     std::string combobox_select_string;
 
+    // stage dialogs
+    std::map<int, std::vector<std::string> > stage_dialog_list;
+
+
 
 private:
     Mediator();
     Mediator(Mediator const&){};             // copy constructor is private
     Mediator& operator=(Mediator const&){};  // assignment operator is private
+
+    void save_dialogs();
 
 
 private:
@@ -133,6 +140,7 @@ private:
     int palleteY;
     std::string selectedTileset;
     fio_common fio_cmm;
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
 };
 
 

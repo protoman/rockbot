@@ -82,6 +82,42 @@ private slots:
 
     void on_stages_tab_bossname_lineedit_textChanged(const QString &arg1);
 
+    void on_dialogs_line1_text1_textChanged(const QString &arg1);
+    void on_dialogs_line1_text2_textChanged(const QString &arg1);
+    void on_dialogs_line1_text3_textChanged(const QString &arg1);
+    void on_dialogs_line2_text1_textChanged(const QString &arg1);
+    void on_dialogs_line2_text2_textChanged(const QString &arg1);
+    void on_dialogs_line2_text3_textChanged(const QString &arg1);
+    void on_dialogs_answer1_text1_textChanged(const QString &arg1);
+    void on_dialogs_answer1_text2_textChanged(const QString &arg1);
+    void on_dialogs_answer1_text3_textChanged(const QString &arg1);
+    void on_dialogs_answer2_text1_textChanged(const QString &arg1);
+    void on_dialogs_answer2_text2_textChanged(const QString &arg1);
+    void on_dialogs_answer2_text3_textChanged(const QString &arg1);
+    void on_boss_dialog_text1_line1_textChanged(const QString &arg1);
+
+    void on_boss_dialog_text1_line2_textChanged(const QString &arg1);
+
+    void on_boss_dialog_text1_line3_textChanged(const QString &arg1);
+
+    void on_boss_dialog_text2_line1_textChanged(const QString &arg1);
+
+    void on_boss_dialog_text2_line2_textChanged(const QString &arg1);
+
+    void on_boss_dialog_text2_line3_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer1_line1_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer1_line2_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer1_line3_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer2_line1_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer2_line2_textChanged(const QString &arg1);
+
+    void on_boss_dialog_answer2_line3_textChanged(const QString &arg1);
+
 public slots:
     void on_string_selected(int string_id);
 
@@ -94,7 +130,6 @@ private:
 	Ui::stage_edit *ui;
     bool _data_loading;
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-
 };
 
 #endif // STAGE_EDIT_H

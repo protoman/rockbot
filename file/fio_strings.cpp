@@ -22,6 +22,7 @@ namespace format_v4 {
 
     fio_strings::fio_strings()
     {
+        _dialogs_stage_id = -1;
     }
 
     std::string fio_strings::get_ingame_string(int n)
@@ -32,6 +33,9 @@ namespace format_v4 {
         if (n < 0 || n > string_list.size()) {
             return "";
         }
+
+        std::cout << "FIO_STRINGS::get_ingame_string[" << n << "]: " << string_list.at(n) << std::endl;
+
         return string_list.at(n);
     }
 
@@ -88,7 +92,7 @@ namespace format_v4 {
         }
 
         for (int i=0; i<list.size(); i++) {
-            std::string line = list.at(i) + std::string("\n");
+            std::string line = list.at(i);
             fp << line.c_str();
         }
         fp.close();
@@ -200,21 +204,25 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
         sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
 
-
-
         /// @TODO: add assert to check that we set all the values from the enum
-
 
         std::vector<std::string> res;
         for (int i=0; i<strings_ingame_COUNT; i++) {
             std::string line = std::string(lines[i]) + std::string("\n");
-
             std::cout << "fio_strings::create_default_ingame_strings[" << i << "]: " << line << std::endl;
             res.push_back(line);
         }
 
         save_game_strings(res, get_game_strings_filename());
+        
+    }
 
+    std::string fio_strings::get_stage_dialogs_filename(short stage_id)
+    {
+        char char_filename[100];
+        sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);
+        std::string filename = FILEPATH + std::string(char_filename);
+        return filename;
     }
 
     void fio_strings::create_default_common_strings()
@@ -222,52 +230,42 @@ namespace format_v4 {
 
         /// @TODO - set the IDS for each line
 
+    }
+
+    void fio_strings::create_default_dialog_strings()
+    {
         std::vector<std::string> res;
         for (int i=0; i<FS_MAX_STAGES; i++) {
             char line_value[FS_CHAR_NAME_SIZE];
-            sprintf(line_value, "DIALOG_PERSON_NAME #%d", i);
-            res.push_back(line_value);
-        }
-
-        // stage-start dialogs
-        for (int i=0; i<FS_MAX_STAGES; i++) {
             // person dialogs
-            char line_value[FS_COMMON_STRINGS_DIALOG];
-            sprintf(line_value, "START-STAGE DIALOG #%d", i);
-            res.push_back(line_value);
+            for (int j=0; j<6; j++) {
+                sprintf(line_value, "START-STAGE[%d] DLG #%d\n", i, j);
+                res.push_back(line_value);
+            }
             // players dialogs
-            for (int j=0; j<4; j++) {
-                for (int k=0; k<3; k++) {
-                    char player_line_id[FS_COMMONSTRING_ID_SIZE];
+            for (int j=0; j<4; j++) { // players
+                for (int k=0; k<6; k++) { // phrases
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_id, "STAGE_DLG_PLAYER_%d_%d_%d", j, i, k);
-                    sprintf(player_line_value, "STAGE DIALOG PLAYER %d %d %d", j, i, k);
+                    sprintf(player_line_value, "STAGE[%d] DIALOG P[%d] %d\n", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
-        }
-
-
-        // stage-boss dialogs
-        for (int i=0; i<FS_MAX_STAGES; i++) {
             // person dialogs
-            char line_value[FS_COMMON_STRINGS_DIALOG];
-            sprintf(line_value, "BOSS DIALOG #%d", i);
-            res.push_back(line_value);
+            for (int j=0; j<6; j++) {
+                sprintf(line_value, "BOSS STAGE[%d] DIALOG #%d\n", i, j);
+                res.push_back(line_value);
+            }
             // players dialogs
-            for (int j=0; j<4; j++) {
-                // 3 lines
-                for (int k=0; k<3; k++) {
-                    char player_line_id[FS_COMMONSTRING_ID_SIZE];
+            for (int j=0; j<4; j++) { // players
+                for (int k=0; k<6; k++) { // lines
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_id, "BOSS_DLG_PLAYER_%d_%d %d", j, i, k);
-                    sprintf(player_line_value, "BOSS DIALOG PLAYER %d %d %d", j, i, k);
+                    sprintf(player_line_value, "BOSS STAGE[%d] DLG P[%d] %d\n", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
+            save_game_strings(res, get_stage_dialogs_filename(i));
+            res.clear();
         }
-
-        save_common_strings(res);
     }
 
 
@@ -310,6 +308,40 @@ namespace format_v4 {
         return common_strings_list.at(id);
     }
 
+    std::string fio_strings::get_stage_dialog(short stage_id, int id)
+    {
+        if (_dialogs_stage_id != stage_id) {
+            _dialogs_stage_id = stage_id;
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            if (dialogs_strings_list.size() == 0) {
+                create_default_dialog_strings();
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            }
+        }
+        if (id < 0 || id >= dialogs_strings_list.size()) {
+            return std::string("");
+        }
+        return dialogs_strings_list.at(id);
+    }
+
+    std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id)
+    {
+        if (_dialogs_stage_id != stage_id) {
+            _dialogs_stage_id = stage_id;
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            if (dialogs_strings_list.size() == 0) {
+                create_default_dialog_strings();
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            }
+        }
+        // check size
+        if (dialogs_strings_list.size() < 60) {
+            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is 60." << std::endl;
+            exit(-1);
+        }
+        return dialogs_strings_list;
+    }
+
 
     void fio_strings::save_common_strings(std::vector<std::string> data)
     {
@@ -320,6 +352,11 @@ namespace format_v4 {
     {
         create_default_ingame_strings();
         create_default_common_strings();
+    }
+
+    void fio_strings::save_stage_dialogs(short stage_id, std::vector<std::string> data)
+    {
+        save_game_strings(data, get_stage_dialogs_filename(stage_id));
     }
 
 

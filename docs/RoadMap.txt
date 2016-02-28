@@ -35,8 +35,23 @@ adicionar sistema de colisão que permite diagonais
                                         2.0.0b1
 *******************************************************************************************
 
+ARMAS:
+    * claw stratch (tipo do slash man de mm7)
+    * snow gale (vendaval de neve) impede inimigos de se mover
+        # apaga fogo e lava nos outros estágios (tem que ser objetos)
+    * windwhril (igual air man)
+    * fogo fátuo (Will-o'-the-wisp) tipo magic missile, segue alvo até um determinado limite de distância (algo como 1/4 da largura da tela)
+    * sonar waves (pode ser igual do rockbot1 por hora)
+        # quebra vidro (criar objeto)
+    * golden arrow (flecha da armadura de sagitário) se gruda no oponente e vai ferindo ele aos poucos
+    * phantom vortex: suga objetos e inimigos para dentro (como o buraco negro de mm9)
+        # puxa iterms de lugares inalcancáveis
+    * scales armor (tipo arma do mage, melhorar visual apenas)
 
+- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
+- separar dialog strings em arquivos próprios, um por estágio
+    * retirar IDs dos dialogos, já que pode ser direta a correspondência
 
 - revisar arquivos do template
     * setar por padrão algumas coisas comuns do template:
@@ -46,8 +61,6 @@ adicionar sistema de colisão que permite diagonais
     * criar uma fase do megaman 9 para testar template
 
 - inercia está colocando o jogador dentro de paredes
-
-
 
 - está desenhando items uma posição atrasada em relação ao scroll
 
@@ -61,6 +74,7 @@ adicionar sistema de colisão que permite diagonais
 ##################################
              DONE
 ##################################
+- game strings estão bagunçadas, fora de ordem (duplo \n)
 - colocar aviso de copyright e engine antes da tela de abertura independente de se tem intro
 - quando trocar arma com L/R, mostrar ícone acima da cabeça do player por 1 segundo e meio
 - corrigir FIO para salvar e carregar dados novos de game properties
