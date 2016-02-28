@@ -279,9 +279,17 @@ void character::charMove() {
 
         if (moved == true) {
             if (moveCommands.right == 1) {
-                position.x++;
+                st_map_colision map_col = map_colision(1, 0, map->getMapScrolling());
+                mapLock = map_col.block;
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    position.x++;
+                }
             } else if (moveCommands.left == 1) {
-                position.x--;
+                st_map_colision map_col = map_colision(-1, 0, map->getMapScrolling());
+                mapLock = map_col.block;
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    position.x--;
+                }
             }
             _inertia_obj.start();
         } else if (moveCommands.left == 0 && moveCommands.right == 0) {

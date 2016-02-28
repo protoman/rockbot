@@ -14,7 +14,7 @@
 // Global static pointer used to ensure a single instance of the class.
 Mediator* Mediator::_instance = NULL;
 
-Mediator::Mediator() {
+Mediator::Mediator() : stage_data() {
 	palleteX=0;
 	palleteY=0;
     selectedTileset = "/images/tilesets/default.png";
@@ -82,6 +82,15 @@ Mediator::Mediator() {
     if (scene_list.size() == 0) {
         scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
     }
+
+
+    /*
+    CURRENT_FILE_FORMAT::file_stage temp_stage;
+    for (int i=0; i<FS_MAX_STAGES; i++) {
+        stage_data.stages[i].dialog_face_graphics_filename[0] = '\03';
+    }
+    */
+
 
 }
 
@@ -174,10 +183,9 @@ void Mediator::load_game() {
 
 void Mediator::save_game()
 {
-    Mediator::get_instance()->fio.write_game(Mediator::get_instance()->game_data);
-    Mediator::get_instance()->fio.write_all_stages(Mediator::get_instance()->stage_data);
-    Mediator::get_instance()->fio.write_all_maps(Mediator::get_instance()->maps_data);
-    CURRENT_FILE_FORMAT::file_io fio;
+    Mediator::get_instance()->fio.write_game(game_data);
+    Mediator::get_instance()->fio.write_all_stages(stage_data);
+    Mediator::get_instance()->fio.write_all_maps(maps_data);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);

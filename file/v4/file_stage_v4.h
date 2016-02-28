@@ -117,7 +117,6 @@ struct file_stages {
             } else {
                 sprintf(stages[i].name, "Castle #2 Stage #%d", i);
             }
-
         }
     }
 };
