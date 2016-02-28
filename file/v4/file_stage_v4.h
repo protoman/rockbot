@@ -76,12 +76,12 @@ struct file_stage {
     char bgmusic_filename[FS_CHAR_FILENAME_SIZE];
     file_link links[FS_STAGE_MAX_LINKS];
     file_boss boss;
-    file_dialog intro_dialog;
-    file_dialog boss_dialog;
     char tileset_filename[FS_CHAR_FILENAME_SIZE];
     bool autoscroll[FS_STAGE_MAX_MAPS];
     Sint8 cutscene_pre;
     Sint8 cutscene_pos;
+    char dialog_face_graphics_filename[20];
+    bool dialog_top_side;
 
     // CONSTRUCTOR //
     file_stage() {
@@ -94,6 +94,8 @@ struct file_stage {
         tileset_filename[0] = '\0';
         cutscene_pre = -1;
         cutscene_pos = -1;
+        dialog_face_graphics_filename[0] = '\0';
+        dialog_top_side = true;
     }
 };
 

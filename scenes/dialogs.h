@@ -25,7 +25,7 @@ public:
      *
      * @param stage
      */
-    void show_stage_dialog();
+    void show_stage_dialog(int stage_n);
     /**
      * @brief
      *

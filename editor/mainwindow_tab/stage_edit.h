@@ -28,53 +28,6 @@ private slots:
     void on_stages_tab_stage_name_lineedit_textChanged(const QString &arg1);
     void on_dialogs_line1_face_combo_currentIndexChanged(const QString &arg1);
 
-    void on_phrase1_1_toolButton_clicked();
-
-    void on_phrase1_2_toolButton_clicked();
-
-    void on_phrase1_3_toolButton_clicked();
-
-    void on_phrase2_1_toolButton_clicked();
-
-    void on_phrase2_2_toolButton_clicked();
-
-    void on_phrase2_3_toolButton_clicked();
-
-    void on_answer1_1_toolButton_clicked();
-
-    void on_answer1_2_toolButton_clicked();
-
-    void on_answer1_3_toolButton_clicked();
-
-    void on_answer2_1_toolButton_clicked();
-
-    void on_answer2_2_toolButton_clicked();
-
-    void on_answer2_3_toolButton_clicked();
-
-    void on_boss_phrase1_1_toolButton_clicked();
-
-    void on_boss_phrase1_2_toolButton_clicked();
-
-    void on_boss_phrase1_3_toolButton_clicked();
-
-    void on_boss_phrase2_1_toolButton_clicked();
-
-    void on_boss_phrase2_2_toolButton_clicked();
-
-    void on_boss_phrase2_3_toolButton_clicked();
-
-    void on_boss_answer1_1_toolButton_clicked();
-
-    void on_boss_answer1_2_toolButton_clicked();
-
-    void on_boss_answer1_3_toolButton_clicked();
-
-    void on_boss_answer2_1_toolButton_clicked();
-
-    void on_boss_answer2_2_toolButton_clicked();
-
-    void on_boss_answer2_3_toolButton_clicked();
 
     void on_cutscenePre_comboBox_currentIndexChanged(int index);
 

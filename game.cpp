@@ -223,7 +223,7 @@ void game::start_stage()
             draw_lib.update_screen();
 		}
 		if (game_save.stages[currentStage] == 0) {
-            game_dialogs.show_stage_dialog();
+            game_dialogs.show_stage_dialog(currentStage);
             // reset timers for objects
             loaded_stage.reset_objects_timers();
 		}
@@ -650,10 +650,8 @@ void game::map_present_boss(bool show_dialog)
 
 	if (show_dialog == true) {
 		// 4. show boss dialog
-        if (stage_data.boss_dialog.text1_string_ids[0] != -1 && game_save.stages[currentStage] == 0) {
-			dialogs boss_dialog;
-            boss_dialog.show_boss_dialog(loaded_stage.get_number());
-		}
+        dialogs boss_dialog;
+        boss_dialog.show_boss_dialog(loaded_stage.get_number());
 	}
 
 	show_stage(8, false);

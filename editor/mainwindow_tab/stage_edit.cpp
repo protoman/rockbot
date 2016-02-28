@@ -108,7 +108,7 @@ void stage_edit::update_stage_data()
     //ui->dialogs_line1_face->setCurrentIndex(ui->dialogs_line1_face->findText(QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.face_graphics_filename)));
 
     // search for the item that matches the text to select row
-    std::string search_text = std::string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.face_graphics_filename);
+    std::string search_text = std::string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].dialog_face_graphics_filename);
     for (int i=0; i<ui->dialogs_line1_face_combo->count(); i++) {
         int combo_n = ui->dialogs_line1_face_combo->findText(QString(search_text.c_str()));
         ui->dialogs_line1_face_combo->setCurrentIndex(combo_n);
@@ -203,132 +203,9 @@ void stage_edit::on_stages_tab_stage_name_lineedit_textChanged(const QString &ar
 void stage_edit::on_dialogs_line1_face_combo_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.face_graphics_filename, "%s", arg1.toStdString().c_str());
+    sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].dialog_face_graphics_filename, "%s", arg1.toStdString().c_str());
 }
 
-// ------------------- string tooltip buttons ------------------- //
-// --- STAGE-DIALOG --- //
-void stage_edit::on_phrase1_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[0]), ui->dialogs_line1_text1);
-}
-
-void stage_edit::on_phrase1_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[1]), ui->dialogs_line1_text2);
-}
-
-void stage_edit::on_phrase1_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text1_string_ids[2]), ui->dialogs_line1_text3);
-}
-
-void stage_edit::on_phrase2_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[0]), ui->dialogs_line2_text1);
-}
-
-void stage_edit::on_phrase2_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[1]), ui->dialogs_line2_text2);
-}
-
-void stage_edit::on_phrase2_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.text2_string_ids[2]), ui->dialogs_line2_text3);
-}
-
-void stage_edit::on_answer1_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]), ui->dialogs_answer1_text1);
-}
-
-void stage_edit::on_answer1_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]), ui->dialogs_answer1_text2);
-}
-
-void stage_edit::on_answer1_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]), ui->dialogs_answer1_text3);
-}
-
-void stage_edit::on_answer2_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]), ui->dialogs_answer2_text1);
-}
-
-void stage_edit::on_answer2_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]), ui->dialogs_answer2_text2);
-}
-
-void stage_edit::on_answer2_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]), ui->dialogs_answer2_text3);
-}
-
-// --- BOSS-DIALOG --- //
-
-void stage_edit::on_boss_phrase1_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[0]), ui->boss_dialog_text1_line1);
-}
-
-void stage_edit::on_boss_phrase1_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[1]), ui->boss_dialog_text1_line2);
-}
-
-void stage_edit::on_boss_phrase1_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text1_string_ids[2]), ui->boss_dialog_text1_line3);
-}
-
-void stage_edit::on_boss_phrase2_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[0]), ui->boss_dialog_text2_line1);
-}
-
-void stage_edit::on_boss_phrase2_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[1]), ui->boss_dialog_text2_line2);
-}
-
-void stage_edit::on_boss_phrase2_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.text2_string_ids[2]), ui->boss_dialog_text2_line3);
-}
-
-void stage_edit::on_boss_answer1_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][0]), ui->boss_dialog_answer1_line1);
-}
-
-void stage_edit::on_boss_answer1_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][1]), ui->boss_dialog_answer1_line2);
-}
-
-void stage_edit::on_boss_answer1_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer1_string_ids[ui->dialogs_answer1_player->currentIndex()][2]), ui->boss_dialog_answer1_line3);
-}
-
-void stage_edit::on_boss_answer2_1_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][0]), ui->boss_dialog_answer2_line1);
-}
-
-void stage_edit::on_boss_answer2_2_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][1]), ui->boss_dialog_answer2_line2);
-}
-
-void stage_edit::on_boss_answer2_3_toolButton_clicked()
-{
-    string_tooltip_click(&(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss_dialog.answer2_string_ids[ui->dialogs_answer1_player->currentIndex()][2]), ui->boss_dialog_answer2_line3);
-}
 
 
 
