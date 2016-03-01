@@ -90,9 +90,9 @@ character::~character()
 // ********************************************************************************************** //
 void character::char_update_real_position() {
 	if (map != NULL) {
-		realPosition.x = position.x - map->getMapScrolling().x;
-		realPosition.y = position.y - map->getMapScrolling().y;
-        //std::cout << ">>>> show::char_update_real_position - realPosition.x: " << realPosition.x << ", pos.x: " << position.x << ", map->getMapScrolling().x: " << map->getMapScrolling().x << std::endl;
+        realPosition.x = position.x - (int)map->getMapScrolling().x;
+        realPosition.y = position.y - (int)map->getMapScrolling().y;
+        //std::cout << ">>>> show::char_update_real_position - realPosition.y: " << realPosition.y << ", pos.y: " << position.y << ", map->getMapScrolling().y: " << map->getMapScrolling().y << std::endl;
     } else {
 		realPosition.x = position.x;
 		realPosition.y = position.y;
@@ -1183,7 +1183,7 @@ bool character::will_hit_ground(int y_change) const
 
 bool character::is_on_screen()
 {
-    st_position scroll(0, 0);
+    st_float_position scroll(0, 0);
     if (map != NULL) {
         scroll = map->getMapScrolling();
     }
@@ -1230,7 +1230,7 @@ bool character::is_on_screen()
 
 bool character::is_on_visible_screen()
 {
-    st_position scroll = map->getMapScrolling();
+    st_float_position scroll = map->getMapScrolling();
     // entre scroll.x e scroll.x+RES_W
 
     if (abs((float)position.x + frameSize.width) >= scroll.x && abs((float)position.x) < scroll.x+RES_W) {
@@ -1284,7 +1284,7 @@ void character::set_position(struct st_position new_pos)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-bool character::slide(st_position mapScrolling)
+bool character::slide(st_float_position mapScrolling)
 {
 	if (is_player() == false) {
 		return false;
@@ -1433,7 +1433,7 @@ bool character::slide(st_position mapScrolling)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-bool character::jump(int jumpCommandStage, st_position mapScrolling)
+bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 {
     // @TODO - can only jump again once set foot on land
     if (jumpCommandStage == 0 && jump_button_released == false) {
@@ -1501,7 +1501,7 @@ bool character::jump(int jumpCommandStage, st_position mapScrolling)
             //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
-                //std::cout << "jump.speed[" << speed_y << "]" << std::endl;
+                std::cout << "jump.speed[" << speed_y << "]" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;
@@ -1653,7 +1653,7 @@ void character::check_platform_move(short map_lock)
     }
 }
 
-st_map_colision character::map_colision(const float incx, const short incy, st_position mapScrolling)
+st_map_colision character::map_colision(const float incx, const short incy, st_float_position mapScrolling)
 {
     int py_adjust = 8;
     int terrain_type = TERRAIN_UNBLOCKED;
@@ -2566,7 +2566,7 @@ void character::teleport_out() {
     set_animation_type(ANIM_TYPE_TELEPORT);
     _obj_jump.finish();
     while (position.y > -(frameSize.height+TILESIZE)) {
-        //std::cout << "teleport_out - position.y: " << position.y << std::endl;
+        std::cout << "teleport_out - position.y: " << position.y << std::endl;
         position.y -= GRAVITY_MAX_SPEED;
 		char_update_real_position();
 		map->showMap();
@@ -2587,7 +2587,7 @@ bool character::change_position(short xinc, short yinc)
 
     st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
     short int mapLock = map_col.block;
-    if (getName() == "Ema") std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
+    if (is_player()) std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
 
 	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
 		return false;

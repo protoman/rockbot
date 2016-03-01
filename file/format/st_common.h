@@ -66,8 +66,8 @@ struct st_float_position {
     float x;
     float y;
     st_float_position() {
-        x = 1;
-        y = 1;
+        x = 0.0;
+        y = 0.0;
     }
 /**
  * @brief
@@ -492,7 +492,7 @@ struct used_teleporter {
     bool finished; // indicates if already used
     struct st_position old_player_pos;
     bool active; // if true, then after beating the boss, the player must be teleported back to the teleporter origin
-    st_position old_map_scroll;
+    st_float_position old_map_scroll;
     Sint8 old_map_n;
     bool is_object;
 	used_teleporter() {

@@ -42,13 +42,13 @@ public:
      * @param pos
      * @param check_lock
      */
-    void changeScrolling(st_position pos, bool check_lock=true);
+    void changeScrolling(st_float_position pos, bool check_lock=true);
     /**
      * @brief
      *
      * @return st_position
      */
-    st_position getMapScrolling();
+    st_float_position getMapScrolling();
     /**
      * @brief
      *
@@ -84,7 +84,7 @@ public:
      *
      * @param pos
      */
-    void set_scrolling(st_position pos);
+    void set_scrolling(st_float_position pos);
 
     void reset_scrolling();
 

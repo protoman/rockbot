@@ -114,7 +114,7 @@ Uint8 stage::getMapPointLock(st_position pos)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::changeScrolling(st_position pos, bool check_lock)
+void stage::changeScrolling(st_float_position pos, bool check_lock)
 {
     // debug for autoscrolling test
     bool map_autoscroll = static_cast<bool>(stage_data.autoscroll[currentMap]);
@@ -125,7 +125,7 @@ void stage::changeScrolling(st_position pos, bool check_lock)
     if (map_autoscroll == true) {
         if (timer.is_paused() == false && autoscroll_timer < timer.getTimer()) {
             autoscroll_timer = timer.getTimer()+20;
-            pos.x = 1;
+            pos.x = 1.5;
         } else {
             pos.x = 0;
         }
@@ -133,7 +133,7 @@ void stage::changeScrolling(st_position pos, bool check_lock)
     maps[currentMap].changeScrolling(pos, check_lock);
 }
 
-void stage::set_scrolling(st_position pos)
+void stage::set_scrolling(st_float_position pos)
 {
     maps[currentMap].set_scrolling(pos);
 }
@@ -146,7 +146,7 @@ void stage::reset_scrolling()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-st_position stage::getMapScrolling()
+st_float_position stage::getMapScrolling()
 {
     //std::cout << ">> stage::getMapScrolling[" << currentMap << "].x: " << maps[currentMap].getMapScrolling().x << std::endl;
     return maps[currentMap].getMapScrolling();
@@ -203,7 +203,7 @@ void stage::reset_current_map()
     if (currentMap > PRELOAD_MAP_N) {
         return;
     }
-    maps[currentMap].set_scrolling(st_position(checkpoint.map_scroll_x, 0));
+    maps[currentMap].set_scrolling(st_float_position(checkpoint.map_scroll_x, 0));
 }
 
 void stage::reset_current_map_objects()

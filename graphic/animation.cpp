@@ -8,7 +8,7 @@ extern graphicsLib graphLib;
 extern std::string FILEPATH;
 
 
-animation::animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize, st_position *map_scroll) : _finished(false), _repeated_times(0)
+animation::animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize, st_float_position *map_scroll) : _finished(false), _repeated_times(0)
 {
     _ref_pos = NULL;
     _pos_type = pos_type;

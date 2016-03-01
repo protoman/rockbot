@@ -38,13 +38,21 @@ void animTilePalette::reload()
 void animTilePalette::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
+    int row = 0;
+    int col = 0;
     for (int i=0; i<image_list.size(); i++) {
         if (image_list.at(i).isNull() == false) {
-            QRectF target(QPoint(i*TILESIZE*2, 0), QSize(TILESIZE*2, TILESIZE*2));
+            QRectF target(QPoint(col*TILESIZE*2, row*TILESIZE*2), QSize(TILESIZE*2, TILESIZE*2));
             QRectF source(QPoint(0, 0), QSize(TILESIZE*2, TILESIZE*2));
             painter.drawPixmap(target, image_list.at(i), source);
+            col++;
+            if (col > EDITOR_ANIM_PALETE_MAX_COL) {
+                row++;
+                col = 0;
+            }
         }
     }
+    this->resize(this->width(), (row+1)*TILESIZE*2);
     // draw the selection marker
     painter.setPen(QColor(255, 0, 0));
     QRectF select(QPoint((selectedTileX*TILESIZE*2), (selectedTileY*TILESIZE*2)), QSize(TILESIZE*2, TILESIZE*2-1));
@@ -58,9 +66,13 @@ void animTilePalette::mousePressEvent(QMouseEvent *event)
     selectedTileY = pnt.y()/(TILESIZE*2);
     Mediator::get_instance()->setPalleteX(selectedTileX);
     Mediator::get_instance()->setPalleteY(selectedTileY);
-    //printf("DEBUG.EditorTilePallete::mousePressEvent - PalleteX: %d, palleteY: %d\n", selectedTileX, selectedTileY);
 
-    Mediator::get_instance()->selectedAnimTileset = selectedTileX;
+    std::cout << ">>>>>>>>>>>>> animTilePalette::mousePressEvent - x: " << selectedTileX << ", y: " << selectedTileY << std::endl;
+
+    Mediator::get_instance()->selectedAnimTileset = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL);
+    if (selectedTileY > 0) {
+        Mediator::get_instance()->selectedAnimTileset++;
+    }
 
     repaint();
 }

@@ -128,7 +128,11 @@ void classMap::loadMap()
         for (int j=0; j<MAP_H; j++) {
             int lvl3_x = map_data[number].tiles[i][j].tile3.x;
             int lvl3_y = map_data[number].tiles[i][j].tile3.y;
-            if (lvl3_x != -1 && lvl3_y != -1) {
+            if (lvl3_x > -1 && lvl3_y != -1) {
+                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
+                _level3_tiles.push_back(temp_tile);
+            } else if (lvl3_x < -1 && lvl3_y == 0) { // anim tiles
+                lvl3_y = j*TILESIZE;
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
                 _level3_tiles.push_back(temp_tile);
             }
@@ -320,7 +324,7 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void classMap::changeScrolling(st_position pos, bool check_lock)
+void classMap::changeScrolling(st_float_position pos, bool check_lock)
 {
 
     if (timer.is_paused() == true) {
@@ -380,7 +384,7 @@ void classMap::changeScrolling(st_position pos, bool check_lock)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void classMap::set_scrolling(st_position pos)
+void classMap::set_scrolling(st_float_position pos)
 {
 	scrolled = pos;
 	scroll.x = pos.x;
@@ -401,8 +405,9 @@ void classMap::reset_scrolling()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-st_position classMap::getMapScrolling() const
+st_float_position classMap::getMapScrolling() const
 {
+    //std::cout << "getMapScrolling, x: " << scroll.x << ", y: " << scroll.y << std::endl;
     return scroll;
 }
 
@@ -759,7 +764,7 @@ void classMap::load_map_objects() {
 
 
 
-st_position classMap::get_last_scrolled() const
+st_float_position classMap::get_last_scrolled() const
 {
 	return scrolled;
 }
@@ -1173,7 +1178,7 @@ bool classMap::get_map_point_wall_lock(int x) const
 
 void classMap::move_map(const short int move_x, const short int move_y)
 {
-	set_scrolling(st_position(scroll.x+move_x, scroll.y+move_y));
+    set_scrolling(st_float_position(scroll.x+move_x, scroll.y+move_y));
 }
 
 

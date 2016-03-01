@@ -436,9 +436,14 @@ void graphicsLib::update_anim_tiles_timers()
 
 void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y)
 {
-    struct st_rectangle origin_rectangle(origin_x*TILESIZE, origin_y*TILESIZE, TILESIZE, TILESIZE);
     st_position pos_destiny(dest_x+_screen_adjust.x, dest_y);
+    if (origin_x < -1) {
+        int anim_tile_id = (origin_x * -1) - 2;
+        place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
+        return;
+    }
 
+    struct st_rectangle origin_rectangle(origin_x*TILESIZE, origin_y*TILESIZE, TILESIZE, TILESIZE);
     copySDLArea(origin_rectangle, pos_destiny, tileset, game_screen);
 }
 

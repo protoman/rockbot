@@ -133,7 +133,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
@@ -463,8 +463,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>206</width>
-              <height>190</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -558,7 +558,7 @@
                      <rect>
                       <x>10</x>
                       <y>0</y>
-                      <width>251</width>
+                      <width>261</width>
                       <height>71</height>
                      </rect>
                     </property>
@@ -601,8 +601,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -750,8 +750,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -851,8 +851,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -883,6 +883,11 @@
                 <item>
                  <property name="text">
                   <string>Teleporter</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Fade Teleport</string>
                  </property>
                 </item>
                </widget>
@@ -946,8 +951,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <property name="toolTip">
@@ -1015,8 +1020,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>102</height>
+              <width>374</width>
+              <height>295</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1033,8 +1038,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>98</width>
-                  <height>28</height>
+                  <width>354</width>
+                  <height>134</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">

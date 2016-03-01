@@ -20,7 +20,7 @@ enum ANIMATION_TYPES {
 class animation
 {
 public:
-    animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize, st_position* map_scroll);
+    animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize, st_float_position* map_scroll);
     ~animation();
 
     st_float_position get_position() const;
@@ -54,7 +54,7 @@ private:
     int _current_frame_timer; /**< TODO */
     Uint8 _max_repeat; /**< TODO */
     Uint8 _repeated_times; /**< TODO */
-    st_position* _map_scroll; /**< TODO */
+    st_float_position* _map_scroll; /**< TODO */
 };
 
 

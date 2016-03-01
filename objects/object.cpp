@@ -1191,7 +1191,7 @@ bool object::is_started() const
 
 bool object::is_on_screen()
 {
-    st_position scroll = map->getMapScrolling();
+    st_float_position scroll = map->getMapScrolling();
     // entre scroll.x-RES_W/2 e scroll.x+RES_W+RES_W/2
 
     //if (realPosition.x < -TILESIZE*2 || realPosition.x > (RES_W+TILESIZE*2)) {
@@ -1203,7 +1203,7 @@ bool object::is_on_screen()
 
 bool object::is_on_visible_screen()
 {
-    st_position scroll = map->getMapScrolling();
+    st_float_position scroll = map->getMapScrolling();
 
     if (abs((float)position.x) > scroll.x && abs((float)position.x) < scroll.x+RES_W) {
         return true;

@@ -90,11 +90,11 @@ public:
 
     bool get_map_point_wall_lock(int x) const;
 
-    void changeScrolling(st_position pos, bool check_lock=true);
+    void changeScrolling(st_float_position pos, bool check_lock=true);
 
-    st_position getMapScrolling() const;
+    st_float_position getMapScrolling() const;
 
-    st_position get_last_scrolled() const;
+    st_float_position get_last_scrolled() const;
 
     void reset_scrolled();
 
@@ -118,7 +118,7 @@ public:
 
     graphicsLib_gSurface get_map_area_surface();
 
-    void set_scrolling(st_position pos);
+    void set_scrolling(st_float_position pos);
 
     void reset_scrolling();
 
@@ -215,8 +215,8 @@ public:
 
 private:
     int stage_number;
-    struct st_position scroll;
-    st_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
+    struct st_float_position scroll;
+    st_float_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
     st_float_position bg1_scroll;
     st_float_position bg2_scroll;

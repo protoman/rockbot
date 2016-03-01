@@ -49,11 +49,17 @@ ARMAS:
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
+- criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
+    * tela escurece
+    * jogador reaparece no ponto do teleporte, caindo
+
+
+- remover lógica set_teleporter/get_teleporter de player, já que teleportadores bi0direcionais serão sempre objetos
+
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
 
-- chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
-    * idem para chefe normal, aparece antes de descer
+
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 
@@ -70,6 +76,8 @@ ARMAS:
 ##################################
              DONE
 ##################################
+- chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
+    * idem para chefe normal, aparece antes de descer
 - inércia está colocando o jogador dentro de paredes (só da esquerda para direita)
 - separar dialog strings em arquivos próprios, um por estágio
     * retirar IDs dos dialogos, já que pode ser direta a correspondência

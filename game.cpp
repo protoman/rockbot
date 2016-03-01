@@ -151,11 +151,11 @@ Uint8 game::getMapPointLock(struct st_position pos)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-st_position game::checkScrolling()
+st_float_position game::checkScrolling()
 {
-	st_position move;
-    st_position mapScroll = loaded_stage.getMapScrolling();
-    st_position p1Pos(player1.getPosition().x,  player1.getPosition().y);
+    st_float_position move;
+    st_float_position mapScroll = loaded_stage.getMapScrolling();
+    st_float_position p1Pos(player1.getPosition().x,  player1.getPosition().y);
 
 	move.x += (p1Pos.x - mapScroll.x) - RES_W/2;
 
@@ -474,7 +474,7 @@ bool game::test_teleport(classPlayer *test_player) {
             lim4 = ((temp_y)*TILESIZE)+TILESIZE;
 
             // give extra pixels in the END-Y, if top to bottom ot bottom to top
-            if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_BOSS_TELEPORTER) {
+            if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_FADE_TELEPORT) {
                 if (transition_type == TRANSITION_TOP_TO_BOTTOM) {
                     lim4 += TILESIZE;
                 } else if (transition_type == TRANSITION_BOTTOM_TO_TOP) {
@@ -487,7 +487,7 @@ bool game::test_teleport(classPlayer *test_player) {
 				if (test_player->get_teleporter() == -1) {
 
 					// for transition up/down, only execute if player is partially out of screen
-                    if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_BOSS_TELEPORTER && (transition_type == TRANSITION_TOP_TO_BOTTOM || transition_type == TRANSITION_BOTTOM_TO_TOP)) {
+                    if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_FADE_TELEPORT && (transition_type == TRANSITION_TOP_TO_BOTTOM || transition_type == TRANSITION_BOTTOM_TO_TOP)) {
 						short int p_posy = test_player->getPosition().y;
                         if (p_posy > 0 && p_posy+test_player->get_size().height < RES_H-4) {
                             i++;
@@ -496,10 +496,7 @@ bool game::test_teleport(classPlayer *test_player) {
 					}
 					teleporter_dist = lim1 - player_x*TILESIZE - 8;
 					MUST_TELEPORT = true;
-                    if (stage_data.links[j].type == LINK_BOSS_TELEPORTER && currentStage == CASTLE1_STAGE5 && currentMap == 2) {
-                        test_player->set_direction(ANIM_DIRECTION_RIGHT);
-                        test_player->set_teleporter(i);
-                    } else if (stage_data.links[j].type != LINK_TELEPORTER) {
+                    if (stage_data.links[j].type != LINK_TELEPORTER && stage_data.links[j].type != LINK_FADE_TELEPORT) {
                         test_player->set_teleporter(i);
                     }
                     link_type = stage_data.links[j].type;
@@ -509,7 +506,7 @@ bool game::test_teleport(classPlayer *test_player) {
 			// only clean teleport when player is out of the teleporter
 			} else {
                 if (i == test_player->get_teleporter()) {
-                    if (link_type != LINK_BOSS_TELEPORTER || currentStage != CASTLE1_STAGE5 || currentMap != 2) { // only clean link if not teleporter nor is on final stage/map
+                    if (currentStage != CASTLE1_STAGE5 || currentMap != 2) { // only clean link if not teleporter nor is on final stage/map
                         test_player->set_teleporter(-1);
                     }
 				}
@@ -555,8 +552,12 @@ bool game::test_teleport(classPlayer *test_player) {
     }
     new_map_pos_x -= diff_h +2;
 
-    if (link_type == LINK_TELEPORTER || link_type == LINK_BOSS_TELEPORTER) {
-        test_player->teleport_out();
+    if (link_type == LINK_TELEPORTER || link_type == LINK_FADE_TELEPORT) {
+        if (link_type == LINK_FADE_TELEPORT) {
+            draw_lib.fade_out_screen(0, 0, 0);
+        } else {
+            test_player->teleport_out();
+        }
         graphLib.blank_screen();
         draw_lib.update_screen();
         input.waitTime(500);
@@ -571,19 +572,20 @@ bool game::test_teleport(classPlayer *test_player) {
 
     set_current_map(temp_map_n);
 
-    if (link_type == LINK_TELEPORTER || link_type == LINK_BOSS_TELEPORTER) {
+    if (link_type == LINK_TELEPORTER || link_type == LINK_FADE_TELEPORT) {
         int new_scroll_pos = loaded_stage.get_first_lock_on_left(stage_data.links[j].pos_destiny.x);
-        loaded_stage.set_scrolling(st_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
+        loaded_stage.set_scrolling(st_float_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
         test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
+        if (link_type == LINK_FADE_TELEPORT) {
+            draw_lib.fade_in_screen(0, 0, 0);
+        }
     } else {
-        loaded_stage.set_scrolling(st_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
+        loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
         loaded_stage.get_current_map()->set_bg1_scroll(bg1_pos);
         loaded_stage.get_current_map()->set_bg2_scroll(bg2_pos);
         test_player->set_position(st_position(abs((float)test_player->get_real_position().x+new_map_pos_x), test_player->getPosition().y));
     }
     test_player->char_update_real_position();
-
-
     loaded_stage.get_current_map()->reset_scrolled();
 
     draw_lib.update_screen();
@@ -743,7 +745,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     classMap temp_map = loaded_stage.maps[map_n];
     temp_map.set_bg1_scroll(loaded_stage.get_current_map()->get_bg1_scroll());
     temp_map.set_bg2_scroll(loaded_stage.get_current_map()->get_bg2_scroll());
-    temp_map.set_scrolling(st_position(adjust_x, 0));
+    temp_map.set_scrolling(st_float_position(adjust_x, 0));
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
@@ -819,7 +821,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
         std::cout << "DONE!!" << std::endl;
 
         if (type == TRANSITION_TOP_TO_BOTTOM) {
-            temp_map.changeScrolling(st_position(temp_map.getMapScrolling().x, 0));
+            temp_map.changeScrolling(st_float_position(temp_map.getMapScrolling().x, 0));
         }
         if (type == TRANSITION_TOP_TO_BOTTOM) {
             if (pObj->getPosition().y > TILESIZE) {
@@ -843,7 +845,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     int upTile = 0;
     int downTile = 0;
     classMap* temp_map = loaded_stage.get_current_map();
-	st_position scroll_move;
+    st_float_position scroll_move;
 	if (direction == ANIM_DIRECTION_LEFT) {
 		scroll_move.x = -2;
 	} else {
@@ -976,7 +978,7 @@ void game::got_weapon()
 
         player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
         player1.set_animation_type(ANIM_TYPE_ATTACK);
-        loaded_stage.set_scrolling(st_position(0, 0));
+        loaded_stage.set_scrolling(st_float_position(0, 0));
         player1.char_update_real_position();
         player1.show();
 
@@ -1136,7 +1138,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE1;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
@@ -1403,7 +1405,7 @@ void game::finish_player_teleporter()
         loaded_stage.activate_final_boss_teleporter();
     }
     player1.set_map(loaded_stage.get_current_map());
-    loaded_stage.set_scrolling(st_position(_player_teleporter.old_map_scroll));
+    loaded_stage.set_scrolling(st_float_position(_player_teleporter.old_map_scroll));
     player1.set_animation_type(ANIM_TYPE_STAND);
     if (_player_teleporter.is_object == true) {
         loaded_stage.get_current_map()->finish_object_teleporter(_player_teleporter.teleporter_n);
@@ -1455,7 +1457,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     set_current_map(dest_map);
 
     int new_scroll_pos = loaded_stage.get_first_lock_on_left(dest_pos.x);
-    loaded_stage.set_scrolling(st_position(new_scroll_pos, 0));
+    loaded_stage.set_scrolling(st_float_position(new_scroll_pos, 0));
     test_player->set_position(st_position(dest_pos.x*TILESIZE, 0));
     test_player->char_update_real_position();
 
@@ -1512,7 +1514,7 @@ character *game::get_player()
     return &player1;
 }
 
-st_position game::get_current_stage_scroll()
+st_float_position game::get_current_stage_scroll()
 {
     return loaded_stage.getMapScrolling();
 }

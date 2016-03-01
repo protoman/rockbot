@@ -522,7 +522,7 @@ protected:
      * @param mapScrolling
      * @return bool
      */
-    bool slide(st_position mapScrolling);
+    bool slide(st_float_position mapScrolling);
     /**
      * @brief
      *
@@ -530,7 +530,7 @@ protected:
      * @param st_position
      * @return bool
      */
-    bool jump(int, st_position);
+    bool jump(int, st_float_position);
 
 
     /**
@@ -541,7 +541,7 @@ protected:
      * @param mapScrolling
      * @return short
      */
-    st_map_colision map_colision(const float incx, const short int incy, st_position mapScrolling);
+    st_map_colision map_colision(const float incx, const short int incy, st_float_position mapScrolling);
 
 
     bool is_on_teleporter_capsulse(object* object);

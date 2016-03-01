@@ -75,7 +75,7 @@ public:
      *
      * @return st_position
      */
-    st_position checkScrolling();
+    st_float_position checkScrolling();
     /**
      * @brief
      *
@@ -253,7 +253,7 @@ public:
      *
      * @return st_position
      */
-    st_position get_current_stage_scroll();
+    st_float_position get_current_stage_scroll();
     /**
      * @brief
      *
