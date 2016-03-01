@@ -318,7 +318,7 @@ void stage::activate_final_boss_teleporter()
 
 void stage::check_map_effect()
 {
-    std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
+    //std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (maps[currentMap].get_map_gfx() != draw_lib.get_gfx()) {
         draw_lib.set_gfx(maps[currentMap].get_map_gfx());
     }

@@ -708,7 +708,7 @@ void classMap::activate_final_boss_teleporter()
 
 Uint8 classMap::get_map_gfx()
 {
-    std::cout << ">> MAP::get_map_gfx::number: " << number << std::endl;
+    //std::cout << ">> MAP::get_map_gfx::number: " << number << std::endl;
     return map_data[number].backgrounds[0].gfx;
 }
 

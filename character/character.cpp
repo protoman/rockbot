@@ -243,31 +243,33 @@ void character::charMove() {
                 hit_moved_back_n += temp_move_speed;
             }
 
-            st_map_colision map_col = map_colision(i, 0, map->getMapScrolling());
-            mapLock = map_col.block;
-            //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
-            if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
-                if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
-					position.x += i - map->get_last_scrolled().x;
-				} else {
-					position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
-				}
-				if (state.animation_type != ANIM_TYPE_HIT) {
-					state.direction = ANIM_DIRECTION_RIGHT;
-				} else {
-                    gravity(false);
-                    return;
+            if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
+                st_map_colision map_col = map_colision(i, 0, map->getMapScrolling());
+                mapLock = map_col.block;
+                //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
+                    if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
+                        position.x += i - map->get_last_scrolled().x;
+                    } else {
+                        position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
+                    }
+                    if (state.animation_type != ANIM_TYPE_HIT) {
+                        state.direction = ANIM_DIRECTION_RIGHT;
+                    } else {
+                        gravity(false);
+                        return;
+                    }
+                    if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                        state.animation_timer = 0;
+                    }
+                    if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                        set_animation_type(ANIM_TYPE_WALK);
+                    }
+                    moved = true;
+                    break;
                 }
-				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-					state.animation_timer = 0;
-                }
-                if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    set_animation_type(ANIM_TYPE_WALK);
-				}
-				moved = true;
-				break;
-			}
+            }
 		}
 	}
 	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
@@ -1382,11 +1384,19 @@ bool character::slide(st_float_position mapScrolling)
 		return false;
 	}
 
-    // check if trying to leave screen
+    // check if trying to leave screen LEFT
     if (state.direction == ANIM_DIRECTION_LEFT && position.x <= 0) {
         state.slide_distance = 0;
         return false;
     }
+
+    // check if trying to leave screen RIGHT
+    if (is_player() == true && (realPosition.x + frameSize.width/2) > RES_W) {
+        state.slide_distance = 0;
+        return false;
+    }
+
+    // end of map
     if (state.direction == ANIM_DIRECTION_RIGHT && position.x + frameSize.width > MAP_W * TILESIZE) {
         state.slide_distance = 0;
         return false;
@@ -1501,7 +1511,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
-                std::cout << "jump.speed[" << speed_y << "]" << std::endl;
+                //std::cout << "jump.speed[" << speed_y << "]" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;
@@ -2671,6 +2681,14 @@ bool character::test_change_position(short xinc, short yinc)
     if (xinc < 0 && position.x <= 0) {
         return false;
     }
+
+    std::cout << "#1 xinc: " << xinc << ", realPosition.x: " << realPosition.x << std::endl;
+
+    if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
+        return false;
+    }
+
+
     st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
     short int mapLock = map_col.block;
 	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
