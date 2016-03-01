@@ -58,7 +58,7 @@ ARMAS:
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
-
+- beast x37
 
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)

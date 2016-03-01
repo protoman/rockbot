@@ -2682,7 +2682,7 @@ bool character::test_change_position(short xinc, short yinc)
         return false;
     }
 
-    std::cout << "#1 xinc: " << xinc << ", realPosition.x: " << realPosition.x << std::endl;
+    //std::cout << "#1 xinc: " << xinc << ", realPosition.x: " << realPosition.x << std::endl;
 
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
         return false;

@@ -32,7 +32,7 @@
 #include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
-#define DEBUG_SHOW_FPS 1
+//#define DEBUG_SHOW_FPS 1
 #define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 #define PS2LINK 1

@@ -75,10 +75,10 @@ void artificial_inteligence::execute_ai()
     if (timer.getTimer() < _ai_timer) {
         return;
     }
-    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
+    std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
     // check if action is finished
     if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-        //std::cout << "AI::execute_ai::FINISHED" << std::endl;
+        std::cout << "AI::execute_ai::FINISHED" << std::endl;
         if (_reaction_type == 0) {
             int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
             _ai_timer = timer.getTimer() + delay;
@@ -200,7 +200,7 @@ void artificial_inteligence::define_ai_next_step()
 
 void artificial_inteligence::execute_ai_step()
 {
-    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
+    std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
     _ai_timer = timer.getTimer() + 20;
     if (_current_ai_type == AI_ACTION_WALK) {
         //std::cout << ">> AI:exec[" << name << "] WALK" << std::endl;
@@ -218,10 +218,10 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_save_point();
         //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_1) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
         execute_ai_action_trow_projectile(0, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_2) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
         execute_ai_action_trow_projectile(1, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_INVERT_PROJECTILE_1) {
         //std::cout << ">> AI:exec[" << name << "] SHOT_INVERT_PROJECTILE_1 <<" << std::endl;
@@ -978,6 +978,9 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
+
+    std::cout << "AI::SHOT INIT" << std::endl;
+
     int projectile_id_temp = GameMediator::get_instance()->get_enemy(_number).projectile_id[n];
     CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(projectile_id_temp);
     // some projectile types are limited to one

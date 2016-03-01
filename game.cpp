@@ -606,7 +606,7 @@ bool game::test_teleport(classPlayer *test_player) {
 void game::set_current_map(int temp_map_n)
 {
 
-    std::cout << ">>>>>>>>>>> GAME::set_current_map[" << temp_map_n << "]" << std::endl;
+   std::cout << ">>>>>>>>>>> GAME::set_current_map[" << temp_map_n << "]" << std::endl;
 
     loaded_stage.set_current_map(temp_map_n);
     loaded_stage.reset_current_map_objects();

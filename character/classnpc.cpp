@@ -282,7 +282,7 @@ void classnpc::execute()
 
 void classnpc::boss_move()
 {
-    std::cout << "NPC::boss::execute::START" << std::endl;
+    //std::cout << "NPC::boss_move::BEGIN" << std::endl;
     if (hitPoints.current <= 0 || position.x < map->getMapScrolling().x-TILESIZE*2 || position.x > map->getMapScrolling().x+RES_W+TILESIZE*2) {
         std::cout << "classboss::execute - LEAVE #1" << std::endl;
         return;
@@ -296,9 +296,8 @@ void classnpc::boss_move()
         clean_projectiles();
         return;
     }
-    std::cout << "classboss::execute" << std::endl;
 
-    std::cout << "classboss::boss_move[" << name << "] - _initialized: " << _initialized << std::endl;
+    //std::cout << "classboss::boss_move[" << name << "] - _initialized: " << _initialized << std::endl;
 
     move_projectiles();
     //std::cout << "classboss::boss_move - A" << std::endl;
@@ -318,7 +317,7 @@ void classnpc::boss_move()
         }
         return;
     }
-    std::cout << "classboss::boss_move - D" << std::endl;
+    //std::cout << "classboss::boss_move - D" << std::endl;
 
 
     if (first_run == 0) {
