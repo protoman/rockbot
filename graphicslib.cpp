@@ -1165,7 +1165,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 
 
 
-void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon_n)
+void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon_n, short int max_hp)
 {
 	short int y, i;
 
@@ -1195,7 +1195,7 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 
 
 	for (i=0; i<hp; i++) {
-		y = ((28-i)*2+1)+bar_pos.y-2;
+        y = ((max_hp-i)*2+1)+bar_pos.y-2;
 		clear_area(bar_pos.x+1, y, 2, 1, color2.r, color2.g, color2.b);
 		clear_area(bar_pos.x+3, y, 2, 1, color3.r, color3.g, color3.b);
 		clear_area(bar_pos.x+5, y, 2, 1, color2.r, color2.g, color2.b);
@@ -1379,7 +1379,7 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
         mode = 1;
     }
     // calculate time for each part, being  (move_step)2 pixels each
-    int part_duration = duration / (distance/move_step);
+    int part_duration = duration / (distance/move_step*2);
     if (distance == 0) {
         return;
     }

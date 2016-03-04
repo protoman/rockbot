@@ -701,7 +701,7 @@ void game::fill_boss_hp_bar()
 {
 	soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
 	for (int i=0; i<PLAYER_INITIAL_HP; i++) {
-		graphLib.draw_hp_bar(i, -1, -1);
+        graphLib.draw_hp_bar(i, -1, -1, PLAYER_INITIAL_HP);
         draw_lib.update_screen();
 		timer.delay(60);
 	}
@@ -712,7 +712,7 @@ void game::fill_player_weapon(short weapon_n)
 {
     soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
     for (int i=0; i<PLAYER_INITIAL_HP; i++) {
-        graphLib.draw_hp_bar(i, player1.get_number(), weapon_n);
+        graphLib.draw_hp_bar(i, player1.get_number(), weapon_n, fio.get_heart_pieces_number(game_save));
         draw_lib.update_screen();
         timer.delay(60);
     }
@@ -1151,7 +1151,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE1;
+    currentStage = STAGE3;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;

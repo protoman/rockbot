@@ -25,8 +25,11 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 #define PLAYER_MOVE_SPEED 1.2 // higher is faster
 
+#include "file/file_io.h"
 
 #include "classmap.h"
+
+extern CURRENT_FILE_FORMAT::file_io fio;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -356,9 +359,17 @@ void classPlayer::attack(bool dont_update_colors)
 
 
         if (used_weapon == WEAPON_ITEM_COIL) {
-            add_coil_object();
+            if (map->have_player_object() == true) {
+                weapon_id = -1;
+            } else {
+                add_coil_object();
+            }
         } else if (used_weapon == WEAPON_ITEM_JET) {
-            add_jet_object();
+            if (map->have_player_object() == true) {
+                weapon_id = -1;
+            } else {
+                add_jet_object();
+            }
         } else {
             weapon_id = used_weapon;
         }
@@ -409,7 +420,7 @@ void classPlayer::attack(bool dont_update_colors)
                 consume_weapon(4);
             } else if (weapon_trajectory == TRAJECTORY_FREEZE) {
                 consume_weapon(2);
-            } else {
+            } else if (used_weapon != WEAPON_ITEM_COIL && used_weapon != WEAPON_ITEM_JET) {
                 consume_weapon(1);
             }
         }
@@ -1004,9 +1015,6 @@ bool classPlayer::can_fly()
 
 void classPlayer::add_coil_object()
 {
-    if (map->have_player_object() == true) { // check if any other special item is present on screen
-        return;
-    }
     if (game_save.items.weapons[selected_weapon] > 0) {
         //std::cout << ">>>>>>> adding coil object" << std::endl;
 		st_position obj_pos;
@@ -1030,13 +1038,10 @@ void classPlayer::add_coil_object()
 
 void classPlayer::add_jet_object()
 {
-    if (map->have_player_object() == true) {
-        return;
-    }
     if (game_save.items.weapons[selected_weapon] > 0) {
         //std::cout << ">>>>>>> adding JET object" << std::endl;
 		st_position obj_pos;
-        obj_pos.y = position.y;
+        obj_pos.y = position.y + TILESIZE;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             obj_pos.x = position.x - 2;
         } else {
@@ -1092,9 +1097,9 @@ void classPlayer::show_hp()
     if (_show_hp == false) {
         return;
     }
-    graphLib.draw_hp_bar(get_current_hp(), get_number(), WEAPON_DEFAULT);
+    graphLib.draw_hp_bar(get_current_hp(), get_number(), WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
     if (get_selected_weapon() != WEAPON_DEFAULT) {
-        graphLib.draw_hp_bar(get_weapon_value(get_selected_weapon()),get_number(), get_selected_weapon());
+        graphLib.draw_hp_bar(get_weapon_value(get_selected_weapon()),get_number(), get_selected_weapon(), fio.get_heart_pieces_number(game_save));
     }
 }
 

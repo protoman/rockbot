@@ -66,6 +66,8 @@ namespace format_v4 {
 
         void generate_files();
 
+        int get_heart_pieces_number(st_save game_save);
+
 
     private:
         std::string sufix;

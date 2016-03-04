@@ -2,14 +2,16 @@
 
 
 
-SEQUENCE - Ape, Dynamite, Mage, Seahorse, Daisie, Techno, Mummy, Spike (Daisie, Seahorse, Ape x2, Spike)
+SEQUENCE:
+1. Snow
+2. Kurupira (apaga fogo)
+3. Valkyrie (queima "asinhas")
+4. Dragon (a lança dela é tipo uma dragonslayer)
+5. Gear (escamas refletem ondas sônicas)
+6. Phantom (ondas ultra-sônicas do gear tonteiam ele)
+7. Beast-Master (a música do phantom poderia acalmar as feras),
+8. Zodiac (garras cortam armadura)
 
-
-
-key_n1: 14304, key_n2: 63519, key_n3: 2047
-
-
-53x41 x 4 = 212x41
 
 Para estágio intro:
 - abelha gorda que voa em forma senóide
@@ -26,11 +28,18 @@ Para estágio intro:
 OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
 OK - adicionar sistema de Xp/level ao save
 adicionar suporte a heart-containers (mmx)
+	OK - save
+	- HP in game (fazer crescer para baixo, armas tb ganham aumento)
+	OK - barra vertical
+	- barra horizontal (weapon menu)
 adicionar grab edge (metroid, prince of persia)
 adicionar wall-slide/jump (mmx)
 adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
+
+Maps base:
+Valkyrie: mm3 needle revisited
 
 ARMAS:
     * claw stratch (tipo do slash man de mm7)
@@ -49,17 +58,7 @@ ARMAS:
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
-- criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
-    * tela escurece
-    * jogador reaparece no ponto do teleporte, caindo
-
-
-- remover lógica set_teleporter/get_teleporter de player, já que teleportadores bi0direcionais serão sempre objetos
-
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
-
-- beast x37
-
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 
@@ -76,6 +75,9 @@ ARMAS:
 ##################################
              DONE
 ##################################
+- criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
+	* tela escurece
+	* jogador reaparece no ponto do teleporte, caindo
 - chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
     * idem para chefe normal, aparece antes de descer
 - inércia está colocando o jogador dentro de paredes (só da esquerda para direita)

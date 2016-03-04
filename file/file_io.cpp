@@ -17,7 +17,6 @@ extern std::string SAVEPATH;
 extern std::string GAMEPATH;
 extern std::string GAMENAME;
 
-
 // ************************************************************************************************************* //
 
 namespace format_v4 {
@@ -692,6 +691,17 @@ namespace format_v4 {
 
         CURRENT_FILE_FORMAT::file_map maps_data_in[FS_MAX_STAGES][FS_STAGE_MAX_MAPS];
         write_all_maps(maps_data_in);
+    }
+
+    int file_io::get_heart_pieces_number(CURRENT_FILE_FORMAT::st_save game_save)
+    {
+        int res = 0;
+        for (int i=0; i<WEAPON_COUNT; i++) {
+            if (game_save.items.heart_pieces[i] == true) {
+                res++;
+            }
+        }
+        return res;
     }
 
 }

@@ -261,65 +261,84 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     if (credits_list.size() > 0) {
         return;
     }
-    credits_list.push_back("*** ROCKBOT CREDITS ****");
+
+    credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
 
 
-    credits_list.push_back("--- PLANNER ---");
+    credits_list.push_back("- PLANNER -");
     credits_list.push_back("IURI FIEDORUK");
     credits_list.push_back("");
 
-
-    credits_list.push_back("--- CHARACTER DESIGN ---");
-    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("- HELPER -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("FABIANO \"CHIKAGO\" SACCOL");
-    credits_list.push_back("GIULIANO \"KOBOLD\" SACCOL");
-    credits_list.push_back("IVAN FIEDORUK");
-    credits_list.push_back("");
-
-    credits_list.push_back("--- PIXEL GRAPHICS ---");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("GIOVANI \"AKIRA\" FAGANELLO");
-    credits_list.push_back("RODRIGO M. HAHN");
-    credits_list.push_back("HUNTER TRAMMELL");
-    credits_list.push_back("BOBERATU");
-    credits_list.push_back("HFBN2");
-    credits_list.push_back("CAPT. CHRIS & KB");
-    credits_list.push_back("--- OPENGAMEART.ORG ---");
-    credits_list.push_back("SURT");
-    credits_list.push_back("--- DEVIANTART.COM ---");
-    credits_list.push_back("AVERAGE-HANZO");
-    credits_list.push_back("");
-
-    credits_list.push_back("--- TEXT REVIEW ---");
     credits_list.push_back("NELSON ROSENBERG");
     credits_list.push_back("");
 
 
-    credits_list.push_back("--- ILLUSTRATION ---");
-    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("- CHARACTER DESIGNER -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("");
-
-    credits_list.push_back("--- MUSIC COMPOSE ---");
-    credits_list.push_back("MODARCHIVE.ORG");
-    credits_list.push_back("");
-
-    credits_list.push_back("--- SOUND EFFECTS ---");
-    credits_list.push_back("CAPCOM");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("--- PROGRAMMER ---");
+    credits_list.push_back("BOBERATU");
     credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("DEMETRIO NETO");
-    credits_list.push_back("FELIPE ZACANI");
+    credits_list.push_back("NELSON ROSENBERG");
     credits_list.push_back("");
 
-    credits_list.push_back("--- PORTING ---");
+    credits_list.push_back("- OBJECT DESIGNER -");
+    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+
+    credits_list.push_back("- GRAPHICS DESIGNER -");
+    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("BOBERATU");
+    credits_list.push_back("HFBN2");
+    credits_list.push_back("CAPT. CHRIS AND KB");
+    credits_list.push_back("SURT.OPENGAMEART");
+    credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
+    credits_list.push_back("");
+
+    credits_list.push_back("- DIALOGS EDITOR -");
+    credits_list.push_back("NELSON ROSENBERG");
+    credits_list.push_back("");
+
+    credits_list.push_back("- TEST PLAYER -");
+    credits_list.push_back("NELSON ROSENBERG");
+    credits_list.push_back("");
+
+
+    credits_list.push_back("- ILLUSTRATION DESIGNER -");
+    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
+    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+
+    credits_list.push_back("- MUSIC COMPOSER -");
+    credits_list.push_back("MODARCHIVE.ORG");
+    credits_list.push_back("FIREAGE");
+    credits_list.push_back("SOLARIS");
+    credits_list.push_back("LEON/EXCESS");
+    credits_list.push_back("DIOMATIC");
+    credits_list.push_back("JASON");
+    credits_list.push_back("DEADLOCK/EXLSD");
+    credits_list.push_back("4MAT");
+    credits_list.push_back("ZANAZAC");
+    credits_list.push_back("AMEGA INDUSTRIESQ");
+    credits_list.push_back("DEATH ADDR");
+    credits_list.push_back("TOBBX");
+    credits_list.push_back("HYOCHAN");
+    credits_list.push_back("DR.BULLY/MAJIC12");
+    credits_list.push_back("");
+
+    credits_list.push_back("- SFX DESIGNER -");
+    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+
+
+    credits_list.push_back("- PROGRAMMER -");
+    credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+
+    credits_list.push_back("- PORTING HELPER -");
     credits_list.push_back("DINGUX: SHIN-NIL");
     credits_list.push_back("PANDORA: SIGMA NL");
     credits_list.push_back("PS2: RAGNAROK2040");
@@ -328,30 +347,25 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("ANDROID: PELYA");
     credits_list.push_back("");
 
-    credits_list.push_back("--- REVIEW & TESTING ---");
+    credits_list.push_back("- REVIEW & TESTING -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("LUIS AGUIRRE");
-    credits_list.push_back("BENOITREN (PSP)");
-    credits_list.push_back("BATANEN (PSP)");
-    credits_list.push_back("SAIYAN X (PSP)");
-    credits_list.push_back("AGENT 13 (PS2)");
-    credits_list.push_back("MK2ESCORT (PS2)");
-    credits_list.push_back("FOUADTJUHMASTER (ANDROID)");
-    credits_list.push_back("SHINRYUU82");
+    credits_list.push_back("NELSON ROSENBERG");
     credits_list.push_back("");
 
-    credits_list.push_back("--- SPECIAL THANKS ---");
+    credits_list.push_back("- SPECIAL THANKS -");
+    credits_list.push_back("FELIPE ZACANI (FPS)");
     credits_list.push_back("FREE SDK DEVELOPERS");
-    credits_list.push_back("DEVIANTART.COM COMMUNITY");
-    credits_list.push_back("PIXELJOINT.COM COMMUNITY");
-    credits_list.push_back("OPENGAMEART.ORG COMMUNITY");
+    credits_list.push_back("DEVIANTART.COM");
+    credits_list.push_back("PIXELJOINT.COM");
+    credits_list.push_back("OPENGAMEART.ORG");
     credits_list.push_back("VENOM");
     credits_list.push_back("JERONIMO");
     credits_list.push_back("");
 
-    credits_list.push_back("--- DEVELOPMENT TOOLS ---");
-    credits_list.push_back("LIBSDL.ORG");
+    credits_list.push_back("- DEVELOPMENT TOOLS -");
+    credits_list.push_back("LIBSDL");
     credits_list.push_back("DIGIA QT");
+    credits_list.push_back("GCC G+");
     credits_list.push_back("UBUNTU LINUX");
     credits_list.push_back("MINT LINUX");
     credits_list.push_back("GIMP EDITOR");
@@ -380,12 +394,12 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
-    credits_list.push_back("--- PRESENTED BY ---");
+    credits_list.push_back("- PRESENTED BY -");
     credits_list.push_back("UPPERLAND STUDIOS");
-    credits_list.push_back("GREENNEKO WEB & DESIGN");
 
     for (unsigned int i=0; i<=RES_H/12 && i<credits_list.size(); i++) {
-        std::size_t found = credits_list.at(i).find("--- ");
+        std::size_t found = credits_list.at(i).find("- ");
+
         if (found != std::string::npos) {
             graphLib.draw_centered_text(12*i, credits_list.at(i), surface, st_color(95, 151, 255));
         } else {
@@ -398,7 +412,7 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
 void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line)
 {
     if (initial_line < credits_list.size()) {
-        std::size_t found = credits_list.at(initial_line).find("--- ");
+        std::size_t found = credits_list.at(initial_line).find("- ");
         if (found != std::string::npos) {
             graphLib.draw_centered_text(RES_H, credits_list.at(initial_line), surface, st_color(95, 151, 255));
         } else {

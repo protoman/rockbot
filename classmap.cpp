@@ -36,6 +36,7 @@ extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 
+extern CURRENT_FILE_FORMAT::st_save game_save;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -1409,9 +1410,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 			}
 		}
         _player_ref->show();
-        graphLib.draw_hp_bar(_player_ref->get_current_hp(), player_number, WEAPON_DEFAULT);
-		//show_sprite(p1Obj->sprite, game_screen);
-		//draw_hp_bar(p1Obj);
+        graphLib.draw_hp_bar(_player_ref->get_current_hp(), player_number, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
         showAbove();
         draw_lib.update_screen();
 		input.waitTime(100);
@@ -1547,7 +1546,7 @@ void classMap::show_npcs() /// @TODO - check out of screen
 {
     for (int i=0; i<_npc_list.size(); i++) {
         if (gameControl.must_show_boss_hp() && _npc_list.at(i).is_boss() && _npc_list.at(i).is_on_visible_screen() == true) {
-            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1);
+            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1, PLAYER_INITIAL_HP);
 		}
         if (_npc_list.at(i).is_dead() == false) {
             _npc_list.at(i).show();

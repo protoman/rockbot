@@ -341,7 +341,7 @@ public:
      * @param player_n
      * @param weapon_n
      */
-    void draw_hp_bar(short int hp, short player_n, short weapon_n);
+    void draw_hp_bar(short int hp, short player_n, short weapon_n, short int max_hp);
     /**
      * @brief
      *

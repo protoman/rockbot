@@ -4,13 +4,14 @@
 namespace format_v4 {
 
     struct st_items {
-        Uint8 energy_tanks;
-        Uint8 weapon_tanks;
-        Uint8 special_tanks;
-        Uint8 balancer;
-        Uint8 lifes;
-        Uint8 bolts;
-        Uint8 weapons[WEAPON_COUNT];
+        int energy_tanks;
+        int weapon_tanks;
+        int special_tanks;
+        int balancer;
+        int lifes;
+        int bolts;
+        bool heart_pieces[WEAPON_COUNT];                        // one heart-piece for each stage
+        int weapons[WEAPON_COUNT];
 
         // items that can be bought on shop
         bool exit;                                              // leave a completed stage
@@ -32,6 +33,7 @@ namespace format_v4 {
             bolts = 0;
             for (int i=0; i<WEAPON_COUNT; i++) {
                 weapons[i] = PLAYER_INITIAL_HP;
+                heart_pieces[i] = false;
             }
             // shop items
             exit = false;
@@ -50,8 +52,8 @@ namespace format_v4 {
     // this stores any "generic" items you could want to add to game, such as parts od beta to fix him (like in mmx zero)
     // or anything we want to expand later, like shop items
     struct st_collect_items {
-        Uint8 id;
-        Uint8 number;
+        int id;
+        int number;
         st_collect_items() {
             id = 0;
             number = 0;
@@ -60,12 +62,12 @@ namespace format_v4 {
 
 
     struct st_save {
-        Sint8 finished_stages;                                         // number of already finished stages, just to simplify calc
-        Sint8 stages[MAX_STAGES];                                      // 0 still open, 1 finished
+        int finished_stages;                                         // number of already finished stages, just to simplify calc
+        int stages[MAX_STAGES];                                      // 0 still open, 1 finished
         st_items items;
-        Sint8 selected_player;
-        Sint8 difficulty;                                              // 0 - easy, 1 - normal, 2 - hard
-        Sint8 defeated_enemies_count;                                  // number of defeated enemies
+        int selected_player;
+        int difficulty;                                              // 0 - easy, 1 - normal, 2 - hard
+        int defeated_enemies_count;                                  // number of defeated enemies
         bool used_countinue;
         bool armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_collect_items collect_items[FS_COMMON_ITEMS_MAX];
