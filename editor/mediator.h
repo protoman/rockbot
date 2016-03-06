@@ -55,6 +55,7 @@ public:
     // sprites
     bool playing_sprites;
     int current_sprite_type;
+    int current_sprite_selection;
     int current_npc_n;
     int selectedAnimTileset;
     bool show_objects_flag;

@@ -55,9 +55,20 @@ ARMAS:
     * scales armor (tipo arma do mage, melhorar visual apenas)
 
 
+valkyris -> largura: 45, altura: 49
+
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
+- hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
+    # criar função get_hitbox em character
+        @ classMap::colision_player_npcs
+            % character::getPosition()
+            % character::get_size()
+    # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
+    # criar opção de debug no jogo para mostrar hitboxes
+
+
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)

@@ -475,6 +475,7 @@ void npc_edit::on_frameList_listWidget_currentRowChanged(int currentRow)
         }
         _data_loading = false;
     }
+    Mediator::get_instance()->current_sprite_selection = currentRow;
 }
 
 void npc_edit::on_sprite_duration_spinBox_valueChanged(int arg1)
@@ -716,4 +717,17 @@ void npc_edit::on_projectileOriginY_spinBox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_arm_pos.y = arg1;
+}
+
+void npc_edit::on_pushButton_2_clicked()
+{
+    if (_data_loading == true) { return; }
+    if (ui->frameList_listWidget->selectedItems().size() > 0) {
+        for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
+            if (i != ui->frameList_listWidget->currentRow()) {
+                Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][i].colision_rect = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect;
+            }
+        }
+        ui->sprites_preview_widget->repaint();
+    }
 }

@@ -2031,8 +2031,19 @@ st_position character::is_on_stairs(st_rectangle pos)
 // ********************************************************************************************** //
 st_size character::get_size() const
 {
-	return frameSize;
+    return frameSize;
 }
+
+st_rectangle character::get_hitbox()
+{
+    int x = position.x;
+    int y = position.y;
+    int w = frameSize.width;
+    int h = frameSize.height;
+    return st_rectangle(x, y, w, h);
+}
+
+
 
 
 // ********************************************************************************************** //

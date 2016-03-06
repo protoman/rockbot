@@ -1191,9 +1191,6 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
     UNUSED(x_inc);
     UNUSED(y_inc);
 	struct st_rectangle p_rect, npc_rect;
-    std::vector<classnpc*>::iterator npc_it;
-
-    //reduce = abs((float)16-playerObj->sprite->w)*0.5;
 
 	// ponto 3, topo/esquerda
 	if (playerObj->get_direction() == ANIM_DIRECTION_LEFT) {
@@ -1227,11 +1224,16 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
         }
 
 
+        npc_rect = _npc_list.at(i).get_hitbox();
+
+        /*
         npc_rect.x = _npc_list.at(i).getPosition().x;
         npc_rect.w = _npc_list.at(i).get_size().width;
         npc_rect.y = _npc_list.at(i).getPosition().y;
         npc_rect.h = _npc_list.at(i).get_size().height;
+        */
 
+        /*
         if (_npc_list.at(i).get_size().width >= TILESIZE) { // why is this here??? O.o
             npc_rect.x = _npc_list.at(i).getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
             npc_rect.w = _npc_list.at(i).get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
@@ -1240,6 +1242,7 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
             npc_rect.y = _npc_list.at(i).getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
             npc_rect.h = _npc_list.at(i).get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
 		}
+        */
 
 		colision_detection rect_colision_obj;
 		if (rect_colision_obj.rect_overlap(npc_rect, p_rect) == true) {

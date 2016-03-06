@@ -56,6 +56,7 @@ Mediator::Mediator() : stage_data() {
 	show_bg2 = true;
     playing_sprites = false;
     current_sprite_type = 0;
+    current_sprite_selection = 0;
     current_npc_n = 0;
 	current_ai = 0;
 

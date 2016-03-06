@@ -35,6 +35,8 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
+    CURRENT_FILE_FORMAT::file_npc temp_npc = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
+
     std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename;
 
     QPixmap fg_image(filename.c_str());
@@ -75,6 +77,7 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
         painter.drawRect(center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x*2, center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y*2, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w*2, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h*2);
     }
 
+    /*
     // draw attack_position, if set
     painter.setPen(QPen(QColor(255, 255, 255), 1, Qt::DashLine));
     int attack_x = center_x + adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2;
@@ -83,5 +86,22 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     painter.drawLine(attack_x, (center_y + adjust_y), attack_x, (center_y + adjust_y + npc_h));
     // horizontal line
     painter.drawLine((center_x + adjust_x), attack_y, (center_x + adjust_x + npc_w), attack_y);
+    */
+
+    // FRAME HITBOX
+    painter.setPen(QPen(QColor(0, 0, 255), 1, Qt::DashLine));
+    int ini_x = center_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.x*2;
+    int end_x = ini_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.w*2;
+
+    int ini_y = center_y + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.y*2;
+    int end_y = ini_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.h*2;
+
+    // horizontal lines
+    painter.drawLine(ini_x, ini_y, end_x, ini_y);
+    painter.drawLine(ini_x, end_y, end_x, end_y);
+    // vertical lines
+    painter.drawLine(ini_x, ini_y, ini_x, end_y);
+    painter.drawLine(end_x, ini_y, end_x, end_y);
+
 }
 

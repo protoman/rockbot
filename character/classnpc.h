@@ -143,7 +143,7 @@ public:
 
     st_position get_start_position();
 
-
+    st_rectangle get_hitbox();
 
 
 protected:

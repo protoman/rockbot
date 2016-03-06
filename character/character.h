@@ -215,17 +215,10 @@ public:
      */
     void show_sprite_graphic(short direction, short type, short n);
 
-    /**
-     * @brief
-     *
-     * @return st_size
-     */
     st_size get_size() const;
-    /**
-     * @brief
-     *
-     * @param
-     */
+
+    st_rectangle get_hitbox();
+
     void set_platform(object*);
     /**
      * @brief
