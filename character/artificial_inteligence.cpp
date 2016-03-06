@@ -218,7 +218,7 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_save_point();
         //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_1) {
-        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
         execute_ai_action_trow_projectile(0, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_2) {
         std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
@@ -979,7 +979,7 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
 
-    std::cout << "AI::SHOT INIT" << std::endl;
+    //std::cout << "AI::SHOT INIT" << std::endl;
 
     int projectile_id_temp = GameMediator::get_instance()->get_enemy(_number).projectile_id[n];
     CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(projectile_id_temp);
@@ -1065,7 +1065,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
                     proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
                 }
             }
-            std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
+            //std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
 
             projectile_list.push_back(projectile(GameMediator::get_instance()->get_enemy(_number).projectile_id[n], proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();

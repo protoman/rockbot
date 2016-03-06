@@ -69,9 +69,13 @@ valkyris -> largura: 45, altura: 49
     # criar opção de debug no jogo para mostrar hitboxes
 
 
+- investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
+- se atingido nas escadas, está ficando preso e não cai
+
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
+- EDITOR: seleção de anim-tile está errada (linhaxcoluna)
 
 - ver como colocar app na amazon
 

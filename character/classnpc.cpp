@@ -260,12 +260,10 @@ st_rectangle classnpc::get_hitbox()
 
     // @TODO - invert X depending on direction
 
-    std::cout << "#NPC::get_hitbox[" << name << "] - x: " << temp_x << ", y: " << temp_y << ", w: " << temp_w << ", h: " << temp_h << std::endl;
+    //std::cout << "#NPC::get_hitbox[" << name << "] - x: " << temp_x << ", y: " << temp_y << ", w: " << temp_w << ", h: " << temp_h << std::endl;
 
     if (state.direction == ANIM_DIRECTION_LEFT) {
-        std::cout << "LEFT - original.x: " << temp_x;
         temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.x) - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.w + position.x;
-        std::cout << ", new.x: " << temp_x << std::endl;
     }
 
     return st_rectangle(temp_x, temp_y, temp_w, temp_h);
