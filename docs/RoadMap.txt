@@ -20,6 +20,7 @@ Para estágio intro:
 
 
 - games-styles:
+    * megaman: seleção de estágios e cia
     * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
     * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
 
@@ -55,22 +56,26 @@ ARMAS:
     * scales armor (tipo arma do mage, melhorar visual apenas)
 
 
-valkyris -> largura: 45, altura: 49
 
 *******************************************************************************************
                                         2.0.0b1
 *******************************************************************************************
-- hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
-    # criar função get_hitbox em character
-        @ classMap::colision_player_npcs
-            % character::getPosition()
-            % character::get_size()
-    # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
-    # criar opção de debug no jogo para mostrar hitboxes
+- após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
+- implementar checagem de colisao npcs x objetos
+- jogador nao pode "entrar" em blocos (vide disappearing block)
+- optimizaçao: como tanto npcs como jogadores checam colisao contra objetos, mover isto para classe character
+- permitir owner de projetil ser nuilo (acicionar checagens) a fim de inimigo morto nao eliminar tiros
+- opçao para botao de tiro funcionar em modo turbo
+- deixar estágio já completo via menu de armas
+- melhorar posicionamento de drop-item (evitar dentro da paredes)
+- plataformas não podem considerar espinhos como sólidos na colisão
+- testar bem knock-back quando pula em cima de inimigo
+- se atingido nas escadas, está ficando preso e não cai
+
+- criar opção de debug no jogo para mostrar hitboxes
 
 
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
-- se atingido nas escadas, está ficando preso e não cai
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
@@ -90,6 +95,13 @@ valkyris -> largura: 45, altura: 49
 ##################################
              DONE
 ##################################
+- revamp na UI da edição de inimigos
+- hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
+    # criar função get_hitbox em character
+        @ classMap::colision_player_npcs
+            % character::getPosition()
+            % character::get_size()
+    # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
 - criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
 	* tela escurece
 	* jogador reaparece no ponto do teleporte, caindo

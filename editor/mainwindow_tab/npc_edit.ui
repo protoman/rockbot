@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>716</height>
+    <width>1158</width>
+    <height>761</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,7 +24,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QWidget" name="horizontalWidget_2" native="true">
+    <widget class="QWidget" name="mainGrid" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -198,203 +198,319 @@
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>Frame Type:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="frame_list_selector">
-                <item>
-                 <property name="text">
-                  <string>STAND</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>WALK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>JUMP</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>TELEPORT</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>JUMP_ATTACK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>WALK_ATTACK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>HIT</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>STAIRS</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>STAIRS_SEMI</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>STAIRS_ATTACK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>STAIRS_MOVE</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>TROW</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>TURN (HORIZONTAL)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>MOVE_SEMI</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>WALK_AIR</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>INTRO</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>SPECIAL_ATTACK</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>SLIDE</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>SHIELD</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>TURN (VERTICAL)</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK THROW</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK DIAGONAL UP</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK DIAGONAL DOWN</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK UP</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK DOWN</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>ATTACK SPECIAL</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>LOOK UP</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>GRAB WALL</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_69">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Duration:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="npc_edit_tab_frameduration">
-                <property name="minimum">
-                 <number>5</number>
-                </property>
-                <property name="maximum">
-                 <number>9999</number>
-                </property>
-                <property name="value">
-                 <number>100</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="AddFrame_Button">
-                <property name="text">
-                 <string>Add Frame</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <layout class="QGridLayout" name="gridLayout_8"/>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_7">
               <property name="topMargin">
                <number>0</number>
               </property>
-              <item>
+              <item row="1" column="3">
+               <widget class="QFrame" name="frame">
+                <property name="minimumSize">
+                 <size>
+                  <width>256</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <widget class="QWidget" name="layoutWidget">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>-20</y>
+                   <width>267</width>
+                   <height>464</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_2">
+                  <property name="rightMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="sprite_preview_area" name="sprites_preview_widget" native="true">
+                    <property name="minimumSize">
+                     <size>
+                      <width>256</width>
+                      <height>256</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">background-color: rgb(255, 255, 255);</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="verticalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>40</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="gridLayout_6">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <item row="9" column="0">
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QPushButton" name="frameDown">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../resources/icons/icons.qrc">
+                    <normaloff>:/toolbar_icons/arrow-down.png</normaloff>:/toolbar_icons/arrow-down.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="pushButton">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../resources/icons/icons.qrc">
+                    <normaloff>:/toolbar_icons/arrow-left.png</normaloff>:/toolbar_icons/arrow-left.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="frameUp">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../resources/icons/icons.qrc">
+                    <normaloff>:/toolbar_icons/arrow-up.png</normaloff>:/toolbar_icons/arrow-up.png</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
+                   <string>Frame Type:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="AddFrame_Button">
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normalon>:/toolbar_icons/arrow-right.png</normalon>
+                   </iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QCheckBox" name="isAttackFrame_checkBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Is attack frame</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Frame Duration:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QComboBox" name="frame_list_selector">
+                  <item>
+                   <property name="text">
+                    <string>STAND</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>WALK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>JUMP</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TELEPORT</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>JUMP_ATTACK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>WALK_ATTACK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>HIT</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>STAIRS</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>STAIRS_SEMI</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>STAIRS_ATTACK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>STAIRS_MOVE</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TROW</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TURN (HORIZONTAL)</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>MOVE_SEMI</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>WALK_AIR</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>INTRO</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>SPECIAL_ATTACK</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>SLIDE</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>SHIELD</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>TURN (VERTICAL)</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK THROW</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK DIAGONAL UP</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK DIAGONAL DOWN</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK UP</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK DOWN</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ATTACK SPECIAL</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>LOOK UP</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>GRAB WALL</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QSpinBox" name="sprite_duration_spinBox">
+                  <property name="maximum">
+                   <number>99999</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="1">
                <widget class="QListWidget" name="frameList_listWidget">
                 <property name="alternatingRowColors">
                  <bool>true</bool>
@@ -410,82 +526,11 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
-                <property name="rightMargin">
-                 <number>10</number>
-                </property>
-                <item>
-                 <widget class="sprite_preview_area" name="sprites_preview_widget" native="true">
-                  <property name="minimumSize">
-                   <size>
-                    <width>256</width>
-                    <height>256</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background-color: rgb(255, 255, 255);</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout">
-                <property name="leftMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QPushButton" name="pushButton">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normalon>:/toolbar_icons/edit-delete.png</normalon>
-                   </iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="frameUp">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../resources/icons/icons.qrc">
-                    <normaloff>:/toolbar_icons/arrow-up.png</normaloff>:/toolbar_icons/arrow-up.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="frameDown">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../resources/icons/icons.qrc">
-                    <normaloff>:/toolbar_icons/arrow-down.png</normaloff>:/toolbar_icons/arrow-down.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_2">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
+              <item row="1" column="4">
                <layout class="QGridLayout" name="gridLayout_2">
+                <item row="3" column="1">
+                 <widget class="QSpinBox" name="sprite_colision_x"/>
+                </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_6">
                   <property name="text">
@@ -517,17 +562,20 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_x"/>
+                <item row="4" column="1">
+                 <widget class="QSpinBox" name="sprite_colision_y"/>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="sprite_duration_spinBox">
-                  <property name="maximum">
-                   <number>99999</number>
+                <item row="5" column="1">
+                 <widget class="QSpinBox" name="sprite_colision_w"/>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_20">
+                  <property name="text">
+                   <string>Hitbox Area:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="0">
+                <item row="10" column="0">
                  <spacer name="verticalSpacer_3">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
@@ -540,44 +588,7 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Frame Delay:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_y"/>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_w"/>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QCheckBox" name="isAttackFrame_checkBox">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_18">
-                  <property name="text">
-                   <string>Is Attack Frame:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_20">
-                  <property name="text">
-                   <string>Frame Hitbox Area:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="1">
+                <item row="9" column="0">
                  <widget class="QPushButton" name="pushButton_2">
                   <property name="text">
                    <string>Copy to All Frames</string>
@@ -585,6 +596,20 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Animation Preview</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Frame List</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -604,7 +629,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>300</width>
+          <width>500</width>
           <height>0</height>
          </size>
         </property>
@@ -620,51 +645,11 @@
           <height>0</height>
          </size>
         </property>
-        <layout class="QGridLayout" name="gridLayout_11">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetFixedSize</enum>
-         </property>
-         <property name="bottomMargin">
-          <number>20</number>
-         </property>
-         <item row="14" column="0">
-          <widget class="QCheckBox" name="checkBox">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="addEnemy_pushButton">
            <property name="text">
-            <string>Can Fly</string>
-           </property>
-          </widget>
-         </item>
-         <item row="15" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Attacks:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="23" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="npc_edit_tab_weakness_points"/>
-           </item>
-          </layout>
-         </item>
-         <item row="23" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Weaknesses:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QLineEdit" name="npc_edit_tab_NpcName">
-           <property name="text">
-            <string>My NPC</string>
-           </property>
-           <property name="maxLength">
-            <number>30</number>
+            <string>Add Enemy</string>
            </property>
           </widget>
          </item>
@@ -675,186 +660,151 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
+         <item row="1" column="1">
+          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_62">
+           <property name="text">
+            <string>Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="npc_edit_tab_NpcName">
+           <property name="text">
+            <string>My NPC</string>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
           <widget class="QLabel" name="label_63">
            <property name="text">
             <string>Graphic:</string>
            </property>
           </widget>
          </item>
-         <item row="19" column="0">
-          <widget class="QLabel" name="label_65">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_64">
            <property name="text">
-            <string>*A.I. Type:</string>
+            <string>Hit Points:</string>
            </property>
           </widget>
          </item>
-         <item row="24" column="2">
-          <widget class="QSpinBox" name="respawn_time_spinBox">
-           <property name="toolTip">
-            <string>If different than zero, NPC will respawn even if is on-screen</string>
-           </property>
-           <property name="maximum">
-            <number>99999</number>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="0">
-          <widget class="QLabel" name="label_66">
-           <property name="text">
-            <string>Shield Type:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="19" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_iatype">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
+         <item row="3" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_NpcHP">
            <property name="value">
             <number>5</number>
            </property>
           </widget>
          </item>
-         <item row="14" column="2">
-          <widget class="QCheckBox" name="isSubBoss_checkbox">
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_19">
            <property name="text">
-            <string>Is Sub-Boss</string>
+            <string>Projectile Origin:</string>
            </property>
           </widget>
          </item>
          <item row="9" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Sprites Position </string>
-           </property>
-          </widget>
-         </item>
-         <item row="24" column="0">
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>Auto-Respawn Delay:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="10" column="2">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
-             <item>
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>x:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="hitarea_x_spinBox">
-               <property name="maximum">
-                <number>999</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_15">
-               <property name="text">
-                <string>y:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="hitarea_y_spinBox">
-               <property name="maximum">
-                <number>999</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="text">
-                <string>w:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="hitarea_w_spinBox">
-               <property name="maximum">
-                <number>999</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>h:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="hitarea_h_spinBox">
-               <property name="maximum">
-                <number>999</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item row="22" column="0">
-          <widget class="QLabel" name="label_68">
-           <property name="text">
-            <string>Range:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="0">
           <widget class="QCheckBox" name="npc_edit_tab_canshoot">
            <property name="text">
             <string>Is Ghost</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
+         <item row="4" column="1">
           <widget class="QComboBox" name="npc_edit_tab_graphiccombo"/>
          </item>
-         <item row="22" column="2">
-          <widget class="QSpinBox" name="npc_edit_tab_range">
-           <property name="minimum">
+         <item row="5" column="1">
+          <layout class="QGridLayout" name="gridLayout_12">
+           <property name="rightMargin">
             <number>0</number>
            </property>
-           <property name="maximum">
-            <number>999</number>
-           </property>
-           <property name="value">
-            <number>160</number>
-           </property>
-          </widget>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_60">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>W:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="npc_edit_tab_graphicwidth">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <number>8</number>
+             </property>
+             <property name="maximum">
+              <number>127</number>
+             </property>
+             <property name="value">
+              <number>16</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_61">
+             <property name="text">
+              <string>H:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QSpinBox" name="npc_edit_tab_graphicheight">
+             <property name="minimum">
+              <number>8</number>
+             </property>
+             <property name="maximum">
+              <number>127</number>
+             </property>
+             <property name="value">
+              <number>16</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
-         <item row="9" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
+         <item row="6" column="1">
+          <layout class="QGridLayout" name="gridLayout_11">
+           <item row="0" column="0">
             <widget class="QLabel" name="label_10">
+             <property name="minimumSize">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>20</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>X: </string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QSpinBox" name="sprite_pos_x">
              <property name="enabled">
               <bool>true</bool>
@@ -864,14 +814,14 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="2">
             <widget class="QLabel" name="label_11">
              <property name="text">
               <string>Y: </string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="3">
             <widget class="QSpinBox" name="sprite_pos_y">
              <property name="enabled">
               <bool>true</bool>
@@ -883,7 +833,72 @@
            </item>
           </layout>
          </item>
-         <item row="18" column="2">
+         <item row="9" column="1">
+          <widget class="QCheckBox" name="isBoss_checkBox">
+           <property name="text">
+            <string>Is Boss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_21">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>X:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="projectileOriginX_spinBox"/>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>Y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QSpinBox" name="projectileOriginY_spinBox"/>
+           </item>
+          </layout>
+         </item>
+         <item row="10" column="0">
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>Can Fly</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QCheckBox" name="isSubBoss_checkbox">
+           <property name="text">
+            <string>Is Sub-Boss</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="label_66">
+           <property name="text">
+            <string>Shield Type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Attacks:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
           <widget class="QComboBox" name="npc_edit_tab_shieldtype">
            <item>
             <property name="text">
@@ -912,7 +927,7 @@
            </item>
           </widget>
          </item>
-         <item row="15" column="2">
+         <item row="11" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_11">
            <property name="rightMargin">
             <number>0</number>
@@ -928,95 +943,21 @@
            </item>
           </layout>
          </item>
-         <item row="10" column="0">
-          <widget class="QLabel" name="label_13">
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_65">
            <property name="text">
-            <string>Vulnerable Area:</string>
+            <string>*A.I. Type:</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_9">
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_60">
-               <property name="text">
-                <string>Width: </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="npc_edit_tab_graphicwidth">
-               <property name="minimum">
-                <number>8</number>
-               </property>
-               <property name="maximum">
-                <number>127</number>
-               </property>
-               <property name="value">
-                <number>16</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_61">
-             <property name="text">
-              <string>Height:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="npc_edit_tab_graphicheight">
-             <property name="minimum">
-              <number>8</number>
-             </property>
-             <property name="maximum">
-              <number>127</number>
-             </property>
-             <property name="value">
-              <number>16</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="25" column="0">
-          <spacer name="verticalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_62">
+         <item row="14" column="0">
+          <widget class="QLabel" name="label_67">
            <property name="text">
-            <string>Name:</string>
+            <string>Move Speed:</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_64">
-           <property name="text">
-            <string>Hit Points:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="2">
+         <item row="14" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_movespeed">
            <property name="minimum">
             <number>0</number>
@@ -1029,58 +970,172 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QPushButton" name="addEnemy_pushButton">
-           <property name="text">
-            <string>Add Enemy</string>
+         <item row="13" column="1">
+          <widget class="QComboBox" name="npc_edit_tab_iatype">
+           <property name="enabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
-         </item>
-         <item row="13" column="2">
-          <widget class="QCheckBox" name="isBoss_checkBox">
+         <item row="15" column="0">
+          <widget class="QLabel" name="label_68">
            <property name="text">
-            <string>Is Boss</string>
+            <string>Range:</string>
            </property>
           </widget>
          </item>
-         <item row="21" column="0">
-          <widget class="QLabel" name="label_67">
-           <property name="text">
-            <string>Move Speed:</string>
+         <item row="15" column="1">
+          <widget class="QSpinBox" name="npc_edit_tab_range">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
+           <property name="value">
+            <number>160</number>
            </property>
           </widget>
          </item>
-         <item row="11" column="0">
-          <widget class="QLabel" name="label_19">
+         <item row="16" column="0">
+          <widget class="QLabel" name="label">
            <property name="text">
-            <string>Projectile Origin:</string>
+            <string>Weaknesses:</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="2">
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_21">
+         <item row="17" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Auto-Respawn Delay:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="1">
+          <widget class="QSpinBox" name="respawn_time_spinBox">
+           <property name="toolTip">
+            <string>If different than zero, NPC will respawn even if is on-screen</string>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="npc_edit_tab_weakness_points"/>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Sprites Position </string>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="0">
+          <spacer name="verticalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Vulnerable Area:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <layout class="QGridLayout" name="gridLayout_10">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_15">
              <property name="text">
-              <string>X:</string>
+              <string>y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_14">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>x:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>w:</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="projectileOriginX_spinBox"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_22">
-             <property name="text">
-              <string>Y:</string>
+            <widget class="QSpinBox" name="hitarea_x_spinBox">
+             <property name="maximum">
+              <number>999</number>
              </property>
             </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QSpinBox" name="projectileOriginY_spinBox"/>
+            <widget class="QSpinBox" name="hitarea_y_spinBox">
+             <property name="maximum">
+              <number>999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="hitarea_h_spinBox">
+             <property name="maximum">
+              <number>999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="hitarea_w_spinBox">
+             <property name="maximum">
+              <number>999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>h:</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

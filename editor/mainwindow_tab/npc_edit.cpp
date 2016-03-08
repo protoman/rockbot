@@ -671,7 +671,7 @@ void npc_edit::on_AddFrame_Button_clicked()
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].used == false) {
             std::cout << "ADD-SPRITE-FRAME: FOUND EMPTY SLOT AT [" << j << "]" << std::endl;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].used = true;
-            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].duration = ui->npc_edit_tab_frameduration->value();
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].duration = 100;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].sprite_graphic_pos_x = Mediator::get_instance()->getPalleteX();
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.w = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.h = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height;
