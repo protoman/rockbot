@@ -2102,7 +2102,7 @@ void character::clean_character_graphics_list()
     std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>::iterator it;
     it = character_graphics_list.find(name);
     if (it != character_graphics_list.end()) {
-        std::cout << "CHAR::clean_character_graphics_list[" << name << "]" << std::endl;
+        //std::cout << "CHAR::clean_character_graphics_list[" << name << "]" << std::endl;
         character_graphics_list.erase(it);
     }
 }

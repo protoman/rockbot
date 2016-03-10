@@ -24,6 +24,8 @@ extern game gameControl;
 #include "inputlib.h"
 extern inputLib input;
 
+#define FADE_INC 2
+
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -477,7 +479,7 @@ void draw::fade_in_screen(int r, int g, int b)
     graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, r, g, b, transparent_area);
 
-    for (int i=255; i>=0; i--) {
+    for (int i=255; i>=0; i-=FADE_INC) {
         graphLib.showSurface(&screen_copy);
         graphLib.set_surface_alpha(i, transparent_area);
         graphLib.showSurface(&transparent_area);
@@ -496,7 +498,7 @@ void draw::fade_out_screen(int r, int g, int b)
     graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, r, g, b, transparent_area);
 
-    for (int i=0; i<=255; i++) {
+    for (int i=0; i<=255; i+=FADE_INC) {
         graphLib.showSurface(&screen_copy);
         graphLib.set_surface_alpha(i, transparent_area);
         graphLib.showSurface(&transparent_area);

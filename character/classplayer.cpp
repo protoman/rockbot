@@ -891,13 +891,10 @@ void classPlayer::death()
 	dead = true;
     _obj_jump.interrupt();
     _obj_jump.finish();
-    //std::cout << "[[[freeze_weapon_effect(RESET #1)]]]" << std::endl;
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
 
-    Sint8 old_weapon_n = selected_weapon;
     selected_weapon = 0;
     change_player_color(true);
-
 
     set_weapon(WEAPON_DEFAULT, false);
     _inertia_obj.stop();

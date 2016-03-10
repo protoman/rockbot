@@ -61,6 +61,7 @@ ARMAS:
                                         2.0.0b1
 *******************************************************************************************
 - após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
+    # usar fade-out/fade-in quando morrer
 - implementar checagem de colisao npcs x objetos
 - jogador nao pode "entrar" em blocos (vide disappearing block)
 - optimizaçao: como tanto npcs como jogadores checam colisao contra objetos, mover isto para classe character

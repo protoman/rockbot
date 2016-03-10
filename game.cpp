@@ -247,6 +247,8 @@ void game::restart_stage()
 {
 
     // remove any used teleporter
+    draw_lib.fade_out_screen(0, 0, 0);
+    player1.set_position(st_position(checkpoint.x, -TILESIZE));
     player1.set_teleporter(-1);
     _player_teleporter.active = false;
 
@@ -257,7 +259,6 @@ void game::restart_stage()
 	input.clean();
     loaded_stage.reset_current_map();
 	// TODO - this must be on a single method in soundlib
-    player1.set_position(st_position(checkpoint.x, -TILESIZE));
 
     soundManager.stop_music();
     soundManager.unload_music();
@@ -265,13 +266,15 @@ void game::restart_stage()
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
+    int min_y = checkpoint.y-TILESIZE/2;
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
-        int min_y = loaded_stage.get_teleport_minimal_y(95); // x = 80 + half a player width (30)
-        player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
-    } else {
-        player1.set_teleport_minimal_y(checkpoint.y-TILESIZE/2);
+        min_y = loaded_stage.get_teleport_minimal_y(95); // x = 80 + half a player width (30)
     }
+    player1.set_teleport_minimal_y(min_y);
+
+    std::cout << ">>>>>>>>>>>>> min_y: " << min_y << std::endl;
+
     player1.set_map(loaded_stage.get_current_map());
     player1.reset_hp();
     loaded_stage.reset_stage_maps();
@@ -280,6 +283,7 @@ void game::restart_stage()
 	graphLib.set_screen_adjust(st_position(0, 0));
     draw_lib.update_screen();
     soundManager.restart_music();
+    player1.set_animation_type(ANIM_TYPE_TELEPORT);
     show_ready();
 }
 
@@ -1151,7 +1155,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE3;
+    currentStage = STAGE4;
     game_save.selected_player = PLAYER_ROCKBOT;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_ROCKBOT;
