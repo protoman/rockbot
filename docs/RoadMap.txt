@@ -57,9 +57,11 @@ ARMAS:
 
 
 
-*******************************************************************************************
-                                        2.0.0b1
-*******************************************************************************************
+=========================================================================================================================================
+VERSION 2.0.0 BETA 1
+=========================================================================================================================================
+- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
+
 - após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
     # usar fade-out/fade-in quando morrer
 - implementar checagem de colisao npcs x objetos
@@ -73,6 +75,7 @@ ARMAS:
 - testar bem knock-back quando pula em cima de inimigo
 - se atingido nas escadas, está ficando preso e não cai
 
+
 - criar opção de debug no jogo para mostrar hitboxes
 
 
@@ -82,6 +85,8 @@ ARMAS:
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 - EDITOR: seleção de anim-tile está errada (linhaxcoluna)
+- EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
+- EDITOR: sempre selecionar primeiro frame (se houver), caso contrário desabilitar botões correspondentes a edição do mesmo
 
 - ver como colocar app na amazon
 
@@ -92,43 +97,6 @@ ARMAS:
         # nomes das fases
     * criar uma fase do megaman 9 para testar template
 
-
-##################################
-             DONE
-##################################
-- revamp na UI da edição de inimigos
-- hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
-    # criar função get_hitbox em character
-        @ classMap::colision_player_npcs
-            % character::getPosition()
-            % character::get_size()
-    # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
-- criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
-	* tela escurece
-	* jogador reaparece no ponto do teleporte, caindo
-- chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
-    * idem para chefe normal, aparece antes de descer
-- inércia está colocando o jogador dentro de paredes (só da esquerda para direita)
-- separar dialog strings em arquivos próprios, um por estágio
-    * retirar IDs dos dialogos, já que pode ser direta a correspondência
-- game strings estão bagunçadas, fora de ordem (duplo \n)
-- colocar aviso de copyright e engine antes da tela de abertura independente de se tem intro
-- quando trocar arma com L/R, mostrar ícone acima da cabeça do player por 1 segundo e meio
-- corrigir FIO para salvar e carregar dados novos de game properties
-- air thrower está movendo jogador para dentro de paredes ignorando colisão
-- mudar default do attack_n de npcs para -1 (está sempre setando o primeiro frame)
-- implementar attack_n no jogo
-- olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
-- abelhas zig-zag as vezes atravessam a parede
-- chefe não está aparecendo no fim da fase
-- objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
-- "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
-- is_ghost está ligado por padrão ao criar novo inimigo
-- está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
-- ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
-- manter scroll do fundo quando troca de tela
-
-
 => update script files to copy font to GAMEDIR, remove non-used fonts
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
 => remove support for game data in the old data dir, always use the new "games" folder
@@ -136,18 +104,65 @@ ARMAS:
 - add scenes selector in editor
 - use selected scenes for intro/ending
 
-FILE-FORMAT-V4:
-- both player and enemies must have aprojectile-position that determines his arm/cannon position, so we can fire attack from the position.
-- each stage can have its own tileset (optional, otherwise, uses default)
-- all char[] must be replaced by a seek_n that points to the strings file/table
-- two strings file:
-    * one they key is a enum and are used in-game
-    * two is the ones that player can add such as dialogs
-- string types:
-    * dialog, limit DIALOG_LINE_LIMIT (30)
+- add to credits/tools:
+    * http://www.bfxr.net/ (sfx creation)
 
 
-OK - check if stage have the autoscroll flag
+##################################
+             DONE
+##################################
+
+
+
+
+
+=========================================================================================================================================
+VERSION 2.0.0 BETA 2
+=========================================================================================================================================
+- OPTIMIZAÇÃO:
+    # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
+    # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente
+
+- permitir escolher qual joystick usar, caso existem vários ligados
+    # (no android, se houver 2 joysticks ligados, permitir desligar on-screen controls, mas ao resetar tem que voltar se tiver só 1 joy)
+- substituir todos os efeitos sonoros por versões free
+- tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
+- (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
+- slide + pulo não deveria dar pulo maior (somente se for dash) -> ver se não é flag do editor faltando
+
+
+
+=========================================================================================================================================
+VERSION 2.0.0 BETA 3
+=========================================================================================================================================
+- check how to create apps in Android that add stages or complete games that user can install and select
+- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
+- OPTIMIZAÇÃO: load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
+
+
+=========================================================================================================================================
+VERSION 2.0.0 BETA 4
+=========================================================================================================================================
+- não tirar tiro carregado ao passar por uma porta
+    * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
+- resetar slide para stand somente ao terminar de passar por uma porta, não antes
+- fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
+    - usar mais disseppearing blocks
+    - usar mais plataformas move-left/right
+    - usar mais blocos explosivos
+    - ter dois caminhos paralelos que, no fim, levam saem no mesmo ponto
+- adicionar mais power-up items nas fases
+- fix charged-shot forcing position
+- MANUAL:
+    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
+    - colocar comandos
+
+
+=========================================================================================================================================
+VERSION 2.0.0 BETA 5
+=========================================================================================================================================
+- fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
+- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
 
 - port to GCW:
     * http://www.gcw-zero.com/news.php?id=13
@@ -156,94 +171,10 @@ OK - check if stage have the autoscroll flag
 Inspirations:
 http://www23.atwiki.jp/rockmanforte/pages/21.html
 
--------------------------------------------------------------------------------
-                                 DONE:
--------------------------------------------------------------------------------
-- remove intro/ending, as it will now be scenes
 
-
-
-
-
-
-- add to credits:
-    * http://www.bfxr.net/ (sfx creation)
-
-
--------------------------------------------------
-VERSION 1.1.2 (minor fixes & i18n)
--------------------------------------------------
-- deixar o pulo dos chefes mais lentos ou melhorar eles
-- tem alguns objectos de teleporte inválidos (ver bolinhas no editor, nas fases intro e skull #5)
-- trocar gráficos do castelo (dragão na montanha)
-- após transição de tela, objetos param animação por um segundo (ajustar timers no pause)
-- permitir escolher qual joystick usar, caso existem vários ligados
-- substituir efeitos sonoros menores por free
-- continuar substituição dos gráficos de fase, eliminar arquivos não mais usados
-- se pular de uma escada com baixo pressionado está pegando na escada de novo (checar função que testa se já atingiu o chão)
-    * ver como é no megaman, se tem que sair ou cair no chão para retomar escada, talvez seja no button release
-- tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
-- (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
-- separar todos os diálogos/textos em arquivos XML
-- bugfixing
-
-****** Daniel Durda:
-Few more issues encountered.
-I was playing through and I encountered some pretty big bugs.
-
-2 of them in ape bots stage. And one in mummy bots stage. I got to the boss and died. The next life started in the hallway and I immediately fell through the floor.
-This also happened in mummy mans stage which I managed to take a picture of. *picture in the desert*
-
-The other issue was also in ape mans stage. He jumped at me and got stuck in the first pixel inside the wall and ape man fell through the floor and his health disappeared but the level didn't end. I was just stuck in game until I restarted the app. I did take a picture of this as well. *picture in the jungle*
-
-Would you like me to take a look St the code and see if I can find the issue that would be causing the floor glitch?
-***************************
-
-
-
-
--------------------------------------------------
-VERSION 1.1.3 (improvements)
--------------------------------------------------
-- check how to create apps in Android that add stages or complete games that user can install and select
-- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
-
-
--------------------------------------------------
-VERSION 1.1.4 (improvements)
--------------------------------------------------
-- não tirar tiro carregado ao passar por uma porta
-    * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
-- fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
-    - usar mais disseppearing blocks
-    - usar mais plataformas move-left/right
-    - usar mais blocos explosivos
-- adicionar mais power-up items nas fases
-- trocar rock-metool por um metool normal e usar o slot para criar um inimigo novo
-- diferenciar melhor inimigos similares (flying ball e jumping ball)
-- criar sub-boss bumblebee para daisie
-- adicionar blocos mais claros para foreground e mais escuros para background nas torres do mage
-- tornar bem mais difícil não seguir a ordem certa (menos dano armas)
-- adicionar mais variação aos inimigos, principalmente quando o player está próximo (tipo, pular no jogador, ou dar um rush)
-- revisar AI de chefes
-- fix charged-shot forcing position
-- MANUAL:
-    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
-    - colocar comandos
-
-
-
---------------------------
-VERSION 1.1.5 (refinamentos)
---------------------------
-- fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
-- usar fundo UNUSED do gemini e top man (mm3) em algum estágio
-- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
-
-
---------------------------
-VERSION 1.1.6 (melhorias IA)
---------------------------
+=========================================================================================================================================
+VERSION 2.0.0 BETA 6
+=========================================================================================================================================
 - AI ACTIONS:
     * add 4 types of jump in AI - short, medium, long, moonwalk
     * add jump-up (and jump-down together) to AI (parameter for jump up is gravity level)
@@ -253,23 +184,23 @@ VERSION 1.1.6 (melhorias IA)
     * EDITOR: adicionar checkox para indicar que aquele frame dispara ataque (deve ser único para cada tipo)
     * revisar lógica de ataque para, caso exista um frame de ataque definido, usar ele e não o fim da animação
 - AI ACTIONS:
-    - drop shell/shield (will loose protection)
+    - drop shell/shield (will loose protection, change graphics to another one)
 
 
---------------------------
-VERSION 1.1.7 (mm2 support)
---------------------------
+=========================================================================================================================================
+VERSION 2.0.0 BETA 7 (mm2 support)
+=========================================================================================================================================
 - some Megaman 2 features:
     - 1/ballom item (slowly up)
     - weapon that explodes releasing several NPCs (ave com ovo)
     - dark room that is iluminated if a fire-NPC is on visible_screen (heat)
         * a área pode ser definida por um objeto na tela ou não, mesmo que objeto fique escondido
-    - napalm projectile (heat)
+    - napalm projectile (heat man)
 
 
---------------------------
-VERSION 1.1.8 (mm3 support)
---------------------------
+=========================================================================================================================================
+VERSION 2.0.0 BETA 8 (mm3 support)
+=========================================================================================================================================
 - some Megaman 3 features:
     - guided projectile (hardman)
     - AI: grab/release player (magnet)
@@ -278,27 +209,19 @@ VERSION 1.1.8 (mm3 support)
     - laser projectile (gemini)
     - killing an NPC can activate/deactivate a list of objects (big-snake)
 
---------------------------
-VERSION 1.2
---------------------------
+=========================================================================================================================================
+VERSION 2.0.0
+=========================================================================================================================================
 - projectile _target_position must take target width/heigth in account
-
-- não usar mais player como vetor, usar objeto diretamente
-    * não usar players(2, 3, etc) nas cutscenes
-
 
 - OSX port
     * corrigir problema das transparências
 
-- PS2: add ISO/CD version
-
-- EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
 - optimizar hit_ground() -> tive que tirar a verificação de última posição, pois estava retornando false sempre
 - separate move and draw logic
 - get some free sound effects to replace Capcom ones
 - different icons for items depending on player (change colors, etc)
 - tentar tornar o jogo independente de FPS. Calcular frames a serem movidos de acordo com o fps médio
-- desenhar circle-weapon com cada esfera individualmente e fazer "pulsar" (raio aumenta e diminui)
 - ask dreamcast and xbox porters to update and merge back their changes
 - logic to allow showing player even if stage/map are NULL
 - fundo de tela que se move sozinho (sem depender do scroll do jogador)
@@ -308,40 +231,27 @@ VERSION 1.2
 LOW - HP bars must not be drawn under 3rd level of tiles
 - move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
 OPTIMIZATION:
-        - OPTIMIZATION: use coverity
-        - OPTIMIZATION: use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
+        - use coverity
+        - use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
         - Optimize editor: in editor_area, do not alloc pixmaps every time, only when changing beaten flag or stage
         - check for ALL places in game that can use game_data directly instead of creating new instances
                 - refactor code, so that "game_npcs" do not replicate(copy) data from game_data
                 - refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
         - use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
-
-
-
-************************************
-OPTIMIZATIONS
-************************************
-- do not load unecessary graphics for the player
-    * only rockbot should load the shield graphic
-    * only candy should have up and diagonal firing graphics
-- no not use short in file-format, to avoid endian issues (Wii)
-- determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
-
-
-- load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
+    - do not load unecessary graphics for the player
+        * only rockbot should load the shield graphic
+        * only candy should have up and diagonal firing graphics
+    - determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
 
 
 
 
-
---------------------------
-VERSION 1.3
---------------------------
-- editable intro
-- editable ending
+=========================================================================================================================================
+VERSION 2.0.1
+=========================================================================================================================================
+- PS2: add ISO/CD version
 - remove build warnings in PS2, PSP and Dingux
 - fix PSP build to use qmake
-- implement different frames size in game
 
 - all Megaman 4 features:
     - stage with auto-scrolling

@@ -1,9 +1,57 @@
+=========================================================================================================================================
+VERSION 2.0.0 BETA 1
+=========================================================================================================================================
+- revamp na UI da edição de inimigos
+- hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
+    # criar função get_hitbox em character
+        @ classMap::colision_player_npcs
+            % character::getPosition()
+            % character::get_size()
+    # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
+- criar novo tipo de link, igual ao teleporte, só que sem o jogador se teleprotar (como na fase charge de mm5)
+        * tela escurece
+        * jogador reaparece no ponto do teleporte, caindo
+- chefe já derrotado está aparecendo quando se entra na sala (posição está na original, não ajustada para o chefe)
+    * idem para chefe normal, aparece antes de descer
+- inércia está colocando o jogador dentro de paredes (só da esquerda para direita)
+- separar dialog strings em arquivos próprios, um por estágio
+    * retirar IDs dos dialogos, já que pode ser direta a correspondência
+- game strings estão bagunçadas, fora de ordem (duplo \n)
+- colocar aviso de copyright e engine antes da tela de abertura independente de se tem intro
+- quando trocar arma com L/R, mostrar ícone acima da cabeça do player por 1 segundo e meio
+- corrigir FIO para salvar e carregar dados novos de game properties
+- air thrower está movendo jogador para dentro de paredes ignorando colisão
+- mudar default do attack_n de npcs para -1 (está sempre setando o primeiro frame)
+- implementar attack_n no jogo
+- olhar abelhas fly arc. elas batem na parede mas não muda IA para próximo estado
+- abelhas zig-zag as vezes atravessam a parede
+- chefe não está aparecendo no fim da fase
+- objetos do mapa antigo ficam na mesma posição no mapa novo, na transição
+- "tornar players e inimigos transparentes"piscar" personagens quando atingidos.
+- is_ghost está ligado por padrão ao criar novo inimigo
+- está saindo do ANIM_HIT as vezes (caindo e movendo para lados)
+- ajustar melhor posição da imagem hit.png e usar a criada pelo boberatu
+- manter scroll do fundo quando troca de tela
+- remove intro/ending, as it will now be scenes
+FILE-FORMAT-V4:
+    - both player and enemies must have aprojectile-position that determines his arm/cannon position, so we can fire attack from the position.
+    - each stage can have its own tileset (optional, otherwise, uses default)
+    - all char[] must be replaced by a seek_n that points to the strings file/table
+    - two strings file:
+        * one they key is a enum and are used in-game
+        * two is the ones that player can add such as dialogs
+    - string types:
+        * dialog, limit DIALOG_LINE_LIMIT (30)
+    - no not use short in file-format, to avoid endian issues (Wii)
+- check if stage have the autoscroll flag
+
+
+
 **********************************************************************
                            VERSION 1.1.2
 **********************************************************************
 - trocar gráficos da fase #5 do castelo
 - trocar, onde possível, int por Uint8/Sint8 no código
-
 
 
 **********************************************************************
