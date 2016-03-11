@@ -74,7 +74,7 @@ VERSION 2.0.0 BETA 1
 - plataformas não podem considerar espinhos como sólidos na colisão
 - testar bem knock-back quando pula em cima de inimigo
 - se atingido nas escadas, está ficando preso e não cai
-
+- portas devem ser um objeto
 
 - criar opção de debug no jogo para mostrar hitboxes
 
@@ -83,6 +83,7 @@ VERSION 2.0.0 BETA 1
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
+- EDITOR: colocar número do tile (para facilitar contar 20) nas bordas da editorarea
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 - EDITOR: seleção de anim-tile está errada (linhaxcoluna)
 - EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem

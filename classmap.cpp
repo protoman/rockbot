@@ -790,7 +790,7 @@ void classMap::create_dynamic_background_surfaces()
     if (strlen(map_data[number].backgrounds[0].filename) > 0) {
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + map_data[number].backgrounds[0].filename);
 
-        std::cout << "bg1_filename: '" << bg1_filename << "'" << std::endl;
+        //std::cout << "bg1_filename: '" << bg1_filename << "'" << std::endl;
 
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
         create_dynamic_background_surface(bg1_surface, temp_surface);

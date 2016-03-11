@@ -881,7 +881,7 @@ void classPlayer::teleport_stand()
 
 void classPlayer::death()
 {
-    std::cout << "PLAYER::death" << std::endl;
+    std::cout << "PLAYER::death, x: " << position.x << std::endl;
     map->print_objects_number();
     reset_charging_shot();
 	map->clear_animations();

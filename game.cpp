@@ -232,7 +232,7 @@ void game::start_stage()
 
 void game::show_ready()
 {
-    std::cout << "SHOW READY CALL" << std::endl;
+    //std::cout << "SHOW READY CALL" << std::endl;
     for (int i=0; i<4; i++) {
         draw_lib.show_ready();
         timer.delay(400);
@@ -246,9 +246,12 @@ void game::show_ready()
 void game::restart_stage()
 {
 
+    if (checkpoint.x < TILESIZE*4) {
+        checkpoint.x = TILESIZE*4;
+    }
     // remove any used teleporter
     draw_lib.fade_out_screen(0, 0, 0);
-    player1.set_position(st_position(checkpoint.x, -TILESIZE));
+
     player1.set_teleporter(-1);
     _player_teleporter.active = false;
 
@@ -273,11 +276,16 @@ void game::restart_stage()
     }
     player1.set_teleport_minimal_y(min_y);
 
-    std::cout << ">>>>>>>>>>>>> min_y: " << min_y << std::endl;
 
     player1.set_map(loaded_stage.get_current_map());
     player1.reset_hp();
     loaded_stage.reset_stage_maps();
+
+    player1.set_position(st_position(checkpoint.x, -TILESIZE));
+    player1.char_update_real_position();
+    std::cout << ">>>>>>>>>>>>> min_y: " << min_y << ", p.x: " << (int)player1.getPosition().x << std::endl;
+
+
     loaded_stage.showStage();
     loaded_stage.showAbove();
 	graphLib.set_screen_adjust(st_position(0, 0));

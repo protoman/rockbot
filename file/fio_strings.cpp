@@ -34,7 +34,7 @@ namespace format_v4 {
             return "";
         }
 
-        std::cout << "FIO_STRINGS::get_ingame_string[" << n << "]: " << string_list.at(n) << std::endl;
+        //std::cout << "FIO_STRINGS::get_ingame_string[" << n << "]: " << string_list.at(n) << std::endl;
 
         return string_list.at(n);
     }

@@ -253,7 +253,7 @@ bool stage::boss_hit_ground()
 
 void stage::reset_stage_maps()
 {
-    std::cout << "================== stage::reset_stage_maps" << std::endl;
+    //std::cout << "================== stage::reset_stage_maps" << std::endl;
     reset_stage_npcs();
     reset_stage_objects();
 }
