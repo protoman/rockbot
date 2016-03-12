@@ -217,6 +217,9 @@ void character::charMove() {
 					position.x -= i*WATER_SPEED_MULT + map->get_last_scrolled().x;
 				}
 				if (state.animation_type != ANIM_TYPE_HIT) {
+                    if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) {
+                        position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
+                    }
 					state.direction = ANIM_DIRECTION_LEFT;
 				} else {
                     gravity(false);
@@ -234,6 +237,9 @@ void character::charMove() {
 		}
 	}
 	if (moveCommands.left == 1 && state.direction != ANIM_DIRECTION_LEFT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) {
+            position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
+        }
         state.direction = ANIM_DIRECTION_LEFT;
     }
 
@@ -255,6 +261,9 @@ void character::charMove() {
                         position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
                     }
                     if (state.animation_type != ANIM_TYPE_HIT) {
+                        if (is_player() && state.direction == ANIM_DIRECTION_LEFT) {
+                            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+                        }
                         state.direction = ANIM_DIRECTION_RIGHT;
                     } else {
                         gravity(false);
@@ -273,6 +282,9 @@ void character::charMove() {
 		}
 	}
 	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction == ANIM_DIRECTION_LEFT) {
+            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+        }
         state.direction = ANIM_DIRECTION_RIGHT;
     }
 
@@ -1670,6 +1682,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 
 
 
+    /// @TODO: move to char hitbox
     if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
         py_adjust = 1;
     } else if (state.animation_type == ANIM_TYPE_SLIDE) {
@@ -1684,9 +1697,10 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	int map_block = BLOCK_UNBLOCKED;
 
 
-    map->colision_char_object(this, incx, incy, 9, py_adjust);
+    map->colision_char_object(this, incx, incy);
     object_colision res_colision_object = map->get_obj_colision();
 
+    std::cout << "%%% res_colision_object._block: " << res_colision_object._block << " %%%" << std::endl;
 
 
 
@@ -1701,6 +1715,9 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
             // ignore block
         } else if (!get_item(res_colision_object)) {
 			map_block = res_colision_object._block;
+
+            std::cout << "BLOACK!!" << std::endl;
+
             if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
                 _can_execute_airdash = true;
             }
@@ -1869,7 +1886,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	}
 
 
-    //if (is_player()) std::cout << "character::map_colision_v2 - map_block: " << map_block << std::endl;
+    if (is_player()) std::cout << "character::map_colision_v2 - map_block: " << map_block << std::endl;
 
 
     return st_map_colision(map_block, terrain_type);
@@ -2036,10 +2053,35 @@ st_size character::get_size() const
 
 st_rectangle character::get_hitbox()
 {
-    int x = position.x;
-    int y = position.y;
-    int w = frameSize.width;
-    int h = frameSize.height;
+    float x = position.x;
+    float y = position.y;
+    float w = frameSize.width;
+    float h = frameSize.height;
+
+    // player hitbox is hardcoded
+    if (is_player()) {
+        if (state.animation_type == ANIM_TYPE_SLIDE) {
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                x = position.x + 2;
+            } else {
+                x = position.x + 4;
+            }
+            y = position.y + 10;
+            w = 23;
+            h = 17;
+        } else { // stand/default
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                x = position.x + 8;
+            } else {
+                x = position.x + 2;
+            }
+            y = position.y + 6;
+            w = 19;
+            h = 23;
+        }
+    }
+
+
     return st_rectangle(x, y, w, h);
 }
 
@@ -2807,6 +2849,14 @@ void character::set_animation_type(ANIM_TYPE type)
         state.animation_state = 0;
         state.animation_type = type;
         _was_animation_reset = false;
+        // avoids slides starting inside wall or object
+        if (type == ANIM_TYPE_SLIDE) {
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                position.x += 6;
+            } else {
+                position.x -= 6;
+            }
+        }
     }
     state.animation_timer = timer.getTimer() + (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay;
 }

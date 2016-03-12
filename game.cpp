@@ -591,8 +591,14 @@ bool game::test_teleport(classPlayer *test_player) {
     set_current_map(temp_map_n);
 
     if (link_type == LINK_TELEPORTER || link_type == LINK_FADE_TELEPORT) {
-        int new_scroll_pos = loaded_stage.get_first_lock_on_left(stage_data.links[j].pos_destiny.x);
-        loaded_stage.set_scrolling(st_float_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
+        int left_wall_lock = loaded_stage.get_first_lock_on_left(stage_data.links[j].pos_destiny.x);
+        int diff = RES_W/2 - player1.get_size().width;
+        if (left_wall_lock <= new_map_pos_x-diff) { // if no wall on left in near-screen, move scroll to center
+            new_map_pos_x -= diff;
+        }
+        //loaded_stage.set_scrolling(st_float_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
+        loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
+
         test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
         test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();

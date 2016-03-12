@@ -60,11 +60,10 @@ ARMAS:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
-
-- após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
-    # usar fade-out/fade-in quando morrer
 - implementar checagem de colisao npcs x objetos
+- fade-teleport link não estár setando scrollX do novo mapa
+
+- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
 - jogador nao pode "entrar" em blocos (vide disappearing block)
 - optimizaçao: como tanto npcs como jogadores checam colisao contra objetos, mover isto para classe character
 - permitir owner de projetil ser nuilo (acicionar checagens) a fim de inimigo morto nao eliminar tiros
@@ -112,6 +111,8 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
+- após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
+- usar fade-out quando morrer
 
 
 

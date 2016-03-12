@@ -926,6 +926,10 @@ enum e_SCREEN_GFX {
     SCREEN_GFX_COUNT
 };
 
+
+#define PLAYER_RIGHT_TO_LEFT_DIFF 5
+#define PLAYER_LEFT_TO_RIGHT_DIFF 5
+
 #endif // DEFINES_H
 
 

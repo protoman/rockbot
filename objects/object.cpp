@@ -194,7 +194,7 @@ bool object::test_change_position(short xinc, short yinc)
 
     if (is_consumable() == false) {
         // collision agains player when player is not using a platform
-        int blocked = map->colision_rect_player_obj(gameControl.get_player(), this, 0, 0, 0, 0, xinc, yinc);
+        int blocked = map->colision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
         //if (blocked != 0) std::cout << "obj.blocked: " << blocked << std::endl;
         /// @TODO - consumable items should not stop if blocked by player
         if (gameControl.get_player_platform() != this && blocked != 0) {
