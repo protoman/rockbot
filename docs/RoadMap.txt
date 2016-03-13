@@ -62,6 +62,9 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - implementar checagem de colisao npcs x objetos
 - fade-teleport link não estár setando scrollX do novo mapa
+- objetos do mapa/local errado estão aparecendo na transição vertical de tela
+- se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
+- ao cair de escadas, estao ficando preso na parede
 
 - projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
 - jogador nao pode "entrar" em blocos (vide disappearing block)
