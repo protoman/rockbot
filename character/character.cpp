@@ -2073,7 +2073,11 @@ st_rectangle character::get_hitbox()
             }
             y = position.y + 10;
             w = 23;
-            h = 17;
+            if (slide_type == 1) {
+                h = 14;
+            } else {
+                h = 17;
+            }
         } else { // stand/default
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 x = position.x + 10;
