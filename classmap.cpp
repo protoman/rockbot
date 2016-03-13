@@ -1096,7 +1096,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
     }
 
 
-    std::cout << "### colision_char_object:blocked " << blocked << " ###" << std::endl;
+    //std::cout << "### colision_char_object:blocked " << blocked << " ###" << std::endl;
 
     _obj_colision = object_colision(blocked, res_obj);
 }

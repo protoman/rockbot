@@ -217,7 +217,7 @@ void character::charMove() {
 					position.x -= i*WATER_SPEED_MULT + map->get_last_scrolled().x;
 				}
 				if (state.animation_type != ANIM_TYPE_HIT) {
-                    if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) {
+                    if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
                         position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
                     }
 					state.direction = ANIM_DIRECTION_LEFT;
@@ -237,7 +237,7 @@ void character::charMove() {
 		}
 	}
 	if (moveCommands.left == 1 && state.direction != ANIM_DIRECTION_LEFT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) {
+        if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
             position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
         }
         state.direction = ANIM_DIRECTION_LEFT;
@@ -261,7 +261,7 @@ void character::charMove() {
                         position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
                     }
                     if (state.animation_type != ANIM_TYPE_HIT) {
-                        if (is_player() && state.direction == ANIM_DIRECTION_LEFT) {
+                        if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
                             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
                         }
                         state.direction = ANIM_DIRECTION_RIGHT;
@@ -282,7 +282,7 @@ void character::charMove() {
 		}
 	}
 	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction == ANIM_DIRECTION_LEFT) {
+        if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
         }
         state.direction = ANIM_DIRECTION_RIGHT;
@@ -1700,7 +1700,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     map->colision_char_object(this, incx, incy);
     object_colision res_colision_object = map->get_obj_colision();
 
-    std::cout << "%%% res_colision_object._block: " << res_colision_object._block << " %%%" << std::endl;
+    //std::cout << "%%% res_colision_object._block: " << res_colision_object._block << " %%%" << std::endl;
 
 
 
@@ -1772,15 +1772,20 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	/// @TODO - use collision rect for the current frame. Until there, use 3 points check
 	int py_top, py_middle, py_bottom;
 	int px_left, px_center, px_right;
+    st_rectangle rect_hitbox = get_hitbox();
 
-    py_top = position.y + incy + py_adjust;
+    py_top = rect_hitbox.y + incy + py_adjust;
 
-    py_middle = position.y + incy + frameSize.height/2;
-    py_bottom = position.y + incy + frameSize.height - 2;
+    py_middle = rect_hitbox.y + incy + rect_hitbox.h/2;
+    py_bottom = rect_hitbox.y + incy + rect_hitbox.h - 2;
 
-	px_center = position.x + incx + frameSize.width/2;
-	px_left = position.x + incx + 9;
-	px_right = position.x + incx + frameSize.width - 9;
+    px_center = rect_hitbox.x + incx + rect_hitbox.w/2;
+    px_left = rect_hitbox.x + incx;
+    px_right = rect_hitbox.x + incx + rect_hitbox.w;
+
+    if (incx == 0 && incy != 0) {
+        px_right--;
+    }
 
 
 	st_position map_point;
@@ -1886,7 +1891,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	}
 
 
-    if (is_player()) std::cout << "character::map_colision_v2 - map_block: " << map_block << std::endl;
+    //if (is_player()) std::cout << "character::map_colision_v2 - map_block: " << map_block << std::endl;
 
 
     return st_map_colision(map_block, terrain_type);
@@ -2071,12 +2076,12 @@ st_rectangle character::get_hitbox()
             h = 17;
         } else { // stand/default
             if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x + 8;
+                x = position.x + 10;
             } else {
-                x = position.x + 2;
+                x = position.x + 4;
             }
             y = position.y + 6;
-            w = 19;
+            w = 14;
             h = 23;
         }
     }
@@ -2847,8 +2852,21 @@ void character::set_animation_type(ANIM_TYPE type)
     }
     if (type != state.animation_type) {
         state.animation_state = 0;
+
+        // adjusts position when leaving stairs
+        if (is_in_stairs_frame() == true && (type == ANIM_TYPE_JUMP || type == ANIM_TYPE_JUMP_ATTACK || type == ANIM_TYPE_STAND)) {
+            std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                position.x -= 4;
+            } else {
+                position.x += 4;
+            }
+        }
+
         state.animation_type = type;
         _was_animation_reset = false;
+
+
         // avoids slides starting inside wall or object
         if (type == ANIM_TYPE_SLIDE) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
