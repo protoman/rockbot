@@ -136,7 +136,7 @@ VERSION 2.0.0 BETA 2
 - (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
 - slide + pulo não deveria dar pulo maior (somente se for dash) -> ver se não é flag do editor faltando
 
-
+- opção setar volume música e volume SFX
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
