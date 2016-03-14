@@ -148,6 +148,9 @@
                   <height>171</height>
                  </rect>
                 </property>
+                <property name="toolTip">
+                 <string>Enemy image graphic pieces</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true"/>
                 </property>
@@ -262,6 +265,9 @@
                 </item>
                 <item row="1" column="0">
                  <widget class="QComboBox" name="frame_list_selector">
+                  <property name="toolTip">
+                   <string>Change frame type to add/list</string>
+                  </property>
                   <item>
                    <property name="text">
                     <string>STAND</string>
@@ -421,6 +427,9 @@
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
+                  <property name="toolTip">
+                   <string>Indicate if selected frame will shot the projectile</string>
+                  </property>
                   <property name="text">
                    <string>Is attack frame</string>
                   </property>
@@ -428,6 +437,9 @@
                 </item>
                 <item row="12" column="0">
                  <widget class="QSpinBox" name="sprite_duration_spinBox">
+                  <property name="toolTip">
+                   <string>Duration of the selected frame (ms)</string>
+                  </property>
                   <property name="maximum">
                    <number>99999</number>
                   </property>
@@ -453,6 +465,9 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="pushButton">
+                    <property name="toolTip">
+                     <string>Remove Frame</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -497,6 +512,9 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="AddFrame_Button">
+                    <property name="toolTip">
+                     <string>Add Frame</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -542,6 +560,9 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="frameUp">
+                    <property name="toolTip">
+                     <string>Move Frame Up</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -586,6 +607,9 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="frameDown">
+                    <property name="toolTip">
+                     <string>Move Frame Down</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -614,6 +638,9 @@
               </item>
               <item row="1" column="1">
                <widget class="QListWidget" name="frameList_listWidget">
+                <property name="toolTip">
+                 <string>List of frames for selected type</string>
+                </property>
                 <property name="alternatingRowColors">
                  <bool>true</bool>
                 </property>
@@ -692,6 +719,9 @@
                 </item>
                 <item row="9" column="0">
                  <widget class="QPushButton" name="pushButton_2">
+                  <property name="toolTip">
+                   <string>Copy same X, Y, W, H of the selected frame to all of same type</string>
+                  </property>
                   <property name="text">
                    <string>Copy to All Frames</string>
                   </property>
@@ -764,6 +794,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="addEnemy_pushButton">
+           <property name="toolTip">
+            <string>Create new enemy</string>
+           </property>
            <property name="text">
             <string>Add Enemy</string>
            </property>
@@ -777,7 +810,11 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo"/>
+          <widget class="QComboBox" name="npc_edit_tab_selectnpccombo">
+           <property name="toolTip">
+            <string>Selected enemy</string>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_62">
@@ -789,7 +826,7 @@
          <item row="2" column="1">
           <widget class="QLineEdit" name="npc_edit_tab_NpcName">
            <property name="text">
-            <string>My NPC</string>
+            <string>My Enemy</string>
            </property>
            <property name="maxLength">
             <number>30</number>
@@ -819,6 +856,9 @@
          </item>
          <item row="11" column="0">
           <widget class="QCheckBox" name="npc_edit_tab_canshoot">
+           <property name="toolTip">
+            <string>If can cross walls</string>
+           </property>
            <property name="text">
             <string>Is Ghost</string>
            </property>
@@ -826,16 +866,26 @@
          </item>
          <item row="3" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_NpcHP">
+           <property name="toolTip">
+            <string>Number of hit points the enemy can take of damage</string>
+           </property>
            <property name="value">
             <number>5</number>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QComboBox" name="npc_edit_tab_graphiccombo"/>
+          <widget class="QComboBox" name="npc_edit_tab_graphiccombo">
+           <property name="toolTip">
+            <string>Graphic file for the selected enemy</string>
+           </property>
+          </widget>
          </item>
          <item row="12" column="0">
           <widget class="QCheckBox" name="checkBox">
+           <property name="toolTip">
+            <string>If can ignore gravity</string>
+           </property>
            <property name="text">
             <string>Can Fly</string>
            </property>
@@ -988,6 +1038,9 @@
          </item>
          <item row="12" column="1">
           <widget class="QCheckBox" name="isSubBoss_checkbox">
+           <property name="toolTip">
+            <string>If is a stage sub-boss</string>
+           </property>
            <property name="text">
             <string>Is Sub-Boss</string>
            </property>
@@ -1009,6 +1062,9 @@
          </item>
          <item row="14" column="1">
           <widget class="QComboBox" name="npc_edit_tab_shieldtype">
+           <property name="toolTip">
+            <string>If uses shield, how it behaves</string>
+           </property>
            <item>
             <property name="text">
              <string>no shield</string>
@@ -1059,15 +1115,26 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QComboBox" name="projectile1_comboBox"/>
+            <widget class="QComboBox" name="projectile1_comboBox">
+             <property name="toolTip">
+              <string>First attack type</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="projectile2_comboBox"/>
+            <widget class="QComboBox" name="projectile2_comboBox">
+             <property name="toolTip">
+              <string>Second Attack type</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
          <item row="16" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_movespeed">
+           <property name="toolTip">
+            <string>Pixels moved by cycle</string>
+           </property>
            <property name="minimum">
             <number>0</number>
            </property>
@@ -1088,6 +1155,9 @@
          </item>
          <item row="17" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_range">
+           <property name="toolTip">
+            <string>Maximum movement range and vision reach</string>
+           </property>
            <property name="minimum">
             <number>0</number>
            </property>
@@ -1103,6 +1173,9 @@
           <widget class="QComboBox" name="npc_edit_tab_iatype">
            <property name="enabled">
             <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Controls how the enemy behaves/moves</string>
            </property>
           </widget>
          </item>
@@ -1140,10 +1213,18 @@
          <item row="18" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QComboBox" name="npc_edit_tab_weakness_list"/>
+            <widget class="QComboBox" name="npc_edit_tab_weakness_list">
+             <property name="toolTip">
+              <string>Weapon that hits enemy</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="npc_edit_tab_weakness_points"/>
+            <widget class="QSpinBox" name="npc_edit_tab_weakness_points">
+             <property name="toolTip">
+              <string>How many hit points the selected weapon makes of damage in the enemy</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

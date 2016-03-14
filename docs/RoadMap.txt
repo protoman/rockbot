@@ -60,18 +60,15 @@ ARMAS:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- implementar checagem de colisao npcs x objetos
-- fade-teleport link não estár setando scrollX do novo mapa
+- slide não está funcionando com novo hitbox
+
 - objetos do mapa/local errado estão aparecendo na transição vertical de tela
-- se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
-- ao cair de escadas, estao ficando preso na parede
 
 - projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
-- jogador nao pode "entrar" em blocos (vide disappearing block)
-- optimizaçao: como tanto npcs como jogadores checam colisao contra objetos, mover isto para classe character
-- permitir owner de projetil ser nuilo (acicionar checagens) a fim de inimigo morto nao eliminar tiros
+- jogador nao pode "entrar" em blocos, mas pode sair deles (disappearing, etc)
+- permitir owner de projetil ser nulo (acicionar checagens) a fim de inimigo morto nao eliminar tiros
 - opçao para botao de tiro funcionar em modo turbo
-- deixar estágio já completo via menu de armas
+- opção para deixar estágio já completo, via menu de armas
 - melhorar posicionamento de drop-item (evitar dentro da paredes)
 - plataformas não podem considerar espinhos como sólidos na colisão
 - testar bem knock-back quando pula em cima de inimigo
@@ -116,6 +113,10 @@ VERSION 2.0.0 BETA 1
 ##################################
 - após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
 - usar fade-out quando morrer
+- implementar checagem de colisao npcs x objetos
+- fade-teleport link não estár setando scrollX do novo mapa
+- se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
+- ao cair de escadas, estao ficando preso na parede
 
 
 
