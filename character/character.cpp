@@ -1329,13 +1329,12 @@ bool character::slide(st_float_position mapScrolling)
 	}
 
 
-    st_map_colision map_col = map_colision(0, -6, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
+    st_map_colision map_col = map_colision(0, -TILESIZE, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
     int map_lock =  map_col.block;
     std::cout << "character::slide - map_lock: " << map_lock << std::endl;
 
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
-        if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #K" << std::endl;
         set_animation_type(ANIM_TYPE_STAND);
         std::cout << "CHAR::slide - RETURN #4" << std::endl;
         return false;
@@ -1783,7 +1782,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     }
 
 
-    std::cout << "py_bottom: " << py_bottom << std::endl;
+    //std::cout << "py_bottom: " << py_bottom << std::endl;
 
 	st_position map_point;
 	map_point.x = px_left/TILESIZE;
