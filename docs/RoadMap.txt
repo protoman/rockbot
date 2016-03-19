@@ -60,7 +60,8 @@ ARMAS:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- slide não está funcionando com novo hitbox
+- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto
+- as cores de charging devem ser definidas por cada jogador (memso que não tenha no editor)
 
 - objetos do mapa/local errado estão aparecendo na transição vertical de tela
 
@@ -111,6 +112,7 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
+- slide não está funcionando com novo hitbox
 - após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
 - usar fade-out quando morrer
 - implementar checagem de colisao npcs x objetos

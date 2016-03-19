@@ -55,9 +55,9 @@ void stage_select::load_graphics() {
     filename = FILEPATH + "images/backgrounds/stage_select_darkned.png";
 	graphLib.surfaceFromFile(filename, &s_dark);
 
-    if (game_save.selected_player == PLAYER_BETABOT) {
+    if (game_save.selected_player == PLAYER_2) {
         filename = FILEPATH + "images/faces/yellow_eyes.png";
-    } else if (game_save.selected_player == PLAYER_ROCKBOT) {
+    } else if (game_save.selected_player == PLAYER_1) {
         filename = FILEPATH + "images/faces/dark_eyes.png";
     } else {
         filename = FILEPATH + "images/faces/big_eyes.png";
@@ -142,19 +142,19 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
     posX = posX+80+63;
     posY = posY+64+32;
 	if (erase_eyes) {
-        if (game_save.selected_player == PLAYER_ROCKBOT) {
+        if (game_save.selected_player == PLAYER_1) {
             place_face("player1.png", "", st_position(1, 1));
-        } else if (game_save.selected_player == PLAYER_BETABOT) {
+        } else if (game_save.selected_player == PLAYER_2) {
             place_face("player2.png", "", st_position(1, 1));
-        } else if (game_save.selected_player == PLAYER_CANDYBOT) {
+        } else if (game_save.selected_player == PLAYER_3) {
             place_face("player3.png", "", st_position(1, 1));
         } else {
             place_face("player4.png", "", st_position(1, 1));
         }
 	} else {
-        if (game_save.selected_player == PLAYER_ROCKBOT) {
+        if (game_save.selected_player == PLAYER_1) {
 			graphLib.copyArea(st_position(posX, posY), &eyes_surface, &graphLib.gameScreen);
-        } else if (game_save.selected_player == PLAYER_BETABOT) {
+        } else if (game_save.selected_player == PLAYER_2) {
 			graphLib.copyArea(st_position(posX, posY-2), &eyes_surface, &graphLib.gameScreen);
         } else {
             graphLib.copyArea(st_position(posX-1, posY), &eyes_surface, &graphLib.gameScreen);
@@ -200,11 +200,11 @@ struct st_position stage_select::select() {
 
 
     if (finished_stages() < 9) {
-        if (game_save.selected_player == PLAYER_ROCKBOT) {
+        if (game_save.selected_player == PLAYER_1) {
             place_face("player1.png", "", st_position(1, 1));
-        } else if (game_save.selected_player == PLAYER_BETABOT) {
+        } else if (game_save.selected_player == PLAYER_2) {
             place_face("player2.png", "", st_position(1, 1));
-        } else if (game_save.selected_player == PLAYER_CANDYBOT) {
+        } else if (game_save.selected_player == PLAYER_3) {
             place_face("player3.png", "", st_position(1, 1));
         } else {
             place_face("player4.png", "", st_position(1, 1));

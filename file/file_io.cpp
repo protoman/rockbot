@@ -77,19 +77,6 @@ namespace format_v4 {
         fp.close();
 
 
-// -------------------------------------- PLAYERS -------------------------------------- //
-        // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
-
-        fp.write(reinterpret_cast<char *>(&data_in.players), sizeof(file_player) * FS_MAX_PLAYERS);
-        fp.close();
-
-
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
         filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
@@ -277,23 +264,6 @@ namespace format_v4 {
         }
         if (fread(&data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
             std::cout << ">>file_io::read_game[weapons] - Error reading data from game file '" << filename << "'." << std::endl;
-            fclose(fp);
-            exit(-1);
-        }
-        fclose(fp);
-
-
-// -------------------------------------- PLAYERS -------------------------------------- //
-        // file_player players[FS_MAX_PLAYERS]
-        filename = std::string(FILEPATH) + "game_players" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            return;
-        }
-        if (fread(&data_out.players, sizeof(file_player), FS_MAX_PLAYERS, fp) != FS_MAX_PLAYERS) {
-            std::cout << ">>file_io::read_game[players] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
             exit(-1);
         }

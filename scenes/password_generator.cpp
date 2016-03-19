@@ -11,11 +11,11 @@ password_matrix password_generator::run()
 {
     reset();
 
-    if (game_save.selected_player == PLAYER_BETABOT) {
+    if (game_save.selected_player == PLAYER_2) {
         matrix.value[1][0] = PASSWORD_BALL_COLOR_RED;
-    } else if (game_save.selected_player == PLAYER_CANDYBOT) {
+    } else if (game_save.selected_player == PLAYER_3) {
         matrix.value[1][0] = PASSWORD_BALL_COLOR_BLUE;
-    } else if (game_save.selected_player == PLAYER_KITTYBOT) {
+    } else if (game_save.selected_player == PLAYER_4) {
         matrix.value[2][1] = PASSWORD_BALL_COLOR_BLUE;
     }
 

@@ -156,13 +156,6 @@ void character::charMove() {
 				if (frameSize.width > 21) {
                     diff_w = abs((float)frameSize.height-21);
 				}
-                if (state.animation_type == ANIM_TYPE_SLIDE) {
-                    if (slide_type == 1) {
-                        diff_h = abs((float)TILESIZE-1-frameSize.height);
-                    } else {
-                        diff_h = abs((float)TILESIZE/2-1-frameSize.height);
-                    }
-                 }
                 std::cout << "colision_player_npcs #1" << std::endl;
 				short int res_colision_npc = map->colision_player_npcs(this, 0, 0, diff_w, diff_h);
 				if (res_colision_npc == 1) {
@@ -661,7 +654,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
 
         // second projectile for player that fires multiple ones
-        if ((attack_id == 0 || (attack_id == game_data.semi_charged_projectile_id && auto_charged == true)) && is_player() && _number == PLAYER_BETABOT) { /// @TODO - move number of simultaneous shots to character/data-file
+        if ((attack_id == 0 || (attack_id == game_data.semi_charged_projectile_id && auto_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
             projectile_list.push_back(projectile(attack_id, state.direction, st_position(proj_pos.x-TILESIZE, proj_pos.y+5), map, is_player()));
             projectile &temp_proj2 = projectile_list.back();
             temp_proj2.set_is_permanent();
@@ -1338,13 +1331,13 @@ bool character::slide(st_float_position mapScrolling)
 
     st_map_colision map_col = map_colision(0, -6, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
     int map_lock =  map_col.block;
-    //std::cout << "character::slide - map_lock: " << map_lock << std::endl;
+    std::cout << "character::slide - map_lock: " << map_lock << std::endl;
 
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #K" << std::endl;
         set_animation_type(ANIM_TYPE_STAND);
-        //std::cout << "CHAR::slide - RETURN #4" << std::endl;
+        std::cout << "CHAR::slide - RETURN #4" << std::endl;
         return false;
     }
 
@@ -1357,7 +1350,7 @@ bool character::slide(st_float_position mapScrolling)
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
-        //std::cout << "CHAR::slide - RETURN #5" << std::endl;
+        std::cout << "CHAR::slide - RETURN #5" << std::endl;
         return false;
     }
 
@@ -1377,22 +1370,27 @@ bool character::slide(st_float_position mapScrolling)
                     adjust_x = frameSize.width+3;
                 }
                 map->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction, st_size(8, 8));
+//            } else {
+//                std::cout << "CHAR::slide - RETURN #A" << std::endl;
             }
 		}
     }
 
     if (state.animation_type != ANIM_TYPE_SLIDE) {
-        //std::cout << "CHAR::slide - RETURN #6" << std::endl;
+        std::cout << "CHAR::slide - RETURN #6" << std::endl;
         return false;
     }
 
     // if there is no ground, interrupts slide
     st_map_colision map_col_fall = map_colision(0, 1, map->getMapScrolling());
     int fall_map_lock = map_col_fall.block;
+
+    //std::cout << "character::slide - fall_map_lock: " << fall_map_lock << std::endl;
+
     if (can_air_dash() == false && (fall_map_lock == BLOCK_UNBLOCKED || fall_map_lock == BLOCK_WATER)) {
         set_animation_type(ANIM_TYPE_JUMP);
 		state.slide_distance = 0;
-        //std::cout << "CHAR::slide - RETURN #7" << std::endl;
+        std::cout << "CHAR::slide - RETURN #7, map_col_fall: " << map_col_fall.block << std::endl;
 		return false;
 	}
 
@@ -1430,6 +1428,9 @@ bool character::slide(st_float_position mapScrolling)
         }
         st_map_colision map_col = map_colision(temp_i, 0, mapScrolling);;
         mapLockAfter = map_col.block;
+
+        std::cout << "CHAR::slide - RETURN #7, mapLockAfter: " << mapLockAfter << std::endl;
+
         if (mapLockAfter == BLOCK_UNBLOCKED) {
             res_move_x = temp_i;
             break;
@@ -1685,12 +1686,6 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     /// @TODO: move to char hitbox
     if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
         py_adjust = 1;
-    } else if (state.animation_type == ANIM_TYPE_SLIDE) {
-        if (slide_type == 1) {
-            py_adjust = TILESIZE;
-        } else {
-            py_adjust = TILESIZE/2;
-        }
     }
 
     UNUSED(mapScrolling);
@@ -1787,6 +1782,8 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
         px_right--;
     }
 
+
+    std::cout << "py_bottom: " << py_bottom << std::endl;
 
 	st_position map_point;
 	map_point.x = px_left/TILESIZE;
@@ -2065,28 +2062,24 @@ st_rectangle character::get_hitbox()
 
     // player hitbox is hardcoded
     if (is_player()) {
-        if (state.animation_type == ANIM_TYPE_SLIDE) {
+        if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 1) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 x = position.x + 2;
             } else {
                 x = position.x + 4;
             }
-            y = position.y + 10;
             w = 23;
-            if (slide_type == 1) {
-                h = 14;
-            } else {
-                h = 17;
-            }
+            y = position.y + 15;
+            h = 14;
         } else { // stand/default
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 x = position.x + 10;
             } else {
                 x = position.x + 4;
             }
-            y = position.y + 6;
+            y = position.y + 3;
             w = 14;
-            h = 23;
+            h = 26;
         }
     }
 

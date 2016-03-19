@@ -81,6 +81,8 @@ private slots:
 
     void on_weaponColor_picker_clicked();
 
+    void on_simultaneousShots_spinBox_valueChanged(int arg1);
+
 private:
     void fill_players_data();
     

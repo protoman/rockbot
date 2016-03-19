@@ -84,6 +84,11 @@ Mediator::Mediator() : stage_data() {
         scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
     }
 
+    if (player_list.size() == 0) {
+        for (int i=0; i<FS_MAX_PLAYERS; i++) {
+            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+        }
+    }
 
     /*
     CURRENT_FILE_FORMAT::file_stage temp_stage;
@@ -180,6 +185,13 @@ void Mediator::load_game() {
 
     anim_block_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
 
+    player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
+    if (player_list.size() == 0) {
+        for (int i=0; i<FS_MAX_PLAYERS; i++) {
+            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+        }
+    }
+
 }
 
 void Mediator::save_game()
@@ -193,6 +205,8 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
+
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", player_list);
 
     save_dialogs();
 

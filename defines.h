@@ -9,10 +9,10 @@
 #define UNUSED(x) (void)x
 
 enum e_PLAYERS {
-    PLAYER_ROCKBOT,
-    PLAYER_BETABOT,
-    PLAYER_CANDYBOT,
-    PLAYER_KITTYBOT
+    PLAYER_1,
+    PLAYER_2,
+    PLAYER_3,
+    PLAYER_4
 };
 
 #define WALK_FRAME_DELAY 150

@@ -1169,16 +1169,16 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE4;
-    game_save.selected_player = PLAYER_ROCKBOT;
+    currentStage = STAGE5;
+    game_save.selected_player = PLAYER_1;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
-        game_save.selected_player = PLAYER_ROCKBOT;
+        game_save.selected_player = PLAYER_1;
     } else if (GAME_FLAGS[FLAG_PLAYER_BETABOT]) {
-        game_save.selected_player = PLAYER_BETABOT;
+        game_save.selected_player = PLAYER_2;
     } else if (GAME_FLAGS[FLAG_PLAYER_CANDYBOT]) {
-        game_save.selected_player = PLAYER_CANDYBOT;
+        game_save.selected_player = PLAYER_3;
     } else if (GAME_FLAGS[FLAG_PLAYER_KITTYBOT]) {
-        game_save.selected_player = PLAYER_KITTYBOT;
+        game_save.selected_player = PLAYER_4;
     }
 
     scenes.preloadScenes();

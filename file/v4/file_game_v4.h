@@ -107,10 +107,11 @@ namespace format_v4 {
         bool can_shot_diagonal;
         st_position_int8 attack_arm_pos;
         Uint8 attack_frame;
+        bool double_shot;
 
-        file_player() {
-            sprintf(name, "%s", "Player");
-            graphic_filename[0] = '\0';
+        file_player(int n) {
+            sprintf(name, "PLAYER[%d]", n);
+            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
             face_filename[0] = '\0';
             HP = 0;
             sprite_size.width = 29;
@@ -121,7 +122,7 @@ namespace format_v4 {
             sprite_hit_area.h = 29;
             move_speed = 2.0;
             max_shots = 3;
-            simultaneous_shots = 3;
+            simultaneous_shots = 1;
             can_double_jump = false;
             have_shield = false;
             can_slide = false;
@@ -131,6 +132,44 @@ namespace format_v4 {
             damage_modifier = 0;
             can_shot_diagonal = false;
             attack_frame = 0;
+
+            /// === DEFAULT VALUES === //
+            // ROCK
+            if (n == 0) {
+                weapon_colors[0].color1 = st_color(143, 0, 119);
+                weapon_colors[0].color2 = st_color(0, 115, 239);
+                have_shield = true;
+                can_slide = true;
+                can_charge_shot = true;
+            } else if (n == 1) {
+                // CANDY
+                weapon_colors[0].color1 = st_color(191, 0, 191);
+                weapon_colors[0].color2 = st_color(131, 0, 243);
+                weapon_colors[0].color3 = st_color(166, 80, 239);
+                can_double_jump = true;
+                can_shot_diagonal = true;
+                damage_modifier = 1;
+            } else if (n == 2) {
+                // BETA
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                max_shots = 4;
+                damage_modifier = -1;
+                simultaneous_shots = 2;
+            } else {
+                // KITTY
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                have_shield = true;
+                can_charge_shot = true;
+                can_air_dash = true;
+            }
+        }
+
+        file_player() {
+            file_player(0);
         }
     };
 
@@ -371,7 +410,6 @@ namespace format_v4 {
         char name[FS_CHAR_NAME_SIZE];
         //file_projectile projectiles[FS_MAX_PROJECTILES];
         file_weapon weapons[FS_MAX_WEAPONS];                            // 8 stage-bosses and 3 item-like
-        file_player players[FS_MAX_PLAYERS];                            // up to 4 different players the user can select from
         Sint8 semi_charged_projectile_id;                               // common to all players
         Sint8 player_items[FS_PLATER_ITEMS_N];                          // common to all players -> to be used in add_coil_object and add_jet_object
         char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX];
@@ -420,17 +458,10 @@ namespace format_v4 {
             for (int i=0; i<FS_MAX_WEAPONS; i++) {
                 sprintf(weapons[i].name, "Weapon [%d]", i);
             }
-            for (int i=0; i<FS_MAX_PLAYERS; i++) {
-                sprintf(players[i].name, "Player [%d]", i);
-                sprintf(players[i].graphic_filename, "%s%d%s", "p", (i+1), ".png");
-            }
-            players[0].weapon_colors[0].color1 = st_color(143, 0, 119);
-            players[0].weapon_colors[0].color2 = st_color(0, 115, 239);
-
-            players[1].weapon_colors[0].color1 = st_color(255, 51, 0);
-            players[1].weapon_colors[0].color2 = st_color(255, 155, 59);
-            players[1].weapon_colors[0].color3 = st_color(230, 255, 0);
         }
+
+
+
     };
 
 

@@ -67,10 +67,16 @@ GameMediator::GameMediator()
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat");
     anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
+    player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
 
     // add some dummy data for game not to crash
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    }
+    if (player_list.size() == 0) {
+        for (int i=0; i<FS_MAX_PLAYERS; i++) {
+            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+        }
     }
 }
 

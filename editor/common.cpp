@@ -283,7 +283,7 @@ void common::fill_players_combo(QComboBox* combo)
 {
     combo->clear(); // delete all previous entries
     for (int i=0; i<FS_MAX_PLAYERS; i++) {
-        combo->addItem(QString::number(i+1)+QString(" [")+QString(Mediator::get_instance()->game_data.players[i].name)+QString("]"));
+        combo->addItem(QString::number(i+1)+QString(" [")+QString(Mediator::get_instance()->player_list[i].name)+QString("]"));
     }
 }
 

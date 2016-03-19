@@ -30,9 +30,9 @@ void player_preview_area::replace_colors()
 
     std::cout << "### PLAYERPREVIEW::PAINT::START ###" << std::endl;
 
-    QRgb color1 = qRgb(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b);
-    QRgb color2 = qRgb(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b);
-    QRgb color3 = qRgb(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b);
+    QRgb color1 = qRgb(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b);
+    QRgb color2 = qRgb(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b);
+    QRgb color3 = qRgb(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b);
 
     QRgb key1 = qRgb(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
     QRgb key2 = qRgb(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
@@ -45,13 +45,13 @@ void player_preview_area::replace_colors()
         for (int y=0; y<_colored_sprites.height(); y++) {
             QRgb pixel_color = _colored_sprites.pixel(x, y);
 
-            if (pixel_color == key1 && Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r != -1) {
+            if (pixel_color == key1 && Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r != -1) {
                 _colored_sprites.setPixel(x, y, color1);
             }
-            if (pixel_color == key2 && Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r != -1) {
+            if (pixel_color == key2 && Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r != -1) {
                 _colored_sprites.setPixel(x, y, color2);
             }
-            if (pixel_color == key3 && Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r != -1) {
+            if (pixel_color == key3 && Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r != -1) {
                 _colored_sprites.setPixel(x, y, color3);
             }
         }
@@ -79,18 +79,18 @@ void player_preview_area::paintEvent(QPaintEvent *) {
     int key_n2 = get_colorn_from_rgb(image, COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
     int key_n3 = get_colorn_from_rgb(image, COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
 
-    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r != -1) {
-        QColor temp_color1(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b);
+    if (Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r != -1) {
+        QColor temp_color1(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b);
 		image.setColor(key_n1, temp_color1.rgb());
 	}
 
-    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r != -1) {
-        QColor temp_color2(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b);
+    if (Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r != -1) {
+        QColor temp_color2(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b);
 		image.setColor(key_n2, temp_color2.rgb());
 	}
 
-    if (Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r != -1) {
-        QColor temp_color3(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g, Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b);
+    if (Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r != -1) {
+        QColor temp_color3(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g, Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b);
 		image.setColor(key_n3, temp_color3.rgb());
     }
     */

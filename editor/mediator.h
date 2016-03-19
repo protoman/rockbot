@@ -114,6 +114,7 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_block_list;
+    std::vector<CURRENT_FILE_FORMAT::file_player> player_list;
 
 
 

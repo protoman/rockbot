@@ -418,9 +418,9 @@ void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
     if (_data_loading == true) {
 		return;
 	}
-    std::cout << "Mediator::get_instance()->current_player: " << Mediator::get_instance()->current_player << ", max_shots: " << Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].max_shots << std::endl;
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].max_shots = arg1;
-    std::cout << "max_shots: " << Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].max_shots << std::endl;
+    std::cout << "Mediator::get_instance()->current_player: " << Mediator::get_instance()->current_player << ", max_shots: " << Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].max_shots << std::endl;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].max_shots = arg1;
+    std::cout << "max_shots: " << Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].max_shots << std::endl;
 }
 
 void MainWindow::on_can_slide_checkbox_toggled(bool checked)
@@ -428,7 +428,7 @@ void MainWindow::on_can_slide_checkbox_toggled(bool checked)
     if (_data_loading == true) {
         return;
     }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].can_slide = checked;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].can_slide = checked;
 }
 
 void MainWindow::on_players_tab_movespeed_valueChanged(int arg1)
@@ -436,7 +436,7 @@ void MainWindow::on_players_tab_movespeed_valueChanged(int arg1)
     if (_data_loading == true) {
         return;
     }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].move_speed = arg1;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].move_speed = arg1;
 }
 
 void MainWindow::on_players_tab_hasshield_toggled(bool checked)
@@ -444,7 +444,7 @@ void MainWindow::on_players_tab_hasshield_toggled(bool checked)
     if (_data_loading == true) {
         return;
     }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].have_shield = checked;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].have_shield = checked;
 }
 
 void MainWindow::on_players_tab_hp_valueChanged(int arg1)
@@ -452,7 +452,7 @@ void MainWindow::on_players_tab_hp_valueChanged(int arg1)
     if (_data_loading == true) {
         return;
     }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].HP = arg1;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].HP = arg1;
 }
 
 void MainWindow::on_players_tab_name_textChanged(const QString &arg1)
@@ -460,7 +460,7 @@ void MainWindow::on_players_tab_name_textChanged(const QString &arg1)
     if (_data_loading == true) {
         return;
     }
-    sprintf(Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
+    sprintf(Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
 }
 
 void MainWindow::on_chargedshot_combo_currentIndexChanged(int index)
@@ -468,13 +468,13 @@ void MainWindow::on_chargedshot_combo_currentIndexChanged(int index)
     if (_data_loading == true) {
         return;
     }
-    Mediator::get_instance()->game_data.players[Mediator::get_instance()->current_player].full_charged_projectile_id = index;
+    Mediator::get_instance()->player_list[Mediator::get_instance()->current_player].full_charged_projectile_id = index;
 }
 
 void MainWindow::on_players_tab_list_combo_2_currentIndexChanged(int index)
 {
     Mediator::get_instance()->current_player = index;
-    std::cout << "MainWindow::on_players_tab_list_combo_2_currentIndexChanged - index: " << index << ", max_shots: " << Mediator::get_instance()->game_data.players[index].max_shots << std::endl;
+    std::cout << "MainWindow::on_players_tab_list_combo_2_currentIndexChanged - index: " << index << ", max_shots: " << Mediator::get_instance()->player_list[index].max_shots << std::endl;
 }
 
 void MainWindow::on_actionSwap_Maps_triggered()

@@ -466,7 +466,7 @@ bool scenesLib::password_set()
                 std::cout << "PASSWORD[BLUE] [" << x << "][" << y << "]" << std::endl;
 
                 if (x == 1 && y == 0) {
-                    game_save.selected_player = PLAYER_CANDYBOT;
+                    game_save.selected_player = PLAYER_3;
                 } else if (x == 5 && y == 3) {
 					game_save.stages[STAGE8] = 1;
 				} else if (x == 5 && y == 5) {
@@ -521,9 +521,9 @@ bool scenesLib::password_set()
                 [3, 5]f4 red  -> apebot
 				*/
                 if (x == 1 && y == 0) {
-                    game_save.selected_player = PLAYER_BETABOT;
+                    game_save.selected_player = PLAYER_2;
                 } else if (x == 2 && y == 1) {
-                    game_save.selected_player = PLAYER_KITTYBOT;
+                    game_save.selected_player = PLAYER_4;
                 } else if (x == 0 && y == 2) {
 					game_save.stages[INTRO_STAGE] = 1;
                 } else if (x == 2 && y == 0) {
@@ -772,22 +772,22 @@ void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int sele
         graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
     }
 
-    if (selected == PLAYER_ROCKBOT) {
+    if (selected == PLAYER_1) {
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_BETABOT) {
+    } else if (selected == PLAYER_2) {
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_CANDYBOT) {
+    } else if (selected == PLAYER_3) {
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_KITTYBOT) {
+    } else if (selected == PLAYER_4) {
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
         graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
