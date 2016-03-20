@@ -2851,7 +2851,7 @@ void character::set_animation_type(ANIM_TYPE type)
 
         // adjusts position when leaving stairs
         if (is_in_stairs_frame() == true && (type == ANIM_TYPE_JUMP || type == ANIM_TYPE_JUMP_ATTACK || type == ANIM_TYPE_STAND)) {
-            std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
+            //std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 position.x -= 4;
             } else {

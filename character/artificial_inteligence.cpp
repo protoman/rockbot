@@ -113,17 +113,17 @@ void artificial_inteligence::check_ai_reaction()
 
     if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[0].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
-        _reaction_type = 1;
+        _reaction_type = 0;
         start_reaction = true;
     // hit
     } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[1].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
-        _reaction_type = 2;
+        _reaction_type = 1;
         start_reaction = true;
     // dead
     } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[2].action > 0) {
-        //std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
-        _reaction_type = 3;
+        std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
+        _reaction_type = 2;
         start_reaction = true;
     }
 
@@ -134,7 +134,7 @@ void artificial_inteligence::check_ai_reaction()
         // do not start a walk-reaction in middle air
         int react_type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
         react_type--;
-        std::cout << "AI::check_ai_reaction - react_type: " << react_type << std::endl;
+        std::cout << "AI::check_ai_reaction[" << _reaction_type << "] - react_type: " << react_type << std::endl;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
             return;
         }

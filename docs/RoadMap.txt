@@ -61,6 +61,7 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- quando tiver reaction de spawn npc, inimigo deve explodir (colocar animação de explosão)
 - projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
 - EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
 - EDITOR: na origem do projétil, x deve ser espelhado na animation preview
