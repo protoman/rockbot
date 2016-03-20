@@ -351,6 +351,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_LASER,
     TRAJECTORY_PUSH_BACK,               // pushes player or enemies into opposite direction
     TRAJECTORY_ARC_SMALL,
+    TRAJECTORY_RING,                    // increases size and on last frame, oponent can pass in the middle
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 

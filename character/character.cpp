@@ -1030,11 +1030,11 @@ bool character::gravity(bool boss_demo_mode=false)
 
 
 	// ------------ PLAYER gravity --------------------- //
-	if (is_player() && position.y > RES_H+1) {
+    if (is_player() && position.y > RES_H+TILESIZE) {
         std::cout << "**** gravity - LEAVE (death)" << std::endl;
 		hitPoints.current = 0;
 		death();
-        std::cout << "CHAR::GRAVITY leave #5" << std::endl;
+        std::cout << "CHAR:: GRAVITY leave #5" << std::endl;
         reset_gravity_speed();
         return false;
 	}
@@ -1084,7 +1084,7 @@ bool character::gravity(bool boss_demo_mode=false)
             }
 		}
 
-        //if (is_player()) std::cout << "gravity - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << ", adjusted_speed: " << adjusted_speed << std::endl;
+        //if (is_player()) std::cout << "gravity - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << ", adjusted_speed: " << adjusted_speed << ", position.y: " << position.y << std::endl;
 
 
         st_map_colision map_col;

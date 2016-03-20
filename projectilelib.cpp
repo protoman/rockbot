@@ -93,6 +93,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         status = TRAJECTORY_LINEAR; // we use status as the real trajectory in laser
     } else if (_move_type == TRAJECTORY_CENTERED) {
         _points = 3;
+    } else if (_move_type == TRAJECTORY_RING) {
+        status = 0;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -159,7 +161,12 @@ st_size_int8 projectile::get_size() const
 {
     if (_id == -1) {
         return st_size_int8(6, 6);
-	}
+    } else if (_move_type == TRAJECTORY_RING) {
+        // depends on current frame
+        Uint8 w = _size.width;
+        Uint8 h = (_size.height/_max_frames) * animation_pos;
+        return st_size_int8(w, h);
+    }
     return GameMediator::get_instance()->get_projectile(_id).size;
 }
 
@@ -378,7 +385,7 @@ st_size projectile::move() {
 
 
 
-	if (_move_type == TRAJECTORY_LINEAR || _move_type == TRAJECTORY_DIAGONAL_UP || _move_type == TRAJECTORY_DIAGONAL_DOWN) {
+    if (_move_type == TRAJECTORY_LINEAR || _move_type == TRAJECTORY_DIAGONAL_UP || _move_type == TRAJECTORY_DIAGONAL_DOWN || _move_type == TRAJECTORY_RING) {
         move_ahead(moved);
         if (_move_type == TRAJECTORY_DIAGONAL_UP) {
             position.y -= get_speed();
@@ -657,7 +664,11 @@ void projectile::draw() {
 
 	if (animation_pos >= _max_frames) {
 		//std::cout << "projectile::draw - RESET animation_pos" << std::endl;
-		animation_pos = 0;
+        if (_move_type == TRAJECTORY_RING) { // ring will be kept at last two frames
+            animation_pos = _max_frames-2;
+        } else {
+            animation_pos = 0;
+        }
 	}
 
     int anim_pos = animation_pos*_size.width;
@@ -746,8 +757,26 @@ bool projectile::check_colision(st_rectangle enemy_pos, st_position pos_inc) con
         }
     }
 
-    st_rectangle projectile_rect(px, py, pw, ph);
     st_rectangle p_rect(enemy_pos.x, enemy_pos.y, enemy_pos.w, enemy_pos.h);
+
+
+    if (_move_type == TRAJECTORY_RING) {
+        int ring_h = 4;
+        st_rectangle projectile_rect1(px, py, pw, ring_h);
+        bool res1 = rect_colision_obj.rect_overlap(projectile_rect1, p_rect);
+        st_rectangle projectile_rect2(px, py+ph-ring_h, pw, ring_h);
+        bool res2 = rect_colision_obj.rect_overlap(projectile_rect2, p_rect);
+
+        std::cout << "COLLISION-RING - res1: " << res1 << ", res2: " << res2 << std::endl;
+
+        if (res1 || res2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    st_rectangle projectile_rect(px, py, pw, ph);
     bool res = rect_colision_obj.rect_overlap(projectile_rect, p_rect);
 
     return res;

@@ -56,10 +56,19 @@ ARMAS:
     * scales armor (tipo arma do mage, melhorar visual apenas)
 
 
+GEAR size: 87 x 65
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
+- EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
+- EDITOR: na origem do projétil, x deve ser espelhado na animation preview
+- EDITOR: não está aparecendo área vulnerável no preview de animação
+- AI: SHIELD, fica em escudo até a animação de shield acabar
+- AI: adicionar ação EXECUTE ATTACK (pode escolher qualquer um dos ataques, não apenas os projéteis)
+- AI: adicionar change anim type: aciona uma animação qualquer da lista de tipos
+
 - opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto
 - as cores de charging devem ser definidas por cada jogador (memso que não tenha no editor)
 
@@ -139,6 +148,10 @@ VERSION 2.0.0 BETA 2
 - slide + pulo não deveria dar pulo maior (somente se for dash) -> ver se não é flag do editor faltando
 
 - opção setar volume música e volume SFX
+
+- se pulo tiver mais de um frame  de animação, o último deve ser usado como "aterrisagem" quando encostar no chão
+
+- projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
