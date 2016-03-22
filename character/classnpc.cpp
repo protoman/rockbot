@@ -164,8 +164,6 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         //std::cout << "******** classnpc::set_file_data - npc: " << name << ", canfly: " << can_fly << std::endl;
         can_fly = true;
     }
-    _projectile_type_id = GameMediator::get_instance()->get_enemy(main_id).projectile_id[0];
-
 	realPosition.x = 0;
 	realPosition.y = 0;
 
@@ -373,8 +371,6 @@ void classnpc::copy(classnpc *from)
 
 	_is_boss = from->_is_boss;
 	IA_type = from->IA_type;
-    _projectile_type_id = from->_projectile_type_id;
-
 	hitPoints = from->hitPoints;
 	name = from->name;
 	position = from->position;

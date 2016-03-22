@@ -34,6 +34,7 @@ public:
     static void fill_object_listWidget(QListWidget* listWidget);
     static void fill_scenes_combo(QComboBox *combo);
     static std::vector<std::string> get_npc_names_list();
+    static std::vector<std::string> get_weapon_names_list();
 
     static void fill_anim_block_combo(QComboBox *combo);
 

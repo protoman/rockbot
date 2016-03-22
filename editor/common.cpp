@@ -10,6 +10,7 @@ extern std::vector<std::string> AI_ACTION_AIR_WALK_OPTIONS;
 extern std::vector<std::string> AI_ACTION_TELEPORT_OPTIONS;
 extern std::vector<std::string> AI_ACTION_DASH_OPTIONS;
 extern std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
+extern std::vector<std::string> ANIMATION_TYPE_LIST;
 
 #include "mediator.h"
 
@@ -248,8 +249,11 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 		list = AI_ACTION_GRAB_WALL_OPTIONS;
     } else if (action == AI_ACTION_SPAWN_NPC) {
         list = common::get_npc_names_list();
-    } else if (action == AI_ACTION_SHOT_PROJECTILE_1 || action == AI_ACTION_SHOT_PROJECTILE_2) {
-        list = AI_ACTION_SHOT_OPTIONS;
+    } else if (action == AI_ACTION_SHOT_PROJECTILE_AHEAD || action == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION || action == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION) {
+        //list = AI_ACTION_SHOT_OPTIONS;
+        list = common::get_weapon_names_list();
+    } else if (action == AI_ACTION_CHANGE_MOVE_TYPE) {
+        list = ANIMATION_TYPE_LIST;
     } else {
         return;
     }
@@ -372,6 +376,15 @@ std::vector<std::string> common::get_npc_names_list()
     return res;
 }
 
+std::vector<std::string> common::get_weapon_names_list()
+{
+    std::vector<std::string> res;
+    for (int i=0; i<Mediator::get_instance()->projectile_list.size(); i++) {
+        res.push_back(std::string(Mediator::get_instance()->projectile_list.at(i).name));
+    }
+    return res;
+}
+
 void common::fill_anim_block_combo(QComboBox *combo)
 {
     combo->clear();
@@ -380,5 +393,7 @@ void common::fill_anim_block_combo(QComboBox *combo)
         combo->addItem(name);
     }
 }
+
+
 
 

@@ -732,8 +732,6 @@ protected:
 
     int             _teleport_minimal_y;                // do not stop teleport before reaching this point. (used on player's death)
 
-    int             _projectile_type_id;				// indicates the projectile ID (relation with file_projectile)
-
     bool _is_falling;
 
     int _dead_state; // 0 - alive, 1 - just died, 2 dead

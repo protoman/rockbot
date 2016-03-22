@@ -69,10 +69,6 @@ private slots:
 
 	void on_sprite_colision_h_valueChanged(int arg1);
 
-    void on_projectile1_comboBox_currentIndexChanged(int index);
-
-    void on_projectile2_comboBox_currentIndexChanged(int index);
-
 	void on_ai_chain_currentIndexChanged(int index);
 
 	void on_isBoss_checkBox_toggled(bool checked);
