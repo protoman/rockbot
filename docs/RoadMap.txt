@@ -62,10 +62,6 @@ GEAR size: 87 x 65
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - quando tiver reaction de spawn npc, inimigo deve explodir (colocar animação de explosão)
-- projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
-- EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
-- EDITOR: na origem do projétil, x deve ser espelhado na animation preview
-- EDITOR: não está aparecendo área vulnerável no preview de animação
 - AI: SHIELD, fica em escudo até a animação de shield acabar
 - AI: adicionar ação EXECUTE ATTACK (pode escolher qualquer um dos ataques, não apenas os projéteis)
 - AI: adicionar change anim type: aciona uma animação qualquer da lista de tipos
@@ -129,6 +125,9 @@ VERSION 2.0.0 BETA 1
 - fade-teleport link não estár setando scrollX do novo mapa
 - se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
 - ao cair de escadas, estao ficando preso na parede
+- projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
+- EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
+- EDITOR: na origem do projétil, x deve ser espelhado na animation preview
 
 
 

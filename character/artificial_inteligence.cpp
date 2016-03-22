@@ -205,6 +205,8 @@ void artificial_inteligence::execute_ai_step()
     } else if (_current_ai_type == AI_ACTION_SPAWN_NPC) {
         //std::cout << ">> AI:exec[" << name << "] SPAWN_NPC <<" << std::endl;
         execute_ai_step_spawn_npc();
+    } else if (_current_ai_type == AI_ACTION_CHANGE_MOVE_TYPE) {
+        execute_ai_step_change_animation_type();
     } else {
         //std::cout << "********** AI number[" << _ai_id << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
@@ -1359,6 +1361,18 @@ void artificial_inteligence::execute_ai_step_dash()
         }
     }
     last_execute_time = timer.getTimer() + 20;
+}
+
+void artificial_inteligence::execute_ai_step_change_animation_type()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        set_animation_type(_parameter);
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        if (_was_animation_reset == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    }
 }
 
 // returns false if can ove and true if blocked

@@ -111,7 +111,8 @@ void init_enum_names() {
     ANIMATION_TYPE_LIST.push_back("JUMP");
     ANIMATION_TYPE_LIST.push_back("ATTACK");
     ANIMATION_TYPE_LIST.push_back("TELEPORT");
-    ANIMATION_TYPE_LIST.push_back("JUMP ATTACK WALK ATTACK");
+    ANIMATION_TYPE_LIST.push_back("JUMP ATTACK");
+    ANIMATION_TYPE_LIST.push_back("WALK ATTACK");
     ANIMATION_TYPE_LIST.push_back("HIT");
     ANIMATION_TYPE_LIST.push_back("STAIRS");
     ANIMATION_TYPE_LIST.push_back("STAIRS SEMI");

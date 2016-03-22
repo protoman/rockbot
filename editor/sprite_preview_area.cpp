@@ -74,13 +74,20 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     // draw hit-area
     painter.setBrush(QColor(255, 0, 0, 50));
     if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
-        painter.drawRect(center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x*2, center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y*2, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w*2, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h*2);
+        int hitx = center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x*2;
+        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y*2;
+        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w*2;
+        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h*2;
+
+        //std::cout << "hitx: " << hitx << ", hity: " << hity << ", hitw: " << hitw << ", hith: " << hith << std::endl;
+        painter.drawRect(hitx, hity, hitw, hith);
     }
 
     // draw attack_position, if set
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x > 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y > 0) {
-        painter.setPen(QPen(QColor(255, 255, 255), 1, Qt::DashLine));
-        int attack_x = center_x + adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2;
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x > 0 || Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y > 0) {
+        painter.setPen(QPen(QColor(0, 150, 0), 2, Qt::DashLine));
+        int attack_x = center_x + npc_w - (adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2);
+        //std::cout << ">>>>>>>>> attack_x: " << attack_x << ", npc_w: " << npc_w << std::endl;
         int attack_y = center_y + adjust_y + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y*2;
         // vertical line
         painter.drawLine(attack_x, (center_y + adjust_y), attack_x, (center_y + adjust_y + npc_h));

@@ -206,6 +206,8 @@ protected:
      */
     void execute_ai_step_dash();
 
+    void execute_ai_step_change_animation_type();
+
     /**
      * @brief moves to a point, returns true when point was reached or can't reach the target
      * @param dest_point point of destiny

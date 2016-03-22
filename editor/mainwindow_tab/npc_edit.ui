@@ -858,6 +858,9 @@
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -1013,6 +1016,9 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="minimum">
               <number>8</number>
              </property>
@@ -1033,6 +1039,9 @@
            </item>
            <item row="0" column="3">
             <widget class="QSpinBox" name="npc_edit_tab_graphicheight">
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="minimum">
               <number>8</number>
              </property>
@@ -1158,6 +1167,10 @@
            </item>
            <item row="0" column="1">
             <widget class="QSpinBox" name="hitarea_x_spinBox">
+             <property name="toolTip">
+              <string>The are that is not vulnerable will reflect projectiles.
+If you want to set are that misses the shots, use hitarea instead.</string>
+             </property>
              <property name="maximum">
               <number>999</number>
              </property>
@@ -1165,6 +1178,10 @@
            </item>
            <item row="0" column="3">
             <widget class="QSpinBox" name="hitarea_y_spinBox">
+             <property name="toolTip">
+              <string>The are that is not vulnerable will reflect projectiles.
+If you want to set are that misses the shots, use hitarea instead.</string>
+             </property>
              <property name="maximum">
               <number>999</number>
              </property>
@@ -1172,6 +1189,10 @@
            </item>
            <item row="1" column="3">
             <widget class="QSpinBox" name="hitarea_h_spinBox">
+             <property name="toolTip">
+              <string>The are that is not vulnerable will reflect projectiles.
+If you want to set are that misses the shots, use hitarea instead.</string>
+             </property>
              <property name="maximum">
               <number>999</number>
              </property>
@@ -1179,6 +1200,10 @@
            </item>
            <item row="1" column="1">
             <widget class="QSpinBox" name="hitarea_w_spinBox">
+             <property name="toolTip">
+              <string>The are that is not vulnerable will reflect projectiles.
+If you want to set are that misses the shots, use hitarea instead.</string>
+             </property>
              <property name="maximum">
               <number>999</number>
              </property>
