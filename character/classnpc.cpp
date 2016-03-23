@@ -267,6 +267,15 @@ st_rectangle classnpc::get_hitbox()
     return st_rectangle(temp_x, temp_y, temp_w, temp_h);
 }
 
+void classnpc::show()
+{
+#define SHOW_HITBOXES 1
+#ifdef SHOW_HITBOXES
+    graphLib.draw_rectangle(get_hitbox(), 0, 0, 255, 100);
+#endif
+    character::show();
+}
+
 
 
 
@@ -288,12 +297,17 @@ void classnpc::execute()
         clean_projectiles();
         return;
     }
-    if (is_boss() || is_stage_boss()) {
-        boss_move();
+
+    if (is_dead() == true) {
+        move_projectiles();
     } else {
-        move();
+        if (is_boss() || is_stage_boss()) {
+            boss_move();
+        } else {
+            move();
+        }
+        charMove();
     }
-    charMove();
 }
 
 void classnpc::boss_move()
@@ -394,6 +408,8 @@ void classnpc::move_projectiles()
 	// animate projectiles
     //if (name == "Dynamite Bot") std::cout << "******* NPC::move_projectiles - projectile_list.size: " << projectile_list.size() << std::endl;
     std::vector<projectile>::iterator it;
+    st_rectangle player_hitbox = map->_player_ref->get_hitbox();
+
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         (*it).draw();
         st_size moved = (*it).move();
@@ -418,7 +434,7 @@ void classnpc::move_projectiles()
                 continue;
             }
 
-            if ((*it).check_colision(st_rectangle(map->_player_ref->getPosition().x, map->_player_ref->getPosition().y, map->_player_ref->get_size().width, map->_player_ref->get_size().height), st_position(moved.width, moved.height)) == true) {
+            if ((*it).check_colision(player_hitbox, st_position(moved.width, moved.height)) == true) {
                 if (map->_player_ref->is_shielded((*it).get_direction()) == true) {
                     (*it).reflect();
                 } else if (map->_player_ref->is_using_circle_weapon() == true) {
@@ -437,8 +453,9 @@ void classnpc::move_projectiles()
         } else { // NPC attacking other NPCs
 
             for (int i=0; i<map->_npc_list.size(); i++) {
+                st_rectangle other_npc_hitbox = map->_npc_list.at(i).get_hitbox();
 				//classnpc* enemy = (*enemy_it);
-                if ((*it).check_colision(st_rectangle(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y, map->_npc_list.at(i).get_size().width, map->_npc_list.at(i).get_size().height), st_position(moved.width, moved.height)) == true) {
+                if ((*it).check_colision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
                     if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) {
                         (*it).reflect();

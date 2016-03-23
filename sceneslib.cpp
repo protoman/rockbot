@@ -102,6 +102,8 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
+    graphLib.draw_text(8, 18, "FREE VERSION");
+
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_password));
@@ -149,13 +151,17 @@ void scenesLib::main_screen()
 				fio.read_save(game_save);
 				repeat_menu = false;
 			}
-		} else if (picked_n == 2) {
+        } else if (picked_n == 2) { // PASSWORD
+#ifndef DEMO_VERSION
             if (show_password_input() == true) {
 				repeat_menu = false;
 			} else {
 				draw_main();
 				main_picker.draw();
 			}
+#else
+            soundManager.play_sfx(SFX_NPC_HIT);
+#endif
 		} else if (picked_n == 3) {
             show_main_config(0);
 			draw_main();
@@ -171,7 +177,12 @@ void scenesLib::main_screen()
 
     if (picked_n == 0) {
         game_save.difficulty = select_difficulty();
+        // demo do not have player selection, only rockbot is playable
+#ifndef DEMO_VERSION
         game_save.selected_player = select_player();
+#else
+        game_save.selected_player = PLAYER_1;
+#endif
     }
 }
 
@@ -836,7 +847,7 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename_lights, &lights_surface);
 
     while (true) {
-		input.readInput();
+        input.readInput();
         if (game_config.game_finished == true && (input.p1_input[BTN_DOWN] == 1 || input.p1_input[BTN_UP] == 1)) {
             soundManager.play_sfx(SFX_CURSOR);
             y = !y;

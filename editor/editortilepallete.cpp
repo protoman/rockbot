@@ -20,7 +20,6 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
         filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
    }
 
-   //printf("DEBUG.EditorTilePallete - paintEvent, selectedTileX: %d, selectedTileY: %d\n", selectedTileX, selectedTileY);
    QPainter painter(this);
    image = new QPixmap(filename);
    if (image->isNull()) {

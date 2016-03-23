@@ -615,6 +615,18 @@ void graphicsLib::blank_area(short x, short y, short w, short h, graphicsLib_gSu
     clear_surface_area(x, y, w, h, 0, 0, 0, surface);
 }
 
+void graphicsLib::draw_rectangle(st_rectangle area, int r, int g, int b, int alpha)
+{
+
+    graphicsLib_gSurface transparent_area;
+    graphLib.initSurface(st_size(area.w, area.h), &transparent_area);
+    graphLib.clear_surface_area(0, 0, area.w, area.h, r, g, b, transparent_area);
+
+    set_surface_alpha(alpha, transparent_area);
+    showSurfaceAt(&transparent_area, st_position(area.x, area.y), false);
+
+}
+
 
 int graphicsLib::draw_progressive_text(short int x, short int y, string text, bool interrupt) {
     UNUSED(interrupt);

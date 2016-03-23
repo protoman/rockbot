@@ -1511,9 +1511,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
             return;
         }
 
-        if (dead_state == 0) {
-            _npc_list.at(i).execute(); // TODO: must pass scroll map to npcs somwhow...
-        }
+        _npc_list.at(i).execute(); // TODO: must pass scroll map to npcs somwhow...
 
 
 
@@ -1535,7 +1533,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
                 if (_npc_list.at(i).is_boss()) {
                     gameControl.check_player_return_teleport();
                 }
-                _npc_list.at(i).clean_projectiles();
             } else {
                 // run npc move one more timer, so reaction is executed to test if it will spawn a new boss
                 _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
@@ -1547,7 +1544,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     gameControl.fill_boss_hp_bar();
                     continue;
                 } else {
-                    _npc_list.at(i).clean_projectiles();
                     gameControl.remove_all_projectiles();
                     //std::cout << "classMap::showMap - killed boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));

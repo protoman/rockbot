@@ -974,7 +974,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_WALK_AIR) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
-        } else {
+        } else if (is_on_attack_frame() == false){
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         // face player to shoot, if parameter is not shot-ahead-only
@@ -1703,7 +1703,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
-        } else {
+        } else if (is_on_attack_frame() == false){
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         classnpc* temp;

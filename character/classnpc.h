@@ -145,6 +145,10 @@ public:
 
     st_rectangle get_hitbox();
 
+    void show();
+
+
+
 
 protected:
     /**

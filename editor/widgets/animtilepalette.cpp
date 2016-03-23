@@ -69,10 +69,7 @@ void animTilePalette::mousePressEvent(QMouseEvent *event)
 
     std::cout << ">>>>>>>>>>>>> animTilePalette::mousePressEvent - x: " << selectedTileX << ", y: " << selectedTileY << std::endl;
 
-    Mediator::get_instance()->selectedAnimTileset = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL);
-    if (selectedTileY > 0) {
-        Mediator::get_instance()->selectedAnimTileset++;
-    }
+    Mediator::get_instance()->selectedAnimTileset = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL) + selectedTileY;
 
     repaint();
 }

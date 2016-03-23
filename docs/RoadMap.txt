@@ -61,41 +61,58 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- quando tiver reaction de spawn npc, inimigo deve explodir (colocar animação de explosão)
-- AI: SHIELD, fica em escudo até a animação de shield acabar
-- AI: adicionar ação EXECUTE ATTACK (pode escolher qualquer um dos ataques, não apenas os projéteis)
-- AI: adicionar change anim type: aciona uma animação qualquer da lista de tipos
+- FREE VERSION:
+    OK # "define" no makefile
+    OK # "free version" na tela de intro
+    OK # só pode selecionar Rockbot
+    # armor pieces não dá habilidade (mostra dialogo, "na versao full terá")
+    # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
+    # não tem skullcastle
+    OK # não pode usar password
 
-- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto
-- as cores de charging devem ser definidas por cada jogador (memso que não tenha no editor)
+- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
+
+- quando tiver reaction de spawn npc, inimigo deve explodir (colocar animação de explosão)
+
+- AI: SHIELD, fica em escudo até a animação de shield acabar
+    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
+    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
+
+- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
 
 - objetos do mapa/local errado estão aparecendo na transição vertical de tela
 
-- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
-- jogador nao pode "entrar" em blocos, mas pode sair deles (disappearing, etc)
-- permitir owner de projetil ser nulo (acicionar checagens) a fim de inimigo morto nao eliminar tiros
-- opçao para botao de tiro funcionar em modo turbo
-- opção para deixar estágio já completo, via menu de armas
-- melhorar posicionamento de drop-item (evitar dentro da paredes)
-- plataformas não podem considerar espinhos como sólidos na colisão
-- testar bem knock-back quando pula em cima de inimigo
-- se atingido nas escadas, está ficando preso e não cai
-- portas devem ser um objeto
+- TEST: projétil dos inimigos deve usar hitbox do player para ver se atingiu
 
-- criar opção de debug no jogo para mostrar hitboxes
+- investigar se get_hit_area() está levando em conta esquerda/direita e já adiciona posição, como fazer get_hitbox()
+
+- jogador não deve poder "entrar" em blocos, mas sim sair de dentro deles (disappearing, etc)
+    # verificar centro do jogador e do bloco, se estiver tentando se afastar do centro do bloco, permite.
+    # ou, se ficar dentro de um bloco desses, mata o player?
+
+- opçao para botao de tiro funcionar em modo turbo
+
+- opção para deixar estágio já completo, via menu de armas
+
+- melhorar posicionamento de drop-item (evitar dentro da paredes)
+
+- plataformas não podem considerar espinhos como sólidos na colisão
+
+- testar bem knock-back quando pula em cima de inimigo
+
+- se atingido nas escadas, está ficando preso e não cai
+
+- portas devem ser um objeto
 
 
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
-- EDITOR: colocar número do tile (para facilitar contar 20) nas bordas da editorarea
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
-- EDITOR: seleção de anim-tile está errada (linhaxcoluna)
 - EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
 - EDITOR: sempre selecionar primeiro frame (se houver), caso contrário desabilitar botões correspondentes a edição do mesmo
 
-- ver como colocar app na amazon
 
 - revisar arquivos do template
     * setar por padrão algumas coisas comuns do template:
@@ -109,25 +126,21 @@ VERSION 2.0.0 BETA 1
 => remove support for game data in the old data dir, always use the new "games" folder
 
 - add scenes selector in editor
+
 - use selected scenes for intro/ending
 
 - add to credits/tools:
     * http://www.bfxr.net/ (sfx creation)
 
-
 ##################################
              DONE
 ##################################
-- slide não está funcionando com novo hitbox
-- após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
-- usar fade-out quando morrer
-- implementar checagem de colisao npcs x objetos
-- fade-teleport link não estár setando scrollX do novo mapa
-- se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
-- ao cair de escadas, estao ficando preso na parede
-- projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
-- EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
-- EDITOR: na origem do projétil, x deve ser espelhado na animation preview
+- se NPC estiver morto, continuar movendo projectiles
+    # remover no map as chamadas a clean_projectiles()
+    # no npc execute(), chamar só move_projectiles() se estiver morto
+- criar opção de debug no jogo para mostrar hitboxes de player e inimigos
+- ver como colocar app na amazon
+- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
 
 
 

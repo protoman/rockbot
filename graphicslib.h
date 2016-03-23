@@ -391,6 +391,10 @@ public:
      * @param surface
      */
     void blank_area(short int x, short int y, short int w, short int h, struct graphicsLib_gSurface& surface);
+
+
+    void draw_rectangle(st_rectangle area, int r, int g, int b, int alpha);
+
     /**
      * @brief
      *

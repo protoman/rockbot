@@ -256,15 +256,22 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
 
 
-    QPen pen(QColor(120, 120, 120), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen pen_red(QColor(180, 50, 50), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);
     for (i=1; i<MAP_W; i++) {
         pos = i*16*Mediator::get_instance()->zoom-1;
         //QLineF line(0, 800, 16, 800);
         // linhas horizontais
         line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
+        if (i % 20 == 0) {
+            painter.setPen(pen_red);
+        } else {
+            painter.setPen(pen);
+        }
         painter.drawLine(line);
     }
+    painter.setPen(pen);
     for (i=1; i<MAP_H; i++) {
         pos = i*16*Mediator::get_instance()->zoom-1;
         //QLineF line(0, 800, 16, 800);

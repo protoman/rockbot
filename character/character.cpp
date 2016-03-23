@@ -666,7 +666,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             } else if (updown_trajectory == -1) {
                 temp_proj.set_trajectory(TRAJECTORY_DIAGONAL_DOWN);
                 set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
-            } else if (updown_trajectory == 0 && (state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
+            } else if (is_on_attack_frame() == false && updown_trajectory == 0 && (state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
                 set_animation_type(ANIM_TYPE_ATTACK);
             }
 
@@ -826,7 +826,12 @@ void character::show() {
         }
     } else {
         show_sprite();
+#define SHOW_HITBOXES 1
+#ifdef SHOW_HITBOXES
+    graphLib.draw_rectangle(get_hitbox(), 0, 0, 255, 100);
+#endif
     }
+
     show_hp();
 }
 
@@ -2209,7 +2214,17 @@ bool character::is_in_stairs_frame() const
 
 bool character::is_on_attack_frame()
 {
-    if (state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_STAIRS_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_THROW || state.animation_type == ANIM_TYPE_SPECIAL_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DOWN || state.animation_type == ANIM_TYPE_ATTACK_UP) {
+    if (state.animation_type == ANIM_TYPE_ATTACK ||
+        state.animation_type == ANIM_TYPE_STAIRS_ATTACK ||
+        state.animation_type == ANIM_TYPE_WALK_ATTACK ||
+        state.animation_type == ANIM_TYPE_JUMP_ATTACK ||
+        state.animation_type == ANIM_TYPE_THROW ||
+        state.animation_type == ANIM_TYPE_SPECIAL_ATTACK ||
+        state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN ||
+        state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP ||
+        state.animation_type == ANIM_TYPE_ATTACK_DOWN ||
+        state.animation_type == ANIM_TYPE_ATTACK_UP ||
+        state.animation_type == ANIM_TYPE_ATTACK_SPECIAL) {
         return true;
     }
     return false;

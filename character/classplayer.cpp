@@ -637,12 +637,13 @@ void classPlayer::execute_projectiles()
             }
 
 
+            st_rectangle npc_hitbox = map->_npc_list.at(i).get_hitbox();
 
             //classnpc* enemy = (*enemy_it);
-            if ((*it).check_colision(st_rectangle(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y, map->_npc_list.at(i).get_size().width, map->_npc_list.at(i).get_size().height), st_position(moved.width, moved.height)) == true) {
-                if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) { // shielded NPC -> reflects shot
+            if ((*it).check_colision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
+                // shielded NPC: reflects/finishes shot
+                if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
-                        std::cout << "PROJ::END #1" << std::endl;
                         (*it).consume_projectile();
                     } else {
                         (*it).reflect();
@@ -661,7 +662,6 @@ void classPlayer::execute_projectiles()
 
                 if (enemy_hit_area.w != enemy_size.width || enemy_hit_area.h != enemy_size.height) {
                     if ((*it).check_colision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
-                        std::cout << "PROJ::END #2" << std::endl;
                         (*it).consume_projectile();
                         continue;
                     }

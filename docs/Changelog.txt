@@ -44,6 +44,21 @@ FILE-FORMAT-V4:
         * dialog, limit DIALOG_LINE_LIMIT (30)
     - no not use short in file-format, to avoid endian issues (Wii)
 - check if stage have the autoscroll flag
+- slide não está funcionando com novo hitbox
+- após cair em buraco, jogador morre novamente quando estágio reinicia (deve estar com Y sem mudar)
+- usar fade-out quando morrer
+- implementar checagem de colisao npcs x objetos
+- fade-teleport link não estár setando scrollX do novo mapa
+- se inverte direção logo após iniciar uma queda, dá para ficar preso na parede
+- ao cair de escadas, estao ficando preso na parede
+- projétil "ring" só dá dano no oponente se bater em cima ou em baixo, podendo passar pelo meio dele
+- EDITOR: origem do projétil deve aparecer se x OU y for diferente de zero
+- EDITOR: na origem do projétil, x deve ser espelhado na animation preview
+- AI: adicionar ação EXECUTE ATTACK (pode escolher qualquer um dos ataques, não apenas os projéteis)
+- AI: adicionar change anim type: aciona uma animação qualquer da lista de tipos
+- em shot projectile/attack, não mudar para anim_type_attack se estiver já em outro tipo de ataque
+- EDITOR: a cada 20 colunas, deve ter uma vermelha para indicar espaçamentos de tela
+- EDITOR: seleção de anim-tile está errada (linha x coluna)
 
 
 

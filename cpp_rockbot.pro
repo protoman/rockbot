@@ -23,6 +23,8 @@ CONFIG += linux
 
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 
+DEFINESLIST = -DDEMO_VERSION
+
 CONFIG += console
 CONFIG -= app_bundle
 TARGET = rockbot
@@ -158,7 +160,7 @@ dingux {
 	QMAKE_CXX = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
 	QMAKE_LINK = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
 
-	QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
+        QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
 	QMAKE_CXXFLAGS += -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
 
 	LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lSDL_image -lSDL_ttf `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
@@ -231,7 +233,7 @@ open_pandora {
 	QMAKE_CXX = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
 	QMAKE_LINK = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
 
-	QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DOPEN_PANDORA -DHANDHELD -I$(PANDORAROOTDIR)/usr/include
+        QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DOPEN_PANDORA -DHANDHELD -I$(PANDORAROOTDIR)/usr/include
 
 	LIBS = $(SUBLIBS) -L$(PANDORAROOTDIR)/lib -L$(PANDORAROOTDIR)/usr/lib -lSDL_mixer -lSDL_image -lSDL_ttf `$(PANDORAROOTDIR)/usr/bin/sdl-config --libs` -lpthread
 
@@ -267,6 +269,9 @@ dreamcast {
     INCLUDES = -I/home/iuri/devel/SDK/Dreamcast/kos-ports/include -I$(KOS_BASE)/addons/include -I$(KOS_BASE)/addons/include/SDL $(OPTFLAGS) -I/opt/toolchains/dc/sh-elf/include -I. -I../include -I.
 #$KOS_OBJCOPY -R .stack -O binary rockbot_dreamcast.elf rockbot_dreamcast.bin
 }
+
+
+QMAKE_CXXFLAGS += $${DEFINESLIST}
 
 TEMPLATE = app
 
