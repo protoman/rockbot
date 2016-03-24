@@ -94,6 +94,8 @@ public:
 
     st_float_position getMapScrolling() const;
 
+    st_float_position* get_map_scrolling_ref() const;
+
     st_float_position get_last_scrolled() const;
 
     void reset_scrolled();
@@ -129,6 +131,8 @@ public:
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
 
     void add_animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize);
+
+    void add_animation(animation anim);
 
     void clear_animations(); // remove all animations from map
 

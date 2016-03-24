@@ -238,10 +238,8 @@ bool classnpc::is_subboss()
 
 void classnpc::reset_position()
 {
-    std::cout << "#1 NPC::RESET_POSITION - x: " << position.x << ", y: " << position.y << ", start.x: " << start_point.x << ", start.y: " << start_point.y << std::endl;
     position.x = start_point.x;
     position.y = start_point.y;
-    std::cout << "#2 NPC::RESET_POSITION - x: " << position.x << ", y: " << position.y << ", start.x: " << start_point.x << ", start.y: " << start_point.y << std::endl;
 }
 
 st_position classnpc::get_start_position()

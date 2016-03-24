@@ -36,25 +36,29 @@ public:
      */
     void execute();
 
+    void set_initial_delay(int delay);
+
 private:
     const st_float_position* _ref_pos; /**< holds a pointer to the position it must follow in dynamic animation type */
     ANIMATION_TYPES _pos_type;
     st_float_position _static_pos;
-    st_position _adjust_pos; /**< TODO */
+    st_position _adjust_pos;
     graphicsLib_gSurface* _surface; /**< holds graphic surface */
     Uint8 _repeat_times; /**< number of times the whole frames will be shown */
     Uint8 _executed_times; /**< holds the number of times the whole frames were shown. if greater or equals to _repeat_times, set is_finished to true */
-    int _frame_time; /**< TODO */
-    bool _finished; /**< TODO */
-    Uint8 _frames_number; /**< TODO */
-    Uint8 _direction; /**< TODO */
-    st_size _framesize; /**< TODO */
+    int _frame_time;
+    bool _finished;
+    Uint8 _frames_number;
+    Uint8 _direction;
+    st_size _framesize;
 
-    Uint8 _current_frame; /**< TODO */
-    int _current_frame_timer; /**< TODO */
-    Uint8 _max_repeat; /**< TODO */
-    Uint8 _repeated_times; /**< TODO */
-    st_float_position* _map_scroll; /**< TODO */
+    Uint8 _current_frame;
+    int _current_frame_timer;
+    Uint8 _max_repeat;
+    Uint8 _repeated_times;
+    st_float_position* _map_scroll;
+
+    int initial_timer;
 };
 
 

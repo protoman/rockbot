@@ -412,6 +412,11 @@ st_float_position classMap::getMapScrolling() const
     return scroll;
 }
 
+st_float_position *classMap::get_map_scrolling_ref() const
+{
+    return &scroll;
+}
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -871,7 +876,7 @@ int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_ob
         }
     }
 
-    std::cout << "blocked: " << blocked << ", xOverlap: " << xOverlap << ", yOverlap: " << yOverlap << ", p.x: " << p_rect.x << ", p.y: " << p_rect.y << ", p.w: " << p_rect.w << ", p.h: " << p_rect.h << std::endl;
+    //std::cout << "blocked: " << blocked << ", xOverlap: " << xOverlap << ", yOverlap: " << yOverlap << ", p.x: " << p_rect.x << ", p.y: " << p_rect.y << ", p.w: " << p_rect.w << ", p.h: " << p_rect.h << std::endl;
 
 
     return blocked;
@@ -1451,7 +1456,12 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 void classMap::add_animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize)
 {
     //std::cout << ">>>>> classMap::add_animation - repeat_times: " << repeat_times << std::endl;
-	animation_list.push_back(animation(pos_type, surface, pos, adjust_pos, frame_time, repeat_times, direction, framesize, &scroll));
+    animation_list.push_back(animation(pos_type, surface, pos, adjust_pos, frame_time, repeat_times, direction, framesize, &scroll));
+}
+
+void classMap::add_animation(animation anim)
+{
+    animation_list.push_back(anim);
 }
 
 void classMap::clear_animations()

@@ -994,9 +994,15 @@ st_position object::get_position() const
     if (type == OBJ_RAY_VERTICAL) {
         int y = position.y - _state*TILESIZE;
         return st_position(position.x, y);
-    } else if (type == OBJ_RAY_HORIZONTAL && direction == ANIM_DIRECTION_LEFT) {
-        int x = position.x - _state*TILESIZE;
-        return st_position(x, position.y);
+    } else if (type == OBJ_RAY_HORIZONTAL) {
+        int x = 0;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            x = position.x - _state*TILESIZE;
+        } else {
+            x = position.x + TILESIZE;
+        }
+        int y = position.y + 4;
+        return st_position(x, y);
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_expanding == false) {
             return st_position(position.x+TILESIZE/2, (_state - MAP_H)); // TILESIZE/2 is because of lava graphic not taking the whole width

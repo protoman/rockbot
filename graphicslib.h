@@ -230,6 +230,10 @@ public:
      * @param text
      */
     void draw_text(short int x, short int y, std::string text);
+
+    void draw_text(short int x, short int y, std::string text, st_color color);
+
+
     /**
      * @brief
      *

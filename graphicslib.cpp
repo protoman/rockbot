@@ -674,23 +674,28 @@ int graphicsLib::draw_progressive_text(short int x, short int y, string text, bo
 
 
 void graphicsLib::draw_text(short int x, short int y, string text) {
-	if (text.length() <= 0) {
-		return;
-	}
-	SDL_Color font_color;
-	font_color.r = 255;
-	font_color.g = 255;
-	font_color.b = 255;
+    draw_text(x, y, text, st_color(250, 250, 250));
+}
+
+void graphicsLib::draw_text(short x, short y, string text, st_color color)
+{
+    if (text.length() <= 0) {
+        return;
+    }
+    SDL_Color font_color;
+    font_color.r = color.r;
+    font_color.g = color.g;
+    font_color.b = color.b;
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
-	SDL_Rect text_pos={x, y, 0, 0};
-	if (!font) {
-		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
+    SDL_Rect text_pos={x, y, 0, 0};
+    if (!font) {
+        printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #10");
-		exit(-1);
-		// handle error
-	}
-	SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
+        exit(-1);
+        // handle error
+    }
+    SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
     if (!textSF) {
         return;
     }
@@ -703,6 +708,7 @@ void graphicsLib::draw_text(short int x, short int y, string text) {
     SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
     SDL_FreeSurface(textSF_format);
 }
+
 
 void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface &surface)
 {

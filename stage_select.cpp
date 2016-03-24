@@ -28,9 +28,9 @@ extern game gameControl;
 stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
     highlight_animation_white(false), timer_intro(0), highlight_pos(135-graphLib.RES_DIFF_W, 90)
 {
-	int i;
-	for (i=0; i<STAGE_SELECT_COUNT; i++) {
-		STAGE_SELECT_SURFACES[i] = &stage_ref[i];
+    int i;
+    for (i=0; i<STAGE_SELECT_COUNT; i++) {
+        STAGE_SELECT_SURFACES[i] = &stage_ref[i];
 	}
     load_graphics();
 }
@@ -188,6 +188,12 @@ struct st_position stage_select::select() {
             if (i == 1 && j == 1) {
                 continue;
             }
+#ifdef DEMO_VERSION
+            if (stage_n ==2 || stage_n == 4 || stage_n == 7 || stage_n == 5) {
+                stage_n++;
+                continue;
+            }
+#endif
             if (game_save.stages[stage_n] == 0) {
                 // @TODO: name could miss \n, so get only 8 characters
                 place_face(game_data.stage_face_filename[stage_n], game_data.stages_face_name[stage_n], st_position(j, i));
@@ -287,9 +293,26 @@ struct st_position stage_select::select() {
             input.waitTime(200);
             input.clean();
         } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
-			selection_end = 1;
+#ifdef DEMO_VERSION
+            int pos_n = select_pos.x + 1 + select_pos.y*3;
+
+            std::cout << ">>>>>>>>>>>>>>>>>> pos_n: " << pos_n << std::endl;
+
+            if (pos_n ==2 || pos_n == 4 || pos_n == 6 || pos_n == 8) {
+                soundManager.play_sfx(SFX_NPC_HIT);
+
+            } else {
+                selection_end = 1;
+            }
+#else
+            selection_end = 1;
+#endif
         } else if (input.p1_input[BTN_START] && finished_stages() >= 9) {
+#ifdef DEMO_VERSION
+            selection_end = 0;
+#else
 			selection_end = 1;
+#endif
 		}
 		animate_highlight();
 		input.waitTime(10);

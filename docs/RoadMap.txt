@@ -65,24 +65,21 @@ VERSION 2.0.0 BETA 1
     OK # "define" no makefile
     OK # "free version" na tela de intro
     OK # só pode selecionar Rockbot
-    # armor pieces não dá habilidade (mostra dialogo, "na versao full terá")
-    # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
-    # não tem skullcastle
+    OK # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
+    OK # não tem skullcastle
     OK # não pode usar password
 
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
-
-- quando tiver reaction de spawn npc, inimigo deve explodir (colocar animação de explosão)
 
 - AI: SHIELD, fica em escudo até a animação de shield acabar
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
+- adicionar método para setar delay inicial em animação (só começa depois do delay)
+
 - opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
 
-- objetos do mapa/local errado estão aparecendo na transição vertical de tela
-
-- TEST: projétil dos inimigos deve usar hitbox do player para ver se atingiu
+NÃO REPRODUZ - objetos do mapa/local errado estão aparecendo na transição vertical de tela
 
 - investigar se get_hit_area() está levando em conta esquerda/direita e já adiciona posição, como fazer get_hitbox()
 
@@ -90,9 +87,9 @@ VERSION 2.0.0 BETA 1
     # verificar centro do jogador e do bloco, se estiver tentando se afastar do centro do bloco, permite.
     # ou, se ficar dentro de um bloco desses, mata o player?
 
-- opçao para botao de tiro funcionar em modo turbo
+- opção para botao de tiro funcionar em modo turbo
 
-- opção para deixar estágio já completo, via menu de armas
+- opção para sair de estágio já completo, via menu de armas
 
 - melhorar posicionamento de drop-item (evitar dentro da paredes)
 
@@ -103,7 +100,6 @@ VERSION 2.0.0 BETA 1
 - se atingido nas escadas, está ficando preso e não cai
 
 - portas devem ser um objeto
-
 
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
@@ -141,8 +137,9 @@ VERSION 2.0.0 BETA 1
 - criar opção de debug no jogo para mostrar hitboxes de player e inimigos
 - ver como colocar app na amazon
 - projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
-
-
+- quando tiver reaction de spawn npc ao morrer, inimigo deve explodir (colocar animações de explosão)
+- quando estiver acima do raio horizontal, não pode levar dano
+- projétil dos inimigos deve usar hitbox do player para ver se atingiu
 
 
 

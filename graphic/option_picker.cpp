@@ -13,6 +13,7 @@ extern inputLib input;
 #include "graphic/draw.h"
 extern draw draw_lib;
 
+#include "strings_map.h"
 
 
 option_picker::option_picker(bool draw_border, st_position pos, std::vector<std::string> options, bool show_return) : _pick_pos(0)
@@ -98,7 +99,16 @@ void option_picker::draw()
         _items.insert(_items.begin(), "RETURN");
     }
 	for (unsigned int i=0; i<_items.size(); i++) {
+#ifdef DEMO_VERSION
+        if (_items.at(i) == strings_map::get_instance()->get_ingame_string(strings_ingame_password)) {
+            graphLib.draw_text(_position.x, _position.y + (12 * i), _items.at(i), st_color(100, 100, 100));
+        } else {
+            graphLib.draw_text(_position.x, _position.y + (12 * i), _items.at(i));
+        }
+#else
         graphLib.draw_text(_position.x, _position.y + (12 * i), _items.at(i));
+#endif
+
 	}
 }
 

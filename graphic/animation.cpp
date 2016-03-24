@@ -33,6 +33,7 @@ animation::animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, co
     //std::cout << ">> animation::animation - _frames_number: " << _frames_number << ", x: "<< pos.x << ", y: " << pos.y << ", surface.w: " << _surface->width << ", surface.h: " << _surface->height << std::endl;
     _current_frame = 0;
     _executed_times = 0;
+    initial_timer = timer.getTimer();
 }
 
 
@@ -59,6 +60,9 @@ bool animation::finished() const
 
 void animation::execute()
 {
+    if (timer.getTimer() < initial_timer) {
+        return;
+    }
     //std::cout << "simple_animation::execute - pos.x: " << (int)get_position().x << ", pos.y: " << (int)get_position().y << std::endl;
     int now_timer = timer.getTimer();
     //std::cout << ">> animation::execute - _current_frame_timer: " << (int)_current_frame_timer << ", now_timer: " << now_timer << std::endl;
@@ -79,4 +83,9 @@ void animation::execute()
             }
         }
     }
+}
+
+void animation::set_initial_delay(int delay)
+{
+    initial_timer = timer.getTimer() + delay;
 }

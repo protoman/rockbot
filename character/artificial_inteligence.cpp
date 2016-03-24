@@ -6,6 +6,10 @@
 
 #include "game_mediator.h"
 
+#include "soundlib.h"
+extern soundLib soundManager;
+
+
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
@@ -102,6 +106,17 @@ void artificial_inteligence::check_ai_reaction()
         std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
         _reaction_type = 2;
         start_reaction = true;
+
+        // if not sub-boss (that already have explosion), and dead-reaction is spawn npc, show explosions
+        soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
+        st_float_position pos1(position.x+2, position.y+20);
+        animation anim1(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, state.direction, st_size(56, 56), map->get_map_scrolling_ref());
+        map->add_animation(anim1);
+
+        st_float_position pos2(pos1.x+10, pos1.y-30);
+        animation anim2(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, state.direction, st_size(56, 56), map->get_map_scrolling_ref());
+        anim2.set_initial_delay(500);
+        map->add_animation(anim2);
     }
 
     _was_hit = false; // reset flag
