@@ -267,9 +267,10 @@ st_rectangle classnpc::get_hitbox()
 
 void classnpc::show()
 {
-#define SHOW_HITBOXES 1
 #ifdef SHOW_HITBOXES
-    graphLib.draw_rectangle(get_hitbox(), 0, 0, 255, 100);
+    st_rectangle hitbox = get_hitbox();
+    hitbox.x -= map->getMapScrolling().x;
+    graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     character::show();
 }

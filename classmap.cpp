@@ -577,7 +577,7 @@ void classMap::drop_item(st_position position)
 {
     int rand_n = rand() % 100;
     //std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
-    if (rand_n <= 35) {
+    if (rand_n <= 95) {
         st_position obj_pos;
         obj_pos.y = position.y/TILESIZE;
         obj_pos.x = (position.x - TILESIZE)/TILESIZE;
@@ -601,6 +601,7 @@ void classMap::drop_item(st_position position)
             return;
         }
         object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
+        temp_obj.set_position(position);
         temp_obj.set_duration(4500);
         add_object(temp_obj);
     }
@@ -1542,6 +1543,10 @@ void classMap::move_npcs() /// @TODO - check out of screen
                 // check if boss flag wasn't passed to a spawn on dying reaction AI
                 if (_npc_list.at(i).is_boss()) {
                     gameControl.check_player_return_teleport();
+                }
+                // all kinds of bosses need to remove projectiles once dying
+                if (_npc_list.at(i).is_boss() || _npc_list.at(i).is_subboss() || _npc_list.at(i).is_stage_boss()) {
+                    _npc_list.at(i).clean_projectiles();
                 }
             } else {
                 // run npc move one more timer, so reaction is executed to test if it will spawn a new boss

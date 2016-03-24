@@ -56,10 +56,10 @@ void artificial_inteligence::execute_ai()
     if (timer.getTimer() < _ai_timer) {
         return;
     }
-    std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
+    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
     // check if action is finished
     if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-        std::cout << "AI::execute_ai::FINISHED" << std::endl;
+        //std::cout << "AI::execute_ai::FINISHED" << std::endl;
         if (_reaction_type == 0) {
             int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
             _ai_timer = timer.getTimer() + delay;
@@ -145,7 +145,7 @@ void artificial_inteligence::define_ai_next_step()
         _initialized = true;
         int rand_n = rand() % 100;
 
-        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -153,14 +153,14 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
             if (rand_n < chance_sum) {
-                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
             }
         }
         if (found_chance == false) {
-            std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
+            //std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
             _ai_chain_n = 0;
         }
     } else {
@@ -168,7 +168,7 @@ void artificial_inteligence::define_ai_next_step()
         std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
-    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -176,7 +176,7 @@ void artificial_inteligence::define_ai_next_step()
 
 void artificial_inteligence::execute_ai_step()
 {
-    std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
     _ai_timer = timer.getTimer() + 20;
     if (_current_ai_type == AI_ACTION_WALK) {
         //std::cout << ">> AI:exec[" << name << "] WALK" << std::endl;

@@ -61,13 +61,17 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- FREE VERSION:
-    OK # "define" no makefile
-    OK # "free version" na tela de intro
-    OK # só pode selecionar Rockbot
-    OK # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
-    OK # não tem skullcastle
-    OK # não pode usar password
+- se atingido nas escadas, está ficando preso e não cai
+    # deve ser por conta do ajuste da hitbox, tem que mover um pouco o player quando mudar para anim_type_jump ou stand
+
+- no final da fase do kurupira, objetos do mapa/local errado estão aparecendo na transição vertical de tela
+
+- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
+
+- opção para botao de tiro funcionar em modo turbo
+
+
+- opção (item) para sair de estágio já completo, via menu de armas
 
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 
@@ -75,29 +79,13 @@ VERSION 2.0.0 BETA 1
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
-- adicionar método para setar delay inicial em animação (só começa depois do delay)
-
-- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
-
-NÃO REPRODUZ - objetos do mapa/local errado estão aparecendo na transição vertical de tela
-
-- investigar se get_hit_area() está levando em conta esquerda/direita e já adiciona posição, como fazer get_hitbox()
-
 - jogador não deve poder "entrar" em blocos, mas sim sair de dentro deles (disappearing, etc)
     # verificar centro do jogador e do bloco, se estiver tentando se afastar do centro do bloco, permite.
     # ou, se ficar dentro de um bloco desses, mata o player?
 
-- opção para botao de tiro funcionar em modo turbo
-
-- opção para sair de estágio já completo, via menu de armas
-
-- melhorar posicionamento de drop-item (evitar dentro da paredes)
 
 - plataformas não podem considerar espinhos como sólidos na colisão
 
-- testar bem knock-back quando pula em cima de inimigo
-
-- se atingido nas escadas, está ficando preso e não cai
 
 - portas devem ser um objeto
 
@@ -131,15 +119,19 @@ NÃO REPRODUZ - objetos do mapa/local errado estão aparecendo na transição ve
 ##################################
              DONE
 ##################################
-- se NPC estiver morto, continuar movendo projectiles
-    # remover no map as chamadas a clean_projectiles()
-    # no npc execute(), chamar só move_projectiles() se estiver morto
-- criar opção de debug no jogo para mostrar hitboxes de player e inimigos
-- ver como colocar app na amazon
-- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
-- quando tiver reaction de spawn npc ao morrer, inimigo deve explodir (colocar animações de explosão)
-- quando estiver acima do raio horizontal, não pode levar dano
-- projétil dos inimigos deve usar hitbox do player para ver se atingiu
+- FREE VERSION:
+    # "define" no makefile
+    # "free version" na tela de intro
+    # só pode selecionar Rockbot
+    # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
+    # não tem skullcastle
+    # não pode usar password
+- hitbox debug do jogo está aparecendo errada quando tem scrolling
+- máxima velocidade de gravity deve ser menor. para teleport continua a antiga.
+- investigar se get_hit_area() está levando em conta esquerda/direita e já adiciona posição, como fazer get_hitbox()
+- chefe e sub-chefe, ao morrer, deve remover projéteis
+- melhorar posicionamento de drop-item (evitar dentro da paredes, fazer centro do item aparecer no centro no inimigo)
+- corrigido knock-off (push-back) quando em pulo
 
 
 

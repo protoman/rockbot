@@ -210,7 +210,7 @@ bool object::test_change_position(short xinc, short yinc)
 	short p1 = map->getMapPointLock(st_position((position.x+2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
     //std::cout << "object::test_change_position - p1: " << p1 << ", p2: " << p2 << std::endl;
-	if ((p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER) && (p2 ==TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER)) {
+    if ((p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE) && (p2 ==TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER|| p2 == TERRAIN_SPIKE)) {
 		return true;
 	}
 	return false;
@@ -273,6 +273,12 @@ void object::set_precise_position(st_position pos, int direction)
     start_point.x = position.x;
     start_point.y = position.y;
 
+}
+
+void object::set_position(st_position pos)
+{
+    position.x = pos.x - framesize_w/2;
+    position.y = pos.y - framesize_h/2;
 }
 
 

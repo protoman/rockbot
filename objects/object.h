@@ -219,6 +219,9 @@ public:
 
     void set_precise_position(st_position pos, int direction);                                // used to get a fine-tuning positioning instead of map-position
 
+
+    void set_position(st_position pos);
+
     void remove_graphic();
 
     st_position get_boss_teleporter_dest();

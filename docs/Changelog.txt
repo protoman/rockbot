@@ -59,7 +59,15 @@ FILE-FORMAT-V4:
 - em shot projectile/attack, não mudar para anim_type_attack se estiver já em outro tipo de ataque
 - EDITOR: a cada 20 colunas, deve ter uma vermelha para indicar espaçamentos de tela
 - EDITOR: seleção de anim-tile está errada (linha x coluna)
-
+- se NPC estiver morto, continuar movendo projectiles
+    # remover no map as chamadas a clean_projectiles()
+    # no npc execute(), chamar só move_projectiles() se estiver morto
+- criar opção de debug no jogo para mostrar hitboxes de player e inimigos
+- ver como colocar app na amazon
+- projétil do jogador deve usar hitbox dos inimigos para ver se atingiu
+- quando tiver reaction de spawn npc ao morrer, inimigo deve explodir (colocar animações de explosão)
+- quando estiver acima do raio horizontal, não pode levar dano
+- projétil dos inimigos deve usar hitbox do player para ver se atingiu
 
 
 **********************************************************************

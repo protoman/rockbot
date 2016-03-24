@@ -145,7 +145,8 @@ enum ANIM_TYPE { ANIM_TYPE_STAND,
 
 #define TILESIZE 16
 
-#define GRAVITY_MAX_SPEED 12
+#define GRAVITY_MAX_SPEED 8
+#define GRAVITY_TELEPORT_MAX_SPEED 12
 
 // for pre-loading
 
@@ -931,6 +932,8 @@ enum e_SCREEN_GFX {
 
 #define PLAYER_RIGHT_TO_LEFT_DIFF 5
 #define PLAYER_LEFT_TO_RIGHT_DIFF 5
+
+//#define SHOW_HITBOXES 1
 
 #endif // DEFINES_H
 

@@ -178,7 +178,8 @@ void character::charMove() {
         //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
-            //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
+            std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
+
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
                 moveCommands.right = 1;
@@ -186,7 +187,15 @@ void character::charMove() {
                 moveCommands.left = 1;
                 moveCommands.right = 0;
             }
-            temp_move_speed = 0.5;
+            moveCommands.up = 0;
+            moveCommands.down = 0;
+            moveCommands.jump = 0;
+            if (did_hit_ground == true) {
+                temp_move_speed = 0.5;
+            } else {
+                temp_move_speed = 0.8;
+            }
+
         } else {
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Z" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
@@ -200,7 +209,7 @@ void character::charMove() {
         for (float i=temp_move_speed; i>=0.1; i--) {
             st_map_colision map_col = map_colision(-i, 0, map->getMapScrolling());
             mapLock = map_col.block;
-            if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
+            if (state.animation_type == ANIM_TYPE_HIT) {
                 hit_moved_back_n += temp_move_speed;
             }
             if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
@@ -238,7 +247,7 @@ void character::charMove() {
 
 	if (moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         for (float i=temp_move_speed; i>=0.1; i--) {
-            if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
+            if (state.animation_type == ANIM_TYPE_HIT) {
                 hit_moved_back_n += temp_move_speed;
             }
 
@@ -826,9 +835,11 @@ void character::show() {
         }
     } else {
         show_sprite();
-#define SHOW_HITBOXES 1
 #ifdef SHOW_HITBOXES
-    graphLib.draw_rectangle(get_hitbox(), 0, 0, 255, 100);
+        st_rectangle hitbox = get_hitbox();
+        hitbox.x -= map->getMapScrolling().x;
+        std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << std::endl;
+        graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     }
 
@@ -1000,6 +1011,13 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
+    int gravity_max_speed = GRAVITY_MAX_SPEED;
+    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+        gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED;
+    } else if (state.animation_type == ANIM_TYPE_HIT) {
+        gravity_max_speed = 2;
+    }
+
 	// ------------- NPC gravity ------------------ //
 	if (!is_player()) {
 		if (!map) {
@@ -1012,7 +1030,7 @@ bool character::gravity(bool boss_demo_mode=false)
 			bool is_moved = false;
 			short int limit_speed = move_speed;
 			if (boss_demo_mode == true) {
-                limit_speed = GRAVITY_MAX_SPEED;
+                limit_speed = gravity_max_speed;
 			}
             if (limit_speed < 1) {
                 limit_speed = 1;
@@ -1070,8 +1088,8 @@ bool character::gravity(bool boss_demo_mode=false)
 
         if (accel_speed_y < 0.25) {
             accel_speed_y = 0.25;
-        } else if (accel_speed_y > GRAVITY_MAX_SPEED) {
-            accel_speed_y = GRAVITY_MAX_SPEED;
+        } else if (accel_speed_y > gravity_max_speed) {
+            accel_speed_y = gravity_max_speed;
         }
 
         int adjusted_speed = accel_speed_y;
@@ -1083,9 +1101,9 @@ bool character::gravity(bool boss_demo_mode=false)
 
 		if (state.animation_type == ANIM_TYPE_TELEPORT) {
             if (_teleport_minimal_y - position.y > TILESIZE) {
-                adjusted_speed = GRAVITY_MAX_SPEED;
+                adjusted_speed = gravity_max_speed;
             } else {
-                adjusted_speed = GRAVITY_MAX_SPEED/2;
+                adjusted_speed = gravity_max_speed/2;
             }
 		}
 
