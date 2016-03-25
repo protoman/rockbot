@@ -322,19 +322,19 @@ void object::show(int adjust_y, int adjust_x)
 
     // ray have a different way to show itself
     if (type == OBJ_RAY_VERTICAL) {
-        show_vertical_ray(adjust_y);
+        show_vertical_ray(adjust_x, adjust_y);
         return;
     } else if (type == OBJ_RAY_HORIZONTAL) {
-        show_horizontal_ray(adjust_y);
+        show_horizontal_ray(adjust_x, adjust_y);
         return;
     } else if (type == OBJ_TRACK_PLATFORM) {
-        show_track_platform(adjust_y);
+        show_track_platform(adjust_x, adjust_y);
         return;
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
-        show_deathray_vertical(adjust_y);
+        show_deathray_vertical(adjust_x, adjust_y);
         return;
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
-        show_deathray_horizontal(adjust_y);
+        show_deathray_horizontal(adjust_x, adjust_y);
         return;
     }
 
@@ -408,7 +408,6 @@ void object::show(int adjust_y, int adjust_x)
 			graphic_origin.y = 0;
 		}
 
-
 		graphic_origin.w = framesize_w;
 		graphic_origin.h = framesize_h;
 
@@ -439,12 +438,16 @@ void object::show(int adjust_y, int adjust_x)
 }
 
 
-void object::show_deathray_vertical(int adjust_y)
+void object::show_deathray_vertical(int adjust_x, int adjust_y)
 {
     st_position graphic_destiny;
 
-    graphic_destiny.x = position.x - map->getMapScrolling().x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
+    graphic_destiny.y = position.y + map->getMapScrolling().y;
 
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
@@ -485,13 +488,17 @@ void object::show_deathray_vertical(int adjust_y)
     }
 }
 
-void object::show_deathray_horizontal(int adjust_y)
+void object::show_deathray_horizontal(int adjust_x, int adjust_y)
 {
     st_position graphic_destiny;
 
-    graphic_destiny.x = position.x - map->getMapScrolling().x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
 
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
+    graphic_destiny.y = position.y + map->getMapScrolling().y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
@@ -542,11 +549,15 @@ void object::show_deathray_horizontal(int adjust_y)
     }
 }
 
-void object::show_vertical_ray(int adjust_y)
+void object::show_vertical_ray(int adjust_x, int adjust_y)
 {
     st_position graphic_destiny;
 
-    graphic_destiny.x = position.x - map->getMapScrolling().x;
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
     graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
@@ -560,11 +571,15 @@ void object::show_vertical_ray(int adjust_y)
     }
 }
 
-void object::show_horizontal_ray(int adjust_y)
+void object::show_horizontal_ray(int adjust_x, int adjust_y)
 {
     st_position graphic_destiny;
 
-    graphic_destiny.x = position.x - map->getMapScrolling().x;
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
     graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
@@ -586,11 +601,15 @@ void object::show_horizontal_ray(int adjust_y)
     }
 }
 
-void object::show_track_platform(int adjust_y)
+void object::show_track_platform(int adjust_x, int adjust_y)
 {
     st_position graphic_destiny;
 
-    graphic_destiny.x = position.x - map->getMapScrolling().x;
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
     graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
     if (draw_lib.get_object_graphic(_id) != NULL) {
         //std::cout << "show_track_platform - _state: " << _state << std::endl;
@@ -850,7 +869,7 @@ void object::move(bool paused)
                         limit = framesize_h/TILESIZE - 1;
                     }
                     if (_state >= limit) {
-                        if (type == OBJ_RAY_HORIZONTAL) std::cout << "_state: " << _state << ", LIMIT: " << limit << ", framesize_h: " << framesize_h << std::endl;
+                        //if (type == OBJ_RAY_HORIZONTAL) std::cout << "_state: " << _state << ", LIMIT: " << limit << ", framesize_h: " << framesize_h << std::endl;
                         _expanding = false;
                         _timer_limit = timer.getTimer() + DELAY_RAY;
                     }

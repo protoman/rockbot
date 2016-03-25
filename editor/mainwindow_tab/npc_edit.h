@@ -106,6 +106,9 @@ private slots:
 private:
 	void fill_data();
 
+    // used to prevent creating an enemy with no STAND frame
+    void add_frame_one();
+
 public slots:
 	void set_npc_frame();
 

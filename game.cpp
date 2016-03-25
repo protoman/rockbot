@@ -623,9 +623,6 @@ bool game::test_teleport(classPlayer *test_player) {
 
 void game::set_current_map(int temp_map_n)
 {
-
-   std::cout << ">>>>>>>>>>> GAME::set_current_map[" << temp_map_n << "]" << std::endl;
-
     loaded_stage.set_current_map(temp_map_n);
     loaded_stage.reset_current_map_objects();
     player1.set_map(loaded_stage.get_current_map());
@@ -848,8 +845,6 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 #endif
 		}
 
-
-        std::cout << "DONE!!" << std::endl;
 
         if (type == TRANSITION_TOP_TO_BOTTOM) {
             temp_map.changeScrolling(st_float_position(temp_map.getMapScrolling().x, 0));
@@ -1169,7 +1164,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE5;
+    currentStage = STAGE4;
     game_save.selected_player = PLAYER_1;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_1;

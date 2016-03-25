@@ -87,6 +87,19 @@ void npc_edit::fill_data()
 
 }
 
+void npc_edit::add_frame_one()
+{
+    CURRENT_FILE_FORMAT::file_npc* new_npc_ref = &Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
+    if (new_npc_ref->sprites[ANIM_TYPE_STAND][0].used == false) {
+        new_npc_ref->sprites[ANIM_TYPE_STAND][0].used = true;
+        new_npc_ref->sprites[ANIM_TYPE_STAND][0].duration = 100;
+        new_npc_ref->sprites[ANIM_TYPE_STAND][0].sprite_graphic_pos_x = 0;
+        ui->frame_list_selector->setCurrentIndex(0);
+        reload_frame_list(ANIM_TYPE_STAND);
+        ui->frameList_listWidget->setCurrentRow(0);
+    }
+}
+
 
 void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 {
@@ -173,6 +186,7 @@ void npc_edit::on_npc_edit_tab_graphiccombo_currentIndexChanged(const QString &a
     }
     sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).graphic_filename, "%s", arg1.toStdString().c_str());
     ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
+    add_frame_one();
     ui->npc_edit_tab_previewarea->repaint();
 }
 
@@ -190,6 +204,7 @@ void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
             Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w = arg1;
         }
         ui->npc_edit_tab_previewarea->update();
+        reload_frame_list(ui->frame_list_selector->currentIndex());
     }
     _data_loading = false;
     Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width = arg1;
@@ -215,6 +230,7 @@ void npc_edit::on_npc_edit_tab_graphicheight_valueChanged(int arg1)
         }
 
         ui->npc_edit_tab_previewarea->update();
+        reload_frame_list(ui->frame_list_selector->currentIndex());
     }
     Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height = arg1;
     _data_loading = false;
@@ -347,7 +363,7 @@ void npc_edit::on_frame_list_selector_currentIndexChanged(int index)
         ui->isAttackFrame_checkBox->setEnabled(false);
     }
     _data_loading = false;
-	reload_frame_list(index);
+    reload_frame_list(index);
 }
 
 void npc_edit::reload_frame_list(int index)
@@ -399,7 +415,13 @@ void npc_edit::reload_frame_list(int index)
 
     if (current_row != -1) {
         _ignore_spritelist_row_changed = true;
-        ui->frameList_listWidget->setCurrentRow(current_row);
+        if (ui->frameList_listWidget->count() >= current_row) {
+            ui->frameList_listWidget->setCurrentRow(current_row);
+        } else if (ui->frameList_listWidget->count() > 0) {
+            ui->frameList_listWidget->setCurrentRow(0);
+        }
+    } else {
+        ui->frameList_listWidget->setCurrentRow(0);
     }
     ui->frameList_listWidget->update();
 }
@@ -567,6 +589,7 @@ void npc_edit::on_sprite_pos_x_valueChanged(int arg1)
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.x = arg1;
     ui->npc_edit_tab_previewarea->set_sprite_pos(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg);
     ui->npc_edit_tab_previewarea->update();
+    reload_frame_list(ui->frame_list_selector->currentIndex());
 }
 
 void npc_edit::on_sprite_pos_y_valueChanged(int arg1)
@@ -577,6 +600,7 @@ void npc_edit::on_sprite_pos_y_valueChanged(int arg1)
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.y = arg1;
     ui->npc_edit_tab_previewarea->set_sprite_pos(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg);
     ui->npc_edit_tab_previewarea->update();
+    reload_frame_list(ui->frame_list_selector->currentIndex());
 }
 
 void npc_edit::on_checkBox_toggled(bool checked)

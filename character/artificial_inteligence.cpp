@@ -165,7 +165,7 @@ void artificial_inteligence::define_ai_next_step()
         }
     } else {
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
-        std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
     //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;

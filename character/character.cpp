@@ -178,7 +178,7 @@ void character::charMove() {
         //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
-            std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
+            //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
 
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
@@ -1354,25 +1354,21 @@ bool character::slide(st_float_position mapScrolling)
 
     st_map_colision map_col = map_colision(0, -TILESIZE, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
     int map_lock =  map_col.block;
-    std::cout << "character::slide - map_lock: " << map_lock << std::endl;
 
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         set_animation_type(ANIM_TYPE_STAND);
-        std::cout << "CHAR::slide - RETURN #4" << std::endl;
         return false;
     }
 
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
-        if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #L" << std::endl;
         if (hit_ground() == true) {
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
-        std::cout << "CHAR::slide - RETURN #5" << std::endl;
         return false;
     }
 
@@ -1412,7 +1408,6 @@ bool character::slide(st_float_position mapScrolling)
     if (can_air_dash() == false && (fall_map_lock == BLOCK_UNBLOCKED || fall_map_lock == BLOCK_WATER)) {
         set_animation_type(ANIM_TYPE_JUMP);
 		state.slide_distance = 0;
-        std::cout << "CHAR::slide - RETURN #7, map_col_fall: " << map_col_fall.block << std::endl;
 		return false;
 	}
 
@@ -1450,8 +1445,6 @@ bool character::slide(st_float_position mapScrolling)
         }
         st_map_colision map_col = map_colision(temp_i, 0, mapScrolling);;
         mapLockAfter = map_col.block;
-
-        std::cout << "CHAR::slide - RETURN #7, mapLockAfter: " << mapLockAfter << std::endl;
 
         if (mapLockAfter == BLOCK_UNBLOCKED) {
             res_move_x = temp_i;
@@ -2884,11 +2877,17 @@ void character::set_animation_type(ANIM_TYPE type)
 
         // adjusts position when leaving stairs
         if (is_in_stairs_frame() == true && (type == ANIM_TYPE_JUMP || type == ANIM_TYPE_JUMP_ATTACK || type == ANIM_TYPE_STAND)) {
-            //std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
+            std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 position.x -= 4;
             } else {
                 position.x += 4;
+            }
+        }
+
+        if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
+            if (state.direction == ANIM_DIRECTION_RIGHT) {
+                position.x += 2;
             }
         }
 

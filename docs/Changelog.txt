@@ -68,6 +68,20 @@ FILE-FORMAT-V4:
 - quando tiver reaction de spawn npc ao morrer, inimigo deve explodir (colocar animações de explosão)
 - quando estiver acima do raio horizontal, não pode levar dano
 - projétil dos inimigos deve usar hitbox do player para ver se atingiu
+- FREE VERSION:
+    # "define" no makefile
+    # "free version" na tela de intro
+    # só pode selecionar Rockbot
+    # apenas 4 estágios (alem da intro) podem ser selecionados (usar os 4 das pontas)
+    # não tem skullcastle
+    # não pode usar password
+- hitbox debug do jogo está aparecendo errada quando tem scrolling
+- máxima velocidade de gravity deve ser menor. para teleport continua a antiga.
+- investigar se get_hit_area() está levando em conta esquerda/direita e já adiciona posição, como fazer get_hitbox()
+- chefe e sub-chefe, ao morrer, deve remover projéteis
+- melhorar posicionamento de drop-item (evitar dentro da paredes, fazer centro do item aparecer no centro no inimigo)
+- corrigido knock-off (push-back) quando em pulo
+- plataformas não podem considerar espinhos como sólidos na colisão
 
 
 **********************************************************************

@@ -43,7 +43,7 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
     }
 
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    dir.setSorting(QDir::Size | QDir::Reversed);
+    dir.setSorting(QDir::Name);
 	if (show_none == true) {
 		combo->addItem(QString("None"));
 	}

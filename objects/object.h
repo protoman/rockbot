@@ -37,12 +37,12 @@ public:
     void show(int adjust_y=0, int adjust_x=0);
 
 
-    void show_vertical_ray(int adjust_y=0);
-    void show_horizontal_ray(int adjust_y=0);
-    void show_track_platform(int adjust_y=0);
+    void show_vertical_ray(int adjust_x, int adjust_y=0);
+    void show_horizontal_ray(int adjust_x, int adjust_y=0);
+    void show_track_platform(int adjust_x, int adjust_y=0);
 
-    void show_deathray_vertical(int adjust_y=0);
-    void show_deathray_horizontal(int adjust_y=0);
+    void show_deathray_vertical(int adjust_x=0, int adjust_y=0);
+    void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
 
     /**
      * @brief
