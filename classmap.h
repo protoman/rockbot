@@ -94,7 +94,7 @@ public:
 
     st_float_position getMapScrolling() const;
 
-    st_float_position* get_map_scrolling_ref() const;
+    st_float_position* get_map_scrolling_ref();
 
     st_float_position get_last_scrolled() const;
 

@@ -145,6 +145,13 @@ Sint8 key_map::draw_config_input() const
 
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
 
+    std::string turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
+    if (game_config.turbo_mode == true) {
+        turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
+    }
+
+    options.push_back(turbo_mode_string);
+
 
     Sint8 selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
@@ -216,6 +223,8 @@ void key_map::config_input()
             } else {
                 game_config.selected_input_device = 0;
             }
+        } else if (selected_option == 3) {
+            game_config.turbo_mode = !game_config.turbo_mode;
         }
     }
     // apply changes to game-config

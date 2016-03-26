@@ -11,6 +11,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>
+#include "ports/android/rockbot_android.h"
 #endif
 
 #ifdef OSX
@@ -259,7 +260,7 @@ void get_filepath()
     GAMEPATH = FILEPATH;
 }
 
-
+/// @TODO - move to ports
 /*
 void execute_memory_test() {
 #ifdef PSP
@@ -453,6 +454,10 @@ int main(int argc, char *argv[])
         std::cout << "ERROR intializing graphic mode." << std::endl;
         return -1;
     }
+
+#ifdef ANDROID
+    set_android_default_buttons_pos();
+#endif
 
 
     GAMENAME = gameControl.select_game_screen();

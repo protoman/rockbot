@@ -82,7 +82,12 @@ FILE-FORMAT-V4:
 - melhorar posicionamento de drop-item (evitar dentro da paredes, fazer centro do item aparecer no centro no inimigo)
 - corrigido knock-off (push-back) quando em pulo
 - plataformas não podem considerar espinhos como sólidos na colisão
-
+- se atingido nas escadas, está ficando preso e não cai
+    # deve ser por conta do ajuste da hitbox, tem que mover um pouco o player quando mudar para anim_type_jump ou stand
+- EDITOR: combos de arquivos devem ser ordenadas alfabeticamente
+- EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
+- EDITOR: sempre selecionar primeiro frame (se houver), caso contrário desabilitar botões correspondentes a edição do mesmo
+- no final da fase do kurupira, objetos do mapa/local errado estão aparecendo na transição vertical de tela
 
 **********************************************************************
                            VERSION 1.1.2

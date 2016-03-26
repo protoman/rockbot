@@ -1381,7 +1381,7 @@ void artificial_inteligence::execute_ai_step_dash()
 void artificial_inteligence::execute_ai_step_change_animation_type()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        set_animation_type(_parameter);
+        set_animation_type(static_cast<ANIM_TYPE>(_parameter));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         if (_was_animation_reset == true) {

@@ -369,7 +369,8 @@ HEADERS += \
     file/fio_common.h \
     game_mediator.h \
     aux_tools/fps_control.h \
-    file/v4/file_anim_block.h
+    file/v4/file_anim_block.h \
+    ports/android/rockbot_android.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

@@ -9,11 +9,14 @@ case $response in
 		rm -r -f ./Android
 		mkdir ./Android
 		mkdir ./Android/data
-		rsync -r --exclude=.svn ../data ./Android
+		rsync -r --exclude=.svn ../fonts ./Android/data
+		rsync -r --exclude=.svn ../games ./Android/data
+		rsync -r --exclude=.svn ../shared ./Android/data
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
-		cd ./Android
-		zip -r ./data_$VERSIONNAME.zip ./data
+		cd ./Android/data
+		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
+		cd ..
 		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/*.zip
 		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/
 		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/libapplication.so
@@ -22,7 +25,7 @@ case $response in
 		cp ../../libapplication.so ../../../Android/project/jni/application/src/libapplication.so
 		cd $ANDROIDSDK/rockbot_build
 		LINENUMBER=`grep -n "AppDataDownloadUrl" AndroidAppSettings.cfg | cut -f1 -d:`
-		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"Game data is about 4.8 Mb|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.new
+		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"Game data is about 9 Mb|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.new
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		sh ./build.sh -s release

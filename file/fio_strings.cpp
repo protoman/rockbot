@@ -78,6 +78,8 @@ namespace format_v4 {
             } else if (filename == get_common_strings_filename()) {
                 create_default_common_strings();
             }
+        } else if (res.size() < strings_ingame_COUNT) {
+            res = add_missing_default_ingame_strings(res);
         }
 
         return res;
@@ -93,6 +95,7 @@ namespace format_v4 {
 
         for (int i=0; i<list.size(); i++) {
             std::string line = list.at(i);
+            std::cout << "save_game_strings - add line '" << line << "'" << std::endl;
             fp << line.c_str();
         }
         fp.close();
@@ -125,7 +128,7 @@ namespace format_v4 {
         return res;
     }
 
-    void fio_strings::create_default_ingame_strings()
+    std::vector<std::string> fio_strings::get_default_ingame_strings_list()
     {
         char lines[strings_ingame_COUNT][STRINGS_LINE_SIZE];
 
@@ -203,6 +206,10 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
         sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
         sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
+        sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "TURBO MODE");
+        sprintf(lines[strings_ingame_config_on], "%s", "ON");
+        sprintf(lines[strings_ingame_config_off], "%s", "OFF");
+        sprintf(lines[strings_ingame_quitstage], "%s", "QUIT STAGE");
 
         /// @TODO: add assert to check that we set all the values from the enum
 
@@ -212,9 +219,30 @@ namespace format_v4 {
             std::cout << "fio_strings::create_default_ingame_strings[" << i << "]: " << line << std::endl;
             res.push_back(line);
         }
+        return res;
+    }
 
+    void fio_strings::create_default_ingame_strings()
+    {
+
+        std::vector<std::string> res = get_default_ingame_strings_list();
         save_game_strings(res, get_game_strings_filename());
         
+    }
+
+    std::vector<std::string> fio_strings::add_missing_default_ingame_strings(std::vector<std::string> list)
+    {
+        std::vector<std::string> res = get_default_ingame_strings_list();
+        // add \n to the list that were removed when loaded from file
+        for (int i=0; i<list.size(); i++) {
+            list.at(i) = list.at(i) + std::string("\n");
+        }
+        for (int i=list.size(); i<strings_ingame_COUNT; i++) {
+            std::cout << "ADD MISSING LINE: '" << res.at(i) << "'" << std::endl;
+            list.push_back(res.at(i));
+        }
+        save_game_strings(list, get_game_strings_filename());
+        return list;
     }
 
     std::string fio_strings::get_stage_dialogs_filename(short stage_id)

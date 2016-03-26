@@ -43,7 +43,9 @@ public:
 private:
     // === GAME STRINGS === //
     bool file_exists(std::string filename) const;
+    std::vector<std::string> get_default_ingame_strings_list();
     void create_default_ingame_strings();
+    std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list);
     std::string get_stage_dialogs_filename(short stage_id);
 
     // === COMMON STRINGS === //

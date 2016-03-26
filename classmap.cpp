@@ -412,7 +412,7 @@ st_float_position classMap::getMapScrolling() const
     return scroll;
 }
 
-st_float_position *classMap::get_map_scrolling_ref() const
+st_float_position *classMap::get_map_scrolling_ref()
 {
     return &scroll;
 }

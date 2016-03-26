@@ -240,6 +240,8 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
         options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
     }
 
+    //options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
+
 
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;

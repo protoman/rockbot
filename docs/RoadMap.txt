@@ -61,6 +61,8 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- adicionar QUIT dentro das configurações
+
 - se fizer slide abaixo de um raio de fogo, toma dano
 
 - opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
@@ -107,12 +109,10 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- se atingido nas escadas, está ficando preso e não cai
-    # deve ser por conta do ajuste da hitbox, tem que mover um pouco o player quando mudar para anim_type_jump ou stand
-- EDITOR: combos de arquivos devem ser ordenadas alfabeticamente
-- EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
-- EDITOR: sempre selecionar primeiro frame (se houver), caso contrário desabilitar botões correspondentes a edição do mesmo
-- no final da fase do kurupira, objetos do mapa/local errado estão aparecendo na transição vertical de tela
+- se tamanho de strings do arquivo common for menor que strings_ingame_COUNT, adidionar entradas faltando
+- ANDROID: recriar build
+- ANDROID: configurar botões L, R, START (topo da tela), A, B, X, Y
+
 
 
 =========================================================================================================================================
