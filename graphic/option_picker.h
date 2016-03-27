@@ -20,12 +20,8 @@ public:
  * @param pos
  * @param options
  */
+    option_picker(bool draw_border, st_position pos, std::vector<st_menu_option> options, bool show_return);
     option_picker(bool draw_border, st_position pos, std::vector<std::string> options, bool show_return);
-    /**
-     * @brief
-     *
-     * @return int
-     */
     Sint8 pick();
 
 
@@ -44,7 +40,7 @@ public:
 
 private:
     st_position _position; /**< TODO */
-    std::vector<std::string> _items; /**< TODO */
+    std::vector<st_menu_option> _items; /**< TODO */
     bool _draw_border; /**< TODO */
     Uint8 _pick_pos; /**< TODO */
     bool _show_return;

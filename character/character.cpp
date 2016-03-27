@@ -838,7 +838,7 @@ void character::show() {
 #ifdef SHOW_HITBOXES
         st_rectangle hitbox = get_hitbox();
         hitbox.x -= map->getMapScrolling().x;
-        std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << std::endl;
+        //std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << ", hitbox.y: " << hitbox.y << std::endl;
         graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     }
@@ -1352,7 +1352,7 @@ bool character::slide(st_float_position mapScrolling)
 	}
 
 
-    st_map_colision map_col = map_colision(0, -TILESIZE, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
+    st_map_colision map_col = map_colision(0, 0, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide

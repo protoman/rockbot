@@ -1064,7 +1064,7 @@ st_size object::get_size()
         return st_size(framesize_w, h);
     } else if (type == OBJ_RAY_HORIZONTAL) {
         int w = _state*TILESIZE;
-        return st_size(w, framesize_h);
+        return st_size(w, framesize_h-4);
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_expanding == true) {
             return st_size(framesize_w-TILESIZE, TILESIZE*_state); // -TILESIZE in width is because of lava graphic not taking the whole width

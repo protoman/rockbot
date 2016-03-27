@@ -51,7 +51,6 @@ private:
     unsigned int _timer; // animation timer
     short _state; // animation state
     graphicsLib_gSurface* _blink_surface; // animation surface (light/dark)
-    std::vector<std::string> options;
     Sint8 _password_selected_balls[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE];
 
 

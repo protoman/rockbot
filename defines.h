@@ -889,7 +889,7 @@ enum E_STRINGS_INGAME {
 
     strings_ingame_config_on,
     strings_ingame_config_off,
-    strings_ingame_quitstage,
+    strings_ingame_config_quitgame,
 
     strings_ingame_COUNT
 };

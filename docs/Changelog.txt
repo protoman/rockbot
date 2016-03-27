@@ -88,6 +88,15 @@ FILE-FORMAT-V4:
 - EDITOR/FILE: adicionar, por padrão, frame[0] de stand nos NPCs que não os tiverem
 - EDITOR: sempre selecionar primeiro frame (se houver), caso contrário desabilitar botões correspondentes a edição do mesmo
 - no final da fase do kurupira, objetos do mapa/local errado estão aparecendo na transição vertical de tela
+- se tamanho de strings do arquivo common for menor que strings_ingame_COUNT, adidionar entradas faltando
+- ANDROID: recriar build
+- ANDROID: configurar botões L, R, START (topo da tela), A, B, X, Y
+- adicionar opção disabled em option
+    # assim não precisa ficar examinando se item está ativo para determinar o que fazer
+    # se item desabilitado é selecionado, opção deve não retornar, mas continuar (e dar som de erro)
+- adicionar QUIT dentro das configurações
+- limpar input antes de mostrar seta em caixa de dialogo (para não poder remover o diálogo apertando o botão antes da hora)
+- se fizer slide abaixo de um raio de fogo, toma dano
 
 **********************************************************************
                            VERSION 1.1.2

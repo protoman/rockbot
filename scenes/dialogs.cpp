@@ -90,7 +90,7 @@ void dialogs::show_stage_dialog(int stage_n)
             lines[n] = stage_dialogs.at(i);
             n++;
         }
-        show_dialog(stage_data.dialog_face_graphics_filename, stage_data.dialog_top_side, lines, true);
+        show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
     }
 }
 
@@ -177,6 +177,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 		}
 	}
 
+    input.clean();
     input.wait_keypress();
     gameControl.game_unpause();
 

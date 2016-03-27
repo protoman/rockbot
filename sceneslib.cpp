@@ -104,12 +104,6 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 18, "FREE VERSION");
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_password));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_about));
-
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
 }
 
@@ -124,6 +118,17 @@ void scenesLib::main_screen()
     soundManager.load_music(game_data.game_start_screen_music_filename);
     soundManager.play_music();
 	draw_main();
+
+    std::vector<st_menu_option> options;
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame)));
+#ifdef DEMO_VERSION
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_password), true));
+#else
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_password)));
+#endif
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
     option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
 
@@ -222,25 +227,27 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 {
     short res = 0;
     st_position config_text_pos;
-    std::vector<std::string> options;
+    std::vector<st_menu_option> options;
 
 	graphLib.show_config_bg(0);
     draw_lib.update_screen();
 	input.clean();
 	input.waitTime(300);
-    int return_option = 2;
 
-    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_audio));
-    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_input));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input)));
 #if defined(PC) || defined (PSP)
-    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_video));
-    return_option = 3;
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video)));
+#else
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video), true);
 #endif
     if (stage_finished) {
-        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
+    } else {
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage), true));
     }
 
-    //options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
+    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame));
 
 
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
@@ -255,26 +262,26 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 		}
 		graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
         draw_lib.update_screen();
-		if (selected_option == 0) {
+        if (selected_option == 0) { // CONFIG AUDIO
 			show_config_audio();
-		} else if (selected_option == 1) {
+        } else if (selected_option == 1) { // CONFIG INPUT
             key_map key_mapper;
             key_mapper.config_input();
-        } else if (selected_option == 2) {
-            if (return_option == 3) {
+        } else if (selected_option == 2) { // CONFIG VIDEO
 #ifdef PC
                 show_config_video();
 #elif PSP
                 show_config_video_PSP();
 #endif
-                graphLib.show_config_bg(0);
-            } else {
-                res = 1;
-                break;
-            }
-        } else if (selected_option == 3) {
+        } else if (selected_option == 3) { // LEAVE STAGE
             res = 1;
             break;
+        } else if (selected_option == 4) { // QUIT GAME
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
         }
         fio.save_config(game_config);
 

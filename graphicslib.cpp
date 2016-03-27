@@ -771,6 +771,8 @@ Uint8 graphicsLib::getColorNumber(Uint8 r, Uint8 g, Uint8 b) {
 
 
 void graphicsLib::drawCursor(st_position pos) {
+
+    std::cout << "drawCursor - x: " << pos.x << ", y: " << pos.y << std::endl;
 	draw_text(pos.x, pos.y, ">");
 }
 

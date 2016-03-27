@@ -78,7 +78,7 @@ namespace format_v4 {
             } else if (filename == get_common_strings_filename()) {
                 create_default_common_strings();
             }
-        } else if (res.size() < strings_ingame_COUNT) {
+        } else if (filename == get_game_strings_filename() && res.size() < strings_ingame_COUNT) {
             res = add_missing_default_ingame_strings(res);
         }
 
@@ -209,7 +209,7 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "TURBO MODE");
         sprintf(lines[strings_ingame_config_on], "%s", "ON");
         sprintf(lines[strings_ingame_config_off], "%s", "OFF");
-        sprintf(lines[strings_ingame_quitstage], "%s", "QUIT STAGE");
+        sprintf(lines[strings_ingame_config_quitgame], "%s", "QUIT GAME");
 
         /// @TODO: add assert to check that we set all the values from the enum
 
@@ -267,27 +267,27 @@ namespace format_v4 {
             char line_value[FS_CHAR_NAME_SIZE];
             // person dialogs
             for (int j=0; j<6; j++) {
-                sprintf(line_value, "START-STAGE[%d] DLG #%d\n", i, j);
+                sprintf(line_value, "START-STG[%d] DLG #%d\n", i, j);
                 res.push_back(line_value);
             }
             // players dialogs
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // phrases
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "STAGE[%d] DIALOG P[%d] %d\n", i, (j+1), k);
+                    sprintf(player_line_value, "START-STG[%d] DLG P[%d] %d\n", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
             // person dialogs
             for (int j=0; j<6; j++) {
-                sprintf(line_value, "BOSS STAGE[%d] DIALOG #%d\n", i, j);
+                sprintf(line_value, "BOSS STG[%d] DLG #%d\n", i, j);
                 res.push_back(line_value);
             }
             // players dialogs
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // lines
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "BOSS STAGE[%d] DLG P[%d] %d\n", i, (j+1), k);
+                    sprintf(player_line_value, "BOSS STG[%d] DLG P[%d] %d\n", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }

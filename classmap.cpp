@@ -842,12 +842,14 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
 int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc)
 {
     int blocked = 0;
-    int obj_y_reducer = 2;
+    int obj_y_reducer = -1;
     colision_detection rect_colision_obj;
 
 // used to give char a small amount of pixels that he can enter inside object image
 
-    st_rectangle obj_rect(temp_obj->get_position().x+obj_xinc, temp_obj->get_position().y+obj_yinc+obj_y_reducer, temp_obj->get_size().width, temp_obj->get_size().height);
+    st_position temp_obj_pos = temp_obj->get_position();
+
+    st_rectangle obj_rect(temp_obj_pos.x+obj_xinc, temp_obj_pos.y+obj_yinc+obj_y_reducer, temp_obj->get_size().width, temp_obj->get_size().height);
     st_rectangle p_rect(player_rect.x+x_inc, player_rect.y+y_inc, player_rect.w, player_rect.h);
 
     // if only moving up/down, give one extra pivel free (otherwise in won't be able to jump next an object)
@@ -932,7 +934,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                     /// @TODO: only do that if player is trying to leave object area (is locked even with xinc zero)
                     temp_blocked = 0;
                 } else {
-                    std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
+                    //std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
                 }
             }
 
@@ -947,6 +949,10 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                 }
 
                 if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
+
+                    std::cout << "############# RAY.DAMAGE #############" << std::endl;
+
+
                     charObj->damage(TOUCH_DAMAGE_BIG, false);
                     temp_blocked = 0;
                     continue;
