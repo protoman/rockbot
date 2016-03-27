@@ -41,6 +41,8 @@ private:
     SDL_Joystick *joystick1;
     bool _used_keyboard;
     bool _show_btn_debug;
+    int turbo_timer;
+    bool turbo_state;
 };
 
 #endif // INPUTLIB_H

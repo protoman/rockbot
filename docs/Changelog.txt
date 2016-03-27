@@ -97,7 +97,11 @@ FILE-FORMAT-V4:
 - adicionar QUIT dentro das configurações
 - limpar input antes de mostrar seta em caixa de dialogo (para não poder remover o diálogo apertando o botão antes da hora)
 - se fizer slide abaixo de um raio de fogo, toma dano
-
+- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
+- último diálogo no início do estágioe stá mostrando face do inimigo ao invés da do jogador
+- opção de turbo nas configurações
+- correção de rostos (troca beta x candy)
+- melhores rostos de diálogos para candy e kitty
 **********************************************************************
                            VERSION 1.1.2
 **********************************************************************

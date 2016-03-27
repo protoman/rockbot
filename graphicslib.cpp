@@ -772,7 +772,7 @@ Uint8 graphicsLib::getColorNumber(Uint8 r, Uint8 g, Uint8 b) {
 
 void graphicsLib::drawCursor(st_position pos) {
 
-    std::cout << "drawCursor - x: " << pos.x << ", y: " << pos.y << std::endl;
+    //std::cout << "drawCursor - x: " << pos.x << ", y: " << pos.y << std::endl;
 	draw_text(pos.x, pos.y, ">");
 }
 
@@ -1493,31 +1493,32 @@ void graphicsLib::erase_star(short int x, short int y, int size) {
 }
 
 
+
 // random a position for each star
 void graphicsLib::init_stars() {
 	int i;
 	for (i=0; i<INTRO_STARS_NUMBER; i++) {
 		star_list[i].x = rand() % 320;
 		if (i % 2 == 0) {
-			star_list[i].y = rand() % 78;
+            star_list[i].y = rand() % TOP_STARS_LIMIT;
 		} else {
-			star_list[i].y = rand() % 78 + 162;
+            star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 		}
 	}
 	for (i=0; i<INTRO_STARS_NUMBER; i++) {
 		small_star_list[i].x = rand() % 320;
 		if (i % 2 == 0) {
-			small_star_list[i].y = rand() % 78;
+            small_star_list[i].y = rand() % TOP_STARS_LIMIT;
 		} else {
-			small_star_list[i].y = rand() % 78 + 162;
+            small_star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 		}
 	}
 	for (i=0; i<INTRO_STARS_NUMBER/2; i++) {
 		big_star_list[i].x = rand() % 320;
 		if (i % 2 == 0) {
-			big_star_list[i].y = rand() % 78;
+            big_star_list[i].y = rand() % TOP_STARS_LIMIT;
 		} else {
-			big_star_list[i].y = rand() % 78 + 162;
+            big_star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 		}
 	}
 }
@@ -1537,18 +1538,18 @@ void graphicsLib::anim_stars() {
 		if (star_list[i].x <= 0) {
 			star_list[i].x = 320+ANIM_STARS_STEP;
 			if (i % 2 == 0) {
-				star_list[i].y = rand() % 78;
+                star_list[i].y = rand() % TOP_STARS_LIMIT;
 			} else {
-				star_list[i].y = rand() % 78 + 162;
+                star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 			}
 		}
 		small_star_list[i].x -= ANIM_STARS_SMALL_STEP;
 		if (small_star_list[i].x <= 0) {
 			small_star_list[i].x = 320+ANIM_STARS_SMALL_STEP;
 			if (i % 2 == 0) {
-				small_star_list[i].y = rand() % 78;
+                small_star_list[i].y = rand() % TOP_STARS_LIMIT;
 			} else {
-				small_star_list[i].y = rand() % 78 + 162;
+                small_star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 			}
 		}
 	}
@@ -1559,9 +1560,9 @@ void graphicsLib::anim_stars() {
 		if (big_star_list[i].x <= 0) {
 			big_star_list[i].x = 320+ANIM_STARS_BIG_STEP;
 			if (i % 2 == 0) {
-				big_star_list[i].y = rand() % 78;
+                big_star_list[i].y = rand() % TOP_STARS_LIMIT;
 			} else {
-				big_star_list[i].y = rand() % 78 + 162;
+                big_star_list[i].y = rand() % TOP_STARS_LIMIT + BOTTOM_STARS_LIMIT;
 			}
 		}
 	}

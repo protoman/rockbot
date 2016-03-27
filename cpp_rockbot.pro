@@ -23,7 +23,7 @@ CONFIG += linux
 
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 
-DEFINESLIST = -DDEMO_VERSION
+#DEFINESLIST = -DDEMO_VERSION
 
 CONFIG += console
 CONFIG -= app_bundle

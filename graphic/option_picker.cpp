@@ -38,7 +38,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
 
 option_picker::option_picker(bool draw_border, st_position pos, std::vector<string> options, bool show_return)
 {
-    std::cout << "#1 option_picker -  pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
+    //std::cout << "#1 option_picker -  pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
     std::vector<st_menu_option> option_list;
     for (int i=0; i<options.size(); i++) {
         option_list.push_back(st_menu_option(options.at(i)));
@@ -65,7 +65,7 @@ Sint8 option_picker::pick()
     input.waitTime(100);
     _pick_pos = 0;
 
-    std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
+    //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
 
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 

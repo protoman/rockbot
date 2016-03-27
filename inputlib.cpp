@@ -27,6 +27,8 @@ inputLib::inputLib() : _used_keyboard(false)
 		p1_input[i] = 0;
 	}
     _show_btn_debug = false;
+    turbo_timer = 0;
+    turbo_state = false;
 }
 
 void inputLib::init_joystick()
@@ -229,6 +231,20 @@ void inputLib::readInput()
             }
 
 #endif
+        }
+    }
+
+    if (game_config.turbo_mode == true && p1_input[BTN_ATTACK] != 0) {
+        int now_timer = timer.getTimer();
+        if (now_timer > turbo_timer) {
+            if (turbo_state == false) {
+                turbo_state = true;
+                p1_input[BTN_ATTACK] = 2;
+            } else {
+                turbo_state = false;
+                p1_input[BTN_ATTACK] = 1;
+            }
+            turbo_timer = now_timer + 100;
         }
     }
 }

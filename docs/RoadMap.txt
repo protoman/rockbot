@@ -61,9 +61,7 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- implementar modo turbo no botão de ataque
-
-- opção (item) para sair de estágio já completo, via menu de armas
+- player está parando alguns pixels antes da plataforma (deve ser aquele -4)
 
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 
@@ -103,9 +101,9 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- opções de diálogos (nome, rosto, olhos na seleção de fase) estão hardcoded no jogo quando já tem opções para isto no editor
-- último diálogo no início do estágioe stá mostrando face do inimigo ao invés da do jogador
-- opção de turbo nas configurações
+- aumentar altura da tela de boss intro para caber chefes grandes como o Gear
+- não deve poder passar com start as telas de presents e notice/engine
+- implementar modo turbo no botão de ataque
 
 
 

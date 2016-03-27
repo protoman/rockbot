@@ -374,7 +374,7 @@ void game::show_notice()
         graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
 
-        input.waitScapeTime(2000);
+        timer.delay(2000);
 
         graphLib.blank_screen();
 
@@ -387,7 +387,7 @@ void game::show_notice()
         graphLib.draw_centered_text(180, "RESPECTIVE CONTENT CREATOR.", graphLib.gameScreen, st_color(255, 255, 255));
 
         draw_lib.update_screen();
-        input.waitScapeTime(3000);
+        timer.delay(3000);
 
         graphLib.blank_screen();
 }
@@ -1164,7 +1164,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE4;
+    currentStage = STAGE6;
     game_save.selected_player = PLAYER_1;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_1;
