@@ -197,12 +197,14 @@ void classMap::showMap()
         for (int j=0; j<MAP_H; j++) {
 
             // don't draw easy-mode blocks if game difficulty not set to easy
-            game_save.difficulty = DIFFICULTY_HARD;
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+
+                //std::cout << "tile[" << i << "][" << j << "] TERRAIN_EASYMODEBLOCK" << std::endl;
+
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny, graphLib.gameScreen);
-            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDCODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_hardmode_block_tile(pos_destiny, graphLib.gameScreen);
             } else {
@@ -1179,7 +1181,7 @@ graphicsLib_gSurface classMap::get_map_area_surface()
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny, mapSurface);
-            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDCODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_hardmode_block_tile(pos_destiny, mapSurface);
             } else {

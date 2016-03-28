@@ -102,6 +102,23 @@ FILE-FORMAT-V4:
 - opção de turbo nas configurações
 - correção de rostos (troca beta x candy)
 - melhores rostos de diálogos para candy e kitty
+- aumentar altura da tela de boss intro para caber chefes grandes como o Gear
+- não deve poder passar com start as telas de presents e notice/engine
+- implementar modo turbo no botão de ataque
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 **********************************************************************
                            VERSION 1.1.2
 **********************************************************************

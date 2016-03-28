@@ -63,6 +63,8 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - player está parando alguns pixels antes da plataforma (deve ser aquele -4)
 
+- blocos tipo fall/up não estão colidindo com o jogador via esquerda/direita
+
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 
 - AI: SHIELD, fica em escudo até a animação de shield acabar
@@ -101,9 +103,9 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- aumentar altura da tela de boss intro para caber chefes grandes como o Gear
-- não deve poder passar com start as telas de presents e notice/engine
-- implementar modo turbo no botão de ataque
+- EDITOR: desenhar easy/hard tiles (usar cores com transparência para identificar)
+
+
 
 
 

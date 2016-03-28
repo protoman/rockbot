@@ -1606,7 +1606,7 @@ void character::check_map_colision_point(int &map_block, int &new_map_lock, int 
             if (game_save.difficulty == DIFFICULTY_EASY) {
                 must_block = true;
             }
-        } else if (new_map_lock == TERRAIN_HARDCODEBLOCK) {
+        } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_HARD) {
                 damage(999, true);
                 must_block = true;
@@ -1645,7 +1645,7 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
         gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
 		return true;
 	}
-    if (is_player() == true && state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDCODEBLOCK && game_save.difficulty == 2))) {
+    if (is_player() == true && state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
         damage(SPIKES_DAMAGE, false);
         return true;
     }

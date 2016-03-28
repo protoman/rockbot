@@ -68,6 +68,9 @@ protected:
   int selection_current_x;
   int selection_current_y;
 
+  QPixmap hard_mode_tile;
+  QPixmap easy_mode_tile;
+
 //signals:
 //     void save();
 

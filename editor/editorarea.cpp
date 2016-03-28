@@ -30,6 +30,7 @@ EditorArea::EditorArea(QWidget *parent) : QWidget(parent) {
     selection_start_y = 0;
     selection_current_x = 0;
     selection_current_y = 0;
+
     this->show();
 }
 
@@ -46,6 +47,19 @@ void EditorArea::paintEvent(QPaintEvent *) {
     if (Mediator::get_instance()->currentStage < 0) {
         return;
     }
+
+
+    if (easy_mode_tile.isNull()) {
+        std::string filename_str = FILEPATH + "images/tilesets/blocks/easymode.png";
+        easy_mode_tile = QPixmap(QString(filename_str.c_str()));
+    }
+
+
+    if (hard_mode_tile.isNull()) {
+        std::string filename_str = FILEPATH + "images/tilesets/blocks/hardmode.png";
+        hard_mode_tile = QPixmap(QString(filename_str.c_str()));
+    }
+
 
     int i, j, pos;
     QPainter painter(this);
@@ -109,6 +123,12 @@ void EditorArea::paintEvent(QPaintEvent *) {
     // draw tiles
     for (i=0; i<MAP_W; i++) {
         for (j=0; j<MAP_H; j++) {
+
+            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK) {
+                std::cout << "lock: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked << ", easy: " << TERRAIN_EASYMODEBLOCK << std::endl;
+            }
+
+
             // level one
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x >= 0 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y >= 0) {
                 QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
@@ -199,6 +219,30 @@ void EditorArea::paintEvent(QPaintEvent *) {
                         }
                     }
             }
+
+
+            // EASY-mode tiles
+            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK) {
+                std::cout << "TERRAIN_EASYMODEBLOCK" << std::endl;
+
+                QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
+                QRectF source(QPoint(0, 0), QSize(16, 16));
+                painter.drawPixmap(target, easy_mode_tile, source);
+
+                painter.setBrush(QColor(220, 210, 50, 100));
+                painter.drawRect(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
+
+            // HARD-mode tiles
+            } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK) {
+                QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
+                QRectF source(QPoint(0, 0), QSize(16, 16));
+                painter.drawPixmap(target, hard_mode_tile, source);
+
+                painter.setBrush(QColor(190, 36, 230, 100));
+                painter.drawRect(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
+            }
+
+
 			// locked areas, stairs, doors, etc
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked != 0 && Mediator::get_instance()->editTool == EDITMODE_LOCK) {
                     // transparent rectangle
@@ -253,6 +297,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
 			}
         }
     }
+
+    //std::cout << "=============" << std::endl;
 
 
 
@@ -476,7 +522,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.setPen(QColor(0, 0, 0, 255));
                     painter.drawText(dest_x+3, dest_y+TILESIZE-3, QString::number(i));
                 }
-
             }
         }
 
