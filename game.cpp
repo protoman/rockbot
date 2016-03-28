@@ -1164,7 +1164,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE6;
+    currentStage = STAGE7;
     game_save.selected_player = PLAYER_1;
     if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
         game_save.selected_player = PLAYER_1;
