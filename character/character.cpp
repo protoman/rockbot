@@ -1726,10 +1726,14 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
         } else if (!get_item(res_colision_object)) {
 			map_block = res_colision_object._block;
 
-            std::cout << "BLOACK!!" << std::endl;
-
             if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
                 _can_execute_airdash = true;
+            }
+            // INSIDE PLATFORM OBJECT, MUST DIE
+            if (map_block == BLOCK_INSIDE_OBJ) {
+                std::cout << "DEBUG-OBJ-COLISION #5" << std::endl;
+                damage(999, true);
+                return st_map_colision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
             }
         }
     } else if (is_player() == false && res_colision_object._block != 0) {
@@ -1751,6 +1755,13 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
             }
         }
 	}
+
+
+
+    // no need to test map collision if object collision is already X+Y
+    if (map_block == BLOCK_XY && incx != 0) {
+        return st_map_colision(BLOCK_XY, TERRAIN_SOLID);
+    }
 
 
 	if (incx == 0 && incy == 0) {

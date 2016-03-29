@@ -844,7 +844,7 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
 int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc)
 {
     int blocked = 0;
-    int obj_y_reducer = -1;
+    int obj_y_reducer = 1;
     colision_detection rect_colision_obj;
 
 // used to give char a small amount of pixels that he can enter inside object image
@@ -917,11 +917,26 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             }
 
 
+            // some platforms can kill the player if he gets stuck inside it
+            if (charObj->is_player() == true && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_FLY_PLATFORM)) {
+                st_rectangle stopped_char_rect = charObj->get_hitbox();
+                stopped_char_rect.x+= CHAR_OBJ_COLISION_KILL_ADJUST/2;
+                stopped_char_rect.y+= CHAR_OBJ_COLISION_KILL_ADJUST;
+                stopped_char_rect.w-= CHAR_OBJ_COLISION_KILL_ADJUST;
+                stopped_char_rect.h-= CHAR_OBJ_COLISION_KILL_ADJUST*2;
+                // check if, without moving, player is inside object
+                int no_move_blocked = colision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
+                if (no_move_blocked == BLOCK_XY) {
+                    _obj_colision = object_colision(BLOCK_INSIDE_OBJ, &temp_obj);
+                    return;
+                }
+            }
+
             //if (y_inc < 0) std::cout << "MAP::colision_player_object - DEBUG #1" << std::endl;
 
             // usar TEMP_BLOCKED aqui, para não zerar o blocked anterior, fazer merge dos valores
             int temp_blocked = 0;
-            if (y_inc >= 0 || (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP)) { // jumping up on items does not block
+            if (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP) { // jumping up on items does not block
                 temp_blocked = colision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
                 //std::cout << "temp_blocked[" << temp_obj.get_name() << "]: " << temp_blocked << std::endl;
             }
@@ -934,7 +949,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                     //std::cout << "temp_blocked[" << temp_obj.get_name() << "] RESET BLOCK" << std::endl;
                     // this avoids that player gets stuck inside an object
                     /// @TODO: only do that if player is trying to leave object area (is locked even with xinc zero)
-                    temp_blocked = 0;
+                    //temp_blocked = 0;
                 } else {
                     //std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
                 }

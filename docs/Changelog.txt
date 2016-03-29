@@ -105,6 +105,10 @@ FILE-FORMAT-V4:
 - aumentar altura da tela de boss intro para caber chefes grandes como o Gear
 - não deve poder passar com start as telas de presents e notice/engine
 - implementar modo turbo no botão de ataque
+- EDITOR: desenhar easy/hard tiles (usar cores com transparência para identificar)
+- player está parando alguns pixels antes da plataforma
+- blocos tipo fall/up não estão colidindo com o jogador via esquerda/direita
+- se um único bloco trancar um jogador totalmente (X e Y), deve matá-lo
 
 
 

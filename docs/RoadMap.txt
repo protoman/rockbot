@@ -61,41 +61,20 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- player está parando alguns pixels antes da plataforma (deve ser aquele -4)
-
-- blocos tipo fall/up não estão colidindo com o jogador via esquerda/direita
-
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 
 - AI: SHIELD, fica em escudo até a animação de shield acabar
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
-- jogador não deve poder "entrar" em blocos, mas sim sair de dentro deles (disappearing, etc)
-    # verificar centro do jogador e do bloco, se estiver tentando se afastar do centro do bloco, permite.
-    # ou, se ficar dentro de um bloco desses, mata o player?
-
-
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
-
-
-
-- revisar arquivos do template
-    * setar por padrão algumas coisas comuns do template:
-        # cores dos jogadores
-        # músicas do jogo
-        # nomes das fases
-    * criar uma fase do megaman 9 para testar template
 
 => update script files to copy font to GAMEDIR, remove non-used fonts
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
 => remove support for game data in the old data dir, always use the new "games" folder
 
-- add scenes selector in editor
-
-- use selected scenes for intro/ending
 
 - add to credits/tools:
     * http://www.bfxr.net/ (sfx creation)
@@ -103,9 +82,6 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- EDITOR: desenhar easy/hard tiles (usar cores com transparência para identificar)
-
-
 
 
 
@@ -137,6 +113,17 @@ VERSION 2.0.0 BETA 2
 - projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
+
+- add scenes selector in editor
+
+- use selected scenes for intro/ending
+
+- revisar arquivos do template
+    * setar por padrão algumas coisas comuns do template:
+        # cores dos jogadores
+        # músicas do jogo
+        # nomes das fases
+    * criar uma fase do megaman 9 para testar template
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
