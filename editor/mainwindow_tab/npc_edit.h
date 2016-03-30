@@ -33,8 +33,6 @@ private slots:
 
 	void on_npc_edit_tab_shieldtype_currentIndexChanged(int index);
 
-	void on_npc_edit_tab_iatype_currentIndexChanged(int index);
-
 	void on_npc_edit_tab_movespeed_valueChanged(int arg1);
 
 	void on_npc_edit_tab_range_valueChanged(int arg1);
@@ -68,8 +66,6 @@ private slots:
 	void on_sprite_colision_w_valueChanged(int arg1);
 
 	void on_sprite_colision_h_valueChanged(int arg1);
-
-	void on_ai_chain_currentIndexChanged(int index);
 
 	void on_isBoss_checkBox_toggled(bool checked);
 

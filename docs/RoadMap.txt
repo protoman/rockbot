@@ -61,6 +61,11 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- EDITOR: gerar UI das actions da AI via código
+
+- objeto que se mover esquerda/direita deve empurrar jogador.
+    # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
+
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 
 - AI: SHIELD, fica em escudo até a animação de shield acabar
@@ -82,7 +87,12 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-
+- AI deve ser 1x1 para NPC
+    # ao criar um NPC, criar um AI
+    # se não houver AI para um dado NPC, editor deve criá-la
+    # retirar seleção de AI no inimigo
+    # retirar edição de nome de AI (usar nome do inimigo)
+- player está parando antes da hora quando estágio reinicia ao morrer antes de alcançar um checkpoint
 
 
 

@@ -37,12 +37,16 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 	}
 	_filling_data = true;
 
+    // if no such AI exists in list yet, create it
+    if (Mediator::get_instance()->enemy_list.size() > Mediator::get_instance()->ai_list.size()) {
+        for (int i=Mediator::get_instance()->ai_list.size(); i<Mediator::get_instance()->enemy_list.size(); i++) {
+            Mediator::get_instance()->ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
+        }
+    }
+
     Mediator::get_instance()->current_ai = index;
 
-    std::string temp(Mediator::get_instance()->ai_list.at(index).name);
-	ui->ai_name->setText(temp.c_str());
 	// CHANCES
-
     ui->chance1->setValue(Mediator::get_instance()->ai_list.at(index).states[0].chance);
     ui->chance2->setValue(Mediator::get_instance()->ai_list.at(index).states[1].chance);
     ui->chance3->setValue(Mediator::get_instance()->ai_list.at(index).states[2].chance);
@@ -51,10 +55,8 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     ui->chance6->setValue(Mediator::get_instance()->ai_list.at(index).states[5].chance);
     ui->chance7->setValue(Mediator::get_instance()->ai_list.at(index).states[6].chance);
     ui->chance8->setValue(Mediator::get_instance()->ai_list.at(index).states[7].chance);
-    // ACTIONS
-    int action1 = Mediator::get_instance()->ai_list.at(index).states[0].action;
-    int action2 = Mediator::get_instance()->ai_list.at(index).states[1].action;
 
+    // ACTIONS
     ui->action1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].action);
     ui->action2->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[1].action);
     ui->action3->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[2].action);
@@ -63,7 +65,6 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     ui->action6->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[5].action);
     ui->action7->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[6].action);
     ui->action8->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[7].action);
-
 
 
     // REACTIONS //
@@ -128,7 +129,7 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 void artificial_inteligence_tab::fill_data(int index)
 {
 	// ai selector
-	common::fill_ai_list(ui->ai_selector);
+    common::fill_npc_combo(ui->ai_selector);
 
 	// actions
 	common::fill_ai_actions_combo(ui->action1);
@@ -197,17 +198,6 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
     std::cout << "### AI::change_action #3 ###" << std::endl;
 }
 
-
-
-
-void artificial_inteligence_tab::on_ai_name_textChanged(const QString &arg1)
-{
-	if (_filling_data == true) {
-		return;
-	}
-    sprintf(Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).name, "%s", arg1.toStdString().c_str());
-    ui->ai_selector->setItemText(Mediator::get_instance()->current_ai, QString("[") + QString::number(Mediator::get_instance()->current_ai) + QString("] - ") + arg1);
-}
 
 void artificial_inteligence_tab::on_chance1_valueChanged(int arg1)
 {
@@ -647,12 +637,3 @@ void artificial_inteligence_tab::on_dead_extra_parameter_currentIndexChanged(int
     Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[2].extra_parameter = index;
 }
 
-
-
-
-void artificial_inteligence_tab::on_pushButton_clicked()
-{
-    Mediator::get_instance()->ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
-    ui->ai_selector->addItem(QString("[") + QString::number(Mediator::get_instance()->ai_list.size()-1) + QString("] AI Name"));
-    ui->ai_selector->setCurrentIndex(Mediator::get_instance()->ai_list.size()-1);
-}

@@ -155,10 +155,6 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     _attack_frame_n = GameMediator::get_instance()->get_enemy(main_id).attack_frame;
 
 
-    //std::cout << "NPC::BUILD_BASIC::_attack_frame_n[" << name << "]: " << _attack_frame_n << std::endl;
-    IA_type = GameMediator::get_instance()->get_enemy(main_id).IA_type;
-
-
     // TODO - this logic can be passed to the editor
     if (GameMediator::get_instance()->get_enemy(main_id).fly_flag != 0) {
         //std::cout << "******** classnpc::set_file_data - npc: " << name << ", canfly: " << can_fly << std::endl;
@@ -383,7 +379,6 @@ void classnpc::copy(classnpc *from)
 	shield_type = from->shield_type;
 
 	_is_boss = from->_is_boss;
-	IA_type = from->IA_type;
 	hitPoints = from->hitPoints;
 	name = from->name;
 	position = from->position;
@@ -513,7 +508,6 @@ void classnpc::move() {
         //std::cout << "classnpc::move(" << name << ")::ALIVE" << std::endl;
         //std::cout << "pos.x+w: " << (position.x+frameSize.width) << ", min(>): " << (mapScrollX-TILESIZE*2) << ", pos.x: " << (position.x) << ", max(<): " << (mapScrollX+RES_W+TILESIZE*2) << std::endl;
         if (position.x+frameSize.width >= mapScrollX-TILESIZE*2 && position.x <= mapScrollX+RES_W+TILESIZE*2) {
-            //std::cout << "classnpc::move(" << name << ")::IA_type: " << IA_type << std::endl;
             execute_ai();
         }
 	}
@@ -631,7 +625,7 @@ void classnpc::revive()
     //std::cout << "**** classnpc::revive[" << name << " ****" << std::endl;
 	//position.x = start_point.x;
     //position.y = start_point.y;
-    if (GameMediator::get_instance()->ai_list.at(GameMediator::get_instance()->get_enemy(_number).IA_type).states[_ai_chain_n].extra_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
+    if (GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
         position.y = -TILESIZE;
     }
 	hitPoints.current = hitPoints.total;

@@ -24,8 +24,6 @@ private slots:
 
 	void on_action1_currentIndexChanged(int index);
 
-	void on_ai_name_textChanged(const QString &arg1);
-
 	void on_chance1_valueChanged(int arg1);
 
 	void on_chance2_valueChanged(int arg1);
@@ -115,8 +113,6 @@ private slots:
     void on_hit_action_currentIndexChanged(int index);
 
     void on_dead_action_currentIndexChanged(int index);
-
-    void on_pushButton_clicked();
 
 private:
     void fill_next_combos();

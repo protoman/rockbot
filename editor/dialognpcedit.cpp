@@ -65,8 +65,6 @@ void DialogNPCEdit::loadNPCData(int npc_n) {
 	*/
     ui->comboBoxShieldType->setCurrentIndex(Mediator::get_instance()->enemy_list.at(npc_n).shield_type);
 
-    ui->comboBoxIA->setCurrentIndex(Mediator::get_instance()->enemy_list.at(npc_n).IA_type);
-
     ui->speed_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).speed);
     ui->range_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).walk_range);
 	std::cout << "DialogNPCEdit::loadNPCData::END" << std::endl;
@@ -92,7 +90,6 @@ void DialogNPCEdit::saveNPCData(int npc_n) {
 
     Mediator::get_instance()->enemy_list.at(npc_n).shield_type = ui->comboBoxShieldType->currentIndex();
 
-    Mediator::get_instance()->enemy_list.at(npc_n).IA_type = ui->comboBoxIA->currentIndex();
     Mediator::get_instance()->enemy_list.at(npc_n).speed = ui->speed_spin->value();
     Mediator::get_instance()->enemy_list.at(npc_n).walk_range = ui->range_spin->value();
 

@@ -1116,7 +1116,6 @@ bool character::gravity(bool boss_demo_mode=false)
             map_col = map_colision(0, i, map->getMapScrolling());
             int mapLock = map_col.block;
 
-
 			if (state.animation_type == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
 				mapLock = BLOCK_UNBLOCKED;
             } else if (!is_player() && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {

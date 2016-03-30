@@ -252,7 +252,6 @@ protected:
 
 	// "external" members
     static std::vector<character*> *player_list;					// reference to the players list /**< TODO */
-    int IA_type;										// IA types: no_move, wait, attack, zig-zag (loop), side to side (origin to direction) /**< TODO */
     unsigned int _ai_timer;										// used to not execute AI before a while /**< TODO */
     short _ai_chain_n;							// indicates witch one of the four AI actions is the NPC on /**< TODO */
     short _ghost_move_speed_reducer;           // some NPCs walk slowly when throught walls
@@ -270,7 +269,6 @@ protected:
     bool _initialized;                                  // used to indicated that is not yet initialized, thus we need to get change to pick next action
     int _counter;                                       // used for counting times, such as how many shots were fired
     int _current_ai_type;                               // holds the current AI type, can be changed to another one if needed (as jumping over obstacles)
-    int _ai_id;                                         // holds the ID of the AI the NPC uses
     bool _show_reset_stand;
 };
 

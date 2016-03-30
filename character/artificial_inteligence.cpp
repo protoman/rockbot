@@ -16,7 +16,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 std::vector<character*> *artificial_inteligence::player_list=NULL;
 
 
-artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), IA_type(0), is_ghost(false), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
+artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), is_ghost(false), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
 {
     _ghost_move_speed_reducer = 0;
     _did_shot = false;
@@ -26,7 +26,6 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _check_always_move_ahead = true;
     _initialized = false;
     _ai_state.main_status = 0;
-    _ai_id = -1;
     _parameter = 0;
     _show_reset_stand = false;
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
@@ -42,11 +41,7 @@ artificial_inteligence::~artificial_inteligence()
 
 void artificial_inteligence::execute_ai()
 {
-    if (_ai_id == -1) {
-        _ai_id = GameMediator::get_instance()->get_enemy(_number).IA_type;
-        //std::cout << "AI::AI[" << name << "] - _number: " << _number << ", _ai_id: " << _ai_id << std::endl;
-        _current_ai_type = get_ai_type();
-    }
+    _current_ai_type = get_ai_type();
     //std::cout << "AI::execute_ai::START[" << name << "]" << std::endl;
     if (_check_always_move_ahead == true) {
         _always_move_ahead = always_move_ahead();
@@ -61,7 +56,7 @@ void artificial_inteligence::execute_ai()
     if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
         if (_reaction_type == 0) {
-            int delay = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to_delay;
+            int delay = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to_delay;
             _ai_timer = timer.getTimer() + delay;
         } else {
             _ai_timer = timer.getTimer() + 200;
@@ -92,17 +87,17 @@ void artificial_inteligence::check_ai_reaction()
     // near player
     struct_player_dist dist_players = dist_npc_players();
 
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[0].action > 0) {
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[0].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
         _reaction_type = 0;
         start_reaction = true;
     // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[1].action > 0) {
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[1].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
         _reaction_type = 1;
         start_reaction = true;
     // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_ai_id).reactions[2].action > 0) {
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[2].action > 0) {
         std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
         _reaction_type = 2;
         start_reaction = true;
@@ -124,7 +119,7 @@ void artificial_inteligence::check_ai_reaction()
     if (start_reaction == true) {
 
         // do not start a walk-reaction in middle air
-        int react_type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
+        int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
         react_type--;
         std::cout << "AI::check_ai_reaction[" << _reaction_type << "] - react_type: " << react_type << std::endl;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
@@ -141,7 +136,7 @@ void artificial_inteligence::check_ai_reaction()
 
 void artificial_inteligence::define_ai_next_step()
 {
-    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
+    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
         _initialized = true;
         int rand_n = rand() % 100;
 
@@ -150,8 +145,8 @@ void artificial_inteligence::define_ai_next_step()
         bool found_chance = false;
         int chance_sum = 0;
         for (int i=0; i<AI_MAX_STATES; i++) {
-            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
-            chance_sum += GameMediator::get_instance()->ai_list.at(_ai_id).states[i].chance;
+            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
+            chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
                 //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
@@ -164,7 +159,7 @@ void artificial_inteligence::define_ai_next_step()
             _ai_chain_n = 0;
         }
     } else {
-        _ai_chain_n = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1;
+        _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
         //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
@@ -223,10 +218,9 @@ void artificial_inteligence::execute_ai_step()
     } else if (_current_ai_type == AI_ACTION_CHANGE_MOVE_TYPE) {
         execute_ai_step_change_animation_type();
     } else {
-        //std::cout << "********** AI number[" << _ai_id << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+        //std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
 }
-//enum IA_TYPE_LIST { IA_FOLLOW, IA_ZIGZAG, IA_SIDETOSIDE, IA_BAT, IA_ROOF_SHOOTER, IA_GROUND_SHOOTER, IA_SHOOT_AND_GO, IA_FLY_ZIG_ZAG, IA_BUTTERFLY, IA_HORIZONTAL_GO_AHEAD, IA_HORIZONTAL_TURN, IA_FIXED_JUMPER, IA_SIDE_SHOOTER, IA_GHOST, IA_FISH, IA_DOLPHIN, IA_VERTICAL_ZIGZAG, IA_TYPES_COUNT };
 
 
 // ********************************************************************************************** //
@@ -1801,14 +1795,14 @@ void artificial_inteligence::ia_action_teleport()
 int artificial_inteligence::get_ai_type() {
     int type = -1;
 
-    if (_reaction_state == 0 || GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action == -1) {
-        type = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].action;
-        _parameter = GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].extra_parameter;
-        //std::cout << ">> AI::get_ai_type - _ai_id: " << _ai_id << ", _ai_chain_n: " << _ai_chain_n << ", action: " << type << ", extra_parameter: " << _parameter << std::endl;
+    if (_reaction_state == 0 || GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action == -1) {
+        type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
+        _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
+        //std::cout << ">> AI::get_ai_type - _number: " << _number << ", _ai_chain_n: " << _ai_chain_n << ", action: " << type << ", extra_parameter: " << _parameter << std::endl;
     } else {
-        type = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].action;
-        _parameter = GameMediator::get_instance()->ai_list.at(_ai_id).reactions[_reaction_type].extra_parameter;
-        //std::cout << ">> AI::execute_ai_step - REACTION-MODE - _ai_id: " << _ai_id << ", _reaction_type: " << _reaction_type << ", type: " << type << ", _parameter: " << _parameter << std::endl;
+        type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
+        _parameter = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].extra_parameter;
+        //std::cout << ">> AI::execute_ai_step - REACTION-MODE - _number: " << _number << ", _reaction_type: " << _reaction_type << ", type: " << type << ", _parameter: " << _parameter << std::endl;
     }
     //std::cout << "AI::get_ai_type ==> _current_ai_type: " << _current_ai_type << ", new_type: " << type << ", _parameter: " << _parameter << std::endl;
     return type;
@@ -1816,7 +1810,7 @@ int artificial_inteligence::get_ai_type() {
 
 bool artificial_inteligence::always_move_ahead() const
 {
-    if (GameMediator::get_instance()->ai_list.at(_ai_id).states[_ai_chain_n].go_to-1 == _ai_chain_n) {
+    if (GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1 == _ai_chain_n) {
         return true;
     }
     return false;

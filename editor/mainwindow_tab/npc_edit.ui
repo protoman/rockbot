@@ -778,17 +778,38 @@
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
+         <item row="16" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Weaknesses:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_63">
+           <property name="text">
+            <string>Graphic:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="npc_edit_tab_graphiccombo">
+           <property name="toolTip">
+            <string>Graphic file for the selected enemy</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QComboBox" name="npc_edit_tab_selectnpccombo">
            <property name="toolTip">
             <string>Selected enemy</string>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="0">
-          <widget class="QLabel" name="label_65">
-           <property name="text">
-            <string>*A.I. Type:</string>
            </property>
           </widget>
          </item>
@@ -885,13 +906,6 @@
            </item>
           </layout>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_63">
-           <property name="text">
-            <string>Graphic:</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
           <widget class="QLineEdit" name="npc_edit_tab_NpcName">
            <property name="text">
@@ -902,14 +916,7 @@
            </property>
           </widget>
          </item>
-         <item row="17" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Weaknesses:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="1">
+         <item row="15" column="1">
           <widget class="QSpinBox" name="npc_edit_tab_range">
            <property name="toolTip">
             <string>Maximum movement range and vision reach</string>
@@ -935,13 +942,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="QComboBox" name="npc_edit_tab_graphiccombo">
-           <property name="toolTip">
-            <string>Graphic file for the selected enemy</string>
-           </property>
-          </widget>
-         </item>
          <item row="12" column="1">
           <widget class="QCheckBox" name="isSubBoss_checkbox">
            <property name="toolTip">
@@ -952,27 +952,10 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
-          <widget class="Line" name="line">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="0">
+         <item row="17" column="0">
           <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Auto-Respawn Delay:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="14" column="1">
-          <widget class="QComboBox" name="npc_edit_tab_iatype">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Controls how the enemy behaves/moves</string>
            </property>
           </widget>
          </item>
@@ -987,6 +970,29 @@
           <widget class="QLabel" name="label_19">
            <property name="text">
             <string>Projectile Origin:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="1">
+          <widget class="QSpinBox" name="npc_edit_tab_movespeed">
+           <property name="toolTip">
+            <string>Pixels moved by cycle</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>20</number>
+           </property>
+           <property name="value">
+            <number>2</number>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="0">
+          <widget class="QLabel" name="label_68">
+           <property name="text">
+            <string>Range:</string>
            </property>
           </widget>
          </item>
@@ -1055,26 +1061,17 @@
            </item>
           </layout>
          </item>
-         <item row="15" column="1">
-          <widget class="QSpinBox" name="npc_edit_tab_movespeed">
-           <property name="toolTip">
-            <string>Pixels moved by cycle</string>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>20</number>
-           </property>
-           <property name="value">
-            <number>2</number>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_64">
+           <property name="text">
+            <string>Hit Points:</string>
            </property>
           </widget>
          </item>
-         <item row="16" column="0">
-          <widget class="QLabel" name="label_68">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_62">
            <property name="text">
-            <string>Range:</string>
+            <string>Name:</string>
            </property>
           </widget>
          </item>
@@ -1110,17 +1107,23 @@
            </item>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_64">
-           <property name="text">
-            <string>Hit Points:</string>
+         <item row="17" column="1">
+          <widget class="QSpinBox" name="respawn_time_spinBox">
+           <property name="toolTip">
+            <string>If different than zero, NPC will respawn even if is on-screen</string>
+           </property>
+           <property name="maximum">
+            <number>99999</number>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_62">
-           <property name="text">
-            <string>Name:</string>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="npc_edit_tab_NpcHP">
+           <property name="toolTip">
+            <string>Number of hit points the enemy can take of damage</string>
+           </property>
+           <property name="value">
+            <number>5</number>
            </property>
           </widget>
          </item>
@@ -1218,13 +1221,10 @@ If you want to set are that misses the shots, use hitarea instead.</string>
            </item>
           </layout>
          </item>
-         <item row="18" column="1">
-          <widget class="QSpinBox" name="respawn_time_spinBox">
-           <property name="toolTip">
-            <string>If different than zero, NPC will respawn even if is on-screen</string>
-           </property>
-           <property name="maximum">
-            <number>99999</number>
+         <item row="14" column="0">
+          <widget class="QLabel" name="label_67">
+           <property name="text">
+            <string>Move Speed:</string>
            </property>
           </widget>
          </item>
@@ -1258,17 +1258,14 @@ If you want to set are that misses the shots, use hitarea instead.</string>
            </item>
           </layout>
          </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="npc_edit_tab_NpcHP">
-           <property name="toolTip">
-            <string>Number of hit points the enemy can take of damage</string>
-           </property>
-           <property name="value">
-            <number>5</number>
+         <item row="13" column="0">
+          <widget class="QLabel" name="label_66">
+           <property name="text">
+            <string>Shield Type:</string>
            </property>
           </widget>
          </item>
-         <item row="17" column="1">
+         <item row="16" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="QComboBox" name="npc_edit_tab_weakness_list">
@@ -1286,7 +1283,7 @@ If you want to set are that misses the shots, use hitarea instead.</string>
            </item>
           </layout>
          </item>
-         <item row="19" column="0">
+         <item row="18" column="0">
           <spacer name="verticalSpacer_9">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -1298,20 +1295,6 @@ If you want to set are that misses the shots, use hitarea instead.</string>
             </size>
            </property>
           </spacer>
-         </item>
-         <item row="15" column="0">
-          <widget class="QLabel" name="label_67">
-           <property name="text">
-            <string>Move Speed:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="0">
-          <widget class="QLabel" name="label_66">
-           <property name="text">
-            <string>Shield Type:</string>
-           </property>
-          </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_70">

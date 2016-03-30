@@ -41,7 +41,6 @@ void npc_edit::fill_data()
 	_data_loading = true;
     common::fill_files_combo("images/sprites/enemies", ui->npc_edit_tab_graphiccombo);
 
-    common::fill_ai_list(ui->npc_edit_tab_iatype);
     common::fill_npc_combo(ui->npc_edit_tab_selectnpccombo);
     common::fill_weapons_names_combo(ui->npc_edit_tab_weakness_list);
 
@@ -53,7 +52,6 @@ void npc_edit::fill_data()
 
         _data_loading = true;
 
-        ui->npc_edit_tab_iatype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type);
         if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).fly_flag == 0) {
             ui->checkBox->setChecked(false);
         } else {
@@ -128,7 +126,6 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 
     Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(index).frame_size.height;
     Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(index).frame_size.width;
-    ui->npc_edit_tab_iatype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).IA_type);
     ui->npc_edit_tab_movespeed->setValue(Mediator::get_instance()->enemy_list.at(index).speed);
     ui->npc_edit_tab_NpcHP->setValue(Mediator::get_instance()->enemy_list.at(index).hp.total);
     ui->npc_edit_tab_NpcName->setText(Mediator::get_instance()->enemy_list.at(index).name);
@@ -147,7 +144,6 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 	reload_frame_list(ui->frame_list_selector->currentIndex());
 	ui->sprites_preview_widget->repaint();
 
-    //std::cout << "2. >> _data_loading: " << _data_loading << ", Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type: " << Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type << std::endl;
     ui->isBoss_checkBox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_boss);
     ui->isSubBoss_checkbox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_sub_boss);
 
@@ -269,14 +265,6 @@ void npc_edit::on_npc_edit_tab_shieldtype_currentIndexChanged(int index)
         return;
     }
     Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).shield_type = index;
-}
-
-void npc_edit::on_npc_edit_tab_iatype_currentIndexChanged(int index)
-{
-    if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
-        return;
-    }
-    Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).IA_type = index;
 }
 
 void npc_edit::on_npc_edit_tab_movespeed_valueChanged(int arg1)
@@ -540,16 +528,6 @@ void npc_edit::on_sprite_colision_h_valueChanged(int arg1)
 	}
 	ui->sprites_preview_widget->repaint();
 
-}
-
-
-void npc_edit::on_ai_chain_currentIndexChanged(int index)
-{
-	if (_data_loading == true) {
-		return;
-	}
-    std::cout << "3. >> _data_loading: " << _data_loading << ", Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type: " << Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type << ", index: " << index << std::endl;
-    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).IA_type = index; // @TODO use ai_type when system is working
 }
 
 

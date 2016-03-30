@@ -275,13 +275,18 @@ int stage::get_first_lock_on_left(int x_pos)
     return maps[currentMap].get_first_lock_on_left(x_pos);
 }
 
-int stage::get_teleport_minimal_y(int xpos)
+int stage::get_teleport_minimal_y_tile(int xpos)
 {
     int tilex = xpos/TILESIZE;
+
     for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
+
+        std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
+
         int map_lock = maps[currentMap].getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
-        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) { // found a stop point, now check above ones
+        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+            // found a stop point, now check above tiles
             for (int j=i-1; j>=i-3; j--) {
                 int map_lock2 = maps[currentMap].getMapPointLock(st_position(tilex, j));
                 if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones

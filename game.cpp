@@ -203,7 +203,7 @@ void game::start_stage()
 
 
     // find teleport stop point
-    int min_y = loaded_stage.get_teleport_minimal_y(95); // x = 80 + half a player width (30)
+    int min_y = loaded_stage.get_teleport_minimal_y_tile(95); // x = 80 + half a player width (30)
     player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
 
     show_ready();
@@ -272,9 +272,9 @@ void game::restart_stage()
     int min_y = checkpoint.y-TILESIZE/2;
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
-        min_y = loaded_stage.get_teleport_minimal_y(95); // x = 80 + half a player width (30)
+        min_y = loaded_stage.get_teleport_minimal_y_tile(95); // x = 80 + half a player width (30)
     }
-    player1.set_teleport_minimal_y(min_y);
+    player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
 
 
     player1.set_map(loaded_stage.get_current_map());

@@ -429,7 +429,9 @@ enum IA_CONDITIONALS {
 	IA_CONDITION_UNDER_PLAYER
 };
 
-#define AI_MAX_STATES 8
+#define AI_MAX_STATES 20
+#define MAX_AI_REACTIONS 6
+
 
 /**
  * @brief
@@ -451,7 +453,6 @@ enum e_energy_types { ENERGY_TYPE_HP, ENERGY_TYPE_WEAPON };
 #define MAX_MAP_NPC_N 30
 #define STAGE_MAX_LINKS 30
 #define STAGE_MAX_MAPS 3
-#define MAX_AI_REACTIONS 3
 
 #define CHAR_NAME_SIZE 30
 
