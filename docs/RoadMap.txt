@@ -61,6 +61,10 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- fazer a barra de vida/armas como porcentagem.
+    # usar tamanho 50, cada pixel equivale a 2% da vida
+    # assim dá para ter heart containers sem modificar o tamanho da barra, cada coração poderá dar 10% a mais de vida
+
 - EDITOR: gerar UI das actions da AI via código
 
 - objeto que se mover esquerda/direita deve empurrar jogador.
@@ -112,8 +116,6 @@ VERSION 2.0.0 BETA 2
 
 - (PSP) Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
 
-- slide + pulo não deveria dar pulo maior (somente se for dash) -> ver se não é flag do editor faltando
-
 - portas devem ser um objeto
 
 - opção setar volume música e volume SFX
@@ -141,6 +143,8 @@ VERSION 2.0.0 BETA 3
 - check how to create apps in Android that add stages or complete games that user can install and select
 - colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
 - OPTIMIZAÇÃO: load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
+
+- ver se tem como portar para WUP: https://msdn.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide
 
 
 =========================================================================================================================================
