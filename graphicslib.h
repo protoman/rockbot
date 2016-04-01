@@ -336,7 +336,7 @@ public:
      * @param current_hp
      * @param player_frame
      */
-    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame);
+    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
 
     /**
      * @brief
@@ -424,7 +424,7 @@ public:
      * @param hp
      * @param player_n
      */
-    void draw_weapon_cursor(st_position old_pos, short hp, short player_n);
+    void draw_weapon_cursor(st_position old_pos, short hp, short player_n, short max_hp);
     /**
      * @brief
      *
@@ -507,7 +507,7 @@ public:
      * @param hp
      * @param player_n
      */
-    void draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n=3);
+    void draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n, short max_hp);
     /**
      * @brief
      *
@@ -534,7 +534,7 @@ private:
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale) const;
-    void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n=3);
+    void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_vertical_hp_bar(short int player_n, short int weapon_n);
     void draw_star(short int x, short int y, int size);
     void erase_star(short int x, short int y, int size);

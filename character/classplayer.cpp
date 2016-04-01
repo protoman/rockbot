@@ -278,6 +278,11 @@ void classPlayer::consume_weapon(int value)
     }
 }
 
+Uint8 classPlayer::get_max_hp()
+{
+    return fio.get_heart_pieces_number(game_save);
+}
+
 
 void classPlayer::attack(bool dont_update_colors)
 {

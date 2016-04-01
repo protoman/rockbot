@@ -273,6 +273,7 @@ public:
      * @return Uint8
      */
     Uint8 get_current_hp() const;
+
     /**
      * @brief
      *

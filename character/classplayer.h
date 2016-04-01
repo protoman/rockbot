@@ -138,6 +138,9 @@ public:
     void save_input();
     void restore_input();
 
+    Uint8 get_max_hp();
+
+
 private:
     /**
      * @brief called by execute() method, moves player depending on input
@@ -222,6 +225,7 @@ private:
     bool shoryuken();
 
     void consume_weapon(int value);
+
 
 
 private:

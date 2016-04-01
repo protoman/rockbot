@@ -270,7 +270,7 @@ void class_config::use_tank(int tank_type)
 			}
 			n++;
 			//graphLib.draw_horizontal_hp_bar(WPN_COLUMN_Y, 2, player_ref->get_hp().current);
-			graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1);
+            graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1, player_ref->get_max_hp());
             draw_lib.update_screen();
 			input.waitTime(50);
 		}
@@ -288,7 +288,7 @@ void class_config::use_tank(int tank_type)
 						soundManager.play_sfx(SFX_GOT_ENERGY);
 					}
 					n++;
-					graphLib.draw_weapon_cursor(weapon_pos, player_ref->get_weapon_value(i), -1);
+                    graphLib.draw_weapon_cursor(weapon_pos, player_ref->get_weapon_value(i), -1, player_ref->get_max_hp());
                     draw_lib.update_screen();
 					input.waitTime(50);
 				}
@@ -317,9 +317,9 @@ void class_config::use_tank(int tank_type)
 void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
-    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0));
+    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp());
     graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-    graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number());
+    graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
 }
 
 bool class_config::execute_ingame_menu()
@@ -332,23 +332,17 @@ bool class_config::execute_ingame_menu()
         input.clean();
         input.waitTime(300);
 
-        // leaving menu, removes pause
-        if (ingame_menu_active == true) {
-            gameControl.game_unpause();
-            ingame_menu_active = !ingame_menu_active;
-            return ingame_menu_active;
-        }
         ingame_menu_active = !ingame_menu_active;
-
 
         if (ingame_menu_active) {
             gameControl.game_pause();
             generate_weapons_matrix();
             draw_ingame_menu();
         } else {
-            // change player color/weapon
+            // left menu, change player color/weapon and remove pause
             if (ingame_menu_pos.y != 6) {
                 player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
+                gameControl.game_unpause();
             } else {
                 // use item
                 use_tank(ingame_menu_pos.x);
@@ -381,13 +375,13 @@ bool class_config::execute_ingame_menu()
         if (old_pos.x != ingame_menu_pos.x || old_pos.y != ingame_menu_pos.y) {
             //std::cout << ">> old_pos.y: " << old_pos.y << ", ingame_menu_pos.y: " << ingame_menu_pos.y << std::endl;
             if (old_pos.y != 6) {
-                graphLib.draw_weapon_cursor(old_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(old_pos)), -1);
+                graphLib.draw_weapon_cursor(old_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(old_pos)), -1, player_ref->get_max_hp());
                 graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(old_pos), old_pos, false);
             } else {
                 graphLib.erase_menu_item(old_pos.x);
             }
             if (ingame_menu_pos.y != 6) {
-                graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number());
+                graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
                 graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
                 change_player_frame_color();
             } else {

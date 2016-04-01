@@ -582,8 +582,8 @@ namespace format_v4 {
         }
         */
         data_out.stages[INTRO_STAGE] = 1;
-        data_out.stages[STAGE1] = 0;
-        data_out.stages[STAGE2] = 0;
+        data_out.stages[STAGE1] = 1;
+        data_out.stages[STAGE2] = 1;
         data_out.stages[STAGE8] = 0;
         /*
         //data_out.stages[MUMMYBOT] = 1;
@@ -665,7 +665,7 @@ namespace format_v4 {
 
     int file_io::get_heart_pieces_number(CURRENT_FILE_FORMAT::st_save game_save)
     {
-        int res = 0;
+        int res = PLAYER_INITIAL_HP;
         for (int i=0; i<WEAPON_COUNT; i++) {
             if (game_save.items.heart_pieces[i] == true) {
                 res++;

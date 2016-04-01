@@ -942,17 +942,17 @@ void graphicsLib::erase_menu_item(int x_pos)
     //copyArea(st_position(x, 196), spriteCopy, &gameScreen);
 }
 
-void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame) {
+void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame, short max_hp) {
 	showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
 
 	showSurfaceRegionAt(&weapon_icons.at(0), st_rectangle(0, 14, 14, 14), st_position(WPN_COLUMN1_X, 50));
-	draw_horizontal_hp_bar(WPN_COLUMN_Y, 2, current_hp);
+    draw_horizontal_hp_bar(WPN_COLUMN_Y, 2, current_hp, 0, max_hp);
 
     for (int i=1; i<6; i++) {
         if (game_save.stages[i] == 1) {
             //std::cout << ">> #1 graphicsLib::draw_weapon_menu_bg - stage[" << i << "]: " << game_save.stages[i] << std::endl;
             showSurfaceRegionAt(&weapon_icons.at(i), st_rectangle(0, 14, 14, 14), st_position(WPN_COLUMN1_X, 50+(i)*16));
-            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i)*WEAPON_SPACING, 2, game_save.items.weapons[i]);
+            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i)*WEAPON_SPACING, 2, game_save.items.weapons[i], 0, max_hp);
 		}
     }
 
@@ -960,7 +960,7 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
         if (game_save.stages[i] == 1) {
             //std::cout << ">> #3 graphicsLib::draw_weapon_menu_bg - stage[" << i << "]: " << game_save.stages[i] << std::endl;
             showSurfaceRegionAt(&weapon_icons.at(i), st_rectangle(0, 14, 14, 14), st_position(182, 50+(i-5)*16));
-            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i-5)*WEAPON_SPACING, 3, game_save.items.weapons[i]);
+            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i-5)*WEAPON_SPACING, 3, game_save.items.weapons[i], 0, max_hp);
 		}
 	}
 
@@ -969,13 +969,13 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
         int wpn_icon_n = 9;
         int menu_row = 4;
         showSurfaceRegionAt(&weapon_icons.at(wpn_icon_n), st_rectangle(0, 14, 14, 14), st_position(182, 50+(menu_row)*16));
-        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*WEAPON_SPACING, 3, game_save.items.weapons[wpn_icon_n]);
+        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*WEAPON_SPACING, 3, game_save.items.weapons[wpn_icon_n], 0, max_hp);
     }
     if (game_save.stages[JET_GOT_STAGE] == 1) {
         int wpn_icon_n = 10;
         int menu_row = 5;
         showSurfaceRegionAt(&weapon_icons.at(wpn_icon_n), st_rectangle(0, 14, 14, 14), st_position(182, 50+(menu_row)*16));
-        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*WEAPON_SPACING, 3, game_save.items.weapons[wpn_icon_n]);
+        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*WEAPON_SPACING, 3, game_save.items.weapons[wpn_icon_n], 0, max_hp);
     }
 
 
@@ -1188,6 +1188,11 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon_n, short int max_hp)
 {
 	short int y, i;
+    int hp_percent = (100 * hp) / max_hp;
+    int graph_lenght = (int)(hp_percent/2);
+
+
+    //std::cout << "GRAPH::DRAW_HP_BAR::graph_lenght: " << graph_lenght << std::endl;
 
     int id = weapon_n;
     if (weapon_n == -1) {
@@ -1205,21 +1210,27 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 		bar_pos.x = 10;
 	}
 
-	clear_area(bar_pos.x, bar_pos.y, 8, 57, color1.r, color1.g, color1.b);
+    clear_area(bar_pos.x, bar_pos.y, 8, 52, color1.r, color1.g, color1.b);
 
 	if (weapon_n != -1) {
-		showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 59));
+        showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 54));
 	} else {
-        showSurfaceRegionAt(&small_weapon_icons.at(WEAPON_COUNT), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 59));
+        showSurfaceRegionAt(&small_weapon_icons.at(WEAPON_COUNT), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 54));
 	}
 
-
+    /*
 	for (i=0; i<hp; i++) {
         y = ((max_hp-i)*2+1)+bar_pos.y-2;
 		clear_area(bar_pos.x+1, y, 2, 1, color2.r, color2.g, color2.b);
 		clear_area(bar_pos.x+3, y, 2, 1, color3.r, color3.g, color3.b);
 		clear_area(bar_pos.x+5, y, 2, 1, color2.r, color2.g, color2.b);
 	}
+    */
+    y = bar_pos.y + 1 + (50 - graph_lenght);
+    clear_area(bar_pos.x+1, y, 2, graph_lenght, color2.r, color2.g, color2.b);
+    clear_area(bar_pos.x+3, y, 2, graph_lenght, color3.r, color3.g, color3.b);
+    clear_area(bar_pos.x+5, y, 2, graph_lenght, color2.r, color2.g, color2.b);
+
 }
 
 void graphicsLib::clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b) {
@@ -1303,7 +1314,7 @@ st_position graphicsLib::get_dialog_pos() const {
 	return _dialog_pos;
 }
 
-void graphicsLib::draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n) {
+void graphicsLib::draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n, short max_hp) {
 	short int x;
 	short int r, g, b;
 	// armas - coluna1: 42, 26, 182, coluna2: 26
@@ -1343,7 +1354,7 @@ void graphicsLib::draw_horizontal_hp_bar(short int y_adjust, short int right, sh
 		clear_area(x+1, 1+y_adjust, 61, 9, r, g, b);
 	}
 
-	draw_horizontal_hp_bar(st_position(x, y_adjust), hp, player_n);
+    draw_horizontal_hp_bar(st_position(x, y_adjust), hp, player_n, max_hp);
 
 }
 
@@ -1426,8 +1437,31 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
     }
 }
 
-void graphicsLib::draw_horizontal_hp_bar(st_position pos, short int hp, short player_n) {
-	for (int i=0; i<hp; i++) {
+void graphicsLib::draw_horizontal_hp_bar(st_position pos, short int hp, short player_n, short max_hp) {
+    int hp_percent = (100 * hp) / max_hp;
+    int graph_lenght = (int)(hp_percent/2);
+
+
+    int y = (-28)*2+1;
+    short int pos_x = pos.x + y + 58 + (50 - graph_lenght);
+
+    st_color bar_color1(188, 188, 188);
+    st_color bar_color2(255, 255, 255);
+
+    if (player_n == 0) {
+        bar_color1 = st_color(27, 63, 95);
+        bar_color2 = st_color(0, 131, 139);
+    } else if (player_n == 1) {
+        bar_color1 = st_color(203, 79, 15);
+        bar_color2 = st_color(255, 155, 59);
+    }
+
+    clear_area(pos_x, 2+pos.y, graph_lenght, 2, bar_color1.r, bar_color1.g, bar_color1.b);
+    clear_area(pos_x, 4+pos.y, graph_lenght, 2, bar_color2.r, bar_color2.g, bar_color2.b);
+    clear_area(pos_x, 6+pos.y, graph_lenght, 2, bar_color1.r, bar_color1.g, bar_color1.b);
+
+    /*
+    for (int i=0; i<hp; i++) {
 		int y = ((i-28)*2+1);
 		short int pos_x = pos.x+y+58;
 		if (player_n == 0) {
@@ -1444,13 +1478,14 @@ void graphicsLib::draw_horizontal_hp_bar(st_position pos, short int hp, short pl
 			clear_area(pos_x, 6+pos.y, 1, 2, 188, 188, 188);
 		}
 	}
+    */
 }
 
 
 
 
 
-void graphicsLib::draw_weapon_cursor(st_position pos, short int hp, short int player_n)
+void graphicsLib::draw_weapon_cursor(st_position pos, short int hp, short int player_n, short max_hp)
 {
     //std::cout << "&&GRAPH::draw_weapon_cursor - pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
 	int pos_y, pos_x;
@@ -1478,7 +1513,7 @@ void graphicsLib::draw_weapon_cursor(st_position pos, short int hp, short int pl
 		pos_y = WEAPON_SPACING*pos.y + 53;
 	}
 	if (pos.y != 6) {
-		draw_horizontal_hp_bar(st_position(pos_x, pos_y), hp, player_n);
+        draw_horizontal_hp_bar(st_position(pos_x, pos_y), hp, player_n, max_hp);
 	}
 	updateScreen();
 }
