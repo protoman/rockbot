@@ -897,6 +897,8 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_enabled,
     strings_ingame_config_disabled,
 
+    strings_ingame_ready_message,
+
     strings_ingame_COUNT
 };
 

@@ -192,3 +192,9 @@ void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
 }
 
 
+
+void game_properties_tab::on_gameStartMusic_comboBox_currentIndexChanged(const QString &arg1)
+{
+    if (_data_loading == true) return;
+    sprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
+}

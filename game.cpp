@@ -91,7 +91,7 @@ void game::initGame()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void game::showGame(bool can_characters_move)
+void game::showGame(bool can_characters_move, bool can_scroll_stage)
 {
     if (leave_game == true) {
         exit_game();
@@ -117,7 +117,9 @@ void game::showGame(bool can_characters_move)
     }
 
     if (timer.is_paused() == false) {
-        update_stage_scrolling();
+        if (can_scroll_stage == true) {
+            update_stage_scrolling();
+        }
         loaded_stage.move_objects();
     }
 
@@ -183,7 +185,6 @@ void game::start_stage()
 	soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
 
-
     loaded_stage.reload_stage();
 
     player1.cancel_slide();
@@ -208,20 +209,21 @@ void game::start_stage()
 
     show_ready();
 
-
-
     soundManager.play_music();
+
+    while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
+        showGame(true, false);
+        draw_lib.update_screen();
+    }
+    for (int i=0; i<15; i++) { // extra delay to show dialogs
+        showGame(false, false);
+        draw_lib.update_screen();
+        timer.delay(20);
+    }
+
 
 	/// @TODO: do not show twice
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
-        while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
-			showGame();
-            draw_lib.update_screen();
-		}
-		for (int i=0; i<15; i++) { // extra delay to show dialogs
-			showGame(false);
-            draw_lib.update_screen();
-		}
 		if (game_save.stages[currentStage] == 0) {
             game_dialogs.show_stage_dialog(currentStage);
             // reset timers for objects
@@ -233,11 +235,7 @@ void game::start_stage()
 void game::show_ready()
 {
     //std::cout << "SHOW READY CALL" << std::endl;
-    for (int i=0; i<4; i++) {
-        draw_lib.show_ready();
-        timer.delay(400);
-        draw_lib.update_screen();
-    }
+    draw_lib.show_ready();
 }
 
 // ********************************************************************************************** //
@@ -357,9 +355,6 @@ void game::show_notice()
         st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
         graphLib.copyArea(st_rectangle(0, 0, presents_surface.width, presents_surface.height), st_position(RES_W*0.5-presents_surface.width*0.5, logo_pos.y + upperland_surface.height + 7), &presents_surface, &graphLib.gameScreen);
 
-        graphLib.draw_centered_text(160, "PLEASE SUPPORT US ON PATREON:", graphLib.gameScreen, st_color(255, 255, 255));
-        graphLib.draw_centered_text(180, "HTTP://WWW.PATREON.COM/ROCKBOT", graphLib.gameScreen, st_color(255, 255, 255));
-
         draw_lib.update_screen();
 
         //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
@@ -374,7 +369,7 @@ void game::show_notice()
         graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
 
-        timer.delay(2000);
+        timer.delay(1200);
 
         graphLib.blank_screen();
 
@@ -603,7 +598,7 @@ bool game::test_teleport(classPlayer *test_player) {
         test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();
         if (link_type == LINK_FADE_TELEPORT) {
-            showGame(false);
+            showGame(false, true);
             timer.delay(50);
             draw_lib.fade_in_screen(0, 0, 0);
         }
@@ -1164,7 +1159,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE6;
+    currentStage = STAGE2;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

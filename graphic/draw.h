@@ -51,7 +51,7 @@ public:
     void fade_out_screen(int r, int g, int b);
 
 
-    void add_weapon_tooltip(short weapon_n, const st_float_position &player_pos, const Uint8 &direction);
+    void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);
@@ -72,7 +72,6 @@ private:
     unsigned int _flash_timer;
     st_position flash_points[FLASH_POINTS_N];
 
-    struct graphicsLib_gSurface ready_message;
     graphicsLib_gSurface _bubble_gfx;
     // USED IN CREDITS
     std::vector<std::string> credits_list; /**< TODO */
@@ -89,10 +88,11 @@ private:
     bool flash_effect_enabled;
 
     // WEAPON ICON TOOLTIP
-    const st_float_position* _weapon_tooltip_pos_ref;   // holds a pointer to the position it must follow in dynamic animation type
+    const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type
     int _weapon_tooltip_timer;                          // timer, if less than current time, will show the tooltip
     short _weapon_tooltip_n;                            // weapon number to show
     const Uint8* _weapon_tooltip_direction_ref;         // reference to player direction, so we can draw the icon in the correct position
+    st_float_position *_map_scroll_ref;                 // reference to map scroll, so we can adjust position
 
 };
 

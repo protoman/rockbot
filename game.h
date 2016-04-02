@@ -61,7 +61,7 @@ public:
 
 
     void update_stage_scrolling();
-    void showGame(bool can_characters_move=true);
+    void showGame(bool can_characters_move, bool can_scroll_stage);
     /**
      * @brief
      *

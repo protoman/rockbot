@@ -967,7 +967,7 @@ void classPlayer::set_weapon(short weapon_n, bool show_tooltip_icon)
 {
 	selected_weapon = weapon_n;
     if (show_tooltip_icon == true) {
-        draw_lib.add_weapon_tooltip(selected_weapon, position, state.direction);
+        draw_lib.add_weapon_tooltip(selected_weapon, realPosition, state.direction);
     }
     change_player_color(true);
 }

@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
         #endif
 
 
-		gameControl.showGame();
+        gameControl.showGame(true, true);
 #ifdef DEBUG_SHOW_FPS
         gameControl.fps_count();
 #endif

@@ -48,6 +48,8 @@ private slots:
 
     void on_comboBox_currentIndexChanged(const QString &arg1);
 
+    void on_gameStartMusic_comboBox_currentIndexChanged(const QString &arg1);
+
 private:
     void fill_data();
     

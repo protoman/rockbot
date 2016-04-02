@@ -87,16 +87,25 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- diminuir tamanho da tela de seleção de armas para encaixar melhor novo tamanho das barras de energia
-- ao entrar no menu de armas, todas as barras estão azul, deviam estar cinza
-- no menu de armas, não está mudando a cor do frame do player
-- opção setar volume música e volume SFX
+- mudar "ready" para ser desenhado com fonte/texto de jogo
+- mapa não deve ser mover (autoscroll) enquanto a mensagem de ready não acabar
+- trilhos estão se movendo no sentido errado
+- scroll está mudando a posição dos ícones de armas
+
 
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- fazer tela de seleção de dificuldade como a de megaman 10
+    # default normal
+    # esquerda/direita para trocar
+    # tela sem nada, tela com blocos, tela com espinhos
+
+- fazer tele de seleção de personagem como megaman 10
+    # esquerda/direita para trocar
+
 - OPTIMIZAÇÃO:
     # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
     # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente

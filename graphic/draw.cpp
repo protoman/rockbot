@@ -24,6 +24,8 @@ extern game gameControl;
 #include "inputlib.h"
 extern inputLib input;
 
+#include "strings_map.h"
+
 #define FADE_INC 2
 
 
@@ -42,10 +44,7 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
 
 void draw::preload()
 {
-    std::string filename = FILEPATH + "images/animations/ready.png";
-    graphLib.surfaceFromFile(filename, &ready_message);
-
-    filename = GAMEPATH + "shared/images/teleport_small.png";
+    std::string filename = GAMEPATH + "shared/images/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
 
     filename = GAMEPATH + "shared/images/snowflacke.png";
@@ -194,8 +193,18 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
 void draw::show_ready()
 {
     st_position dest_pos((RES_W/2)-26, (RES_H/2)-6);
-    graphLib.copyArea(dest_pos, &ready_message, &graphLib.gameScreen);
-    graphLib.updateScreen();
+    graphicsLib_gSurface screen_copy;
+    graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
+    graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
+
+    for (int i=0; i<6; i++) {
+        graphLib.draw_text(dest_pos.x, dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message), st_color(240, 240, 240));
+        update_screen();
+        timer.delay(200);
+        graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
+        update_screen();
+        timer.delay(200);
+    }
 }
 
 void draw::show_bubble(int x, int y)
@@ -507,7 +516,7 @@ void draw::fade_out_screen(int r, int g, int b)
     }
 }
 
-void draw::add_weapon_tooltip(short weapon_n, const st_float_position &player_pos, const Uint8 &direction)
+void draw::add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction)
 {
     _weapon_tooltip_n = weapon_n;
     _weapon_tooltip_pos_ref = &player_pos;

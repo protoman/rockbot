@@ -120,7 +120,10 @@ FILE-FORMAT-V4:
     # assim dá para ter heart containers sem modificar o tamanho da barra, cada coração poderá dar 10% a mais de vida
 - EDITOR: na ediçao de player, ao mudar arma, nao esta atualizando weapon menu bg color
 - seleçao de arma via weapon_menu nao esta funcionando
-
+- diminuir tamanho da tela de seleção de armas para encaixar melhor novo tamanho das barras de energia
+- ao entrar no menu de armas, todas as barras estão azul, deviam estar cinza
+- no menu de armas, não está mudando a cor do frame do player
+- opção setar volume música e volume SFX
 
 
 

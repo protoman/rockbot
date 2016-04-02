@@ -217,6 +217,9 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
         sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
 
+        sprintf(lines[strings_ingame_ready_message], "%s", "READY");
+
+
         /// @TODO: add assert to check that we set all the values from the enum
 
         std::vector<std::string> res;
