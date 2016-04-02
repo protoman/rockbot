@@ -10,6 +10,9 @@ soundLib::soundLib() : _repeated_sfx_channel(-1), _repeated_sfx(-1)
 {
 	music = NULL;
 	boss_music = NULL;
+
+    //game_config.volume_music = 10;
+    //game_config.volume_sfx = 100;
 }
 
 soundLib::~soundLib()
@@ -28,7 +31,7 @@ void soundLib::init_audio_system()
 
 
 void soundLib::play_sfx(Uint8 sfx) {
-    //std::cout << "soundLib::play_sfx::START" << std::endl;
+    std::cout << "soundLib::play_sfx::START::VOLUME: " << (int)game_config.volume_sfx << std::endl;
 	if (game_config.sound_enabled == false) {
         //std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
         return;
@@ -36,6 +39,7 @@ void soundLib::play_sfx(Uint8 sfx) {
 
 	if (sfx_list[sfx] != NULL) {
         //std::cout << "soundLib::play_sfx::PLAY" << std::endl;
+        Mix_Volume(-1, game_config.volume_sfx);
         Mix_PlayChannel(-1, sfx_list[sfx], 0);
     //} else {
         //std::cout << "soundLib::play_sfx::NULL_SFX" << std::endl;
@@ -52,6 +56,7 @@ void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 			stop_repeated_sfx();
 		}
 		_repeated_sfx = sfx;
+        Mix_Volume(-1, game_config.volume_sfx);
 		_repeated_sfx_channel = Mix_PlayChannel(-1, sfx_list[sfx], loops);
     } else {
         cout << "Error: soundLib::play_sfx - null sfx\n";
@@ -89,6 +94,7 @@ void soundLib::play_timed_sfx(Uint8 sfx, int time) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
+        Mix_Volume(-1, game_config.volume_sfx);
 		Mix_PlayChannelTimed(-1, sfx_list[sfx], -1 , time);
 	}
 }
@@ -210,7 +216,7 @@ void soundLib::load_all_sfx() {
         Mix_VolumeChunk(sfx_list[j], MIX_MAX_VOLUME);
     }
     */
-    Mix_Volume(-1, MIX_MAX_VOLUME);
+
 
     // preload boss music
 }
@@ -266,7 +272,7 @@ void soundLib::play_music() {
 			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_music" << std::endl;
-        //Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+        Mix_VolumeMusic(game_config.volume_music);
 	} else {
 		std::cout << ">> play_music ERROR: music is null" << std::endl;
 	}
@@ -283,7 +289,7 @@ void soundLib::play_boss_music() {
 			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_boss_music" << std::endl;
-        //Mix_VolumeMusic(MIX_MAX_VOLUME/2);
+        Mix_VolumeMusic(game_config.volume_music);
 	} else {
 		printf(">> play_boss_music ERROR: boss_music is null\n");
 	}
@@ -330,20 +336,31 @@ void soundLib::enable_sound()
     play_music();
 }
 
+void soundLib::update_volumes()
+{
+    Mix_VolumeMusic(game_config.volume_music);
+    Mix_Volume(-1, game_config.volume_sfx);
+}
+
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
 {
     filename = FILEPATH + "sfx/" + filename;
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+
+    Mix_Volume(-1, game_config.volume_sfx);
+
     Sint8 channel = Mix_PlayChannel(-1, sfx, repeat_n-1);
 }
 
 void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
 {
+    Mix_Volume(-1, game_config.volume_sfx);
     Mix_PlayChannel(-1, chunk, repeat_n-1);
 }
 
 Mix_Chunk* soundLib::sfx_from_file(string filename)
 {
+    Mix_Volume(-1, game_config.volume_sfx);
     filename = FILEPATH + "sfx/" + filename;
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
     return sfx;

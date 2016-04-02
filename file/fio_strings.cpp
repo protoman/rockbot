@@ -210,6 +210,12 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_on], "%s", "ON");
         sprintf(lines[strings_ingame_config_off], "%s", "OFF");
         sprintf(lines[strings_ingame_config_quitgame], "%s", "QUIT GAME");
+        sprintf(lines[strings_ingame_armor], "%s", "ARMOR");
+        sprintf(lines[strings_ingame_config_audio_volume_music], "%s", "MUSIC VOLUME");
+        sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "SFX VOLUME");
+
+        sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
+        sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
 
         /// @TODO: add assert to check that we set all the values from the enum
 

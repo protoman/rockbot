@@ -396,8 +396,10 @@ void scenesLib::show_config_audio()
 	input.waitTime(300);
 
 	std::vector<std::string> options;
-	options.push_back("ENABLED");
-	options.push_back("DISABLED");
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));
 
 
 	short selected_option = 0;
@@ -407,7 +409,59 @@ void scenesLib::show_config_audio()
 		soundManager.enable_sound();
 	} else if (selected_option == 1) {
 		soundManager.disable_sound();
-	}
+    } else if (selected_option == 2) {
+        config_int_value(game_config.volume_music, 1, 128);
+        soundManager.update_volumes();
+        fio.save_config(game_config);
+    } else if (selected_option == 3) {
+        config_int_value(game_config.volume_sfx, 1, 128);
+        soundManager.update_volumes();
+        fio.save_config(game_config);
+    }
+}
+
+void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
+{
+    int config_text_pos_x = graphLib.get_config_menu_pos().x + 74;
+    int config_text_pos_y = graphLib.get_config_menu_pos().y + 40;
+    graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 100, 100, 0, 0, 0);
+    input.clean();
+    timer.delay(10);
+    char value[3]; // for now, we handle only 0-999
+
+    graphLib.draw_text(config_text_pos_x, config_text_pos_y, "< ");
+    graphLib.draw_text(config_text_pos_x+34, config_text_pos_y, " >");
+
+    while (true) {
+        input.readInput();
+
+        if (value_ref < 10) {
+            sprintf(value, "00%d", value_ref);
+        } else if (value_ref < 100) {
+            sprintf(value, "0%d", value_ref);
+        } else {
+            sprintf(value, "%d", value_ref);
+        }
+        graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, 0, 0, 0);
+        graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
+        if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
+            break;
+        } else if (input.p1_input[BTN_LEFT] == 1) {
+            value_ref--;
+        } else if (input.p1_input[BTN_RIGHT] == 1) {
+            value_ref++;
+        }
+        if (value_ref < min) {
+            value_ref = min;
+        }
+        if (value_ref > max) {
+            value_ref = max;
+        }
+        input.clean();
+        timer.delay(10);
+        draw_lib.update_screen();
+    }
+
 }
 
 bool scenesLib::password_ball_selector()

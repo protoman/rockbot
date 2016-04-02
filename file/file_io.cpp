@@ -525,6 +525,13 @@ namespace format_v4 {
 #endif
         // ### DEBUG ### //
         //config.game_finished = true;
+
+        if (config.volume_music == 0) {
+            config.volume_music = 128;
+        }
+        if (config.volume_sfx == 0) {
+            config.volume_sfx = 128;
+        }
     }
 
     void file_io::save_config(st_game_config &config) const

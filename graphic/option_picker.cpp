@@ -19,7 +19,7 @@ extern draw draw_lib;
 option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_menu_option> options, bool show_return) : _pick_pos(0)
 {
 
-    std::cout << "#2 option_picker -  pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
+    //std::cout << "#2 option_picker -  pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
 
     _position = pos;
     _draw_border = draw_border;
@@ -31,7 +31,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     _items = options;
     _show_return = show_return;
 
-    std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
+    //std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
 
     draw();
 }

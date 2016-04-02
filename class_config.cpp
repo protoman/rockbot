@@ -35,10 +35,6 @@ class_config::class_config() : ingame_menu_active(false)
 void class_config::set_player_ref(classPlayer* set_player_ref)
 {
 	player_ref = set_player_ref;
-	if (_player_surface.width == 0) {
-		graphLib.initSurface(st_size(player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0)->width, player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0)->height), &_player_surface);
-		graphLib.copyArea(st_position(0, 0), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &_player_surface);
-	}
 }
 
 
@@ -226,21 +222,9 @@ st_position class_config::move_weapon_curstor_down()
 
 }
 
-void class_config::change_player_frame_color()
+void class_config::weapon_menu_show_player()
 {
-	short int selected_weapon = convert_menu_pos_to_weapon_n(ingame_menu_pos);
-    CURRENT_FILE_FORMAT::file_weapon_colors colors = player_ref->get_weapon_colors(selected_weapon);
-
-	if (colors.color1.r != -1) {
-        graphLib.change_surface_color(0, colors.color1, &_player_surface);
-	}
-	if (colors.color2.r != -1) {
-        graphLib.change_surface_color(1, colors.color2, &_player_surface);
-	}
-	if (colors.color3.r != -1) {
-        graphLib.change_surface_color(2, colors.color3, &_player_surface);
-	}
-	graphLib.copyArea(st_position(26, 190), &_player_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(26, 195), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &graphLib.gameScreen);
 }
 
 void class_config::use_tank(int tank_type)
@@ -269,7 +253,6 @@ void class_config::use_tank(int tank_type)
 				soundManager.play_sfx(SFX_GOT_ENERGY);
 			}
 			n++;
-			//graphLib.draw_horizontal_hp_bar(WPN_COLUMN_Y, 2, player_ref->get_hp().current);
             graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1, player_ref->get_max_hp());
             draw_lib.update_screen();
 			input.waitTime(50);
@@ -383,7 +366,8 @@ bool class_config::execute_ingame_menu()
             if (ingame_menu_pos.y != 6) {
                 graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
                 graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-                change_player_frame_color();
+                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
+                weapon_menu_show_player();
             } else {
                 graphLib.draw_menu_item(ingame_menu_pos.x);
             }

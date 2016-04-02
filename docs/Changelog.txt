@@ -109,6 +109,17 @@ FILE-FORMAT-V4:
 - player está parando alguns pixels antes da plataforma
 - blocos tipo fall/up não estão colidindo com o jogador via esquerda/direita
 - se um único bloco trancar um jogador totalmente (X e Y), deve matá-lo
+- AI deve ser 1x1 para NPC
+    # ao criar um NPC, criar um AI
+    # se não houver AI para um dado NPC, editor deve criá-la
+    # retirar seleção de AI no inimigo
+    # retirar edição de nome de AI (usar nome do inimigo)
+- player está parando antes da hora quando estágio reinicia ao morrer antes de alcançar um checkpoint
+- fazer a barra de vida/armas como porcentagem.
+    # usar tamanho 50, cada pixel equivale a 2% da vida
+    # assim dá para ter heart containers sem modificar o tamanho da barra, cada coração poderá dar 10% a mais de vida
+- EDITOR: na ediçao de player, ao mudar arma, nao esta atualizando weapon menu bg color
+- seleçao de arma via weapon_menu nao esta funcionando
 
 
 

@@ -32,6 +32,7 @@ private:
     void show_config_video();
     void show_config_video_PSP();
     void show_config_audio();
+    void config_int_value(Uint8 &value_ref, int min, int max);
     bool password_ball_selector();
     bool password_set();
     bool password_end_selector();

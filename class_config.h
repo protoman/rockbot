@@ -93,16 +93,9 @@ private:
      */
     st_position move_weapon_curstor_down();
 
-    /**
-     * @brief
-     *
-     */
-    void change_player_frame_color();
-    /**
-     * @brief
-     *
-     * @param tank_type
-     */
+
+    void weapon_menu_show_player();
+
     void use_tank(int tank_type);
 
     void generate_weapons_matrix();
@@ -115,7 +108,6 @@ private:
     bool ingame_menu_active; /**< TODO */
     st_position ingame_menu_pos; /**< Cursor porion in menu. X = 0 means left column, x=1 means right column */
     classPlayer* player_ref; /**< TODO */
-    graphicsLib_gSurface _player_surface; /**< TODO */
     bool _weapons_matrix[WPN_COLS][WPN_ROWS]; // this indicates if a weapon is present in that position or not
     bool _weapons_array[WEAPON_COUNT]; // this indicates if a weapon is present in that position or not
 };

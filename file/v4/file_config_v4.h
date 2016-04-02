@@ -20,6 +20,8 @@ namespace format_v4 {
         Uint8 selected_input_device;
         char selected_language[2];
         bool turbo_mode;
+        Uint8 volume_sfx;
+        Uint8 volume_music;
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -185,6 +187,8 @@ namespace format_v4 {
             selected_input_device = 0;
             selected_language[0] = '\0';
             turbo_mode = false;
+            volume_sfx = 128;
+            volume_music = 128;
         }
 
 

@@ -891,6 +891,11 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_on,
     strings_ingame_config_off,
     strings_ingame_config_quitgame,
+    strings_ingame_armor,
+    strings_ingame_config_audio_volume_music,
+    strings_ingame_config_audio_volume_sfx,
+    strings_ingame_config_enabled,
+    strings_ingame_config_disabled,
 
     strings_ingame_COUNT
 };

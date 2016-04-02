@@ -61,8 +61,6 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- diminuir tamanho da tela de seleção de armas para encaixar melhor novo tamanho das barras de energia
-
 - EDITOR: gerar UI das actions da AI via código
 
 - objeto que se mover esquerda/direita deve empurrar jogador.
@@ -89,17 +87,10 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- AI deve ser 1x1 para NPC
-    # ao criar um NPC, criar um AI
-    # se não houver AI para um dado NPC, editor deve criá-la
-    # retirar seleção de AI no inimigo
-    # retirar edição de nome de AI (usar nome do inimigo)
-- player está parando antes da hora quando estágio reinicia ao morrer antes de alcançar um checkpoint
-- fazer a barra de vida/armas como porcentagem.
-    # usar tamanho 50, cada pixel equivale a 2% da vida
-    # assim dá para ter heart containers sem modificar o tamanho da barra, cada coração poderá dar 10% a mais de vida
-- EDITOR: na ediçao de player, ao mudar arma, nao esta atualizando weapon menu bg color
-- seleçao de arma via weapon_menu nao esta funcionando
+- diminuir tamanho da tela de seleção de armas para encaixar melhor novo tamanho das barras de energia
+- ao entrar no menu de armas, todas as barras estão azul, deviam estar cinza
+- no menu de armas, não está mudando a cor do frame do player
+- opção setar volume música e volume SFX
 
 
 
@@ -121,7 +112,6 @@ VERSION 2.0.0 BETA 2
 
 - portas devem ser um objeto
 
-- opção setar volume música e volume SFX
 
 - se pulo tiver mais de um frame  de animação, o último deve ser usado como "aterrisagem" quando encostar no chão
 

@@ -532,6 +532,9 @@ int main(int argc, char *argv[])
 
     gameControl.currentStage = INTRO_STAGE;
 
+    // === DEBUG === //
+    game_config.volume_sfx = 128;
+    game_config.volume_music = 128;
 
 
     input.clean();
