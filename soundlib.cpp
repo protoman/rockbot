@@ -31,7 +31,7 @@ void soundLib::init_audio_system()
 
 
 void soundLib::play_sfx(Uint8 sfx) {
-    std::cout << "soundLib::play_sfx::START::VOLUME: " << (int)game_config.volume_sfx << std::endl;
+    //std::cout << "soundLib::play_sfx::START::VOLUME: " << (int)game_config.volume_sfx << std::endl;
 	if (game_config.sound_enabled == false) {
         //std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
         return;
