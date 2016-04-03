@@ -239,7 +239,7 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 #if defined(PC) || defined (PSP)
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video)));
 #else
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video), true);
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video), true));
 #endif
     if (stage_finished) {
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
