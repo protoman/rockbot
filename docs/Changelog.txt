@@ -124,6 +124,10 @@ FILE-FORMAT-V4:
 - ao entrar no menu de armas, todas as barras estão azul, deviam estar cinza
 - no menu de armas, não está mudando a cor do frame do player
 - opção setar volume música e volume SFX
+- mudar "ready" para ser desenhado com fonte/texto de jogo
+- mapa não deve ser mover (autoscroll) enquanto a mensagem de ready não acabar
+- trilhos estão se movendo no sentido errado
+- scroll está mudando a posição dos ícones de armas
 
 
 

@@ -640,7 +640,6 @@ void game::map_present_boss(bool show_dialog)
 
     soundManager.stop_music();
     soundManager.unload_music();
-    soundManager.play_boss_music();
 
     // 1. keep showing game screen until player reaches ground
     player1.clear_move_commands();
@@ -683,6 +682,9 @@ void game::map_present_boss(bool show_dialog)
 
 
 	fill_boss_hp_bar();
+
+    soundManager.play_boss_music();
+
 	_show_boss_hp = true;
 	is_showing_boss_intro = false;
 
@@ -875,9 +877,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 
 	if (is_door == true) {
         remove_all_projectiles();
-        remove_players_slide();
-        /// @TODO - interrupt slides, charged shots, etc
-
         // if there is a subboss alive, near left, you can't open
         if (subboss_alive_on_left(tileX) == true) {
             std::cout << "[ERROR]: Oh no! Door can't be open because there is an alive sub-boss on its left side." << std::endl;
@@ -925,8 +924,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     if (is_door == true) {
         soundManager.play_sfx(SFX_DOOR_OPEN);
         loaded_stage.redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, player1.get_number());
-        //player1.reset_charging_shot();
-        player1.cancel_slide();
+        remove_players_slide();
     }
 	input.waitTime(6);
     loaded_stage.showStage();
@@ -1159,7 +1157,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE2;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

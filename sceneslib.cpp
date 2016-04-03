@@ -871,9 +871,85 @@ void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int sele
 }
 
 
+Uint8 scenesLib::select_player() {
+    int selected = 1;
+    st_color font_color(250, 250, 250);
+    graphicsLib_gSurface bg_surface;
+    int max_loop = 2;
+
+    if (game_config.game_finished == true) {
+        max_loop = 4;
+    }
 
 
+    graphLib.blank_screen();
+    std::string filename = FILEPATH + "images/backgrounds/player_selection.png";
+    graphLib.surfaceFromFile(filename, &bg_surface);
 
+    filename = FILEPATH + "images/backgrounds/player_select_p1.png";
+    graphicsLib_gSurface p1_surface;
+    graphLib.surfaceFromFile(filename, &p1_surface);
+
+    filename = FILEPATH + "images/backgrounds/player_select_p2.png";
+    graphicsLib_gSurface p2_surface;
+    graphLib.surfaceFromFile(filename, &p2_surface);
+
+
+    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player), font_color);
+    graphLib.draw_centered_text(170, GameMediator::get_instance()->player_list[0].name, font_color);
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select), font_color);
+    graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
+    draw_lib.update_screen();
+
+
+    input.clean();
+    input.waitTime(100);
+
+    while (true) {
+        input.readInput();
+        if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
+            soundManager.play_sfx(SFX_CURSOR);
+            if (input.p1_input[BTN_RIGHT] == 1) {
+                selected++;
+            } else {
+                selected--;
+            }
+            // adjust selected/loop
+            if (selected < 1) {
+                selected = max_loop;
+            } else if (selected > max_loop) {
+                selected = 1;
+            }
+            graphLib.clear_area(0, 49, 320, 96, 27, 63, 95);
+            if (selected == 1) {
+                graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
+            } else if (selected == 2) {
+                graphLib.copyArea(st_position(0, 50), &p2_surface, &graphLib.gameScreen);
+            }
+            graphLib.clear_area(60, 168, 204, 18, 0, 0, 0);
+            graphLib.draw_centered_text(170, GameMediator::get_instance()->player_list[selected-1].name, font_color);
+        } else if (input.p1_input[BTN_QUIT] == 1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
+        } else if (input.p1_input[BTN_START] == 1) {
+            input.clean();
+            draw_lib.update_screen();
+            timer.delay(80);
+            break;
+        }
+        input.clean();
+        input.waitTime(10);
+        draw_lib.update_screen();
+    }
+    return (selected-1);
+}
+
+
+/*
 Uint8 scenesLib::select_player() {
 	int adjustX, adjustY;
     int selected = 1;
@@ -940,6 +1016,7 @@ Uint8 scenesLib::select_player() {
     }
     return selected;
 }
+*/
 
 Uint8 scenesLib::select_difficulty()
 {

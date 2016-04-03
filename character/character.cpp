@@ -227,9 +227,9 @@ void character::charMove() {
                     gravity(false);
                     return;
 				}
-				if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
+                if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
 					state.animation_timer = 0;
-				}
+                }
                 if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
                     set_animation_type(ANIM_TYPE_WALK);
 				}
@@ -463,7 +463,7 @@ void character::charMove() {
 
     if (is_player_type && moved == false && resJump == false && res_slide == false) {
 		//if (state.animation_type != ANIM_TYPE_WALK) {
-         if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (state.animation_type != ANIM_TYPE_ATTACK || (state.animation_type == ANIM_TYPE_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+         if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
 			//if (is_player()) std::cout << "********* reset to stand - on_stairs_frame: " << is_in_stairs_frame() << ", state.animation_type: " << state.animation_type << std::endl;
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
@@ -675,7 +675,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             } else if (updown_trajectory == -1) {
                 temp_proj.set_trajectory(TRAJECTORY_DIAGONAL_DOWN);
                 set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
-            } else if (is_on_attack_frame() == false && updown_trajectory == 0 && (state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
+            } else if (is_on_attack_frame() == true && updown_trajectory == 0 && (state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
                 set_animation_type(ANIM_TYPE_ATTACK);
             }
 
@@ -887,7 +887,7 @@ void character::show_sprite()
             }
         }
 		if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
-			state.animation_timer = timer.getTimer() + 5000;
+            state.animation_timer = timer.getTimer() + 180;
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
             int delay = (character_graphics_list.find(name)->second)[direction][state.animation_type][state.animation_state].delay;
@@ -1317,7 +1317,7 @@ bool character::slide(st_float_position mapScrolling)
 {
 	if (is_player() == false) {
 		return false;
-	}
+    }
 
     // change jump button released state, if needed
     if (_dash_button_released == false && moveCommands.dash == 0) {
@@ -1349,6 +1349,11 @@ bool character::slide(st_float_position mapScrolling)
         //std::cout << "CHAR::slide - RETURN #3" << std::endl;
 		return false;
 	}
+
+    // player have double jump (without being armor) can't use slide
+    if (GameMediator::get_instance()->player_list[_number].can_double_jump) {
+        return false;
+    }
 
 
     st_map_colision map_col = map_colision(0, 0, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
@@ -2385,12 +2390,15 @@ void character::check_reset_stand()
     if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
         switch (state.animation_type) {
             case ANIM_TYPE_WALK_ATTACK:
+                std::cout << "CHAR::check_reset_stand #1" << std::endl;
                 state.animation_type = ANIM_TYPE_WALK;
                 break;
             case ANIM_TYPE_JUMP_ATTACK:
+                std::cout << "CHAR::check_reset_stand #2" << std::endl;
                 state.animation_type = ANIM_TYPE_JUMP;
                 break;
             default:
+                std::cout << "CHAR::check_reset_stand #3" << std::endl;
                 state.animation_type = ANIM_TYPE_STAND;
                 break;
         }

@@ -219,6 +219,10 @@ namespace format_v4 {
 
         sprintf(lines[strings_ingame_ready_message], "%s", "READY");
 
+        sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
+
+        sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
+
 
         /// @TODO: add assert to check that we set all the values from the enum
 

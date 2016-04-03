@@ -61,7 +61,9 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+
 - EDITOR: gerar UI das actions da AI via código
+
 
 - objeto que se mover esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
@@ -87,10 +89,16 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- mudar "ready" para ser desenhado com fonte/texto de jogo
-- mapa não deve ser mover (autoscroll) enquanto a mensagem de ready não acabar
-- trilhos estão se movendo no sentido errado
-- scroll está mudando a posição dos ícones de armas
+- nova tela de seleção de personagem, estilo mm10
+- candy está podendo andar enquanto atira na diagonal
+    # é porque ataque cima/baixo e ataque andando não estão durando o que deveriam
+- se candy está caminhando e atira, deve resetar de anim_type_walk_attack para anim_type_attack, já que ela não pode caminhar atirando
+- ataque caminhando continua não ficando por tempo o suficiente
+- ataque caminhando chega no fim da animação e não reseta (fica no último frame para sempre)
+- ao matar chefe da fase intro está teleportando de volta para a própria fase (está só como sub-boss)
+- se player tiver duplo pulo, não deve ter dash nem slide
+- só começar música do chefe quando acabar de encher a barra de energia dele (após diálogos)
+- só remover dash/slide após passar pela porta
 
 
 
@@ -98,14 +106,6 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
-- fazer tela de seleção de dificuldade como a de megaman 10
-    # default normal
-    # esquerda/direita para trocar
-    # tela sem nada, tela com blocos, tela com espinhos
-
-- fazer tele de seleção de personagem como megaman 10
-    # esquerda/direita para trocar
-
 - OPTIMIZAÇÃO:
     # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
     # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente

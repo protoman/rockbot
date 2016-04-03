@@ -899,6 +899,10 @@ enum E_STRINGS_INGAME {
 
     strings_ingame_ready_message,
 
+    strings_ingame_config_select_player,
+
+    strings_ingame_config_press_start_to_select,
+
     strings_ingame_COUNT
 };
 

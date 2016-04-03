@@ -771,10 +771,14 @@ void classPlayer::move()
 
     // players that shoot on diagonal can't move shile attacking
     if (can_shoot_diagonal()) {
-        if (is_on_attack_frame() && state.animation_type != ANIM_TYPE_JUMP_ATTACK) {
-            //state.animation_type = ANIM_TYPE_ATTACK;
-            moveCommands.left = 0;
-            moveCommands.right = 0;
+        if (is_on_attack_frame()) {
+            if (state.animation_type != ANIM_TYPE_JUMP_ATTACK) {
+                if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
+                    set_animation_type(ANIM_TYPE_ATTACK);
+                }
+                moveCommands.left = 0;
+                moveCommands.right = 0;
+            }
         }
     }
 
