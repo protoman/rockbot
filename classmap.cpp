@@ -196,6 +196,11 @@ void classMap::showMap()
         pos_destiny.x = n*TILESIZE - diff;
         for (int j=0; j<MAP_H; j++) {
 
+            if (i == 8 && j == 9) {
+                std::cout << "tile[" << i << "][" << j << "].locked: " << (int)map_data[number].tiles[i][j].locked << std::endl;
+                std::cout << "game_save.difficulty: " << game_save.difficulty << std::endl;
+            }
+
             // don't draw easy-mode blocks if game difficulty not set to easy
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
@@ -1191,8 +1196,6 @@ graphicsLib_gSurface classMap::get_map_area_surface()
 
 
             // don't draw easy-mode blocks if game difficulty not set to easy
-            game_save.difficulty = DIFFICULTY_HARD;
-
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny, mapSurface);

@@ -61,6 +61,8 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- easy blocks só estão funcionando para o primeiro mapa
+
 
 - EDITOR: gerar UI das actions da AI via código
 
@@ -89,16 +91,6 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- nova tela de seleção de personagem, estilo mm10
-- candy está podendo andar enquanto atira na diagonal
-    # é porque ataque cima/baixo e ataque andando não estão durando o que deveriam
-- se candy está caminhando e atira, deve resetar de anim_type_walk_attack para anim_type_attack, já que ela não pode caminhar atirando
-- ataque caminhando continua não ficando por tempo o suficiente
-- ataque caminhando chega no fim da animação e não reseta (fica no último frame para sempre)
-- ao matar chefe da fase intro está teleportando de volta para a própria fase (está só como sub-boss)
-- se player tiver duplo pulo, não deve ter dash nem slide
-- só começar música do chefe quando acabar de encher a barra de energia dele (após diálogos)
-- só remover dash/slide após passar pela porta
 
 
 
