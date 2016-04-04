@@ -1289,7 +1289,7 @@ void graphicsLib::show_config_bg(Uint8 position) // 0 - centered, 1 - top, 2 - b
 
 
 // position - 0: center, 1: top, 2: bottom
-void graphicsLib::show_dialog(Uint8 position, bool show_btn)
+void graphicsLib::show_dialog(Uint8 position)
 {
 	int posX = (RES_W-dialog_surface.width)*0.5;
 	int posY;
@@ -1307,9 +1307,22 @@ void graphicsLib::show_dialog(Uint8 position, bool show_btn)
 
 	st_position bg_pos(posX, posY);
 	copyArea(bg_pos, &dialog_surface, &gameScreen);
-    if (show_btn == true) {
-        show_btn_a(st_position(posX+dialog_surface.width-_btn_a_surface.width-2-TILESIZE, posY+dialog_surface.height-_btn_a_surface.height-TILESIZE/2));
+}
+
+void graphicsLib::show_dialog_button(Uint8 position)
+{
+    int posX = (RES_W-dialog_surface.width)*0.5;
+    int posY;
+
+    if (position == 0) {
+        posY = (RES_H-dialog_surface.height)*0.5;
+    } else if (position == 1) {
+        posY = 3;
+    } else {
+        posY = RES_H - dialog_surface.height - 25;
     }
+
+    show_btn_a(st_position(posX+dialog_surface.width-_btn_a_surface.width-2-TILESIZE, posY+dialog_surface.height-_btn_a_surface.height-TILESIZE/2));
 }
 
 st_position graphicsLib::get_dialog_pos() const {

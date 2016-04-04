@@ -1137,7 +1137,9 @@ bool character::gravity(bool boss_demo_mode=false)
 				}
 				was_moved = true;
 
-				_is_falling = true;
+                if (state.animation_type != ANIM_TYPE_TELEPORT) {
+                    _is_falling = true;
+                }
 				break;
             }
 			if (i == 1) {
@@ -1157,9 +1159,8 @@ bool character::gravity(bool boss_demo_mode=false)
         if (was_moved == false && _is_falling == true) {
             _is_falling = false;
             if (is_player()) {
-                if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #J" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
-                //std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
+                std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
                 soundManager.play_sfx(SFX_PLAYER_JUMP);
             }
         }
@@ -1560,7 +1561,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
         _obj_jump.execute();
         if (_obj_jump.is_started() == false) {
-            //std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
+            std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
             soundManager.play_sfx(SFX_PLAYER_JUMP);
             if (_force_jump == true) {
                 _force_jump = false;

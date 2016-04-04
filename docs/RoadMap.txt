@@ -3,7 +3,7 @@
 
 
 SEQUENCE:
-1. Snow
+1. Snow (flecha perfura)
 2. Kurupira (apaga fogo)
 3. Valkyrie (queima "asinhas")
 4. Dragon (a lança dela é tipo uma dragonslayer)
@@ -11,36 +11,6 @@ SEQUENCE:
 6. Phantom (ondas ultra-sônicas do gear tonteiam ele)
 7. Beast-Master (a música do phantom poderia acalmar as feras),
 8. Zodiac (garras cortam armadura)
-
-
-Para estágio intro:
-- abelha gorda que voa em forma senóide
-- inimigo que atira em arco bem curto (atira para cima, e tiro cai logo em frente dele)
-- mola-molenga (fica pulando para a frente, se bater el algo muda direção. tem chance de dar pulo longo
-
-
-- games-styles:
-    * megaman: seleção de estágios e cia
-    * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
-    * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
-
-
-
-OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
-OK - adicionar sistema de Xp/level ao save
-adicionar suporte a heart-containers (mmx)
-	OK - save
-	- HP in game (fazer crescer para baixo, armas tb ganham aumento)
-	OK - barra vertical
-	- barra horizontal (weapon menu)
-adicionar grab edge (metroid, prince of persia)
-adicionar wall-slide/jump (mmx)
-adicionar sistema de colisão que permite diagonais
-??????? mais features de metroidvania e mmx
-
-
-Maps base:
-Valkyrie: mm3 needle revisited
 
 ARMAS:
     * claw stratch (tipo do slash man de mm7)
@@ -55,59 +25,80 @@ ARMAS:
         # puxa iterms de lugares inalcancáveis
     * scales armor (tipo arma do mage, melhorar visual apenas)
 
+- games-styles:
+    * megaman: seleção de estágios e cia
+    * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
+    * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
 
-GEAR size: 87 x 65
+
+
+OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
+OK - adicionar sistema de Xp/level ao save
+OK - adicionar suporte a heart-containers (mmx)
+	OK - save
+        OK - HP in game (fazer crescer para baixo, armas tb ganham aumento)
+	OK - barra vertical
+        OK - barra horizontal (weapon menu)
+adicionar grab edge (metroid, prince of persia)
+adicionar wall-slide/jump (mmx)
+adicionar sistema de colisão que permite diagonais
+??????? mais features de metroidvania e mmx
+
+
+
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- ao teleportar no início da fase, o som de pulo só acontece após os diálogos
-
-- a flecha de diálogo só deve aparecer quando todas as frases forem escritas
+- ANDROID/PS2/PSP: new icon/background images
 
 - antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
 
-- EDITOR: gerar UI das actions da AI via código
-
+- tem uma pílula de weapon-energy de debug, restante na fase do gear
 
 - objeto que se mover esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
 
-- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
-
-- AI: SHIELD, fica em escudo até a animação de shield acabar
-    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
-    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
-
-- investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
-
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
-=> update script files to copy font to GAMEDIR, remove non-used fonts
+=> update script files to copy font to GAMEDIR
+    # remove non-used fonts
+    # remove non-used graphics
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
-=> remove support for game data in the old data dir, always use the new "games" folder
 
-
-- add to credits/tools:
-    * http://www.bfxr.net/ (sfx creation)
+- implement 5 stages for demo (intro, ...)
 
 ##################################
              DONE
 ##################################
-- easy blocks só estão funcionando para o primeiro mapa
-
+- não deve fazer som de pulo ao finalizar um teleporte
+- a flecha de diálogo só deve aparecer quando todas as frases forem escritas
 
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
+
+- EDITOR: gerar UI das actions da AI via código
+
+- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
+
+- AI: action SHIELD, fica em escudo até a animação de shield acabar
+    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
+    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
+
+- four player selection
+    # art for beta and kitty
+    # pixel art for beta and kitty
+    # update template
+
 - OPTIMIZAÇÃO:
     # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
     # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente
 
-- permitir escolher qual joystick usar, caso existem vários ligados
-    # (no android, se houver 2 joysticks ligados, permitir desligar on-screen controls, mas ao resetar tem que voltar se tiver só 1 joy)
+- ANDROID: se houver 2 joysticks ligados, permitir desligar on-screen controls, mas ao resetar tem que voltar se tiver só 1 joy
 
 - substituir todos os efeitos sonoros por versões free
 
@@ -117,8 +108,7 @@ VERSION 2.0.0 BETA 2
 
 - portas devem ser um objeto
 
-
-- se pulo tiver mais de um frame  de animação, o último deve ser usado como "aterrisagem" quando encostar no chão
+- se pulo/teleporte tiver mais de um frame  de animação, o último deve ser usado como "aterrisagem" quando encostar no chão
 
 - projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 
@@ -150,7 +140,6 @@ VERSION 2.0.0 BETA 4
 =========================================================================================================================================
 - não tirar tiro carregado ao passar por uma porta
     * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
-- resetar slide para stand somente ao terminar de passar por uma porta, não antes
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
     - usar mais disseppearing blocks
     - usar mais plataformas move-left/right
@@ -233,7 +222,7 @@ VERSION 2.0.0
 
 - implement bolts and shop (https://www.facebook.com/photo.php?fbid=432642990156602&set=a.114335308654040.27951.114325318655039&type=1&relevant_count=1&ref=nf)
 - EDITOR: clean editor code (find slots that aren't used anymore)
-LOW - HP bars must not be drawn under 3rd level of tiles
+- HP bars must not be drawn under 3rd level of tiles
 - move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
 OPTIMIZATION:
         - use coverity

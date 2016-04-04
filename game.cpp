@@ -223,13 +223,13 @@ void game::start_stage()
 
 
 	/// @TODO: do not show twice
-	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
+    //if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (game_save.stages[currentStage] == 0) {
             game_dialogs.show_stage_dialog(currentStage);
             // reset timers for objects
             loaded_stage.reset_objects_timers();
 		}
-    }
+    //}
 }
 
 void game::show_ready()

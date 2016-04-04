@@ -431,13 +431,10 @@ public:
      * @param position
      * @param show_btn
      */
-    void show_dialog(Uint8 position, bool show_btn=false);
-    /**
-     * @brief
-     *
-     * @param face_file
-     * @param pos
-     */
+    void show_dialog(Uint8 position);
+
+    void show_dialog_button(Uint8 position);
+
     void place_face(std::string face_file, st_position pos);
     /**
      * @brief

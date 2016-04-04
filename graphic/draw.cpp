@@ -469,11 +469,12 @@ void draw::remove_object_graphic(int obj_id)
 
 void draw::show_ingame_warning(std::vector<std::string> message)
 {
-    graphLib.show_dialog(0, true);
+    graphLib.show_dialog(0);
     st_position dialog_pos = graphLib.get_dialog_pos();
     for (unsigned int i=0; i<message.size(); i++) {
         graphLib.draw_text(dialog_pos.x+20, dialog_pos.y+16+(12*i), message[i]);
     }
+    graphLib.show_dialog_button(0);
     input.clean();
     input.wait_keypress();
 }

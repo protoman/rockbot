@@ -63,7 +63,7 @@ private:
      *
      * @param show_btn
      */
-    void draw_dialog_bg(bool show_btn);
+    void draw_dialog_bg();
 
 private:
     std::string player_name; /**< TODO */

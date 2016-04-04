@@ -158,7 +158,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
     gameControl.game_pause();
 
-	draw_dialog_bg(show_btn);
+    draw_dialog_bg();
     draw_lib.update_screen();
 	st_position dialog_pos = graphLib.get_dialog_pos();
 	graphLib.place_face(face_file, st_position(dialog_pos.x+16, dialog_pos.y+16));
@@ -176,6 +176,12 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 			input.waitTime(15);
 		}
 	}
+
+    if (show_btn == true) {
+        graphLib.show_dialog_button(1);
+        draw_lib.update_screen();
+    }
+
 
     input.clean();
     input.wait_keypress();
@@ -197,7 +203,7 @@ bool dialogs::show_leave_game_dialog() const
     graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bgCopy);
 
-    graphLib.show_dialog(0, false);
+    graphLib.show_dialog(0);
     st_position dialog_pos = graphLib.get_dialog_pos();
     graphLib.draw_text(dialog_pos.x+30, dialog_pos.y+16, strings_map::get_instance()->get_ingame_string(strings_ingame_quitgame));
     std::vector<std::string> item_list;
@@ -235,7 +241,6 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 
     gameControl.game_pause();
 
-	draw_dialog_bg(show_btn);
     draw_lib.update_screen();
 	st_position dialog_pos = graphLib.get_dialog_pos();
     graphLib.place_face(face_file, st_position(dialog_pos.x+16, dialog_pos.y+16));
@@ -253,6 +258,13 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 			input.waitTime(15);
 		}
 	}
+
+    if (show_btn == true) {
+        graphLib.show_dialog_button(1);
+        draw_lib.update_screen();
+    }
+
+
     input.waitTime(delay);
     gameControl.game_unpause();
 }
@@ -261,12 +273,12 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 
 
 
-void dialogs::draw_dialog_bg(bool show_btn=true)
+void dialogs::draw_dialog_bg()
 {
 	if (is_showing_dialog_bg == true) {
 		return;
 	}
-	graphLib.show_dialog(1, show_btn);
+    graphLib.show_dialog(1);
 }
 
 void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)

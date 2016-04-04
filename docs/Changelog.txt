@@ -138,6 +138,7 @@ FILE-FORMAT-V4:
 - se player tiver duplo pulo, não deve ter dash nem slide
 - só começar música do chefe quando acabar de encher a barra de energia dele (após diálogos)
 - só remover dash/slide após passar pela porta
+- easy blocks só estão funcionando para o primeiro mapa
 
 
 
