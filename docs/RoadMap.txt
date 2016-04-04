@@ -61,7 +61,11 @@ GEAR size: 87 x 65
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- antes da prota do chefe tem uma série de pílulas de energia que estão sumindo (usar atalho)
+- ao teleportar no início da fase, o som de pulo só acontece após os diálogos
+
+- a flecha de diálogo só deve aparecer quando todas as frases forem escritas
+
+- antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
 
 - EDITOR: gerar UI das actions da AI via código
 
