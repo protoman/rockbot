@@ -8,7 +8,6 @@
 #include "game_mediator.h"
 
 extern string FILEPATH;
-extern soundLib soundManager;
 
 #include "graphicslib.h"
 extern graphicsLib graphLib;
@@ -31,6 +30,8 @@ extern draw draw_lib;
 #include "options/key_map.h"
 
 #include "graphic/animation.h"
+
+#include "docs/game_manual.h"
 
 #include "game.h"
 extern game gameControl;
@@ -128,7 +129,9 @@ void scenesLib::main_screen()
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_password)));
 #endif
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
+
     option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
 
@@ -172,6 +175,11 @@ void scenesLib::main_screen()
 			draw_main();
 			main_picker.draw();
         } else if (picked_n == 4) {
+            game_manual manual;
+            manual.execute();
+            draw_main();
+            main_picker.draw();
+        } else if (picked_n == 5) {
             draw_lib.show_credits();
             input.wait_keypress();
             draw_main();
