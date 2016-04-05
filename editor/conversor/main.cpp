@@ -212,7 +212,8 @@ void convert_stages_and_maps(v1_file_stages& stages) {
 
 
 void convert_ai_types(v1_file_game& game_v1) {
-    for (int i=0; i<V1_FS_MAX_AI_TYPES; i++) {
+    for (int n=0; n<V1_FS_GAME_MAX_NPCS; n++) {
+        int i = game_v1.game_npcs[n].IA_type;
         std::string name(game_v1.ai_types[i].name);
         if (name.length() < 1) {
             continue;
@@ -235,6 +236,8 @@ void convert_ai_types(v1_file_game& game_v1) {
         }
         ai_list.push_back(new_ai);
     }
+
+
 }
 
 void convert_game_npcs(v1_file_game& game_v1) {
@@ -338,6 +341,44 @@ void convert_projectiles(v1_file_game& game_v1) {
 
 }
 
+void convert_game_players(v1_file_game& game_v1) {
+    std::vector<CURRENT_FILE_FORMAT::file_player> res;
+    for (int j=0; j<FS_MAX_PLAYERS; j++) {
+        CURRENT_FILE_FORMAT::file_player temp;
+        temp.can_air_dash = game_v1.players[j].can_air_dash;
+        temp.can_charge_shot = game_v1.players[j].can_charge_shot;
+        temp.can_double_jump = game_v1.players[j].can_double_jump;
+        temp.can_slide = game_v1.players[j].can_slide;
+        temp.damage_modifier = game_v1.players[j].damage_modifier;
+        sprintf(temp.face_filename, "%s", game_v1.players[j].face_filename);
+        temp.full_charged_projectile_id = game_v1.players[j].full_charged_projectile_id;
+        sprintf(temp.graphic_filename, "%s", game_v1.players[j].graphic_filename);
+        temp.have_shield = game_v1.players[j].have_shield;
+        temp.HP = game_v1.players[j].HP;
+        temp.max_shots = game_v1.players[j].max_shots;
+        sprintf(temp.name, "%s", game_v1.players[j].name);
+        temp.simultaneous_shots = game_v1.players[j].simultaneous_shots;
+        for (int k=0; k<V1_ANIM_TYPE_COUNT; k++) {
+            for (int l=0; l<V1_ANIM_FRAMES_COUNT; l++) {
+                temp.sprites[k][l].colision_rect = convert_rectangle(game_v1.players[j].sprites[k][l].colision_rect);
+                temp.sprites[k][l].duration = game_v1.players[j].sprites[k][l].duration;
+                temp.sprites[k][l].sprite_graphic_pos_x = game_v1.players[j].sprites[k][l].sprite_graphic_pos_x;
+                temp.sprites[k][l].used = game_v1.players[j].sprites[k][l].used;
+            }
+        }
+        temp.sprite_hit_area = convert_rectangle(game_v1.players[j].sprite_hit_area);
+        temp.sprite_size.width = game_v1.players[j].sprite_size.width;
+        temp.sprite_size.height = game_v1.players[j].sprite_size.height;
+        for (int k=0; k<V1_MAX_WEAPON_N; k++) {
+            temp.weapon_colors[k].color1 = convert_color(game_v1.players[j].weapon_colors[k].color1);
+            temp.weapon_colors[k].color2 = convert_color(game_v1.players[j].weapon_colors[k].color2);
+            temp.weapon_colors[k].color3 = convert_color(game_v1.players[j].weapon_colors[k].color3);
+        }
+        res.push_back(temp);
+    }
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", res);
+}
+
 
 void convert_game(v1_file_game& game_v1) {
     for (int i=0; i<V1_FS_PLAYER_ARMOR_PIECES_MAX; i++) {
@@ -358,38 +399,7 @@ void convert_game(v1_file_game& game_v1) {
     }
     /// @TODO - add old hardcoded attacks like hadouken
     sprintf(game_data.name, "%s", game_v1.name);
-    for (int j=0; j<FS_MAX_PLAYERS; j++) {
-        game_data.players[j].can_air_dash = game_v1.players[j].can_air_dash;
-        game_data.players[j].can_charge_shot = game_v1.players[j].can_charge_shot;
-        game_data.players[j].can_double_jump = game_v1.players[j].can_double_jump;
-        game_data.players[j].can_slide = game_v1.players[j].can_slide;
-        game_data.players[j].damage_modifier = game_v1.players[j].damage_modifier;
-        sprintf(game_data.players[j].face_filename, "%s", game_v1.players[j].face_filename);
-        game_data.players[j].full_charged_projectile_id = game_v1.players[j].full_charged_projectile_id;
-        sprintf(game_data.players[j].graphic_filename, "%s", game_v1.players[j].graphic_filename);
-        game_data.players[j].have_shield = game_v1.players[j].have_shield;
-        game_data.players[j].HP = game_v1.players[j].HP;
-        game_data.players[j].max_shots = game_v1.players[j].max_shots;
-        sprintf(game_data.players[j].name, "%s", game_v1.players[j].name);
-        game_data.players[j].simultaneous_shots = game_v1.players[j].simultaneous_shots;
-        for (int k=0; k<V1_ANIM_TYPE_COUNT; k++) {
-            for (int l=0; l<V1_ANIM_FRAMES_COUNT; l++) {
-                game_data.players[j].sprites[k][l].colision_rect = convert_rectangle(game_v1.players[j].sprites[k][l].colision_rect);
-                game_data.players[j].sprites[k][l].duration = game_v1.players[j].sprites[k][l].duration;
-                game_data.players[j].sprites[k][l].sprite_graphic_pos_x = game_v1.players[j].sprites[k][l].sprite_graphic_pos_x;
-                game_data.players[j].sprites[k][l].used = game_v1.players[j].sprites[k][l].used;
-            }
-        }
-        game_data.players[j].sprite_hit_area = convert_rectangle(game_v1.players[j].sprite_hit_area);
-        game_data.players[j].sprite_size.width = game_v1.players[j].sprite_size.width;
-        game_data.players[j].sprite_size.height = game_v1.players[j].sprite_size.height;
-        for (int k=0; k<V1_MAX_WEAPON_N; k++) {
-            game_data.players[j].weapon_colors[k].color1 = convert_color(game_v1.players[j].weapon_colors[k].color1);
-            game_data.players[j].weapon_colors[k].color2 = convert_color(game_v1.players[j].weapon_colors[k].color2);
-            game_data.players[j].weapon_colors[k].color3 = convert_color(game_v1.players[j].weapon_colors[k].color3);
-        }
 
-    }
     for (int k=0; k<V1_FS_PLATER_ITEMS_N; k++) {
         game_data.player_items[k] = game_v1.player_items[k];
     }
@@ -416,6 +426,8 @@ void convert_game(v1_file_game& game_v1) {
     convert_game_objects(game_v1);
 
     convert_projectiles(game_v1);
+
+    convert_game_players(game_v1);
 }
 
 
