@@ -757,6 +757,7 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 	if (text.size() > 0) {
 		text_pos.x = RES_W/2 - textSF->w/2;
 	}
+    text_pos.y = y;
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);

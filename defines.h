@@ -903,6 +903,8 @@ enum E_STRINGS_INGAME {
 
     strings_ingame_config_press_start_to_select,
 
+    strings_ingame_manual,
+
     strings_ingame_COUNT
 };
 

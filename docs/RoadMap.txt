@@ -50,6 +50,14 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- in-game manual
+
+- mudar audio enabled/disabled para uma única opção (on/off)
+
+- mudar opções de escala para ser uma única opção (unscaled, scaled, scale2x)
+
+- opções leva stage e quita game só devem aparecer quando as opções forem invodadas por dentro do menu de armas
+
 - ANDROID/PS2/PSP: new icon/background images
 
 - antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)

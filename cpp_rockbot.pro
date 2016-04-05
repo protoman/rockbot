@@ -312,7 +312,8 @@ SOURCES += main.cpp \
     aux_tools/stringutils.cpp \
     file/fio_common.cpp \
     game_mediator.cpp \
-    aux_tools/fps_control.cpp
+    aux_tools/fps_control.cpp \
+    docs/game_manual.cpp
 
 HEADERS += \
     character/character.h \
@@ -370,7 +371,8 @@ HEADERS += \
     game_mediator.h \
     aux_tools/fps_control.h \
     file/v4/file_anim_block.h \
-    ports/android/rockbot_android.h
+    ports/android/rockbot_android.h \
+    docs/game_manual.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

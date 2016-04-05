@@ -144,7 +144,6 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
         sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
         sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2016 UPPERLAND STUDIOS");
-        //sprintf(lines[strings_ingame_copyrightline], "%s", "(c) 2009-2016 UPPERLAND STUDIOS");
         sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
         sprintf(lines[strings_ingame_input], "%s", "INPUT");
         sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -222,6 +221,9 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
 
         sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
+
+        sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
+
 
 
         /// @TODO: add assert to check that we set all the values from the enum

@@ -55,7 +55,6 @@ bool have_save = false;
 #include "soundlib.h"
 #include "game.h"
 #include "aux_tools/fps_control.h"
-
 #include "aux_tools/stringutils.h"
 
 #define MAXPATHLEN 256
@@ -460,6 +459,8 @@ int main(int argc, char *argv[])
 #endif
 
 
+
+
     GAMENAME = gameControl.select_game_screen();
 
     // DEBUG PS2 //
@@ -541,6 +542,8 @@ int main(int argc, char *argv[])
     input.p1_input[BTN_START] = 0;
     input.waitTime(200);
     input.clean();
+
+
 
 
 	// INIT GAME
