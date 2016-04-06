@@ -139,6 +139,9 @@ FILE-FORMAT-V4:
 - só começar música do chefe quando acabar de encher a barra de energia dele (após diálogos)
 - só remover dash/slide após passar pela porta
 - easy blocks só estão funcionando para o primeiro mapa
+- não deve fazer som de pulo ao finalizar um teleporte
+- a flecha de diálogo só deve aparecer quando todas as frases forem escritas
+- in-game manual
 
 
 

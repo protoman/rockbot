@@ -300,22 +300,79 @@ void game_manual::generate_pages()
     page_list.push_back(temp);
     temp.clear();
 
-    temp.add_line("== POWER UP ==");
+    temp.add_line("== POWER UP [1] ==");
     temp.add_line("");
+    temp.add_line("DURING STAGE OR WHEN DEFEATING");
+    temp.add_line("AND ENEMY, YOU CAN GET ITEMS THAT");
+    temp.add_line("HELP YOU TO FINISH THE LEVEL.");
+    temp.add_line("");
+
+    temp.add_line("ENERGY BALL OR PELLET:");
+    temp.add_line("REFILL PART OF YOUR HEALTH METTER.");
+
+    temp.add_line("");
+    temp.add_line("WEAPON BALL OR PELLET:");
+    temp.add_line("REFILL A WEAPON ENERGY. YOU NEED");
+    temp.add_line("TO SELECT A WEAPON BEFORE GETTING");
+    temp.add_line("THE ITEM FOR IT TO WORK.");
+
+    temp.add_line("");
+    temp.add_line("LIFE (1UP):");
+    temp.add_line("GIVES YOU AND EXTRA CHANCE TO");
+    temp.add_line("AVOID GAME OVER.");
     temp.add_line("");
     page_list.push_back(temp);
     temp.clear();
 
+    temp.add_line("== POWER UP [2] ==");
+    temp.add_line("");
+    temp.add_line("RED TANK:");
+    temp.add_line("STORES HEALTH ENERY AND CAN BE");
+    temp.add_line("USED AT ANY TIME BY ACCESSING");
+    temp.add_line("THE WEAPONS MENU. FILL COMPLETLY");
+    temp.add_line("YOUR HEALTH METTER.");
+
+    temp.add_line("");
+    temp.add_line("GREEN TANK:");
+    temp.add_line("FILL ALL YOUR WEAPONS ENERGY,");
+    temp.add_line("CAN BE USED IN THE WEAPONS");
+    temp.add_line("MENU AT ANY TIME.");
+
+    temp.add_line("");
+    temp.add_line("YELLOW TANK:");
+    temp.add_line("THIS SUPER TANK WILL");
+    temp.add_line("REFILL BOTH YOUR HEALTH");
+    temp.add_line("AS ALL YOUR WEAPONS");
+    temp.add_line("ENERGY!");
+
+    page_list.push_back(temp);
+    temp.clear();
+
+
     temp.add_line("== SPECIAL ITEMS ==");
     temp.add_line("");
+    temp.add_line("THERE ARE A FEW SECRET SPOTS");
+    temp.add_line("WHERE YOU CAN GET SPECIAL ITEMS.");
     temp.add_line("");
+    temp.add_line("THERE ARE THREE ARMOR PIECES,");
+    temp.add_line("EACH ONE WILL GIVE YOU A NEW");
+    temp.add_line("ABILITY, LIKE DASHING ON MIDAIR,");
+    temp.add_line("FIRING SPECIAL WEAPONS OR");
+    temp.add_line("TAKING HALF DAMAGE.");
+    temp.add_line("");
+    temp.add_line("EACH CHARACTER YOU CAN PLAY");
+    temp.add_line("HAVE DIFFERENT ABILITIES FOR");
+    temp.add_line("EACH ARMOR PIECE HE GETS.");
     page_list.push_back(temp);
     temp.clear();
 
 
     temp.add_line("== USING PASSWORDS ==");
     temp.add_line("");
-    temp.add_line("");
+    temp.add_line("EVERY TIME YOU BEAT AN STAGE,");
+    temp.add_line("A PASSWORD WILL APPEAR ON SCREEN.");
+    temp.add_line("TAKE NOTE OF THIS IN ORDER TO");
+    temp.add_line("CONTINUE GAME ON ANOTHER DEVICE.");
     page_list.push_back(temp);
     temp.clear();
 
@@ -369,13 +426,93 @@ void game_manual::generate_pages()
 
     temp.add_line("== TIPS FOR WINNING ==");
     temp.add_line("");
+    temp.add_line("IF YOUR CHARACTER CAN SLIDE,");
+    temp.add_line("YOU CAN PASS UNDER OBSTACLES.");
+    temp.add_line("");
+    temp.add_line("WHEN DASHING, PRESS JUMP");
+    temp.add_line("TO MAKE A REALLY LONG CROSS.");
     temp.add_line("");
     page_list.push_back(temp);
     temp.clear();
 
+    temp.add_line("== CHARACTERS [ROCK] ==");
+    temp.add_line("");
+    temp.add_line("THE HERO OF THE CITY AFTER");
+    temp.add_line("SAVING IT FROM DR. DESTRIN,");
+    temp.add_line("ROCKBOT AS GOOD AS IT GETS,");
+    temp.add_line("ALWAYS FOLLOWING THE LAWS");
+    temp.add_line("AND ORDERS FROM GOOD DOCTOR");
+    temp.add_line("KANOTUS, HIS CREATOR.");
+    temp.add_line("");
+    temp.add_line("WITH ROCKBOT YOU CAN FIRE");
+    temp.add_line("CHARGED SHOTS, SLIDE UNDER");
+    temp.add_line("OBSTACLES AND USE A SHIELD.");
+    page_list.push_back(temp);
+    temp.clear();
+
+    temp.add_line("== CHARACTERS [CANDY] ==");
+    temp.add_line("");
+    temp.add_line("CREATED TO BE AN MERE LAB");
+    temp.add_line("ASSISTANT FOR DR. KANOTUS,");
+    temp.add_line("CANDYBOT SAW NO OPTION BUT");
+    temp.add_line("TO START FIGHTING TOGETHER");
+    temp.add_line("WITH HER BROTHER, ROCK, WHEN");
+    temp.add_line("HER OTHER BROTHER, BETA, LEFT.");
+    temp.add_line("");
+    temp.add_line("CANDY CAN FIRE SHOTS IN");
+    temp.add_line("MULTIPLE DIRECTIONS AND");
+    temp.add_line("JUMP ONE MORE TIME IN MIDAIR.");
+    temp.add_line("AS NOT BEING MADE FOR FIGHTING,");
+    temp.add_line("SHE TAKES MORE DAMAGE,");
+    temp.add_line("CAN'T WALK WHILE SHOOTING");
+    temp.add_line("NOR DASH OR USE SHIELD.");
+    page_list.push_back(temp);
+    temp.clear();
+
+    temp.add_line("== CHARACTERS [BETA] ==");
+    temp.add_line("");
+    temp.add_line("DR. KANOTUS FIRST CREATION,");
+    temp.add_line("BETA NEVER WANTED TO BE A HERO");
+    temp.add_line("OR SAVE THE CITY. HIS ONLY WILL");
+    temp.add_line("IS TO FIGHT STRONG OPPONENTS.");
+    temp.add_line("HE LEFT ROCK BEHIND WHEN");
+    temp.add_line("REALIZING HE WOULD NEVER HAD");
+    temp.add_line("TRUE FREEDOM WHILE LOCKED.");
+    temp.add_line("IN A SCIENCE LAB.");
+    temp.add_line("");
+    temp.add_line("BETA CAN'T CHARGE, BUT HE FIRES");
+    temp.add_line("TWO PROJECTILES AT ONCE, MAKING");
+    temp.add_line("EASIER TO HIT ENEMIES.");
+    temp.add_line("ALSO, HE TAKE LESS DAMAGE");
+    temp.add_line("THAN OTHER ROBOTS AND CAN");
+    temp.add_line("DASH TO MAKE LONGER JUMPS.");
+    page_list.push_back(temp);
+    temp.clear();
+
+    temp.add_line("== CHARACTERS [KITTY] ==");
+    temp.add_line("");
+    temp.add_line("A FREE SPIRIT THAT FOUND BETA");
+    temp.add_line("IN A MOMENT OF NEED, SHE DECIDED");
+    temp.add_line("TO HELP HIM TO FIND HIS PLACE");
+    temp.add_line("IN THE WORLD.");
+    temp.add_line("LITTLE IS KNOWN ABOUT THIS");
+    temp.add_line("CAT-ROBOT, NOT EVEN WHO WAS");
+    temp.add_line("THE ONE THAT BUILT HER.");
+    temp.add_line("");
+    temp.add_line("AS A CAT, KITTY IS VERY FAST");
+    temp.add_line("AND CAN DASH WHILE IN MIDAIR,");
+    temp.add_line("MAKING CROSS OVER STEEPS");
+    temp.add_line("VERY EASY. SHE CAN ALSO");
+    temp.add_line("FIRE CHARGED SHOTS OF CUTE");
+    temp.add_line("ENERGY CATS.");
+    page_list.push_back(temp);
+    temp.clear();
+
+    /*
     temp.add_line("== XX ==");
     temp.add_line("");
     temp.add_line("");
     page_list.push_back(temp);
     temp.clear();
+    */
 }

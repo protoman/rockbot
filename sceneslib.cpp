@@ -404,8 +404,11 @@ void scenesLib::show_config_audio()
 	input.waitTime(300);
 
 	std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+    if (game_config.sound_enabled == true) {
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+    } else {
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+    }
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));
 
@@ -414,14 +417,17 @@ void scenesLib::show_config_audio()
     option_picker main_config_picker(false, config_text_pos, options, true);
 	selected_option = main_config_picker.pick();
 	if (selected_option == 0) {
-		soundManager.enable_sound();
-	} else if (selected_option == 1) {
-		soundManager.disable_sound();
-    } else if (selected_option == 2) {
+        if (game_config.sound_enabled == false) {
+            soundManager.enable_sound();
+        } else {
+            soundManager.disable_sound();
+        }
+        show_config_audio();
+    } else if (selected_option == 1) {
         config_int_value(game_config.volume_music, 1, 128);
         soundManager.update_volumes();
         fio.save_config(game_config);
-    } else if (selected_option == 3) {
+    } else if (selected_option == 2) {
         config_int_value(game_config.volume_sfx, 1, 128);
         soundManager.update_volumes();
         fio.save_config(game_config);

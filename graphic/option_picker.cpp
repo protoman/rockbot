@@ -30,6 +30,9 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     }
     _items = options;
     _show_return = show_return;
+    if (_show_return == true) {
+        _items.insert(_items.begin(), st_menu_option("RETURN"));
+    }
 
     //std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
 
@@ -53,9 +56,19 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<stri
     }
     _items = option_list;
     _show_return = show_return;
+    if (_show_return == true) {
+        _items.insert(_items.begin(), st_menu_option("RETURN"));
+    }
 
     draw();
 
+}
+
+void option_picker::change_option_label(int n, string label)
+{
+    if (n >= 0 && n < _items.size()) {
+        _items.at(n).text = label;
+    }
 }
 
 Sint8 option_picker::pick()
@@ -131,9 +144,7 @@ void option_picker::set_picker_initial_pos(Uint8 pick_pos)
 
 void option_picker::draw()
 {
-    if (_show_return == true) {
-        _items.insert(_items.begin(), st_menu_option("RETURN"));
-    }
+    graphLib.clear_area(_position.x, _position.y, 200, _items.size()*12, 0, 0, 0);
 	for (unsigned int i=0; i<_items.size(); i++) {
         st_menu_option menu_item = _items.at(i);
 
