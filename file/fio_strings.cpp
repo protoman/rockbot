@@ -224,6 +224,10 @@ namespace format_v4 {
 
         sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
 
+        sprintf(lines[strings_ingame_mode], "%s", "MODE");
+
+        sprintf(lines[strings_ingame_video_scale_mode], "%s", "SCALE MODE");
+
 
 
         /// @TODO: add assert to check that we set all the values from the enum

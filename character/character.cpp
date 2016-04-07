@@ -103,11 +103,13 @@ void character::char_update_real_position() {
 //                                                                                                //
 // ********************************************************************************************** //
 void character::charMove() {
+
     int mapLock = 0;
 	bool moved = false;
     float temp_move_speed = move_speed;
 
     if (timer.is_paused() == true) {
+        std::cout << "# CHAR::MOVE::PAUSED" << std::endl;
         return;
     }
 
@@ -130,6 +132,7 @@ void character::charMove() {
 
 
 	if (!map) {
+        std::cout << "# CHAR::MOVE::NO-MAP" << std::endl;
 		return; // error - can't execute this action without an associated map
 	}
 
@@ -794,6 +797,10 @@ void character::show() {
         return;
     }
 
+    if (is_dead() == true) {
+        return;
+    }
+
 	// update real position
 	char_update_real_position();
     if (!is_player() && is_on_visible_screen() == false) {
@@ -983,7 +990,7 @@ bool character::gravity(bool boss_demo_mode=false)
     /// @TODO: gravity speed is starting at 1.25, it should start at 0.25
 
     if (_progressive_appear_pos != 0) {
-        //std::cout << "CHAR::GRAVITY leave #1" << std::endl;
+        std::cout << "CHAR::GRAVITY leave #1" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -999,14 +1006,13 @@ bool character::gravity(bool boss_demo_mode=false)
         if (last_execute_time < now_time) {
             last_execute_time = now_time + 10;
         } else {
-            //std::cout << "CHAR::GRAVITY leave #2" << std::endl;
             reset_gravity_speed();
             return true;
         }
     }
 
     if (can_air_dash() == true && state.animation_type == ANIM_TYPE_SLIDE) {
-        //std::cout << "CHAR::GRAVITY leave #3" << std::endl;
+        std::cout << "CHAR::GRAVITY leave #3" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -1063,9 +1069,6 @@ bool character::gravity(bool boss_demo_mode=false)
 	}
 
 
-    //std::cout << ">>>>>> CHAR::position.y[BEFORE]: " << position.y << std::endl;
-
-
 	if (is_in_stairs_frame()) {
         //character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y
         short int res_colision_npc = map->colision_player_npcs(this, 0, 0,  9, 0);
@@ -1074,7 +1077,7 @@ bool character::gravity(bool boss_demo_mode=false)
         } else if (res_colision_npc == 2) {
             damage(TOUCH_DAMAGE_BIG, false);
         }
-        //std::cout << "gravity leave #6" << std::endl;
+        std::cout << "gravity leave #6" << std::endl;
         reset_gravity_speed();
         return false;
 	}

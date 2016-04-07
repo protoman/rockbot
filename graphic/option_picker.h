@@ -45,6 +45,7 @@ private:
     bool _draw_border; /**< TODO */
     Uint8 _pick_pos; /**< TODO */
     bool _show_return;
+    int text_max_len;
 };
 
 #endif // OPTION_PICKER_H

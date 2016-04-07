@@ -22,7 +22,7 @@ public:
     short pick_stage();
     void show_password(); // show the password fot the current save
     void boss_intro(Uint8 pos_n) const;
-    short show_main_config(short stage_finished);
+    short show_main_config(short stage_finished, bool called_from_game);
 
 private:
     // preload/unload

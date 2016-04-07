@@ -50,13 +50,6 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- está aparecendo o jogador após a explosão quando morre e antes de sumir a tela (deve ser no fade out?)
-
-
-- mudar opções de escala para ser uma única opção (unscaled, scaled, scale2x)
-
-- opções leave stage e quit game só devem aparecer quando as opções forem invodadas por dentro do menu de armas
-
 - ANDROID/PS2/PSP: new icon/background images
 
 - antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
@@ -78,9 +71,12 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- colocar no manual características de cada personagem (pulo carregado, slide, etc)
-- colocar no manual, dica que dash + pulo vai mais longe
-- mudar audio enabled/disabled para uma única opção (on/off)
+- mudar opções de escala para ser uma única opção (unscaled, scaled, scale2x)
+- opções leave stage e quit game só devem aparecer quando as opções forem invodadas por dentro do menu de armas
+- se deixa o estágio e retorna, não tem player nem sequer o menu de quit aparece (algum loop doido no meio)
+- está aparecendo o jogador após a explosão quando morre e antes de sumir a tela (deve ser no fade out?)
+- player está piscando como hit após morrer e estágio reiniciar (deve zerar no restart_stage)
+- neve não está caindo
 
 
 =========================================================================================================================================

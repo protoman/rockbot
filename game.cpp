@@ -98,8 +98,6 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     }
     if (player1.is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
         input.readInput();
-    } else {
-        //input.clean();
     }
 
     if (config_manager.execute_ingame_menu()) { // game is paused
@@ -108,6 +106,7 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 
     /// @TODO - move this to the player, so we don't need to check every single loop
     if (player1.is_dead() == true) {
+        std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
         restart_stage();
         return;
     }
@@ -207,6 +206,8 @@ void game::start_stage()
     int min_y = loaded_stage.get_teleport_minimal_y_tile(95); // x = 80 + half a player width (30)
     player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
 
+    game_unpause();
+
     show_ready();
 
     soundManager.play_music();
@@ -223,13 +224,13 @@ void game::start_stage()
 
 
 	/// @TODO: do not show twice
-    //if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
+    if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (game_save.stages[currentStage] == 0) {
             game_dialogs.show_stage_dialog(currentStage);
             // reset timers for objects
             loaded_stage.reset_objects_timers();
 		}
-    //}
+    }
 }
 
 void game::show_ready()
@@ -243,6 +244,8 @@ void game::show_ready()
 // ********************************************************************************************** //
 void game::restart_stage()
 {
+
+    std::cout << "### RESTART_STAGE::START ###" << std::endl;
 
     if (checkpoint.x < TILESIZE*4) {
         checkpoint.x = TILESIZE*4;
@@ -283,6 +286,7 @@ void game::restart_stage()
     player1.char_update_real_position();
     std::cout << ">>>>>>>>>>>>> min_y: " << min_y << ", p.x: " << (int)player1.getPosition().x << std::endl;
 
+    game_unpause();
 
     loaded_stage.showStage();
     loaded_stage.showAbove();
@@ -1157,7 +1161,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE7;
+    currentStage = STAGE2;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 
@@ -1491,7 +1495,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
 
 bool game::show_config(short finished_stage)
 {
-    if (scenes.show_main_config(finished_stage) == 1) {
+    if (scenes.show_main_config(finished_stage, true) == 1) {
         input.clean();
         input.waitTime(50);
         config_manager.disable_ingame_menu();

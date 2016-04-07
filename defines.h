@@ -724,7 +724,8 @@ enum COLOR_KEYS {
 enum e_VIDEO_FILTERS {
     VIDEO_FILTER_NOSCALE,
     VIDEO_FILTER_BITSCALE,
-    VIDEO_FILTER_SCALE2x
+    VIDEO_FILTER_SCALE2x,
+    VIDEO_FILTER_COUNT
 };
 
 #define BOSS_HIT_DURATION 800
@@ -904,6 +905,8 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_press_start_to_select,
 
     strings_ingame_manual,
+    strings_ingame_mode,
+    strings_ingame_video_scale_mode,
 
     strings_ingame_COUNT
 };

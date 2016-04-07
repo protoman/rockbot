@@ -119,6 +119,7 @@ Sint8 option_picker::pick()
             graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
         }
         if (input.p1_input[BTN_QUIT] || input.p1_input[BTN_ATTACK]) {
+            graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
             //std::cout << "option_picker::option_picker::END #2" << std::endl;
             return -1;
         }
@@ -129,9 +130,11 @@ Sint8 option_picker::pick()
 	graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
     input.waitTime(10);
     draw_lib.update_screen();
+
     if (_show_return == true) {
         _pick_pos--;
     }
+    // erase cursor
     return _pick_pos;
 }
 
@@ -144,12 +147,24 @@ void option_picker::set_picker_initial_pos(Uint8 pick_pos)
 
 void option_picker::draw()
 {
-    graphLib.clear_area(_position.x, _position.y, 200, _items.size()*12, 0, 0, 0);
+
+    text_max_len = 0;
+    for (int i=0; i<_items.size(); i++) {
+        std::string line = _items.at(i).text;
+        int line_len = line.length();
+        //std::cout << "line_len[" << i << "]: " << line_len << std::endl;
+        if (line_len > text_max_len) {
+            text_max_len = line_len;
+        }
+    }
+
+    //std::cout << "OPTION_PICKER::text_max_len: " << text_max_len << std::endl;
+
+    graphLib.clear_area(_position.x, _position.y, text_max_len*8, _items.size()*12, 0, 0, 0);
 	for (unsigned int i=0; i<_items.size(); i++) {
         st_menu_option menu_item = _items.at(i);
 
         //std::cout << "menu_item: " << menu_item.text << std::endl;
-
         if (menu_item.disabled == true) {
             graphLib.draw_text(_position.x, _position.y + (12 * i), menu_item.text, st_color(100, 100, 100));
         } else {

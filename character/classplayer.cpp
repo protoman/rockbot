@@ -890,7 +890,7 @@ void classPlayer::teleport_stand()
 
 void classPlayer::death()
 {
-    std::cout << "PLAYER::death, x: " << position.x << std::endl;
+    //std::cout << "PLAYER::death, x: " << position.x << std::endl;
     map->print_objects_number();
     reset_charging_shot();
 	map->clear_animations();
@@ -901,6 +901,8 @@ void classPlayer::death()
     _obj_jump.interrupt();
     _obj_jump.finish();
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
+
+    last_hit_time = 0;
 
     selected_weapon = 0;
     change_player_color(true);
@@ -919,6 +921,7 @@ void classPlayer::death()
         return;
     }
     game_save.items.lifes--;
+    std::cout << "PLAYER::DEATH::DONE" << std::endl;
 }
 
 void classPlayer::reset_hp()

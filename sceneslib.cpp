@@ -171,7 +171,7 @@ void scenesLib::main_screen()
             soundManager.play_sfx(SFX_NPC_HIT);
 #endif
 		} else if (picked_n == 3) {
-            show_main_config(0);
+            show_main_config(0, false);
 			draw_main();
 			main_picker.draw();
         } else if (picked_n == 4) {
@@ -231,7 +231,7 @@ short scenesLib::pick_stage() {
 
 
 
-short scenesLib::show_main_config(short stage_finished) // returns 1 if must leave stage, 0 if nothing
+short scenesLib::show_main_config(short stage_finished, bool called_from_game) // returns 1 if must leave stage, 0 if nothing
 {
     short res = 0;
     st_position config_text_pos;
@@ -249,13 +249,15 @@ short scenesLib::show_main_config(short stage_finished) // returns 1 if must lea
 #else
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video), true));
 #endif
-    if (stage_finished) {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
-    } else {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage), true));
+    if (called_from_game) {
+        if (stage_finished) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
+        } else {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage), true));
+        }
+        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame));
     }
 
-    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame));
 
 
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
@@ -311,26 +313,20 @@ void scenesLib::show_config_video()
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
 	input.waitTime(300);
-
 	std::vector<std::string> options;
-	if (game_config.video_fullscreen == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
+
+    if (game_config.video_fullscreen == false) {
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
 	} else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
 	}
 
     if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[X]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[ ]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale));
     } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[ ]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[X]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[ ]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x));
     } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale) + std::string("[ ]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x) + std::string("[ ]"));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x) + std::string("[X]"));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x));
     }
 
 	short selected_option = 0;
@@ -339,25 +335,24 @@ void scenesLib::show_config_video()
 	if (selected_option == 0) {
         game_config.video_fullscreen = !game_config.video_fullscreen;
     } else if (selected_option == 1) {
-        game_config.video_filter = VIDEO_FILTER_NOSCALE;
-	} else if (selected_option == 2) {
-        game_config.video_filter = VIDEO_FILTER_BITSCALE;
-	} else if (selected_option == 3) {
-        game_config.video_filter = VIDEO_FILTER_SCALE2x;
-    } else {
-        std::cout << "SET video_filter - UNKNOWN mode!!" << std::endl;
+        game_config.video_filter++;
+        if (game_config.video_filter >= VIDEO_FILTER_COUNT) {
+            game_config.video_filter = 0;
+        }
     }
     if (selected_option != -1) {
         fio.save_config(game_config);
         input.clean();
         input.waitTime(300);
         st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-        graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
+        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 180,  180, 0, 0, 0);
+        graphLib.draw_text(menu_pos.x-14, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
+        graphLib.draw_text(menu_pos.x-14, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
+        graphLib.draw_text(menu_pos.x-14, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
+        graphLib.draw_text(menu_pos.x-14, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
         input.wait_keypress();
+        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 195, 100, 0, 0, 0);
+        show_config_video();
     }
 }
 
@@ -405,9 +400,9 @@ void scenesLib::show_config_audio()
 
 	std::vector<std::string> options;
     if (game_config.sound_enabled == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
     } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
     }
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));

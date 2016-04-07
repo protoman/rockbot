@@ -111,6 +111,7 @@ void draw::show_rain()
             _rain_pos = 0;
         }
         _effect_timer = timer.getTimer() + RAIN_DELAY;
+        std::cout << "## DRAW::SHOW_RAIN::SET-EFFECT-TIMER: " << _effect_timer << std::endl;
     }
 }
 
@@ -560,8 +561,10 @@ void draw::show_snow_effect()
     std::vector<st_snow_particle>::iterator it;
 
 
-    //std::cout << "timer.getTimer(): " << timer.getTimer() << ", _effect_timer: " << _effect_timer << std::endl;
+    //std::cout << "## DRAW::SHOW_SNOW - timer.getTimer(): " << timer.getTimer() << ", _effect_timer: " << _effect_timer << std::endl;
+
     if (timer.getTimer() > _effect_timer) {
+
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
             temp_particle->position.y += temp_particle->speed;
@@ -588,6 +591,9 @@ void draw::show_snow_effect()
             graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
         _effect_timer = timer.getTimer() + SNOW_DELAY;
+
+        //std::cout << "## DRAW::SHOW_SNOW::SET-EFFECT-TIMER: " << _effect_timer << ", current timer: " << timer.getTimer() << std::endl;
+
     } else {
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
