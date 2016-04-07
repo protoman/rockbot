@@ -907,9 +907,9 @@ Uint8 scenesLib::select_player() {
     graphicsLib_gSurface p3_surface;
     graphLib.surfaceFromFile(filename, &p3_surface);
 
-    //filename = FILEPATH + "images/backgrounds/player_select_p4.png";
-    //graphicsLib_gSurface p4_surface;
-    //graphLib.surfaceFromFile(filename, &p4_surface);
+    filename = FILEPATH + "images/backgrounds/player_select_p4.png";
+    graphicsLib_gSurface p4_surface;
+    graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player), font_color);
@@ -944,8 +944,8 @@ Uint8 scenesLib::select_player() {
                 graphLib.copyArea(st_position(0, 50), &p2_surface, &graphLib.gameScreen);
             } else if (selected == 3) {
                 graphLib.copyArea(st_position(0, 50), &p3_surface, &graphLib.gameScreen);
-            //} else if (selected == 4) {
-                //graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
+            } else if (selected == 4) {
+                graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
             graphLib.clear_area(60, 168, 204, 18, 0, 0, 0);
             graphLib.draw_centered_text(170, GameMediator::get_instance()->player_list[selected-1].name, font_color);
