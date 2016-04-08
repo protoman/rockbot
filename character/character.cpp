@@ -14,6 +14,9 @@ extern inputLib input;
 
 #include "game_mediator.h"
 
+#define STAIR_ANIMATION_WAIT_FRAMES 10
+#define STARIS_GRAB_TIMEOUT 200
+
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
@@ -71,6 +74,7 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     hit_animation_count = 0;
     _attack_frame_n = -1;
     _is_attack_frame = false;
+    _stairs_falling_timer = 0;
 }
 
 
@@ -363,10 +367,10 @@ void character::charMove() {
         st_position stairs_pos = is_on_stairs(st_rectangle(position.x, position.y+(frameSize.height/2)-2, frameSize.width, frameSize.height/2-2));
         int top_terrain = map->getMapPointLock(st_position(((stairs_pos.x * TILESIZE - 6)+frameSize.width/2)/TILESIZE, position.y/TILESIZE));
         if (stairs_pos.x != -1) {
-			if (state.animation_type != ANIM_TYPE_STAIRS_MOVE) {
+            if (state.animation_type != ANIM_TYPE_STAIRS_MOVE && _stairs_falling_timer < timer.getTimer()) {
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
 			}
-            if (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR) {
+            if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
                 position.y -= temp_move_speed/2;
                 position.x = stairs_pos.x * TILESIZE - 6;
             }
@@ -398,13 +402,16 @@ void character::charMove() {
         // is on stairs
         if (is_already_on_stairs == true) {
             // if frame is semi, but already entered whole body, change to full-stairs frame
-            if (state.animation_type == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1) {
-                //std::cout << "STAIRS *MOVE* - SET #2" << std::endl;
+            if (state.animation_type == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
+                std::cout << "STAIRS *MOVE* - SET #2" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
             }
 
             // check that path is clear to move
-            if (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR) {
+            if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
+
+                std::cout << "### STAIRS-DOWN #1 ###" << std::endl;
+
                 position.y += temp_move_speed/2;
             }
 
@@ -419,14 +426,19 @@ void character::charMove() {
                 }
             }
         // not in stairs, but over it
-        } else if (bottom_point_lock == TERRAIN_STAIR) {
-            // over stairs, enter it
-            st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
-            if (stairs_pos_bottom.x != -1) {
-                //std::cout << "STAIRS SEMI - SET #2" << std::endl;
-                set_animation_type(ANIM_TYPE_STAIRS_SEMI);
-                position.y += temp_move_speed/2;
-                position.x = stairs_pos_bottom.x * TILESIZE - 6;
+        } else {
+            if (stairs_pos_center.x == -1 && bottom_point_lock == TERRAIN_STAIR) {
+                // over stairs, enter it
+                st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
+                if (stairs_pos_bottom.x != -1) {
+                    //std::cout << "STAIRS SEMI - SET #2" << std::endl;
+                    set_animation_type(ANIM_TYPE_STAIRS_SEMI);
+
+                    std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
+
+                    position.y += temp_move_speed/2;
+                    position.x = stairs_pos_bottom.x * TILESIZE - 6;
+                }
             }
         }
 
@@ -435,13 +447,13 @@ void character::charMove() {
 	// is on stairs without moving
 	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type == ANIM_TYPE_STAIRS_MOVE) {
         _stairs_stopped_count++;
-        if (_stairs_stopped_count > 10) {
+        if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
             set_animation_type(ANIM_TYPE_STAIRS);
         }
-    } else if (moveCommands.down != 0 || moveCommands.up != 0) {
+    } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
         _stairs_stopped_count = 0;
         if (state.animation_type == ANIM_TYPE_STAIRS) {
-            //std::cout << "STAIRS *MOVE* - SET #3" << std::endl;
+            std::cout << "STAIRS *MOVE* - SET #3" << std::endl;
             set_animation_type(ANIM_TYPE_STAIRS_MOVE);
         }
     }
@@ -1077,7 +1089,6 @@ bool character::gravity(bool boss_demo_mode=false)
         } else if (res_colision_npc == 2) {
             damage(TOUCH_DAMAGE_BIG, false);
         }
-        std::cout << "gravity leave #6" << std::endl;
         reset_gravity_speed();
         return false;
 	}
@@ -1131,8 +1142,10 @@ bool character::gravity(bool boss_demo_mode=false)
 			if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
                 //if (is_player()) std::cout << "character::gravity - FALL" << std::endl;
 				if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
+                    std::cout << "### STAIRS-DOWN #3 ###" << std::endl;
 					position.y += i;
 				} else {
+                    std::cout << "### STAIRS-DOWN #4 ###" << std::endl;
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -1496,6 +1509,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         if (is_in_stairs_frame()) {
             set_animation_type(ANIM_TYPE_JUMP);
             _is_falling = true;
+            _stairs_falling_timer = timer.getTimer() + STARIS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
             return false;
         } else {
             //std::cout << "char::_jumps_number: " << _jumps_number << ", obj::_jumps_number: " << _obj_jump.get_jumps_number() << std::endl;
@@ -1548,6 +1562,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
                 //std::cout << "jump.speed[" << speed_y << "]" << std::endl;
+                std::cout << "### STAIRS-DOWN #5 ###" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;
@@ -2705,6 +2720,7 @@ bool character::change_position(short xinc, short yinc)
 		return false;
 	}
 	position.x += xinc;
+    std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
 	position.y += yinc;
     return true;
 }
@@ -2894,6 +2910,7 @@ void character::set_animation_type(ANIM_TYPE type)
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
     }
+
     if (type != state.animation_type) {
         state.animation_state = 0;
 
@@ -2913,6 +2930,11 @@ void character::set_animation_type(ANIM_TYPE type)
             }
         }
 
+        if (type == ANIM_TYPE_STAIRS) {
+            std::cout << ">>> SET STAIRS ANIM TYPE" << std::endl;
+        } else if (type == ANIM_TYPE_STAIRS_MOVE) {
+            std::cout << ">>> SET STAIRS MOOOVE ANIM TYPE, timer: " << timer.getTimer() << ", _stairs_falling_timer: " << _stairs_falling_timer << std::endl;
+        }
         state.animation_type = type;
         _was_animation_reset = false;
 

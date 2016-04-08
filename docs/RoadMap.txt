@@ -50,13 +50,18 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- remover bug de segurar cima/baixo nas escadas
+
 - ANDROID/PS2/PSP: new icon/background images
 
 - antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
+    # parece que as pílulas pequenas é que são o problema e somem
+
+- ao morrer, inimigo deve remover todos os projéteis de efeito (quake, flash, wind-push)
 
 - tem uma pílula de weapon-energy de debug, restante na fase do gear
 
-- objeto que se mover esquerda/direita deve empurrar jogador.
+- objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
