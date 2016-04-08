@@ -15,21 +15,21 @@ struct st_manual_page {
     int line_number;
 
     st_manual_page() {
-        clear();
+        clear_text();
     }
 
-    set_line(int n, std::string text) {
+    void set_line_text(int n, std::string text) {
         sprintf(line[n], "%s", text.c_str());
     }
 
-    add_line(std::string text) {
+    void add_line_text(std::string text) {
         if (line_number < PAGE_LINES-1) {
             sprintf(line[line_number], "%s", text.c_str());
             line_number++;
         }
     }
 
-    clear() {
+    void clear_text() {
         for (int i=0; i<PAGE_LINES; i++) {
             line[i][0] = '\0';
         }
