@@ -158,10 +158,10 @@ st_float_position game::checkScrolling()
     st_float_position mapScroll = loaded_stage.getMapScrolling();
     st_float_position p1Pos(player1.getPosition().x,  player1.getPosition().y);
 
-	move.x += (p1Pos.x - mapScroll.x) - RES_W/2;
+    move.x += (p1Pos.x - mapScroll.x) - RES_W/2;
 
-	if (mapScroll.x + move.x < 0 || mapScroll.x + move.x > MAP_W*TILESIZE) {
-		move.x = 0;
+    if (mapScroll.x + move.x < 0 || mapScroll.x + move.x > MAP_W*TILESIZE) {
+        move.x = 0;
 	}
 
 	return move;
@@ -909,7 +909,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 	}
 
 
-	int move_limit = (RES_W/abs((float)scroll_move.x))-TILESIZE/abs((float)scroll_move.x);
+    int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
 	for (int i=0; i<move_limit; i++) {
         loaded_stage.changeScrolling(scroll_move, false);
         loaded_stage.showStage();
@@ -1161,7 +1161,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE7;
+    currentStage = STAGE3;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_2;
 

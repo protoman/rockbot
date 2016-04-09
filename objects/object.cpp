@@ -165,7 +165,6 @@ void object::gravity()
 		}
 	}
 	if (position.y > RES_H) {
-        std::cout << "REMOVE ITEM #4" << std::endl;
 		_finished = true;
 	}
 }
@@ -183,7 +182,6 @@ bool object::test_change_position(short xinc, short yinc)
         //std::cout << "OBJ::test_change_position - out of screen(down)" << std::endl;
         if (position.y < RES_H+TILESIZE*2) {
             if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
-                std::cout << "REMOVE ITEM #5" << std::endl;
                 _finished = true;
                 return false;
             } else {
@@ -428,7 +426,6 @@ void object::show(int adjust_y, int adjust_x)
 
 	// remove item that is out of vision
     } else if (_teleport_state == 2 && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
-        std::cout << "REMOVE ITEM #1" << std::endl;
 		_finished = true;
     }
 }
@@ -660,7 +657,6 @@ void object::move(bool paused)
             int yinc = GRAVITY_SPEED*3;
             position.y -= yinc;
             if (position.y + framesize_h < 0) {
-                std::cout << "REMOVE ITEM #2" << std::endl;
                 _finished = true;
             }
         }
@@ -673,7 +669,6 @@ void object::move(bool paused)
             //std::cout << "OBJECT::move - is finished, but must teleport out first" << std::endl;
             _teleport_state = e_object_teleport_state_teleport_out;
         } else {
-            std::cout << "REMOVE ITEM #3" << std::endl;
             _finished = true;
         }
 		return;
@@ -1139,9 +1134,6 @@ bool object::finished() const
 
 void object::set_finished(bool is_finished)
 {
-    if (is_finished == true) {
-        std::cout << "REMOVE ITEM #A" << std::endl;
-    }
 	_finished = is_finished;
 }
 

@@ -45,15 +45,16 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-
+ARMOR PIECES:
+    OK # legs -> valkyrie
+    # body ->
+    # arms ->
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 
-- ANDROID/PS2/PSP: new icon/background images
-
-- ao morrer, inimigo deve remover todos os projéteis de efeito (quake, flash, wind-push)
+- ANDROID: new icon
 
 - objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
@@ -102,7 +103,7 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
-
+- PSP: investigar razão da lentidão
 
 
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência

@@ -244,10 +244,9 @@ public:
      *
      */
     void clean_projectiles();
-    /**
-     * @brief
-     *
-     */
+
+    void clean_effect_projectiles();
+
     void char_update_real_position();
     /**
      * @brief

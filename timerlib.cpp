@@ -35,7 +35,7 @@ void timerLib::pause()
 {
     _paused = true;
     _paused_timer = getTimer();
-    std::cout << "PAUSE - SDL_GetTicks(): " << _paused_timer << std::endl;
+    //std::cout << "PAUSE - SDL_GetTicks(): " << _paused_timer << std::endl;
 }
 
 void timerLib::unpause()
@@ -46,9 +46,9 @@ void timerLib::unpause()
     }
     _paused = false;
     long paused_ticks = getTimer() - _paused_timer;
-    std::cout << "UNPAUSE - _paused_ticks: " << _paused_ticks << ", paused_ticks: " << paused_ticks;
+    //std::cout << "UNPAUSE - _paused_ticks: " << _paused_ticks << ", paused_ticks: " << paused_ticks;
     _paused_ticks += paused_ticks;
-    std::cout << ", SDL_GetTicks(): " << SDL_GetTicks() << ", timer: " << getTimer() << std::endl;
+    //std::cout << ", SDL_GetTicks(): " << SDL_GetTicks() << ", timer: " << getTimer() << std::endl;
 }
 
 bool timerLib::is_paused()

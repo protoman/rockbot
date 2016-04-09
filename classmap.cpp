@@ -340,7 +340,7 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
     float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
 
 	// moving player to right, screen to left
-	if (pos.x > 0 && ((scroll.x/TILESIZE+RES_W/TILESIZE)-1 < MAP_W)) {
+    if (pos.x > 0 && ((scroll.x/TILESIZE+RES_W/TILESIZE)-1 < MAP_W-1)) {
         int x_change = pos.x;
 		if (pos.x >= TILESIZE) { // if change is too big, do not update (TODO: must check all wall until lock)
             x_change = 1;
@@ -916,6 +916,7 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
         return true;
     }
     if (obj_type == OBJ_ITEM_JUMP) {
+        std::cout << "IGNORE OBJ_ITEM_JUMP" << std::endl;
         return true;
     }
     if (obj_type == OBJ_ARMOR_ARMS) {
@@ -965,12 +966,16 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             }
 
             if (temp_obj.finished() == true) {
+                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #3" << std::endl;
                 continue;
             }
 
             if (charObj->is_player() == false && is_obj_ignored_by_enemies(temp_obj.get_type())) {
+                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #4" << std::endl;
                 continue;
             }
+
+            //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #1 ###" << std::endl;
 
 
             // some platforms can kill the player if he gets stuck inside it
@@ -984,30 +989,31 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                 int no_move_blocked = colision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
                 if (no_move_blocked == BLOCK_XY) {
                     _obj_colision = object_colision(BLOCK_INSIDE_OBJ, &temp_obj);
+                    std::cout << "obj[" << temp_obj.get_name() << "] - leave #5" << std::endl;
                     return;
                 }
             }
 
-            //if (y_inc < 0) std::cout << "MAP::colision_player_object - DEBUG #1" << std::endl;
-
             // usar TEMP_BLOCKED aqui, para não zerar o blocked anterior, fazer merge dos valores
             int temp_blocked = 0;
-            if (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP) { // jumping up on items does not block
+            //if (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP) { // jumping up on items does not block
                 temp_blocked = colision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
-                //std::cout << "temp_blocked[" << temp_obj.get_name() << "]: " << temp_blocked << std::endl;
-            }
+                //std::cout << "CHECK AGAINS TIEMS - temp_blocked[" << temp_obj.get_name() << "]: " << temp_blocked << std::endl;
+            //}
 
             // to enter platform, player.x+player.h must not be much higher than obj.y
             if (temp_blocked != 0 && (temp_obj.get_type() == OBJ_ITEM_FLY || temp_obj.get_type() == OBJ_ITEM_JUMP || temp_obj.get_type() == OBJ_ACTIVE_DISAPPEARING_BLOCK || temp_obj.get_type() == OBJ_FALL_PLATFORM || temp_obj.get_type() == OBJ_FLY_PLATFORM || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN)) {
 
+                std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2 ###" << std::endl;
+
                 if (char_rect.y+char_rect.h-2 > temp_obj.get_position().y) {
 
-                    //std::cout << "temp_blocked[" << temp_obj.get_name() << "] RESET BLOCK" << std::endl;
+                    std::cout << "temp_blocked[" << temp_obj.get_name() << "] RESET BLOCK" << std::endl;
                     // this avoids that player gets stuck inside an object
                     /// @TODO: only do that if player is trying to leave object area (is locked even with xinc zero)
                     //temp_blocked = 0;
                 } else {
-                    //std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
+                    std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
                 }
             }
 
@@ -1158,7 +1164,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
     if (blocked == 0 && charObj->get_platform() != NULL) {
         //  for player item, platform must only be removed only if the item was already adtivated
         if (charObj->get_platform()->get_type() == OBJ_ITEM_FLY || charObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
-            //std::cout << "y_inc: " << y_inc << ", playerObj->get_platform()->get_distance(): " << playerObj->get_platform()->get_distance() << std::endl;
+            std::cout << "### DEBUG OBJ_ITEM_JUMP #1 ###" << std::endl;
             if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
                 charObj->set_platform(NULL);
             } else {
@@ -1624,6 +1630,9 @@ void classMap::move_npcs() /// @TODO - check out of screen
                 // all kinds of bosses need to remove projectiles once dying
                 if (_npc_list.at(i).is_boss() || _npc_list.at(i).is_subboss() || _npc_list.at(i).is_stage_boss()) {
                     _npc_list.at(i).clean_projectiles();
+                // regular enemies only remove effect-type projectiles (quake, wind, freeze, etc)
+                } else {
+                    _npc_list.at(i).clean_effect_projectiles();
                 }
             } else {
                 // run npc move one more timer, so reaction is executed to test if it will spawn a new boss

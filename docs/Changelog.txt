@@ -169,7 +169,9 @@ FILE-FORMAT-V4:
     # função que chega ponto de parada está com algum bug, se muda velocidade máxima do teleporte para 10 tb dá problema
 - não está morrendo ao cair em precípicio
 
-
+- ao morrer, inimigo deve remover todos os projéteis de efeito (quake, flash, wind-push)
+- ao usar coil item não está podendo agarrar escadas
+- ao chegar na direita máxima do scrolling, está indo um tile além da tela, mostrando lixo
 
 
 

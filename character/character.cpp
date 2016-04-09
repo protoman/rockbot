@@ -1172,7 +1172,7 @@ bool character::gravity(bool boss_demo_mode=false)
             _is_falling = false;
             if (is_player()) {
                 set_animation_type(ANIM_TYPE_STAND);
-                std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
+                //std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
                 soundManager.play_sfx(SFX_PLAYER_JUMP);
             }
         }
@@ -1503,10 +1503,17 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         //std::cout << "char::jump - button pressed" << std::endl;
 
         if (is_in_stairs_frame()) {
-            set_animation_type(ANIM_TYPE_JUMP);
-            _is_falling = true;
-            _stairs_falling_timer = timer.getTimer() + STARIS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
-            return false;
+            if (_obj_jump.is_started() == false) {
+                set_animation_type(ANIM_TYPE_JUMP);
+                _is_falling = true;
+                _stairs_falling_timer = timer.getTimer() + STARIS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
+                return false;
+            } else {
+                _obj_jump.interrupt();
+                if (_force_jump == true) {
+                    _force_jump = false;
+                }
+            }
         } else {
             //std::cout << "char::_jumps_number: " << _jumps_number << ", obj::_jumps_number: " << _obj_jump.get_jumps_number() << std::endl;
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
@@ -1574,7 +1581,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
         _obj_jump.execute();
         if (_obj_jump.is_started() == false) {
-            std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
+            //std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
             soundManager.play_sfx(SFX_PLAYER_JUMP);
             if (_force_jump == true) {
                 _force_jump = false;
@@ -2467,14 +2474,29 @@ void character::set_direction(int direction)
 
 void character::clean_projectiles()
 {
-	// empty projectile list
-    //if (name == "Mage Bot") std::cout << ">>> CHAR::clean_projectiles[" << name << "] - proj_list.size: " << projectile_list.size() << std::endl;
-
 	while (!projectile_list.empty()) {
-        if (name == "Mage Bot") std::cout << "removing projectile" << std::endl;
         projectile_list.at(0).finish();
 		projectile_list.erase(projectile_list.begin());
-	}
+    }
+}
+
+void character::clean_effect_projectiles()
+{
+    while (true) {
+        bool found_item = false;
+        for (int i=0; i<projectile_list.size(); i++) {
+            Uint8 move_type = projectile_list.at(i).get_move_type();
+            if (move_type == TRAJECTORY_QUAKE || move_type == TRAJECTORY_FREEZE || move_type == TRAJECTORY_CENTERED || move_type == TRAJECTORY_PUSH_BACK) {
+                found_item = true;
+                projectile_list.at(i).finish();
+                projectile_list.erase(projectile_list.begin()+i);
+                break;
+            }
+        }
+        if (found_item == false) {
+            return;
+        }
+    }
 }
 
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
@@ -2703,13 +2725,13 @@ bool character::change_position(short xinc, short yinc)
 
     st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
     short int mapLock = map_col.block;
-    if (is_player()) std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
+    //if (is_player()) std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
 
 	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
 		return false;
 	}
 	position.x += xinc;
-    std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
+    //std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
 	position.y += yinc;
     return true;
 }
@@ -2920,9 +2942,11 @@ void character::set_animation_type(ANIM_TYPE type)
         }
 
         if (type == ANIM_TYPE_STAIRS) {
-            std::cout << ">>> SET STAIRS ANIM TYPE" << std::endl;
+            //std::cout << ">>> SET STAIRS ANIM TYPE" << std::endl;
         } else if (type == ANIM_TYPE_STAIRS_MOVE) {
-            std::cout << ">>> SET STAIRS MOOOVE ANIM TYPE, timer: " << timer.getTimer() << ", _stairs_falling_timer: " << _stairs_falling_timer << std::endl;
+            //std::cout << ">>> SET STAIRS MOOOVE ANIM TYPE, timer: " << timer.getTimer() << ", _stairs_falling_timer: " << _stairs_falling_timer << std::endl;
+        } else if (type == ANIM_TYPE_JUMP) {
+            //std::cout << ">>> SET JUMP ANIM TYPE" << std::endl;
         }
         state.animation_type = type;
         _was_animation_reset = false;
