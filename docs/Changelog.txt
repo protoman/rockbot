@@ -151,7 +151,23 @@ FILE-FORMAT-V4:
 - está aparecendo o jogador após a explosão quando morre e antes de sumir a tela (deve ser no fade out?)
 - player está piscando como hit após morrer e estágio reiniciar (deve zerar no restart_stage)
 - neve não está caindo
-
+- olhos candy fora posição seleção
+- remover bug de segurar cima/baixo nas escadas
+- frames faltando na candy (attack up/down)
+- mudar cores candy para sombra ser no vestido e não pés e mãos.
+- podendo pular e acessar link na parte plataformas valkyrie. Tem que ser mais baixo no fim perto escada.
+- teleporte após morrer está  caindo na fase dragon com chão de 1 linha de tiles (multiplicando checkpoint por tilesize)
+- dialogo boss ainda mostra último rosto errado
+- colocar bg scroll speed no dragon
+- no android, na fase do Phantom fica lento quando tem janelas
+    # convertidas todas as imagens de fundo e tileset para pelata optimizada de cores
+- inimigo para ao cair/pular em cima de objetos tipo pílula (npcs deveriam ignorá-los como colisão)
+- antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
+    # parece que as pílulas pequenas é que são o problema e somem
+    # estavam setadas como "player-item", então eram removidas ao trocar de mapa
+- ao morrer na fase do phantom, no início, está voltando dentro do solo
+    # função que chega ponto de parada está com algum bug, se muda velocidade máxima do teleporte para 10 tb dá problema
+- não está morrendo ao cair em precípicio
 
 
 

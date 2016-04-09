@@ -50,18 +50,10 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- não está morrendo ao cair em precípicio
-
-- no android, na fase do Phantom fica lento quando tem janelas. Ligar show fps e ver.
 
 - ANDROID/PS2/PSP: new icon/background images
 
-- antes da porta do chefe, no intro-stage, tem uma série de pílulas de energia que estão sumindo (usar atalho)
-    # parece que as pílulas pequenas é que são o problema e somem
-
 - ao morrer, inimigo deve remover todos os projéteis de efeito (quake, flash, wind-push)
-
-- tem uma pílula de weapon-energy de debug, restante na fase do gear
 
 - objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
@@ -73,19 +65,38 @@ VERSION 2.0.0 BETA 1
     # remove non-used graphics
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
 
-- implement 5 stages for demo (intro, ...)
+- implement 5 stages for demo:
+    # intro
+        # chefe
+        # AI inimigos
+        # dialogos
+    # beast:
+        # refazer gráficos de quando dentro de vagão
+        # chefe
+        # inimigos
+        # items
+        # dialogos
+    # valkyrie
+        # AI chefe
+        # AI inimigos
+        # items
+        # dialogos
+    # zodiac
+        # chefe
+        # inimigos
+        # items
+        # dialogos
+    #dragon
+        # chefe
+        # inimigos
+        # items
+        # dialogos
+
 
 ##################################
              DONE
 ##################################
-- olhos candy fora posição seleção
-- remover bug de segurar cima/baixo nas escadas
-- frames faltando na candy (attack up/down)
-- mudar cores candy para sombra ser no vestido e não pés e mãos.
-- podendo pular e acessar link na parte plataformas valkyrie. Tem que ser mais baixo no fim perto escada.
-- teleporte após morrer está  caindo na fase dragon com chão de 1 linha de tiles (multiplicando checkpoint por tilesize)
-- dialogo boss ainda mostra último rosto errado
-- colocar bg scroll speed no dragon
+
 
 
 =========================================================================================================================================

@@ -295,7 +295,7 @@ int stage::get_teleport_minimal_y_tile(int xpos)
                 }
             }
             if (found_bad_point == false) {
-                return i;
+                return i-1;
             }
         }
     }

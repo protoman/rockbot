@@ -620,11 +620,8 @@ protected:
      * @return bool
      */
     virtual bool get_item(object_colision& obj_info);
-    /**
-     * @brief
-     *
-     * @return unsigned int
-     */
+
+
     unsigned int get_projectile_count(); // returns the number of projectiles (some special attacks count as max)
     /**
      * @brief

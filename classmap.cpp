@@ -888,6 +888,58 @@ int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_ob
 }
 
 
+// this method is used for npcs to ignore certain objects
+bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
+{
+    if (obj_type == OBJ_ENERGY_TANK) {
+        return true;
+    }
+    if (obj_type == OBJ_WEAPON_TANK) {
+        return true;
+    }
+    if (obj_type == OBJ_ENERGY_PILL_BIG) {
+        return true;
+    }
+    if (obj_type == OBJ_WEAPON_PILL_BIG) {
+        return true;
+    }
+    if (obj_type == OBJ_ENERGY_PILL_SMALL) {
+        return true;
+    }
+    if (obj_type == OBJ_WEAPON_PILL_SMALL) {
+        return true;
+    }
+    if (obj_type == OBJ_LIFE) {
+        return true;
+    }
+    if (obj_type == OBJ_ITEM_FLY) {
+        return true;
+    }
+    if (obj_type == OBJ_ITEM_JUMP) {
+        return true;
+    }
+    if (obj_type == OBJ_ARMOR_ARMS) {
+        return true;
+    }
+    if (obj_type == OBJ_ARMOR_BODY) {
+        return true;
+    }
+    if (obj_type == OBJ_ARMOR_LEGS) {
+        return true;
+    }
+    if (obj_type == OBJ_BOSS_TELEPORTER) {
+        return true;
+    }
+    if (obj_type == OBJ_SPECIAL_TANK) {
+        return true;
+    }
+    if (obj_type == OBJ_FINAL_BOSS_TELEPORTER) {
+        return true;
+    }
+    return false;
+}
+
+
 void classMap::colision_char_object(character* charObj, const float x_inc, const short int y_inc)
 {
     int blocked = 0;
@@ -913,6 +965,10 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             }
 
             if (temp_obj.finished() == true) {
+                continue;
+            }
+
+            if (charObj->is_player() == false && is_obj_ignored_by_enemies(temp_obj.get_type())) {
                 continue;
             }
 

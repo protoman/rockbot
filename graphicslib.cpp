@@ -1635,7 +1635,8 @@ void graphicsLib::set_video_mode()
 #elif defined(OPEN_PANDORA)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(ANDROID)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
+    //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(WII)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
@@ -1647,7 +1648,7 @@ void graphicsLib::set_video_mode()
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     /*
     256, 224 - good
     288, 224 - good (strange colors?)
@@ -1670,9 +1671,9 @@ void graphicsLib::set_video_mode()
     } else {
         /// @TODO - do we need scale on fullscreen if no filter?
         if (game_config.video_fullscreen == false) {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF);
+            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
         } else {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
         }
         if (game_screen != NULL) {
             SDL_FreeSurface(game_screen);

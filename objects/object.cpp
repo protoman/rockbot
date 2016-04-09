@@ -165,6 +165,7 @@ void object::gravity()
 		}
 	}
 	if (position.y > RES_H) {
+        std::cout << "REMOVE ITEM #4" << std::endl;
 		_finished = true;
 	}
 }
@@ -182,6 +183,7 @@ bool object::test_change_position(short xinc, short yinc)
         //std::cout << "OBJ::test_change_position - out of screen(down)" << std::endl;
         if (position.y < RES_H+TILESIZE*2) {
             if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+                std::cout << "REMOVE ITEM #5" << std::endl;
                 _finished = true;
                 return false;
             } else {
@@ -303,13 +305,12 @@ void object::show(int adjust_y, int adjust_x)
     }
 
     if (draw_lib.get_object_graphic(_id) == NULL) {
-		//std::cout << "object::show - could not find graphic for object with id " << _id << std::endl;
+        std::cout << "### OBJECT::SHOW - can't find graphic' ###" << std::endl;
 		return;
 	}
 
-	//printf("********* check draw object, x: %d, y: %d\n", position.x, position.y);
     if (_hidden == true) {
-		//printf("********* show_object_sprites - hidden object\n");
+        std::cout << "### OBJECT::SHOW::HIDDEN ###" << std::endl;
 		return;
 	}
 
@@ -319,6 +320,8 @@ void object::show(int adjust_y, int adjust_x)
             return;
         }
     }
+
+    //std::cout << "LOOP: obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
     // ray have a different way to show itself
     if (type == OBJ_RAY_VERTICAL) {
@@ -345,10 +348,6 @@ void object::show(int adjust_y, int adjust_x)
 	// checks if the Object is near the screen to show it
     if (position.x+TILESIZE >= abs(scroll_x) && position.x-TILESIZE <= abs(scroll_x)+RES_W) {
 		// animation
-
-
-        //std::cout << "object::show - frame_duration: " << GameMediator::get_instance()->object_list.at(_id).frame_duration << std::endl;
-
         if ((GameMediator::get_instance()->object_list.at(_id).animation_auto_start == true || (GameMediator::get_instance()->object_list.at(_id).animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
 			graphic_origin.x = frame * framesize_w;
             if (_obj_frame_timer < timer.getTimer()) {
@@ -392,10 +391,7 @@ void object::show(int adjust_y, int adjust_x)
         }
 
 		//std::cout << "object::show - frame_n: " << frame << ", _animation_reversed: " << _animation_reversed << ", max_frames: " << max_frames << std::endl;
-
-
 		// direction
-		//printf(">> sprite->h: %d, framesize_h*2: %d <<\n", sprite->h, (framesize_h*2));
         if (framesize_h*2 <= draw_lib.get_object_graphic(_id)->height)  {
 			//std::cout << ">>>> object height is enought for direction-right";
 			if (direction != ANIM_DIRECTION_RIGHT) {
@@ -404,7 +400,7 @@ void object::show(int adjust_y, int adjust_x)
 				graphic_origin.y = framesize_h;
 			}
 		} else {
-			//std::cout << ">>>> NOT object image-height(" << (objects_sprite_list.find(name)->second).height << ") is NOT enought for direction-right. framesize_h: " << framesize_h << std::endl;
+            //std::cout << ">>>> NOT object image-height(" << (objects_sprite_list.find(name)->second).height << ") is NOT enought for direction-right. framesize_h: " << framesize_h << std::endl;
 			graphic_origin.y = 0;
 		}
 
@@ -432,7 +428,7 @@ void object::show(int adjust_y, int adjust_x)
 
 	// remove item that is out of vision
     } else if (_teleport_state == 2 && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
-        //std::cout << "REMOVE ITEM" << std::endl;
+        std::cout << "REMOVE ITEM #1" << std::endl;
 		_finished = true;
     }
 }
@@ -664,6 +660,7 @@ void object::move(bool paused)
             int yinc = GRAVITY_SPEED*3;
             position.y -= yinc;
             if (position.y + framesize_h < 0) {
+                std::cout << "REMOVE ITEM #2" << std::endl;
                 _finished = true;
             }
         }
@@ -676,6 +673,7 @@ void object::move(bool paused)
             //std::cout << "OBJECT::move - is finished, but must teleport out first" << std::endl;
             _teleport_state = e_object_teleport_state_teleport_out;
         } else {
+            std::cout << "REMOVE ITEM #3" << std::endl;
             _finished = true;
         }
 		return;
@@ -1141,6 +1139,9 @@ bool object::finished() const
 
 void object::set_finished(bool is_finished)
 {
+    if (is_finished == true) {
+        std::cout << "REMOVE ITEM #A" << std::endl;
+    }
 	_finished = is_finished;
 }
 

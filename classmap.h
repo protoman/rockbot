@@ -104,6 +104,8 @@ public:
 
     int colision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc);
 
+    bool is_obj_ignored_by_enemies(Uint8 obj_type);                 // returns true if object if of type that can be got like energy
+
     void colision_char_object(character*, const float, const short int);
 
     object_colision get_obj_colision();

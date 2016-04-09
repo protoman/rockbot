@@ -1096,9 +1096,7 @@ bool character::gravity(bool boss_demo_mode=false)
     if (_obj_jump.is_started() == false && can_fly == false && position.y < RES_H+TILESIZE+1 + frameSize.height) {
 
         // tem que inicializar essa variável sempre que for false
-        //std::cout << "CHAR::GRAVITY [1] - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << std::endl;
         accel_speed_y = accel_speed_y + accel_speed_y*gravity_y;
-        //std::cout << "CHAR::GRAVITY [2] - accel_speed_y: " << accel_speed_y << std::endl;
 
         if (accel_speed_y < 0.25) {
             accel_speed_y = 0.25;
@@ -1125,7 +1123,6 @@ bool character::gravity(bool boss_demo_mode=false)
 
         //if (is_player()) std::cout << "gravity - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << ", adjusted_speed: " << adjusted_speed << ", position.y: " << position.y << std::endl;
 
-
         st_map_colision map_col;
         bool was_moved = false;
         for (int i=adjusted_speed; i>0; i--) {
@@ -1136,7 +1133,7 @@ bool character::gravity(bool boss_demo_mode=false)
 				mapLock = BLOCK_UNBLOCKED;
             } else if (!is_player() && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {
                 _teleport_minimal_y = frameSize.height+TILESIZE*2; // RESET MIN_Y -> remove limit for next telepor
-            } else if (position.y > RES_H+TILESIZE) { // out of screen
+            } else if (position.y+frameSize.height >= RES_H) { // out of screen
 				mapLock = BLOCK_UNBLOCKED;
 			}
 
@@ -2300,28 +2297,22 @@ bool character::get_item(object_colision& obj_info)
 	bool res = false;
 	// deal with non-blocking items
 	if (obj_info._object != NULL && obj_info._object->finished() == false) {
-		//std::cout << "character::get_item" << std::endl;
 		switch (obj_info._object->get_type()) {
             case OBJ_ENERGY_PILL_SMALL:
-                //std::cout << "character::get_item - OBJ_ENERGY_PILL_SMALL" << std::endl;
                 recharge(ENERGY_TYPE_HP, ENERGY_ITEM_SMALL);
                 res = true;
                 obj_info._object->set_finished(true);
                 break;
             case OBJ_ENERGY_PILL_BIG:
-                //std::cout << "character::get_item - OBJ_ENERGY_PILL_BIG" << std::endl;
                 recharge(ENERGY_TYPE_HP, ENERGY_ITEM_BIG);
                 res = true;
                 obj_info._object->set_finished(true);
                 break;
             default:
-                //std::cout << "character::get_item - unknown item type: " << obj_info._object->get_type() << std::endl;
                 break;
 		}
-//	} else {
-//		std::cout << "character::get_item - empty object" << std::endl;
 	}
-	return res;
+    return res;
 }
 
 // returns type, or -1 if none
