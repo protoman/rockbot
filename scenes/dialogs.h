@@ -66,8 +66,6 @@ private:
     void draw_dialog_bg();
 
 private:
-    std::string player_name; /**< TODO */
-    std::string player_face; /**< TODO */
     bool is_showing_dialog_bg; /**< TODO */
 };
 

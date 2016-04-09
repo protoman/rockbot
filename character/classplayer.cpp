@@ -1013,7 +1013,8 @@ void classPlayer::refill_weapons()
 
 void classPlayer::set_teleport_minimal_y(int y)
 {
-    _teleport_minimal_y = y;
+    std::cout << "PLAYER::set_teleport_minimal_y[" << y << "]" << std::endl;
+    _teleport_minimal_y = y-2;
 }
 
 bool classPlayer::can_fly()

@@ -50,7 +50,9 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- remover bug de segurar cima/baixo nas escadas
+- não está morrendo ao cair em precípicio
+
+- no android, na fase do Phantom fica lento quando tem janelas. Ligar show fps e ver.
 
 - ANDROID/PS2/PSP: new icon/background images
 
@@ -76,12 +78,22 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-
+- olhos candy fora posição seleção
+- remover bug de segurar cima/baixo nas escadas
+- frames faltando na candy (attack up/down)
+- mudar cores candy para sombra ser no vestido e não pés e mãos.
+- podendo pular e acessar link na parte plataformas valkyrie. Tem que ser mais baixo no fim perto escada.
+- teleporte após morrer está  caindo na fase dragon com chão de 1 linha de tiles (multiplicando checkpoint por tilesize)
+- dialogo boss ainda mostra último rosto errado
+- colocar bg scroll speed no dragon
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+
+
+
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
 - EDITOR: gerar UI das actions da AI via código
@@ -127,6 +139,8 @@ VERSION 2.0.0 BETA 2
         # músicas do jogo
         # nomes das fases
     * criar uma fase do megaman 9 para testar template
+
+
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3

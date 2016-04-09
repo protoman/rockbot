@@ -33,20 +33,6 @@ dialogs::dialogs() : is_showing_dialog_bg(false)
 {
     /// @TODO - temporary configurations should not be placed in st_config
     //if (game_config.two_players == 2 || game_config.selected_player == 1) {
-
-    if (game_save.selected_player == PLAYER_1) {
-		player_name = "Rockbot";
-		player_face = "rockbot.png";
-    } else if (game_save.selected_player == PLAYER_2) {
-		player_name = "Betabot";
-		player_face = "betabot.png";
-    } else if (game_save.selected_player == PLAYER_3) {
-        player_name = "Candybot";
-        player_face = "candybot.png";
-    } else if (game_save.selected_player == PLAYER_4) {
-        player_name = "Kittybot";
-        player_face = "kittybot.png";
-    }
 }
 
 
@@ -142,7 +128,7 @@ void dialogs::show_boss_dialog(int stage_n)
             lines[n] = stage_dialogs.at(i);
             n++;
         }
-        show_dialog(boss_face, stage_data.dialog_top_side, lines, true);
+        show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
     }
 }
 

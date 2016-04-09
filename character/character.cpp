@@ -1114,6 +1114,8 @@ bool character::gravity(bool boss_demo_mode=false)
 
 
 		if (state.animation_type == ANIM_TYPE_TELEPORT) {
+
+            //std::cout << "CHARACTER::GRAVIRY - y: " << position.y << ", _teleport_minimal_y: " << _teleport_minimal_y << std::endl;
             if (_teleport_minimal_y - position.y > TILESIZE) {
                 adjusted_speed = gravity_max_speed;
             } else {
@@ -1138,14 +1140,11 @@ bool character::gravity(bool boss_demo_mode=false)
 				mapLock = BLOCK_UNBLOCKED;
 			}
 
-
 			if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
                 //if (is_player()) std::cout << "character::gravity - FALL" << std::endl;
 				if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
-                    std::cout << "### STAIRS-DOWN #3 ###" << std::endl;
 					position.y += i;
 				} else {
-                    std::cout << "### STAIRS-DOWN #4 ###" << std::endl;
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
@@ -1562,7 +1561,6 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
                 //std::cout << "jump.speed[" << speed_y << "]" << std::endl;
-                std::cout << "### STAIRS-DOWN #5 ###" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;

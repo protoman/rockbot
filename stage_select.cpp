@@ -130,11 +130,7 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 	} else {
 		posY = 19;
 	}
-	/*
-    if (game_config.selected_player == PLAYER_BETABOT) {
-		posY -= 3;
-	}
-	*/
+
     posX = posX+80+63;
     posY = posY+64+32;
 	if (erase_eyes) {
@@ -145,8 +141,8 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
     } else {
         if (game_save.selected_player == PLAYER_1) {
 			graphLib.copyArea(st_position(posX, posY), &eyes_surface, &graphLib.gameScreen);
-        } else if (game_save.selected_player == PLAYER_2) {
-			graphLib.copyArea(st_position(posX, posY-2), &eyes_surface, &graphLib.gameScreen);
+        } else if (game_save.selected_player == PLAYER_3) {
+            graphLib.copyArea(st_position(posX, posY-3), &eyes_surface, &graphLib.gameScreen);
         } else {
             graphLib.copyArea(st_position(posX-1, posY), &eyes_surface, &graphLib.gameScreen);
         }
@@ -185,6 +181,7 @@ struct st_position stage_select::select() {
                 continue;
             }
 #endif
+
             if (game_save.stages[stage_n] == 0) {
                 // @TODO: name could miss \n, so get only 8 characters
                 place_face(game_data.stage_face_filename[stage_n], game_data.stages_face_name[stage_n], st_position(j, i));
