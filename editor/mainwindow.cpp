@@ -482,7 +482,6 @@ void MainWindow::on_actionSwap_Maps_triggered()
     // open swap maps dialog
     QDialog *stage_swap = new stage_swap_dialog;
     stage_swap->show();
-
 }
 
 

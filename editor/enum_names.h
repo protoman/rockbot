@@ -37,6 +37,7 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("PUSH BACK");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("ARC SMALL");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("RING");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("LIGHTING");
     // -------------------------------------------------------------- //
     AI_ACTION_NAMES.push_back("WALK");
     AI_ACTION_NAMES.push_back("FLY");
@@ -62,6 +63,7 @@ void init_enum_names() {
     AI_ACTION_WALK_OPTIONS.push_back("TO PLAYER");
     AI_ACTION_WALK_OPTIONS.push_back("TO SAVED POINT");
     AI_ACTION_WALK_OPTIONS.push_back("TURN TO PLAYER");
+    AI_ACTION_WALK_OPTIONS.push_back("RANDOM DIRECTION");
 
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD");
     AI_ACTION_FLY_OPTIONS.push_back("TURN");

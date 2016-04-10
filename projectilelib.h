@@ -15,16 +15,16 @@ class classMap; // advance declaration
 #include "graphic/draw.h"
 extern draw draw_lib;
 
-extern timerLib timer; /**< TODO */
+extern timerLib timer;
 
 /**
  * @brief
  *
  */
 struct quake_info {
-    unsigned int timer; /**< TODO */
-    short int counter1; /**< TODO */
-    short int counter2; /**< TODO */
+    unsigned int timer;
+    short int counter1;
+    short int counter2;
 	quake_info() {
 		timer = 0;
 		counter1 = 0;
@@ -78,7 +78,7 @@ private:
      *
      * @return st_size
      */
-    st_size_int8 get_size() const;
+    st_size get_size() const;
 
     void move_ahead(st_size &moved);
     void position_to_ground();
@@ -87,47 +87,47 @@ private:
 
 
 public:
-    bool is_finished; /**< TODO */
-    bool is_reflected; /**< TODO */
+    bool is_finished;
+    bool is_reflected;
 
 private:
-    Sint8 _id; /**< TODO */
-    st_size_int8 _size; /**< TODO */
-    Uint8 animation_pos; /**< TODO */
-    unsigned int animation_timer; /**< TODO */
-    Uint8 direction; /**< TODO */
-    unsigned int move_timer; /**< TODO */
-    int move_delay; /**< TODO */
-    Uint8 status; // status of animation (going/returning, etc) /**< TODO */
-    Uint8 _move_type; /**< TODO */
+    Sint8 _id;
+    st_size _size;
+    Uint8 animation_pos;
+    unsigned int animation_timer;
+    Uint8 direction;
+    unsigned int move_timer;
+    int move_delay;
+    Uint8 status; // status of animation (going/returning, etc)
+    Uint8 _move_type;
 
-    st_float_position position; /**< TODO */
-    st_position realPosition; /**< TODO */
+    st_float_position position;
+    st_position realPosition;
 	// used for trajectory calculations
-    st_position position0; /**< TODO */
-    st_position position1; /**< TODO */
-    st_position map_position; /**< TODO */
-    classMap *map; /**< TODO */
+    st_position position0;
+    st_position position1;
+    st_position map_position;
+    classMap *map;
     st_float_position _diagonal_speed;
 
-    bool diagonal_flag; // used to control diagonal shot angle /**< TODO */
-    Uint8 _max_frames; // number of frames for the projectile /**< TODO */
-    float angle; /**< TODO */
-    short int radius; /**< TODO */
+    bool diagonal_flag; // used to control diagonal shot angle
+    Uint8 _max_frames; // number of frames for the projectile
+    float angle;
+    short int radius;
 
 	// used for quake effect
-    quake_info _quake_info; /**< TODO */
+    quake_info _quake_info;
 
 	// general effect timer
-    unsigned int _effect_timer; /**< TODO */
-    short _effect_n; // used to control steps /**< TODO */
-    short _points; // duration /**< TODO */
-    short _weapon_id; /**< TODO */
+    unsigned int _effect_timer;
+    short _effect_n; // used to control steps
+    short _points; // duration
+    short _weapon_id;
 
-    st_float_position *_owner_position; /**< TODO */
-    Uint8 *_owner_direction; /**< TODO */
+    st_float_position *_owner_position;
+    Uint8 *_owner_direction;
 
-    st_float_position *_target_position; /**< TODO */
+    st_float_position *_target_position;
 
     Uint8 _speed;
     trajectory_parabola _trajectory_parabola;

@@ -24,7 +24,7 @@ namespace format_v4 {
     struct file_projectile {
         char name[CHAR_NAME_SIZE];
         char graphic_filename[FS_CHAR_NAME_SIZE];
-        st_size_int8 size;
+        st_size size;
         bool is_destructible;                                   // indicates if the projectile can be shot down, if true, uses HP
         Uint8 hp;                                               // how much danage needs to be taken to destruct the projectile
         enum PROJECTILE_TRAJECTORIES trajectory;                // RENAMED from projectile_type in 2.1

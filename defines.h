@@ -353,6 +353,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_PUSH_BACK,               // pushes player or enemies into opposite direction
     TRAJECTORY_ARC_SMALL,
     TRAJECTORY_RING,                    // increases size and on last frame, oponent can pass in the middle
+    TRAJECTORY_LIGHTING,                // appears sequentially in some parts of the screen
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 
@@ -585,7 +586,10 @@ enum AI_ACTION_WALK_OPTION_LIST {
     AI_ACTION_WALK_OPTION_HORIZONTAL_TURN, // execute turn animation, ends when animation is compelted
     AI_ACTION_WALK_OPTION_TO_PLAYER,
     AI_ACTION_WALK_OPTION_TO_SAVED_POINT,
-    AI_ACTION_WALK_OPTION_TURN_TO_PLAYER
+    AI_ACTION_WALK_OPTION_TURN_TO_PLAYER,
+    AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION,
+
+    AI_ACTION_WALK_OPTION_COUNT
 };
 
 

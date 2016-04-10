@@ -429,7 +429,7 @@ void classnpc::move_projectiles()
             }
 
             if ((*it).check_colision(player_hitbox, st_position(moved.width, moved.height)) == true) {
-                if (map->_player_ref->is_shielded((*it).get_direction()) == true) {
+                if (map->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     (*it).reflect();
                 } else if (map->_player_ref->is_using_circle_weapon() == true) {
                     std::cout << "NPC projectile hit player centered-weapon" << std::endl;
@@ -451,7 +451,7 @@ void classnpc::move_projectiles()
 				//classnpc* enemy = (*enemy_it);
                 if ((*it).check_colision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
-                    if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) {
+                    if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                         (*it).reflect();
 					} else {
                         map->_npc_list.at(i).damage((*it).get_damage(), false);

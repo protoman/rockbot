@@ -192,7 +192,7 @@ void artificial_inteligence::execute_ai_step()
         //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
         execute_ai_action_trow_projectile(0, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION) {
-        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
         execute_ai_action_trow_projectile(1, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION) {
         //std::cout << ">> AI:exec[" << name << "] SHOT_INVERT_PROJECTILE_1 <<" << std::endl;
@@ -893,6 +893,14 @@ void artificial_inteligence::execute_ai_step_walk()
                 } else {
                     _dest_point.x = position.x + frameSize.width/2 + walk_range;
                 }
+            } else if (move_type == AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION) {
+                state.direction = rand() % 2;
+                std::cout << "AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION, direction: " << (int)state.direction << std::endl;
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    _dest_point.x = position.x - frameSize.width/2 - walk_range;
+                } else {
+                    _dest_point.x = position.x + frameSize.width/2 + walk_range;
+                }
             }
             set_animation_type(ANIM_TYPE_WALK);
         }
@@ -987,8 +995,8 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         // face player to shoot, if parameter is not shot-ahead-only
-        if (move_speed > 0 && _parameter != AI_ACTION_SHOT_AHEAD) {
-            //std::cout << "AI::execute_ai_action_trow_projectile - face player, walk_range: " << walk_range << std::endl;
+        if (move_speed > 0 && _current_ai_type != AI_ACTION_SHOT_PROJECTILE_AHEAD) {
+            std::cout << "AI::execute_ai_action_trow_projectile - face player, walk_range: " << walk_range << std::endl;
             struct_player_dist dist_players = dist_npc_players();
             if (dist_players.pObj->getPosition().x > position.x) {
                 state.direction = ANIM_DIRECTION_RIGHT;

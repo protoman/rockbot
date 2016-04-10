@@ -647,7 +647,7 @@ void classPlayer::execute_projectiles()
             //classnpc* enemy = (*enemy_it);
             if ((*it).check_colision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
                 // shielded NPC: reflects/finishes shot
-                if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true) {
+                if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {

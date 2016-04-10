@@ -164,6 +164,8 @@ public:
 
     int get_first_lock_on_right(int x_pos) const;
 
+    int get_first_lock_on_bottom(int x_pos);
+
     void drop_item(st_position pos);
 
     void set_bg1_scroll(int scrollx);

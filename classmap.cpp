@@ -575,6 +575,34 @@ int classMap::get_first_lock_on_right(int x_pos) const
     return -1;
 }
 
+// gets the first tile locked that have at least 3 tiles unlocked above it
+int classMap::get_first_lock_on_bottom(int x_pos)
+{
+    int tilex = x_pos/TILESIZE;
+
+    for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
+
+        //std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
+
+        int map_lock = getMapPointLock(st_position(tilex, i));
+        bool found_bad_point = false;
+        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+            // found a stop point, now check above tiles
+            for (int j=i-1; j>=i-3; j--) {
+                int map_lock2 = getMapPointLock(st_position(tilex, j));
+                if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
+                    found_bad_point = true;
+                    break;
+                }
+            }
+            if (found_bad_point == false) {
+                return i-1;
+            }
+        }
+    }
+    return 0;
+}
+
 void classMap::drop_item(st_position position)
 {
     int rand_n = rand() % 100;
@@ -1725,13 +1753,7 @@ bool classMap::boss_hit_ground()
                 limit_y = RES_H/2;
             }
 
-            if (_npc_list.at(i).is_able_to_fly() == true) {
-                //std::cout << "MAP::boss_hit_ground - pos.y: " << _npc_list.at(i).getPosition().y << ", center: " << (RES_H/2 - _npc_list.at(i).get_size().height/2) << std::endl;
-                if (_npc_list.at(i).getPosition().y >= RES_H/2 - _npc_list.at(i).get_size().height/2) {
-                    //std::cout << "boss_hit_ground #1" << std::endl;
-                    return true;
-                }
-            } else if (_npc_list.at(i).getPosition().y >= limit_y && _npc_list.at(i).hit_ground()) {
+            if (_npc_list.at(i).getPosition().y >= limit_y && _npc_list.at(i).hit_ground()) {
                 //std::cout << "boss_hit_ground #2" << std::endl;
                 return true;
             }

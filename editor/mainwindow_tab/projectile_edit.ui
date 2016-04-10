@@ -70,6 +70,9 @@
          <property name="minimum">
           <number>1</number>
          </property>
+         <property name="maximum">
+          <number>320</number>
+         </property>
          <property name="value">
           <number>16</number>
          </property>
@@ -86,6 +89,9 @@
         <widget class="QSpinBox" name="img_h">
          <property name="minimum">
           <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>240</number>
          </property>
          <property name="value">
           <number>16</number>
