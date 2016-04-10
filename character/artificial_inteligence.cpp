@@ -865,7 +865,7 @@ void artificial_inteligence::execute_ai_step_walk()
 
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
 
-        std::cout << "execute_ai_step_walk::INIT" << std::endl;
+        //std::cout << "execute_ai_step_walk::INIT" << std::endl;
 
         // if not on ground and can't fly, leave
         if (hit_ground() == false && can_fly == false) {
@@ -875,7 +875,7 @@ void artificial_inteligence::execute_ai_step_walk()
             return;
         }
 
-        std::cout << "**** AI::execute_ai_step_walk - move_type: " << move_type << std::endl;
+        //std::cout << "**** AI::execute_ai_step_walk - move_type: " << move_type << std::endl;
 
         if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_TURN || move_type == AI_ACTION_WALK_OPTION_TURN_TO_PLAYER) {
             //std::cout << "AI::execute_ai_step_walk::init - TURN::INIT" << std::endl;
@@ -1356,14 +1356,19 @@ void artificial_inteligence::execute_ai_step_dash()
             state.direction = ANIM_DIRECTION_RIGHT;
         } else if (_parameter == AI_ACTION_DASH_OPTION_TO_PLAYER) {
             struct_player_dist dist_players = dist_npc_players();
-            if (dist_players.dist > 0) {
+
+            std::cout << "AI::DASH::TO_PLAYER::dist: " << dist_players.dist << std::endl;
+
+            if (dist_players.pObj->getPosition().x > (position.x  + frameSize.width/2)) {
                 state.direction = ANIM_DIRECTION_RIGHT;
+                _dest_point.x = position.x + frameSize.width/2 + walk_range;
             } else {
                 state.direction = ANIM_DIRECTION_LEFT;
+                _dest_point.x = position.x + frameSize.width/2 - walk_range;
             }
-            _dest_point.x = dist_players.pObj->getPosition().x;
+            //_dest_point.x = dist_players.pObj->getPosition().x;
             _dest_point.y = position.y;
-            //std::cout << ">>>>>>>>> AI::execute_ai_step_dash - dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
+            std::cout << ">>>>>>>>> AI::DASH::INIT - dest_point.x: " << _dest_point.x << ", walk_range: " << walk_range << ", position.x: " << position.x << std::endl;
         } else {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED; // unknown mode
             if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #10" << std::endl;
@@ -1371,9 +1376,16 @@ void artificial_inteligence::execute_ai_step_dash()
         }
     } else {
         //std::cout << "###### AI::execute_ai_step_dash - execute - dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
-        if (move_to_point(_dest_point, max_speed, 0, is_ghost) == true || abs(_dest_point.x - position.x) < TILESIZE) {
+        if (move_to_point(_dest_point, move_speed*1.5, 0, is_ghost) == true) {
+            std::cout << "AI::DASH::FINISH #1" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
+            //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
+            set_animation_type(ANIM_TYPE_STAND);
+        }
+        if (abs(_dest_point.x - position.x) < TILESIZE) {
+            std::cout << "AI::DASH::FINISH #2 - diff: " << abs(_dest_point.x - position.x) << ", _dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         }
     }

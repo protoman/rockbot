@@ -231,9 +231,6 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 
 void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
 {
-    if (filename == "/home/iuri/Desenvolvimento/rockbot/build//games/Rockbot2/images/projectiles/projectile_normal.png") {
-        std::cout << "DEBUG #1" << std::endl;
-    }
     if (res == NULL) {
         return;
     }

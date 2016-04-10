@@ -309,15 +309,15 @@ void classnpc::boss_move()
 {
     //std::cout << "NPC::boss_move::BEGIN" << std::endl;
     if (hitPoints.current <= 0 || position.x < map->getMapScrolling().x-TILESIZE*2 || position.x > map->getMapScrolling().x+RES_W+TILESIZE*2) {
-        std::cout << "classboss::execute - LEAVE #1" << std::endl;
+        //std::cout << "classboss::execute - LEAVE #1" << std::endl;
         return;
     }
     if (last_execute_time > timer.getTimer()) {
-        std::cout << "classboss::execute - LEAVE #2" << std::endl;
+        //std::cout << "classboss::execute - LEAVE #2" << std::endl;
         return;
     }
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
-        std::cout << "classboss::execute - LEAVE #3" << std::endl;
+        //std::cout << "classboss::execute - LEAVE #3" << std::endl;
         clean_projectiles();
         return;
     }

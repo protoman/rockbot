@@ -50,9 +50,13 @@ ARMOR PIECES:
     # body ->
     # arms ->
 
+
+screwface:
+54x40 x 12 frames = 648x40
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+
 
 - adicionar sons para alguns projéteis inimgos como raio, laser, etc
 
@@ -89,19 +93,19 @@ VERSION 2.0.0 BETA 1
         DONE # AI inimigos
         DONE # items
         # dialogos
-    # zodiac
+    # phantom
         # chefe
-        # inimigos
-        # items
+        DONE # inimigos
+        DONE # items
         # dialogos
-    #dragon
+    # snow
         # chefe
-        # inimigos
-        # items
+        DONE # inimigos
+        DONE # items
         # dialogos
 
 
-41x43
+
 
 ##################################
              DONE
