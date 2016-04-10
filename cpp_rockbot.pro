@@ -10,8 +10,8 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
-#CONFIG += win32
+#CONFIG += linux
+CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
@@ -148,7 +148,7 @@ win32 {
                 -L/usr/lib
                 QMAKE_CCFLAGS += -DWIN32 -DPC
                 QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib
-                #CONFIG -= console
+                CONFIG -= console
 }
 
 
