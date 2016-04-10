@@ -56,9 +56,9 @@ screwface:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- não está removendo charged shot ao terminar um estágio e começar um novo
 
-
-- adicionar sons para alguns projéteis inimgos como raio, laser, etc
+- adicionar sons para alguns projéteis inimigos como raio, laser, etc
 
 - AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
     # como spawn NPC, mas não precisa morrer nem duplicar
