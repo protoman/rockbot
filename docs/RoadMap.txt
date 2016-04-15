@@ -47,18 +47,29 @@ adicionar sistema de colisão que permite diagonais
 
 ARMOR PIECES:
     OK # legs -> valkyrie
-    # body ->
-    # arms ->
+    # body -> ?? gear
+    # arms -> ??
 
 
-screwface:
-54x40 x 12 frames = 648x40
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - não está removendo charged shot ao terminar um estágio e começar um novo
 
 - adicionar sons para alguns projéteis inimigos como raio, laser, etc
+
+- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
+
+- está quebrando no chefe da fase do snow, pelo menos no Android
+
+- tirar empurrador do início da parte de plataformas da fase da valkyrie
+
+- importar alguns inimigos do Rockbot1 (milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle)
+
+- adicionar sons para alguns projéteis inimgos como raio, laser, etc
+    # procurar algum pacote de sound effects free
+    # http://www.themotionmonkey.co.uk/free-resources/retro-arcade-sounds/?gclid=cjwkeajw_7y4brdykp3hjqyt_y0sjacome3t8xvex6blwqyn6b6fvnixsveqlga7j9xnaejbue_ilxoc2z3w_wcb
+    # https://www.freesound.org/search/?q=thunder
 
 - AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
     # como spawn NPC, mas não precisa morrer nem duplicar
@@ -80,7 +91,7 @@ VERSION 2.0.0 BETA 1
 - implement 5 stages for demo:
     # intro
         # chefe (Milonga 2.0)
-        # AI inimigos
+        DONE # AI inimigos
         # dialogos
     # beast:
         # refazer gráficos de quando dentro de vagão
@@ -116,6 +127,10 @@ VERSION 2.0.0 BETA 1
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
 - PSP: investigar razão da lentidão
+
+- ANDROID: implementar login play services
+
+- ANDROID: implementar save na nuvem
 
 - AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
 
@@ -171,6 +186,11 @@ VERSION 2.0.0 BETA 2
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
 =========================================================================================================================================
+- implementar movie editor
+    # permitir cenas async
+
+- ANDROID: implementar troféus
+
 - check how to create apps in Android that add stages or complete games that user can install and select
 - colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
 - OPTIMIZAÇÃO: load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
@@ -181,6 +201,8 @@ VERSION 2.0.0 BETA 3
 =========================================================================================================================================
 VERSION 2.0.0 BETA 4
 =========================================================================================================================================
+- ANDROID: implementar In-app Billing - http://developer.android.com/google/play/billing/billing_integrate.html
+
 - não tirar tiro carregado ao passar por uma porta
     * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
