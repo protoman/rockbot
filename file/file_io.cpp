@@ -591,7 +591,7 @@ namespace format_v4 {
         */
         //data_out.stages[STAGE1] = 0;
         //data_out.stages[STAGE2] = 0;
-        //data_out.stages[STAGE8] = 0;
+        data_out.stages[STAGE3] = 1;
         //data_out.selected_player = PLAYER_3;
         /*
         //data_out.stages[MUMMYBOT] = 1;

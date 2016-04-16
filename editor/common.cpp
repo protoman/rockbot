@@ -247,7 +247,7 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 		list = AI_ACTION_DASH_OPTIONS;
 	} else if (action == AI_ACTION_GRAB_WALL) {
 		list = AI_ACTION_GRAB_WALL_OPTIONS;
-    } else if (action == AI_ACTION_SPAWN_NPC) {
+    } else if (action == AI_ACTION_SPAWN_NPC || action == AI_ACTION_REPLACE_NPC) {
         list = common::get_npc_names_list();
     } else if (action == AI_ACTION_SHOT_PROJECTILE_AHEAD || action == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION || action == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION) {
         //list = AI_ACTION_SHOT_OPTIONS;

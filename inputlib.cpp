@@ -59,6 +59,16 @@ void inputLib::clean()
     }
 }
 
+void inputLib::clean_all()
+{
+    for (int i=0; i<BTN_COUNT; i++) {
+        p1_input[i] = 0;
+    }
+    while (SDL_PollEvent(&event)) {
+        SDL_PumpEvents(); // check keyboard events
+    }
+}
+
 
 // ********************************************************************************************** //
 //                                                                                                //

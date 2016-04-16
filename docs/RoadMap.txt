@@ -16,12 +16,12 @@ ARMAS:
     * claw stratch (tipo do slash man de mm7)
     * snow gale (vendaval de neve) impede inimigos de se mover
         # apaga fogo e lava nos outros estágios (tem que ser objetos)
-    * windwhril (igual air man)
+    * slayer spear (???)
     * fogo fátuo (Will-o'-the-wisp) tipo magic missile, segue alvo até um determinado limite de distância (algo como 1/4 da largura da tela)
-    * sonar waves (pode ser igual do rockbot1 por hora)
+    * sonar Ring (pode ser igual do rockbot1 por hora)
         # quebra vidro (criar objeto)
     * golden arrow (flecha da armadura de sagitário) se gruda no oponente e vai ferindo ele aos poucos
-    * phantom vortex: suga objetos e inimigos para dentro (como o buraco negro de mm9)
+    * Dimension Vortex: suga objetos e inimigos para dentro (como o buraco negro de mm9)
         # puxa iterms de lugares inalcancáveis
     * scales armor (tipo arma do mage, melhorar visual apenas)
 
@@ -55,14 +55,12 @@ ARMOR PIECES:
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - não está removendo charged shot ao terminar um estágio e começar um novo
-
-- adicionar sons para alguns projéteis inimigos como raio, laser, etc
+- ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
+- as vezes, turbo mode fica atirando sozinho
 
 - ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
 
 - está quebrando no chefe da fase do snow, pelo menos no Android
-
-- tirar empurrador do início da parte de plataformas da fase da valkyrie
 
 - importar alguns inimigos do Rockbot1 (milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle)
 
@@ -70,11 +68,6 @@ VERSION 2.0.0 BETA 1
     # procurar algum pacote de sound effects free
     # http://www.themotionmonkey.co.uk/free-resources/retro-arcade-sounds/?gclid=cjwkeajw_7y4brdykp3hjqyt_y0sjacome3t8xvex6blwqyn6b6fvnixsveqlga7j9xnaejbue_ilxoc2z3w_wcb
     # https://www.freesound.org/search/?q=thunder
-
-- AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
-    # como spawn NPC, mas não precisa morrer nem duplicar
-
-- as vezes, turbo mode fica atirando sozinho
 
 - ANDROID: new icon
 
@@ -121,6 +114,15 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
+- não está tocando som custom de projéteis de armas para player usando-as
+- lighting deve tocar som mais vezes, a cada novo raio
+- tirar empurrador do início da parte de plataformas da fase da valkyrie
+- AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
+    # como spawn NPC, mas não precisa morrer nem duplicar
+
+
+
+
 
 
 =========================================================================================================================================

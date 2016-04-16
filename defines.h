@@ -522,10 +522,6 @@ enum e_game_flags {
 };
 
 
-/**
- * @brief
- *
- */
 enum AI_ACTION_LIST {
 	AI_ACTION_WALK,
 	AI_ACTION_FLY,
@@ -542,6 +538,7 @@ enum AI_ACTION_LIST {
 	AI_ACTION_GRAB_WALL,
     AI_ACTION_SPAWN_NPC,
     AI_ACTION_CHANGE_MOVE_TYPE,
+    AI_ACTION_REPLACE_NPC,                          // similar to spawn npc, but removes itself
 	AI_ACTION_LIST_SIZE
 };
 
@@ -551,23 +548,7 @@ enum AI_ACTION_SHOT_OPTIONS {
     AI_ACTION_SHOT_AHEAD
 };
 
-/*
-enum AI_ACTION_OPTIONS_LIST {
-    AI_OPTIONS_HORIZONTAL_AHEAD,
-    AI_OPTIONS_HORIZONTAL_TURN,
-	AI_OPTIONS_UP,
-	AI_OPTIONS_DOWN,
-	AI_OPTIONS_TO_PLAYER,
-	AI_OPTIONS_TO_SAVED_POINT,
-	AI_OPTIONS_TO_ROOF,
-	AI_OPTIONS_LIST_SIZE
-};
-*/
 
-/**
- * @brief
- *
- */
 enum AI_ACTION_GOTO_LIST {
 	AI_ACTION_GOTO_CHANCE,
 	AI_ACTION_GOTO_1,

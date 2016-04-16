@@ -20,6 +20,7 @@ public:
     void waitTime(int wait_period) const;
     int waitScapeTime(int);
     void clean();
+    void clean_all();     /// removes also the attack state
     void wait_keypress(); /// waits intil a key is pressed
 
     bool pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key);

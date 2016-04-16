@@ -54,6 +54,7 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("GRAB WALL");
     AI_ACTION_NAMES.push_back("SPAWN NPC");
     AI_ACTION_NAMES.push_back("CHANGE ANIMATION TYPE");
+    AI_ACTION_NAMES.push_back("REPLACE ITSELF");
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
     AI_ACTION_SHOT_OPTIONS.push_back("AHEAD");

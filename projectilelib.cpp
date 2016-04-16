@@ -374,9 +374,12 @@ short projectile::get_id()
 void projectile::play_sfx()
 {
     std::string projectile_sfx(GameMediator::get_instance()->get_projectile(_id).sfx_filename);
+
+
     if (projectile_sfx.length() > 0) {
-        Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
-        soundManager.play_sfx_from_chunk(sfx, 1);
+        //Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
+        //soundManager.play_sfx_from_chunk(sfx, 1);
+        soundManager.play_sfx_from_file(projectile_sfx, 1);
     } else {
         soundManager.play_sfx(SFX_PLAYER_SHOT);
     }
@@ -650,6 +653,7 @@ st_size projectile::move() {
 
     } else if (_move_type == TRAJECTORY_LIGHTING) {
         if (_effect_n > LIGHTING_FRAMES_N) {
+            play_sfx();
             if (direction == ANIM_DIRECTION_LEFT) {
                 position.x -= RES_W/3;
             } else {
@@ -720,7 +724,7 @@ void projectile::draw() {
     // lighting gets image from bottom to height
     } else if (_move_type == TRAJECTORY_LIGHTING) {
         int y_pos = get_surface()->height -_size.height;
-        std::cout << "LIGHTING::SHOW::y: " << y_pos << std::endl;
+        //std::cout << "LIGHTING::SHOW::y: " << y_pos << std::endl;
         graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, y_pos, show_width, _size.height), realPosition);
 
         if (animation_pos == _max_frames-1) {

@@ -245,6 +245,8 @@ void game::show_ready()
 void game::restart_stage()
 {
 
+    input.clean_all();
+
     std::cout << "### RESTART_STAGE::START ###" << std::endl;
 
     if (checkpoint.x < TILESIZE*4) {
@@ -1161,7 +1163,7 @@ void game::quick_load_game()
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
-    currentStage = STAGE6;
+    currentStage = STAGE3;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_2;
 

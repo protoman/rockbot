@@ -156,7 +156,7 @@ protected:
     void execute_ai_step_jump_to_wall();
 
 
-
+    void execute_ai_replace_itself();
 
     void execute_ai_step_spawn_npc();
 

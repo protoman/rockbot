@@ -217,6 +217,9 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_step_spawn_npc();
     } else if (_current_ai_type == AI_ACTION_CHANGE_MOVE_TYPE) {
         execute_ai_step_change_animation_type();
+    } else if (_current_ai_type == AI_ACTION_REPLACE_NPC) {
+        //std::cout << ">> AI:exec[" << name << "] SPAWN_NPC <<" << std::endl;
+        execute_ai_replace_itself();
     } else {
         //std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
@@ -1046,6 +1049,8 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 
             projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();
+            temp_proj.play_sfx();
+
 
             if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
                 temp_proj.set_owner_direction(&state.direction);
@@ -1264,6 +1269,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 }
                 projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, map, is_player()));
                 projectile &temp_proj = projectile_list.back();
+                temp_proj.play_sfx();
 
                 if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_CENTERED) {
                     temp_proj.set_owner_direction(&state.direction);
@@ -1643,22 +1649,22 @@ enum AI_ACTION_JUMP_OPTION_LIST {
     AI_ACTION_JUMP_OPTION_TO_SAVED_POINT };
 */
     if (_parameter == AI_ACTION_JUMP_OPTION_TO_ROOF) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO ROOF <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO ROOF <<" << std::endl;
         ia_action_jump_to_roof();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_TO_PLAYER) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO PLAYER <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO PLAYER <<" << std::endl;
         ia_action_jump_to_player();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_AHEAD) {
         //std::cout << ">> AI:exec[" << name << "] JUMP TO AHEAD <<" << std::endl;
         ia_action_jump_ahead();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_TO_RANDOM_POINT) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO RANDOM <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO RANDOM <<" << std::endl;
         ia_action_jump_to_random();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_ONCE) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
         ia_action_jump_once();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_UP) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO UP <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO UP <<" << std::endl;
         ia_action_jump_up();
     } else {
         std::cout << "*********** artificial_inteligence::execute_ai_step_jump - extra-parameter _parameter[" << _parameter << "] not implemented ******" << std::endl;
@@ -1723,6 +1729,26 @@ void artificial_inteligence::execute_ai_step_jump_to_wall()
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             state.direction = !state.direction;
         }
+    }
+}
+
+void artificial_inteligence::execute_ai_replace_itself()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        // spawn new npc
+        classnpc* temp;
+        temp = map->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
+        // is executing reaction and is dying and is map-boss -> set child as new map-boss
+        if (_reaction_state == 1 && _reaction_type == 3 && _is_stage_boss == true) {
+            _is_stage_boss = false;
+            temp->set_stage_boss(true);
+        }
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    } else {
+        // kills/remove itself
+        _dead_state = 2;
+        hitPoints.current = 0;
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     }
 }
 

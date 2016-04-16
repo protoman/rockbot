@@ -336,7 +336,6 @@ void classnpc::boss_move()
         return;
     } else if (_initialized == 1 && _is_boss == true) {
         //std::cout << "classboss::boss_move - C" << std::endl;
-        std::cout << "classboss::boss_move - #5 - _initialized: " << _initialized << std::endl;
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;
         }

@@ -674,6 +674,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
+        temp_proj.play_sfx();
+
         _player_must_reset_colors = true;
 
 
@@ -714,7 +716,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             }
 		}
 
-        temp_proj.play_sfx();
 
 
 		attack_state = ATTACK_START;
@@ -2373,7 +2374,7 @@ void character::push_back(short direction)
         xinc = move_speed-0.2;
     }
 
-    std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;
+    //std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;
 
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
