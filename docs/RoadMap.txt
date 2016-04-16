@@ -54,15 +54,17 @@ ARMOR PIECES:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- não está removendo charged shot ao terminar um estágio e começar um novo
-- ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
-- as vezes, turbo mode fica atirando sozinho
+
+TESTAR: - não está removendo charged shot ao terminar um estágio e começar um novo
+    # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
+    # as vezes, turbo mode fica atirando sozinho
 
 - ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
 
 - está quebrando no chefe da fase do snow, pelo menos no Android
 
-- importar alguns inimigos do Rockbot1 (milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle)
+- importar alguns inimigos do Rockbot1:
+    # milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle
 
 - adicionar sons para alguns projéteis inimgos como raio, laser, etc
     # procurar algum pacote de sound effects free
@@ -114,11 +116,6 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- não está tocando som custom de projéteis de armas para player usando-as
-- lighting deve tocar som mais vezes, a cada novo raio
-- tirar empurrador do início da parte de plataformas da fase da valkyrie
-- AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
-    # como spawn NPC, mas não precisa morrer nem duplicar
 
 
 

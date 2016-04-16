@@ -397,7 +397,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();
-        temp_proj.play_sfx();
+        temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();
         temp_proj.set_weapon_id(weapon_id);
 

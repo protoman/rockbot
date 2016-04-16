@@ -999,7 +999,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
         }
         // face player to shoot, if parameter is not shot-ahead-only
         if (move_speed > 0 && _current_ai_type != AI_ACTION_SHOT_PROJECTILE_AHEAD) {
-            std::cout << "AI::execute_ai_action_trow_projectile - face player, walk_range: " << walk_range << std::endl;
+            //std::cout << "AI::execute_ai_action_trow_projectile - face player, walk_range: " << walk_range << std::endl;
             struct_player_dist dist_players = dist_npc_players();
             if (dist_players.pObj->getPosition().x > position.x) {
                 state.direction = ANIM_DIRECTION_RIGHT;
@@ -1049,7 +1049,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 
             projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, map, is_player()));
             projectile &temp_proj = projectile_list.back();
-            temp_proj.play_sfx();
+            temp_proj.play_sfx(true);
 
 
             if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
@@ -1269,7 +1269,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 }
                 projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, map, is_player()));
                 projectile &temp_proj = projectile_list.back();
-                temp_proj.play_sfx();
+                temp_proj.play_sfx(true);
 
                 if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_CENTERED) {
                     temp_proj.set_owner_direction(&state.direction);
@@ -1734,7 +1734,16 @@ void artificial_inteligence::execute_ai_step_jump_to_wall()
 
 void artificial_inteligence::execute_ai_replace_itself()
 {
+
+    std::cout << "execute_ai_replace_itself[" << name << "]: _ai_state.sub_status: " << _ai_state.sub_status << ", _reaction_state: " << _reaction_state << ", _dead_state: " << _dead_state << ", hitPoints.current: " << hitPoints.current << std::endl;
+
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        // kills/remove itself
+        _dead_state = 2;
+        hitPoints.current = 0;
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         // spawn new npc
         classnpc* temp;
         temp = map->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
@@ -1743,12 +1752,6 @@ void artificial_inteligence::execute_ai_replace_itself()
             _is_stage_boss = false;
             temp->set_stage_boss(true);
         }
-        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-    } else {
-        // kills/remove itself
-        _dead_state = 2;
-        hitPoints.current = 0;
-        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     }
 }
 

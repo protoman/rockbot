@@ -674,7 +674,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, map, is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
-        temp_proj.play_sfx();
+        temp_proj.play_sfx(!is_player());
 
         _player_must_reset_colors = true;
 

@@ -69,7 +69,7 @@ public:
     st_rectangle get_area();
     short get_max_shots();
     short get_id();
-    void play_sfx();
+    void play_sfx(bool called_from_npc);
 
 private:
     // methods that return properties taking in account id -1 (default projectile)

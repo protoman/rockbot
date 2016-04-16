@@ -1604,8 +1604,11 @@ void classMap::move_npcs() /// @TODO - check out of screen
     //std::cout << "*************** classMap::showMap - npc_list.size: " << _npc_list.size() << std::endl;
     for (int i=0; i<_npc_list.size(); i++) {
         if (_break_npc_loop == true) {
+
+            //std::cout << "MAP::MOVE_NPCS::BREAK-LOOP" << std::endl;
+
             _break_npc_loop = false;
-            break;
+            return;
         }
         // check if NPC is outside the visible area
         st_position npc_pos = _npc_list.at(i).get_real_position();

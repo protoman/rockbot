@@ -185,8 +185,14 @@ FILE-FORMAT-V4:
     zodiac <-> phantom
     dragon <-> snow
 
+- não está tocando som custom de projéteis de armas para player usando-as
+- lighting deve tocar som mais vezes, a cada novo raio
+- tirar empurrador do início da parte de plataformas da fase da valkyrie
+- AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
+    # como spawn NPC, mas não precisa morrer nem duplicar
 
-
+- AI: replace itself estava fazendo spawn de 2 inimigos
+- não tocar o som de ataque padrão se for disparado por um inimigo
 
 
 

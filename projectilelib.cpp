@@ -371,7 +371,7 @@ short projectile::get_id()
     return _id;
 }
 
-void projectile::play_sfx()
+void projectile::play_sfx(bool called_from_npc)
 {
     std::string projectile_sfx(GameMediator::get_instance()->get_projectile(_id).sfx_filename);
 
@@ -380,7 +380,7 @@ void projectile::play_sfx()
         //Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
         //soundManager.play_sfx_from_chunk(sfx, 1);
         soundManager.play_sfx_from_file(projectile_sfx, 1);
-    } else {
+    } else if (called_from_npc == false) { // game enemies should not play default fire sound
         soundManager.play_sfx(SFX_PLAYER_SHOT);
     }
 }
@@ -653,7 +653,7 @@ st_size projectile::move() {
 
     } else if (_move_type == TRAJECTORY_LIGHTING) {
         if (_effect_n > LIGHTING_FRAMES_N) {
-            play_sfx();
+            play_sfx(false);
             if (direction == ANIM_DIRECTION_LEFT) {
                 position.x -= RES_W/3;
             } else {
