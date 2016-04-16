@@ -45,10 +45,6 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-ARMOR PIECES:
-    OK # legs -> valkyrie
-    # body -> ?? gear
-    # arms -> ??
 
 
 =========================================================================================================================================

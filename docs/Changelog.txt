@@ -194,6 +194,10 @@ FILE-FORMAT-V4:
 - AI: replace itself estava fazendo spawn de 2 inimigos
 - não tocar o som de ataque padrão se for disparado por um inimigo
 
+Place Armor Pieces:
+    # legs -> valkyrie
+    # body -> gear
+    # arms -> dragon
 
 
 
