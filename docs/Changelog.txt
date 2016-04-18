@@ -198,6 +198,23 @@ Place Armor Pieces:
     # legs -> valkyrie
     # body -> gear
     # arms -> dragon
+- importar alguns gráficos de inimigos do Rockbot1:
+    # milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle
+- adicionar sons para alguns projéteis inimgos como raio, laser, etc
+    # procurar algum pacote de sound effects free
+    # http://www.themotionmonkey.co.uk/free-resources/retro-arcade-sounds/?gclid=cjwkeajw_7y4brdykp3hjqyt_y0sjacome3t8xvex6blwqyn6b6fvnixsveqlga7j9xnaejbue_ilxoc2z3w_wcb
+    # https://www.freesound.org/search/?q=thunder
+
+
+
+- AI: adicionar opção AHEAD para action TELEPORT
+
+
+
+
+
+
+
 
 
 

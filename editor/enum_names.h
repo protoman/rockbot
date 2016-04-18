@@ -101,6 +101,7 @@ void init_enum_names() {
     AI_ACTION_TELEPORT_OPTIONS.push_back("RANDOM X");
     AI_ACTION_TELEPORT_OPTIONS.push_back("RANDOM Y");
     AI_ACTION_TELEPORT_OPTIONS.push_back("RANDOM POINT (X&Y)");
+    AI_ACTION_TELEPORT_OPTIONS.push_back("AHEAD");
     // -------------------------------------------------------------- //
     AI_ACTION_DASH_OPTIONS.push_back("LEFT");
     AI_ACTION_DASH_OPTIONS.push_back("RIGHT");

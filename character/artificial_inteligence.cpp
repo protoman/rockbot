@@ -1797,6 +1797,12 @@ void artificial_inteligence::ia_action_teleport()
                     position.x -= walk_range;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT) {
                     position.x += walk_range;
+                } else if (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD) {
+                    if (state.direction == ANIM_DIRECTION_LEFT) {
+                        position.x -= walk_range;
+                    } else {
+                        position.x += walk_range;
+                    }
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_TO_PLAYER) {
                     struct_player_dist dist_npc_player = dist_npc_players();
                     position.x = dist_npc_player.pObj->getPosition().x;

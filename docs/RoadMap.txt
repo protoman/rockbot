@@ -59,20 +59,7 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 
 - está quebrando no chefe da fase do snow, pelo menos no Android
 
-- importar alguns inimigos do Rockbot1:
-    # milonga, gambit, bunny/tophat, metool tophat, spinner ball, tamanduá, wheels penguim, jet beetle
-
-- adicionar sons para alguns projéteis inimgos como raio, laser, etc
-    # procurar algum pacote de sound effects free
-    # http://www.themotionmonkey.co.uk/free-resources/retro-arcade-sounds/?gclid=cjwkeajw_7y4brdykp3hjqyt_y0sjacome3t8xvex6blwqyn6b6fvnixsveqlga7j9xnaejbue_ilxoc2z3w_wcb
-    # https://www.freesound.org/search/?q=thunder
-
 - ANDROID: new icon
-
-- objeto que se move para esquerda/direita deve empurrar jogador.
-    # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
-
-- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
 => update script files to copy font to GAMEDIR
     # remove non-used fonts
@@ -129,6 +116,10 @@ VERSION 2.0.0 BETA 2
 
 - AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
 
+- objeto que se move para esquerda/direita deve empurrar jogador.
+    # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
+
+- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
