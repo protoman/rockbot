@@ -2147,11 +2147,17 @@ st_rectangle character::get_hitbox()
 // ********************************************************************************************** //
 void character::add_graphic()
 {
+
+    if (name == "") {
+        return;
+    }
+
     std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>::iterator it;
     st_spriteFrame temp_sprites[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
-	const std::string temp_name(name);
+    const std::string temp_name(name);
 
-    for (int i=0; i<2; i++) {
+
+    for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
 		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
                 temp_sprites[i][j][k].frameSurface.set_surface(NULL);
@@ -2160,11 +2166,14 @@ void character::add_graphic()
 	}
 
 
+
 	it = character_graphics_list.find(name);
 	if (it == character_graphics_list.end()) { // there is no graphic with this key yet, add it
-        character_graphics_list.insert(pair<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>(temp_name, temp_sprites));
-		//std::cout << "2. character::add_graphic - adding graphic entry for character '" << name << "', list.size: " << character_graphics_list.size() << std::endl;
+        //std::pair<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> temp_pair = std::pair<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>(temp_name, temp_sprites);
+
+        character_graphics_list.insert(std::pair<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]>(temp_name, temp_sprites));
     }
+
 }
 
 

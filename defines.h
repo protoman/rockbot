@@ -103,36 +103,38 @@ enum ANIM_DIRECTION {
  * @brief
  *
  */
-enum ANIM_TYPE { ANIM_TYPE_STAND,
-				 ANIM_TYPE_WALK,
-				 ANIM_TYPE_JUMP,
-				 ANIM_TYPE_ATTACK,
-				 ANIM_TYPE_TELEPORT,
-				 ANIM_TYPE_JUMP_ATTACK,
-				 ANIM_TYPE_WALK_ATTACK,
-				 ANIM_TYPE_HIT,
-				 ANIM_TYPE_STAIRS,
-				 ANIM_TYPE_STAIRS_SEMI,
-				 ANIM_TYPE_STAIRS_ATTACK,
-				 ANIM_TYPE_STAIRS_MOVE,
-                 ANIM_TYPE_THROW,
-				 ANIM_TYPE_TURN,
-				 ANIM_TYPE_MOVE_SEMI, // like turn, the start of the movement
-				 ANIM_TYPE_WALK_AIR, // for those that can walk on air
-				 ANIM_TYPE_INTRO, // for bosses
-                 ANIM_TYPE_SPECIAL_ATTACK, // for bosses, charging weapon, etc
-                 ANIM_TYPE_SLIDE,
-				 ANIM_TYPE_SHIELD,
-                 ANIM_TYPE_VERTICAL_TURN,
-                 ANIM_TYPE_ATTACK_THROW,
-                 ANIM_TYPE_ATTACK_DIAGONAL_UP,
-                 ANIM_TYPE_ATTACK_DIAGONAL_DOWN,
-                 ANIM_TYPE_ATTACK_UP,
-                 ANIM_TYPE_ATTACK_DOWN,
-                 ANIM_TYPE_ATTACK_SPECIAL, // (hadouken, shouryuken, etc)
-                 ANIM_TYPE_LOOK_UP,
-                 ANIM_TYPE_GRAB_WALL,
-                 ANIM_TYPE_COUNT };
+enum ANIM_TYPE {
+    ANIM_TYPE_STAND,
+    ANIM_TYPE_WALK,
+    ANIM_TYPE_JUMP,
+    ANIM_TYPE_ATTACK,
+    ANIM_TYPE_TELEPORT,
+    ANIM_TYPE_JUMP_ATTACK,
+    ANIM_TYPE_WALK_ATTACK,
+    ANIM_TYPE_HIT,
+    ANIM_TYPE_STAIRS,
+    ANIM_TYPE_STAIRS_SEMI,
+    ANIM_TYPE_STAIRS_ATTACK,
+    ANIM_TYPE_STAIRS_MOVE,
+    ANIM_TYPE_THROW,
+    ANIM_TYPE_TURN,
+    ANIM_TYPE_MOVE_SEMI, // like turn, the start of the movement
+    ANIM_TYPE_WALK_AIR, // for those that can walk on air
+    ANIM_TYPE_INTRO, // for bosses
+    ANIM_TYPE_SPECIAL_ATTACK, // for bosses, charging weapon, etc
+    ANIM_TYPE_SLIDE,
+    ANIM_TYPE_SHIELD,
+    ANIM_TYPE_VERTICAL_TURN,
+    ANIM_TYPE_ATTACK_THROW,
+    ANIM_TYPE_ATTACK_DIAGONAL_UP,
+    ANIM_TYPE_ATTACK_DIAGONAL_DOWN,
+    ANIM_TYPE_ATTACK_UP,
+    ANIM_TYPE_ATTACK_DOWN,
+    ANIM_TYPE_ATTACK_SPECIAL, // (hadouken, shouryuken, etc)
+    ANIM_TYPE_LOOK_UP,
+    ANIM_TYPE_GRAB_WALL,
+    ANIM_TYPE_COUNT
+};
 
 // alguns como attack_trhow e throw; e special attack e attack_special estão repetidos. fica de reserva futura
 

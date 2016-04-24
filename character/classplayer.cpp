@@ -53,6 +53,7 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
 	// load items from save
     move_speed = PLAYER_MOVE_SPEED;
     selected_weapon = 0;
+    name = "PLAYER1";
     reset_charging_shot();
 }
 

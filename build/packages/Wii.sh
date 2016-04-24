@@ -6,11 +6,11 @@ rm -r -f ./Wii
 mkdir ./Wii
 mkdir ./Wii/apps
 mkdir ./Wii/apps/rockbot
-unzip unzip -x ./files/wii_meta.zip -d ./Wii/apps/rockbot
-cp ../rockbot.elf ./Wii/apps/rockbot
-rsync -r --exclude=.svn ../data ./Wii/apps/rockbot
-rm ./Wii/apps/rockbot/data/game*.sav
-rm ./Wii/apps/rockbot/data/config*.sav
-
+#unzip unzip -x ./files/wii_meta.zip -d ./Wii/apps/rockbot
+cp ./files/wii_meta/* ./Wii/apps/rockbot
+cp ../rockbot.dol ./Wii/apps/rockbot
+rsync -r --exclude=.svn ../fonts ./Wii/apps/rockbot
+rsync -r --exclude=.svn ../games ./Wii/apps/rockbot
+rsync -r --exclude=.svn ../shared ./Wii/apps/rockbot
 cd ./Wii
 zip -r ../Rockbot_Wii_$VERSIONNAME.zip *

@@ -103,13 +103,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 {
     UNUSED(stage_id);
     UNUSED(map_id);
-    //std::cout << "classnpc::build_basic_npc" << std::endl;
 	_number = main_id;
 	// TODO - usar operador igual e também para cópia de toda a classe para ela mesma
 	graphicsLib_gSurface npc_sprite_surface;
 
-
-	//std::cout << "NPC 1 - stage_id: " << stage_id << ", map_id: " << map_id << ", main_id: " << main_id << ", id: " << id << std::endl;
 
     name = std::string(GameMediator::get_instance()->get_enemy(main_id).name);
 

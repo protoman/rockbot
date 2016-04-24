@@ -5,6 +5,7 @@
 #include <SDL/SDL.h>				//Include da SDL
 #include <vector>
 #include <iostream>
+#include <stdio.h>
 
 #include "defines.h"
 
@@ -249,7 +250,7 @@ public:
     // copy CONSTRUCTOR
     graphicsLib_gSurface(const graphicsLib_gSurface &original)
 	{
-		//std::cout << "graphicsLib_gSurface::COPY" << std::endl;
+
         if (original.gSurface == NULL) {
             gSurface = NULL;
             width = 0;
@@ -281,6 +282,7 @@ public:
     // assign constructor
     graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
     {
+
         if (original.gSurface == NULL) {
             gSurface = NULL;
             width = 0;
@@ -301,7 +303,6 @@ public:
             show_debug = false;
             if (original.width > 0) {
                 gSurface = SDL_DisplayFormat(original.gSurface);
-                //SDL_FreeSurface(original.gSurface);
             } else {
                 gSurface = NULL;
             }
@@ -310,7 +311,11 @@ public:
 
     ~graphicsLib_gSurface()
 	{
+        setbuf(stdout, NULL);
         freeGraphic();
+        colorkey1_points.clear();
+        colorkey2_points.clear();
+        colorkey3_points.clear();
 	}
 
 

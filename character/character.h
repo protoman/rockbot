@@ -38,17 +38,45 @@ struct object_colision;
  *
  */
 struct st_spriteFrame {
-    unsigned int delay; // time in milisseconds this frame will be shown
-    graphicsLib_gSurface frameSurface;
+    int delay; // time in milisseconds this frame will be shown /**< TODO */
+    graphicsLib_gSurface frameSurface; /**< TODO */
 	st_spriteFrame() {
-        frameSurface.set_surface(NULL);
+        //frameSurface.gSurface = NULL;
 		delay = 20;
 	}
+
+    // copy constructor //
+    st_spriteFrame (const st_spriteFrame& other)
+    {
+        if (other.frameSurface.get_surface() != NULL) {
+
+            frameSurface = other.frameSurface;
+
+        }
+        delay = other.delay;
+    }
+
+    // assign copy constructor //
+    st_spriteFrame& operator= (const st_spriteFrame& other)
+    {
+        setbuf(stdout, NULL);
+
+        if (other.frameSurface.get_surface() != NULL) {
+            frameSurface = other.frameSurface;
+        }
+        delay = other.delay;
+    }
+
     void setDelay(int newDelay)
 	{
 		delay = newDelay;
 	}
-    void setSurface(graphicsLib_gSurface& newSurface)
+    /**
+     * @brief
+     *
+     * @param newSurface
+     */
+    void setSurface(graphicsLib_gSurface newSurface)
 	{
 		graphLib.initSurface(st_size(newSurface.width, newSurface.height), &frameSurface);
 		graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);

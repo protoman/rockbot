@@ -424,6 +424,7 @@ st_float_position *classMap::get_map_scrolling_ref()
 // ********************************************************************************************** //
 void classMap::load_map_npcs()
 {
+
     // remove all elements currently in the list
     while (!_npc_list.empty()) {
         _npc_list.back().clean_character_graphics_list();
@@ -444,7 +445,10 @@ void classMap::load_map_npcs()
             }
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
+
         }
+
+
 	}
 }
 

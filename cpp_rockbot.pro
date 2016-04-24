@@ -249,12 +249,12 @@ wii {
 	QMAKE_CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++
 	QMAKE_LINK = $(DEVKITPPC)/bin/powerpc-eabi-g++
 
-        QMAKE_CXXFLAGS += -Dmain=SDL_main -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-exceptions -fno-rtti -g
+        QMAKE_CXXFLAGS += -Dmain=SDL_main -fexceptions -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-rtti -g
         LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
 
         INCLUDES = -I$(DEVKITPPC)/libogc/include/ -I$(DEVKITPPC)/devkitPPC/include/ -I. -I../include -I.
 
-#	QMAKE_POST_LINK += $DEVKITPPC/bin/powerpc-eabi-strip rockbot.elf
+        QMAKE_POST_LINK += $(DEVKITPPC)/bin/elf2dol rockbot.elf boot.dol
 }
 
 dreamcast {

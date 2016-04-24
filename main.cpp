@@ -81,6 +81,8 @@ bool have_save = false;
 	std::string EXEC_NAME("EBOOT.PBP");
 #elif defined(ANDROID)
     std::string EXEC_NAME("");
+#elif defined(WII)
+    std::string EXEC_NAME("boot.dol");
 #else
     std::string EXEC_NAME("rockbot");
 #endif
@@ -247,9 +249,9 @@ void get_filepath()
 
     #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
         FILEPATH = "mass:/PS2/Rockbot/";
-    #elif WII
-        FILEPATH = "sd:/apps/Rockbot/";
-        printf("MAIN #D\n");
+    //#elif WII
+        //FILEPATH = "sd:/apps/Rockbot/";
+        //printf("MAIN #D\n");
     #endif
     std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
 	#ifdef DREAMCAST
@@ -423,8 +425,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
+    printf(">> WII.DEBUG #B <<");
+
     /// DEBUG ///
-    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX
@@ -460,6 +464,7 @@ int main(int argc, char *argv[])
 
 
 
+    printf(">> WII.DEBUG #A <<");
 
     GAMENAME = gameControl.select_game_screen();
 
@@ -480,6 +485,9 @@ int main(int argc, char *argv[])
         return 0;
     }
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
+
+
+    printf(">> WII.DEBUG #0 <<");
 
     std::cout << "GAMENAME: " << GAMENAME << std::endl;
 
@@ -508,6 +516,7 @@ int main(int argc, char *argv[])
     #endif
     have_save = fio.save_exists();
 
+    /*
     #ifndef DEBUG_OUTPUT // redirect output to null
         std::string cout_file = "/dev/null";
         std::ofstream out(cout_file.c_str());
@@ -522,7 +531,10 @@ int main(int argc, char *argv[])
             std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
         #endif
     #endif
+    */
 
+
+    printf(">> WII.DEBUG #1 <<");
 
     graphLib.preload();
 #ifdef PLAYSTATION2
@@ -544,7 +556,9 @@ int main(int argc, char *argv[])
     input.clean();
 
 
+    setbuf(stdout, NULL);
 
+    printf(">> WII.DEBUG #2 <<");
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -559,6 +573,8 @@ int main(int argc, char *argv[])
         //return 1;
     }
 
+
+    printf(">> WII.DEBUG #3 <<");
 
     bool run_game = true;
 

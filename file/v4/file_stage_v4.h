@@ -3,6 +3,7 @@
 
 #include "file/format/st_common.h"
 #include "defines.h"
+#include <stdio.h>
 
 namespace format_v4 {
 

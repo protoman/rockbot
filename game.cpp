@@ -175,22 +175,36 @@ void game::start_stage()
 
 	_show_boss_hp = false;
     input.clean();
+
+    printf(">> WII.DEBUG #2.3.0 <<");
+
     loaded_stage.reset_current_map();
+
+    printf(">> WII.DEBUG #2.3.1 <<");
 
 
     /// @TODO - this must be on a single method in soundlib
     player1.set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
 
+    printf(">> WII.DEBUG #2.3.2 <<");
+
 	soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
 
+    printf(">> WII.DEBUG #2.3.3 <<");
+
     loaded_stage.reload_stage();
 
+    printf(">> WII.DEBUG #2.3.4 <<");
     player1.cancel_slide();
+
 
     loaded_stage.showStage();
     loaded_stage.showAbove();
+    printf(">> WII.DEBUG #2.3.5 <<");
     draw_lib.update_screen();
+    printf(">> WII.DEBUG #2.3.6 <<");
+
 
 
 
@@ -200,6 +214,7 @@ void game::start_stage()
     player1.set_map(loaded_stage.get_current_map());
     player1.refill_weapons();
     player1.reset_hp();
+
 
 
     // find teleport stop point
@@ -212,6 +227,8 @@ void game::start_stage()
 
     soundManager.play_music();
 
+
+
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
         showGame(true, false);
         draw_lib.update_screen();
@@ -222,6 +239,7 @@ void game::start_stage()
         timer.delay(20);
     }
 
+    printf(">> WII.DEBUG #2.3.6 <<");
 
 	/// @TODO: do not show twice
     if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -1160,9 +1178,12 @@ void game::show_ending(st_position boss_pos)
 
 void game::quick_load_game()
 {
+    printf(">> WII.DEBUG #2.0 <<");
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
+
+    printf(">> WII.DEBUG #2.1 <<");
     currentStage = STAGE5;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_2;
@@ -1178,8 +1199,11 @@ void game::quick_load_game()
     }
 
     scenes.preloadScenes();
+    printf(">> WII.DEBUG #2.2 <<");
 	initGame();
+    printf(">> WII.DEBUG #2.3 <<");
     start_stage();
+    printf(">> WII.DEBUG #2.4 <<");
 }
 
 void game::update_stage_scrolling()

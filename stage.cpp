@@ -62,17 +62,19 @@ void stage::setNumber(int setNumber)
 //                                                                                                //
 // ********************************************************************************************** //
 void stage::loadStage() {
-	//std::cout << "*************** stage::loadStage(" << number << ") ***************" << std::endl;
+    //std::cout << "*************** stage::loadStage(" << number << ") ***************" << std::endl;
     if (number == -1) {
+
         graphLib.show_debug_msg("ERROR::stage::loadStage - stage number was not set, can't load it before setting the number");
 		return;
 	}
     if (number >= MAX_STAGES) {
+
         std::cout << "ERROR::stage::loadStage - stage number[" << number << "] is greater than the MAX_STAGES[" << MAX_STAGES << "].\n";
         return;
 	}
 
-	//std::cout << "stage::loadStage - number: " << number << std::endl;
+    //std::cout << "stage::loadStage - number: " << number << std::endl;
 
 	// load stage maps
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
