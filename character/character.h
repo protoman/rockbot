@@ -33,6 +33,9 @@ enum ATTACK_STATES {
 class classMap;		// advance declaration
 struct object_colision;
 
+
+
+
 /**
  * @brief
  *
@@ -82,6 +85,11 @@ struct st_spriteFrame {
 		graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);
 	}
 };
+
+struct st_char_sprite_data {
+    st_spriteFrame frames[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+};
+
 
 
 /**
@@ -683,8 +691,6 @@ protected:
 public:
 	// projectile list
     std::vector<projectile> projectile_list;
-    //struct st_spriteFrame sprite_list[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]; // TODO - move to protected
-
 
 protected:
 	// members static that can be moved to use game_data
@@ -736,7 +742,7 @@ protected:
 	// external members
 
 	// TODO - graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_spriteFrame[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]> character_graphics_list;
+    static std::map<std::string, st_char_sprite_data> character_graphics_list;
     static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list;
 
     object* _platform; // used to move player when object moves

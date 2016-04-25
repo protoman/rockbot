@@ -1008,7 +1008,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             }
         }
 		state.animation_state = 0;
-        state.animation_timer = timer.getTimer() + (character_graphics_list.find(name)->second)[state.direction][state.animation_type][state.animation_state].delay;
+        state.animation_timer = timer.getTimer() + (character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
 	} else {
