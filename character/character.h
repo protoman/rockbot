@@ -88,6 +88,56 @@ struct st_spriteFrame {
 
 struct st_char_sprite_data {
     st_spriteFrame frames[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+
+    st_char_sprite_data() {
+        printf(">> DEBUG.st_char_sprite_data.CONSTRUCT.START <<\n");
+        fflush(stdout);
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    frames[i][j][k].frameSurface.set_surface(NULL);
+                }
+            }
+        }
+        printf(">> DEBUG.st_char_sprite_data.CONSTRUCT.END <<\n");
+        fflush(stdout);
+    }
+
+    // copy constructor //
+    st_char_sprite_data (const st_char_sprite_data& other)
+    {
+        printf(">> DEBUG.st_char_sprite_data.COPY.START <<\n");
+        fflush(stdout);
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    printf(">> DEBUG.st_char_sprite_data.COPY.EXEC[%d][%d][%d] <<\n", i, j, k);
+                    fflush(stdout);
+                    timer.delay(2);
+                }
+            }
+        }
+        printf(">> DEBUG.st_char_sprite_data.COPY.END <<\n");
+        fflush(stdout);
+        timer.delay(300);
+    }
+
+    // assign copy constructor //
+    st_char_sprite_data& operator= (const st_char_sprite_data& other)
+    {
+        printf(">> DEBUG.st_char_sprite_data.ASSIGN.START <<\n");
+        fflush(stdout);
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    printf(">> DEBUG.st_char_sprite_data.ASSIGN.EXEC[%d][%d][%d] <<\n", i, j, k);
+                    fflush(stdout);
+                }
+            }
+        }
+        printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
+        fflush(stdout);
+    }
 };
 
 

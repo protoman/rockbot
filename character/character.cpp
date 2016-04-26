@@ -2153,23 +2153,22 @@ void character::add_graphic()
     }
 
     std::map<std::string, st_char_sprite_data>::iterator it;
-    st_char_sprite_data temp_sprites;
     const std::string temp_name(name);
-
-
-    for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                temp_sprites.frames[i][j][k].frameSurface.set_surface(NULL);
-			}
-		}
-	}
-
 
 
 	it = character_graphics_list.find(name);
 	if (it == character_graphics_list.end()) { // there is no graphic with this key yet, add it
-        character_graphics_list.insert(std::pair<std::string, st_char_sprite_data>(temp_name, temp_sprites));
+        printf(">> DEBUG.CHAR.add_graphic.st_char_sprite_data().START[%s] <<\n", name.c_str());
+        fflush(stdout);
+
+        std::pair<std::string, st_char_sprite_data> temp_data(temp_name, st_char_sprite_data());
+
+        character_graphics_list.insert(temp_data);
+        timer.delay(300);
+        timer.delay(300);
+        printf(">> DEBUG.CHAR.add_graphic.st_char_sprite_data().END <<\n");
+        fflush(stdout);
+        timer.delay(300);
     }
 
 }
