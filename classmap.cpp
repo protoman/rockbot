@@ -426,8 +426,10 @@ void classMap::load_map_npcs()
 {
 
     // remove all elements currently in the list
-    while (!_npc_list.empty()) {
+    if (_npc_list.size() > 0) {
         _npc_list.back().clean_character_graphics_list();
+    }
+    while (!_npc_list.empty()) {
         _npc_list.pop_back();
     }
 

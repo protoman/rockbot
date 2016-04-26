@@ -353,6 +353,9 @@ int main(int argc, char *argv[])
 #endif
 
 
+    printf(">> WII.DEBUG #A <<");
+    fflush(stdout);
+
     get_filepath();
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
@@ -426,6 +429,7 @@ int main(int argc, char *argv[])
 	}
 
     printf(">> WII.DEBUG #B <<");
+    fflush(stdout);
 
     /// DEBUG ///
     GAME_FLAGS[FLAG_QUICKLOAD] = true;
@@ -445,6 +449,9 @@ int main(int argc, char *argv[])
         SAVEPATH = GAMEPATH;
     #endif
 
+    printf(">> WII.DEBUG #C <<");
+    fflush(stdout);
+
 
     std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
 
@@ -454,9 +461,14 @@ int main(int argc, char *argv[])
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
+        printf(">> WII.DEBUG #D <<");
+        fflush(stdout);
         std::cout << "ERROR intializing graphic mode." << std::endl;
         return -1;
     }
+
+    printf(">> WII.DEBUG #E <<");
+    fflush(stdout);
 
 #ifdef ANDROID
     set_android_default_buttons_pos();
@@ -464,9 +476,11 @@ int main(int argc, char *argv[])
 
 
 
-    printf(">> WII.DEBUG #A <<");
 
     GAMENAME = gameControl.select_game_screen();
+
+    printf(">> WII.DEBUG #F <<");
+    fflush(stdout);
 
     // DEBUG PS2 //
     //GAMENAME = std::string("Rockbot2");
@@ -487,7 +501,8 @@ int main(int argc, char *argv[])
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
 
 
-    printf(">> WII.DEBUG #0 <<");
+    printf(">> WII.DEBUG #G <<");
+    fflush(stdout);
 
     std::cout << "GAMENAME: " << GAMENAME << std::endl;
 
@@ -535,13 +550,20 @@ int main(int argc, char *argv[])
 
 
     printf(">> WII.DEBUG #1 <<");
+    fflush(stdout);
 
     graphLib.preload();
+
+    printf(">> WII.DEBUG #1.1 <<");
+    fflush(stdout);
+
 #ifdef PLAYSTATION2
     fio.load_config(game_config);
     PS2_create_save_icons();
 #endif
     draw_lib.preload();
+    printf(">> WII.DEBUG #1.2 <<");
+    fflush(stdout);
 
     gameControl.currentStage = INTRO_STAGE;
 
@@ -549,20 +571,30 @@ int main(int argc, char *argv[])
     game_config.volume_sfx = 128;
     game_config.volume_music = 128;
 
+    printf(">> WII.DEBUG #1.3 <<");
+    fflush(stdout);
 
     input.clean();
+    printf(">> WII.DEBUG #1.4 <<");
+    fflush(stdout);
     input.p1_input[BTN_START] = 0;
     input.waitTime(200);
+    printf(">> WII.DEBUG #1.5 <<");
+    fflush(stdout);
+
     input.clean();
 
 
-    setbuf(stdout, NULL);
+
 
     printf(">> WII.DEBUG #2 <<");
+    fflush(stdout);
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (gameControl.showIntro() == false) {
+            printf(">> WII.DEBUG #INTRO ERROR <<");
+            fflush(stdout);
             std::cout << "ERROR SHOWING INTRO" << std::endl;
 			return 0;
 		}
@@ -575,11 +607,16 @@ int main(int argc, char *argv[])
 
 
     printf(">> WII.DEBUG #3 <<");
+    fflush(stdout);
 
     bool run_game = true;
 
     fps_control fps_manager;
     fps_manager.initialize();
+
+    printf(">> WII.DEBUG #4 <<");
+    fflush(stdout);
+
 
     while (run_game) {
         #if !defined(DINGUX)

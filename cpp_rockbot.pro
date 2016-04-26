@@ -10,13 +10,13 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora
-#CONFIG += wii
+CONFIG += wii
 #CONFIG += dreamcast
 #CONFIG += dingoo_native
 #CONFIG += macosx
@@ -250,7 +250,7 @@ wii {
 	QMAKE_LINK = $(DEVKITPPC)/bin/powerpc-eabi-g++
 
         QMAKE_CXXFLAGS += -Dmain=SDL_main -fexceptions -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-rtti -g
-        LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
+        LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../portlibs/ppc/lib -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
 
         INCLUDES = -I$(DEVKITPPC)/libogc/include/ -I$(DEVKITPPC)/devkitPPC/include/ -I. -I../include -I.
 

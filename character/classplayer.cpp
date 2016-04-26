@@ -935,21 +935,21 @@ void classPlayer::change_player_color(bool full_change)
 {
     //std::cout << "PLAYER::change_player_color - selected_weapon: " << selected_weapon << std::endl;
 	if (full_change == false) {
-        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
 					if (weapon_colors[selected_weapon].color1.r != -1) {
-                        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface);
 					}
 					if (weapon_colors[selected_weapon].color2.r != -1) {
-                        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface);
 					}
 					if (weapon_colors[selected_weapon].color3.r != -1) {
-                        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface);
 					}
 				}
 			}

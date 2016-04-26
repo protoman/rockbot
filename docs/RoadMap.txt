@@ -50,6 +50,13 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
+- limpar gráficos de NPCs ao sair (agora é mapa com ponteiros)
+- criar função para não acessar gráficos de NPCs diretamente
+
+- fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
+- substituir exit() por saída graciosa em todos os lugares possíveis
+
 
 TESTAR: - não está removendo charged shot ao terminar um estágio e começar um novo
     # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar

@@ -33,7 +33,7 @@ inputLib::inputLib() : _used_keyboard(false)
 
 void inputLib::init_joystick()
 {
-	SDL_JoystickEventState(SDL_ENABLE);
+    SDL_JoystickEventState(SDL_ENABLE);
     joystick1 = SDL_JoystickOpen(game_config.selected_input_device);
 }
 

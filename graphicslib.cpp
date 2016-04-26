@@ -85,6 +85,10 @@ bool graphicsLib::initGraphics()
 	string filename;
     _video_filter = game_config.video_filter;
 
+    printf(">> WII.DEBUG.INIT_GRAPHICS #1 <<");
+    fflush(stdout);
+
+
 #ifdef DREAMCAST
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) < 0 ) {
         std::cout << "SDL Error" << std::endl;
@@ -108,11 +112,21 @@ bool graphicsLib::initGraphics()
 #if defined(PLAYSTATION2) || defined(WII)
     if (SDL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
+
+        printf(">> WII.DEBUG.INIT_GRAPHICS.NO_JOYSTICKS <<");
+        fflush(stdout);
+
+
         exit(-1);
     }
 #endif
 	input.init_joystick();
-	// FONT
+
+
+    printf(">> WII.DEBUG.INIT_GRAPHICS #2 <<");
+    fflush(stdout);
+
+    // FONT
 	TTF_Init();
     filename = GAMEPATH + "/fonts/pressstart2p.ttf";
 
@@ -122,12 +136,17 @@ bool graphicsLib::initGraphics()
 	fileRW = SDL_RWFromFile(buffer, "rb");
 	if (!fileRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
+        fflush(stdout);
         delete[] buffer;
 		return false;
 	} else {
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
     }
     delete[] buffer;
+
+    printf(">> WII.DEBUG.INIT_GRAPHICS #3 <<");
+    fflush(stdout);
+
 
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
@@ -148,6 +167,9 @@ bool graphicsLib::initGraphics()
     }
 #endif
 	// other loading methods
+
+    printf(">> WII.DEBUG.INIT_GRAPHICS.END <<");
+    fflush(stdout);
 
 
     return true;
@@ -1635,7 +1657,7 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
     //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(WII)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     if (game_config.video_fullscreen == false) {
         game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);

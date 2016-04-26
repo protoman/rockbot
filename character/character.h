@@ -43,10 +43,10 @@ struct object_colision;
 struct st_spriteFrame {
     int delay; // time in milisseconds this frame will be shown /**< TODO */
     graphicsLib_gSurface frameSurface; /**< TODO */
-	st_spriteFrame() {
+    st_spriteFrame() {
         //frameSurface.gSurface = NULL;
-		delay = 20;
-	}
+        delay = 20;
+    }
 
     // copy constructor //
     st_spriteFrame (const st_spriteFrame& other)
@@ -71,19 +71,19 @@ struct st_spriteFrame {
     }
 
     void setDelay(int newDelay)
-	{
-		delay = newDelay;
-	}
+    {
+        delay = newDelay;
+    }
     /**
      * @brief
      *
      * @param newSurface
      */
     void setSurface(graphicsLib_gSurface newSurface)
-	{
-		graphLib.initSurface(st_size(newSurface.width, newSurface.height), &frameSurface);
-		graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);
-	}
+    {
+        graphLib.initSurface(st_size(newSurface.width, newSurface.height), &frameSurface);
+        graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);
+    }
 };
 
 struct st_char_sprite_data {
@@ -111,15 +111,12 @@ struct st_char_sprite_data {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    printf(">> DEBUG.st_char_sprite_data.COPY.EXEC[%d][%d][%d] <<\n", i, j, k);
-                    fflush(stdout);
-                    timer.delay(2);
+                    /// @TODO - copy surface
                 }
             }
         }
         printf(">> DEBUG.st_char_sprite_data.COPY.END <<\n");
         fflush(stdout);
-        timer.delay(300);
     }
 
     // assign copy constructor //
@@ -130,8 +127,7 @@ struct st_char_sprite_data {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    printf(">> DEBUG.st_char_sprite_data.ASSIGN.EXEC[%d][%d][%d] <<\n", i, j, k);
-                    fflush(stdout);
+                    /// @TODO - copy surface
                 }
             }
         }
@@ -792,7 +788,7 @@ protected:
 	// external members
 
 	// TODO - graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_char_sprite_data> character_graphics_list;
+    static std::map<std::string, st_char_sprite_data*> character_graphics_list;
     static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list;
 
     object* _platform; // used to move player when object moves
