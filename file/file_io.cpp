@@ -767,6 +767,14 @@ namespace format_v4 {
             sint16_to_little_endian(data_out.weapon_menu_colors[i].g);
             sint16_to_little_endian(data_out.weapon_menu_colors[i].b);
         }
+        for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX; i++) {
+            for (int j=0; j<FS_MAX_PLAYERS; j++) {
+                int_to_little_endian(data_out.armor_pieces[i].special_ability[j]);
+                for (int k=0; k<FS_DIALOG_LINES; k++) {
+                    int_to_little_endian(data_out.armor_pieces[i].got_message[j][k]);
+                }
+            }
+        }
     }
 
 

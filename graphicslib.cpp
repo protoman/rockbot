@@ -327,6 +327,17 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         exit(-1);
     }
 
+    if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
+        printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        fflush(stdout);
+        return;
+    }
+    if (src.y >= surfaceOrigin->h || (src.y+src.h) > surfaceOrigin->h) {
+        printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
+        fflush(stdout);
+        return;
+    }
+
     if (surfaceDestiny == game_screen) { // if painting on game_screen, use position adjusts
         dest.x += _screen_resolution_adjust.x;
         dest.y += _screen_resolution_adjust.y;

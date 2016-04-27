@@ -96,6 +96,7 @@ void GameMediator::wii_convert_npc_list() {
         sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.x);
         sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.y);
         sint16_to_little_endian(enemy_list.at(i).walk_range);
+        int_to_little_endian(enemy_list.at(i).respawn_delay);
 
     }
 }
@@ -104,6 +105,7 @@ void GameMediator::wii_convert_object_list() {
     for (int i=0; i<object_list.size(); i++) {
         sint16_to_little_endian(object_list.at(i).distance);
         sint16_to_little_endian(object_list.at(i).frame_duration);
+        int_to_little_endian(object_list.at(i).timer);
 
     }
 }
@@ -117,6 +119,12 @@ void GameMediator::wii_convert_ai_list() {
             int_to_little_endian(ai_list.at(i).states[j].go_to_delay);
             int_to_little_endian(ai_list.at(i).states[j].extra_parameter);
         }
+        for (int j=0; j<MAX_AI_REACTIONS; j++) {
+            int_to_little_endian(ai_list.at(i).reactions[j].action);
+            int_to_little_endian(ai_list.at(i).reactions[j].go_to);
+            int_to_little_endian(ai_list.at(i).reactions[j].go_to_delay);
+            int_to_little_endian(ai_list.at(i).reactions[j].extra_parameter);
+        }
     }
 }
 
@@ -125,6 +133,8 @@ void GameMediator::wii_convert_projectile_list() {
     for (int i=0; i<projectile_list.size(); i++) {
         sint16_to_little_endian(projectile_list.at(i).size.width);
         sint16_to_little_endian(projectile_list.at(i).size.height);
+
+        printf(">> projectile[%d][%s].w[%d].h[%d] <<\n", i, projectile_list.at(i).name, projectile_list.at(i).size.width, projectile_list.at(i).size.height);
     }
 }
 
@@ -164,6 +174,8 @@ GameMediator::GameMediator()
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat");
+    printf("### projectile_list.size[%d] ###\n", projectile_list.size());
+
     anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
     player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
 

@@ -52,9 +52,15 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
         return res;
     }
 
+    int n = 0;
     while (!feof(fp) && !ferror(fp)) {
         T out;
         int res_read = fread(&out, sizeof(T), 1, fp);
+
+        if (file == "game_projectile_list.dat") {
+            printf("### read.projectile, res[%d]: '%d' ###\n", n, res_read);
+        }
+
         //std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
         if (res_read == -1) {
             std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
@@ -62,6 +68,7 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
         } else if (res_read == 1) {
             res.push_back(out);
         }
+        n++;
     }
     fclose(fp);
     return res;

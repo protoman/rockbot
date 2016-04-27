@@ -731,7 +731,9 @@ void projectile::draw() {
             _effect_n++;
         }
 
+
     } else {
+        //printf(">> PROJECTILE::DRAW[%d] - show_width[%d], _size.height[%d] anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
         if (direction == ANIM_DIRECTION_LEFT && get_surface()->height >= _size.height*2) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height, show_width, _size.height), realPosition);
         } else if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*3) {
