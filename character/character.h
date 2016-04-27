@@ -90,8 +90,6 @@ struct st_char_sprite_data {
     st_spriteFrame frames[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
 
     st_char_sprite_data() {
-        printf(">> DEBUG.st_char_sprite_data.CONSTRUCT.START <<\n");
-        fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
@@ -99,8 +97,6 @@ struct st_char_sprite_data {
                 }
             }
         }
-        printf(">> DEBUG.st_char_sprite_data.CONSTRUCT.END <<\n");
-        fflush(stdout);
     }
 
     // copy constructor //

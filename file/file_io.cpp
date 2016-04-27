@@ -19,6 +19,76 @@ extern std::string GAMENAME;
 
 // ************************************************************************************************************* //
 
+
+#ifdef WII
+void short_to_little_endian(short &s)
+{
+     s = (s>>8) | (s<<8);
+}
+
+void u_short_to_little_endian(unsigned short &s)
+{
+    short temp_short = s;
+    short_to_little_endian(temp_short);
+    s = temp_short;
+}
+
+void int_to_little_endian(int &i)
+{
+    i = (i<<24)|((i<<8)&0xFF0000)|((i>>8)&0xFF00)|(i>>24);
+}
+
+void u_int_to_little_endian(unsigned int &s)
+{
+    int temp_int = s;
+    int_to_little_endian(temp_int);
+    s = temp_int;
+}
+
+void sint16_to_little_endian(int16_t &i)
+{
+     i = (i << 8) | ((i >> 8) & 0xFF);
+}
+/*
+to convert from big endian to little endian a signed short this function may be used
+(from: convert big endian to little endian in C [without using provided func] )
+int16_t swap_int16( int16_t val )
+{
+return (val << 8) | ((val >> 8) & 0xFF);
+}
+So going back to your code
+uint8_t buffer[4];
+[inputStream read:buffer maxLength:4];
+You may try:
+int16_t *value1;
+int16_t *value2;
+// set the pointers to the correct buffer location
+value1 = (int16_t *)(&buffer[0]);
+value2 = (int16_t *)(&buffer[2]);
+// perform the conversion
+*value1 = swap_int16( *value1 );
+*value2 = swap_int16( *value2 );
+// finally you may want to check the result
+printf("Value1: %d\n", *value1 );
+printf("Value2: %d\n", *value2 );
+Note that this approach will swap the original bytes in buffer
+
+
+
+>> MAP::LOAD_NPCS.map[0].id[0] converted-x[193] <<
+>> MAP::LOAD_NPCS.map[0].id[1] converted-x[34] <<
+>> MAP::LOAD_NPCS.map[0].id[3] converted-x[2] <<
+>> MAP::LOAD_NPCS.map[2].id[0] converted-x[17] <<
+
+
+2 -> 2
+6 -> 17
+35 -> 34
+194 -> 193
+
+*/
+#endif
+
 namespace format_v4 {
 
     file_io::file_io()
@@ -416,6 +486,11 @@ namespace format_v4 {
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map));
         }
 
+#ifdef WII
+        wii_convert_map_data(data_out);
+#endif
+
+
         fp.close();
     }
 
@@ -683,5 +758,39 @@ namespace format_v4 {
         return res;
     }
 
+
+#ifdef WII
+    void file_io::wii_convert_game_data(file_game &data_out)
+    {
+        for (int i=0; i<MAX_WEAPON_N; i++) {
+            sint16_to_little_endian(data_out.weapon_menu_colors[i].r);
+            sint16_to_little_endian(data_out.weapon_menu_colors[i].g);
+            sint16_to_little_endian(data_out.weapon_menu_colors[i].b);
+        }
+    }
+
+
+    void file_io::wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS])
+    {
+        for (int i=0; i<FS_STAGE_MAX_MAPS; i++) {
+            sint16_to_little_endian(data_out[i].backgrounds[0].adjust_y);
+            sint16_to_little_endian(data_out[i].backgrounds[1].adjust_y);
+            sint16_to_little_endian(data_out[i].background_color.r);
+            sint16_to_little_endian(data_out[i].background_color.g);
+            sint16_to_little_endian(data_out[i].background_color.b);
+
+            for (int j=0; j<FS_MAX_MAP_NPCS; j++) {
+                sint16_to_little_endian(data_out[i].map_npcs[j].start_point.x);
+                sint16_to_little_endian(data_out[i].map_npcs[j].start_point.y);
+            }
+            for (int j=0; j<FS_MAX_MAP_OBJECTS; j++) {
+                sint16_to_little_endian(data_out[i].map_objects[j].link_dest.x);
+                sint16_to_little_endian(data_out[i].map_objects[j].link_dest.y);
+                sint16_to_little_endian(data_out[i].map_objects[j].start_point.x);
+                sint16_to_little_endian(data_out[i].map_objects[j].start_point.y);
+            }
+        }
+    }
+#endif
 }
 

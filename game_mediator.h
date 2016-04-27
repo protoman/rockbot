@@ -20,12 +20,19 @@ public:
 
     CURRENT_FILE_FORMAT::file_npc get_enemy(int n);
     int get_enemy_list_size();
+    void sint16_to_little_endian(int16_t &i);
+    void uint16_to_little_endian(Uint16 &i);
+    void int_to_little_endian(int &i);
 
 private:
     GameMediator();
     GameMediator(GameMediator const&){};             // copy constructor is private
     GameMediator& operator=(GameMediator const&){};  // assignment operator is private
-
+    void wii_convert_npc_list();
+    void wii_convert_object_list();
+    void wii_convert_ai_list();
+    void wii_convert_projectile_list();
+    void wii_convert_player_list();
 
 public:
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;

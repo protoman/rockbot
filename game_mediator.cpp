@@ -60,6 +60,104 @@ int GameMediator::get_enemy_list_size()
     return enemy_list.size();
 }
 
+void GameMediator::sint16_to_little_endian(int16_t &i)
+{
+    i = (i << 8) | ((i >> 8) & 0xFF);
+}
+
+
+void GameMediator::int_to_little_endian(int &i)
+{
+    i = (i<<24)|((i<<8)&0xFF0000)|((i>>8)&0xFF00)|(i>>24);
+}
+
+void GameMediator::uint16_to_little_endian(Uint16 &i)
+{
+    int16_t temp = i;
+    sint16_to_little_endian(temp);
+    i = temp;
+}
+
+
+void GameMediator::wii_convert_npc_list() {
+    for (int i=0; i<enemy_list.size(); i++) {
+        sint16_to_little_endian(enemy_list.at(i).walk_range);
+        sint16_to_little_endian(enemy_list.at(i).start_point.x);
+        sint16_to_little_endian(enemy_list.at(i).start_point.y);
+        for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+            for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                uint16_to_little_endian(enemy_list.at(i).sprites[j][k].duration);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.x);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.y);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.w);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.h);
+            }
+        }
+        sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.x);
+        sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.y);
+        sint16_to_little_endian(enemy_list.at(i).walk_range);
+
+    }
+}
+
+void GameMediator::wii_convert_object_list() {
+    for (int i=0; i<object_list.size(); i++) {
+        sint16_to_little_endian(object_list.at(i).distance);
+        sint16_to_little_endian(object_list.at(i).frame_duration);
+
+    }
+}
+
+void GameMediator::wii_convert_ai_list() {
+    for (int i=0; i<ai_list.size(); i++) {
+        for (int j=0; j<AI_MAX_STATES; j++) {
+            int_to_little_endian(ai_list.at(i).states[j].chance);
+            int_to_little_endian(ai_list.at(i).states[j].action);
+            int_to_little_endian(ai_list.at(i).states[j].go_to);
+            int_to_little_endian(ai_list.at(i).states[j].go_to_delay);
+            int_to_little_endian(ai_list.at(i).states[j].extra_parameter);
+        }
+    }
+}
+
+
+void GameMediator::wii_convert_projectile_list() {
+    for (int i=0; i<projectile_list.size(); i++) {
+        sint16_to_little_endian(projectile_list.at(i).size.width);
+        sint16_to_little_endian(projectile_list.at(i).size.height);
+    }
+}
+
+void GameMediator::wii_convert_player_list() {
+    for (int i=0; i<player_list.size(); i++) {
+        sint16_to_little_endian(player_list.at(i).sprite_hit_area.x);
+        sint16_to_little_endian(player_list.at(i).sprite_hit_area.y);
+        sint16_to_little_endian(player_list.at(i).sprite_hit_area.w);
+        sint16_to_little_endian(player_list.at(i).sprite_hit_area.h);
+        for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+            for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                uint16_to_little_endian(player_list.at(i).sprites[j][k].duration);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.x);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.y);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.w);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.h);
+            }
+        }
+        for (int j=0; j<MAX_WEAPON_N; j++) {
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color1.r);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color1.g);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color1.b);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color2.r);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color2.g);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color2.b);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color3.r);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color3.g);
+            sint16_to_little_endian(player_list.at(i).weapon_colors[j].color3.b);
+        }
+    }
+}
+
+
 GameMediator::GameMediator()
 {
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
@@ -69,6 +167,13 @@ GameMediator::GameMediator()
     anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
     player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
 
+#ifdef WII
+    wii_convert_npc_list();
+    wii_convert_object_list();
+    wii_convert_ai_list();
+    wii_convert_projectile_list();
+    wii_convert_player_list();
+#endif
     // add some dummy data for game not to crash
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());

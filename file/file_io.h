@@ -68,6 +68,11 @@ namespace format_v4 {
 
         int get_heart_pieces_number(st_save game_save);
 
+#ifdef WII
+        void wii_convert_game_data(file_game& data_out);
+        void wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS]);
+#endif
+
 
     private:
         std::string sufix;

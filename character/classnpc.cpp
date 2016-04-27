@@ -45,11 +45,15 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 
 
 
+
 classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_friend(false) // map-loaded npc
 {
     build_basic_npc(stage_id, map_id, main_id);
     facing = map_data[map_id].map_npcs[id].direction;
     state.direction = facing;
+
+    fflush(stdout);
+
     start_point.x = map_data[map_id].map_npcs[id].start_point.x * TILESIZE;
     start_point.y = map_data[map_id].map_npcs[id].start_point.y * TILESIZE;
     position.x = start_point.x;
@@ -284,8 +288,8 @@ void classnpc::initFrames()
 void classnpc::execute()
 {
 
+
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
-        if (name == "Mage Bot") std::cout << ">>> FROZEN[" << name << "], Clean projectiles" << std::endl;
         clean_projectiles();
         return;
     }

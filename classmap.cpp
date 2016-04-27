@@ -419,6 +419,9 @@ st_float_position *classMap::get_map_scrolling_ref()
     return &scroll;
 }
 
+
+
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -433,12 +436,12 @@ void classMap::load_map_npcs()
         _npc_list.pop_back();
     }
 
-    //std::cout << "classmap::load_map_npcs - stage: " << stage_number << ", map: " << number << std::endl;
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
             classnpc new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
             new_npc.set_map(this);
+
 
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
                 new_npc.set_stage_boss(true);
@@ -1608,10 +1611,11 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 void classMap::move_npcs() /// @TODO - check out of screen
 {
     //std::cout << "*************** classMap::showMap - npc_list.size: " << _npc_list.size() << std::endl;
-    for (int i=0; i<_npc_list.size(); i++) {
-        if (_break_npc_loop == true) {
 
-            //std::cout << "MAP::MOVE_NPCS::BREAK-LOOP" << std::endl;
+    for (int i=0; i<_npc_list.size(); i++) {
+
+
+        if (_break_npc_loop == true) {
 
             _break_npc_loop = false;
             return;

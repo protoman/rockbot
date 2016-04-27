@@ -132,6 +132,7 @@ void character::charMove() {
         _can_execute_airdash = true;
     }
 
+
     //if (is_player()) std::cout << "CHAR::CHARMOVE - _fractional_move_speed: " << _fractional_move_speed << std::endl;
 
 
@@ -1230,9 +1231,10 @@ bool character::is_on_screen()
     if (map != NULL) {
         scroll = map->getMapScrolling();
     }
+
+
     // is on screen
     if (abs((float)position.x) >= scroll.x && abs((float)position.x) <= scroll.x+RES_W) {
-        //if (name == "Dynamite Bot") std::cout << ">>>> character::is_on_screen - visible - pos.x: " << position.x << ", scroll.x: " << scroll.x << ", scroll.x+RES_W: " << scroll.x+RES_W << " <<<<" << std::endl;
         return true;
     }
 
@@ -1250,7 +1252,6 @@ bool character::is_on_screen()
         if (found_lock == false) {
             return true;
         }
-        if (name == "Dynamite Bot") std::cout << ">>>> character::is_on_screen - left <<<<" << std::endl;
     }
 
     // is on right to the screen
@@ -2158,14 +2159,8 @@ void character::add_graphic()
 
 	it = character_graphics_list.find(name);
 	if (it == character_graphics_list.end()) { // there is no graphic with this key yet, add it
-        printf(">> DEBUG.CHAR.add_graphic.st_char_sprite_data().START[%s] <<\n", name.c_str());
-        fflush(stdout);
-
         std::pair<std::string, st_char_sprite_data*> temp_data(temp_name, new st_char_sprite_data());
-
         character_graphics_list.insert(temp_data);
-        printf(">> DEBUG.CHAR.add_graphic.st_char_sprite_data().END <<\n");
-        fflush(stdout);
     }
 
 }
@@ -2628,7 +2623,7 @@ st_position character::get_real_position() const
 
 void character::execute_jump_up()
 {
-	// fall intil reaching ground
+    // fall until reaching ground
 	/// @TODO
 	for (int i=0; i<100; i++) {
 		char_update_real_position();

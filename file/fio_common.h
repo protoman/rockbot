@@ -18,7 +18,6 @@ public:
 public:
     template <class T> std::vector<T> load_from_disk(std::string file);
     template <class T> void save_data_to_disk(std::string file, std::vector<T> data);
-
 };
 
 

@@ -549,21 +549,13 @@ int main(int argc, char *argv[])
     */
 
 
-    printf(">> WII.DEBUG #1 <<");
-    fflush(stdout);
-
     graphLib.preload();
-
-    printf(">> WII.DEBUG #1.1 <<");
-    fflush(stdout);
 
 #ifdef PLAYSTATION2
     fio.load_config(game_config);
     PS2_create_save_icons();
 #endif
     draw_lib.preload();
-    printf(">> WII.DEBUG #1.2 <<");
-    fflush(stdout);
 
     gameControl.currentStage = INTRO_STAGE;
 
@@ -571,24 +563,13 @@ int main(int argc, char *argv[])
     game_config.volume_sfx = 128;
     game_config.volume_music = 128;
 
-    printf(">> WII.DEBUG #1.3 <<");
-    fflush(stdout);
 
     input.clean();
-    printf(">> WII.DEBUG #1.4 <<");
-    fflush(stdout);
     input.p1_input[BTN_START] = 0;
     input.waitTime(200);
-    printf(">> WII.DEBUG #1.5 <<");
-    fflush(stdout);
 
     input.clean();
 
-
-
-
-    printf(">> WII.DEBUG #2 <<");
-    fflush(stdout);
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -605,9 +586,6 @@ int main(int argc, char *argv[])
         //return 1;
     }
 
-
-    printf(">> WII.DEBUG #3 <<");
-    fflush(stdout);
 
     bool run_game = true;
 
