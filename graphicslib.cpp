@@ -1668,7 +1668,7 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
     //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(WII)
-    game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     if (game_config.video_fullscreen == false) {
         game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);

@@ -25,6 +25,16 @@ CONFIG += wii
 
 #DEFINESLIST = -DDEMO_VERSION
 
+
+# dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
+
+
+# sudo mount -o defaults,umask=000 ~/.dolphin-emu/Wii/sd.raw /media/sdcard
+# cp -r ~/Desenvolvimento/rockbot/build/games /media/sdcard
+# cp -r ~/Desenvolvimento/rockbot/build/fonts /media/sdcard
+# cp -r ~/Desenvolvimento/rockbot/build/shared /media/sdcard
+# sudo umount /media/sdcard
+
 CONFIG += console
 CONFIG -= app_bundle
 TARGET = rockbot

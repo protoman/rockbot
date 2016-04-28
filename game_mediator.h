@@ -33,6 +33,7 @@ private:
     void wii_convert_ai_list();
     void wii_convert_projectile_list();
     void wii_convert_player_list();
+    void wii_convert_anim_tile_list();
 
 public:
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;

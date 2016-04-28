@@ -167,6 +167,14 @@ void GameMediator::wii_convert_player_list() {
     }
 }
 
+void GameMediator::wii_convert_anim_tile_list() {
+    for (int i=0; i<anim_tile_list.size(); i++) {
+        for (int j=0; j<FS_ANIM_TILE_MAX_FRAMES; j++) {
+            int_to_little_endian(anim_tile_list.at(i).frame_delay[j]);
+        }
+    }
+}
+
 
 GameMediator::GameMediator()
 {
@@ -185,6 +193,7 @@ GameMediator::GameMediator()
     wii_convert_ai_list();
     wii_convert_projectile_list();
     wii_convert_player_list();
+    wii_convert_anim_tile_list();
 #endif
     // add some dummy data for game not to crash
     if (projectile_list.size() == 0) {
