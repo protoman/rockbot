@@ -29,8 +29,8 @@ CONFIG += wii
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
 
 
-# sudo mount -o defaults,umask=000 ~/.dolphin-emu/Wii/sd.raw /media/sdcard
-# cp -r ~/Desenvolvimento/rockbot/build/games /media/sdcard
+# sudo mount -o defaults,umask=000 ~/.local/share/dolphin-emu/Wii/sd.raw /media/sdcard
+# cp -r ~/Desenvolvimento/rockbot/build/games/Rockbot2 /media/sdcard/Rockbot2
 # cp -r ~/Desenvolvimento/rockbot/build/fonts /media/sdcard
 # cp -r ~/Desenvolvimento/rockbot/build/shared /media/sdcard
 # sudo umount /media/sdcard

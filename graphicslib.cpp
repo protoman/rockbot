@@ -1666,9 +1666,14 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(ANDROID)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
-    //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(WII)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    _video_filter = VIDEO_FILTER_BITSCALE;
+    game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    if (game_screen != NULL) {
+        SDL_FreeSurface(game_screen);
+    }
+    game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
 #elif defined(PSP)
     if (game_config.video_fullscreen == false) {
         game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
@@ -1679,16 +1684,6 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
     game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-    /*
-    256, 224 - good
-    288, 224 - good (strange colors?)
-    256x256 -
-    320x200 - distortion
-    320x240 - distortion
-    320x256 - distortion (small)
-    400x256 - distortion
-    512x448 - good but small
-    */
 #else
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {

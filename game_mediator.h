@@ -20,6 +20,8 @@ public:
 
     CURRENT_FILE_FORMAT::file_npc get_enemy(int n);
     int get_enemy_list_size();
+    void short_to_little_endian(short &s);
+    void u_short_to_little_endian(unsigned short &s);
     void sint16_to_little_endian(int16_t &i);
     void uint16_to_little_endian(Uint16 &i);
     void int_to_little_endian(int &i);

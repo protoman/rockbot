@@ -27,7 +27,7 @@ namespace format_v4 {
         st_size size;
         bool is_destructible;                                   // indicates if the projectile can be shot down, if true, uses HP
         Uint8 hp;                                               // how much danage needs to be taken to destruct the projectile
-        enum PROJECTILE_TRAJECTORIES trajectory;                // RENAMED from projectile_type in 2.1
+        Uint8 trajectory;                                       // RENAMED from projectile_type in 2.1
         Uint8 max_shots;                                        // number of maximum simultaneous projectiles, if 0, is infinite
         Uint8 speed;                                            // now many pixels are moved into a step
         Uint8 damage;                                           // how many hitpoints will be reduced from target

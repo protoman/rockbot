@@ -60,6 +60,18 @@ int GameMediator::get_enemy_list_size()
     return enemy_list.size();
 }
 
+void GameMediator::short_to_little_endian(short &s)
+{
+     s = (s>>8) | (s<<8);
+}
+
+void GameMediator::u_short_to_little_endian(unsigned short &s)
+{
+    short temp_short = s;
+    short_to_little_endian(temp_short);
+    s = temp_short;
+}
+
 void GameMediator::sint16_to_little_endian(int16_t &i)
 {
     i = (i << 8) | ((i >> 8) & 0xFF);
@@ -81,7 +93,13 @@ void GameMediator::uint16_to_little_endian(Uint16 &i)
 
 void GameMediator::wii_convert_npc_list() {
     for (int i=0; i<enemy_list.size(); i++) {
+        short_to_little_endian(enemy_list.at(i).hp.total);
+        short_to_little_endian(enemy_list.at(i).hp.current);
+
+        printf("#convert.npc[%s].range.OLD[%d] #\n", enemy_list.at(i).name, enemy_list.at(i).walk_range);
         sint16_to_little_endian(enemy_list.at(i).walk_range);
+        printf("@convert.npc[%s].range.NEW[%d] #\n", enemy_list.at(i).name, enemy_list.at(i).walk_range);
+
         sint16_to_little_endian(enemy_list.at(i).start_point.x);
         sint16_to_little_endian(enemy_list.at(i).start_point.y);
         for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -130,11 +148,18 @@ void GameMediator::wii_convert_ai_list() {
 
 
 void GameMediator::wii_convert_projectile_list() {
+
+    printf("$ size(PROJECTILE_TRAJECTORIES)[%d] $\n", sizeof(PROJECTILE_TRAJECTORIES));
+
     for (int i=0; i<projectile_list.size(); i++) {
         sint16_to_little_endian(projectile_list.at(i).size.width);
         sint16_to_little_endian(projectile_list.at(i).size.height);
 
-        printf(">> projectile[%d][%s].w[%d].h[%d] <<\n", i, projectile_list.at(i).name, projectile_list.at(i).size.width, projectile_list.at(i).size.height);
+
+        printf("# trajectory[%d].old[%d] #\n", i, projectile_list.at(i).trajectory);
+        Uint16 trajectory = projectile_list.at(i).trajectory;
+        uint16_to_little_endian(trajectory);
+        printf("# trajectory[%d].NEW[%d] #\n", i, trajectory);
     }
 }
 
