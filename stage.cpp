@@ -283,7 +283,7 @@ int stage::get_teleport_minimal_y_tile(int xpos)
 
     for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
 
-        //std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
+        std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
 
         int map_lock = maps[currentMap].getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
@@ -297,10 +297,11 @@ int stage::get_teleport_minimal_y_tile(int xpos)
                 }
             }
             if (found_bad_point == false) {
-                return i-1;
+                return i-3;
             }
         }
     }
+    // if no good point was found, return the top of the screen
     return 0;
 }
 

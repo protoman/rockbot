@@ -45,17 +45,33 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-
+snow sub-boss: 61 x 67 x 24
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
-- limpar gráficos de NPCs ao sair (agora é mapa com ponteiros)
-- criar função para não acessar gráficos de NPCs diretamente
+- flag is_attack_frame deve ser usada também para jump-attack, special-attack, walk-attack, etc
 
-- fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
-- substituir exit() por saída graciosa em todos os lugares possíveis
+- AI: criar action jump once player direction
+
+- usar mirror em projéteis assim como players (remover duplicata das imagems)
+    # proj.position_to_ground deve ser ajustada
+
+- CRITICAL: garantir que teleport jamais passe reto. Se função que procura primeiro block falahar (>=RES_H) parar no meio da tela
+    # na fase do dragon, ao morrer nos espinhos logo no início já causa problema...
+    # no início do estágio usa: player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
+    # ao morrer usar: min_y = loaded_stage.get_teleport_minimal_y_tile(85)*TILESIZE; // x = 70 + half a player width (30)
+    # e player1.set_teleport_minimal_y(min_y-3);
+
+- ao retornar do teleporte, não está mostrando animação (special attack)
+
+- EDITOR: permitir adicionar frames de teleport (está desabilitado pq era usado para outra coisa)
+
+- AI: criar jump-attack-up e jump-attack-ahead: no topo do pulo, dispara
+
+- mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
+- limpar gráficos de NPCs ao sair (já que agora é mapa com ponteiros)
+- criar função para não acessar gráficos de NPCs diretamente
 
 - está dando pau em copySDLArea -> copySDLPortion (possivelmente um tamanho errado de alguma coisa, talvez projétil)
 
@@ -64,11 +80,9 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
     # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
     # as vezes, turbo mode fica atirando sozinho
 
-- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
 
-- está quebrando no chefe da fase do snow, pelo menos no Android
+- ANDROID: está quebrando no chefe da fase do snow (usar logcat para ver porque)
 
-- ANDROID: new icon
 
 => update script files to copy font to GAMEDIR
     # remove non-used fonts
@@ -97,7 +111,7 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
         DONE # items
         # dialogos
     # snow
-        # chefe
+        DONE # chefe
         DONE # inimigos
         DONE # items
         # dialogos
@@ -117,6 +131,18 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- revisar código da main.cpp
+- separar código de plataformas em arquivos especificos dentro do diretório "ports"
+
+
+- ANDROID: new icon
+
+- fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
+- substituir exit() por saída graciosa em todos os lugares possíveis
+
+- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
+
+
 - PSP: investigar razão da lentidão
 
 - ANDROID: implementar login play services

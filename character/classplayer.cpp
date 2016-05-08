@@ -923,7 +923,7 @@ void classPlayer::death()
         return;
     }
     game_save.items.lifes--;
-    std::cout << "PLAYER::DEATH::DONE" << std::endl;
+    //std::cout << "PLAYER::DEATH::DONE" << std::endl;
 }
 
 void classPlayer::reset_hp()

@@ -328,12 +328,12 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     }
 
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
-        printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        //printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
         return;
     }
     if (src.y >= surfaceOrigin->h || (src.y+src.h) > surfaceOrigin->h) {
-        printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
+        //printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
         fflush(stdout);
         return;
     }
@@ -1163,10 +1163,45 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 
 	   break;
 	 }
+
+     case 3:
+    {
+        int tpitch = dest->pitch;
+               int spitch = surface->pitch;
+
+               const int wd = ((dest->w / 2) < (surface->w))
+                   ? (dest->w / 2) : (surface->w);
+
+               const int hg = ((dest->h) < (surface->h*2))
+                   ? (dest->h) : (surface->h*2);
+
+               Uint8* tp = (Uint8*) dest->pixels;
+               Uint8* sp = (Uint8*) surface->pixels;
+
+               for (j = 0; j < hg; ++j)
+               {
+                 for (i = 0; i < 3 * wd; i += 3)
+                 {
+                   int i2 = i * 2;
+                   tp[i2 + 0] = sp[i];
+                   tp[i2 + 1] = sp[i + 1];
+                   tp[i2 + 2] = sp[i + 2];
+                   tp[i2 + 3] = sp[i];
+                   tp[i2 + 4] = sp[i + 1];
+                   tp[i2 + 5] = sp[i + 2];
+                 }
+                 tp += tpitch;
+                 if (j % 2 != 0)  sp += spitch;
+               }
+
+               break;
+      }
+
+
 	 case 4:
 	 {
-	   int tpitch = dest->pitch / 4;
-	   int spitch = surface->pitch / 4;
+       int tpitch = dest->pitch / 4;
+       int spitch = surface->pitch / 4;
 	   Uint32* tp = (Uint32*) dest->pixels;
 	   Uint32* sp = (Uint32*) surface->pixels;
 

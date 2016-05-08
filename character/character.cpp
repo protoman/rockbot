@@ -1074,10 +1074,10 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	// ------------ PLAYER gravity --------------------- //
     if (is_player() && position.y > RES_H+TILESIZE) {
-        std::cout << "**** gravity - LEAVE (death)" << std::endl;
+        //std::cout << "**** gravity - LEAVE (death)" << std::endl;
 		hitPoints.current = 0;
 		death();
-        std::cout << "CHAR:: GRAVITY leave #5" << std::endl;
+        //std::cout << "CHAR:: GRAVITY leave #5" << std::endl;
         reset_gravity_speed();
         return false;
 	}

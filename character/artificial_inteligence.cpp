@@ -189,7 +189,7 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_save_point();
         //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_AHEAD) {
-        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
         execute_ai_action_trow_projectile(0, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION) {
         //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
@@ -953,7 +953,9 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 	} else {
 		struct_player_dist dist_players = dist_npc_players();
 		int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
+        //std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
 		if (dist_player <= walk_range) {
+            //std::cout << "AI::WAIT_PLAYER_RANGE::DONE" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 		}
 	}
@@ -962,7 +964,7 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
 
-    //std::cout << "AI::SHOT INIT" << std::endl;
+    std::cout << "AI::SHOT::INIT" << std::endl;
 
     CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(_parameter);
     // some projectile types are limited to one
@@ -976,6 +978,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
         struct_player_dist dist_players = dist_npc_players();
         if ((dist_players.pObj->getPosition().x > position.x && state.direction == ANIM_DIRECTION_LEFT) || (dist_players.pObj->getPosition().x < position.x && state.direction == ANIM_DIRECTION_RIGHT)) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            std::cout << "AI::SHOT::LEAVE #1" << std::endl;
             return;
         }
     }
@@ -987,6 +990,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
     }
     if (projectile_list.size() >= max_shots) {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        std::cout << "AI::SHOT::LEAVE #2, shots[" << projectile_list.size() << "], max_shots[" << max_shots << "]" << std::endl;
         return;
     }
 
@@ -1012,7 +1016,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
 	} else {
-        //std::cout << "AI::execute_ai_action_trow_projectile - EXECUTE - _was_animation_reset: " << _was_animation_reset << ", _is_last_frame: " << _is_last_frame << ", _did_shot: " << _did_shot << std::endl;
+        std::cout << "AI::execute_ai_action_trow_projectile - EXECUTE - _was_animation_reset: " << _was_animation_reset << ", _is_last_frame: " << _is_last_frame << ", _did_shot: " << _did_shot << std::endl;
         if (_was_animation_reset == true && _did_shot == true) {
             //std::cout << "AI::execute_ai_action_trow_projectile - FINISH" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -1024,7 +1028,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
                 set_animation_type(ANIM_TYPE_STAND);
             }
         } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
-            //std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
+            std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
             st_position proj_pos;
             int proj_direction = state.direction;
             if (invert_direction == true) {

@@ -10,13 +10,13 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
 #CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora
-CONFIG += wii
+#CONFIG += wii
 #CONFIG += dreamcast
 #CONFIG += dingoo_native
 #CONFIG += macosx

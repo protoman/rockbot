@@ -106,7 +106,7 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 
     /// @TODO - move this to the player, so we don't need to check every single loop
     if (player1.is_dead() == true) {
-        std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
+        //std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
         restart_stage();
         return;
     }
@@ -205,7 +205,7 @@ void game::start_stage()
 
     // find teleport stop point
     int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
-    player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
+    player1.set_teleport_minimal_y(min_y*TILESIZE);
 
     game_unpause();
 
@@ -249,7 +249,7 @@ void game::restart_stage()
 
     input.clean_all();
 
-    std::cout << "### RESTART_STAGE::START ###" << std::endl;
+    //std::cout << "### RESTART_STAGE::START ###" << std::endl;
 
     if (checkpoint.x < TILESIZE*4) {
         checkpoint.x = TILESIZE*4;
@@ -277,9 +277,9 @@ void game::restart_stage()
     int min_y = checkpoint.y-TILESIZE/2;
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
-        min_y = loaded_stage.get_teleport_minimal_y_tile(85)*TILESIZE; // x = 70 + half a player width (30)
+        min_y = loaded_stage.get_teleport_minimal_y_tile(85);
     }
-    player1.set_teleport_minimal_y(min_y-3);
+    player1.set_teleport_minimal_y(min_y*TILESIZE);
 
 
     player1.set_map(loaded_stage.get_current_map());
@@ -1162,13 +1162,11 @@ void game::show_ending(st_position boss_pos)
 
 void game::quick_load_game()
 {
-    printf(">> WII.DEBUG #2.0 <<");
     if (fio.save_exists()) {
         fio.read_save(game_save);
     }
 
-    printf(">> WII.DEBUG #2.1 <<");
-    currentStage = STAGE5;
+    currentStage = STAGE8;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_2;
 
