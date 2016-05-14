@@ -254,11 +254,19 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         list = common::get_weapon_names_list();
     } else if (action == AI_ACTION_CHANGE_MOVE_TYPE) {
         list = ANIMATION_TYPE_LIST;
+    } else if (action == AI_ACTION_CIRCLE_PLAYER) {
+        std::vector<std::string> dist_list;
+        dist_list.push_back("1");
+        dist_list.push_back("2");
+        dist_list.push_back("3");
+        dist_list.push_back("4");
+        list = dist_list;
     } else {
         return;
     }
 
 	// add options
+    combo->clear(); // delete all previous entries
 	for (int i=0; i<list.size(); i++) {
 		std::string temp = list[i];
 		QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(temp.c_str());

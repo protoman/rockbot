@@ -554,19 +554,7 @@ void artificial_inteligence_tab::fill_next_combos()
 
 void artificial_inteligence_tab::fill_next_combo(QComboBox *combo)
 {
-    /*
-    std::vector<std::string> list = {
-        std::string("CHANCE"),
-        std::string("#1"),
-        std::string("#2"),
-        std::string("#3"),
-        std::string("#4"),
-        std::string("#5"),
-        std::string("#6"),
-        std::string("#7"),
-        std::string("#8")
-    };
-    */
+    combo->clear(); // delete all previous entries
     std::vector<std::string> list;
     list.push_back("CHANCE");
     list.push_back("#1");

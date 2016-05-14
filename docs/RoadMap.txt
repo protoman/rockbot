@@ -45,11 +45,19 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-19x19x6
+37x28 x 7
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- AI: nova ACTION circular player:
+    # parâmetro distância (raio)
+    # anda linearmente até player.y e player.x - distancia
+    # dá 3 voltas circulares
+    # sorteia novo ponto para retornar, do lado oposto ao que veio
+    # vai para o novo ponto e volta ao descanso
+
+
 - flag is_attack_frame deve ser usada também para jump-attack, special-attack, walk-attack, etc
 
 - AI: criar action jump once player direction
