@@ -160,6 +160,8 @@ protected:
 
     void execute_ai_step_spawn_npc();
 
+    void execute_ai_circle_player();
+
     void ia_action_teleport();
 
 
@@ -207,6 +209,7 @@ protected:
     void execute_ai_step_dash();
 
     void execute_ai_step_change_animation_type();
+
 
     /**
      * @brief moves to a point, returns true when point was reached or can't reach the target
@@ -270,6 +273,10 @@ protected:
     int _counter;                                       // used for counting times, such as how many shots were fired
     int _current_ai_type;                               // holds the current AI type, can be changed to another one if needed (as jumping over obstacles)
     bool _show_reset_stand;
+    st_position _target_point;							// used to store player position in circle player
+    float _angle;                                         // used to store angle in circle movement
+    int _execution_state;                               // controlw flow of execution
+    int radius;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

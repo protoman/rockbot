@@ -30,6 +30,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _show_reset_stand = false;
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
     _dest_point = position;
+    _execution_state = 0;
 }
 
 
@@ -218,8 +219,11 @@ void artificial_inteligence::execute_ai_step()
     } else if (_current_ai_type == AI_ACTION_CHANGE_MOVE_TYPE) {
         execute_ai_step_change_animation_type();
     } else if (_current_ai_type == AI_ACTION_REPLACE_NPC) {
-        //std::cout << ">> AI:exec[" << name << "] SPAWN_NPC <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] REPLACE-ITSELF <<" << std::endl;
         execute_ai_replace_itself();
+    } else if (_current_ai_type == AI_ACTION_CIRCLE_PLAYER) {
+        //std::cout << ">> AI:exec[" << name << "] CIRCLE-PLAYER <<" << std::endl;
+        execute_ai_circle_player();
     } else {
         //std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
@@ -1408,7 +1412,7 @@ void artificial_inteligence::execute_ai_step_change_animation_type()
         set_animation_type(static_cast<ANIM_TYPE>(_parameter));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-        if (_was_animation_reset == true) {
+        if (_is_last_frame == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
     }
@@ -1782,6 +1786,96 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    }
+}
+
+void artificial_inteligence::execute_ai_circle_player()
+{
+    // define point near player to move to initially
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _origin_point.x = position.x;
+        _origin_point.y = position.y;
+        // avoid erros if user forgot to set those
+        is_ghost = true;
+        can_fly = true;
+        struct_player_dist dist_players = dist_npc_players();
+
+        _target_point.x = dist_players.pObj->getPosition().x +  dist_players.pObj->get_size().width / 2;
+        _target_point.y = dist_players.pObj->getPosition().y + dist_players.pObj->get_size().height / 2;
+
+        if (dist_players.pObj->getPosition().x > position.x) {
+            state.direction = ANIM_DIRECTION_RIGHT;
+            _dest_point.x = dist_players.pObj->getPosition().x - (_parameter * TILESIZE) - (frameSize.width *2);
+        } else {
+            state.direction = ANIM_DIRECTION_LEFT;
+            _dest_point.x = dist_players.pObj->getPosition().x + (_parameter * TILESIZE) + (frameSize.width * 2);
+        }
+
+        std::cout << ">>>> player.x[" << dist_players.pObj->getPosition().x << "], dest.x[" << _dest_point.x << "], pos.x[" << position.x << "]" << std::endl;
+
+        _execution_state = 0;
+        _dest_point.y = _target_point.y;
+        // @TODO - use TURN frames to leave stand
+
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    // executing
+    } else {
+        if (_execution_state == 0) {
+            // moving from stand point to near-player
+            if (move_to_point(_dest_point, move_speed, move_speed, true) == true) {
+                _execution_state = 1;
+                _counter = 0;
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    _angle = 0;
+                } else {
+                    _angle = 3.14;
+                }
+                std::cout << "#0 x[" << position.x << "], y[" << position.y << "]" << ", _target_point.x[" << _target_point.x << "], _target_point.y[" << _target_point.y << "]" << std::endl;
+                radius = _parameter * TILESIZE + frameSize.width;
+            }
+        // circle player (3 and half laps)
+        } else if (_execution_state == 1) {
+            float x = _target_point.x + radius * cos(_angle) - (TILESIZE*1.5);
+            float y = _target_point.y + radius * sin(_angle);
+
+            //std::cout << "CIRCLE radius[" << radius << "], counter[" << _counter << "], angle[" << _angle << "] a[" << _target_point.x << "], b[" << _target_point.y << "], x[" << x << "], y[" << y << "]" << std::endl;
+
+            //move_to_point(st_float_position(x, y), move_speed, move_speed, is_ghost);
+            position.x = x;
+            position.y = y;
+            _angle += 0.1;
+
+            if (state.direction == ANIM_DIRECTION_RIGHT) {
+                if (_angle >= 2 * 3.14) {
+                    _counter++;
+                    _angle = 0;
+                }
+            } else {
+                if (_angle >= (2 * 3.14 + 3.14)) {
+                    _counter++;
+                    _angle = 3.14;
+                }
+            }
+            if (_counter >= 3) {
+                _execution_state = 2;
+            }
+        // finished, pick a new point to return to stand
+        } else if (_execution_state == 2) {
+            // @TODO: randomize x point distance
+            _dest_point.y = _origin_point.y;
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                _dest_point.x = position.x - walk_range;
+            } else {
+                _dest_point.x = position.x + walk_range;
+            }
+            _execution_state = 3;
+        // returning to stand
+        } else if (_execution_state == 3) {
+            if (move_to_point(_dest_point, move_speed, move_speed, true) == true) {
+                _execution_state = 0;
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            }
+        }
     }
 }
 

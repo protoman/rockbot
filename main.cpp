@@ -592,7 +592,6 @@ int main(int argc, char *argv[])
     fps_control fps_manager;
     fps_manager.initialize();
 
-    printf(">> WII.DEBUG #4 <<");
     fflush(stdout);
 
 

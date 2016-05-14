@@ -642,7 +642,7 @@ void classnpc::invert_direction()
 	} else {
 		state.direction = ANIM_DIRECTION_LEFT;
 	}
-	_ai_state.main_status = IA_STAND;
+    _ai_state.main_status = IA_STAND;
 }
 
 

@@ -364,15 +364,6 @@ void npc_edit::reload_frame_list(int index)
 	ui->frameList_listWidget->clear();
 
 
-    // teleport must not be used
-    if (index == ANIM_TYPE_TELEPORT) {
-        ui->AddFrame_Button->setEnabled(false);
-        return;
-    } else {
-        ui->AddFrame_Button->setEnabled(true);
-    }
-
-
 	// insert all sprites for the given type into the combo
     //std::cout << ">> Adding frames for NPC[" << Mediator::get_instance()->game_data.game_npcs[i].name << "] - type: " << index << std::endl;
     std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).graphic_filename;
