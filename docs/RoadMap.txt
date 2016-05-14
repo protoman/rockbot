@@ -45,7 +45,7 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-snow sub-boss: 61 x 67 x 24
+19x19x6
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1

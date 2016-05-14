@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     /// DEBUG ///
-    GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX
