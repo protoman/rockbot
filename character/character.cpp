@@ -37,7 +37,7 @@ static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player_type(false), _platform(NULL), hit_animation_timer(0), hit_moved_back_n(0), jump_button_released(true), attack_button_released(true), dead(false), charging_color_n(0), charging_color_timer(0), shield_type(0), _moving_platform_timer(0), position(), _number(0), _super_jump(false), _force_jump(false), _teleport_minimal_y(0), _is_falling(false), _dead_state(0), slide_type(0), _water_splash(false), _has_background(false), hit_duration(300), _is_boss(false), _is_stage_boss(false)
+character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player_type(false), _platform(NULL), hit_animation_timer(0), hit_moved_back_n(0), jump_button_released(true), attack_button_released(true), dead(false), charging_color_n(0), charging_color_timer(0), shield_type(0), _moving_platform_timer(0), position(), _number(0), _super_jump(false), _force_jump(false), _teleport_minimal_y(0), _is_falling(false), _dead_state(0), slide_type(0), _water_splash(false), _has_background(false), hit_duration(300), _is_boss(false), _is_stage_boss(false), is_ghost(false)
 {
     _was_animation_reset = false;
     move_speed = 2.0;
@@ -2817,12 +2817,24 @@ bool character::test_change_position(short xinc, short yinc)
         return false;
     }
 
+    if (is_ghost == false) {
+        st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
+        short int mapLock = map_col.block;
+        if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
+            return false;
+        }
+    }
 
-    st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
-    short int mapLock = map_col.block;
-	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
-		return false;
-	}
+    // check wall-locks
+    int map_x_point = (position.x+xinc);
+    bool map_wall = map->get_map_point_wall_lock(map_x_point);
+
+    std::cout << "test_change_position[" << name << "], map_x_point: " << map_x_point << ", map_wall: " << map_wall << std::endl;
+
+    if (map_wall == true) {
+        return false;
+    }
+
     return true;
 }
 

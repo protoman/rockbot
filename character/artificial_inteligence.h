@@ -250,7 +250,6 @@ protected:
 
 
     struct_ia_state _ai_state; /**< TODO */
-    bool is_ghost;										// if can shoot or not /**< TODO */
 
 
 	// "external" members

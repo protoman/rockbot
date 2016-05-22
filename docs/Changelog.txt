@@ -168,12 +168,9 @@ FILE-FORMAT-V4:
 - ao morrer na fase do phantom, no início, está voltando dentro do solo
     # função que chega ponto de parada está com algum bug, se muda velocidade máxima do teleporte para 10 tb dá problema
 - não está morrendo ao cair em precípicio
-
 - ao morrer, inimigo deve remover todos os projéteis de efeito (quake, flash, wind-push)
 - ao usar coil item não está podendo agarrar escadas
 - ao chegar na direita máxima do scrolling, está indo um tile além da tela, mostrando lixo
-
-
 - novo tipo de projétil: raio (lighting)
 - projétil lighting ignora escudos de player e inimigos
 - shot ahead está virando para o player. isso é ruim pq tem casos em que é bom o inimigo "errar"
@@ -184,17 +181,14 @@ FILE-FORMAT-V4:
 - trocar estágios:
     zodiac <-> phantom
     dragon <-> snow
-
 - não está tocando som custom de projéteis de armas para player usando-as
 - lighting deve tocar som mais vezes, a cada novo raio
 - tirar empurrador do início da parte de plataformas da fase da valkyrie
 - AI: criar action REPLACE. O inimigo some deixando outro em seu lugar
     # como spawn NPC, mas não precisa morrer nem duplicar
-
 - AI: replace itself estava fazendo spawn de 2 inimigos
 - não tocar o som de ataque padrão se for disparado por um inimigo
-
-Place Armor Pieces:
+- place Armor Pieces:
     # legs -> valkyrie
     # body -> gear
     # arms -> dragon
@@ -204,14 +198,14 @@ Place Armor Pieces:
     # procurar algum pacote de sound effects free
     # http://www.themotionmonkey.co.uk/free-resources/retro-arcade-sounds/?gclid=cjwkeajw_7y4brdykp3hjqyt_y0sjacome3t8xvex6blwqyn6b6fvnixsveqlga7j9xnaejbue_ilxoc2z3w_wcb
     # https://www.freesound.org/search/?q=thunder
-
-
-
 - AI: adicionar opção AHEAD para action TELEPORT
-
-
-
-
+- AI: nova ACTION circular player:
+    # parâmetro distância (raio)
+    # anda linearmente até player.y e player.x - distancia
+    # dá 3 voltas circulares
+    # sorteia novo ponto para retornar, do lado oposto ao que veio
+    # vai para o novo ponto e volta ao descanso
+- EDITOR: permitir adicionar frames de teleport (está desabilitado pq era usado para outra coisa)
 
 
 

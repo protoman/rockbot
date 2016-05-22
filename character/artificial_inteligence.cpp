@@ -16,7 +16,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 std::vector<character*> *artificial_inteligence::player_list=NULL;
 
 
-artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), is_ghost(false), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
+artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
 {
     _ghost_move_speed_reducer = 0;
     _did_shot = false;
@@ -1498,15 +1498,8 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     // checking
     bool can_move_x = true;
     bool can_move_y = true;
-    if (can_pass_walls == false) {
-        can_move_x = test_change_position(xinc, 0);
-        can_move_y = test_change_position(0, yinc);
-    }
-
-    if (name == "Bee Fly Arc") {
-        std::cout << "AI::MOVE_TO_POINT - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
-    }
-
+    can_move_x = test_change_position(xinc, 0);
+    can_move_y = test_change_position(0, yinc);
 
     if (xinc == 0 && yinc == 0) {
         return true;
