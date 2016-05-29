@@ -4,10 +4,14 @@
 
 #include "defines.h"
 
+#include <jni.h>
+#include <android/log.h>
 #include <SDL_screenkeyboard.h>
 
 #include "graphicslib.h"
 extern graphicsLib graphLib;
+
+extern jobject activity_ref;
 
 void set_android_default_buttons_pos() {
     SDL_Rect pos = {0, 0, 0, 0};
@@ -34,5 +38,8 @@ void set_android_default_buttons_pos() {
     pos.y = screen_width/16;
     SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &pos);
 }
+
+
+
 #endif
 #endif

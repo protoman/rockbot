@@ -249,10 +249,10 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 		list = AI_ACTION_GRAB_WALL_OPTIONS;
     } else if (action == AI_ACTION_SPAWN_NPC || action == AI_ACTION_REPLACE_NPC) {
         list = common::get_npc_names_list();
-    } else if (action == AI_ACTION_SHOT_PROJECTILE_AHEAD || action == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION || action == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION) {
+    } else if (action == AI_ACTION_SHOT_PROJECTILE_AHEAD || action == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION || action == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION || action == AI_ACTION_JUMP_ATTACK_UP || action == AI_ACTION_JUMP_ATTACK_AHEAD_ONCE) {
         //list = AI_ACTION_SHOT_OPTIONS;
         list = common::get_weapon_names_list();
-    } else if (action == AI_ACTION_CHANGE_MOVE_TYPE) {
+    } else if (action == AI_ACTION_CHANGE_MOVE_TYPE || action == AI_ACTION_CHANGE_MOVE_TYPE_REVERSE) {
         list = ANIMATION_TYPE_LIST;
     } else if (action == AI_ACTION_CIRCLE_PLAYER) {
         std::vector<std::string> dist_list;

@@ -326,24 +326,18 @@ void classnpc::boss_move()
     //std::cout << "classboss::boss_move[" << name << "] - _initialized: " << _initialized << std::endl;
 
     move_projectiles();
-    //std::cout << "classboss::boss_move - A" << std::endl;
 
     if (_initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
-        std::cout << "classboss::boss_move - B" << std::endl;
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(_is_boss);
-        //std::cout << "classboss::boss_move - unitialized, set teleport" << std::endl;
         return;
     } else if (_initialized == 1 && _is_boss == true) {
-        //std::cout << "classboss::boss_move - C" << std::endl;
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;
         }
         return;
     }
-    //std::cout << "classboss::boss_move - D" << std::endl;
-
 
     if (first_run == 0) {
         first_run = 1;

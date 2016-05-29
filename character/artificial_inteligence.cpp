@@ -31,6 +31,8 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
     _dest_point = position;
     _execution_state = 0;
+    jump_attack_type = -1;
+
 }
 
 
@@ -224,8 +226,26 @@ void artificial_inteligence::execute_ai_step()
     } else if (_current_ai_type == AI_ACTION_CIRCLE_PLAYER) {
         //std::cout << ">> AI:exec[" << name << "] CIRCLE-PLAYER <<" << std::endl;
         execute_ai_circle_player();
+    } else if (_current_ai_type == AI_ACTION_CHANGE_MOVE_TYPE_REVERSE) {
+        //std::cout << ">> AI:exec[" << name << "] AI_ACTION_CHANGE_MOVE_TYPE_REVERSE <<" << std::endl;
+        execute_ai_step_change_animation_type_reverse();
+    } else if (_current_ai_type == AI_ACTION_JUMP_ATTACK_UP) {
+        std::cout << ">> AI:exec[" << name << "] AI_ACTION_JUMP_OPTION_UP <<" << std::endl;
+        if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+            jump_attack_type = _parameter;
+        }
+        _parameter = AI_ACTION_JUMP_OPTION_UP;
+        execute_ai_step_jump();
+    } else if (_current_ai_type == AI_ACTION_JUMP_ATTACK_AHEAD_ONCE) {
+        std::cout << ">> AI:exec[" << name << "] AI_ACTION_JUMP_ATTACK_AHEAD_ONCE <<" << std::endl;
+        if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+            jump_attack_type = _parameter;
+        }
+        _parameter = AI_ACTION_JUMP_OPTION_ONCE;
+        execute_ai_step_jump();
     } else {
-        //std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+        std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
+        std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
 }
 
@@ -438,6 +458,16 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
         }
 
 
+        // jump-attack
+        if (yinc < 0 && can_move_y == true && jump_attack_type != -1) {
+            if (have_frame_graphic(state.direction, ANIM_TYPE_JUMP_ATTACK, 0) == true) {
+                set_animation_type(ANIM_TYPE_JUMP_ATTACK);
+            }
+            throw_projectile(jump_attack_type, false);
+            jump_attack_type = -1;
+        }
+
+
         // check ground when falling
         if (yinc < 0 && can_move_y == false) { // falling. @NOTE: y values are inverted, so > 0 meand going up and < 0 meand going down
             //std::cout << ">>>> AI::ia_action_jump_to_point - hit ground" << std::endl;
@@ -573,11 +603,17 @@ void artificial_inteligence::ia_action_jump_up()
             moveCommands.jump = 1;
             _ai_state.action_status++;
         } else {
-            std::cout << "AI::ia_action_jump_up::EXECUTE.RUN" << std::endl;
+            //std::cout << "AI::ia_action_jump_up::EXECUTE.RUN" << std::endl;
             moveCommands.jump = 1;
             float speed = _obj_jump.get_speed();
-            std::cout << "AI::ia_action_jump_up::speed: " << speed << std::endl;
-            if (speed >= 0 && hit_ground() == true) {
+            // execute attack, if needed
+            if (speed >= 0 && jump_attack_type != -1) {
+                if (have_frame_graphic(state.direction, ANIM_TYPE_JUMP_ATTACK, 0) == true) {
+                    set_animation_type(ANIM_TYPE_JUMP_ATTACK);
+                }
+                throw_projectile(jump_attack_type, false);
+                jump_attack_type = -1;
+            } else if (speed >= 0 && hit_ground() == true) {
                 moveCommands.jump = 0;
                 std::cout << "AI::ia_action_jump_up::HIT_GROUND" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -967,38 +1003,6 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
-
-    std::cout << "AI::SHOT::INIT" << std::endl;
-
-    CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(_parameter);
-    // some projectile types are limited to one
-    if (temp_projectile.trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
-        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-        return;
-    }
-
-    // can't fire a player's targeted projectile if move_speed zero (can't turn) and facing the wrong side
-    if (move_speed == 0 && (temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT)) {
-        struct_player_dist dist_players = dist_npc_players();
-        if ((dist_players.pObj->getPosition().x > position.x && state.direction == ANIM_DIRECTION_LEFT) || (dist_players.pObj->getPosition().x < position.x && state.direction == ANIM_DIRECTION_RIGHT)) {
-            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            std::cout << "AI::SHOT::LEAVE #1" << std::endl;
-            return;
-        }
-    }
-
-
-    unsigned int max_shots = 3;
-    if (_parameter != -1) {
-        max_shots = temp_projectile.max_shots;
-    }
-    if (projectile_list.size() >= max_shots) {
-        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-        std::cout << "AI::SHOT::LEAVE #2, shots[" << projectile_list.size() << "], max_shots[" << max_shots << "]" << std::endl;
-        return;
-    }
-
-
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_WALK_AIR) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
@@ -1020,7 +1024,6 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
 	} else {
-        std::cout << "AI::execute_ai_action_trow_projectile - EXECUTE - _was_animation_reset: " << _was_animation_reset << ", _is_last_frame: " << _is_last_frame << ", _did_shot: " << _did_shot << std::endl;
         if (_was_animation_reset == true && _did_shot == true) {
             //std::cout << "AI::execute_ai_action_trow_projectile - FINISH" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -1033,48 +1036,83 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             }
         } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
             std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
-            st_position proj_pos;
-            int proj_direction = state.direction;
-            if (invert_direction == true) {
-                proj_direction = !proj_direction;
-            }
-
-            st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number).attack_arm_pos;
-            if (attack_arm_pos.x < 1 && attack_arm_pos.y < 1) {
-                if (state.direction == ANIM_DIRECTION_LEFT) {
-                    proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
-                } else {
-                    proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
-                }
-            } else {
-                if (state.direction == ANIM_DIRECTION_LEFT) {
-                    proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
-                } else {
-                    proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
-                }
-            }
-            //std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
-
-            projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, map, is_player()));
-            projectile &temp_proj = projectile_list.back();
-            temp_proj.play_sfx(true);
-
-
-            if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
-                temp_proj.set_owner_direction(&state.direction);
-                temp_proj.set_owner_position(&position);
-            }
-
-            if (temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT || temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_FOLLOW) {
-                if (!is_player() && map->_player_ref != NULL) {
-                    character* p_player = map->_player_ref;
-                    temp_proj.set_target_position(p_player->get_position_ref());
-                }
-            }
-
+            throw_projectile(_parameter, invert_direction);
             _did_shot = true;
         }
-	}
+    }
+}
+
+// creates a projectile, return false if could not fire
+bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_direction)
+{
+    CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(projectile_type);
+    // some projectile types are limited to one
+    if (temp_projectile.trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        return false;
+    }
+
+    // can't fire a player's targeted projectile if move_speed zero (can't turn) and facing the wrong side
+    if (move_speed == 0 && (temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT)) {
+        struct_player_dist dist_players = dist_npc_players();
+        if ((dist_players.pObj->getPosition().x > position.x && state.direction == ANIM_DIRECTION_LEFT) || (dist_players.pObj->getPosition().x < position.x && state.direction == ANIM_DIRECTION_RIGHT)) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            std::cout << "AI::SHOT::LEAVE #1" << std::endl;
+            return false;
+        }
+    }
+
+    unsigned int max_shots = 3;
+    if (projectile_type != -1) {
+        max_shots = temp_projectile.max_shots;
+    }
+    if (projectile_list.size() >= max_shots) {
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        std::cout << "AI::SHOT::LEAVE #2, shots[" << projectile_list.size() << "], max_shots[" << max_shots << "]" << std::endl;
+        return false;
+    }
+
+    st_position proj_pos;
+    int proj_direction = state.direction;
+    if (invert_direction == true) {
+        proj_direction = !proj_direction;
+    }
+
+    st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number).attack_arm_pos;
+    if (attack_arm_pos.x < 1 && attack_arm_pos.y < 1) {
+        if (state.direction == ANIM_DIRECTION_LEFT) {
+            proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
+        } else {
+            proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
+        }
+    } else {
+        if (state.direction == ANIM_DIRECTION_LEFT) {
+            proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
+        } else {
+            proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
+        }
+    }
+    //std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
+
+    projectile_list.push_back(projectile(projectile_type, proj_direction, proj_pos, map, is_player()));
+    projectile &temp_proj = projectile_list.back();
+    temp_proj.play_sfx(true);
+
+
+    if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
+        temp_proj.set_owner_direction(&state.direction);
+        temp_proj.set_owner_position(&position);
+    }
+
+    if (temp_projectile.trajectory == TRAJECTORY_TARGET_DIRECTION || temp_projectile.trajectory == TRAJECTORY_TARGET_EXACT || temp_projectile.trajectory == TRAJECTORY_ARC_TO_TARGET || temp_projectile.trajectory == TRAJECTORY_FOLLOW) {
+        if (!is_player() && map->_player_ref != NULL) {
+            character* p_player = map->_player_ref;
+            temp_proj.set_target_position(p_player->get_position_ref());
+        }
+    }
+
+
+    return true;
 }
 
 void artificial_inteligence::execute_ai_step_fly()
@@ -1413,6 +1451,27 @@ void artificial_inteligence::execute_ai_step_change_animation_type()
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         if (_is_last_frame == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    }
+}
+
+void artificial_inteligence::execute_ai_step_change_animation_type_reverse()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+
+        std::cout << "#execute_ai_step_change_animation_type_reverse#START - parameter: " << _parameter << std::endl;
+
+        set_animation_type(static_cast<ANIM_TYPE>(_parameter));
+        state.animation_inverse = true;
+        advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
+        _was_animation_reset = false;
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        std::cout << "#execute_ai_step_change_animation_type_reverse#INITIAL, frame[" << state.animation_state << "/" << frames_count()-1 << "]" << std::endl;
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        std::cout << "#execute_ai_step_change_animation_type_reverse#EXECUTING, frame[" << state.animation_state << "/" << frames_count()-1 << "]" << std::endl;
+        if (_is_last_frame == true) {
+            std::cout << "#execute_ai_step_change_animation_type_reverse#FINISHED" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
     }
@@ -1921,13 +1980,15 @@ void artificial_inteligence::ia_action_teleport()
     // return from teleporting
     } else {
         if (state.invisible == true) {
-            //std::cout << ">> AI::ia_action_teleport - EXEC - MAKE VISIBLE  - animation_type: " << state.animation_type << " <<" << std::endl;
+            std::cout << ">> AI::ia_action_teleport - EXEC - MAKE VISIBLE  - animation_type: " << state.animation_type << " <<" << std::endl;
             state.invisible = false;
             state.animation_inverse = true;
             advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
+            _was_animation_reset = false;
+            std::cout << ">> AI::ia_action_teleport.EXEC.SET-LAST-FRAME, state.animation_state: " << state.animation_state  << std::endl;
         }
         if (_was_animation_reset == true) {
-            //std::cout << ">> AI::ia_action_teleport - FINISH <<" << std::endl;
+            std::cout << ">> AI::ia_action_teleport - FINISH, state.animation_state: " << state.animation_state << " <<" << std::endl;
             if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #12" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;

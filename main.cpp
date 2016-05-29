@@ -46,6 +46,9 @@ std::string SAVEPATH;
 std::string GAMENAME; // the gamename, part of path
 SDL_Event event;
 bool have_save = false;
+#ifdef ANDROID
+jobject activity_ref;
+#endif
 
 #include "defines.h"
 #include "graphicslib.h"
@@ -642,6 +645,7 @@ JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv
 {
     char * argv[1];
     argv[0] = "./";
+    activity_ref = obj;
     main(1, argv);
 }
 

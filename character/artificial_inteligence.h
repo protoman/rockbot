@@ -196,6 +196,8 @@ protected:
      */
     void execute_ai_action_trow_projectile(Uint8 n, bool invert_direction);
 
+    bool throw_projectile(int projectile_type, bool invert_direction);
+
     /**
      * @brief
      */
@@ -209,6 +211,9 @@ protected:
     void execute_ai_step_dash();
 
     void execute_ai_step_change_animation_type();
+
+    void execute_ai_step_change_animation_type_reverse();
+
 
 
     /**
@@ -276,6 +281,7 @@ protected:
     float _angle;                                         // used to store angle in circle movement
     int _execution_state;                               // controlw flow of execution
     int radius;
+    short int jump_attack_type;                               // used by jump attack to store attack-type, if any. otherwise, it is set as -1
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

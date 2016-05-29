@@ -543,9 +543,9 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 	struct st_rectangle origin_rectangle;
 	struct st_position pos_destiny;
 
-    if (!surfaceOrigin->get_surface()) {
+    if (surfaceOrigin->get_surface() == NULL) {
 		std::cout << "Error: no data in surfaceOrigin at graphicsLib::showSurfaceAt." << std::endl;
-		//exit(-1);
+        exit(-1);
 		return;
 	}
 
@@ -561,6 +561,12 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 
 void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_position pos)
 {
+
+    if (surfaceOrigin->get_surface() == NULL) {
+        std::cout << "CRITICAL ERROR!" << std::endl;
+        exit(-1);
+    }
+
     // create a new surface
     struct graphicsLib_gSurface tmp;
     initSurface(st_size(surfaceOrigin->width, surfaceOrigin->height), &tmp);

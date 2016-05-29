@@ -135,7 +135,7 @@ android {
 	-lc -lm -lGLESv1_CM -ldl -llog -lz \
 	-L/usr/lib \
         -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi \
-	-lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
+        -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
         -lsupc++  -lsdl-1.2
 
         QMAKE_POST_LINK += $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip --strip-all libapplication.so
