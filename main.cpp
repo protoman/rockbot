@@ -419,14 +419,14 @@ int main(int argc, char *argv[])
 				GAME_FLAGS[FLAG_ALLWEAPONS] = true;
 			} else if (temp_argv == "--infinitejump") { // player can jump again and again
 				GAME_FLAGS[FLAG_INFINITE_JUMP] = true;
-            } else if (temp_argv == "--rockbot") {
-                GAME_FLAGS[FLAG_PLAYER_ROCKBOT] = true;
-            } else if (temp_argv == "--betabot") {
-                GAME_FLAGS[FLAG_PLAYER_BETABOT] = true;
-            } else if (temp_argv == "--candybot") {
-                GAME_FLAGS[FLAG_PLAYER_CANDYBOT] = true;
-            } else if (temp_argv == "--kittybot") {
-                GAME_FLAGS[FLAG_PLAYER_KITTYBOT] = true;
+            } else if (temp_argv == "--player1") {
+                GAME_FLAGS[FLAG_PLAYER1] = true;
+            } else if (temp_argv == "--player2") {
+                GAME_FLAGS[FLAG_PLAYER2] = true;
+            } else if (temp_argv == "--player3") {
+                GAME_FLAGS[FLAG_PLAYER3] = true;
+            } else if (temp_argv == "--player4") {
+                GAME_FLAGS[FLAG_PLAYER4] = true;
             }
 		}
 	}

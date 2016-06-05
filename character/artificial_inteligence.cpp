@@ -32,6 +32,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _dest_point = position;
     _execution_state = 0;
     jump_attack_type = -1;
+    _current_ai_type = -1;
 
 }
 
@@ -44,8 +45,7 @@ artificial_inteligence::~artificial_inteligence()
 
 void artificial_inteligence::execute_ai()
 {
-    _current_ai_type = get_ai_type();
-    //std::cout << "AI::execute_ai::START[" << name << "]" << std::endl;
+    //std::cout << "AI::execute_ai[" << name << "]" << std::endl;
     if (_check_always_move_ahead == true) {
         _always_move_ahead = always_move_ahead();
         _check_always_move_ahead = false;
@@ -56,7 +56,7 @@ void artificial_inteligence::execute_ai()
     }
     //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
     // check if action is finished
-    if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
+    if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
         if (_reaction_type == 0) {
             int delay = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to_delay;
@@ -183,7 +183,7 @@ void artificial_inteligence::execute_ai_step()
         //if (name == "Giant Fly") std::cout << "AI::FLY - " << _ai_chain_n << std::endl;
         execute_ai_step_fly();
     } else if (_current_ai_type == AI_ACTION_JUMP) {
-        //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
         execute_ai_step_jump();
     } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
         //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
@@ -1605,11 +1605,9 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
                 /// @TODO - implement have a way to change AI type only for a short period then return to the current one
                 _current_ai_type = AI_ACTION_JUMP;
                 _parameter = AI_ACTION_JUMP_OPTION_ONCE;
-
-
-                //std::cout << ">> SET INITIAL #1 <<" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
                 _ai_state.main_status = 0;
+                //std::cout << "SET JUMP >>>>> artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
                 return false;
             }
         }
@@ -1721,7 +1719,7 @@ enum AI_ACTION_JUMP_OPTION_LIST {
         //std::cout << ">> AI:exec[" << name << "] JUMP TO RANDOM <<" << std::endl;
         ia_action_jump_to_random();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_ONCE) {
-        //std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
         ia_action_jump_once();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_UP) {
         //std::cout << ">> AI:exec[" << name << "] JUMP TO UP <<" << std::endl;

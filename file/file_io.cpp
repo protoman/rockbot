@@ -17,6 +17,8 @@ extern std::string SAVEPATH;
 extern std::string GAMEPATH;
 extern std::string GAMENAME;
 
+extern bool GAME_FLAGS[FLAG_COUNT];
+
 // ************************************************************************************************************* //
 
 
@@ -641,17 +643,15 @@ namespace format_v4 {
         }
 
 
-        /*
-        if (GAME_FLAGS[FLAG_PLAYER_ROCKBOT]) {
-            data_out.selected_player = PLAYER_ROCKBOT;
-        } else if (GAME_FLAGS[FLAG_PLAYER_BETABOT]) {
-            data_out.selected_player = PLAYER_BETABOT;
-        } else if (GAME_FLAGS[FLAG_PLAYER_CANDYBOT]) {
-            data_out.selected_player = PLAYER_CANDYBOT;
-        } else if (GAME_FLAGS[FLAG_PLAYER_KITTYBOT]) {
-            data_out.selected_player = PLAYER_KITTYBOT;
+        if (GAME_FLAGS[FLAG_PLAYER1]) {
+            data_out.selected_player = PLAYER_1;
+        } else if (GAME_FLAGS[FLAG_PLAYER2]) {
+            data_out.selected_player = PLAYER_2;
+        } else if (GAME_FLAGS[FLAG_PLAYER3]) {
+            data_out.selected_player = PLAYER_3;
+        } else if (GAME_FLAGS[FLAG_PLAYER4]) {
+            data_out.selected_player = PLAYER_4;
         }
-        */
 
 
 

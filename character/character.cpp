@@ -767,7 +767,7 @@ void character::advance_frameset()
     if ((is_player() && state.animation_state > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state > MAX_NPC_SPRITES)) {
         //if (is_player()) std::cout << "character::show - error, animation_state value " << state.animation_state << " is invalid. state.animation_type: " << state.animation_type << std::endl;
 
-        std::cout << "### RESET-FRAME-N #1 ###" << std::endl;
+        //std::cout << "### RESET-FRAME-N #1 ###" << std::endl;
 		state.animation_state = 0;
 		return;
 	}
@@ -775,7 +775,7 @@ void character::advance_frameset()
         //if (!is_player()) std::cout << "CHAR::advance_frameset - reset frameset animation" << std::endl;
         _was_animation_reset = true;
 
-        std::cout << "### RESET-FRAME-N #2 ###" << std::endl;
+        //std::cout << "### RESET-FRAME-N #2 ###" << std::endl;
         state.animation_state = 0;
         _is_last_frame = true;
     } else {
@@ -907,9 +907,8 @@ void character::show_sprite()
 			}
 			if (state.animation_inverse == false) {
 				if (state.animation_state > 0) {
-
-                    std::cout << "### RESET-FRAME-N #3 ###" << std::endl;
-					state.animation_state = 0;
+                                    //std::cout << "### RESET-FRAME-N #3 ###" << std::endl;
+                                    state.animation_state = 0;
 				}
 			} else {
 				advance_to_last_frame();
@@ -941,7 +940,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
         return;
     }
 
-    std::cout << "############## frame_n: " << frame_n << std::endl;
     if (frame_n < 0) {
         std::cout << "ERROR" << std::endl;
         frame_n = 0;
@@ -966,7 +964,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
         std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
         frame_n = 0;
-        std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
+        //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
         state.animation_state = 0;
         _was_animation_reset = true;
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
@@ -999,10 +997,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
         }
     }
     if (_progressive_appear_pos == 0) {
-        //std::cout << "#1 - show::frame_pos.x: " << frame_pos.x << ", realPosition.x: " << realPosition.x << ", pos.x: " << position.x << std::endl;
-
-        std::cout << "direction[" << direction << "], type[" << type << "], frame_n[" << frame_n << "], frame_pos[" << frame_pos.x << "," << frame_pos.y << "], max_frames[" << frames_count() << "]" << std::endl;
-
+        //std::cout << "direction[" << direction << "], type[" << type << "], frame_n[" << frame_n << "], frame_pos[" << frame_pos.x << "," << frame_pos.y << "], max_frames[" << frames_count() << "]" << std::endl;
         graphLib.showSurfaceAt(&it_graphic->second->frames[direction][type][frame_n].frameSurface, frame_pos, false);
     } else {
         int diff_y = frameSize.height-_progressive_appear_pos;
@@ -1258,9 +1253,8 @@ bool character::is_on_screen()
         scroll = map->getMapScrolling();
     }
 
-
     // is on screen
-    if (abs((float)position.x) >= scroll.x && abs((float)position.x) <= scroll.x+RES_W) {
+    if (abs((float)position.x+frameSize.width*2) >= scroll.x && abs((float)position.x-frameSize.width*2) <= scroll.x+RES_W) {
         return true;
     }
 
@@ -2257,7 +2251,7 @@ void character::advance_to_last_frame()
 	if (frames_n > 0) {
 		state.animation_state = frames_n - 1;
 	} else {
-        std::cout << "### RESET-FRAME-N #5 ###" << std::endl;
+        //std::cout << "### RESET-FRAME-N #5 ###" << std::endl;
 		state.animation_state = 0;
     }
 }
@@ -2960,7 +2954,7 @@ void character::set_animation_type(ANIM_TYPE type)
     }
 
     if (type != state.animation_type) {
-        std::cout << "### RESET-FRAME-N #6 ###" << std::endl;
+        //std::cout << "### RESET-FRAME-N #6 ###" << std::endl;
         state.animation_state = 0;
 
         // adjusts position when leaving stairs

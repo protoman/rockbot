@@ -466,10 +466,6 @@ void classnpc::move_projectiles()
 
 // executes the NPC sub-IA behavior
 void classnpc::move() {
-
-
-
-
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT-1) {
         state.direction = ANIM_DIRECTION_LEFT;
     }
@@ -494,15 +490,16 @@ void classnpc::move() {
 	}
 
 
-
-
-
-
     if (hitPoints.current > 0) {
         //std::cout << "classnpc::move(" << name << ")::ALIVE" << std::endl;
-        //std::cout << "pos.x+w: " << (position.x+frameSize.width) << ", min(>): " << (mapScrollX-TILESIZE*2) << ", pos.x: " << (position.x) << ", max(<): " << (mapScrollX+RES_W+TILESIZE*2) << std::endl;
-        if (position.x+frameSize.width >= mapScrollX-TILESIZE*2 && position.x <= mapScrollX+RES_W+TILESIZE*2) {
+        int lim_min = (mapScrollX-frameSize.width*2);
+        int lim_max = (mapScrollX+RES_W+frameSize.width*2);
+        std::cout << "position.x: " << position.x << ", lim(>): " << lim_min << ", lim(<): " << lim_max << ", mapScrollX: " << mapScrollX << ", frameSize.width: " << frameSize.width << std::endl;
+        if (position.x >= lim_min && position.x <= lim_max) {
+            std::cout << "classnpc::move(" << name << ")::CALL::AI" << std::endl;
             execute_ai();
+        } else {
+            std::cout << "classnpc::move(" << name << ")::IGNORE" << std::endl;
         }
 	}
 

@@ -76,7 +76,10 @@ Sint8 option_picker::pick()
     bool finished = false;
     input.clean();
     input.waitTime(100);
-    _pick_pos = 0;
+
+    if (_pick_pos < 0 || _pick_pos >= (short)_items.size()) {
+        _pick_pos = 0;
+    }
 
     //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
 

@@ -207,6 +207,18 @@ FILE-FORMAT-V4:
     # vai para o novo ponto e volta ao descanso
 - EDITOR: permitir adicionar frames de teleport (está desabilitado pq era usado para outra coisa)
 
+- AI: move_to_point deve respeitar screen-lock para não deixar a tela
+    # se naquele ponto só tem blocos, não deve atravessar mesmo sendo fantasma
+- CRITICAL: garantir que teleport jamais passe reto. Se função que procura primeiro block falahar (>=RES_H) parar no meio da tela
+    # na fase do dragon, ao morrer nos espinhos logo no início já causa problema...
+    # no início do estágio usa: player1.set_teleport_minimal_y((min_y-3)*TILESIZE);
+    # ao morrer usar: min_y = loaded_stage.get_teleport_minimal_y_tile(85)*TILESIZE; // x = 70 + half a player width (30)
+    # e player1.set_teleport_minimal_y(min_y-3);
+- inimigo ao retornar do teleporte (tipo mummy), não está mostrando animação (special attack)
+- AI: criar jump-attack-up e jump-attack-ahead: no topo do pulo, dispara
+    # se já estiver no ar voando ou pulando, apenas atira (com animação jump_attack)
+- AI: adicionar nova action set animation REVERSE (do último ao primeiro frame)
+- correção de bug na animação reversa que ia para frame_n "-1"
 
 
 

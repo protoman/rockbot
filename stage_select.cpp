@@ -132,20 +132,14 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 	}
 
     posX = posX+80+63;
-    posY = posY+64+32;
+    posY = posY+64+32-1;
 	if (erase_eyes) {
         char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
         sprintf(eyes_filename_char, "player%d.png", (game_save.selected_player+1));
         place_face(std::string(eyes_filename_char), "", st_position(1, 1));
 
     } else {
-        if (game_save.selected_player == PLAYER_1) {
-			graphLib.copyArea(st_position(posX, posY), &eyes_surface, &graphLib.gameScreen);
-        } else if (game_save.selected_player == PLAYER_3) {
-            graphLib.copyArea(st_position(posX, posY-3), &eyes_surface, &graphLib.gameScreen);
-        } else {
-            graphLib.copyArea(st_position(posX-1, posY), &eyes_surface, &graphLib.gameScreen);
-        }
+        graphLib.copyArea(st_position(posX, posY), &eyes_surface, &graphLib.gameScreen);
 	}
 }
 
