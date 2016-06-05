@@ -491,16 +491,7 @@ void classnpc::move() {
 
 
     if (hitPoints.current > 0) {
-        //std::cout << "classnpc::move(" << name << ")::ALIVE" << std::endl;
-        int lim_min = (mapScrollX-frameSize.width*2);
-        int lim_max = (mapScrollX+RES_W+frameSize.width*2);
-        std::cout << "position.x: " << position.x << ", lim(>): " << lim_min << ", lim(<): " << lim_max << ", mapScrollX: " << mapScrollX << ", frameSize.width: " << frameSize.width << std::endl;
-        if (position.x >= lim_min && position.x <= lim_max) {
-            std::cout << "classnpc::move(" << name << ")::CALL::AI" << std::endl;
-            execute_ai();
-        } else {
-            std::cout << "classnpc::move(" << name << ")::IGNORE" << std::endl;
-        }
+        execute_ai();
 	}
 
     //std::cout << "classnpc::move - position.y: " << position.y << std::endl;

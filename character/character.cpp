@@ -1698,7 +1698,7 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     }
 	if (is_player() && map_lock == TERRAIN_CHECKPOINT) {
 		checkpoint.x = position.x;
-		checkpoint.y = position.y;
+                checkpoint.y = position.y/TILESIZE;
 		checkpoint.map = map->get_number();
 		checkpoint.map_scroll_x = map->getMapScrolling().x;
 	}

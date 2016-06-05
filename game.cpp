@@ -274,10 +274,14 @@ void game::restart_stage()
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
-    int min_y = checkpoint.y-TILESIZE/2;
+    int min_y = checkpoint.y;
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
         min_y = loaded_stage.get_teleport_minimal_y_tile(85);
+    }
+    // to avoid errors, set as 1/3 of the screen
+    if (min_y >= MAP_H) {
+        min_y = MAP_H/2;
     }
     player1.set_teleport_minimal_y(min_y*TILESIZE);
 
@@ -1166,7 +1170,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE6;
+    currentStage = STAGE1;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_2;
 

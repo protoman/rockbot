@@ -100,7 +100,8 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 ##################################
              DONE
 ##################################
-
+- unify player eyes position in stage selection screen
+- fix teleport after dying when reached checkpoint setting min_y to wrong value
 
 
 =========================================================================================================================================
