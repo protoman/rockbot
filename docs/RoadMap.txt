@@ -48,7 +48,6 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- mesmo quando já tem save, está ficando com o cursor em new game
 
 - mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
 - limpar gráficos de NPCs ao sair (já que agora é mapa com ponteiros)
@@ -102,6 +101,7 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 ##################################
 - unify player eyes position in stage selection screen
 - fix teleport after dying when reached checkpoint setting min_y to wrong value
+- mesmo quando já tem save, está ficando com o cursor em new game
 
 
 =========================================================================================================================================
