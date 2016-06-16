@@ -1029,7 +1029,6 @@ bool character::gravity(bool boss_demo_mode=false)
         reset_gravity_speed();
         return false;
     }
-    //if (is_player()) std::cout << "character::gravity - EXECUTE" << std::endl;
 	if (!map) {
         std::cout << "ERROR: can't execute gravity without a map" << std::endl;
         reset_gravity_speed();
@@ -1078,7 +1077,6 @@ bool character::gravity(bool boss_demo_mode=false)
             }
 			for (int i=limit_speed; i>0; i--) {
                 bool res_test_move = test_change_position(0, i);
-                //std::cout << ">> boss_demo_mode: " << boss_demo_mode << ", position.y: " << position.y << std::endl;
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
 					position.y += i;
 					is_moved = true;
@@ -1087,7 +1085,6 @@ bool character::gravity(bool boss_demo_mode=false)
             }
 			return is_moved;
         }
-        //std::cout << "CHAR::GRAVITY leave #4" << std::endl;
         reset_gravity_speed();
         return false; // not moved because of IA type
 	}
@@ -1136,7 +1133,6 @@ bool character::gravity(bool boss_demo_mode=false)
 
 		if (state.animation_type == ANIM_TYPE_TELEPORT) {
 
-            //std::cout << "CHARACTER::GRAVIRY - y: " << position.y << ", _teleport_minimal_y: " << _teleport_minimal_y << std::endl;
             if (_teleport_minimal_y - position.y > TILESIZE) {
                 adjusted_speed = gravity_max_speed;
             } else {
@@ -1743,8 +1739,6 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     int py_adjust = 8;
     int terrain_type = TERRAIN_UNBLOCKED;
 
-
-
     /// @TODO: move to char hitbox
     if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
         py_adjust = 1;
@@ -1899,12 +1893,17 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	} else if (incy > 0) {
 		map_point.y = py_bottom/TILESIZE;
 	}
+
+    if (name == "Ape Bot") {
+        std::cout << "CHAR::MAP_COLLISION[" << name << "], map_point.y: " << map_point.y << std::endl;
+    }
+
 	if (incy != 0) {
 		for (int i=0; i<3; i++) {
             map_point.x = map_x_points[i];
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
-            //if (is_player()) std::cout << "@@@ i: " << i << ", new_map_lock: " << new_map_lock << std::endl;
+            if (name == "Ape Bot") std::cout << "@@@ i: " << i << ", new_map_lock: " << new_map_lock << std::endl;
             check_map_colision_point(map_block, new_map_lock, 1, map_point);
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
@@ -2830,8 +2829,6 @@ bool character::test_change_position(short xinc, short yinc)
         return false;
     }
 
-    //std::cout << "#1 xinc: " << xinc << ", realPosition.x: " << realPosition.x << std::endl;
-
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
         return false;
     }
@@ -2839,6 +2836,11 @@ bool character::test_change_position(short xinc, short yinc)
     if (is_ghost == false) {
         st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
         short int mapLock = map_col.block;
+
+        if (name == "Ape Bot") {
+            std::cout << "CHAR::TEST_CHANGE_POS[" << name << "], mapLock: " << mapLock << std::endl;
+        }
+
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
             return false;
         }
@@ -2847,8 +2849,6 @@ bool character::test_change_position(short xinc, short yinc)
     // check wall-locks
     int map_x_point = (position.x+xinc);
     bool map_wall = map->get_map_point_wall_lock(map_x_point);
-
-    //std::cout << "test_change_position[" << name << "], map_x_point: " << map_x_point << ", map_wall: " << map_wall << std::endl;
 
     if (map_wall == true) {
         return false;

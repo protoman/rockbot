@@ -13,11 +13,14 @@ extern soundLib soundManager;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
+#define JUMP_ROOF_MIN_SPEED 3
+
 std::vector<character*> *artificial_inteligence::player_list=NULL;
 
 
 artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
 {
+    max_speed = GRAVITY_MAX_SPEED;
     _ghost_move_speed_reducer = 0;
     _did_shot = false;
     _reaction_state = 0;
@@ -192,7 +195,7 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_save_point();
         //std::cout << ">> AI:exec[" << name << "] SAVE_POINT <<" << std::endl;
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_AHEAD) {
-        std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_1 <<" << std::endl;
         execute_ai_action_trow_projectile(0, false);
     } else if (_current_ai_type == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION) {
         //std::cout << ">> AI:exec[" << name << "] SHOT_PROJECTILE_2 <<" << std::endl;
@@ -649,13 +652,14 @@ void artificial_inteligence::ia_action_jump_to_roof()
         _ignore_gravity = true; // disable gravity
         speed_y = max_speed*2;
 		return;
-	}
-    // executing
-	if (position.y > _ai_state.secondary_position.y) {
-		ia_accelerate_up();
-	} else {
-		_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-	}
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        // executing
+        if (position.y > _ai_state.secondary_position.y) {
+            ia_accelerate_up();
+        } else {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    }
 }
 
 void artificial_inteligence::ia_action_air_walk()
@@ -731,17 +735,17 @@ void artificial_inteligence::ia_action_quake_attack()
 
 void artificial_inteligence::ia_accelerate_up()
 {
-	//std::cout << "ia_accelerate_up - 1.speed_y: " << std::fixed << speed_y << std::endl;
-	speed_y -= speed_y*acceleration_y;
-	//std::cout << "ia_accelerate_up - 2.speed_y: " << std::fixed << speed_y << std::endl;
-    if (speed_y < 3) {
-		//speed_y = acceleration_y;
-        speed_y = 3;
+    std::cout << "ia_accelerate_up - 1.speed_y: " << std::fixed << speed_y << ", max_speed*2: " << (max_speed*2) << std::endl;
+    speed_y -= speed_y*acceleration_y;
+    std::cout << "ia_accelerate_up - 2.speed_y: " << std::fixed << speed_y << std::endl;
+    if (speed_y < JUMP_ROOF_MIN_SPEED) {
+        speed_y = JUMP_ROOF_MIN_SPEED;
     } else if (speed_y > TILESIZE) {
         speed_y = TILESIZE-2;
     } else if (speed_y > max_speed*2) {
         speed_y = max_speed*2;
 	}
+    std::cout << "ia_accelerate_up - 3.speed_y: " << std::fixed << speed_y << std::endl;
 	position.y -= speed_y;
 	/// @TODO - adjustment when ground is near
 }
