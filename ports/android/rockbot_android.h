@@ -1,6 +1,5 @@
-#ifdef ANDROID
-#ifndef ANDROID_PORT
-#define ANDROID_PORT
+#ifndef ANDROID_PORT_h
+#define ANDROID_PORT_h
 
 #include "defines.h"
 
@@ -12,6 +11,8 @@
 extern graphicsLib graphLib;
 
 extern jobject activity_ref;
+
+
 
 void set_android_default_buttons_pos() {
     SDL_Rect pos = {0, 0, 0, 0};
@@ -41,5 +42,4 @@ void set_android_default_buttons_pos() {
 
 
 
-#endif
 #endif

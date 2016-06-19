@@ -48,6 +48,25 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+06-19 14:52:44.972   382  1027 D AudioFlinger: mixer(0xb42ff008) throttle end: throttle time(10)
+06-19 14:52:45.111 28827 28887 I Rockbot2: [SDL_ANDROID_CloudLoad] call java method.
+06-19 14:52:45.113 28827 28887 I SDL     : Video::cloudLoad START
+06-19 14:52:45.114 28827 28887 I SDL     : Video.cloudLoad run load
+06-19 14:52:45.114 28827 28887 D SDL     : CloudSave: load: file /storage/2A63-BA9B/Android/data/net.upperland.rockbot2/files/Rockbot1.sav saveId Rockbot2.1 dialogTitle
+06-19 14:52:45.114 28827 28887 I SDL     : CloudSave: beginUserInitiatedSignIn()
+06-19 14:52:45.127 28827 28887 W GameHelper: !!! GameHelper WARNING: beginUserInitiatedSignIn() called when already connecting. Be patient! You can only call this method after you get an onSignInSucceeded() or onSignInFailed() callback. Suggestion: disable the sign-in button on startup and also when it's clicked, and re-enable when you get the callback.
+06-19 14:52:45.172   361   361 I SFPerfTracer:      triggers: (rate: 6106:294784) (compose: 0:105) (post: 0:19) (render: 73:3345) (243:1740236 frames) (244:1838477)
+06-19 14:52:45.172   361   361 D SFPerfTracer:        layers: (2:16) (FocusedStackFrame (0xb7534c10): 0:5575)* (DimLayer (0xb7591738): 0:103)* (DimLayer (0xb74d68f0): 0:2)* (StatusBar (0xb757ac28): 3:164493)* (com.android.systemui.ImageWallpaper (0xb753f300): 0:6029)* (DimLayer (0xb757e6c0): 0:965)* (DimLayer (0xb75943b0): 0:58)* (NavigationBar (0xb759c088): 0:155)* (net.upperland.rockbot2/net.upperland.rockbot2.MainActivity (0xb7599900): 0:21)- (ScreenshotSurface (0xb75373b0): 0:12)- (BlackSurface (0xb7597158): 0:11)- (BlackSurface (0xb7598420): 0:11)- (BlackSurface (0xb759e030): 0:11)- (BlackSurface (0xb759fdb8): 0:11)- (net.upperland.rockbot2/net.upperland.rockbot2.MainActivity (0xb75373b0): 0:13) (SurfaceView (0xb7597158): 244:249)
+06-19 14:52:45.202 28827 28827 V SDL     : GLSurfaceView_SDL::onWindowResize(): 1196x720
+06-19 14:52:45.205 28827 28827 D SDL     : libSDL: DemoRenderer.onWindowResize(): 1196x720
+06-19 14:52:45.205 28827 28827 V SDL     : Main window visible region changed: 0:0:1196:720
+06-19 14:52:45.236 28827 28827 I SDL     : libSDL: onWindowFocusChanged: false - sending onPause/onResume
+06-19 14:52:45.238 28827 28827 I SDL     : libSDL: DemoGLSurfaceView.onPause(): mRenderer.mGlSurfaceCreated true mRenderer.mPaused false
+06-19 14:52:45.238 28827 28827 V SDL     : GLSurfaceView_SDL::onPause()
+06-19 14:52:45.238 28827 28827 I libSDL  : OpenGL context lost - sending SDL_ACTIVEEVENT
+06-19 14:52:45.238 28827 28827 I SDL     : libSDL: stopping accelerometer/gyroscope/orientation
+06-19 14:52:45.561 28827 28827 V SDL     : Main window visible region changed: 0:0:1196:720
+
 
 - mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
 - limpar gráficos de NPCs ao sair (já que agora é mapa com ponteiros)

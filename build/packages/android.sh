@@ -1,6 +1,8 @@
 #!/bin/sh
 VERSIONNAME=`cat version_name.txt`
 
+set -x
+
 read -r -p "Did you remember to update data version and data zip name in AndroidAppSettings.cfg? [y/N] " response
 case $response in
 	[yY][eE][sS]|[yY]) 
@@ -24,17 +26,21 @@ case $response in
 		rm $ANDROIDSDK/rockbot_build/project/libs/armeabi/libapplication.so
 		cp ../../libapplication.so ../../../Android/project/jni/application/src/libapplication.so
 		cd $ANDROIDSDK/rockbot_build
-		LINENUMBER=`grep -n "AppDataDownloadUrl" AndroidAppSettings.cfg | cut -f1 -d:`
-		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"Game data is about 9 Mb|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.new
+
+		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
+		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
+		
+		LINENUMBERVERSION=`grep -n "AppVersionName=" AndroidAppSettings.cfg | cut -f1 -d:`
+		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.new
+		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
-		sh ./build.sh -s release
-		rm $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
+		sh ./build.sh rockbot release
 		rm $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
-		cp ./project/bin/MainActivity-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
-		#remove as assinaturas do Android (porque ele está colocando uma do além)
+		cp ./Rockbot2-$VERSIONNAME.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
+		# remove as assinaturas do Android (caso haja alguma, por engano)
 		zip -d $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk META-INF/*
-		#assina e realinha o APK
+		# assina e realinha o APK
 		/opt/java/jdk1.7.0_71/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk alias_name
 		zipalign -v 4 $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
 		;;

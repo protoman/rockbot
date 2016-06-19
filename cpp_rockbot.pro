@@ -61,84 +61,83 @@ macosx {
 }
 
 android {
+        DEFINES+= ANDROID=1
         ANDROIDSDK="/home/iuri/Programas/android-studio/sdk/"
-        ANDROIDNDK="/home/iuri/Programas/android-studio/sdk/android-ndk-r9d"
+        ANDROIDNDK="/home/iuri/Programas/android-studio/sdk/android-ndk-r11c"
 
-        TARGET = libapplication.so
+        TARGET = libapplication-armeabi.so
 
-        QMAKE_CXX = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
-        QMAKE_LINK = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
+        QMAKE_CXX = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
+        QMAKE_LINK = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
 
 
         QMAKE_CXXFLAGS += -fpic -ffunction-sections -funwind-tables -fstack-protector \
 	-DANDROID -DHANDHELD -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
 	-D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
 	-fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -g -finline-functions -Wa,--noexecstack \
-	-D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication.so \
+        -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
         --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
         -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/include \
-        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.6/include \
-        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include  \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/application/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_main/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_image/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_mixer/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_ttf/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/stlport/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/jpeg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/png/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/ogg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/flac/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/vorbis/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/freetype/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/jpeg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/png/include \
-        -I$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include
+        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/include \
+        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include  \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/application/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_main/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/ogg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/flac/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/vorbis/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/freetype/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
+        -I$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include
 
         LIBS = 	-fpic -ffunction-sections -funwind-tables -fstack-protector \
 	-D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
 	-D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
 	-fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -g -finline-functions -Wa,--noexecstack \
-	-D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication.so \
+        -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
         --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
         -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib \
-        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.6/l \
-        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include  \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/application/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_main/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_image/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_mixer/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl_ttf/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/stlport/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/jpeg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/png/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/ogg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/flac/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/vorbis/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/freetype/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/jpeg/include \
-        -isystem$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/png/include \
-        -I$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/sdl-1.2/include \
+        -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include  \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/application/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_main/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/ogg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/flac/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/vorbis/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/freetype/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
+        -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
+        -I$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include \
         --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
+        -L$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
         -L$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib/ \
-        -L$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi \
-        -L$${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/../obj/local/armeabi \
-        $${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/../obj/local/armeabi/libsdl-1.2.so \
-        $${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/../obj/local/armeabi/libsdl_image.so \
-        $${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/../obj/local/armeabi/libsdl_mixer.so \
-        $${ANDROIDSDK}/rockbot_build/commandergenius/project/jni/../obj/local/armeabi/libsdl_ttf.so \
+        -L$${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi \
+        $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl-1.2.so \
+        $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_image.so \
+        $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_mixer.so \
+        $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_ttf.so \
         -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/platforms/android-14/arch-arm/usr/lib \
 	-lc -lm -lGLESv1_CM -ldl -llog -lz \
 	-L/usr/lib \
-        -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi \
+        -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
         -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
         -lsupc++  -lsdl-1.2
 
-        QMAKE_POST_LINK += $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip --strip-all libapplication.so
+        QMAKE_POST_LINK += $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip --strip-all libapplication-armeabi.so
 
 }
 

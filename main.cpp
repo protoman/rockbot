@@ -12,13 +12,9 @@
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>
 #include "ports/android/rockbot_android.h"
-#endif
-
-#ifdef OSX
+#elif OSX
 #include <mach-o/dyld.h>
-#endif
-
-#ifdef DREAMCAST
+#elif DREAMCAST
 #include <kos.h>
 #endif
 
@@ -621,10 +617,7 @@ int main(int argc, char *argv[])
         fps_manager.limit();
 
     }
-	/// @TODO: sdl quit sub-systems
 
-
-	
 #ifdef PSP
     sceKernelExitGame();
     return 0;
@@ -635,7 +628,7 @@ int main(int argc, char *argv[])
 	return 1;
 }
 
-
+/*
 #ifdef ANDROID
 extern "C" {
     JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj);
@@ -650,4 +643,4 @@ JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv
 }
 
 #endif
-
+*/

@@ -12,6 +12,10 @@
 //#include <fileXio_rpc.h>
 #endif
 
+#ifdef ANDROID
+#include "ports/android/cloud_save.h"
+#endif
+
 extern std::string FILEPATH;
 extern std::string SAVEPATH;
 extern std::string GAMEPATH;
@@ -569,6 +573,9 @@ namespace format_v4 {
     {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
+#ifdef ANDROID
+            cloud_load_game(filename);
+#endif
         std::ifstream fp(filename.c_str());
         if (fp.good()) {
             return true;
@@ -630,6 +637,9 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
+#ifdef ANDROID
+            cloud_load_game(filename);
+#endif
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
@@ -694,6 +704,9 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
+#ifdef ANDROID
+        cloud_save_game(filename);
+#endif
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
             std::cout << "Error: Could not open save-file '" << filename << "'." << std::endl;
