@@ -31,8 +31,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->setupUi(this);
     QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER);
     setWindowTitle(window_title);
-    Mediator::get_instance()->load_game();
-
 
 	// insert NPC tab form
 	npc_edit_tab = new npc_edit();
@@ -88,6 +86,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::loadData()
+{
+    Mediator::get_instance()->load_game();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -39,6 +39,7 @@ public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void loadData();
     void closeEvent(QCloseEvent *event);
 	void fillGraphicsList();
 	void fillMapList();

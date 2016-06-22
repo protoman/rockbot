@@ -25,6 +25,8 @@ std::string FILEPATH; // path including GAMES/[GAME]
 std::string SAVEPATH;
 std::string GAMENAME;
 
+bool GAME_FLAGS[FLAG_COUNT];
+
 void remove_duplicated()
 {
 	for (int i=0; i<MAX_STAGES; i++) {
