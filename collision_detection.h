@@ -1,5 +1,5 @@
-#ifndef COLISION_DETECTION_H
-#define COLISION_DETECTION_H
+#ifndef COLLISION_DETECTION_H
+#define COLLISION_DETECTION_H
 
 #include "file/format/st_common.h"
 
@@ -7,10 +7,10 @@
  * @brief
  *
  */
-class colision_detection
+class collision_detection
 {
 public:
-	colision_detection();
+	collision_detection();
     /**
      * @brief
      *
@@ -31,4 +31,4 @@ private:
      */
     bool value_in_range(int value, int min, int max) const;
 };
-#endif // COLISION_DETECTION_H
+#endif // COLlISION_DETECTION_H

@@ -410,9 +410,6 @@ void character::charMove() {
 
             // check that path is clear to move
             if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
-
-                std::cout << "### STAIRS-DOWN #1 ###" << std::endl;
-
                 position.y += temp_move_speed/2;
             }
 
