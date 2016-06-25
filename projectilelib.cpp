@@ -2,7 +2,7 @@
 #include "projectilelib.h"
 #include "timerlib.h"
 #include "classmap.h"
-#include "colision_detection.h"
+#include "collision_detection.h"
 #include <cmath>
 
 #include "soundlib.h"
@@ -541,7 +541,7 @@ st_size projectile::move() {
 		}
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
         move_ahead(moved);
-		if (check_map_colision(st_position(moved.width, moved.height)) == true) {
+		if (check_map_collision(st_position(moved.width, moved.height)) == true) {
 			status++;
 			if (status > 3) {
 				is_finished = true;
@@ -615,8 +615,8 @@ st_size projectile::move() {
             moved.height += get_speed();
         }
         // check for collisions to change direction
-        bool collisionX = check_map_colision(st_position(moved.width, 0));
-        bool collisionY = check_map_colision(st_position(moved.width, moved.height));
+        bool collisionX = check_map_collision(st_position(moved.width, 0));
+        bool collisionY = check_map_collision(st_position(moved.width, moved.height));
 
         std::cout << ">>>> collisionX: " << collisionX << ", collisionY: " << collisionY << ", moved.width: " << moved.width << ", moved.height: " << moved.height << std::endl;
 
@@ -778,13 +778,13 @@ void projectile::draw() {
 }
 
 // TODO: width/height must come from editor instead of using graphLib.projectile_surface
-bool projectile::check_colision(st_rectangle enemy_pos, st_position pos_inc) const
+bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) const
 {
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK) {
         return false;
     }
 
-    colision_detection rect_colision_obj;
+    collision_detection rect_collision_obj;
 
     int px = position.x;
     int py = position.y;
@@ -806,9 +806,9 @@ bool projectile::check_colision(st_rectangle enemy_pos, st_position pos_inc) con
     if (_move_type == TRAJECTORY_RING) {
         int ring_h = 4;
         st_rectangle projectile_rect1(px, py, pw, ring_h);
-        bool res1 = rect_colision_obj.rect_overlap(projectile_rect1, p_rect);
+        bool res1 = rect_collision_obj.rect_overlap(projectile_rect1, p_rect);
         st_rectangle projectile_rect2(px, py+ph-ring_h, pw, ring_h);
-        bool res2 = rect_colision_obj.rect_overlap(projectile_rect2, p_rect);
+        bool res2 = rect_collision_obj.rect_overlap(projectile_rect2, p_rect);
 
         std::cout << "COLLISION-RING - res1: " << res1 << ", res2: " << res2 << std::endl;
 
@@ -820,12 +820,12 @@ bool projectile::check_colision(st_rectangle enemy_pos, st_position pos_inc) con
     }
 
     st_rectangle projectile_rect(px, py, pw, ph);
-    bool res = rect_colision_obj.rect_overlap(projectile_rect, p_rect);
+    bool res = rect_collision_obj.rect_overlap(projectile_rect, p_rect);
 
     return res;
 }
 
-bool projectile::check_map_colision(st_position pos_inc) const
+bool projectile::check_map_collision(st_position pos_inc) const
 {
 	int p_y[3];
 	p_y[0] = position.y + pos_inc.y;
@@ -840,7 +840,7 @@ bool projectile::check_map_colision(st_position pos_inc) const
     for (int i=0; i<3; i++) {
         int lock = map->getMapPointLock(st_position(p_x/TILESIZE, p_y[i]/TILESIZE));// map->map_tiles.tiles[p_x/TILESIZE][p_y[i]/TILESIZE].locked;
 		if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
-            //std::cout << ">> projectile::check_map_colision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
+            //std::cout << ">> projectile::check_map_collision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
 			return true;
 		}
 	}

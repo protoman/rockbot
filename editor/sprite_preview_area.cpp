@@ -73,11 +73,11 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     }
     // draw hit-area
     painter.setBrush(QColor(255, 0, 0, 50));
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
-        int hitx = center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x*2;
-        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y*2;
-        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w*2;
-        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h*2;
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h != 0) {
+        int hitx = center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x*2;
+        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y*2;
+        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w*2;
+        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h*2;
 
         //std::cout << "hitx: " << hitx << ", hity: " << hity << ", hitw: " << hitw << ", hith: " << hith << std::endl;
         painter.drawRect(hitx, hity, hitw, hith);
@@ -97,11 +97,11 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
 
     // FRAME HITBOX
     painter.setPen(QPen(QColor(0, 0, 255), 1, Qt::DashLine));
-    int ini_x = center_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.x*2;
-    int end_x = ini_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.w*2;
+    int ini_x = center_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].collision_rect.x*2;
+    int end_x = ini_x + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].collision_rect.w*2;
 
-    int ini_y = center_y + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.y*2;
-    int end_y = ini_y + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].colision_rect.h*2;
+    int ini_y = center_y + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].collision_rect.y*2;
+    int end_y = ini_y + temp_npc.sprites[Mediator::get_instance()->current_sprite_type][Mediator::get_instance()->current_sprite_selection].collision_rect.h*2;
 
     // horizontal lines
     painter.drawLine(ini_x, ini_y, end_x, ini_y);

@@ -60,7 +60,7 @@ namespace format_v4 {
         bool used;                                                  // if true, the sprite exists
         Uint16 duration;
         Uint8 sprite_graphic_pos_x;
-        st_rectangle colision_rect;
+        st_rectangle collision_rect;
         st_sprite_data() {
             used = false;
             duration = 0;
@@ -71,7 +71,7 @@ namespace format_v4 {
             used = new_value.used;
             duration = new_value.duration;
             sprite_graphic_pos_x = new_value.sprite_graphic_pos_x;
-            colision_rect = new_value.colision_rect;
+            collision_rect = new_value.collision_rect;
             return *this;
         }
     };
@@ -89,7 +89,7 @@ namespace format_v4 {
         char face_filename[FS_CHAR_NAME_SIZE];
         Uint8 HP;
         st_size_int8 sprite_size;                                       // size of sprite graphic
-        st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/colision
+        st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
         Uint8 move_speed;                                               // how many sprites move each step
         st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
         file_weapon_colors weapon_colors[MAX_WEAPON_N];

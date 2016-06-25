@@ -4,7 +4,7 @@ VERSION 2.0.0 BETA 1
 - revamp na UI da edição de inimigos
 - hit-area dos inimigos deve ser determinada pelo tamanho do sprite to tipo atual atual (fazer um por tipo para simplificar)
     # criar função get_hitbox em character
-        @ classMap::colision_player_npcs
+        @ classMap::collision_player_npcs
             % character::getPosition()
             % character::get_size()
     # modificar editor para que tamanho do hitbox seja 1 por tipo de animação
@@ -1088,7 +1088,7 @@ BETA 5:
 --------------------------
 - betabot damaging fast a NPC is making him invisible (resetting the hit animation)
 - COIL item jump not working (too short)
-- fix spiked floor colision
+- fix spiked floor collision
 - do not use more than 2 different NPCs in the same area. Limit NPC number to 3 on a screen:
 	OK - INTRO
 	OK - APE
@@ -1107,7 +1107,7 @@ BETA 5:
 - diferences between rockbot and betabot (charged shot, double shot, double jump) [OK on file-format]
 	- rock jumps a bit higher
 	- rock is faters than beta
-	- beta takes less damage when caused by colision with a NPC
+	- beta takes less damage when caused by collision with a NPC
 	- beta do not have charged shot
 	- beta can shot only two projectiles at a time (x2 = 4)
 	- beta do not have shield
@@ -1299,7 +1299,7 @@ BETA4:
 - when player dies, must reset state of all objects in stage-maps
 - disappearing blocks in maps other than stage's initial (0) are appearing at the same time
 - reset objects state when leaving a map
-- colision map is blocking x-axis when hitting head
+- collision map is blocking x-axis when hitting head
 - disappearing block not working
 - use filename from stage_data insetad of hardcoded in play_music
 - EDITOR: first stage music filename is being filled empty
@@ -1334,7 +1334,7 @@ BETA4:
 - should not be able to jump after started a fall
 - fix terrain move-left and move-right
 - terrain move-left/right must not move player if blocked
-- dead npc colision with player is damading him
+- dead npc collision with player is damading him
 - character death when falling in holes not working while jumping
 - start object animation each time it is activated (multiple start calls, set started to false when animation ends)
 - object must have a flag to indicate that animation will start only after activated and if it will execute only once or in looping
@@ -1344,7 +1344,7 @@ BETA4:
 - projectile must not hit dead NPCs
 - do not remove killed npcs, instead, revive them when out of screen
 - npc zig-zag is leaving screen (block on x < 0, y < 0, etc)
-- fix player map-colision for jump (not coliding on front)
+- fix player map-collision for jump (not coliding on front)
 - check unloading of intro graphics from memory
 - fix scroll problem
 - fix max projectiles
@@ -1456,9 +1456,9 @@ BETA 3:
 - EDITOR: is not saving all the lines in dialog
 - EDITOR: implement different frame size for each sprite in editor
 - changing object size in editor is not updating the grid lines
-- add a redutor to player height on object colision (he is kind of floating before touching the object)
+- add a redutor to player height on object collision (he is kind of floating before touching the object)
 - in some cases, jump+left/right near a wall, makes the player pass throught it
-- colision when using jet is fault
+- collision when using jet is fault
 - implement jet object/item
 - implement item coil
 - coil object (generic object, not the item-one, that will actually be a object with timed existence)
@@ -1474,7 +1474,7 @@ BETA 2:
 -----------------------------------------------------------------------------------------------------------------------
 - teleporters not working
 - DATA: revise stages because of new speed and height
-- spikes must block colision, even if not kill player (intangible)
+- spikes must block collision, even if not kill player (intangible)
 - implement vertical (up/down) zigzag
 - recharge all player weapons after beating an stage
 - pressing up over stairs is changing between stairs_semi and stand
@@ -1492,11 +1492,11 @@ BETA 2:
 - killer flower (npc) is not falling to the ground
 - the speed for boss intro must be the same (do not use move speed)
 - fix IA_SHOOT_AND_GO
-- BUG: zigzag npcs are not colliding with player (use colision class)
-- colision player/npc is not using diff-x
+- BUG: zigzag npcs are not colliding with player (use collision class)
+- collision player/npc is not using diff-x
 - check why range, by default, isn't working (must change value in editor, then redo)
 - check range minimal value in editor (is 48, should be zero)
-- player/npcs must go down 1 pixel in map colision (they should enter a bit on the platforms)
+- player/npcs must go down 1 pixel in map collision (they should enter a bit on the platforms)
 - check NPCs speed (must use the editor value, not hardcoded one)
 - projectile must start near the player
 - finish the in-game menu
@@ -1508,17 +1508,17 @@ BETA 2:
 - implement use weapon tanks
 - menu is allowing to move right when on normal shot
 - horizontal weapon bars must be drawn from left to right (is inverted)
-- implement platform colision for character going up (use colision class)
+- implement platform collision for character going up (use collision class)
 - EDITOR: when changing boss face throught mouse wheel, the data isn't updated
 - recover stage/boss dialogs from previous version (were lost in data conversion)
 - platform move-up should be able to move player out of screen
 - platform must return to its position if out-of-screen, even if player is above it
 - when out of screen, platform must drop player
-- object colision in platforms is not accurate (player ig entering the object area)
-- object colision: player Y is not being reduced (this will be solved later, when each frame has its own colision rectangle, for now use 10px reducer)
+- object collision in platforms is not accurate (player ig entering the object area)
+- object collision: player Y is not being reduced (this will be solved later, when each frame has its own collision rectangle, for now use 10px reducer)
 - falling from a stairscase changes player to STAND instead of JUMP
 - falling from a platform changes player to STAND instead of JUMP
-- fix object colision from bottom to top
+- fix object collision from bottom to top
 - editor is multiplying some map-NPCs (remove the ones that are in the same position on map when loading)
 - dingux needs keys for shield and dash
 - EDITOR: remove duplicated items and objects from map after loading file
@@ -1540,7 +1540,7 @@ BETA 2:
 - special weapon different damage is not working
 - time of invulnerability after being hit must be lowered for NPCs
 - fix dingux keys for L/R/Shield/Dash
-- boss is starting before time, showing fill hp-bar on top (colision with ceiling?)
+- boss is starting before time, showing fill hp-bar on top (collision with ceiling?)
 - fix multiple backgrounds error (not showing part of it, check magebot's stage)
 - fix charging shot slowdown in Dingux - only change colors when timer is off, only change the current frame
 - add background in npc file-format, so that it can have a big static part, and some small sprites (saves lots of memory as sprites takes less space): char[255] bg_filename, st_position sprites_pos
@@ -1587,7 +1587,7 @@ BETA 2:
 -----------------------------------------------------------------------------------------------------------------------
 BETA 1:
 -----------------------------------------------------------------------------------------------------------------------
-- common class for stuff like rectangles colision detection
+- common class for stuff like rectangles collision detection
 - reduce hit push back
 - test all stages to assure all can be finished:
 - hide map link numbers
@@ -1610,7 +1610,7 @@ stages - DYNAMITE - scroll is stopping in two points, review
 - implement objects movement
 - implement go-up platform (same as fall one, but to top direction)
 - fix platform moving player because of head
-- fix up/down platform colision (not coliding)
+- fix up/down platform collision (not coliding)
 - add OPEN_PANDORA build mode
 - if save exists, default cursor position must be "load" instead of "new" game
 - bg2 was not being shown in technobot's stage
@@ -1750,7 +1750,7 @@ ALPHA1:
 - add scrolling support in map
 - implement jumping
 - implement sound/music
-- port colision detection
+- port collision detection
 - implement fps counter
 - implement game configuration structure
 - implement attack
@@ -1761,11 +1761,11 @@ ALPHA1:
 - load game objects
 - list of objects graphics (the object class will use a pointer to this list)
 - load and show map objects
-- object-player colision
+- object-player collision
 - transition screen for scrolllock
 - load/unload stages when needed
 - create a new (better, simpler and C++ based) system for colorcycle
-- implement player-npc colision
+- implement player-npc collision
 - implement hit blinking and push-back
 - fix double jump (but make it a future feature as a player flag)
 - implement player-death

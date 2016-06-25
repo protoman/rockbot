@@ -164,11 +164,11 @@ void character::charMove() {
 				if (frameSize.width > 21) {
                     diff_w = abs((float)frameSize.height-21);
 				}
-                std::cout << "colision_player_npcs #1" << std::endl;
-				short int res_colision_npc = map->colision_player_npcs(this, 0, 0, diff_w, diff_h);
-				if (res_colision_npc == 1) {
+                std::cout << "collision_player_npcs #1" << std::endl;
+                short int res_collision_npc = map->collision_player_npcs(this, 0, 0, diff_w, diff_h);
+                if (res_collision_npc == 1) {
                     damage(TOUCH_DAMAGE_SMALL, false);
-				} else if (res_colision_npc == 2) {
+                } else if (res_collision_npc == 2) {
                     damage(TOUCH_DAMAGE_BIG, false);
 				}
 			}
@@ -215,7 +215,7 @@ void character::charMove() {
 
 
         for (float i=temp_move_speed; i>=0.1; i--) {
-            st_map_colision map_col = map_colision(-i, 0, map->getMapScrolling());
+            st_map_collision map_col = map_collision(-i, 0, map->getMapScrolling());
             mapLock = map_col.block;
             if (state.animation_type == ANIM_TYPE_HIT) {
                 hit_moved_back_n += temp_move_speed;
@@ -260,7 +260,7 @@ void character::charMove() {
             }
 
             if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
-                st_map_colision map_col = map_colision(i, 0, map->getMapScrolling());
+                st_map_collision map_col = map_collision(i, 0, map->getMapScrolling());
                 mapLock = map_col.block;
                 //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
@@ -303,13 +303,13 @@ void character::charMove() {
 
         if (moved == true) {
             if (moveCommands.right == 1) {
-                st_map_colision map_col = map_colision(1, 0, map->getMapScrolling());
+                st_map_collision map_col = map_collision(1, 0, map->getMapScrolling());
                 mapLock = map_col.block;
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                     position.x++;
                 }
             } else if (moveCommands.left == 1) {
-                st_map_colision map_col = map_colision(-1, 0, map->getMapScrolling());
+                st_map_collision map_col = map_collision(-1, 0, map->getMapScrolling());
                 mapLock = map_col.block;
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                     position.x--;
@@ -324,7 +324,7 @@ void character::charMove() {
                         std::cout << "INERTIA::STOP #1" << std::endl;
                         _inertia_obj.stop();
                     } else {
-                        st_map_colision map_col = map_colision(-inertia_xinc, 0, map->getMapScrolling());
+                        st_map_collision map_col = map_collision(-inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                             //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
@@ -338,7 +338,7 @@ void character::charMove() {
                         //std::cout << "INERTIA::STOP #2" << std::endl;
                         _inertia_obj.stop();
                     } else {
-                        st_map_colision map_col = map_colision(inertia_xinc, 0, map->getMapScrolling());
+                        st_map_collision map_col = map_collision(inertia_xinc, 0, map->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                             //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
@@ -810,6 +810,7 @@ void character::consume_projectile()
 //                                                                                                //
 // ********************************************************************************************** //
 void character::show() {
+#define SHOW_HITBOXES
 
     if (timer.is_paused() == true) {
         return;
@@ -854,15 +855,19 @@ void character::show() {
 	} else {
         show_sprite_graphic(state.direction, state.animation_type, state.animation_state);
 	}
+    st_rectangle hitbox = get_hitbox();
+    hitbox.x -= map->getMapScrolling().x;
     if (is_player() == false) {
         if (freeze_weapon_effect != FREEZE_EFFECT_NPC || is_weak_to_freeze() == false) {
             show_sprite();
+#ifdef SHOW_HITBOXES
+        //std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << ", hitbox.y: " << hitbox.y << std::endl;
+        graphLib.draw_rectangle(hitbox, 255, 0, 255, 100);
+#endif
         }
     } else {
         show_sprite();
 #ifdef SHOW_HITBOXES
-        st_rectangle hitbox = get_hitbox();
-        hitbox.x -= map->getMapScrolling().x;
         //std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << ", hitbox.y: " << hitbox.y << std::endl;
         graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
@@ -1078,7 +1083,7 @@ bool character::gravity(bool boss_demo_mode=false)
 			for (int i=limit_speed; i>0; i--) {
                 bool res_test_move = test_change_position(0, i);
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
-					position.y += i;
+                    position.y += i;
 					is_moved = true;
 					break;
 				}
@@ -1103,10 +1108,10 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	if (is_in_stairs_frame()) {
         //character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y
-        short int res_colision_npc = map->colision_player_npcs(this, 0, 0,  9, 0);
-        if (res_colision_npc == 1) {
+        short int res_collision_npc = map->collision_player_npcs(this, 0, 0,  9, 0);
+        if (res_collision_npc == 1) {
             damage(TOUCH_DAMAGE_SMALL, false);
-        } else if (res_colision_npc == 2) {
+        } else if (res_collision_npc == 2) {
             damage(TOUCH_DAMAGE_BIG, false);
         }
         reset_gravity_speed();
@@ -1142,10 +1147,10 @@ bool character::gravity(bool boss_demo_mode=false)
 
         //if (is_player()) std::cout << "gravity - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << ", adjusted_speed: " << adjusted_speed << ", position.y: " << position.y << std::endl;
 
-        st_map_colision map_col;
+        st_map_collision map_col;
         bool was_moved = false;
         for (int i=adjusted_speed; i>0; i--) {
-            map_col = map_colision(0, i, map->getMapScrolling());
+            map_col = map_collision(0, i, map->getMapScrolling());
             int mapLock = map_col.block;
 
 			if (state.animation_type == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
@@ -1387,7 +1392,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
 
-    st_map_colision map_col = map_colision(0, 0, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up colision
+    st_map_collision map_col = map_collision(0, 0, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up collision
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide
@@ -1435,7 +1440,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     // if there is no ground, interrupts slide
-    st_map_colision map_col_fall = map_colision(0, 1, map->getMapScrolling());
+    st_map_collision map_col_fall = map_collision(0, 1, map->getMapScrolling());
     int fall_map_lock = map_col_fall.block;
 
     //std::cout << "character::slide - fall_map_lock: " << fall_map_lock << std::endl;
@@ -1469,7 +1474,7 @@ bool character::slide(st_float_position mapScrolling)
     int mapLockAfter = BLOCK_UNBLOCKED;
     _obj_jump.finish();
 
-    // reduce progressively the jump-move value in oder to deal with colision
+    // reduce progressively the jump-move value in oder to deal with collision
     for (float i=move_speed*2; i>0.0; i--) {
 
         int temp_i;
@@ -1478,7 +1483,7 @@ bool character::slide(st_float_position mapScrolling)
         } else {
             temp_i = i;
         }
-        st_map_colision map_col = map_colision(temp_i, 0, mapScrolling);;
+        st_map_collision map_col = map_collision(temp_i, 0, mapScrolling);;
         mapLockAfter = map_col.block;
 
         if (mapLockAfter == BLOCK_UNBLOCKED) {
@@ -1577,7 +1582,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             } else {
                 speed_y = i*-1;
             }
-            st_map_colision map_col = map_colision(0, speed_y, mapScrolling);
+            st_map_collision map_col = map_collision(0, speed_y, mapScrolling);
             int map_lock = map_col.block;
             //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
@@ -1626,7 +1631,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
 
 
-void character::check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
+void character::check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
 {
     UNUSED(map_pos);
 
@@ -1734,7 +1739,7 @@ void character::check_platform_move(short map_lock)
     }
 }
 
-st_map_colision character::map_colision(const float incx, const short incy, st_float_position mapScrolling)
+st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling)
 {
     int py_adjust = 8;
     int terrain_type = TERRAIN_UNBLOCKED;
@@ -1745,40 +1750,40 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     }
 
     UNUSED(mapScrolling);
-	int map_block = BLOCK_UNBLOCKED;
+    int map_block = BLOCK_UNBLOCKED;
 
 
-    map->colision_char_object(this, incx, incy);
-    object_colision res_colision_object = map->get_obj_colision();
+    map->collision_char_object(this, incx, incy);
+    object_collision res_collision_object = map->get_obj_collision();
 
-    //std::cout << "%%% res_colision_object._block: " << res_colision_object._block << " %%%" << std::endl;
+    //std::cout << "%%% res_collision_object._block: " << res_collision_object._block << " %%%" << std::endl;
 
 
 
-    if (is_player() == true && res_colision_object._block != 0) {
+    if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (res_colision_object._object != NULL && (res_colision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_colision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_colision_object._object->is_started() == true))) {
-            if (is_on_teleporter_capsulse(res_colision_object._object) == true) {
+        if (res_collision_object._object != NULL && (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true))) {
+            if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                 state.direction = ANIM_DIRECTION_RIGHT;
-                gameControl.object_teleport_boss(res_colision_object._object->get_boss_teleporter_dest(), res_colision_object._object->get_boss_teleport_map_dest(), res_colision_object._object->get_obj_map_id());
+                gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
             }
-        } else if (res_colision_object._object != NULL && (res_colision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_colision_object._object->is_started() == false)) {
+        } else if (res_collision_object._object != NULL && (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false)) {
             // ignore block
-        } else if (!get_item(res_colision_object)) {
-			map_block = res_colision_object._block;
+        } else if (!get_item(res_collision_object)) {
+            map_block = res_collision_object._block;
 
             if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
                 _can_execute_airdash = true;
             }
             // INSIDE PLATFORM OBJECT, MUST DIE
             if (map_block == BLOCK_INSIDE_OBJ) {
-                std::cout << "DEBUG-OBJ-COLISION #5" << std::endl;
+                std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
                 damage(999, true);
-                return st_map_colision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+                return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
             }
         }
-    } else if (is_player() == false && res_colision_object._block != 0) {
-        map_block = res_colision_object._block;
+    } else if (is_player() == false && res_collision_object._block != 0) {
+        map_block = res_collision_object._block;
         if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
             _can_execute_airdash = true;
         }
@@ -1786,12 +1791,12 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 
 	if (is_player()) {
         if (have_shoryuken() == true && state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
-            map->colision_player_special_attack(this, incx, incy, 9, py_adjust);
+            map->collision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
-            short int res_colision_npc = map->colision_player_npcs(this, incx, incy, 9, py_adjust);
-            if (res_colision_npc == 1) {
+            short int res_collision_npc = map->collision_player_npcs(this, incx, incy, 9, py_adjust);
+            if (res_collision_npc == 1) {
                 damage(TOUCH_DAMAGE_SMALL, false);
-            } else if (res_colision_npc == 2) {
+            } else if (res_collision_npc == 2) {
                 damage(TOUCH_DAMAGE_BIG, false);
             }
         }
@@ -1801,12 +1806,12 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 
     // no need to test map collision if object collision is already X+Y
     if (map_block == BLOCK_XY && incx != 0) {
-        return st_map_colision(BLOCK_XY, TERRAIN_SOLID);
+        return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
 
 	if (incx == 0 && incy == 0) {
-        return st_map_colision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
+        return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
 	}
 
     if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
@@ -1827,7 +1832,7 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
     // if we are out of map, return always true
     if (_always_move_ahead == true) {
         if ((incx < 0 && (position.x+incx < 0)) || (incx > 0 && position.x+incx > MAP_W*TILESIZE)) {
-            return st_map_colision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
+            return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
         }
     }
 
@@ -1880,9 +1885,9 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
                 map_point.y = map_y_points[i];
             }
             new_map_lock = gameControl.getMapPointLock(map_point);
-            check_map_colision_point(map_block, new_map_lock, 0, map_point);
+            check_map_collision_point(map_block, new_map_lock, 0, map_point);
             if (process_special_map_points(new_map_lock, incx, incy, map_point)) {
-                return st_map_colision(map_block, new_map_lock);
+                return st_map_collision(map_block, new_map_lock);
             }
 		}
 	}
@@ -1904,13 +1909,13 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
             if (name == "Ape Bot") std::cout << "@@@ i: " << i << ", new_map_lock: " << new_map_lock << std::endl;
-            check_map_colision_point(map_block, new_map_lock, 1, map_point);
+            check_map_collision_point(map_block, new_map_lock, 1, map_point);
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
             }
 
             if (process_special_map_points(new_map_lock, incx, incy, map_point)) {
-                return st_map_colision(map_block, new_map_lock);
+                return st_map_collision(map_block, new_map_lock);
             }
 			// STAIRS
 			if ((map_block == BLOCK_UNBLOCKED || map_block == BLOCK_X || map_block == BLOCK_WATER) && incy > 0 && new_map_lock == TERRAIN_STAIR) { // stairs special case
@@ -1960,10 +1965,10 @@ st_map_colision character::map_colision(const float incx, const short incy, st_f
 	}
 
 
-    //if (is_player()) std::cout << "character::map_colision_v2 - map_block: " << map_block << std::endl;
+    //if (is_player()) std::cout << "character::map_collision_v2 - map_block: " << map_block << std::endl;
 
 
-    return st_map_colision(map_block, terrain_type);
+    return st_map_collision(map_block, terrain_type);
 
 }
 
@@ -2145,15 +2150,36 @@ st_rectangle character::get_hitbox()
             h = 14;
         } else { // stand/default
             if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x + 10;
+                x = position.x + 9;
             } else {
-                x = position.x + 4;
+                x = position.x + 8;
             }
             y = position.y + 3;
-            w = 14;
+            w = 12;
             h = 26;
         }
+    } else {
+        int anim_n = state.animation_state;
+        int anim_type = state.animation_type;
+        // prevent getting size from a frame that does not have information, use STAND instead
+        if (GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w <= 0) {
+            anim_n = ANIM_TYPE_STAND;
+            anim_type = 0;
+        }
+        if (state.direction == ANIM_DIRECTION_LEFT) {
+            x = position.x - (frameSize.width - GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.w) + GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.x + 2;
+        } else {
+            x += GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.x - 2;
+        }
+        y += GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.y;
+        w = GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.w - 4;
+        h = GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][anim_n].collision_rect.h;
+        if (w <= 0 || h <= 0) {
+            std::cout << "#### CHAR::GET_HITBOX animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
+            std::cout << "A" << std::endl;
+        }
     }
+
 
 
     return st_rectangle(x, y, w, h);
@@ -2317,7 +2343,7 @@ void character::recharge(e_energy_types _en_type, int value)
 
 
 
-bool character::get_item(object_colision& obj_info)
+bool character::get_item(object_collision& obj_info)
 {
 	bool res = false;
 	// deal with non-blocking items
@@ -2741,7 +2767,7 @@ void character::teleport_out() {
 bool character::change_position(short xinc, short yinc)
 {
 
-    st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
+    st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
     short int mapLock = map_col.block;
     //if (is_player()) std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
 
@@ -2764,7 +2790,7 @@ void character::change_position_x(short xinc)
             hit_moved_back_n += xinc;
         }
 
-        st_map_colision map_col = map_colision(i, 0, map->getMapScrolling());
+        st_map_collision map_col = map_collision(i, 0, map->getMapScrolling());
         int mapLock = map_col.block;
         //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
@@ -2834,7 +2860,7 @@ bool character::test_change_position(short xinc, short yinc)
     }
 
     if (is_ghost == false) {
-        st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
+        st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
         short int mapLock = map_col.block;
 
         if (name == "Ape Bot") {
@@ -2867,7 +2893,7 @@ bool character::test_change_position_debug(short xinc, short yinc)
 	if (yinc > 0 && position.y > RES_H) {
 		return false;
 	}
-    st_map_colision map_col = map_colision(xinc, yinc, map->getMapScrolling());
+    st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
     short int mapLock = map_col.block;
 	//std::cout << "character::test_change_position - pos.x: " << position.x << ", pos.y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", mapLock: " << mapLock << std::endl;
 	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {

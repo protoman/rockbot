@@ -126,12 +126,6 @@ public:
      * @return short
      */
     short get_dead_state();
-    /**
-     * @brief
-     *
-     * @return st_rectangle
-     */
-    st_rectangle get_hit_area();
 
     bool is_able_to_fly();
 

@@ -246,17 +246,17 @@ st_position classnpc::get_start_position()
 
 st_rectangle classnpc::get_hitbox()
 {
-    int temp_x = position.x + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.x;
-    int temp_y = position.y + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.y;
-    int temp_w = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.w;
-    int temp_h = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.h;
+    int temp_x = position.x + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.x;
+    int temp_y = position.y + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.y;
+    int temp_w = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w;
+    int temp_h = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.h;
 
     // @TODO - invert X depending on direction
 
     //std::cout << "#NPC::get_hitbox[" << name << "] - x: " << temp_x << ", y: " << temp_y << ", w: " << temp_w << ", h: " << temp_h << std::endl;
 
     if (state.direction == ANIM_DIRECTION_LEFT) {
-        temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.x) - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].colision_rect.w + position.x;
+        temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
     }
 
     return st_rectangle(temp_x, temp_y, temp_w, temp_h);
@@ -401,7 +401,7 @@ void classnpc::move_projectiles()
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         (*it).draw();
         st_size moved = (*it).move();
-		// check colision agains players
+        // check collision agains players
 
         if ((*it).is_reflected == true) {
 			continue;
@@ -422,7 +422,7 @@ void classnpc::move_projectiles()
                 continue;
             }
 
-            if ((*it).check_colision(player_hitbox, st_position(moved.width, moved.height)) == true) {
+            if ((*it).check_collision(player_hitbox, st_position(moved.width, moved.height)) == true) {
                 if (map->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     (*it).reflect();
                 } else if (map->_player_ref->is_using_circle_weapon() == true) {
@@ -443,7 +443,7 @@ void classnpc::move_projectiles()
             for (int i=0; i<map->_npc_list.size(); i++) {
                 st_rectangle other_npc_hitbox = map->_npc_list.at(i).get_hitbox();
 				//classnpc* enemy = (*enemy_it);
-                if ((*it).check_colision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
+                if ((*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
                     if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                         (*it).reflect();
@@ -530,20 +530,6 @@ short classnpc::get_dead_state()
     return _dead_state;
 }
 
-st_rectangle classnpc::get_hit_area()
-{
-    st_rectangle res(GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w, GameMediator::get_instance()->get_enemy(_number).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
-    if (state.direction == ANIM_DIRECTION_RIGHT) {
-        res.x = frameSize.width - res.w - res.x;
-    }
-    if (res.w == 0) {
-        res.w = frameSize.width;
-    }
-    if (res.h == 0) {
-        res.h = frameSize.height;
-    }
-    return res;
-}
 
 void classnpc::death()
 {

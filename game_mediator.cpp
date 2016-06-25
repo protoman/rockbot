@@ -105,10 +105,10 @@ void GameMediator::wii_convert_npc_list() {
         for (int j=0; j<ANIM_TYPE_COUNT; j++) {
             for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
                 uint16_to_little_endian(enemy_list.at(i).sprites[j][k].duration);
-                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.x);
-                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.y);
-                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.w);
-                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].colision_rect.h);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].collision_rect.x);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].collision_rect.y);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].collision_rect.w);
+                sint16_to_little_endian(enemy_list.at(i).sprites[j][k].collision_rect.h);
             }
         }
         sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.x);
@@ -172,10 +172,10 @@ void GameMediator::wii_convert_player_list() {
         for (int j=0; j<ANIM_TYPE_COUNT; j++) {
             for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
                 uint16_to_little_endian(player_list.at(i).sprites[j][k].duration);
-                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.x);
-                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.y);
-                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.w);
-                sint16_to_little_endian(player_list.at(i).sprites[j][k].colision_rect.h);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].collision_rect.x);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].collision_rect.y);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].collision_rect.w);
+                sint16_to_little_endian(player_list.at(i).sprites[j][k].collision_rect.h);
             }
         }
         for (int j=0; j<MAX_WEAPON_N; j++) {

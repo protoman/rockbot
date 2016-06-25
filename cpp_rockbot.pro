@@ -10,9 +10,9 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
-CONFIG += android
+#CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -305,7 +305,6 @@ SOURCES += main.cpp \
     scenes/dialogs.cpp \
     file/file_io.cpp \
     graphic/animation.cpp \
-    colision_detection.cpp \
     character/artificial_inteligence.cpp \
     options/key_map.cpp \
     graphic/draw.cpp \
@@ -322,7 +321,8 @@ SOURCES += main.cpp \
     file/fio_common.cpp \
     game_mediator.cpp \
     aux_tools/fps_control.cpp \
-    docs/game_manual.cpp
+    docs/game_manual.cpp \
+    collision_detection.cpp
 
 HEADERS += \
     character/character.h \
@@ -346,7 +346,6 @@ HEADERS += \
     file/format.h \
     file/file_io.h \
     graphic/animation.h \
-    colision_detection.h \
     character/artificial_inteligence.h \
     character/st_spriteFrame.h \
     ports/ps2/modules.h \
@@ -381,7 +380,8 @@ HEADERS += \
     aux_tools/fps_control.h \
     file/v4/file_anim_block.h \
     ports/android/rockbot_android.h \
-    docs/game_manual.h
+    docs/game_manual.h \
+    collision_detection.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

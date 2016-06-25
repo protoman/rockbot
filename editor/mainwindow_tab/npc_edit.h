@@ -59,13 +59,13 @@ private slots:
 
     void on_sprite_duration_spinBox_valueChanged(int arg1);
 
-	void on_sprite_colision_x_valueChanged(int arg1);
+	void on_sprite_collision_x_valueChanged(int arg1);
 
-	void on_sprite_colision_y_valueChanged(int arg1);
+	void on_sprite_collision_y_valueChanged(int arg1);
 
-	void on_sprite_colision_w_valueChanged(int arg1);
+	void on_sprite_collision_w_valueChanged(int arg1);
 
-	void on_sprite_colision_h_valueChanged(int arg1);
+	void on_sprite_collision_h_valueChanged(int arg1);
 
 	void on_isBoss_checkBox_toggled(bool checked);
 

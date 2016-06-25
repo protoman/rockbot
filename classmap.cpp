@@ -11,7 +11,7 @@ using namespace std;
 #include "classmap.h"
 #include "objects/object.h"
 #include "character/character.h"
-#include "colision_detection.h"
+#include "collision_detection.h"
 #include "file/file_io.h"
 #include "game_mediator.h"
 
@@ -878,11 +878,11 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
 }
 
 
-int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc)
+int classMap::collision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc)
 {
     int blocked = 0;
     int obj_y_reducer = 1;
-    colision_detection rect_colision_obj;
+    collision_detection rect_collision_obj;
 
 // used to give char a small amount of pixels that he can enter inside object image
 
@@ -903,8 +903,8 @@ int classMap::colision_rect_player_obj(st_rectangle player_rect, object* temp_ob
     bool yOverlap = value_in_range(obj_rect.y, p_rect.y, p_rect.y + p_rect.h) || value_in_range(p_rect.y, obj_rect.y, obj_rect.y + obj_rect.h);
 
     // check if X is blocked
-    bool before_colision = rect_colision_obj.rect_overlap(obj_rect, p_rect);
-    if (before_colision == true && temp_obj->get_colision_mode() != COLISION_MODE_Y) {
+    bool before_collision = rect_collision_obj.rect_overlap(obj_rect, p_rect);
+    if (before_collision == true && temp_obj->get_collision_mode() != COLlISION_MODE_Y) {
         blocked = BLOCK_X;
     }
 
@@ -978,12 +978,12 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
 }
 
 
-void classMap::colision_char_object(character* charObj, const float x_inc, const short int y_inc)
+void classMap::collision_char_object(character* charObj, const float x_inc, const short int y_inc)
 {
     int blocked = 0;
     object* res_obj = NULL;
 
-    //if (y_inc < 0) std::cout << "MAP::colision_player_object - y_inc: " << y_inc << std::endl;
+    //if (y_inc < 0) std::cout << "MAP::collision_player_object - y_inc: " << y_inc << std::endl;
 
     st_rectangle char_rect = charObj->get_hitbox();
 
@@ -1018,14 +1018,14 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             // some platforms can kill the player if he gets stuck inside it
             if (charObj->is_player() == true && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_FLY_PLATFORM)) {
                 st_rectangle stopped_char_rect = charObj->get_hitbox();
-                stopped_char_rect.x+= CHAR_OBJ_COLISION_KILL_ADJUST/2;
-                stopped_char_rect.y+= CHAR_OBJ_COLISION_KILL_ADJUST;
-                stopped_char_rect.w-= CHAR_OBJ_COLISION_KILL_ADJUST;
-                stopped_char_rect.h-= CHAR_OBJ_COLISION_KILL_ADJUST*2;
+                stopped_char_rect.x+= CHAR_OBJ_COLlISION_KILL_ADJUST/2;
+                stopped_char_rect.y+= CHAR_OBJ_COLlISION_KILL_ADJUST;
+                stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
+                stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
                 // check if, without moving, player is inside object
-                int no_move_blocked = colision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
+                int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
                 if (no_move_blocked == BLOCK_XY) {
-                    _obj_colision = object_colision(BLOCK_INSIDE_OBJ, &temp_obj);
+                    _obj_collision = object_collision(BLOCK_INSIDE_OBJ, &temp_obj);
                     std::cout << "obj[" << temp_obj.get_name() << "] - leave #5" << std::endl;
                     return;
                 }
@@ -1034,7 +1034,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             // usar TEMP_BLOCKED aqui, para não zerar o blocked anterior, fazer merge dos valores
             int temp_blocked = 0;
             //if (temp_obj.get_type() != OBJ_ITEM_FLY && temp_obj.get_type() != OBJ_ITEM_JUMP) { // jumping up on items does not block
-                temp_blocked = colision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
+                temp_blocked = collision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
                 //std::cout << "CHECK AGAINS TIEMS - temp_blocked[" << temp_obj.get_name() << "]: " << temp_blocked << std::endl;
             //}
 
@@ -1080,7 +1080,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                 }
 
                 if (y_inc > 0 && char_rect.y <= temp_obj.get_position().y) {
-                    //std::cout << ">>>>>>>> entered_platform!!!!!!! <<<<< classmap::colision_player_object - obj_rect.x: " << obj_rect.x << ", obj_rect.y: " << obj_rect.y << ", obj_rect.w: " << obj_rect.w << ", obj_rect.h: " << obj_rect.h << std::endl;
+                    //std::cout << ">>>>>>>> entered_platform!!!!!!! <<<<< classmap::collision_player_object - obj_rect.x: " << obj_rect.x << ", obj_rect.y: " << obj_rect.y << ", obj_rect.w: " << obj_rect.w << ", obj_rect.h: " << obj_rect.h << std::endl;
                     entered_platform = true;
                 }
 
@@ -1099,7 +1099,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                             charObj->set_platform(&temp_obj);
                         }
                         if (temp_blocked != 0) {
-                            _obj_colision = object_colision(temp_blocked, &(*it));
+                            _obj_collision = object_collision(temp_blocked, &(*it));
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_ITEM_FLY) {
@@ -1112,7 +1112,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                             }
                         }
                         if (temp_blocked != 0) {
-                            _obj_colision = object_colision(temp_blocked, &(*it));
+                            _obj_collision = object_collision(temp_blocked, &(*it));
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_ITEM_JUMP) {
@@ -1124,7 +1124,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                         if (temp_blocked != 0) {
                             if (y_inc > 0) {
                                 //std::cout << ">>>> temp_blocked: " << temp_blocked << ", y_inc: " << y_inc << std::endl;
-                                _obj_colision = object_colision(temp_blocked, &(*it));
+                                _obj_collision = object_collision(temp_blocked, &(*it));
                                 return;
                             } else {
                                 std::cout << ">>>> RESET BLOCKED" <<  std::endl;
@@ -1141,13 +1141,13 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
                                 temp_obj.start();
                             }
                             temp_obj.set_timer(timer.getTimer()+30);
-                            _obj_colision = object_colision(temp_blocked, &(*it));
+                            _obj_collision = object_collision(temp_blocked, &(*it));
                             return;
                         }
                     } else if (temp_obj.get_type() == OBJ_TRACK_PLATFORM) {
                         if (charObj->get_platform() == NULL) {
                             charObj->set_platform(&temp_obj);
-                            _obj_colision = object_colision(temp_blocked, &(*it));
+                            _obj_collision = object_collision(temp_blocked, &(*it));
                             return;
                         }
                     }
@@ -1192,7 +1192,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
         } else if (temp_obj->get_type() == OBJ_TRACK_PLATFORM && temp_obj->get_state() != 0) {
             charObj->set_platform(NULL);
         } else {
-            blocked = colision_rect_player_obj(char_rect, temp_obj, x_inc, y_inc, 0, 0);
+            blocked = collision_rect_player_obj(char_rect, temp_obj, x_inc, y_inc, 0, 0);
         }
     }
 
@@ -1205,7 +1205,7 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
             if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
                 charObj->set_platform(NULL);
             } else {
-                _obj_colision = object_colision(0, NULL);
+                _obj_collision = object_collision(0, NULL);
                 return;
             }
         } else if (charObj->get_platform()->is_hidden() == true) {
@@ -1224,14 +1224,14 @@ void classMap::colision_char_object(character* charObj, const float x_inc, const
     }
 
 
-    //std::cout << "### colision_char_object:blocked " << blocked << " ###" << std::endl;
+    //std::cout << "### collision_char_object:blocked " << blocked << " ###" << std::endl;
 
-    _obj_colision = object_colision(blocked, res_obj);
+    _obj_collision = object_collision(blocked, res_obj);
 }
 
-object_colision classMap::get_obj_colision()
+object_collision classMap::get_obj_collision()
 {
-    return _obj_colision;
+    return _obj_collision;
 }
 
 
@@ -1333,12 +1333,15 @@ void classMap::move_map(const short int move_x, const short int move_y)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-short int classMap::colision_player_npcs(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
+short int classMap::collision_player_npcs(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
 {
     UNUSED(x_inc);
     UNUSED(y_inc);
 	struct st_rectangle p_rect, npc_rect;
 
+    p_rect = playerObj->get_hitbox();
+
+    /*
 	// ponto 3, topo/esquerda
 	if (playerObj->get_direction() == ANIM_DIRECTION_LEFT) {
 		p_rect.x = playerObj->getPosition().x + reduce_x;
@@ -1349,20 +1352,21 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
 	}
 	p_rect.y = playerObj->getPosition().y + reduce_y;
     p_rect.h = playerObj->get_size().height;
+    */
 
-    //std::cout << "colision_player_npcs - p1.x: " << p1.x << ", p1.y: " << p1.y << std::endl;
+    //std::cout << "collision_player_npcs - p1.x: " << p1.x << ", p1.y: " << p1.y << std::endl;
 
     for (int i=0; i<_npc_list.size(); i++) {
         if (_npc_list.at(i).is_player_friend() == true) {
-			//std::cout << "colision_player_npcs - FRIEND" << std::endl;
+            //std::cout << "collision_player_npcs - FRIEND" << std::endl;
 			continue;
 		}
         if (_npc_list.at(i).is_dead() == true) {
-			//std::cout << "colision_player_npcs - DEAD" << std::endl;
+            //std::cout << "collision_player_npcs - DEAD" << std::endl;
 			continue;
 		}
         if (_npc_list.at(i).is_invisible() == true) {
-			//std::cout << "colision_player_npcs - INVISIBLE" << std::endl;
+            //std::cout << "collision_player_npcs - INVISIBLE" << std::endl;
 			continue;
 		}
 
@@ -1391,9 +1395,9 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
 		}
         */
 
-		colision_detection rect_colision_obj;
-		if (rect_colision_obj.rect_overlap(npc_rect, p_rect) == true) {
-            //std::cout << "colision_player_npcs[" << temp_obj->getName() << "] - COLISION!" << std::endl;
+        collision_detection rect_collision_obj;
+        if (rect_collision_obj.rect_overlap(npc_rect, p_rect) == true) {
+            //std::cout << "collision_player_npcs[" << _npc_list.at(i).getName() << "] - COLlISION!" << std::endl;
             if (npc_rect.h > p_rect.h) {
 				return 2;
 			} else {
@@ -1406,7 +1410,7 @@ short int classMap::colision_player_npcs(character* playerObj, const short int x
 
 
 // kills any NPC that touches player during player's special attack
-void classMap::colision_player_special_attack(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
+void classMap::collision_player_special_attack(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
 {
     UNUSED(x_inc);
     UNUSED(y_inc);
@@ -1455,8 +1459,8 @@ void classMap::colision_player_special_attack(character* playerObj, const short 
             npc_rect.y = _npc_list.at(i).getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
             npc_rect.h = _npc_list.at(i).get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
         }
-        colision_detection rect_colision_obj;
-        if (rect_colision_obj.rect_overlap(npc_rect, p_rect) == true) {
+        collision_detection rect_collision_obj;
+        if (rect_collision_obj.rect_overlap(npc_rect, p_rect) == true) {
             _npc_list.at(i).damage(12, false);
         }
     }
@@ -1470,15 +1474,15 @@ classnpc *classMap::find_nearest_npc(st_position pos)
 
     for (int i=0; i<_npc_list.size(); i++) {
         if (_npc_list.at(i).is_player_friend() == true) {
-            //std::cout << "colision_player_npcs - FRIEND" << std::endl;
+            //std::cout << "collision_player_npcs - FRIEND" << std::endl;
             continue;
         }
         if (_npc_list.at(i).is_dead() == true) {
-            //std::cout << "colision_player_npcs - DEAD" << std::endl;
+            //std::cout << "collision_player_npcs - DEAD" << std::endl;
             continue;
         }
         if (_npc_list.at(i).is_invisible() == true) {
-            //std::cout << "colision_player_npcs - INVISIBLE" << std::endl;
+            //std::cout << "collision_player_npcs - INVISIBLE" << std::endl;
             continue;
         }
         if (_npc_list.at(i).is_on_visible_screen() == false) {
@@ -1736,8 +1740,8 @@ std::vector<object*> classMap::check_collision_with_objects(st_rectangle collisi
 
     for (unsigned int i=0; i<object_list.size(); i++) {
         object* temp_obj = &object_list.at(i);
-        colision_detection rect_colision_obj;
-        bool res_collision = rect_colision_obj.rect_overlap(temp_obj->get_area(), collision_area);
+        collision_detection rect_collision_obj;
+        bool res_collision = rect_collision_obj.rect_overlap(temp_obj->get_area(), collision_area);
         if (res_collision == true) {
             res.push_back(temp_obj);
         }

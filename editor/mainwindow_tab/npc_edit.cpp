@@ -58,16 +58,16 @@ void npc_edit::fill_data()
             ui->checkBox->setChecked(true);
         }
 
-        ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x);
-        ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y);
+        ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x);
+        ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y);
 
-        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0) {
-            ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
+        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w != 0) {
+            ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w);
         } else {
             ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
         }
-        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
-            ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h != 0) {
+            ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h);
         } else {
             ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
         }
@@ -153,16 +153,16 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
         ui->checkBox->setChecked(true);
     }
 
-    ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x);
-    ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y);
+    ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x);
+    ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y);
 
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w != 0) {
-        ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w);
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w != 0) {
+        ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w);
     } else {
         ui->hitarea_w_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
     }
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h != 0) {
-        ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h);
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h != 0) {
+        ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h);
     } else {
         ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
     }
@@ -196,8 +196,8 @@ void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
     _data_loading = true;
     if (ui->hitarea_w_spinBox->value() == 0 || ui->hitarea_w_spinBox->value() == Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width) {
         ui->hitarea_w_spinBox->setValue(arg1);
-        if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w) {
-            Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w = arg1;
+        if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w) {
+            Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w = arg1;
         }
         ui->npc_edit_tab_previewarea->update();
         reload_frame_list(ui->frame_list_selector->currentIndex());
@@ -220,9 +220,9 @@ void npc_edit::on_npc_edit_tab_graphicheight_valueChanged(int arg1)
     if (ui->hitarea_h_spinBox->value() == 0 || ui->hitarea_h_spinBox->value() == Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height) {
         ui->hitarea_h_spinBox->setValue(arg1);
 
-        if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h) {
+        if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h) {
             std::cout << "### SET collistion H" << std::endl;
-            Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h = arg1;
+            Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h = arg1;
         }
 
         ui->npc_edit_tab_previewarea->update();
@@ -453,10 +453,10 @@ void npc_edit::on_frameDown_clicked()
 void npc_edit::on_frameList_listWidget_currentRowChanged(int currentRow)
 {
     ui->sprite_duration_spinBox->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].duration);
-    ui->sprite_colision_x->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.x);
-    ui->sprite_colision_y->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.y);
-    ui->sprite_colision_w->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.w);
-    ui->sprite_colision_h->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].colision_rect.h);
+    ui->sprite_collision_x->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].collision_rect.x);
+    ui->sprite_collision_y->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].collision_rect.y);
+    ui->sprite_collision_w->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].collision_rect.w);
+    ui->sprite_collision_h->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].collision_rect.h);
 
     if (ui->frame_list_selector->currentText() == "ATTACK") {
         std::cout << "attack_frame: " << (int)Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame << ", currentRow: " << currentRow << std::endl;
@@ -483,39 +483,39 @@ void npc_edit::on_sprite_duration_spinBox_valueChanged(int arg1)
     }
 }
 
-void npc_edit::on_sprite_colision_x_valueChanged(int arg1)
+void npc_edit::on_sprite_collision_x_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 	if (ui->frameList_listWidget->selectedItems().size() > 0) {
-        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect.x = arg1;
+        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].collision_rect.x = arg1;
 	}
 	ui->sprites_preview_widget->repaint();
 }
 
-void npc_edit::on_sprite_colision_y_valueChanged(int arg1)
+void npc_edit::on_sprite_collision_y_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 	if (ui->frameList_listWidget->selectedItems().size() > 0) {
-        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect.y = arg1;
+        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].collision_rect.y = arg1;
 	}
 	ui->sprites_preview_widget->repaint();
 }
 
-void npc_edit::on_sprite_colision_w_valueChanged(int arg1)
+void npc_edit::on_sprite_collision_w_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 	if (ui->frameList_listWidget->selectedItems().size() > 0) {
-        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect.w = arg1;
+        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].collision_rect.w = arg1;
 	}
 	ui->sprites_preview_widget->repaint();
 
 }
 
-void npc_edit::on_sprite_colision_h_valueChanged(int arg1)
+void npc_edit::on_sprite_collision_h_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 	if (ui->frameList_listWidget->selectedItems().size() > 0) {
-        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect.h = arg1;
+        Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].collision_rect.h = arg1;
 	}
 	ui->sprites_preview_widget->repaint();
 
@@ -590,7 +590,7 @@ void npc_edit::on_hitarea_x_spinBox_valueChanged(int arg1)
 
     std::cout << "hi_area::change(x): " << arg1 << std::endl;
 
-    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.x = arg1;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
 
@@ -600,7 +600,7 @@ void npc_edit::on_hitarea_y_spinBox_valueChanged(int arg1)
 
     std::cout << "hi_area::change(y): " << arg1 << std::endl;
 
-    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.y = arg1;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
 
@@ -610,7 +610,7 @@ void npc_edit::on_hitarea_w_spinBox_valueChanged(int arg1)
 
     std::cout << "hi_area::change(w): " << arg1 << std::endl;
 
-    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.w = arg1;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
 
@@ -620,7 +620,7 @@ void npc_edit::on_hitarea_h_spinBox_valueChanged(int arg1)
 
     std::cout << "hi_area::change(h): " << arg1 << std::endl;
 
-    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].colision_rect.h = arg1;
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
 
@@ -645,10 +645,10 @@ void npc_edit::on_AddFrame_Button_clicked()
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].used = true;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].duration = 100;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].sprite_graphic_pos_x = Mediator::get_instance()->getPalleteX();
-            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.w = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width;
-            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.h = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height;
-            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.x = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.x;
-            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].colision_rect.y = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.y;
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].collision_rect.w = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width;
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].collision_rect.h = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height;
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].collision_rect.x = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.x;
+            Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].collision_rect.y = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.y;
             reload_frame_list(ui->frame_list_selector->currentIndex());
             return;
         }
@@ -697,7 +697,7 @@ void npc_edit::on_pushButton_2_clicked()
     if (ui->frameList_listWidget->selectedItems().size() > 0) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (i != ui->frameList_listWidget->currentRow()) {
-                Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][i].colision_rect = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].colision_rect;
+                Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][i].collision_rect = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[Mediator::get_instance()->current_sprite_type][ui->frameList_listWidget->currentRow()].collision_rect;
             }
         }
         ui->sprites_preview_widget->repaint();

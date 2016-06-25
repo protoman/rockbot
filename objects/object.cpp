@@ -75,7 +75,7 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _timer_limit = 0;
     _must_play_appearing_sfx = false;    _must_teleport_in = false;
     _teleport_state = 0;
-    _colision_mode = COLISION_MODE_XY;
+    _collision_mode = COLlISION_MODE_XY;
     if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
         _timer_limit = 1000;
         direction = 0;
@@ -194,7 +194,7 @@ bool object::test_change_position(short xinc, short yinc)
 
     if (is_consumable() == false) {
         // collision agains player when player is not using a platform
-        int blocked = map->colision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
+        int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
         //if (blocked != 0) std::cout << "obj.blocked: " << blocked << std::endl;
         /// @TODO - consumable items should not stop if blocked by player
         if (gameControl.get_player_platform() != this && blocked != 0) {
@@ -235,14 +235,14 @@ void object::check_player_move(int xinc, int yinc) const
     }
 }
 
-void object::set_colision_mode(colision_modes colision_mode)
+void object::set_collision_mode(collision_modes collision_mode)
 {
-    _colision_mode = colision_mode;
+    _collision_mode = collision_mode;
 }
 
-colision_modes object::get_colision_mode() const
+collision_modes object::get_collision_mode() const
 {
-    return _colision_mode;
+    return _collision_mode;
 }
 
 void object::reset_timers()

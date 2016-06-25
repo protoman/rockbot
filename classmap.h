@@ -21,14 +21,14 @@ class character;
  * @brief
  *
  */
-struct object_colision {
+struct object_collision {
     int _block;
     object* _object;
-	object_colision(int set_block, object* set_object) {
+	object_collision(int set_block, object* set_object) {
 		_block = set_block;
 		_object = set_object;
 	}
-    object_colision() {
+    object_collision() {
         _block = 0;
         _object = NULL;
     }
@@ -102,17 +102,17 @@ public:
 
     void load_map_objects();
 
-    int colision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc);
+    int collision_rect_player_obj(st_rectangle player_rect, object* temp_obj, const short int x_inc, const short int y_inc, const short obj_xinc, const short obj_yinc);
 
     bool is_obj_ignored_by_enemies(Uint8 obj_type);                 // returns true if object if of type that can be got like energy
 
-    void colision_char_object(character*, const float, const short int);
+    void collision_char_object(character*, const float, const short int);
 
-    object_colision get_obj_colision();
+    object_collision get_obj_collision();
 
-    short int colision_player_npcs(character*, const short int, const short int, short int, short int);
+    short int collision_player_npcs(character*, const short int, const short int, short int, short int);
 
-    void colision_player_special_attack(character*, const short int, const short int, short int, short int);
+    void collision_player_special_attack(character*, const short int, const short int, short int, short int);
 
     classnpc* find_nearest_npc(st_position pos);
 
@@ -233,7 +233,7 @@ private:
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;
-    object_colision _obj_colision;
+    object_collision _obj_collision;
     std::vector<st_level3_tile> _level3_tiles;
     std::vector<object> object_list;
     bool _break_npc_loop;                       // used to prevent looping through the npc list after adding a new one (needed because using vector instead of list, because of old-Dingux crashes)

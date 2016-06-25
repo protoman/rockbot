@@ -100,8 +100,8 @@ public:
     void refill_weapons();
 
     /**
-     * @brief don't stop teleport because of colision before reaching this Y position (used when player is dead and returning)
-     * @param y point that indicates the minimal y position the teleport gravity will check colision
+     * @brief don't stop teleport because of collision before reaching this Y position (used when player is dead and returning)
+     * @param y point that indicates the minimal y position the teleport gravity will check collision
      */
     void set_teleport_minimal_y(int y);
 
@@ -163,7 +163,7 @@ private:
      * @param obj_info information about the object that player collided
      * @return bool in case object is not executable or storable (like a platform), returns false
      */
-    bool get_item(object_colision& obj_info);
+    bool get_item(object_collision& obj_info);
 
 
     /**

@@ -206,9 +206,9 @@ public:
     bool is_on_visible_screen();
 
 
-    void set_colision_mode(enum colision_modes colision_mode); // if player uses this as platform, move him
+    void set_collision_mode(enum collision_modes collision_mode); // if player uses this as platform, move him
 
-    enum colision_modes get_colision_mode() const;
+    enum collision_modes get_collision_mode() const;
 
     void reset_timers();
 
@@ -291,7 +291,7 @@ private:
     bool _animation_finished;
     bool _animation_reversed;
     bool _hidden;
-    enum colision_modes _colision_mode;
+    enum collision_modes _collision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
     bool _must_teleport_in;                                                     // if set, the object will teleport in when added and out when finished
     Uint8 _teleport_state;                                                        // used to control when start/finish the teleport

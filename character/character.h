@@ -31,7 +31,7 @@ enum ATTACK_STATES {
 };
 
 class classMap;		// advance declaration
-struct object_colision;
+struct object_collision;
 
 
 
@@ -612,7 +612,7 @@ protected:
      * @param mapScrolling
      * @return short
      */
-    st_map_colision map_colision(const float incx, const short int incy, st_float_position mapScrolling);
+    st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling);
 
 
     bool is_on_teleporter_capsulse(object* object);
@@ -625,7 +625,7 @@ protected:
      * @param mode_xy
      * @param map_pos
      */
-    void check_map_colision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
+    void check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
     /**
      * @brief
      *
@@ -696,7 +696,7 @@ protected:
      * @param obj_info
      * @return bool
      */
-    virtual bool get_item(object_colision& obj_info);
+    virtual bool get_item(object_collision& obj_info);
 
 
     unsigned int get_projectile_count(); // returns the number of projectiles (some special attacks count as max)

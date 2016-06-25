@@ -106,7 +106,7 @@ void classPlayer::init_weapon_colors()
 	}
 }
 
-bool classPlayer::get_item(object_colision &obj_info)
+bool classPlayer::get_item(object_collision &obj_info)
 {
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         return false;
@@ -239,7 +239,7 @@ bool classPlayer::shoryuken()
             } else {
                 speed_y = i*-1;
             }
-            st_map_colision map_col = map_colision(0, speed_y, map->getMapScrolling());
+            st_map_collision map_col = map_collision(0, speed_y, map->getMapScrolling());
             int map_lock = map_col.block;
             //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
@@ -629,7 +629,7 @@ void classPlayer::execute_projectiles()
         if ((*it).is_reflected == true) {
             continue;
         }
-        // check colision agains enemies
+        // check collision agains enemies
 
         for (int i=0; i<map->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
@@ -647,7 +647,7 @@ void classPlayer::execute_projectiles()
             st_rectangle npc_hitbox = map->_npc_list.at(i).get_hitbox();
 
             //classnpc* enemy = (*enemy_it);
-            if ((*it).check_colision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
+            if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
                 // shielded NPC: reflects/finishes shot
                 if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
@@ -662,16 +662,11 @@ void classPlayer::execute_projectiles()
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle enemy_hit_area = map->_npc_list.at(i).get_hit_area();
-                st_size enemy_size = map->_npc_list.at(i).get_size();
-                enemy_hit_area.x += map->_npc_list.at(i).getPosition().x-1;
-                enemy_hit_area.y += map->_npc_list.at(i).getPosition().y;
+                st_rectangle enemy_hit_area = map->_npc_list.at(i).get_hitbox();
 
-                if (enemy_hit_area.w != enemy_size.width || enemy_hit_area.h != enemy_size.height) {
-                    if ((*it).check_colision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
-                        (*it).consume_projectile();
-                        continue;
-                    }
+                if ((*it).check_collision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+                    (*it).consume_projectile();
+                    continue;
                 }
 
                 short wpn_id = (*it).get_weapon_id();
@@ -708,7 +703,7 @@ void classPlayer::execute_projectiles()
         }
 
 
-        // if projectile is a bomb, check colision against objects
+        // if projectile is a bomb, check collision against objects
         if ((*it).get_effect_n() == 1 && ((*it).get_move_type() == TRAJECTORY_BOMB || (*it).get_move_type() == TRAJECTORY_FALL_BOMB)) {
             //std::cout << "PLAYER::execute_projectiles - Have exploding bomb, checking objects that collide..." << std::endl;
             std::vector<object*> res_obj = map->check_collision_with_objects((*it).get_area());
@@ -1039,7 +1034,7 @@ void classPlayer::add_coil_object()
         temp_obj.set_precise_position(obj_pos, state.direction);
 		temp_obj.set_duration(2500);
         temp_obj.use_teleport_in_out();
-        temp_obj.set_colision_mode(COLISION_MODE_Y);
+        temp_obj.set_collision_mode(COLlISION_MODE_Y);
         temp_obj.set_direction(state.direction);
 		map->add_object(temp_obj);
         consume_weapon(1);

@@ -44,8 +44,8 @@ public:
     st_size move();
     void draw();
     void set_map(classMap *set_map);
-    bool check_colision(st_rectangle enemy_pos, st_position pos_inc) const;
-    bool check_map_colision(st_position pos_inc) const;
+    bool check_collision(st_rectangle enemy_pos, st_position pos_inc) const;
+    bool check_map_collision(st_position pos_inc) const;
     Uint8 get_direction() const;
     void reflect();
     Uint8 get_move_type() const;

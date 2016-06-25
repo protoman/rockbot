@@ -592,14 +592,14 @@ struct st_size_int8 {
     }
 };
 
-struct st_map_colision {
+struct st_map_collision {
     Sint8 block;
     Sint8 terrain_type;
-    st_map_colision() {
+    st_map_collision() {
         block = 0;
         terrain_type = 0;
     }
-    st_map_colision(Sint8 set_block, Sint8 set_terrain_type) {
+    st_map_collision(Sint8 set_block, Sint8 set_terrain_type) {
         block = set_block;
         terrain_type = set_terrain_type;
     }
