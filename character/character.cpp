@@ -807,8 +807,6 @@ void character::consume_projectile()
 //                                                                                                //
 // ********************************************************************************************** //
 void character::show() {
-#define SHOW_HITBOXES
-
     if (timer.is_paused() == true) {
         return;
     }
