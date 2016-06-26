@@ -219,6 +219,11 @@ FILE-FORMAT-V4:
     # se já estiver no ar voando ou pulando, apenas atira (com animação jump_attack)
 - AI: adicionar nova action set animation REVERSE (do último ao primeiro frame)
 - correção de bug na animação reversa que ia para frame_n "-1"
+- unify player eyes position in stage selection screen
+- fix teleport after dying when reached checkpoint setting min_y to wrong value
+- mesmo quando já tem save, está ficando com o cursor em new game
+- inimigos estão caindo da plataforma (vide mede-mede)
+    # acontece quando a hitbox é menor the o frameSize.h
 
 
 

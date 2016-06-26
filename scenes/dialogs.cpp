@@ -88,12 +88,13 @@ void dialogs::show_boss_dialog(int stage_n)
     std::vector<std::string> stage_dialogs = fio_str.get_stage_dialogs(stage_n);
     int n = 0;
 
-    int init_pos = 31;
+    int init_pos = 30;
     int init_player_pos = init_pos + 6 + game_save.selected_player * 6;
 
     if (stage_dialogs.at(init_pos).length() <= 0) {
 		return;
 	}
+    // BOSS SPEAKING #1
     std::string lines[FS_DIALOG_LINES];
     for (int i=init_pos; i<init_pos+FS_DIALOG_LINES; i++) {
         lines[n] = stage_dialogs.at(i);
@@ -105,6 +106,7 @@ void dialogs::show_boss_dialog(int stage_n)
 	}
     show_dialog(boss_face, stage_data.dialog_top_side, lines, true);
 
+    // PLAYER ANSWER #1
     n = 0;
     for (int i=init_player_pos; i<init_player_pos+FS_DIALOG_LINES; i++) {
         lines[n] = stage_dialogs.at(i);
@@ -112,16 +114,18 @@ void dialogs::show_boss_dialog(int stage_n)
 	}
     show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
 
-    if (stage_dialogs.at(init_pos+3).length() > 0) {
+    // BOSS SPEAKING #2
+    int init_pos2 = 33;
+    if (stage_dialogs.at(init_pos2).length() > 0) {
         n = 0;
-        for (int i=0; i<FS_DIALOG_LINES; i++) {
+        for (int i=init_pos2; i<init_pos2+FS_DIALOG_LINES; i++) {
             lines[n] = stage_dialogs.at(i);
             n++;
 		}
         show_dialog(boss_face, stage_data.dialog_top_side, lines, true);
 	}
 
-
+    // PLAYER ANSWER #2
     if (stage_dialogs.at(init_player_pos+3).length() > 0) {
         n = 0;
         for (int i=init_player_pos+3; i<init_player_pos+3+FS_DIALOG_LINES; i++) {

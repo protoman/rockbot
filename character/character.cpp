@@ -2328,7 +2328,7 @@ void character::recharge(e_energy_types _en_type, int value)
 			}
 
             if (value > ENERGY_ITEM_SMALL) {
-                soundManager.play_repeated_sfx(SFX_GOT_ENERGY, 1);
+                soundManager.play_sfx(SFX_GOT_ENERGY_BIG);
             } else {
                 soundManager.play_sfx(SFX_GOT_ENERGY);
             }

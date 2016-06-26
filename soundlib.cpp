@@ -210,7 +210,9 @@ void soundLib::load_all_sfx() {
     i++;
 
 
-
+    filename = FILEPATH + "sfx/recharge.wav";
+    sfx_list[SFX_GOT_ENERGY_BIG] = Mix_LoadWAV(filename.c_str());
+    i++;
     /*
     for (int j=0; j<i; j++) {
         Mix_VolumeChunk(sfx_list[j], MIX_MAX_VOLUME);

@@ -412,7 +412,8 @@ void classPlayer::attack(bool dont_update_colors)
         } else if (weapon_trajectory == TRAJECTORY_CHAIN) {
             temp_proj.set_owner_position(&position);
             temp_proj.set_owner_direction(&state.direction);
-        } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
+
+        } else if (weapon_trajectory == TRAJECTORY_FOLLOW || weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
             classnpc* temp = find_nearest_npc();
             if (temp != NULL) {
                 //std::cout << "PLAYER::attack - could not find target" << std::endl;
@@ -1065,7 +1066,6 @@ classnpc *classPlayer::find_nearest_npc()
 {
     int lower_dist = 9999;
 	classnpc* ret = NULL;
-    std::vector<classnpc*>::iterator enemy_it;
 
     for (int i=0; i<map->_npc_list.size(); i++) {
         if (map->_npc_list.at(i).is_on_visible_screen() == false) {
@@ -1083,7 +1083,7 @@ classnpc *classPlayer::find_nearest_npc()
         int dist = sqrt(pow((float)(position.x - npc_pos.x), (float)2) + pow((float)(position.y - npc_pos.y ), (float)2));
         if (dist < lower_dist) {
             lower_dist = dist;
-			ret = (*enemy_it);
+            ret = &map->_npc_list.at(i);
         }
     }
 	return ret;

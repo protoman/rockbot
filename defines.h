@@ -194,6 +194,7 @@ enum SFX_LIST {
     SFX_DISAPPEARING_BLOCK,
     SFX_SHORYUKEN_GIRL,
     SFX_BEAM,
+    SFX_GOT_ENERGY_BIG,
 	SFX_COUNT // not used as sfx, this is a way to measure size of the enum list
 };
 
@@ -516,8 +517,6 @@ enum e_energy_types { ENERGY_TYPE_HP, ENERGY_TYPE_WEAPON };
 #define WPN_COLUMN1_X 42
 #define WPN_COLUMN2_X 182
 #define WPN_COLUMN_Y 53
-#define WEAPON_SPACING 16
-
 
 #define _MIXER_THREAD_PRIORITY 3
 
@@ -972,6 +971,8 @@ enum e_SCREEN_GFX {
 #define CHAR_OBJ_COLlISION_KILL_ADJUST 4
 
 //#define SHOW_HITBOXES 1
+
+#define DEMO_VERSION 1
 
 #endif // DEFINES_H
 

@@ -125,7 +125,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _change_direction_counter = 0;
     _chain_width = 0;
 
-    //std::cout << ">> Added projectyle, move_type: " << _move_type << ", TRAJECTORY_FOLLOW: " << TRAJECTORY_FOLLOW << ", w: " << _size.width << ", h: " << _size.height << std::endl;
+    std::cout << ">> Added projectyle, move_type: " << (int)_move_type << ", TRAJECTORY_TARGET_DIRECTION: " << TRAJECTORY_TARGET_DIRECTION << ", w: " << _size.width << ", h: " << _size.height << std::endl;
 
     // for size, use getsize
     // for speed, use get_speed
@@ -307,7 +307,7 @@ void projectile::set_target_position(st_float_position *pos)
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_DIRECTION) { // change type to be the best one to hit player
         // three position (diagonal up, left/right or diagonal down)
-        //std::cout << ">> _target_position->y: " << _target_position->y << ", pos.y: " << position.y << std::endl;
+        std::cout << ">> _target_position->y: " << _target_position->y << ", pos.y: " << position.y << std::endl;
 		if (_target_position->y < position.y-TILESIZE*2) {
 			_move_type = TRAJECTORY_DIAGONAL_UP;
 		} else if (_target_position->y > position.y+TILESIZE*2) {

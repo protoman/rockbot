@@ -48,7 +48,12 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio da tela)
+- projétil TRAJECTORY_TARGET_DIRECTION deve procurar só NPCs que estejam para o lado que estiver virado
+- ao disparar TRAJECTORY_TARGET_DIRECTION ajustar sprite de ataque (diagonal) dependendo da direção que o target estiver
+    # este cálculo hoje está no próprio projétil, pode fazer uma função public que char acessa para saber
+
+
+- quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio ou topo da tela)
 
 - mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
 - limpar gráficos de NPCs ao sair (já que agora é mapa com ponteiros)
@@ -68,27 +73,27 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 => test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
 
 - implement 5 stages for demo:
-    # intro
+    # INTRO
         # chefe (Milonga 2.0)
         DONE # AI inimigos
         # dialogos
-    # beast:
+    # GEAR:
         # refazer gráficos de quando dentro de vagão
         # chefe
         # inimigos
         # items
         # dialogos
-    # valkyrie
+    # VALKYRIE
         DONE # AI chefe
         DONE # AI inimigos
         DONE # items
         # dialogos
-    # phantom
+    # PHANTOM
         # chefe
         DONE # inimigos
         DONE # items
         # dialogos
-    # snow
+    # SNOW
         DONE # chefe
         DONE # inimigos
         DONE # items
@@ -100,16 +105,16 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 ##################################
              DONE
 ##################################
-- unify player eyes position in stage selection screen
-- fix teleport after dying when reached checkpoint setting min_y to wrong value
-- mesmo quando já tem save, está ficando com o cursor em new game
-- inimigos estão caindo da plataforma (vide mede-mede)
-    # acontece quando a hitbox é menor the o frameSize.h
+- fazer os ícones de armas e barras de energia dependentes do tamanho dos ícones que deve ser obtido pela imagem deles (h/2)
+- trocar o som de recharge para items grandes por um que já existe na pasta de sfx
+- diálogos de boss estão fora de ordem (mostrando frases de posição errada)
+
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+
 - jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
 
 - usar mirror em projéteis assim como players (remover duplicata das imagems)
@@ -118,7 +123,6 @@ VERSION 2.0.0 BETA 2
 
 - revisar código da main.cpp
 - separar código de plataformas em arquivos especificos dentro do diretório "ports"
-
 
 - ANDROID: new icon
 
@@ -187,7 +191,10 @@ VERSION 2.0.0 BETA 2
         # nomes das fases
     * criar uma fase do megaman 9 para testar template
 
-
+*****************************************
+DONE
+*****************************************
+*****************************************
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3

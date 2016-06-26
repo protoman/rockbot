@@ -141,6 +141,7 @@ void stage_edit::update_stage_data()
     ui->dialogs_answer2_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(10+player_adjust).c_str()));
     ui->dialogs_answer2_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(11+player_adjust).c_str()));
 
+    // *********** BOSS DIALOGS *************** //
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
     ui->boss_dialog_text1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+1).c_str()));
     ui->boss_dialog_text1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+2).c_str()));
