@@ -49,6 +49,9 @@ extern graphicsLib_gSurface _explosion_surface;
 
 #include "strings_map.h"
 
+// initialize static member
+std::map<std::string, st_char_sprite_data> graphicsLib::character_graphics_list;
+std::map<std::string, graphicsLib_gSurface> graphicsLib::character_graphics_background_list;
 
 graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0)
 {
@@ -1900,6 +1903,12 @@ graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_fl
         }
     }
     return res;
+}
+
+void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface)
+{
+    initSurface(st_size(newSurface.width, newSurface.height), &frame->frameSurface);
+    copyArea(st_position(0, 0), &newSurface, &frame->frameSurface);
 }
 
 

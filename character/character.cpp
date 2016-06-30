@@ -29,8 +29,6 @@ extern int freeze_weapon_id;
 
 
 // initialize static member
-std::map<std::string, st_char_sprite_data*> character::character_graphics_list;
-std::map<std::string, graphicsLib_gSurface> character::_character_graphics_background_list;
 static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
 
 // init character with default values
@@ -527,12 +525,12 @@ void character::clear_move_commands()
 void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change=true)
 {
     if (full_change == false) {
-        graphLib.change_surface_color(colorkey_n, new_color, &(character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(colorkey_n, new_color, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    graphLib.change_surface_color(colorkey_n, new_color, &(character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface);
+                    graphLib.change_surface_color(colorkey_n, new_color, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
 				}
 			}
 		}
@@ -556,11 +554,11 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         return;
     }
     //std::cout << "character::attack - START, name: " << name << ", max_projectiles: " << max_projectiles << ", projectile_list.size(): " << projectile_list.size() << std::endl;
-	if (character_graphics_list.find(name) == character_graphics_list.end()) {
+    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
 		std::cout << "ERROR: could not find projectile graphics" << std::endl;
 		return;
 	}
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].delay) {
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay) {
 		//std::cout << "character::attack - shoot projectile END" << std::endl;
 		attack_state = ATTACK_NOT;
 	}
@@ -839,7 +837,7 @@ void character::show() {
 
     // show background, if any
     if (have_background_graphics() == true) {
-        graphLib.showSurfaceAt(&(_character_graphics_background_list.find(name)->second), realPosition, false);
+        graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), realPosition, false);
     }
 
     // only advance if time for the current frame has finished
@@ -931,7 +929,7 @@ void character::show_sprite()
             state.animation_timer = timer.getTimer() + 180;
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
-            int delay = (character_graphics_list.find(name)->second)->frames[direction][state.animation_type][state.animation_state].delay;
+            int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
             state.animation_timer = timer.getTimer() + delay;
         }
     }
@@ -962,9 +960,9 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     }
     */
 
-    std::map<std::string, st_char_sprite_data*>::iterator it_graphic;
-    it_graphic = character_graphics_list.find(name);
-    if (it_graphic == character_graphics_list.end()) {
+    std::map<std::string, st_char_sprite_data>::iterator it_graphic;
+    it_graphic = graphLib.character_graphics_list.find(name);
+    if (it_graphic == graphLib.character_graphics_list.end()) {
         std::cout << "ERROR: #1 character::show_sprite_graphic - Could not find graphic for NPC [" << name << "]" << std::endl;
         return;
     }
@@ -992,7 +990,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
         //if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
 
         if (hit_animation_timer > now_timer) {
-            graphLib.show_white_surface_at(&it_graphic->second->frames[direction][type][frame_n].frameSurface, frame_pos);
+            graphLib.show_white_surface_at(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos);
             hit_animation_count = 0;
             return;
         } else if ((hit_animation_timer+HIT_BLINK_ANIMATION_LAPSE) < now_timer) {
@@ -1005,11 +1003,11 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     }
     if (_progressive_appear_pos == 0) {
         //std::cout << "direction[" << direction << "], type[" << type << "], frame_n[" << frame_n << "], frame_pos[" << frame_pos.x << "," << frame_pos.y << "], max_frames[" << frames_count() << "]" << std::endl;
-        graphLib.showSurfaceAt(&it_graphic->second->frames[direction][type][frame_n].frameSurface, frame_pos, false);
+        graphLib.showSurfaceAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos, false);
     } else {
         int diff_y = frameSize.height-_progressive_appear_pos;
 
-        graphLib.showSurfaceRegionAt(&it_graphic->second->frames[direction][type][frame_n].frameSurface, st_rectangle(0, 0, frameSize.width, (frameSize.height-_progressive_appear_pos)), st_position(frame_pos.x, frame_pos.y-diff_y));
+        graphLib.showSurfaceRegionAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, st_rectangle(0, 0, frameSize.width, (frameSize.height-_progressive_appear_pos)), st_position(frame_pos.x, frame_pos.y-diff_y));
         _progressive_appear_pos--;
         if (_progressive_appear_pos == 0) {
             position.y -= frameSize.height;
@@ -2013,34 +2011,34 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
 
     for (int anim_direction=0; anim_direction<=1; anim_direction++) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
-            if ((character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
+            if ((graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
 
-                st_spriteFrame *sprite = &(character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i];
+                st_spriteFrame *sprite = &(graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i];
                 graphicsLib_gSurface gsurface = graphLib.surfaceFromRegion(spriteArea, spritesSurface);
 
                 // RIGHT
                 if (anim_direction != 0) {
-                    sprite->setSurface(gsurface);
+                    graphLib.set_spriteframe_surface(sprite, gsurface);
                 // LEFT
                 } else {
                     graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
-                    sprite->setSurface(gsurface_flip);
+                    graphLib.set_spriteframe_surface(sprite, gsurface_flip);
                 }
 
 
-                (character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i].frameSurface.init_colorkeys();
-                (character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i].delay = delay;
+                (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].frameSurface.init_colorkeys();
+                (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].delay = delay;
 
                 if (anim_type == ANIM_TYPE_STAIRS_MOVE || anim_type == ANIM_TYPE_STAIRS_SEMI) {
-                    st_spriteFrame *sprite = &(character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i+1];
+                    st_spriteFrame *sprite = &(graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1];
                     if (anim_direction != 0) {
                         graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
-                        sprite->setSurface(gsurface_flip);
+                        graphLib.set_spriteframe_surface(sprite, gsurface_flip);
                     } else {
-                        sprite->setSurface(gsurface);
+                        graphLib.set_spriteframe_surface(sprite, gsurface);
                     }
-                    (character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i+1].frameSurface.init_colorkeys();
-                    (character_graphics_list.find(name)->second)->frames[anim_direction][anim_type][i+1].delay = delay;
+                    (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1].frameSurface.init_colorkeys();
+                    (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1].delay = delay;
                 }
 
 
@@ -2200,14 +2198,14 @@ void character::add_graphic()
         return;
     }
 
-    std::map<std::string, st_char_sprite_data*>::iterator it;
+    std::map<std::string, st_char_sprite_data>::iterator it;
     const std::string temp_name(name);
 
 
-	it = character_graphics_list.find(name);
-	if (it == character_graphics_list.end()) { // there is no graphic with this key yet, add it
-        std::pair<std::string, st_char_sprite_data*> temp_data(temp_name, new st_char_sprite_data());
-        character_graphics_list.insert(temp_data);
+    it = graphLib.character_graphics_list.find(name);
+    if (it == graphLib.character_graphics_list.end()) { // there is no graphic with this key yet, add it
+        std::pair<std::string, st_char_sprite_data> temp_data(temp_name, st_char_sprite_data());
+        graphLib.character_graphics_list.insert(temp_data);
     }
 
 }
@@ -2215,13 +2213,13 @@ void character::add_graphic()
 
 bool character::have_frame_graphics()
 {
-    std::map<std::string, st_char_sprite_data*>::iterator it;
-	it = character_graphics_list.find(name);
-	if (it != character_graphics_list.end()) { // there is no graphic with this key yet, add it
+    std::map<std::string, st_char_sprite_data>::iterator it;
+    it = graphLib.character_graphics_list.find(name);
+    if (it != graphLib.character_graphics_list.end()) { // there is no graphic with this key yet, add it
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    if ((character_graphics_list.find(name)->second)->frames[i][k][k].frameSurface.width > 0 && (character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface.get_surface() != NULL) {
+                    if ((graphLib.character_graphics_list.find(name)->second).frames[i][k][k].frameSurface.width > 0 && (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.get_surface() != NULL) {
 						return true;
 					}
 				}
@@ -2236,24 +2234,23 @@ void character::clean_character_graphics_list()
     if (is_player()) {
         return;
     }
-    if (character_graphics_list.size() <= 0) {
+    if (graphLib.character_graphics_list.size() <= 0) {
         return;
     }
 
-    std::map<std::string, st_char_sprite_data*>::iterator it;
-    it = character_graphics_list.find(name);
-    if (it != character_graphics_list.end()) {
+    std::map<std::string, st_char_sprite_data>::iterator it;
+    it = graphLib.character_graphics_list.find(name);
+    if (it != graphLib.character_graphics_list.end()) {
         //std::cout << "CHAR::clean_character_graphics_list[" << name << "]" << std::endl;
-        delete it->second;
-        character_graphics_list.erase(it);
+        graphLib.character_graphics_list.erase(it);
     }
 }
 
 bool character::have_background_graphics()
 {
     static std::map<std::string, graphicsLib_gSurface>::iterator it;
-    it = _character_graphics_background_list.find(name);
-    if (it != _character_graphics_background_list.end()) { // there is no graphic with this key yet, add it
+    it = graphLib.character_graphics_background_list.find(name);
+    if (it != graphLib.character_graphics_background_list.end()) { // there is no graphic with this key yet, add it
         return true;
     }
     return false;
@@ -2265,7 +2262,7 @@ bool character::have_background_graphics()
 int character::frames_count()
 {
 	for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if ((character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][i].frameSurface.width == 0 || (character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
+        if ((graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][i].frameSurface.width == 0 || (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
 			return i;
 		}
 	}
@@ -2291,7 +2288,7 @@ void character::show_hp()
 
 bool character::have_frame_graphic(int direction, int type, int pos)
 {
-    if ((character_graphics_list.find(name)->second)->frames[direction][type][pos].frameSurface.width == 0 || (character_graphics_list.find(name)->second)->frames[direction][type][pos].frameSurface.get_surface() == NULL) {
+    if ((graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.width == 0 || (graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.get_surface() == NULL) {
 		return false;
 	}
 	return true;
@@ -2933,10 +2930,10 @@ short character::get_anim_type() const
 
 graphicsLib_gSurface *character::get_char_frame(int direction, int type, int frame)
 {
-	if (character_graphics_list.find(name) == character_graphics_list.end()) {
+    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
 		return NULL;
 	} else {
-        return &(character_graphics_list.find(name)->second)->frames[direction][type][frame].frameSurface;
+        return &(graphLib.character_graphics_list.find(name)->second).frames[direction][type][frame].frameSurface;
 	}
 }
 
@@ -3019,7 +3016,7 @@ void character::set_animation_type(ANIM_TYPE type)
             }
         }
     }
-    state.animation_timer = timer.getTimer() + (character_graphics_list.find(name)->second)->frames[state.direction][state.animation_type][state.animation_state].delay;
+    state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
 }
 
 void character::set_show_hp(bool show)

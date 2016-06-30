@@ -308,7 +308,7 @@ void object::show(int adjust_y, int adjust_x)
 	}
 
     if (_hidden == true) {
-        std::cout << "### OBJECT::SHOW::HIDDEN ###" << std::endl;
+        //std::cout << "### OBJECT::SHOW::HIDDEN ###" << std::endl;
 		return;
 	}
 

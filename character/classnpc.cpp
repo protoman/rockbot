@@ -122,7 +122,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
 		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                (character_graphics_list.find(name)->second)->frames[i][j][k].frameSurface.persistent = true;
+                (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.persistent = true;
 			}
 		}
 	}
@@ -206,7 +206,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
                 std::cout << "initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
                 return;
             }
-            _character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
+            graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
             _has_background = true;
             _frame_pos_adjust.x = GameMediator::get_instance()->get_enemy(main_id).sprites_pos_bg.x;
             _frame_pos_adjust.y = GameMediator::get_instance()->get_enemy(main_id).sprites_pos_bg.y;
@@ -366,13 +366,6 @@ void classnpc::copy(classnpc *from)
 
 	walk_range = from->walk_range;
 	graphic_filename = from->graphic_filename;
-    for (i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                (character_graphics_list.find(name)->second)->frames[i][j][k] = from->character_graphics_list.find(name)->second->frames[i][j][k];
-			}
-		}
-	}
     is_ghost = from->is_ghost;
 	shield_type = from->shield_type;
 

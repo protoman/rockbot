@@ -36,101 +36,7 @@ struct object_collision;
 
 
 
-/**
- * @brief
- *
- */
-struct st_spriteFrame {
-    int delay; // time in milisseconds this frame will be shown /**< TODO */
-    graphicsLib_gSurface frameSurface; /**< TODO */
-    st_spriteFrame() {
-        //frameSurface.gSurface = NULL;
-        delay = 20;
-    }
 
-    // copy constructor //
-    st_spriteFrame (const st_spriteFrame& other)
-    {
-        if (other.frameSurface.get_surface() != NULL) {
-
-            frameSurface = other.frameSurface;
-
-        }
-        delay = other.delay;
-    }
-
-    // assign copy constructor //
-    st_spriteFrame& operator= (const st_spriteFrame& other)
-    {
-        setbuf(stdout, NULL);
-
-        if (other.frameSurface.get_surface() != NULL) {
-            frameSurface = other.frameSurface;
-        }
-        delay = other.delay;
-    }
-
-    void setDelay(int newDelay)
-    {
-        delay = newDelay;
-    }
-    /**
-     * @brief
-     *
-     * @param newSurface
-     */
-    void setSurface(graphicsLib_gSurface newSurface)
-    {
-        graphLib.initSurface(st_size(newSurface.width, newSurface.height), &frameSurface);
-        graphLib.copyArea(st_position(0, 0), &newSurface, &frameSurface);
-    }
-};
-
-struct st_char_sprite_data {
-    st_spriteFrame frames[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
-
-    st_char_sprite_data() {
-        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    frames[i][j][k].frameSurface.set_surface(NULL);
-                }
-            }
-        }
-    }
-
-    // copy constructor //
-    st_char_sprite_data (const st_char_sprite_data& other)
-    {
-        printf(">> DEBUG.st_char_sprite_data.COPY.START <<\n");
-        fflush(stdout);
-        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    /// @TODO - copy surface
-                }
-            }
-        }
-        printf(">> DEBUG.st_char_sprite_data.COPY.END <<\n");
-        fflush(stdout);
-    }
-
-    // assign copy constructor //
-    st_char_sprite_data& operator= (const st_char_sprite_data& other)
-    {
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.START <<\n");
-        fflush(stdout);
-        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    /// @TODO - copy surface
-                }
-            }
-        }
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
-        fflush(stdout);
-    }
-};
 
 
 
@@ -782,10 +688,6 @@ protected:
 	// DEBUG
     float hit_moved_back_n;
 	// external members
-
-	// TODO - graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_char_sprite_data*> character_graphics_list;
-    static std::map<std::string, graphicsLib_gSurface> _character_graphics_background_list;
 
     object* _platform; // used to move player when object moves
 

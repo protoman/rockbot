@@ -56,6 +56,90 @@ struct anim_tile_timer {
     }
 };
 
+struct st_spriteFrame {
+    int delay; // time in milisseconds this frame will be shown /**< TODO */
+    graphicsLib_gSurface frameSurface;
+    st_spriteFrame() {
+        //frameSurface.gSurface = NULL;
+        delay = 20;
+    }
+
+    // copy constructor //
+    st_spriteFrame (const st_spriteFrame& other)
+    {
+        if (other.frameSurface.get_surface() != NULL) {
+
+            frameSurface = other.frameSurface;
+
+        }
+        delay = other.delay;
+    }
+
+    // assign copy constructor //
+    st_spriteFrame& operator= (const st_spriteFrame& other)
+    {
+        setbuf(stdout, NULL);
+
+        if (other.frameSurface.get_surface() != NULL) {
+            frameSurface = other.frameSurface;
+        }
+        delay = other.delay;
+    }
+
+    void setDelay(int newDelay)
+    {
+        delay = newDelay;
+    }
+};
+
+
+
+struct st_char_sprite_data {
+    st_spriteFrame frames[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+
+    st_char_sprite_data() {
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    frames[i][j][k].frameSurface.set_surface(NULL);
+                }
+            }
+        }
+    }
+
+    // copy constructor //
+    st_char_sprite_data (const st_char_sprite_data& other)
+    {
+        printf(">> DEBUG.st_char_sprite_data.COPY.START <<\n");
+        fflush(stdout);
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    /// @TODO - copy surface
+                }
+            }
+        }
+        printf(">> DEBUG.st_char_sprite_data.COPY.END <<\n");
+        fflush(stdout);
+    }
+
+    // assign copy constructor //
+    st_char_sprite_data& operator= (const st_char_sprite_data& other)
+    {
+        printf(">> DEBUG.st_char_sprite_data.ASSIGN.START <<\n");
+        fflush(stdout);
+        for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    /// @TODO - copy surface
+                }
+            }
+        }
+        printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
+        fflush(stdout);
+    }
+};
+
 
 /**
  * @brief
@@ -525,6 +609,8 @@ public:
     void draw_path(st_position initial_point, st_position final_point, short duration);
     graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
 
+    void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
+
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
@@ -573,12 +659,11 @@ public:
     graphicsLib_gSurface armor_icon_body;
     graphicsLib_gSurface armor_icon_legs;
 
+    // character graphics list map, used in order to avoid duplication of graphics
+    static std::map<std::string, st_char_sprite_data> character_graphics_list;
+    static std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
 
 private:
-
-    std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
-
-    std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface
     std::vector<struct anim_tile_timer> ANIM_TILES_TIMERS;
 
 	// TODO: free those pointers
@@ -588,6 +673,9 @@ private:
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
+
+    std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
+    std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface
     std::vector<struct graphicsLib_gSurface> faces;				// faces for players and npcs
     std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars
     std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars
@@ -597,7 +685,6 @@ private:
     struct graphicsLib_gSurface config_menu;
     struct graphicsLib_gSurface dialog_surface;
     struct graphicsLib_gSurface _btn_a_surface;
-
     struct graphicsLib_gSurface _easymode_block;
     struct graphicsLib_gSurface _hardmode_block;
 

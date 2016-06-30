@@ -972,7 +972,7 @@ enum e_SCREEN_GFX {
 
 //#define SHOW_HITBOXES 1
 
-#define DEMO_VERSION 1
+//#define DEMO_VERSION 1
 
 #endif // DEFINES_H
 

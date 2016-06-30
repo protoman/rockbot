@@ -227,6 +227,11 @@ FILE-FORMAT-V4:
 - fazer os ícones de armas e barras de energia dependentes do tamanho dos ícones que deve ser obtido pela imagem deles (h/2)
 - trocar o som de recharge para items grandes por um que já existe na pasta de sfx
 - diálogos de boss estão fora de ordem (mostrando frases de posição errada)
+- projétil TRAJECTORY_TARGET_DIRECTION deve procurar só NPCs que estejam para o lado que estiver virado
+- ao disparar TRAJECTORY_TARGET_DIRECTION ajustar sprite de ataque (diagonal) dependendo da direção que o target estiver
+    # este cálculo hoje está no próprio projétil, pode fazer uma função public que char acessa para saber
+- inimigo tipo fall/jump não deve reaparecer na sua posição original logo que é dado respawn
+- quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio ou topo da tela)
 
 
 
