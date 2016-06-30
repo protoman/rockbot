@@ -50,6 +50,8 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - está dando pau em copySDLArea -> copySDLPortion (possivelmente um tamanho errado de alguma coisa, talvez projétil)
 
+- em modo demo, Rockbot1 não carrega estágios (pelo menos os já terminados)
+
 TESTAR: - não está removendo charged shot ao terminar um estágio e começar um novo
     # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
     # as vezes, turbo mode fica atirando sozinho

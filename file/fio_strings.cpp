@@ -95,7 +95,7 @@ namespace format_v4 {
 
         for (int i=0; i<list.size(); i++) {
             std::string line = list.at(i);
-            std::cout << "save_game_strings - add line '" << line << "'" << std::endl;
+            //std::cout << "save_game_strings - add line '" << line << "'" << std::endl;
             fp << line.c_str();
         }
         fp.close();
