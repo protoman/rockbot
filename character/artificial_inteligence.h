@@ -241,6 +241,8 @@ protected:
 
     bool always_move_ahead() const; // indicates if this NPC will always go on in AI
 
+    bool uses_fly_fall(); // uses to respawn it inside holes
+
 
 
 

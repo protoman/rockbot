@@ -224,6 +224,9 @@ FILE-FORMAT-V4:
 - mesmo quando já tem save, está ficando com o cursor em new game
 - inimigos estão caindo da plataforma (vide mede-mede)
     # acontece quando a hitbox é menor the o frameSize.h
+- fazer os ícones de armas e barras de energia dependentes do tamanho dos ícones que deve ser obtido pela imagem deles (h/2)
+- trocar o som de recharge para items grandes por um que já existe na pasta de sfx
+- diálogos de boss estão fora de ordem (mostrando frases de posição errada)
 
 
 

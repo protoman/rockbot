@@ -116,6 +116,8 @@ public:
 
     classnpc* find_nearest_npc(st_position pos);
 
+    classnpc* find_nearest_npc_on_direction(st_position pos, int direction);
+
     void clean_map_npcs_projectiles();
 
     void reset_beam_objects();

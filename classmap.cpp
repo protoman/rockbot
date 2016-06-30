@@ -614,6 +614,10 @@ int classMap::get_first_lock_on_bottom(int x_pos)
 
 void classMap::drop_item(st_position position)
 {
+    // dying out of screen should not drop item
+    if (position.y > RES_H) {
+        return;
+    }
     int rand_n = rand() % 100;
     //std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
     if (rand_n <= 95) {
@@ -1466,7 +1470,7 @@ void classMap::collision_player_special_attack(character* playerObj, const short
     }
 }
 
-classnpc *classMap::find_nearest_npc(st_position pos)
+classnpc* classMap::find_nearest_npc(st_position pos)
 {
     std::vector<classnpc*>::iterator npc_it;
     int min_dist = 9999;
@@ -1495,6 +1499,42 @@ classnpc *classMap::find_nearest_npc(st_position pos)
         }
     }
     return min_dist_npc;
+}
+
+classnpc *classMap::find_nearest_npc_on_direction(st_position pos, int direction)
+{
+    int lower_dist = 9999;
+    classnpc* ret = NULL;
+
+    for (int i=0; i<_npc_list.size(); i++) {
+        if (_npc_list.at(i).is_on_visible_screen() == false) {
+            continue;
+        }
+        if (_npc_list.at(i).is_dead() == true) {
+            continue;
+        }
+
+        st_position npc_pos(_npc_list.at(i).getPosition().x*TILESIZE, _npc_list.at(i).getPosition().y*TILESIZE);
+        npc_pos.x = (npc_pos.x + _npc_list.at(i).get_size().width/2)/TILESIZE;
+        npc_pos.y = (npc_pos.y + _npc_list.at(i).get_size().height)/TILESIZE;
+
+        // if facing left, ignore enemies with X greater than player x
+        if (direction == ANIM_DIRECTION_LEFT && npc_pos.x > pos.x) {
+            continue;
+        }
+        // if facing right, ignore enemies with X smaller than player x+width
+        if (direction == ANIM_DIRECTION_RIGHT && npc_pos.x < pos.x) {
+            continue;
+        }
+
+        // pitagoras: raiz[ (x2-x1)^2 + (y2-y1)^2 ]
+        int dist = sqrt(pow((float)(pos.x - npc_pos.x), (float)2) + pow((float)(pos.y - npc_pos.y ), (float)2));
+        if (dist < lower_dist) {
+            lower_dist = dist;
+            ret = &_npc_list.at(i);
+        }
+    }
+    return ret;
 }
 
 /// @TODO: fix animation. investigate a better way for drawing it (code is way too confusing)
@@ -1658,6 +1698,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
 		if (dead_state == 1) {
             if (_npc_list.at(i).is_stage_boss() == false) {
                 _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
+
                 // sub-boss have a different explosion
                 if (_npc_list.at(i).is_subboss()) {
                     soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
@@ -1665,7 +1706,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(56, 56));
                     st_float_position pos2(pos1.x+50, pos1.y-30);
                     add_animation(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(56, 56));
-                } else {
+                } else if (_npc_list.at(i).getPosition().y < RES_H) { // don't add death explosion when dying out of screen
                     add_animation(ANIMATION_STATIC, &graphLib.explosion32, _npc_list.at(i).getPosition(), st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(32, 32));
                 }
                 // check if boss flag wasn't passed to a spawn on dying reaction AI

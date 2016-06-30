@@ -2024,3 +2024,13 @@ bool artificial_inteligence::always_move_ahead() const
     }
     return false;
 }
+
+bool artificial_inteligence::uses_fly_fall()
+{
+    for (int i=0; i<AI_MAX_STATES; i++) {
+        if (GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action == AI_ACTION_FLY && GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter == AI_ACTION_FLY_OPTION_FALL) {
+            return true;
+        }
+    }
+    return false;
+}

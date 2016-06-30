@@ -697,17 +697,24 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         }
 
 
-
-        if (GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_CENTERED) {
+        int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
+        if (proj_trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
 		}
-        if (GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(attack_id).trajectory == TRAJECTORY_FOLLOW) {
+        if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET || proj_trajectory == TRAJECTORY_FOLLOW) {
+            // NPC
             if (!is_player() && map->_player_ref != NULL) {
                 character* p_player = map->_player_ref;
                 temp_proj.set_target_position(p_player->get_position_ref());
+            // PLAYER
             } else {
-                classnpc* temp_npc = map->find_nearest_npc(st_position(position.x, position.y));
+                classnpc* temp_npc = NULL;
+                if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+                    temp_npc = map->find_nearest_npc(st_position(position.x, position.y));
+                } else {
+                    temp_npc = map->find_nearest_npc_on_direction(st_position(position.x, position.y), state.direction);
+                }
                 if (temp_npc != NULL) {
                     temp_proj.set_target_position(temp_npc->get_position_ref());
                 }
@@ -2609,14 +2616,12 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
             hit_moved_back_n = 0;
         }
         jump_button_released = false;
-        if (is_player() == true) { /// @TODO - remove all animations when boss is defeated
-            if (map != NULL) {
-                int hit_anim_x = 0;
-                if (state.direction == ANIM_DIRECTION_LEFT) {
-                    hit_anim_x = 3;
-                }
-                map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(hit_anim_x, 5), 150, 4, state.direction, st_size(24, 24));
+        if (map != NULL) {
+            int hit_anim_x = 0;
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                hit_anim_x = 3;
             }
+            map->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(hit_anim_x, 5), 150, 4, state.direction, st_size(24, 24));
         }
 	}
 

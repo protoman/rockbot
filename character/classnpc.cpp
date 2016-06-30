@@ -237,6 +237,10 @@ void classnpc::reset_position()
 {
     position.x = start_point.x;
     position.y = start_point.y;
+    // if the NPC uses fly/fall, it means, we need to respawn it inside the hole
+    if (uses_fly_fall()) {
+        position.y = RES_H + TILESIZE;
+    }
 }
 
 st_position classnpc::get_start_position()

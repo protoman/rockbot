@@ -125,7 +125,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _change_direction_counter = 0;
     _chain_width = 0;
 
-    std::cout << ">> Added projectyle, move_type: " << (int)_move_type << ", TRAJECTORY_TARGET_DIRECTION: " << TRAJECTORY_TARGET_DIRECTION << ", w: " << _size.width << ", h: " << _size.height << std::endl;
+    //std::cout << ">> Added projectyle, move_type: " << (int)_move_type << ", TRAJECTORY_TARGET_DIRECTION: " << TRAJECTORY_TARGET_DIRECTION << ", w: " << _size.width << ", h: " << _size.height << std::endl;
 
     // for size, use getsize
     // for speed, use get_speed

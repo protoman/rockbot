@@ -413,11 +413,35 @@ void classPlayer::attack(bool dont_update_colors)
             temp_proj.set_owner_position(&position);
             temp_proj.set_owner_direction(&state.direction);
 
-        } else if (weapon_trajectory == TRAJECTORY_FOLLOW || weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
-            classnpc* temp = find_nearest_npc();
+        } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
+            st_rectangle hitbox = get_hitbox();
+            classnpc* temp = map->find_nearest_npc(st_position(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2));
             if (temp != NULL) {
                 //std::cout << "PLAYER::attack - could not find target" << std::endl;
                 temp_proj.set_target_position(temp->get_position_ref());
+            }
+        } else if (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+            st_rectangle hitbox = get_hitbox();
+            st_position player_pos(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2);
+            classnpc* temp = map->find_nearest_npc_on_direction(player_pos, state.direction);
+            if (temp != NULL) {
+                //std::cout << "PLAYER::attack - could not find target" << std::endl;
+                temp_proj.set_target_position(temp->get_position_ref());
+            }
+            if (weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+                set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
+            } else if (temp != NULL && (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT)) {
+                st_rectangle npc_hitbox = temp->get_hitbox();
+                st_position npc_pos(npc_hitbox.x + (npc_hitbox.w/2), npc_hitbox.y + (npc_hitbox.h/2));
+                // check if fire if diagonal (distY > distX)
+                int distY = abs(npc_pos.y-(player_pos.y-TILESIZE*2));
+                if (distY > 0) {
+                    if (npc_pos.y > player_pos.y) {
+                        set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
+                    } else {
+                        set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
+                    }
+                }
             }
         }
 
@@ -1060,33 +1084,6 @@ void classPlayer::add_jet_object()
 		temp_obj.set_direction(state.direction);
 		map->add_object(temp_obj);
 	}
-}
-
-classnpc *classPlayer::find_nearest_npc()
-{
-    int lower_dist = 9999;
-	classnpc* ret = NULL;
-
-    for (int i=0; i<map->_npc_list.size(); i++) {
-        if (map->_npc_list.at(i).is_on_visible_screen() == false) {
-			continue;
-		}
-        if (map->_npc_list.at(i).is_dead() == true) {
-            continue;
-        }
-
-        st_position npc_pos(map->_npc_list.at(i).getPosition().x*TILESIZE, map->_npc_list.at(i).getPosition().y*TILESIZE);
-        npc_pos.x = (npc_pos.x + map->_npc_list.at(i).get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + map->_npc_list.at(i).get_size().height)/TILESIZE;
-
-        // pitagoras: raiz[ (x2-x1)^2 + (y2-y1)^2 ]
-        int dist = sqrt(pow((float)(position.x - npc_pos.x), (float)2) + pow((float)(position.y - npc_pos.y ), (float)2));
-        if (dist < lower_dist) {
-            lower_dist = dist;
-            ret = &map->_npc_list.at(i);
-        }
-    }
-	return ret;
 }
 
 int classPlayer::find_next_weapon(int current, int move)

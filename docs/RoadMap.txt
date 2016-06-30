@@ -48,13 +48,6 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- projétil TRAJECTORY_TARGET_DIRECTION deve procurar só NPCs que estejam para o lado que estiver virado
-- ao disparar TRAJECTORY_TARGET_DIRECTION ajustar sprite de ataque (diagonal) dependendo da direção que o target estiver
-    # este cálculo hoje está no próprio projétil, pode fazer uma função public que char acessa para saber
-
-
-- quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio ou topo da tela)
-
 - mover gráficos de NPCs para drawLib, de modo a tornar mais fácil limpar a lista, etc
 - limpar gráficos de NPCs ao sair (já que agora é mapa com ponteiros)
 - criar função para não acessar gráficos de NPCs diretamente
@@ -105,15 +98,27 @@ TESTAR: - não está removendo charged shot ao terminar um estágio e começar u
 ##################################
              DONE
 ##################################
-- fazer os ícones de armas e barras de energia dependentes do tamanho dos ícones que deve ser obtido pela imagem deles (h/2)
-- trocar o som de recharge para items grandes por um que já existe na pasta de sfx
-- diálogos de boss estão fora de ordem (mostrando frases de posição errada)
+- projétil TRAJECTORY_TARGET_DIRECTION deve procurar só NPCs que estejam para o lado que estiver virado
+- ao disparar TRAJECTORY_TARGET_DIRECTION ajustar sprite de ataque (diagonal) dependendo da direção que o target estiver
+    # este cálculo hoje está no próprio projétil, pode fazer uma função public que char acessa para saber
+- inimigo tipo fall/jump não deve reaparecer na sua posição original logo que é dado respawn
+- quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio ou topo da tela)
 
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- ANDROID: adicionar opção para se conectar ao play services
+    # ao conctar, se não houver nenhum save, carregar do play services
+
+- WII: cores dos personagens não estão sendo setadas
+
+- tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
+
+- melhorar explosões de morte
+
+- melhorar implosão de ghot weapon (espiral)
 
 - jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
 

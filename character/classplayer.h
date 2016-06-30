@@ -187,12 +187,6 @@ private:
     void add_jet_object();
 
     /**
-     * @brief identify the closest to player NPC
-     * @return classnpc pointer to the closest NPC
-     */
-    classnpc* find_nearest_npc();
-
-    /**
      * @brief used whe changing weapon with L/R buttons, find what the left left or right weapon is
      * @param current current weapon id
      * @param move 1 -> right, otherwise -> left
