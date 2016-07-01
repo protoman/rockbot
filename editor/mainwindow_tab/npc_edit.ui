@@ -658,7 +658,7 @@
               <item row="1" column="4">
                <layout class="QGridLayout" name="gridLayout_2">
                 <item row="3" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_x"/>
+                 <widget class="QSpinBox" name="sprite_collision_x"/>
                 </item>
                 <item row="3" column="0">
                  <widget class="QLabel" name="label_6">
@@ -675,7 +675,7 @@
                  </widget>
                 </item>
                 <item row="6" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_h"/>
+                 <widget class="QSpinBox" name="sprite_collision_h"/>
                 </item>
                 <item row="4" column="0">
                  <widget class="QLabel" name="label_7">
@@ -685,10 +685,10 @@
                  </widget>
                 </item>
                 <item row="5" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_w"/>
+                 <widget class="QSpinBox" name="sprite_collision_w"/>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QSpinBox" name="sprite_colision_y"/>
+                 <widget class="QSpinBox" name="sprite_collision_y"/>
                 </item>
                 <item row="5" column="0">
                  <widget class="QLabel" name="label_8">
@@ -1082,27 +1082,27 @@
            </property>
            <item>
             <property name="text">
-             <string>no shield</string>
+             <string>No Shield</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>full shield</string>
+             <string>Full Shield</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>front shield</string>
+             <string>Front Shield</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>stand_shield</string>
+             <string>Stand Shield</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string/>
+             <string>Disguise</string>
             </property>
            </item>
           </widget>

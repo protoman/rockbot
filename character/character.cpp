@@ -2918,7 +2918,18 @@ bool character::is_shielded(int projectile_direction) const
 		}
 		//std::cout << ">> classnpc::is_shielded[" << name << "] - FALSE" << std::endl;
 		return false;
-	}
+    }
+}
+
+bool character::is_intangible()
+{
+    if (is_player()) {
+        return false;
+    }
+    if (shield_type == SHIELD_DISGUISE) {
+        return true;
+    }
+    return false;
 }
 
 

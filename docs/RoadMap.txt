@@ -48,6 +48,9 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- criar shield tipo "disguise"
+    # em stand não pode ser atingido
+
 - está dando pau em copySDLArea -> copySDLPortion (possivelmente um tamanho errado de alguma coisa, talvez projétil)
 
 - em modo demo, Rockbot1 não carrega estágios (pelo menos os já terminados)

@@ -460,7 +460,7 @@ enum IA_CONDITIONALS {
  * @brief
  *
  */
-enum e_shield_types { SHIELD_NO, SHIELD_FULL, SHIELD_FRONT, SHIELD_STAND };
+enum e_shield_types { SHIELD_NO, SHIELD_FULL, SHIELD_FRONT, SHIELD_STAND, SHIELD_DISGUISE, SHIELD_COUNT };
 
 /**
  * @brief

@@ -442,7 +442,9 @@ void classnpc::move_projectiles()
 				//classnpc* enemy = (*enemy_it);
                 if ((*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
-                    if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                    if (map->_npc_list.at(i).is_intangible() == true) {
+                        continue;
+                    } else if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                         (*it).reflect();
 					} else {
                         map->_npc_list.at(i).damage((*it).get_damage(), false);

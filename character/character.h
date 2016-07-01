@@ -333,6 +333,9 @@ public:
      * @return bool
      */
     bool is_shielded(int projectile_direction) const;
+
+    bool is_intangible();
+
     /**
      * @brief
      *
