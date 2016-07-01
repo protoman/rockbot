@@ -232,6 +232,9 @@ FILE-FORMAT-V4:
     # este cálculo hoje está no próprio projétil, pode fazer uma função public que char acessa para saber
 - inimigo tipo fall/jump não deve reaparecer na sua posição original logo que é dado respawn
 - quando inimigo morrer por cair, não pode mostrar explosão nem dar item (porque estão aparecendo no meio ou topo da tela)
+- lista de gráficos de personagens movida para graphlib
+- lista de gráficos de personagens revertida de ponteiro
+    # se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
 
 
 

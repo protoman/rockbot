@@ -654,7 +654,7 @@ void classPlayer::execute_projectiles()
         if ((*it).is_reflected == true) {
             continue;
         }
-        // check collision agains enemies
+        // check collision against enemies
 
         for (int i=0; i<map->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {

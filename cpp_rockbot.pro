@@ -199,6 +199,7 @@ dingoo_native {
 
 
 ps2 {
+        DEFINES+= PS2=1
 	TARGET = rockbot.elf
 
 	# pre-build commands

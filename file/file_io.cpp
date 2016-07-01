@@ -519,6 +519,98 @@ namespace format_v4 {
         return read_directory_list(filename, true);
     }
 
+#ifdef PS2
+    // @TODO
+    /*
+    int file_io::listcdvd(const char *path, entries *FileEntry) {
+        static struct TocEntry TocEntryList[2048];
+        char dir[1025];
+        int i, n, t;
+
+        strcpy(dir, &path[5]);
+        // Directories first...
+
+        CDVD_FlushCache();
+        n = CDVD_GetDir(dir, NULL, CDVD_GET_DIRS_ONLY, TocEntryList, 2048, dir);
+
+        strcpy(FileEntry[0].filename, "..");
+        strcpy(FileEntry[0].displayname, "..");
+             FileEntry[0].dircheck = 1;
+        t = 1;
+
+        for (i=0; i<n; i++) {
+            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
+                continue; //Skip pseudopaths "." and ".."
+            }
+            FileEntry[t].dircheck = 1;
+            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
+            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
+            t++;
+
+            if (t >= 2046) {
+                break;
+            }
+         }
+
+        // Now files only
+
+        CDVD_FlushCache();
+        n = CDVD_GetDir(dir, NULL, CDVD_GET_FILES_ONLY, TocEntryList, 2048, dir);
+
+        for (i=0; i<n; i++) {
+            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
+                continue; //Skip pseudopaths "." and ".."
+            }
+            FileEntry[t].dircheck = 0;
+            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
+            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
+            t++;
+            if (t >= 2046) {
+                break;
+            }
+        }
+        return t;
+    }
+*/
+
+    void file_io::ps2_listfiles(std::string filepath, std::vector<std::string> &res) {
+        dd = fioDopen(filepath.c_str());
+        if (dd < 0) {
+            std::cout << "ps2_listfiles - Could not read directory" << std::endl;
+            return 0;
+        } else {
+            printf("Directory opened!\n");
+            //adds pseudo folder .. to every folder opened as mass: reported none but mc0: did
+            strcpy(FileEntry[0].filename,"..");
+            strcpy(FileEntry[0].displayname,"..");
+            FileEntry[0].dircheck = 1;
+            n=1;
+            while (fioDread(dd, &buf) > 0) {
+                if (n > 2046) {
+                    break;
+                }
+                if ((FIO_SO_ISDIR(buf.stat.mode)) && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
+                    continue; //makes sure no .. or .'s are listed since it's already there
+                }
+                if (FIO_SO_ISDIR(buf.stat.mode)) {
+                    FileEntry[n].dircheck = 1;
+                    strcpy(FileEntry[n].filename, buf.name);
+                    strzncpy(FileEntry[n].displayname, FileEntry[n].filename, 63);
+                    res.push_back(std::string(FileEntry[n].filename));
+                    n++;
+                    if (n >= 2046) {
+                        break;
+                    }
+                }
+            }
+            if (dd >= 0) {
+                fioDclose(dd);
+                printf("Directory closed!\n");
+            }
+        }
+    }
+#endif
+
     // @TODO: make this work in multiplatform
     // http://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
     std::vector<std::string> file_io::read_directory_list(std::string filename, bool dir_only) const
@@ -553,6 +645,12 @@ namespace format_v4 {
 
 #ifdef PLAYSTATION2
         res.push_back(std::string("Rockbot2"));
+        if (filename.find("cdfs:") != std::string::npos) {
+            // @TODO
+            //ps2_listcdvd(filename, res);
+        } else {
+            ps2_listfiles(filename, res);
+        }
 #endif
         return res;
 

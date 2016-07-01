@@ -110,7 +110,7 @@ public:
 
     object_collision get_obj_collision();
 
-    short int collision_player_npcs(character*, const short int, const short int, short int, short int);
+    classnpc* collision_player_npcs(character*, const short int, const short int);
 
     void collision_player_special_attack(character*, const short int, const short int, short int, short int);
 

@@ -1337,26 +1337,13 @@ void classMap::move_map(const short int move_x, const short int move_y)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-short int classMap::collision_player_npcs(character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y)
+classnpc* classMap::collision_player_npcs(character* playerObj, const short int x_inc, const short int y_inc)
 {
     UNUSED(x_inc);
     UNUSED(y_inc);
 	struct st_rectangle p_rect, npc_rect;
 
     p_rect = playerObj->get_hitbox();
-
-    /*
-	// ponto 3, topo/esquerda
-	if (playerObj->get_direction() == ANIM_DIRECTION_LEFT) {
-		p_rect.x = playerObj->getPosition().x + reduce_x;
-		p_rect.w = playerObj->get_size().width;
-	} else {
-		p_rect.x = playerObj->getPosition().x;
-		p_rect.w = playerObj->get_size().width - reduce_x;
-	}
-	p_rect.y = playerObj->getPosition().y + reduce_y;
-    p_rect.h = playerObj->get_size().height;
-    */
 
     //std::cout << "collision_player_npcs - p1.x: " << p1.x << ", p1.y: " << p1.y << std::endl;
 
@@ -1378,38 +1365,19 @@ short int classMap::collision_player_npcs(character* playerObj, const short int 
             continue;
         }
 
+        if (_npc_list.at(i).is_intangible() == true) {
+            continue;
+        }
+
 
         npc_rect = _npc_list.at(i).get_hitbox();
 
-        /*
-        npc_rect.x = _npc_list.at(i).getPosition().x;
-        npc_rect.w = _npc_list.at(i).get_size().width;
-        npc_rect.y = _npc_list.at(i).getPosition().y;
-        npc_rect.h = _npc_list.at(i).get_size().height;
-        */
-
-        /*
-        if (_npc_list.at(i).get_size().width >= TILESIZE) { // why is this here??? O.o
-            npc_rect.x = _npc_list.at(i).getPosition().x+PLAYER_NPC_COLLISION_REDUTOR;
-            npc_rect.w = _npc_list.at(i).get_size().width-PLAYER_NPC_COLLISION_REDUTOR;
-		}
-        if (_npc_list.at(i).get_size().height >= TILESIZE) {
-            npc_rect.y = _npc_list.at(i).getPosition().y+PLAYER_NPC_COLLISION_REDUTOR;
-            npc_rect.h = _npc_list.at(i).get_size().height-PLAYER_NPC_COLLISION_REDUTOR;
-		}
-        */
-
         collision_detection rect_collision_obj;
         if (rect_collision_obj.rect_overlap(npc_rect, p_rect) == true) {
-            //std::cout << "collision_player_npcs[" << _npc_list.at(i).getName() << "] - COLlISION!" << std::endl;
-            if (npc_rect.h > p_rect.h) {
-				return 2;
-			} else {
-				return 1;
-			}
-		}
+            return &_npc_list.at(i);
+        }
     }
-    return 0;
+    return NULL;
 }
 
 

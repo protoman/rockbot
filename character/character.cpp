@@ -163,12 +163,17 @@ void character::charMove() {
                     diff_w = abs((float)frameSize.height-21);
 				}
                 std::cout << "collision_player_npcs #1" << std::endl;
-                short int res_collision_npc = map->collision_player_npcs(this, 0, 0, diff_w, diff_h);
-                if (res_collision_npc == 1) {
-                    damage(TOUCH_DAMAGE_SMALL, false);
-                } else if (res_collision_npc == 2) {
-                    damage(TOUCH_DAMAGE_BIG, false);
-				}
+                classnpc* npc_touch = map->collision_player_npcs(this, 0, 0);
+                if (npc_touch != NULL) {
+                    if (npc_touch->get_size().height > this->get_size().height) {
+                        damage(TOUCH_DAMAGE_SMALL, false);
+                    } else {
+                        damage(TOUCH_DAMAGE_BIG, false);
+                    }
+                    if (_was_hit == true) {
+                        npc_touch->hit_player();
+                    }
+                }
 			}
 		}
 		return;
@@ -1108,11 +1113,16 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	if (is_in_stairs_frame()) {
         //character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y
-        short int res_collision_npc = map->collision_player_npcs(this, 0, 0,  9, 0);
-        if (res_collision_npc == 1) {
-            damage(TOUCH_DAMAGE_SMALL, false);
-        } else if (res_collision_npc == 2) {
-            damage(TOUCH_DAMAGE_BIG, false);
+        classnpc* npc_touch = map->collision_player_npcs(this, 0, 0);
+        if (npc_touch != NULL) {
+            if (npc_touch->get_size().height > this->get_size().height) {
+                damage(TOUCH_DAMAGE_SMALL, false);
+            } else {
+                damage(TOUCH_DAMAGE_BIG, false);
+            }
+            if (_was_hit == true) {
+                npc_touch->hit_player();
+            }
         }
         reset_gravity_speed();
         return false;
@@ -1793,11 +1803,16 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         if (have_shoryuken() == true && state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
             map->collision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
-            short int res_collision_npc = map->collision_player_npcs(this, incx, incy, 9, py_adjust);
-            if (res_collision_npc == 1) {
-                damage(TOUCH_DAMAGE_SMALL, false);
-            } else if (res_collision_npc == 2) {
-                damage(TOUCH_DAMAGE_BIG, false);
+            classnpc* npc_touch = map->collision_player_npcs(this, 0, 0);
+            if (npc_touch != NULL) {
+                if (npc_touch->get_size().height > this->get_size().height) {
+                    damage(TOUCH_DAMAGE_SMALL, false);
+                } else {
+                    damage(TOUCH_DAMAGE_BIG, false);
+                }
+                if (_was_hit == true) {
+                    npc_touch->hit_player();
+                }
             }
         }
 	}
@@ -2926,7 +2941,7 @@ bool character::is_intangible()
     if (is_player()) {
         return false;
     }
-    if (shield_type == SHIELD_DISGUISE) {
+    if (state.animation_type == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE) {
         return true;
     }
     return false;

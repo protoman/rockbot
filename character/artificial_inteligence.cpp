@@ -36,6 +36,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _execution_state = 0;
     jump_attack_type = -1;
     _current_ai_type = -1;
+    did_hit_player = false;
 
 }
 
@@ -74,6 +75,13 @@ void artificial_inteligence::execute_ai()
     } else {
         execute_ai_step();
     }
+    // reset flag
+    did_hit_player = false;
+}
+
+void artificial_inteligence::hit_player()
+{
+    did_hit_player = true;
 }
 
 void artificial_inteligence::check_ai_reaction()
@@ -1196,11 +1204,8 @@ void artificial_inteligence::execute_ai_step_fly()
                 state.direction = ANIM_DIRECTION_RIGHT;
             }
             _dest_point.x = dist_players.pObj->getPosition().x;
-
             std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::x: " << _dest_point.x << std::endl;
-
             _dest_point.y = position.y;
-
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
             struct_player_dist dist_players = dist_npc_players();
             _dest_point.x = position.x;
@@ -1277,10 +1282,31 @@ void artificial_inteligence::execute_ai_step_fly()
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
 			struct_player_dist dist_players = dist_npc_players();
-            if (dist_players.dist < TILESIZE/2) {
+
+            // @TODO - finish when player was hit, player must set a flag in the enemy to indicate this
+            if (did_hit_player == true || dist_players.dist < TILESIZE/2) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             } else {
-                if (move_to_point(dist_players.pObj->getPosition(), move_speed, move_speed, is_ghost) == true) {
+                int dist_x = position.x - dist_players.pObj->getPosition().x;
+                int dist_y = position.y - dist_players.pObj->getPosition().y;
+                int speed_x = 0;
+                int speed_y = 0;
+                // if X or Y axis is greather than the other
+                if (abs(dist_x-dist_y) > move_speed) {
+                    // if X axis is greater, move left/right
+                    if (abs(dist_x) > abs(dist_y)) {
+                        speed_x = move_speed;
+                    // if Y axis is greater, move up/down
+                    } else {
+                        speed_y = move_speed;
+                    }
+
+                // is both are more or less equal, go to diagonal
+                } else {
+                    speed_x = move_speed;
+                    speed_y = move_speed;
+                }
+                if (move_to_point(dist_players.pObj->getPosition(), speed_x, speed_y, is_ghost) == true) {
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 }
             }

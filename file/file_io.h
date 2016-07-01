@@ -14,6 +14,8 @@
 
 #ifdef WII
 #include <fat.h>
+#elif PS2
+#include <fileio.h>
 #endif
 
 #include "file/fio_common.h"
@@ -31,6 +33,7 @@ public:
 
 
 };
+
 
 // ************************************************************************************************************* //
 
@@ -53,6 +56,10 @@ namespace format_v4 {
 
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list() const;
+#ifdef PS2
+        //int file_io::listcdvd(const char *path, entries *FileEntry);
+        void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
+#endif
         std::vector<std::string> read_directory_list(std::string filename, bool dir_only) const;
         std::vector<std::string> read_file_list(std::string filename) const;
 
