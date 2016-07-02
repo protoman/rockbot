@@ -55,13 +55,13 @@ namespace format_v4 {
         void read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS]);
 
         bool file_exists(std::string filename) const;
-        std::vector<std::string> read_game_list() const;
+        std::vector<std::string> read_game_list();
 #ifdef PS2
         //int file_io::listcdvd(const char *path, entries *FileEntry);
         void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
 #endif
-        std::vector<std::string> read_directory_list(std::string filename, bool dir_only) const;
-        std::vector<std::string> read_file_list(std::string filename) const;
+        std::vector<std::string> read_directory_list(std::string filename, bool dir_only);
+        std::vector<std::string> read_file_list(std::string filename);
 
         bool write_save(st_save& data_in);
         void read_save(st_save& data_out) const;

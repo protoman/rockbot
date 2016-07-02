@@ -30,6 +30,16 @@ enum ATTACK_STATES {
 	ATTACK_WAIT
 };
 
+
+enum ATTACK_TYPES {
+    ATTACK_TYPE_NOATTACK,
+    ATTACK_TYPE_NORMAL,
+    ATTACK_TYPE_SEMICHARGED,
+    ATTACK_TYPE_FULLYCHARGED,
+    ATTACK_TYPE_SUPERCHARGED,
+    ATTACK_TYPE_COUNT
+};
+
 class classMap;		// advance declaration
 struct object_collision;
 
@@ -82,151 +92,30 @@ class character
 {
 public:
 	character();
-    /**
-     * @brief
-     *
-     */
-    /**
-     * @brief
-     *
-     */
     virtual ~character();
-    /**
-     * @brief
-     *
-     * @param std::string
-     */
     void setName(std::string);
-    /**
-     * @brief
-     *
-     * @return std::string
-     */
     std::string getName(void) const;
-    /**
-     * @brief
-     *
-     * @param st_hit_points
-     */
     void setHitPoints(st_hit_points);
-    /**
-     * @brief
-     *
-     */
     virtual void initFrames() = 0; // pure virtual
-    /**
-     * @brief
-     *
-     */
     virtual void execute() = 0; // pure virtual
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     st_float_position getPosition() const;
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     struct st_position get_real_position() const;
-    /**
-     * @brief
-     *
-     * @param st_position
-     */
     void set_position(struct st_position);
-    /**
-     * @brief
-     *
-     * @param int
-     * @param int
-     * @param int
-     * @param int
-     * @param
-     * @param int
-     */
     void addSpriteFrame(int, int, graphicsLib_gSurface&, int);
-    /**
-     * @brief
-     *
-     * @param set_map
-     */
     void set_map(classMap *set_map);
-    /**
-     * @brief
-     *
-     * @return classMap
-     */
     classMap *get_map();
-    /**
-     * @brief
-     *
-     * @param set_player
-     */
     void set_is_player(bool set_player);
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_player() const;
-    /**
-     * @brief
-     *
-     */
     void advance_frameset(); // changes the state for the next (or previous) frame
-    /**
-     * @brief
-     *
-     */
     void show();
-
-
-    /**
-     * @brief
-     *
-     */
     void show_sprite();
-
-    /**
-     * @brief
-     *
-     * @param direction
-     * @param type
-     * @param n
-     */
     void show_sprite_graphic(short direction, short type, short n);
-
     st_size get_size() const;
-
     st_rectangle get_hitbox();
-
     void set_platform(object*);
-    /**
-     * @brief
-     *
-     * @return object
-     */
     object* get_platform();
-    /**
-     * @brief
-     *
-     * @return int
-     */
     int get_direction() const;
-    /**
-     * @brief
-     *
-     * @param direction
-     */
     void set_direction(int direction);
-    classMap *map;										// reference to the map this npc is in
-    /**
-     * @brief
-     *
-     */
     void clean_projectiles();
 
     void clean_effect_projectiles();
@@ -456,183 +345,49 @@ public:
     void set_show_hp(bool show);
 
     void set_progressive_appear_pos(int pos);
-
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_stage_boss();
-
     void clean_character_graphics_list();
-
     void cancel_slide();
-
     virtual float get_hit_push_back_n();
-
     virtual bool have_shoryuken();
-
     virtual int get_armor_arms_attack_id();
-
     void remove_freeze_effect();
-
     void push_back(short direction);
 
+private:
+    ATTACK_TYPES check_must_attack();
+    void check_charging_colors();
 
 protected:
-    /**
-     * @brief
-     *
-     */
     // updown_trajectory: updown -1 is down, 0 is none, 1 is up
     // auto_charged: true will use charged (if have) or semi-charged as default projetile
     virtual void attack(bool dont_update_colors, short updown_trajectory, bool auto_charged);
-    /**
-     * @brief
-     *
-     * @param key
-     * @param new_color
-     * @param full_change
-     */
     void change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change);
-
-    /**
-     * @brief
-     *
-     * @param mapScrolling
-     * @return bool
-     */
     bool slide(st_float_position mapScrolling);
-    /**
-     * @brief
-     *
-     * @param int
-     * @param st_position
-     * @return bool
-     */
     bool jump(int, st_float_position);
-
-
-    /**
-     * @brief
-     *
-     * @param incx
-     * @param incy
-     * @param mapScrolling
-     * @return short
-     */
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling);
-
-
     bool is_on_teleporter_capsulse(object* object);
-
-    /**
-     * @brief
-     *
-     * @param map_block
-     * @param new_map_lock
-     * @param mode_xy
-     * @param map_pos
-     */
     void check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
-    /**
-     * @brief
-     *
-     * @param map_lock
-     * @param incx
-     * @param incy
-     * @param map_pos
-     * @return bool
-     */
     bool process_special_map_points(int map_lock, int incx, int incy, st_position map_pos);
-
     void check_platform_move(short map_lock);
-
-    /**
-     * @brief
-     *
-     */
     void add_graphic();
-    /**
-     * @brief
-     *
-     */
     virtual void death() = 0;
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool have_frame_graphics();
-
-
-
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool have_background_graphics();
-    /**
-     * @brief
-     *
-     * @param direction
-     * @param type
-     * @param pos
-     * @return bool
-     */
     bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_in_stairs_frame() const; // indicates if the character is on some of the STAIRS animation types
-
-
     bool is_on_attack_frame();
-
-    /**
-     * @brief
-     *
-     * @param _en_type
-     * @param value
-     */
     virtual void recharge(e_energy_types _en_type, int value);
-    /**
-     * @brief
-     *
-     * @param obj_info
-     * @return bool
-     */
     virtual bool get_item(object_collision& obj_info);
-
-
     unsigned int get_projectile_count(); // returns the number of projectiles (some special attacks count as max)
-    /**
-     * @brief
-     *
-     * @return int
-     */
     int frames_count(); // find out the number of frames in the current direction/type
-    /**
-     * @brief
-     *
-     */
     void advance_to_last_frame();
-
     virtual void show_hp(); // player and boss will implement this
-
     int is_executing_effect_weapon(); // returns type, or -1 if none
-
     st_position get_int_position(); // converts float position to integer position
-
     void check_reset_stand();
-
     bool is_weak_to_freeze();                           // checks that this NPC is weak against the freeze weapon
-
     virtual bool can_air_dash();
-
     Uint8 get_projectile_max_shots();
 
 
@@ -642,6 +397,8 @@ protected:
 public:
 	// projectile list
     std::vector<projectile> projectile_list;
+    classMap *map;										// reference to the map this npc is in
+
 
 protected:
 	// members static that can be moved to use game_data
@@ -671,6 +428,10 @@ protected:
     bool _ignore_gravity;               // ignore gravity while this flag is true
     unsigned int attack_state; // indicates if the player is attacking and what is the stage of the attack
     bool attack_button_released; // indicates if attack button was released between shots
+
+    unsigned int attack_button_pressed_timer;
+    short attack_button_last_state;
+
     int charging_color_n; // holds information used when changing char colors on charging shot
     unsigned int charging_color_timer; // holds information used when changing char colors on charging shot
     bool jump_button_released; // indicates if jump button was released between jumps

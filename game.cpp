@@ -1172,7 +1172,7 @@ void game::quick_load_game()
 
     currentStage = STAGE2;
     game_save.difficulty = DIFFICULTY_EASY;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;

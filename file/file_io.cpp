@@ -8,8 +8,13 @@
 
 #ifdef DREAMCAST
 #include <kos.h>
-//#elif PLAYSTATION2
-//#include <fileXio_rpc.h>
+#elif PLAYSTATION2
+#include <fileXio_rpc.h>
+typedef struct {
+    char displayname[64];
+    int  dircheck;
+    char filename[256];
+} entries;
 #endif
 
 #ifdef ANDROID
@@ -512,7 +517,7 @@ namespace format_v4 {
         return res;
     }
 
-    std::vector<std::string> file_io::read_game_list() const
+    std::vector<std::string> file_io::read_game_list()
     {
         std::string filename = GAMEPATH + "/games/";
         filename = StringUtils::clean_filename(filename);
@@ -574,10 +579,14 @@ namespace format_v4 {
 */
 
     void file_io::ps2_listfiles(std::string filepath, std::vector<std::string> &res) {
-        dd = fioDopen(filepath.c_str());
+        int n = 0;
+        entries *FileEntry;
+        iox_dirent_t buf;
+
+        int dd = fioDopen(filepath.c_str());
         if (dd < 0) {
             std::cout << "ps2_listfiles - Could not read directory" << std::endl;
-            return 0;
+            return;
         } else {
             printf("Directory opened!\n");
             //adds pseudo folder .. to every folder opened as mass: reported none but mc0: did
@@ -585,22 +594,19 @@ namespace format_v4 {
             strcpy(FileEntry[0].displayname,"..");
             FileEntry[0].dircheck = 1;
             n=1;
-            while (fioDread(dd, &buf) > 0) {
-                if (n > 2046) {
-                    break;
+            while(fileXioDread(dd, &buf) > 0) {
+                if (buf.stat.mode & FIO_S_IFDIR && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
+                    continue;
                 }
-                if ((FIO_SO_ISDIR(buf.stat.mode)) && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
-                    continue; //makes sure no .. or .'s are listed since it's already there
-                }
-                if (FIO_SO_ISDIR(buf.stat.mode)) {
+                if (buf.stat.mode & FIO_S_IFDIR) {
                     FileEntry[n].dircheck = 1;
                     strcpy(FileEntry[n].filename, buf.name);
-                    strzncpy(FileEntry[n].displayname, FileEntry[n].filename, 63);
                     res.push_back(std::string(FileEntry[n].filename));
                     n++;
-                    if (n >= 2046) {
-                        break;
-                    }
+                }
+
+                if(n > 2046) {
+                    break;
                 }
             }
             if (dd >= 0) {
@@ -613,7 +619,7 @@ namespace format_v4 {
 
     // @TODO: make this work in multiplatform
     // http://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
-    std::vector<std::string> file_io::read_directory_list(std::string filename, bool dir_only) const
+    std::vector<std::string> file_io::read_directory_list(std::string filename, bool dir_only)
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
@@ -658,7 +664,7 @@ namespace format_v4 {
 
 
 
-    std::vector<std::string> file_io::read_file_list(std::string filename) const
+    std::vector<std::string> file_io::read_file_list(std::string filename)
     {
         return read_directory_list(filename, false);
     }

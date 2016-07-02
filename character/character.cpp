@@ -27,6 +27,7 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
 
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // initialize static member
 static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
@@ -73,6 +74,8 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     _attack_frame_n = -1;
     _is_attack_frame = false;
     _stairs_falling_timer = 0;
+    attack_button_pressed_timer = 0;
+    attack_button_last_state = 0;
 }
 
 
@@ -542,70 +545,107 @@ void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool ful
     }
 }
 
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-/// @TODO: this must be moved to player, as character attack must be very simple
-void character::attack(bool dont_update_colors, short updown_trajectory, bool auto_charged)
+// return 0 if must not attack, 1 for normal attack, 2 for semi-charged and 3 for fully charged
+ATTACK_TYPES character::check_must_attack()
 {
 
+    // capture button timer even if can't shoot, so we avoid always charging
+    if (moveCommands.attack != 0 && attack_button_last_state == 0) {
+        attack_button_pressed_timer = timer.getTimer();
+    }
+
     if (timer.is_paused()) {
-        return;
+        return ATTACK_TYPE_NOATTACK;
     }
 
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        //std::cout << "character::attack - LEAVE #1" << std::endl;
-        return;
+        return ATTACK_TYPE_NOATTACK;
     }
-    //std::cout << "character::attack - START, name: " << name << ", max_projectiles: " << max_projectiles << ", projectile_list.size(): " << projectile_list.size() << std::endl;
     if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
-		std::cout << "ERROR: could not find projectile graphics" << std::endl;
-		return;
-	}
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay) {
-		//std::cout << "character::attack - shoot projectile END" << std::endl;
-		attack_state = ATTACK_NOT;
-	}
+        std::cout << "CHAR::ATTACK::ERROR: could not find character graphics!" << std::endl;
+        return ATTACK_TYPE_NOATTACK;
+    }
 
-    int attack_id = -1;
+    if (state.animation_type == ANIM_TYPE_SLIDE) {
+        //std::cout << "character::attack - LEAVE #2" << std::endl;
+        return ATTACK_TYPE_NOATTACK;
+    }
 
-    if (moveCommands.attack != 0) {
-        //std::cout << "ATTACK 0 - #1 - max_projectiles: " << max_projectiles << std::endl;
-        if (max_projectiles > get_projectile_count() && (timer.getTimer()-state.attack_timer) > 100 && attack_button_released == true) {
-            //std::cout << "ATTACK 0 - #2" << std::endl;
-            if (auto_charged == true) {
-                attack_id = game_data.semi_charged_projectile_id;
-            } else {
-                attack_id = 0;
-            }
+    if (max_projectiles <= get_projectile_count()) {
+        return ATTACK_TYPE_NOATTACK;
+    }
+
+    if (is_player() == true && get_projectile_max_shots() <= projectile_list.size()) {
+        return ATTACK_TYPE_NOATTACK;
+    }
+
+    int now_timer = timer.getTimer();
+    int time_diff = now_timer - attack_button_pressed_timer;
+
+    if (game_config.turbo_mode == true && moveCommands.attack != 0) {
+        if (now_timer < state.attack_timer + TURBO_ATTACK_INTERVAL) {
+            return ATTACK_TYPE_NOATTACK;
+        } else {
+            return ATTACK_TYPE_NORMAL;
         }
     }
 
-
-    if (_charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > CHARGED_SHOT_TIME && attack_button_released == false) {
-        attack_id = _charged_shot_projectile_id;
-    } else if (_charged_shot_projectile_id > 0 && moveCommands.attack == 0 && (timer.getTimer()-state.attack_timer) > 400 && (timer.getTimer()-state.attack_timer) < CHARGED_SHOT_TIME && attack_button_released == false) {
-        attack_id = game_data.semi_charged_projectile_id;
+    // button changed from released to pressed
+    if (moveCommands.attack != 0 && attack_button_last_state == 0) {
+        std::cout << "CHAR::check_must_attack - ATTACK NORMAL" << std::endl;
+        return ATTACK_TYPE_NORMAL;
+    // button changed from pressed to released and char can use charged attacks
+    } else if (game_config.turbo_mode == false && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && attack_button_last_state == 1) {
+        // @TODO use super charged time also
+        if (time_diff >= CHARGED_SHOT_TIME) {
+            return ATTACK_TYPE_FULLYCHARGED;
+        } else if (time_diff >= CHARGED_SHOT_INITIAL_TIME) {
+            return ATTACK_TYPE_SEMICHARGED;
+        }
     }
+    return ATTACK_TYPE_NOATTACK;
+}
 
-    if (moveCommands.attack == 0 && attack_button_released == false) {
-        attack_button_released = true;
-    }
-
+void character::check_charging_colors()
+{
     // change player colors if charging attack
-    if (_charged_shot_projectile_id > 0 && (timer.getTimer()-state.attack_timer) > CHARGED_SHOT_INITIAL_TIME && (timer.getTimer()-state.attack_timer) < CHARGED_SHOT_TIME && attack_button_released == false) {
-		if (is_player() && soundManager.is_playing_repeated_sfx() == false) {
-			soundManager.play_repeated_sfx(SFX_CHARGING1, 0);
-		}
-		if (color_keys[0].r != -1) {
+    int now_timer = timer.getTimer();
+    int attack_diff_timer = now_timer-attack_button_pressed_timer;
+
+    if (game_config.turbo_mode == true) {
+        return;
+    }
+
+    // don't charge if can't shot
+    if (max_projectiles <= get_projectile_count()) {
+        // reset time, so we start counting only when all projectiles are gone
+        if (moveCommands.attack != 0) {
+            attack_button_pressed_timer = timer.getTimer() - CHARGED_SHOT_INITIAL_TIME;
+        }
+        return;
+    }
+
+    if (is_player() == true && get_projectile_max_shots() <= projectile_list.size()) {
+        // reset time, so we start counting only when all projectiles are gone
+        if (moveCommands.attack != 0) {
+            attack_button_pressed_timer = timer.getTimer() - CHARGED_SHOT_INITIAL_TIME;
+        }
+        return;
+    }
+
+
+    if (_charged_shot_projectile_id > 0 && attack_diff_timer > CHARGED_SHOT_INITIAL_TIME && attack_diff_timer < CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1) {
+        if (is_player() && soundManager.is_playing_repeated_sfx() == false) {
+            soundManager.play_repeated_sfx(SFX_CHARGING1, 0);
+        }
+        if (color_keys[0].r != -1) {
             if (charging_color_timer < timer.getTimer()) {
                 charging_color_n++;
                 if (charging_color_n > 2) {
                     charging_color_n = 0;
                 }
                 charging_color_timer = timer.getTimer()+200;
-				if (charging_color_n == 0) {
+                if (charging_color_n == 0) {
                     change_char_color(0, st_color(171, 0, 19), false);
                     change_char_color(1, st_color(231, 0, 91), false);
                 } else if (charging_color_n == 1) {
@@ -615,14 +655,14 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
                     change_char_color(0, st_color(255, 119, 183), false);
                     change_char_color(1, st_color(171, 0, 19), false);
                 }
-			}
+            }
         }
     }
-    if (_charged_shot_projectile_id > 0 && is_player() && (timer.getTimer()-state.attack_timer) >= CHARGED_SHOT_TIME && attack_button_released == false) {
-		if (soundManager.is_playing_repeated_sfx() == true && soundManager.get_repeated_sfx_n() == SFX_CHARGING1) {
-			soundManager.stop_repeated_sfx();
+    if (_charged_shot_projectile_id > 0 && is_player() && attack_diff_timer >= CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1) {
+        if (soundManager.is_playing_repeated_sfx() == true && soundManager.get_repeated_sfx_n() == SFX_CHARGING1) {
+            soundManager.stop_repeated_sfx();
             soundManager.play_repeated_sfx(SFX_CHARGING2, 255);
-		}
+        }
         if (color_keys[0].r != -1) {
             if (charging_color_timer < timer.getTimer()) {
                 charging_color_n++;
@@ -630,23 +670,48 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
                     charging_color_n = 0;
                 }
                 charging_color_timer = timer.getTimer()+100;
-				if (charging_color_n == 0) {
+                if (charging_color_n == 0) {
                     change_char_color(0, st_color(219, 43, 0), false);
                     change_char_color(1, st_color(255, 155, 59), false);
-				} else if (charging_color_n == 1) {
+                } else if (charging_color_n == 1) {
                     change_char_color(0, st_color(255, 155, 59), false);
                     change_char_color(1, st_color(255, 234, 0), false);
-				} else if (charging_color_n == 2) {
+                } else if (charging_color_n == 2) {
                     change_char_color(0, st_color(255, 234, 0), false);
                     change_char_color(1, st_color(219, 43, 0), false);
-				}
-			}
+                }
+            }
         }
     }
+}
 
-    if (state.animation_type == ANIM_TYPE_SLIDE) {
-        //std::cout << "character::attack - LEAVE #2" << std::endl;
+/// @TODO: this must be moved to player, as character attack must be very simple
+void character::attack(bool dont_update_colors, short updown_trajectory, bool auto_charged)
+{
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay) {
+		//std::cout << "character::attack - shoot projectile END" << std::endl;
+		attack_state = ATTACK_NOT;
+	}
+
+    ATTACK_TYPES must_attack = check_must_attack();
+    check_charging_colors();
+    attack_button_last_state = moveCommands.attack;
+
+
+    int attack_id = -1;
+
+    if (must_attack == ATTACK_TYPE_NOATTACK) {
         return;
+    } else if (must_attack == ATTACK_TYPE_NORMAL) {
+        if (auto_charged == true) {
+            attack_id = game_data.semi_charged_projectile_id;
+        } else {
+            attack_id = 0;
+        }
+    } else if (must_attack == ATTACK_TYPE_SEMICHARGED) {
+        attack_id = game_data.semi_charged_projectile_id;
+    } else if (must_attack == ATTACK_TYPE_FULLYCHARGED) {
+        attack_id = _charged_shot_projectile_id;
     }
 
 
@@ -661,8 +726,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 		}
 
 
-        attack_button_released = false; // coment out this line to get "turbo" in button
-		//attack_state == ATTACK_NOT &&
         //std::cout << "character::attack - shoot projectile" << std::endl;
         st_position proj_pos;
 
@@ -699,7 +762,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
         }
 
-
         int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
         if (proj_trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
@@ -724,8 +786,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
             }
 		}
 
-
-
 		attack_state = ATTACK_START;
 		state.attack_timer = timer.getTimer();
 		if (state.animation_type == ANIM_TYPE_STAND) {
@@ -738,19 +798,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 			//std::cout << "+++++++++++ CHARACTER - set animation to ANIM_TYPE_WALK_ATTACK" << std::endl;
             set_animation_type(ANIM_TYPE_WALK_ATTACK);
 		}
-
-
-        /// @TODO: here is the color bug
-        /*
-        if (dont_update_colors == false) {
-            if (color_keys[0].r != -1) {
-                change_char_color(0, color_keys[0]);
-            }
-            if (color_keys[1].r != -1) {
-                change_char_color(1, color_keys[1]);
-            }
-        }
-        */
     }
 }
 
@@ -2437,6 +2484,8 @@ void character::push_back(short direction)
         position.x += xinc;
     }
 }
+
+
 
 void character::remove_freeze_effect()
 {

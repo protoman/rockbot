@@ -60,6 +60,7 @@ int GameMediator::get_enemy_list_size()
     return enemy_list.size();
 }
 
+#ifdef WII
 void GameMediator::short_to_little_endian(short &s)
 {
      s = (s>>8) | (s<<8);
@@ -199,7 +200,7 @@ void GameMediator::wii_convert_anim_tile_list() {
         }
     }
 }
-
+#endif
 
 GameMediator::GameMediator()
 {

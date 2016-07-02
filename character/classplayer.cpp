@@ -291,16 +291,7 @@ void classPlayer::attack(bool dont_update_colors)
     st_position proj_pos;
 
 
-    //std::cout << ">> classPlayer::attack() - selected_weapon: " << selected_weapon << std::endl;
-
-
     if (state.animation_type == ANIM_TYPE_HIT) { // can't fire when hit
-        //std::cout << ">> PLAYER::attack()::LEAVE #1" << std::endl;
-        return;
-    }
-
-    if (get_projectile_max_shots() <= projectile_list.size()) {
-        //std::cout << ">> PLAYER::attack()::LEAVE #2, max-shots: " << (int)get_projectile_max_shots() << std::endl;
         return;
     }
 
@@ -330,6 +321,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (moveCommands.attack == 0 && attack_button_released == false) {
+        std::cout << ">>>>>>>>> attack_button_released[TRUE] #2 <<<<<<<<<<<<<" << std::endl;
         attack_button_released = true;
         return;
     }
@@ -352,6 +344,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (moveCommands.attack != 0 && (timer.getTimer()-state.attack_timer) > 100 && attack_button_released == true) {
+        std::cout << "########## attack_button_released[FALSE] #1 ##########" << std::endl;
         attack_button_released = false;
 
 
@@ -1221,6 +1214,7 @@ void classPlayer::reset_charging_shot()
         return;
     }
     state.attack_timer = 0;
+    std::cout << ">>>>>>>>> attack_button_released[TRUE] #3 <<<<<<<<<<<<<" << std::endl;
     attack_button_released = true;
     soundManager.stop_repeated_sfx();
 

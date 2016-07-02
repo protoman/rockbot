@@ -11,17 +11,21 @@ namespace format_v4 {
         bool sound_enabled;
         bool video_fullscreen;
         Sint8 video_filter;
-        E_INPUT_TYPES input_type; // if keyboard or joystick
-        E_INPUT_MODES input_mode; // inf directional is joypad-digital, analog sick or hat
-        E_PLATFORM platform;      // if changed, must reset config to default
-        int keys_codes[BTN_COUNT]; // number indicator for the keyboard-keys
-        int button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
-        bool game_finished;             // stores if game was finished, so we can show more options to player
+        E_INPUT_TYPES input_type;               // if keyboard or joystick
+        E_INPUT_MODES input_mode;               // inf directional is joypad-digital, analog sick or hat
+        E_PLATFORM platform;                    // if changed, must reset config to default
+        int keys_codes[BTN_COUNT];              // number indicator for the keyboard-keys
+        int button_codes[BTN_COUNT];            // number indicator for the keyboard-keys
+        bool game_finished;                     // stores if game was finished, so we can show more options to player
         Uint8 selected_input_device;
         char selected_language[2];
         bool turbo_mode;
         Uint8 volume_sfx;
         Uint8 volume_music;
+        bool android_use_play_services;         // for android to use cloud save, trophies, etc
+        bool android_touch_controls_hide;       // define if touch controls must be hidden
+        Uint8 android_touch_controls_size;      // for android, size of the on-screen controls
+        Sint8 wii_joystick_type;                    // for wii to define between wiimote, classic, gamecube, etc
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -189,6 +193,12 @@ namespace format_v4 {
             turbo_mode = false;
             volume_sfx = 128;
             volume_music = 128;
+
+            android_use_play_services = false;
+            android_touch_controls_hide = false;
+            android_touch_controls_size = 0;
+            wii_joystick_type = 0;
+
         }
 
 
