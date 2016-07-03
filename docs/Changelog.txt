@@ -235,7 +235,16 @@ FILE-FORMAT-V4:
 - lista de gráficos de personagens movida para graphlib
 - lista de gráficos de personagens revertida de ponteiro
     # se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
-
+- AI move to player deve andar primeiro a distância maior (x oy y), para só quando estiverem iguais, começar a andar na diagonal
+- inimigo em estado "disguise" não deve colidir com o jogador
+- não está removendo charged shot ao terminar um estágio e começar um novo
+    # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
+    # as vezes, turbo mode fica atirando sozinho
+    # provável efeito colateral das mudanças feitas para suportar o auto-fire
+    # criar função que apenas determina se dee atirar
+        # usa o estado anterior do botão de ataque e só dispara se 0=>1 ou 1=>0 e carregado
+        # guarda tempo quando estado do botão passa de 1=>0 para verificar tiro carregado
+        # retorna 0 (sem tiro), 1 (tiro normal), 2 (carregado)
 
 
 

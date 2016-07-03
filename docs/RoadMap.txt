@@ -48,13 +48,18 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
+- ANDROID: está quebrando no chefe da fase do snow ao derrotar chefe (usar logcat para ver porquê)
+
+- AI: criar novo item AI, esperar tempo randomico
+    # sorteia um delay-to-next entre 0 e parâmetro (1 a 10)
+
+- está trancando ao pular na escada para cair (hitbox)
 
 - está dando pau em copySDLArea -> copySDLPortion (possivelmente um tamanho errado de alguma coisa, talvez projétil)
 
 - em modo demo, Rockbot1 não carrega estágios na seleção de fases (pelo menos os já terminados)
-
-- ANDROID: está quebrando no chefe da fase do snow (usar logcat para ver porquê)
 
 - update script files to copy font to GAMEDIR
     # remove non-used fonts
@@ -91,14 +96,16 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- não está removendo charged shot ao terminar um estágio e começar um novo
-    # ao terminar um estágio com turbo mode ligado, fica atirando sozinho ao recomeçar
-    # as vezes, turbo mode fica atirando sozinho
-    # provável efeito colateral das mudanças feitas para suportar o auto-fire
-    # criar função que apenas determina se dee atirar
-        # usa o estado anterior do botão de ataque e só dispara se 0=>1 ou 1=>0 e carregado
-        # guarda tempo quando estado do botão passa de 1=>0 para verificar tiro carregado
-        # retorna 0 (sem tiro), 1 (tiro normal), 2 (carregado)
+- ANDROID: trocar imagens controle touch
+- ANDROID: desabilitar menu config da SDL
+- ANDROID: desabilitar por padrão o filtro de vídeo
+- pulo do rockbot está curto (video fase valkyrie)
+- tucano na fase da valkyrie impede de passar plataformas
+- ANDROID: inimigos ainda estão caindo através do cenário, vide estágio valkyrie
+    # só acontece no android
+
+
+
 
 
 

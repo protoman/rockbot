@@ -350,6 +350,8 @@ HEADERS += \
     character/artificial_inteligence.h \
     character/st_spriteFrame.h \
     ports/ps2/modules.h \
+    ports/android/rockbot_android.h \
+    ports/android/cloud_save.h \
     options/key_map.h \
     graphic/draw.h \
     aux_tools/trajectory_parabola.h \

@@ -56,10 +56,6 @@ namespace format_v4 {
 
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list();
-#ifdef PS2
-        //int file_io::listcdvd(const char *path, entries *FileEntry);
-        void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
-#endif
         std::vector<std::string> read_directory_list(std::string filename, bool dir_only);
         std::vector<std::string> read_file_list(std::string filename);
 
@@ -75,7 +71,10 @@ namespace format_v4 {
 
         int get_heart_pieces_number(st_save game_save);
 
-#ifdef WII
+#ifdef PS2
+        //int file_io::listcdvd(const char *path, entries *FileEntry);
+        void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
+#elif WII
         void wii_convert_game_data(file_game& data_out);
         void wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS]);
 #endif
@@ -84,7 +83,6 @@ namespace format_v4 {
     private:
         std::string sufix;
         fio_common fio_cmm;
-
     };
 }
 

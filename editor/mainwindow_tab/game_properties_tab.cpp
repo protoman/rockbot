@@ -37,7 +37,7 @@ void game_properties_tab::fill_data()
     // set values/positions
     ui->special_item1_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[0]);
     ui->special_item2_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[1]);
-    ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id+1);
+    ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id);
 
 
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
@@ -95,7 +95,7 @@ void game_properties_tab::on_special_item2_combo_currentIndexChanged(int index)
 void game_properties_tab::on_semicharged_shot_combo_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
-    Mediator::get_instance()->game_data.semi_charged_projectile_id = index-1;
+    Mediator::get_instance()->game_data.semi_charged_projectile_id = index;
 }
 
 void game_properties_tab::on_stagefaces_stage_combo_currentIndexChanged(int index)

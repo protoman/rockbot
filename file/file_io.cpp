@@ -25,8 +25,9 @@ extern std::string FILEPATH;
 extern std::string SAVEPATH;
 extern std::string GAMEPATH;
 extern std::string GAMENAME;
-
 extern bool GAME_FLAGS[FLAG_COUNT];
+
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ************************************************************************************************************* //
 
@@ -678,7 +679,10 @@ namespace format_v4 {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
 #ifdef ANDROID
+        // if config player services is set, and no save is found, get it from cloud
+        if (game_config.android_use_play_services == true) {
             cloud_load_game(filename);
+        }
 #endif
         std::ifstream fp(filename.c_str());
         if (fp.good()) {
@@ -741,9 +745,6 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
-#ifdef ANDROID
-            cloud_load_game(filename);
-#endif
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
@@ -771,11 +772,12 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
+        /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=1; i<CASTLE1_STAGE1; i++) {
             data_out.stages[i] = 1;
         }
-        data_out.stages[INTRO_STAGE] = 1;
+        */
         //data_out.stages[STAGE1] = 0;
         //data_out.stages[STAGE2] = 0;
         //data_out.stages[STAGE8] = 0;
@@ -807,7 +809,10 @@ namespace format_v4 {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
 #ifdef ANDROID
-        cloud_save_game(filename);
+        // if config is set to use cloud
+        if (game_config.android_use_play_services == true) {
+            cloud_save_game(filename);
+        }
 #endif
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {

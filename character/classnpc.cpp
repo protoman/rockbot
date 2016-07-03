@@ -41,6 +41,11 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
     _is_spawn = false;
     _initialized = false;
     _screen_blinked = false;
+
+    // can't have ghosts that don't fly
+    if (is_ghost == true && can_fly == false) {
+        is_ghost = false;
+    }
 }
 
 
@@ -61,6 +66,11 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     _is_spawn = false;
     _initialized = false;
     _screen_blinked = false;
+
+    // can't have ghosts that don't fly
+    if (is_ghost == true && can_fly == false) {
+        is_ghost = false;
+    }
 }
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend) // spawned npc
@@ -76,6 +86,11 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     _is_spawn = true;
     _initialized = false;
     _screen_blinked = false;
+
+    // can't have ghosts that don't fly
+    if (is_ghost == true && can_fly == false) {
+        is_ghost = false;
+    }
 }
 
 
@@ -93,6 +108,11 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
     _is_spawn = false;
     _initialized = false;
     _screen_blinked = false;
+
+    // can't have ghosts that don't fly
+    if (is_ghost == true && can_fly == false) {
+        is_ghost = false;
+    }
 }
 
 
@@ -212,6 +232,12 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
             _frame_pos_adjust.y = GameMediator::get_instance()->get_enemy(main_id).sprites_pos_bg.y;
         }
     }
+
+    // can't have ghosts that don't fly
+    if (is_ghost == true && can_fly == false) {
+        is_ghost = false;
+    }
+
 
     //std::cout << "end" << std::endl;
 }

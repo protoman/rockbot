@@ -14,6 +14,10 @@ extern inputLib input;
 
 #include "game_mediator.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #define STAIR_ANIMATION_WAIT_FRAMES 10
 #define STARIS_GRAB_TIMEOUT 200
 
@@ -1137,6 +1141,12 @@ bool character::gravity(bool boss_demo_mode=false)
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
                     position.y += i;
 					is_moved = true;
+
+#ifdef ANDROID
+                    if (is_player() == false) {
+                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::GRAVITY::move[%d], res_test_move[%d], boss_demo_mode[%d], pos.y[%d]", i, res_test_move, boss_demo_mode, position.y);
+                    }
+#endif
 					break;
 				}
             }
@@ -1798,7 +1808,10 @@ void character::check_platform_move(short map_lock)
 
 st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling)
 {
-    int py_adjust = 8;
+    int py_adjust = 0;
+    if (is_player() == true) {
+        py_adjust = 8;
+    }
     int terrain_type = TERRAIN_UNBLOCKED;
 
     /// @TODO: move to char hitbox
@@ -1812,10 +1825,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     map->collision_char_object(this, incx, incy);
     object_collision res_collision_object = map->get_obj_collision();
-
-    //std::cout << "%%% res_collision_object._block: " << res_collision_object._block << " %%%" << std::endl;
-
-
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
@@ -1961,9 +1970,13 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 		map_point.y = py_bottom/TILESIZE;
 	}
 
-    if (name == "Ape Bot") {
-        std::cout << "CHAR::MAP_COLLISION[" << name << "], map_point.y: " << map_point.y << std::endl;
-    }
+#ifdef ANDROID
+        if (is_player() == false) {
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
+        }
+#endif
+
+    if (is_player() == false) std::cout << "CHAR::MAP_COLLISION[" << name << "], map_point.y: " << map_point.y << std::endl;
 
 	if (incy != 0) {
 		for (int i=0; i<3; i++) {
@@ -2920,14 +2933,22 @@ bool character::test_change_position(short xinc, short yinc)
         return false;
     }
 
+#ifdef ANDROID
+        if (is_player() == false) {
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::TEST_CHANGE_POS[%s], is_ghost[%d]", name.c_str(), is_ghost);
+        }
+#endif
+
+
     if (is_ghost == false) {
         st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
         short int mapLock = map_col.block;
 
-        if (name == "Ape Bot") {
-            std::cout << "CHAR::TEST_CHANGE_POS[" << name << "], mapLock: " << mapLock << std::endl;
+#ifdef ANDROID
+        if (is_player() == false) {
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::TEST_CHANGE_POS[%s], mapLock[%d], yinc[%d]", name.c_str(), mapLock, yinc);
         }
-
+#endif
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
             return false;
         }

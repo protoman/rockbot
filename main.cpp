@@ -628,7 +628,7 @@ int main(int argc, char *argv[])
 	return 1;
 }
 
-/*
+
 #ifdef ANDROID
 extern "C" {
     JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj);
@@ -643,4 +643,4 @@ JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv
 }
 
 #endif
-*/
+

@@ -35,9 +35,9 @@ case $response in
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
-		sh ./build.sh rockbot release
+		sh ./build.sh rockbot debug
 		rm $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
-		cp ./Rockbot2-$VERSIONNAME.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
+		cp ./project/bin/MainActivity-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
 		zip -d $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk META-INF/*
 		# assina e realinha o APK

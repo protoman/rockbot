@@ -1,6 +1,8 @@
 #ifndef ANDROID_PORT_h
 #define ANDROID_PORT_h
 
+#ifdef ANDROID
+
 #include "defines.h"
 
 #include <jni.h>
@@ -40,6 +42,6 @@ void set_android_default_buttons_pos() {
     SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &pos);
 }
 
-
+#endif
 
 #endif

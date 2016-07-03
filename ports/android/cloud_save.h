@@ -1,6 +1,8 @@
 #ifndef CLOUD_SAVE_H
 #define CLOUD_SAVE_H
 
+#ifdef ANDROID
+
 #include <SDL_android.h>
 
 
@@ -17,4 +19,7 @@ void cloud_save_game(std::string filename) {
     SDL_ANDROID_CloudSave(filename.c_str(),save_id.c_str(), NULL, NULL, NULL, SDL_GetTicks());
 }
 
+#endif // ANDROID
+
 #endif // CLOUD_SAVE_H
+
