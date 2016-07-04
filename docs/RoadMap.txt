@@ -96,13 +96,7 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- ANDROID: trocar imagens controle touch
-- ANDROID: desabilitar menu config da SDL
-- ANDROID: desabilitar por padrão o filtro de vídeo
-- pulo do rockbot está curto (video fase valkyrie)
-- tucano na fase da valkyrie impede de passar plataformas
-- ANDROID: inimigos ainda estão caindo através do cenário, vide estágio valkyrie
-    # só acontece no android
+
 
 
 

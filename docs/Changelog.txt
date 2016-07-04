@@ -245,6 +245,18 @@ FILE-FORMAT-V4:
         # usa o estado anterior do botão de ataque e só dispara se 0=>1 ou 1=>0 e carregado
         # guarda tempo quando estado do botão passa de 1=>0 para verificar tiro carregado
         # retorna 0 (sem tiro), 1 (tiro normal), 2 (carregado)
+- ANDROID: trocar imagens controle touch
+- ANDROID: desabilitar menu config da SDL
+- ANDROID: desabilitar por padrão o filtro de vídeo
+- pulo do rockbot está curto (video fase valkyrie)
+- tucano na fase da valkyrie impede de passar plataformas
+- ANDROID: inimigos ainda estão caindo através do cenário, vide estágio valkyrie
+    # só acontece no android
+
+
+
+
+
 
 
 
