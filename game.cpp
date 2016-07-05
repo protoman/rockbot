@@ -814,10 +814,10 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
                 graphLib.copyArea(st_rectangle(0, RES_H-i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 			}
 
-			if (i % 2 == 0) {
+            if (i % 2 == 0 || i % 3 == 0) {
 				extra_y = 1;
 			} else {
-				extra_y = 0;
+                extra_y = 0;
 			}
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
@@ -882,9 +882,9 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     classMap* temp_map = loaded_stage.get_current_map();
     st_float_position scroll_move;
 	if (direction == ANIM_DIRECTION_LEFT) {
-		scroll_move.x = -2;
+        scroll_move.x = -TRANSITION_STEP;
 	} else {
-		scroll_move.x = 2;
+        scroll_move.x = TRANSITION_STEP;
 	}
 
 	if (is_door == true) {
@@ -928,7 +928,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         input.waitTime(1);
 #endif
         draw_lib.update_screen();
-		if (i%(TILESIZE/2) == 0) {
+        if (i%(TILESIZE/2) == 0) {
             player1.set_position(st_position(player1.getPosition().x+scroll_move.x, player1.getPosition().y));
             player1.char_update_real_position();
 		}
@@ -1170,7 +1170,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE1;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

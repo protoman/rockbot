@@ -1969,7 +1969,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 	} else if (incy > 0) {
 		map_point.y = py_bottom/TILESIZE;
 	}
-
+/*
 #ifdef ANDROID
         if (is_player() == false) {
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
@@ -1977,7 +1977,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 #endif
 
     if (is_player() == false) std::cout << "CHAR::MAP_COLLISION[" << name << "], map_point.y: " << map_point.y << std::endl;
-
+*/
 	if (incy != 0) {
 		for (int i=0; i<3; i++) {
             map_point.x = map_x_points[i];
@@ -2822,7 +2822,7 @@ void character::teleport_out() {
     set_animation_type(ANIM_TYPE_TELEPORT);
     _obj_jump.finish();
     while (position.y > -(frameSize.height+TILESIZE)) {
-        std::cout << "teleport_out - position.y: " << position.y << std::endl;
+        //std::cout << "teleport_out - position.y: " << position.y << std::endl;
         position.y -= GRAVITY_MAX_SPEED;
 		char_update_real_position();
 		map->showMap();
