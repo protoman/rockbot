@@ -261,6 +261,16 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         dist_list.push_back("3");
         dist_list.push_back("4");
         list = dist_list;
+    } else if (action == AI_ACTION_WAIT_RANDOM_TIME) {
+        std::vector<std::string> dist_list;
+        dist_list.push_back("1");
+        dist_list.push_back("2");
+        dist_list.push_back("3");
+        dist_list.push_back("4");
+        dist_list.push_back("5");
+        dist_list.push_back("10");
+        dist_list.push_back("20");
+        list = dist_list;
     } else {
         return;
     }

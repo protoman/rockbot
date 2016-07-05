@@ -254,6 +254,8 @@ void artificial_inteligence::execute_ai_step()
         }
         _parameter = AI_ACTION_JUMP_OPTION_ONCE;
         execute_ai_step_jump();
+    } else if (_current_ai_type == AI_ACTION_WAIT_RANDOM_TIME) {
+        // @TODO
     } else {
         std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
         std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;

@@ -59,6 +59,7 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("CHANGE ANIMATION TYPE [REVERSE]");
     AI_ACTION_NAMES.push_back("JUMP ATTACK [UP]");
     AI_ACTION_NAMES.push_back("JUMP ATTACK [AHEAD]");
+    AI_ACTION_NAMES.push_back("WAIT TIME [RANDOM]");
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
     AI_ACTION_SHOT_OPTIONS.push_back("AHEAD");
