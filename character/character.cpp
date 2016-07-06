@@ -2995,6 +2995,9 @@ bool character::is_shielded(int projectile_direction) const
 			//std::cout << ">> classnpc::is_shielded[" << name << "] - TRUE" << std::endl;
 			return true;
 		}
+        if (shield_type == SHIELD_STAND_FRONT && projectile_direction != state.direction && state.animation_type == ANIM_TYPE_STAND) {
+            return true;
+        }
 		//std::cout << ">> classnpc::is_shielded[" << name << "] - FALSE" << std::endl;
 		return false;
     }

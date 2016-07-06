@@ -1105,6 +1105,11 @@
              <string>Disguise</string>
             </property>
            </item>
+           <item>
+            <property name="text">
+             <string>Stand Front Shield</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item row="17" column="1">

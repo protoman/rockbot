@@ -163,7 +163,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
 			graphLib.draw_text(j*9+(dialog_pos.x+52), i*11+(dialog_pos.y+16), temp_text);
             draw_lib.update_screen();
-			input.waitTime(15);
+            input.waitTime(5);
 		}
 	}
 

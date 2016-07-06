@@ -52,7 +52,7 @@ VERSION 2.0.0 BETA 1
     # android não se move (Techno stage)
     # Techno não se move
 
-- speed up dialogs text
+- joe azul está com escudo pelas costas tb
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
@@ -97,6 +97,9 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
+- acelerar texto dos dialogos
+
+
 - AI: criar novo item AI, esperar tempo randomico
     # sorteia um delay-to-next entre 0 e parâmetro (1 a 10)
 - está trancando ao pular na escada para cair (hitbox)
@@ -117,6 +120,10 @@ VERSION 2.0.0 BETA 2
 =========================================================================================================================================
 - AI: criar nova action WALK DISTANCE(dist)
 - AI: criar nova action WALK RANDOM DISTANCE(max)
+- AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
+- AI: action SHIELD, fica em escudo até a animação de shield acabar
+    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
+    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
 - criar sub-menu para cada plataforma na config
     # PC: fullscreen
@@ -125,11 +132,10 @@ VERSION 2.0.0 BETA 2
     # WII: controller type (gamecube, classic, wiimote)
     # PS2: resolution (keep aspect ratio)
 
-
 - ANDROID: opçao, na config do jogo, para tamanho do controle
 - ANDROID: opçao no jogo, para esconder joystick
     # ou ver se tem como decetar se esta usando um que nao seja a tela de toque
-- ANDROID: implementar login play services (opçao na configuraçao do jogo)
+- ANDROID: implementar login play services (opção na configuração do jogo)
 - ANDROID: implementar save na nuvem
 - ANDROID: new icon
 - ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
@@ -151,28 +157,14 @@ VERSION 2.0.0 BETA 2
 - usar mirror em projéteis assim como players (remover duplicata das imagems)
     # proj.position_to_ground deve ser ajustada
 
-- revisar código da main.cpp
-- separar código de plataformas em arquivos especificos dentro do diretório "ports"
-
 - substituir exit() por saída graciosa em todos os lugares possíveis
-
-
-- AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
 
 - objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
 
-- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
-
 - investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
 
 - EDITOR: gerar UI das actions da AI via código
-
-- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
-
-- AI: action SHIELD, fica em escudo até a animação de shield acabar
-    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
-    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
 - four player selection
     # art for beta and kitty
@@ -186,9 +178,7 @@ VERSION 2.0.0 BETA 2
 
 
 - GAME::PROJECTILE: projétil deve usar flip assim como character
-- GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 
-- EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 
 
 
@@ -196,6 +186,14 @@ VERSION 2.0.0 BETA 2
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
 =========================================================================================================================================
+- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
+- GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
+- EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
+- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
+
+- revisar código da main.cpp
+- separar código de plataformas em arquivos especificos dentro do diretório "ports"
+
 - EDITOR::SCENES: add scenes selector in editor
 - EDITOR::SCENES: use selected scenes for intro/ending
 - EDITOR::SCENES: implementar movie editor

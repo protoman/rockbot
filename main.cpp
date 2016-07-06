@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
 #ifdef ANDROID
-    set_android_default_buttons_pos();
+    set_android_default_buttons_pos(game_config.android_touch_controls_size);
 #endif
 
 

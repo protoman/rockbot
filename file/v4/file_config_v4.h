@@ -24,8 +24,8 @@ namespace format_v4 {
         Uint8 volume_music;
         bool android_use_play_services;         // for android to use cloud save, trophies, etc
         bool android_touch_controls_hide;       // define if touch controls must be hidden
-        Uint8 android_touch_controls_size;      // for android, size of the on-screen controls
-        Sint8 wii_joystick_type;                    // for wii to define between wiimote, classic, gamecube, etc
+        Uint8 android_touch_controls_size;      // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
+        Sint8 wii_joystick_type;                // for wii to define between wiimote, classic, gamecube, etc
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -196,7 +196,7 @@ namespace format_v4 {
 
             android_use_play_services = false;
             android_touch_controls_hide = false;
-            android_touch_controls_size = 0;
+            android_touch_controls_size = 1;
             wii_joystick_type = 0;
 
         }
