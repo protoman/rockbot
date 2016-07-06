@@ -62,11 +62,13 @@ void artificial_inteligence::execute_ai()
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
-        if (_reaction_type == 0) {
-            int delay = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to_delay;
-            _ai_timer = timer.getTimer() + delay;
-        } else {
-            _ai_timer = timer.getTimer() + 200;
+        if (_current_ai_type != AI_ACTION_WAIT_RANDOM_TIME) { // this AI will set the delay itself
+            if (_reaction_type == 0) {
+                int delay = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to_delay;
+                _ai_timer = timer.getTimer() + delay;
+            } else {
+                _ai_timer = timer.getTimer() + 200;
+            }
         }
 
         //std::cout << ">> SET INITIAL #2 <<" << std::endl;
@@ -255,12 +257,13 @@ void artificial_inteligence::execute_ai_step()
         _parameter = AI_ACTION_JUMP_OPTION_ONCE;
         execute_ai_step_jump();
     } else if (_current_ai_type == AI_ACTION_WAIT_RANDOM_TIME) {
-        // @TODO
+        execute_ai_wait_random_time();
     } else {
         std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
         std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
 }
+
 
 
 // ********************************************************************************************** //
@@ -1506,6 +1509,16 @@ void artificial_inteligence::execute_ai_step_change_animation_type_reverse()
             std::cout << "#execute_ai_step_change_animation_type_reverse#FINISHED" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
+    }
+}
+
+void artificial_inteligence::execute_ai_wait_random_time()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        int delay = rand() % _parameter;
+        _ai_timer = timer.getTimer() + delay*1000;
+        std::cout << "IA_ACTION_STATE_INITIAL - rand: " << delay << std::endl;
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     }
 }
 

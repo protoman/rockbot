@@ -216,7 +216,7 @@ protected:
 
     void execute_ai_step_change_animation_type_reverse();
 
-
+    void execute_ai_wait_random_time();
 
     /**
      * @brief moves to a point, returns true when point was reached or can't reach the target
@@ -244,7 +244,6 @@ protected:
     bool always_move_ahead() const; // indicates if this NPC will always go on in AI
 
     bool uses_fly_fall(); // uses to respawn it inside holes
-
 
 
 

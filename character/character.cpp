@@ -19,7 +19,7 @@ extern inputLib input;
 #endif
 
 #define STAIR_ANIMATION_WAIT_FRAMES 10
-#define STARIS_GRAB_TIMEOUT 200
+#define STAIRS_GRAB_TIMEOUT 200
 
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
@@ -1596,9 +1596,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             if (_obj_jump.is_started() == false) {
                 set_animation_type(ANIM_TYPE_JUMP);
                 _is_falling = true;
-                _stairs_falling_timer = timer.getTimer() + STARIS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
+                _stairs_falling_timer = timer.getTimer() + STAIRS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
+                std::cout << "JUMP OUT OF STAIRS #1" << std::endl;
                 return false;
             } else {
+                std::cout << "JUMP OUT OF STAIRS #2" << std::endl;
                 _obj_jump.interrupt();
                 if (_force_jump == true) {
                     _force_jump = false;
@@ -2215,20 +2217,12 @@ st_rectangle character::get_hitbox()
     // player hitbox is hardcoded
     if (is_player()) {
         if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 1) {
-            if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x + 2;
-            } else {
-                x = position.x + 4;
-            }
+            x = position.x + 2;
             w = 23;
             y = position.y + 15;
             h = 14;
         } else { // stand/default
-            if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x + 9;
-            } else {
-                x = position.x + 8;
-            }
+            x = position.x + 8;
             y = position.y + 3;
             w = 12;
             h = 26;
@@ -3075,16 +3069,6 @@ void character::set_animation_type(ANIM_TYPE type)
     if (type != state.animation_type) {
         //std::cout << "### RESET-FRAME-N #6 ###" << std::endl;
         state.animation_state = 0;
-
-        // adjusts position when leaving stairs
-        if (is_in_stairs_frame() == true && (type == ANIM_TYPE_JUMP || type == ANIM_TYPE_JUMP_ATTACK || type == ANIM_TYPE_STAND)) {
-            //std::cout << "############## STAIRS ADJUST, type: " << type << " ##################" << std::endl;
-            if (state.direction == ANIM_DIRECTION_LEFT) {
-                position.x -= 4;
-            } else {
-                position.x += 4;
-            }
-        }
 
         if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
             if (state.direction == ANIM_DIRECTION_RIGHT) {

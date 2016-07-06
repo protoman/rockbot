@@ -972,7 +972,7 @@ enum e_SCREEN_GFX {
 
 #define CHAR_OBJ_COLlISION_KILL_ADJUST 4
 
-//#define SHOW_HITBOXES 1
+#define SHOW_HITBOXES 1
 
 //#define DEMO_VERSION 1
 

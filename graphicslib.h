@@ -110,7 +110,6 @@ struct st_char_sprite_data {
     // copy constructor //
     st_char_sprite_data (const st_char_sprite_data& other)
     {
-        printf(">> DEBUG.st_char_sprite_data.COPY.START <<\n");
         fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -119,7 +118,6 @@ struct st_char_sprite_data {
                 }
             }
         }
-        printf(">> DEBUG.st_char_sprite_data.COPY.END <<\n");
         fflush(stdout);
     }
 
