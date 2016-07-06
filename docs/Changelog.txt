@@ -252,8 +252,12 @@ FILE-FORMAT-V4:
 - tucano na fase da valkyrie impede de passar plataformas
 - ANDROID: inimigos ainda estão caindo através do cenário, vide estágio valkyrie
     # só acontece no android
-
-
+- acelerar texto dos dialogos
+- AI: criar novo item AI, esperar tempo randomico
+    # sorteia um delay-to-next entre 0 e parâmetro (1 a 10)
+- está trancando ao pular na escada para cair (hitbox)
+- se mudar direção rápido, tranca no cenário
+    #deixar hitbox igual para duas direções
 
 
 

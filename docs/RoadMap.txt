@@ -49,8 +49,10 @@ adicionar sistema de colisão que permite diagonais
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - ROCKBOT1:
-    # android não se move (Techno stage)
+    DONE # android não se move (Techno stage)
     # Techno não se move
+
+- fly to player deve mirar a parte de baixo (pés) do jogador
 
 - joe azul está com escudo pelas costas tb
 
@@ -97,14 +99,7 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- acelerar texto dos dialogos
 
-
-- AI: criar novo item AI, esperar tempo randomico
-    # sorteia um delay-to-next entre 0 e parâmetro (1 a 10)
-- está trancando ao pular na escada para cair (hitbox)
-- se mudar direção rápido, tranca no cenário
-    #deixar hitbox igual para duas direções
 
 
 
