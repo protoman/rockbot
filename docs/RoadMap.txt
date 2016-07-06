@@ -48,9 +48,16 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- ROCKBOT1:
+    # android não se move (Techno stage)
+    # Techno não se move
+
+
+- speed up dialogs text
+
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
-- ANDROID: está quebrando no chefe da fase do snow ao derrotar chefe (usar logcat para ver porquê)
+- as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
 
 - AI: criar novo item AI, esperar tempo randomico
     # sorteia um delay-to-next entre 0 e parâmetro (1 a 10)
@@ -110,6 +117,9 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- AI: criar nova action WALK DISTANCE(dist)
+- AI: criar nova action WALK RANDOM DISTANCE(max)
+
 - criar sub-menu para cada plataforma na config
     # PC: fullscreen
     # PSP: keep aspect ratio
