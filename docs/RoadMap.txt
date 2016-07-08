@@ -52,7 +52,9 @@ VERSION 2.0.0 BETA 1
     DONE # android não se move (Techno stage)
     # Techno não se move
 
-- fly to player deve mirar a parte de baixo (pés) do jogador
+- colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
+
+TEST - fly to player deve mirar a parte de baixo (pés) do jogador
 
 - joe azul está com escudo pelas costas tb
 
@@ -70,6 +72,13 @@ VERSION 2.0.0 BETA 1
 
 - test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
     # https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
+
+- criar sub-menu para cada plataforma na config
+    # PC: fullscreen
+    # PSP: keep aspect ratio
+    # ANDROID: play serveices, touch controls hide, touch controls enabled
+    # WII: controller type (gamecube, classic, wiimote)
+    # PS2: resolution (keep aspect ratio)
 
 - implement 5 stages for demo:
     # INTRO
@@ -99,6 +108,7 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
+- ao selecionar item na config, o cursor sobe um nível
 
 
 
@@ -120,12 +130,7 @@ VERSION 2.0.0 BETA 2
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
-- criar sub-menu para cada plataforma na config
-    # PC: fullscreen
-    # PSP: keep aspect ratio
-    # ANDROID: play serveices, touch controls hide, touch controls enabled
-    # WII: controller type (gamecube, classic, wiimote)
-    # PS2: resolution (keep aspect ratio)
+
 
 - ANDROID: opçao, na config do jogo, para tamanho do controle
 - ANDROID: opçao no jogo, para esconder joystick

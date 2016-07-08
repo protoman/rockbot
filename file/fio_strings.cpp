@@ -228,6 +228,19 @@ namespace format_v4 {
 
         sprintf(lines[strings_ingame_video_scale_mode], "%s", "SCALE MODE");
 
+        sprintf(lines[strings_config_android_hidescreencontrols], "%s", "HIDE CONTROLS");
+        sprintf(lines[strings_config_android_screencontrolssize], "%s", "CONTROLS SIZE");
+        sprintf(lines[strings_config_android_useplayservices], "%s", "PLAY SERVICES");
+        sprintf(lines[strings_config_wii_joysticktype], "%s", "JOYSTICK TYPE");
+
+        sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "SMALL");
+        sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIUM");
+        sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "BIG");
+        sprintf(lines[strings_config_wii_joysticktype_WIIMOTE], "%s", "WIIMOTE");
+        sprintf(lines[strings_config_wii_joysticktype_CLASSIC], "%s", "CLASSIC");
+        sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
+
+        sprintf(lines[strings_config_wii_platformspecific], "%s", "PLATFORM SPECIFIC");
 
 
         /// @TODO: add assert to check that we set all the values from the enum

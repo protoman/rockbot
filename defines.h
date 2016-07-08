@@ -920,6 +920,20 @@ enum E_STRINGS_INGAME {
     strings_ingame_mode,
     strings_ingame_video_scale_mode,
 
+    strings_config_android_hidescreencontrols,
+    strings_config_android_screencontrolssize,
+    strings_config_android_useplayservices,
+    strings_config_wii_joysticktype,
+
+    strings_config_android_screencontrolssize_SMALL,
+    strings_config_android_screencontrolssize_MEDIUM,
+    strings_config_android_screencontrolssize_BIG,
+    strings_config_wii_joysticktype_WIIMOTE,
+    strings_config_wii_joysticktype_CLASSIC,
+    strings_config_wii_joysticktype_GAMECUBE,
+
+    strings_config_wii_platformspecific,
+
     strings_ingame_COUNT
 };
 

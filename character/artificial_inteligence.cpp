@@ -1292,8 +1292,9 @@ void artificial_inteligence::execute_ai_step_fly()
             if (did_hit_player == true || dist_players.dist < TILESIZE/2) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             } else {
-                int dist_x = position.x - dist_players.pObj->getPosition().x;
-                int dist_y = position.y - dist_players.pObj->getPosition().y;
+                st_position target_pos = st_position(dist_players.pObj->getPosition().x, dist_players.pObj->getPosition().y+dist_players.pObj->get_size().height);
+                int dist_x = position.x - target_pos.x;
+                int dist_y = position.y - target_pos.y;
                 int speed_x = 0;
                 int speed_y = 0;
                 // if X or Y axis is greather than the other
@@ -1311,7 +1312,7 @@ void artificial_inteligence::execute_ai_step_fly()
                     speed_x = move_speed;
                     speed_y = move_speed;
                 }
-                if (move_to_point(dist_players.pObj->getPosition(), speed_x, speed_y, is_ghost) == true) {
+                if (move_to_point(target_pos, speed_x, speed_y, is_ghost) == true) {
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 }
             }

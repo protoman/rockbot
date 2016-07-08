@@ -77,6 +77,9 @@ Sint8 option_picker::pick()
     input.clean();
     input.waitTime(100);
 
+    if (_show_return == true) {
+        _pick_pos++;
+    }
     if (_pick_pos < 0 || _pick_pos >= (short)_items.size()) {
         _pick_pos = 0;
     }

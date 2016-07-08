@@ -85,8 +85,9 @@ void scenesLib::unload_stage_select() {
         if (STAGE_SELECT_SURFACES[i].get_surface()) {
             SDL_FreeSurface(STAGE_SELECT_SURFACES[i].get_surface());
 		}
-	}
+    }
 }
+
 
 
 
@@ -244,10 +245,16 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input)));
-#if defined(PC) || defined (PSP)
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video)));
+#if defined(PC)
+    options.push_back(st_menu_option("PC"));
+#elif PSP
+    options.push_back(st_menu_option("PSP"));
+#elif WII
+    options.push_back(st_menu_option("WII"));
+#elif ANDROID
+    options.push_back(st_menu_option("ANDROID"));
 #else
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_video), true));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific), true));
 #endif
     if (called_from_game) {
         if (stage_finished) {
@@ -277,11 +284,14 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
         } else if (selected_option == 1) { // CONFIG INPUT
             key_map key_mapper;
             key_mapper.config_input();
-        } else if (selected_option == 2) { // CONFIG VIDEO
+        } else if (selected_option == 2) { // CONFIG PLATFORM
 #ifdef PC
-                show_config_video();
+            show_config_video();
+            //show_config_android();
+#elif ANDROID
+            show_config_android();
 #elif PSP
-                show_config_video_PSP();
+            show_config_video_PSP();
 #endif
         } else if (selected_option == 3) { // LEAVE STAGE
             res = 1;
@@ -304,6 +314,54 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 
 
 
+void scenesLib::show_config_android()
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    input.waitTime(300);
+    std::vector<std::string> options;
+    short selected_option = 0;
+
+    while (selected_option != -1) {
+        options.clear();
+        //graphLib.clear_area(menu_pos.x-14, menu_pos.y, 180,  180, 0, 0, 0);
+
+        if (game_config.android_touch_controls_hide == false) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+        }
+        if (game_config.android_touch_controls_size == 0) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL));
+        } else if (game_config.android_touch_controls_size == 2) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM));
+        }
+        if (game_config.android_use_play_services == false) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+        }
+
+        option_picker main_config_picker(false, config_text_pos, options, true);
+        selected_option = main_config_picker.pick();
+
+        if (selected_option == 0) {
+            game_config.android_touch_controls_hide = !game_config.android_touch_controls_hide;
+        } else if (selected_option == 1) {
+            game_config.android_touch_controls_size++;
+            if (game_config.android_touch_controls_size > 2) {
+                game_config.android_touch_controls_size = 0;
+            }
+        } else if (selected_option == 2) {
+            game_config.android_use_play_services = !game_config.android_use_play_services;
+        }
+    }
+    fio.save_config(game_config);
+}
 
 
 void scenesLib::show_config_video()
