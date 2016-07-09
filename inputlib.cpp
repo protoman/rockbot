@@ -331,6 +331,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
             }
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
                 if (event.type == SDL_JOYBUTTONDOWN) {
+                    //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
                     game_config_copy.button_codes[key] = event.jbutton.button;
                     return true;
                 }
@@ -344,4 +345,19 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 int inputLib::get_joysticks_number()
 {
     return SDL_NumJoysticks();
+}
+
+std::string inputLib::get_key_name(Uint8 key)
+{
+    std::string res = SDL_GetKeyName(key);
+    if (key == -1 || res.length() > 3) {
+        return std::string(" ");
+    }
+
+    // uppercase
+    for (std::string::iterator p = res.begin(); res.end() != p; ++p) {
+        *p = toupper(*p);
+    }
+
+    return res;
 }

@@ -1292,7 +1292,7 @@ void artificial_inteligence::execute_ai_step_fly()
             if (did_hit_player == true || dist_players.dist < TILESIZE/2) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             } else {
-                st_position target_pos = st_position(dist_players.pObj->getPosition().x, dist_players.pObj->getPosition().y+dist_players.pObj->get_size().height);
+                st_float_position target_pos = st_float_position(dist_players.pObj->getPosition().x, dist_players.pObj->getPosition().y+dist_players.pObj->get_size().height);
                 int dist_x = position.x - target_pos.x;
                 int dist_y = position.y - target_pos.y;
                 int speed_x = 0;

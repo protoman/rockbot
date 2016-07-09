@@ -618,8 +618,6 @@ struct st_menu_option {
     st_menu_option(std::string line, bool set_disabled) {
         text = line;
         disabled = set_disabled;
-
-        std::cout << "<<<<<<<<<<< st_menu_option, text: " << text << ", disabled: " << disabled << std::endl;
     }
 };
 

@@ -258,7 +258,7 @@ FILE-FORMAT-V4:
 - está trancando ao pular na escada para cair (hitbox)
 - se mudar direção rápido, tranca no cenário
     #deixar hitbox igual para duas direções
-
+- fly to player deve mirar a parte de baixo (pés) do jogador
 
 
 

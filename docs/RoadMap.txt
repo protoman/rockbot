@@ -45,18 +45,21 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
+Darkbot #1 sprites: 34 x 31, sprites: 14 => 476x31
+
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+
+- ao selecionar item na config, o cursor desce um nível
+
+- está podendo entrar no menu de armas antes de aparecer o diálogo do estágio
+
 - ROCKBOT1:
     DONE # android não se move (Techno stage)
     # Techno não se move
 
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
-
-TEST - fly to player deve mirar a parte de baixo (pés) do jogador
-
-- joe azul está com escudo pelas costas tb
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
@@ -80,36 +83,17 @@ TEST - fly to player deve mirar a parte de baixo (pés) do jogador
     # WII: controller type (gamecube, classic, wiimote)
     # PS2: resolution (keep aspect ratio)
 
-- implement 5 stages for demo:
-    # INTRO
-        # chefe (Darkbot partial)
-        DONE # AI inimigos
-        DONE # items
-    DONE # GEAR:
-        DONE # chefe
-        DONE # inimigos
-        DONE # items
-    DONE # VALKYRIE
-        DONE # AI chefe
-        DONE # AI inimigos
-        DONE # items
-    # PHANTOM
-        # chefe
-        DONE # inimigos
-        DONE # items
-    DONE # SNOW
-        DONE # chefe
-        DONE # inimigos
-        DONE # items
-
 
 
 
 ##################################
              DONE
 ##################################
-- ao selecionar item na config, o cursor sobe um nível
-
+- configuração de botões não está funcionando
+- configuração de botões deve mostrar tecla ou botão do joystick selecionado
+- joe azul está com escudo pelas costas tb
+- quando um inimigo/chefe tiver sprites de teleporte, ao chegar no chão deve mudar para stand
+- add darkbot #1 to intro stage
 
 
 

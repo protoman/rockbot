@@ -1780,6 +1780,7 @@ bool classMap::boss_hit_ground()
             }
 
             if (_npc_list.at(i).getPosition().y >= limit_y && _npc_list.at(i).hit_ground()) {
+                _npc_list.at(i).set_animation_type(ANIM_TYPE_STAND);
                 //std::cout << "boss_hit_ground #2" << std::endl;
                 return true;
             }
