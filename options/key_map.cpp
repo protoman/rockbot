@@ -173,7 +173,7 @@ string key_map::build_button_config_line(string prefix, string sufix)
     return res;
 }
 
-Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_config_copy) const
+Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_config_copy)
 {
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;

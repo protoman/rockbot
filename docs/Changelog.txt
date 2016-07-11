@@ -259,7 +259,11 @@ FILE-FORMAT-V4:
 - se mudar direção rápido, tranca no cenário
     #deixar hitbox igual para duas direções
 - fly to player deve mirar a parte de baixo (pés) do jogador
-
+- configuração de botões não está funcionando
+- configuração de botões deve mostrar tecla ou botão do joystick selecionado
+- joe azul está com escudo pelas costas tb
+- quando um inimigo/chefe tiver sprites de teleporte, ao chegar no chão deve mudar para stand
+- add darkbot #1 to intro stage
 
 
 

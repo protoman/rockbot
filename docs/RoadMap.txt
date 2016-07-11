@@ -50,8 +50,14 @@ Darkbot #1 sprites: 34 x 31, sprites: 14 => 476x31
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
+- ROCKBOT1: converter colorcycle para anim-tiles:
+    # cachoeira daisie
+    # cachoeiras seahorse
+    # lava dynamite
+    # relógios techno
 
-- ao selecionar item na config, o cursor desce um nível
+- transição em estágio com auto-scroll não está funcionando direito
+    # move menos do que devia, como se estive no scroll automático
 
 - está podendo entrar no menu de armas antes de aparecer o diálogo do estágio
 
@@ -89,11 +95,10 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- configuração de botões não está funcionando
-- configuração de botões deve mostrar tecla ou botão do joystick selecionado
-- joe azul está com escudo pelas costas tb
-- quando um inimigo/chefe tiver sprites de teleporte, ao chegar no chão deve mudar para stand
-- add darkbot #1 to intro stage
+- ao selecionar item na config, o cursor desce um nível
+    # efeito colateral de mudar a posição por causa do return
+    # quando entrar num item, deve resetar posição
+
 
 
 

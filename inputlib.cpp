@@ -349,7 +349,7 @@ int inputLib::get_joysticks_number()
 
 std::string inputLib::get_key_name(Uint8 key)
 {
-    std::string res = SDL_GetKeyName(key);
+    std::string res = SDL_GetKeyName((SDLKey)key);
     if (key == -1 || res.length() > 3) {
         return std::string(" ");
     }
