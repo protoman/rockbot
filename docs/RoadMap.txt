@@ -56,6 +56,14 @@ VERSION 2.0.0 BETA 1
     # lava dynamite
     # relógios techno
 
+- não deixar sair da configuração de botões de pulo/confirma está como -1
+
+- fora o menu de armas, nenhuma tela (como de seleção de estágio ou password) deve usar START e sim o botão de pulo/confirma
+
+- ANDROID: reset to default, na config de botoes, parece nao colocou BACK como quit de volta
+- ANDROID: não pode mudar BACK, que é usado para sair para outra tecla
+    # mesmo se for um botão de um joystick
+
 - crash na luta contra seahorse
 
 - transição em estágio com auto-scroll não está funcionando direito

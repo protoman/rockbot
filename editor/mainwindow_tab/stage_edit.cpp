@@ -408,3 +408,8 @@ void stage_edit::on_boss_dialog_answer2_line3_textChanged(const QString &arg1)
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
     Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+5) = arg1.toStdString();
 }
+
+void stage_edit::on_stage_boss_weapon_combo_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon = index;
+}
