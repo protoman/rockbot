@@ -186,8 +186,20 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
     std::vector<std::string> options;
 
-    char btn_codes[BTN_COUNT][10];
-#ifdef PC
+    char btn_codes[BTN_COUNT][30];
+// android Pelya's SDL use keyboard events for joystick buttons
+#ifdef ANDROID
+    sprintf(btn_codes[BTN_JUMP], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str());
+    sprintf(btn_codes[BTN_ATTACK], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str());
+    sprintf(btn_codes[BTN_DASH], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str());
+    sprintf(btn_codes[BTN_L], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_L]).c_str());
+    sprintf(btn_codes[BTN_R], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_R]).c_str());
+    sprintf(btn_codes[BTN_START], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_START]).c_str());
+    sprintf(btn_codes[BTN_UP], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_UP]).c_str());
+    sprintf(btn_codes[BTN_DOWN], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_DOWN]).c_str());
+    sprintf(btn_codes[BTN_LEFT], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_LEFT]).c_str());
+    sprintf(btn_codes[BTN_RIGHT], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_RIGHT]).c_str());
+#elif PC
     sprintf(btn_codes[BTN_JUMP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str(), game_config_copy.button_codes[BTN_JUMP]);
     sprintf(btn_codes[BTN_ATTACK], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str(), game_config_copy.button_codes[BTN_ATTACK]);
     sprintf(btn_codes[BTN_DASH], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str(), game_config_copy.button_codes[BTN_DASH]);
@@ -272,12 +284,15 @@ void key_map::config_buttons()
 {
     CURRENT_FILE_FORMAT::st_game_config game_config_copy = game_config;
     int selected_option = 0;
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+
     while (selected_option != -1) {
         selected_option = draw_config_buttons(game_config_copy);
 
         INPUT_COMMANDS selected_key = BTN_JUMP;
         if (selected_option == 0) {
             game_config.set_default_keys();
+            return;
         } else if (selected_option != -1) {
             if (selected_option == 1) {
                 selected_key = BTN_JUMP;
@@ -301,7 +316,6 @@ void key_map::config_buttons()
                 selected_key = BTN_RIGHT;
             }
 
-            st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
             graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, 0, 0, 0);
             graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey));
             input.clean();
@@ -310,10 +324,51 @@ void key_map::config_buttons()
 
             check_key_duplicates(game_config_copy, selected_key, is_joystick);
         }
+
+        // check if jump/attack/start are set, can't leave if one of those is unset
+        if (selected_option == -1) {
+            if (is_key_set(BTN_JUMP, game_config_copy) == false) {
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" JUMP KEY");
+                graphLib.draw_text(menu_pos.x, RES_H-40, line);
+                input.waitTime(20);
+                input.clean_all();
+                input.wait_keypress();
+                selected_option = 0;
+            } else if (is_key_set(BTN_ATTACK, game_config_copy) == false) {
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" ATTACK KEY");
+                graphLib.draw_text(menu_pos.x, RES_H-40, line);
+                input.waitTime(20);
+                input.clean_all();
+                input.wait_keypress();
+                selected_option = 0;
+            } else if (is_key_set(BTN_START, game_config_copy) == false) {
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" START KEY");
+                graphLib.draw_text(menu_pos.x, RES_H-40, line);
+                input.waitTime(20);
+                input.clean_all();
+                input.wait_keypress();
+                selected_option = 0;
+            }
+        }
+
+
+
     }
     // apply changes to game-config
     apply_key_codes_changes(game_config_copy);
 
+}
+
+bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config game_config_copy)
+{
+    bool have_joystick = false;
+    if (input.get_joysticks_number() > 0 && game_config_copy.selected_input_device < input.get_joysticks_number()) {
+        have_joystick = true;
+    }
+    if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key] == -1))) {
+        return false;
+    }
+    return true;
 }
 
 // if any key is duplicated in the config, reset it to default value

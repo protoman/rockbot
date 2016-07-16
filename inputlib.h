@@ -27,7 +27,7 @@ public:
 
     int get_joysticks_number();
 
-    std::string get_key_name(Uint8 key);
+    std::string get_key_name(int key);
 
 
 

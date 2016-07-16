@@ -51,22 +51,16 @@ Darkbot #1 sprites: 34 x 31, sprites: 14 => 476x31
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - ROCKBOT1: converter colorcycle para anim-tiles:
-    # cachoeira daisie
-    # cachoeiras seahorse
-    # lava dynamite
-    # relógios techno
+    DONE # cachoeira daisie
+    DONE # cachoeiras seahorse
+    DONE # lava dynamite
 
-- não deixar sair da configuração de botões de pulo/confirma está como -1
 
-- fora o menu de armas, nenhuma tela (como de seleção de estágio ou password) deve usar START e sim o botão de pulo/confirma
 
-- ANDROID: reset to default, na config de botoes, parece nao colocou BACK como quit de volta
-- ANDROID: não pode mudar BACK, que é usado para sair para outra tecla
-    # mesmo se for um botão de um joystick
-
-- crash na luta contra seahorse
+- PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
 
 - transição em estágio com auto-scroll não está funcionando direito
+    # circus 2.0
     # move menos do que devia, como se estive no scroll automático
 
 - está podendo entrar no menu de armas antes de aparecer o diálogo do estágio
@@ -80,8 +74,6 @@ VERSION 2.0.0 BETA 1
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
 - as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
-
-- está dando pau em copySDLArea -> copySDLPortion (possivelmente um tamanho errado de alguma coisa, talvez projétil)
 
 - em modo demo, Rockbot1 não carrega estágios na seleção de fases (pelo menos os já terminados)
 
@@ -105,13 +97,12 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- ao selecionar item na config, o cursor desce um nível
-    # efeito colateral de mudar a posição por causa do return
-    # quando entrar num item, deve resetar posição
-
-
-
-
+- config buttons reset to default não está funcionando
+- na configurações de botões, não pode mudar BACK, que é usado para sair para outra tecla
+- não deixar sair da configuração de botões de pulo, tiro ou START estão como -1
+- crash na luta contra seahorse
+- melhorar AI Seahorsebot (virar para player para atacar)
+- peixe azul da fase seahorse está piscando
 
 
 

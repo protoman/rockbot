@@ -469,7 +469,7 @@ void character::charMove() {
     check_reset_stand();
 
     if (is_player() == false) {
-        attack(false, 0, false);
+        character::attack(false, 0, false);
     }
 
 	bool res_slide = slide(map->getMapScrolling());
@@ -1106,7 +1106,12 @@ bool character::gravity(bool boss_demo_mode=false)
         }
     }
 
-    if (can_air_dash() == true && state.animation_type == ANIM_TYPE_SLIDE) {
+    bool can_use_air_dash = false;
+    if (is_player() == true) {
+        can_use_air_dash = can_air_dash();
+    }
+
+    if (can_use_air_dash == true && state.animation_type == ANIM_TYPE_SLIDE) {
         std::cout << "CHAR::GRAVITY leave #3" << std::endl;
         reset_gravity_speed();
         return false;

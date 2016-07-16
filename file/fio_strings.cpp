@@ -242,6 +242,9 @@ namespace format_v4 {
 
         sprintf(lines[strings_config_wii_platformspecific], "%s", "PLATFORM SPECIFIC");
 
+        sprintf(lines[strings_config_keys_unet], "%s", "PLEASE SET");
+
+
 
         /// @TODO: add assert to check that we set all the values from the enum
 

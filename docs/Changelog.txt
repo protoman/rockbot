@@ -264,6 +264,9 @@ FILE-FORMAT-V4:
 - joe azul está com escudo pelas costas tb
 - quando um inimigo/chefe tiver sprites de teleporte, ao chegar no chão deve mudar para stand
 - add darkbot #1 to intro stage
+- ao selecionar item na config, o cursor desce um nível
+    # efeito colateral de mudar a posição por causa do return
+    # quando entrar num item, deve resetar posição
 
 
 

@@ -322,9 +322,12 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
         while (SDL_PollEvent(&event)) {
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
                 if (event.type == SDL_KEYDOWN) {
-                    std::cout << "BEFORE keys_codes[" << key << "]: " << game_config_copy.keys_codes[key] << std::endl;
+                    // do not allow user to reassign ESCAPE key
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
+                        return false;
+                    }
                     game_config_copy.keys_codes[key] = event.key.keysym.sym;
-                    std::cout << "AFTER keys_codes[" << key << "]: " << game_config_copy.keys_codes[key] << std::endl;
                     return false;
                 }
                 SDL_PumpEvents();
@@ -347,17 +350,27 @@ int inputLib::get_joysticks_number()
     return SDL_NumJoysticks();
 }
 
-std::string inputLib::get_key_name(Uint8 key)
+std::string inputLib::get_key_name(int key)
 {
-    std::string res = SDL_GetKeyName((SDLKey)key);
-    if (key == -1 || res.length() > 3) {
-        return std::string(" ");
+    SDLKey keysym = (SDLKey)key;
+
+    if (key == -1) {
+        return std::string("UNSET");
+    }
+
+    std::string res = SDL_GetKeyName(keysym);
+
+    // convert common keys to 3 letter
+    if (res.length() > 6) {
+        res = res.substr(0, 6);
     }
 
     // uppercase
     for (std::string::iterator p = res.begin(); res.end() != p; ++p) {
         *p = toupper(*p);
     }
+
+    std::cout << "get_key_name[" << (int)key << "][" << keysym << "][" << res << "]" << std::endl;
 
     return res;
 }

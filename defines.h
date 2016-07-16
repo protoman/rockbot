@@ -934,6 +934,8 @@ enum E_STRINGS_INGAME {
 
     strings_config_wii_platformspecific,
 
+    strings_config_keys_unet,
+
     strings_ingame_COUNT
 };
 

@@ -29,23 +29,23 @@ namespace format_v4 {
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
-    #ifdef PLAYSTATION2
+#ifdef PLAYSTATION2
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
-    #elif PSP
+#elif PSP
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
-    #elif WII
+#elif WII
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
-    #elif DINGUX
+#elif DINGUX
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
-    #elif OPEN_PANDORA
+#elif OPEN_PANDORA
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
@@ -60,7 +60,7 @@ namespace format_v4 {
             keys_codes_copy[BTN_RIGHT] = SDLK_RIGHT;
             keys_codes_copy[BTN_UP] = SDLK_UP;
             keys_codes_copy[BTN_DOWN] = SDLK_DOWN;
-    #else
+#else
             keys_codes_copy[BTN_ATTACK] = SDLK_a;
             keys_codes_copy[BTN_JUMP] = SDLK_x;
             keys_codes_copy[BTN_DASH] = SDLK_c;
@@ -73,11 +73,11 @@ namespace format_v4 {
             keys_codes_copy[BTN_RIGHT] = SDLK_RIGHT;
             keys_codes_copy[BTN_UP] = SDLK_UP;
             keys_codes_copy[BTN_DOWN] = SDLK_DOWN;
-    #endif
+#endif
         }
 
         void get_default_buttons(int button_codes_copy[BTN_COUNT]) {
-    #ifdef PLAYSTATION2
+#ifdef PLAYSTATION2
             button_codes_copy[BTN_SHIELD] = 0;
             button_codes_copy[BTN_DASH] = 3;
             button_codes_copy[BTN_JUMP] = 2;
@@ -90,7 +90,7 @@ namespace format_v4 {
             button_codes_copy[BTN_RIGHT] = -1; // uses default axis
             button_codes_copy[BTN_UP] = -1; // uses default axis
             button_codes_copy[BTN_DOWN] = -1; // uses default axis
-    #elif PSP
+#elif PSP
             button_codes_copy[BTN_SHIELD] = 3;
             button_codes_copy[BTN_DASH] = 0;
             button_codes_copy[BTN_JUMP] = 1;
@@ -103,7 +103,7 @@ namespace format_v4 {
             button_codes_copy[BTN_RIGHT] = 9; // PSP maps axis as buttons. Will use thos unless you pick analog mode
             button_codes_copy[BTN_UP] = 8; // PSP maps axis as buttons. Will use thos unless you pick analog mode
             button_codes_copy[BTN_DOWN] = 6; // PSP maps axis as buttons. Will use thos unless you pick analog mode
-    #elif WII
+#elif WII
             button_codes_copy[BTN_SHIELD] = 1;
             button_codes_copy[BTN_DASH] = 0;
             button_codes_copy[BTN_JUMP] = 3;
@@ -112,9 +112,13 @@ namespace format_v4 {
             button_codes_copy[BTN_R] = 5;
             button_codes_copy[BTN_QUIT] = -1;
             button_codes_copy[BTN_START] = 6;
-    #elif OPEN_PANDORA
+#elif OPEN_PANDORA
             button_codes_copy[BTN_JUMP] = SDLK_PAGEDOWN;
-    #else
+#elif ANDROID
+            for (int i=0; i<BTN_COUNT; i++) {
+                button_codes_copy[i] = -1;
+            }
+#else
             for (int i=0; i<BTN_COUNT; i++) {
                 button_codes_copy[i] = -1;
             }
@@ -130,36 +134,26 @@ namespace format_v4 {
         }
 
         void set_default_keys() {
-    #ifdef PLAYSTATION2
+#ifdef PLAYSTATION2
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
-            get_default_keys(keys_codes);
-            get_default_buttons(button_codes);
-    #elif PSP
+#elif PSP
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
-            get_default_keys(keys_codes);
-            get_default_buttons(button_codes);
-    #elif WII
+#elif WII
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
-            get_default_keys(keys_codes);
-            get_default_buttons(button_codes);
-    #elif DINGUX
+#elif DINGUX
             input_type = INPUT_TYPE_DOUBLE;
             input_mode = INPUT_MODE_DIGITAL;
-            get_default_keys(keys_codes);
-            get_default_buttons(button_codes);
-    #elif OPEN_PANDORA
+#elif OPEN_PANDORA
             input_type = INPUT_TYPE_KEYBOARD;
             input_mode = INPUT_MODE_DIGITAL;
-            get_default_keys(keys_codes);
-            get_default_buttons(button_codes);
-    #else
+#else
             input_type = INPUT_TYPE_DOUBLE;
+#endif
             get_default_keys(keys_codes);
             get_default_buttons(button_codes);
-    #endif
         }
 
         E_PLATFORM get_current_platform() const {

@@ -33,6 +33,8 @@ public:
 
     void config_buttons();
 
+    bool is_key_set(INPUT_COMMANDS key, format_v4::st_game_config game_config_copy);
+
     void check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_config_copy, Uint8 set_key, bool is_joystick);
 
     void apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_config_copy);
