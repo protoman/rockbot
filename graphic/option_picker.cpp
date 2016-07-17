@@ -34,6 +34,8 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
         _items.insert(_items.begin(), st_menu_option("RETURN"));
     }
 
+    _pick_pos = 0;
+
     //std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
 
     draw();
@@ -71,12 +73,12 @@ void option_picker::change_option_label(int n, string label)
     }
 }
 
-Sint8 option_picker::pick()
+Sint8 option_picker::pick(int initial_pick_pos)
 {
     bool finished = false;
     input.clean();
     input.waitTime(100);
-    _pick_pos = 0;
+    _pick_pos = initial_pick_pos;
 
     //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
 
@@ -139,11 +141,6 @@ Sint8 option_picker::pick()
 }
 
 
-void option_picker::set_picker_initial_pos(Uint8 pick_pos)
-{
-    //std::cout << "set_picker_initial_pos - pos: " << pick_pos << std::endl;
-	_pick_pos = pick_pos;
-}
 
 void option_picker::draw()
 {

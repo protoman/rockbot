@@ -44,8 +44,6 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern timerLib timer;
 
-extern bool have_save;
-
 extern bool leave_game;
 
 #define TIME_SHORT 120
@@ -138,15 +136,16 @@ void scenesLib::main_screen()
 
     int picked_n = 1;
 
+    bool have_save = fio.save_exists();
+    int initial_pick_pos = 0;
+
     if (have_save) {
-		main_picker.set_picker_initial_pos(1);
-    } else {
-        main_picker.set_picker_initial_pos(0);
+        initial_pick_pos = 1;
     }
 	bool repeat_menu = true;
 	while (repeat_menu == true) {
 
-		picked_n = main_picker.pick();
+        picked_n = main_picker.pick(initial_pick_pos);
 		if (picked_n == -1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {

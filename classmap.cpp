@@ -1721,7 +1721,7 @@ void classMap::show_npcs() /// @TODO - check out of screen
 {
     for (int i=0; i<_npc_list.size(); i++) {
         if (gameControl.must_show_boss_hp() && _npc_list.at(i).is_boss() && _npc_list.at(i).is_on_visible_screen() == true) {
-            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1, PLAYER_INITIAL_HP);
+            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1, BOSS_INITIAL_HP);
 		}
         if (_npc_list.at(i).is_dead() == false) {
             _npc_list.at(i).show();

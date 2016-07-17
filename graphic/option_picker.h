@@ -23,19 +23,9 @@ public:
     option_picker(bool draw_border, st_position pos, std::vector<st_menu_option> options, bool show_return);
     option_picker(bool draw_border, st_position pos, std::vector<std::string> options, bool show_return);
     void change_option_label(int n, std::string label);
-    Sint8 pick();
+    Sint8 pick(int initial_pick_pos=0);
 
 
-    /**
-     * @brief
-     *
-     * @param pick_pos
-     */
-    void set_picker_initial_pos(Uint8 pick_pos);
-    /**
-     * @brief
-     *
-     */
     void draw();
 
 

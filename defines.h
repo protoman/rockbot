@@ -324,6 +324,8 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define PLAYER_INITIAL_HP 28
 
+#define BOSS_INITIAL_HP 56 // twice player, so each shot makes "half" point of damage
+
 #define HIT_BLINK_ANIMATION_LAPSE 100
 
 #define WATER_SPEED_MULT 0.9

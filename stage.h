@@ -42,7 +42,9 @@ public:
      * @param pos
      * @param check_lock
      */
-    void changeScrolling(st_float_position pos, bool check_lock=true);
+
+
+    void change_map_scroll(st_float_position pos, bool check_lock, bool ignore_auto_scroll);
     /**
      * @brief
      *
@@ -172,6 +174,7 @@ public:
 
 private:
     void check_map_effect();
+
 
 
 public:

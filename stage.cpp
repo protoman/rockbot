@@ -113,10 +113,8 @@ Uint8 stage::getMapPointLock(st_position pos)
     return maps[currentMap].getMapPointLock(pos);
 }
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void stage::changeScrolling(st_float_position pos, bool check_lock)
+
+void stage::change_map_scroll(st_float_position pos, bool check_lock, bool ignore_auto_scroll)
 {
     // debug for autoscrolling test
     bool map_autoscroll = static_cast<bool>(stage_data.autoscroll[currentMap]);
@@ -124,7 +122,7 @@ void stage::changeScrolling(st_float_position pos, bool check_lock)
     if (map_autoscroll > 1) {
         map_autoscroll = false;
     }
-    if (map_autoscroll == true) {
+    if (ignore_auto_scroll == false && map_autoscroll == true) {
         if (timer.is_paused() == false && autoscroll_timer < timer.getTimer()) {
             autoscroll_timer = timer.getTimer()+20;
             pos.x = 1.5;

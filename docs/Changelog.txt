@@ -267,8 +267,12 @@ FILE-FORMAT-V4:
 - ao selecionar item na config, o cursor desce um nível
     # efeito colateral de mudar a posição por causa do return
     # quando entrar num item, deve resetar posição
-
-
+- config buttons reset to default não está funcionando
+- na configurações de botões, não pode mudar BACK, que é usado para sair para outra tecla
+- não deixar sair da configuração de botões de pulo, tiro ou START estão como -1
+- crash na luta contra seahorse
+- melhorar AI Seahorsebot (virar para player para atacar)
+- peixe azul da fase seahorse está piscando
 
 
 

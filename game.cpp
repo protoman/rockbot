@@ -216,10 +216,12 @@ void game::start_stage()
 
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
+        input.clean_all();
         showGame(true, false);
         draw_lib.update_screen();
     }
     for (int i=0; i<15; i++) { // extra delay to show dialogs
+        input.clean_all();
         showGame(false, false);
         draw_lib.update_screen();
         timer.delay(20);
@@ -723,9 +725,9 @@ bool game::must_show_boss_hp()
 
 void game::fill_boss_hp_bar()
 {
-	soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
-	for (int i=0; i<PLAYER_INITIAL_HP; i++) {
-        graphLib.draw_hp_bar(i, -1, -1, PLAYER_INITIAL_HP);
+    soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*BOSS_INITIAL_HP+100);
+    for (int i=0; i<BOSS_INITIAL_HP; i++) {
+        graphLib.draw_hp_bar(i, -1, -1, BOSS_INITIAL_HP);
         draw_lib.update_screen();
 		timer.delay(60);
 	}
@@ -919,7 +921,8 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
 
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
 	for (int i=0; i<move_limit; i++) {
-        loaded_stage.changeScrolling(scroll_move, false);
+        //loaded_stage.changeScrolling(scroll_move, false);
+        loaded_stage.change_map_scroll(scroll_move, false, true);
         loaded_stage.showStage();
         loaded_stage.show_npcs();
         player1.show();
@@ -1170,7 +1173,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE3;
+    currentStage = STAGE2;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 
@@ -1194,7 +1197,7 @@ void game::update_stage_scrolling()
     if (timer.is_paused() == true) {
         return;
     }
-    loaded_stage.changeScrolling(checkScrolling());
+    loaded_stage.change_map_scroll(checkScrolling(), true, false);
     st_position p_pos = player1.get_real_position();
     //std::cout << "p_pos.x: " << p_pos.x << std::endl;
     if (p_pos.x < 0.0) {

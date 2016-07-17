@@ -41,7 +41,7 @@ std::string FILEPATH; // path including game-data dir
 std::string SAVEPATH;
 std::string GAMENAME; // the gamename, part of path
 SDL_Event event;
-bool have_save = false;
+
 #ifdef ANDROID
 jobject activity_ref;
 #endif
@@ -528,7 +528,6 @@ int main(int argc, char *argv[])
         }
 
     #endif
-    have_save = fio.save_exists();
 
     /*
     #ifndef DEBUG_OUTPUT // redirect output to null

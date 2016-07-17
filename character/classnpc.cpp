@@ -586,7 +586,7 @@ void classnpc::set_is_boss(bool set_boss)
         _screen_blinked = false;
         _ai_state.initial_position.y = -(frameSize.height+1);
         position.y = _ai_state.initial_position.y;
-        hitPoints.total = PLAYER_INITIAL_HP;
+        hitPoints.total = BOSS_INITIAL_HP;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }
@@ -602,12 +602,10 @@ void classnpc::set_stage_boss(bool boss_flag)
     _is_boss = boss_flag;
     _is_stage_boss = boss_flag;
     if (boss_flag == true) {
-        hitPoints.total = PLAYER_INITIAL_HP;
-        hitPoints.current = hitPoints.total;
         _screen_blinked = false;
         _ai_state.initial_position.y = -(frameSize.height+1);
         position.y = _ai_state.initial_position.y;
-        hitPoints.total = PLAYER_INITIAL_HP;
+        hitPoints.total = BOSS_INITIAL_HP;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }
