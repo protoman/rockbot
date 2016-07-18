@@ -10,9 +10,9 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += win32
-#CONFIG += android
+CONFIG += android
 #CONFIG += ps2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -22,6 +22,7 @@ CONFIG += linux
 #CONFIG += macosx
 
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
+# or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
 #DEFINESLIST = -DDEMO_VERSION
 

@@ -69,22 +69,22 @@ void set_android_default_buttons_pos(int size) {
         SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &pos_old);
         pos_old.w = pos_old.w * BUTTON_SIZE_MULTI;
         pos_old.h = pos_old.h * BUTTON_SIZE_MULTI;
-        pos_old.x += button_diff_w*2;
+        pos_old.x += button_diff_w*1.5;
         SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &pos_old);
 
         // button 1 (B)
         SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &pos_old);
         pos_old.w = pos_old.w * BUTTON_SIZE_MULTI;
         pos_old.h = pos_old.h * BUTTON_SIZE_MULTI;
-        pos_old.x += button_diff_w*1.5;
+        pos_old.x += button_diff_w*2;
         SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &pos_old);
 
         // button 2 (X)
         SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &pos_old);
         pos_old.w = pos_old.w * BUTTON_SIZE_MULTI;
         pos_old.h = pos_old.h * BUTTON_SIZE_MULTI;
-        pos_old.x += button_diff_w*2;
-        pos_old.y += button_diff_w*2;
+        pos_old.x += button_diff_w*1.5;
+        pos_old.y += button_diff_w*1.5;
         SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &pos_old);
 
 
@@ -92,7 +92,7 @@ void set_android_default_buttons_pos(int size) {
         SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &pos_old);
         pos_old.w = pos_old.w * BUTTON_SIZE_MULTI;
         pos_old.h = pos_old.h * BUTTON_SIZE_MULTI;
-        pos_old.x += button_diff_w*1.5;
+        pos_old.x += button_diff_w*2;
         pos_old.y += button_diff_w*2;
         SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_3, &pos_old);
 

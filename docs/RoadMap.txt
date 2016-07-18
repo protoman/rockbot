@@ -52,7 +52,7 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
 
-
+- ao voltar da morte, o auto-scroll deve esperar um pouco, como faz no diálogo de entrada da fase
 
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
@@ -62,8 +62,6 @@ VERSION 2.0.0 BETA 1
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
-
-- as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
 
 - update script files to copy font to GAMEDIR
     # remove non-used fonts
@@ -85,11 +83,9 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- transição em estágio com auto-scroll não está funcionando direito
-- está podendo entrar no menu de armas antes de aparecer o diálogo do estágio
-- duplicar pontos de vida dos chefes, assim ficará bem difícil matar eles só com tiro normal
-- cursor está ficando em new game novamente, mesmo quando tem save
-
+- quando houver screen_adjust, deve mover apenas o mapa, não o fundo da tela
+- implementar efeito "trem"
+- as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
 
 
 
@@ -99,6 +95,13 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- remover da memória SFX usados apenas uma única vez
+    # estes devem usar play from file
+    # onde for necessário, guardar na própria classe e depois descarregar o SFX
+
+
+- descobrir como usar mkspaces de android para build, ou criar um próprio
+
 - AI: criar nova action WALK DISTANCE(dist)
 - AI: criar nova action WALK RANDOM DISTANCE(max)
 - AI: novo type para action FLY: voar para cima na diagonal esquerda/direita

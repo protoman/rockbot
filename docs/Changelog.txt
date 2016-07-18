@@ -273,7 +273,10 @@ FILE-FORMAT-V4:
 - crash na luta contra seahorse
 - melhorar AI Seahorsebot (virar para player para atacar)
 - peixe azul da fase seahorse está piscando
-
+- transição em estágio com auto-scroll não está funcionando direito
+- está podendo entrar no menu de armas antes de aparecer o diálogo do estágio
+- duplicar pontos de vida dos chefes, assim ficará bem difícil matar eles só com tiro normal
+- cursor está ficando em new game novamente, mesmo quando tem save
 
 
 **********************************************************************

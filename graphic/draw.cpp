@@ -9,6 +9,10 @@
 #define FLASH_IMG_SIZE 8
 #define SNOW_DELAY 40
 
+#define TRAIN_DELAY 2000
+#define TRAIN_EFFECT_DELAY 180
+#define TRAIN_EFFECT_SCREEN_MOVE 1
+
 extern graphicsLib graphLib;
 
 #include "timerlib.h"
@@ -26,6 +30,8 @@ extern inputLib input;
 
 #include "strings_map.h"
 
+extern soundLib soundManager;
+
 #define FADE_INC 2
 
 
@@ -39,6 +45,9 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     _weapon_tooltip_n = 0;
     _weapon_tooltip_pos_ref = NULL;
     _weapon_tooltip_direction_ref = NULL;
+    _train_effect_timer = 0;
+    _train_effect_state = 0;
+    _train_sfx = NULL;
 
 }
 
@@ -70,6 +79,8 @@ void draw::show_gfx()
         show_rain();
     } else if (screen_gfx == SCREEN_GFX_SNOW) {
         show_snow_effect();
+    } else if (screen_gfx == SCREEN_GFX_TRAIN) {
+        show_train_effect();
     }
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
@@ -85,6 +96,11 @@ void draw::update_screen()
 void draw::set_gfx(Uint8 gfx)
 {
     screen_gfx = gfx;
+    // free train sfx if not using it
+    if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
+        Mix_FreeChunk(_train_sfx);
+        _train_sfx = NULL;
+    }
 }
 
 Uint8 draw::get_gfx()
@@ -600,6 +616,35 @@ void draw::show_snow_effect()
             graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
     }
+}
+
+void draw::show_train_effect()
+{
+    if (_train_effect_timer == 0) {
+        std::cout << "TRAIN_EFFECT-RESET" << std::endl;
+        _train_effect_timer = timer.getTimer() + TRAIN_DELAY;
+        _train_effect_state = 0;
+        if (_train_sfx == NULL) {
+            _train_sfx = soundManager.sfx_from_file("train.wav");
+        }
+    } else {
+        if (_train_effect_timer < timer.getTimer()) {
+            if (_train_effect_state == 0) {
+                std::cout << "TRAIN_EFFECT-UP" << std::endl;
+                graphLib.set_screen_adjust(st_position(0, -TRAIN_EFFECT_SCREEN_MOVE));
+                _train_effect_timer = timer.getTimer() + TRAIN_EFFECT_DELAY;
+                _train_effect_state++;
+                soundManager.play_sfx_from_chunk(_train_sfx, 1);
+            } else {
+                std::cout << "TRAIN_EFFECT-DOWN" << std::endl;
+                graphLib.set_screen_adjust(st_position(0, 0));
+                _train_effect_timer = timer.getTimer() + TRAIN_DELAY;
+                _train_effect_state = 0;
+                soundManager.play_sfx_from_chunk(_train_sfx, 1);
+            }
+        }
+    }
+    //graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
 }
 
 

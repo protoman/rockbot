@@ -3,6 +3,8 @@
 
 #include "graphicslib.h"
 
+#include "soundlib.h"
+
 #define FLASH_POINTS_N 10
 #define SNOW_PARTICLES_NUMBER 20
 
@@ -59,6 +61,7 @@ private:
     void show_flash();
     void generate_snow_particles();
     void show_snow_effect();
+    void show_train_effect();
     void show_weapon_tooltip();
 
 
@@ -83,6 +86,11 @@ private:
     // USED IN SNOW EFFECT
     std::vector<st_snow_particle> _snow_particles;
     graphicsLib_gSurface snow_flacke;
+
+    // USED IN TARIN EFFECT
+    int _train_effect_timer;
+    int _train_effect_state;
+    Mix_Chunk* _train_sfx;
 
     Uint8 screen_gfx;
     bool flash_effect_enabled;

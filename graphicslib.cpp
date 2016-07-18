@@ -391,7 +391,8 @@ void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_
     int w = surfaceOrigin->width;
     int h = surfaceOrigin->height;
     st_rectangle origin_rectangle(0, 0, w, h);
-    pos.x += _screen_adjust.x;
+    //pos.x += _screen_adjust.x;
+    //pos.y += _screen_adjust.y;
 
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
@@ -413,12 +414,14 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
 
 
     pos_destiny.x += _screen_adjust.x;
+    pos_destiny.y += _screen_adjust.y;
     copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
 }
 
 void graphicsLib::place_easymode_block_tile(st_position destiny, graphicsLib_gSurface& surface)
 {
     destiny.x += _screen_adjust.x;
+    destiny.y += _screen_adjust.y;
 
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), surface.get_surface());
 }
@@ -426,6 +429,7 @@ void graphicsLib::place_easymode_block_tile(st_position destiny, graphicsLib_gSu
 void graphicsLib::place_hardmode_block_tile(st_position destiny, graphicsLib_gSurface &surface)
 {
     destiny.x += _screen_adjust.x;
+    destiny.y += _screen_adjust.y;
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), surface.get_surface());
 }
 
@@ -449,6 +453,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     origin_rectangle.h = TILESIZE;
 
     pos_destiny.x += _screen_adjust.x;
+    pos_destiny.y += _screen_adjust.y;
 
     copySDLArea(origin_rectangle, pos_destiny, ANIM_TILES_SURFACES.at(anim_tile_id).get_surface(), dest_surface->get_surface());
 
@@ -469,7 +474,7 @@ void graphicsLib::update_anim_tiles_timers()
 
 void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y)
 {
-    st_position pos_destiny(dest_x+_screen_adjust.x, dest_y);
+    st_position pos_destiny(dest_x+_screen_adjust.x, dest_y+_screen_adjust.y);
     if (origin_x < -1) {
         int anim_tile_id = (origin_x * -1) - 2;
         place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);

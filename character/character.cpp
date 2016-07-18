@@ -596,7 +596,7 @@ ATTACK_TYPES character::check_must_attack()
 
     // button changed from released to pressed
     if (moveCommands.attack != 0 && attack_button_last_state == 0) {
-        std::cout << "CHAR::check_must_attack - ATTACK NORMAL" << std::endl;
+        //std::cout << "CHAR::check_must_attack - ATTACK NORMAL" << std::endl;
         return ATTACK_TYPE_NORMAL;
     // button changed from pressed to released and char can use charged attacks
     } else if (game_config.turbo_mode == false && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && attack_button_last_state == 1) {
@@ -604,6 +604,7 @@ ATTACK_TYPES character::check_must_attack()
         if (time_diff >= CHARGED_SHOT_TIME) {
             return ATTACK_TYPE_FULLYCHARGED;
         } else if (time_diff >= CHARGED_SHOT_INITIAL_TIME) {
+            std::cout << "time_diff: " << time_diff << std::endl;
             return ATTACK_TYPE_SEMICHARGED;
         }
     }
@@ -623,17 +624,11 @@ void character::check_charging_colors()
     // don't charge if can't shot
     if (max_projectiles <= get_projectile_count()) {
         // reset time, so we start counting only when all projectiles are gone
-        if (moveCommands.attack != 0) {
-            attack_button_pressed_timer = timer.getTimer() - CHARGED_SHOT_INITIAL_TIME;
-        }
         return;
     }
 
     if (is_player() == true && get_projectile_max_shots() <= projectile_list.size()) {
         // reset time, so we start counting only when all projectiles are gone
-        if (moveCommands.attack != 0) {
-            attack_button_pressed_timer = timer.getTimer() - CHARGED_SHOT_INITIAL_TIME;
-        }
         return;
     }
 
