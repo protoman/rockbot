@@ -314,11 +314,6 @@ void game::restart_stage()
 // ********************************************************************************************** //
 bool game::showIntro()
 {
-#ifdef PSP
-    std::cout << "showIntro::RAM::BFR='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
-
     show_notice();
 
     scenes.preloadScenes();
@@ -327,11 +322,6 @@ bool game::showIntro()
 
 	scenes.main_screen();
 	currentStage = 0;
-
-#ifdef PSP
-    std::cout << "showIntro::RAM::AFT='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
 
 	initGame();
 	if (game_save.stages[INTRO_STAGE] == 0) {
@@ -347,11 +337,6 @@ bool game::showIntro()
         }
 		start_stage();
 	}
-
-#ifdef PSP
-    std::cout << "showIntro::RAM::STAGE_LOADED='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
 
     return true;
 }
@@ -1173,7 +1158,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE5;
+    currentStage = STAGE3;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

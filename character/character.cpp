@@ -1459,7 +1459,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
 
-    st_map_collision map_col = map_collision(0, 0, map->getMapScrolling()); // this is minus six because of +4 adjustments in jump-up collision
+    st_map_collision map_col = map_collision(0, -TILESIZE, map->getMapScrolling()); // this is minus TILESIZE because of adjustments in slide collision
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide

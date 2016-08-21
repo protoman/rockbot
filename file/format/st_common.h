@@ -271,7 +271,7 @@ public:
             colorkey3_points = original.colorkey3_points;
             show_debug = false;
             if (original.width > 0) {
-                gSurface = SDL_DisplayFormat(original.gSurface);
+                gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 //SDL_FreeSurface(original.gSurface);
             } else {
                 gSurface = NULL;
@@ -302,7 +302,7 @@ public:
             colorkey3_points = original.colorkey3_points;
             show_debug = false;
             if (original.width > 0) {
-                gSurface = SDL_DisplayFormat(original.gSurface);
+                gSurface = SDL_DisplayFormatAlpha(original.gSurface);
             } else {
                 gSurface = NULL;
             }

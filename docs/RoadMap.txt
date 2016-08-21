@@ -52,7 +52,7 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
 
-- ao voltar da morte, o auto-scroll deve esperar um pouco, como faz no diálogo de entrada da fase
+- em estágio com autoscroll, ao voltar da morte, deve esperar um pouco sem scroll, como faz no diálogo de entrada da fase
 
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
@@ -83,9 +83,6 @@ VERSION 2.0.0 BETA 1
 ##################################
              DONE
 ##################################
-- quando houver screen_adjust, deve mover apenas o mapa, não o fundo da tela
-- implementar efeito "trem"
-- as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
 
 
 
@@ -95,6 +92,8 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- implementar water effect (fase azulada)
+
 - remover da memória SFX usados apenas uma única vez
     # estes devem usar play from file
     # onde for necessário, guardar na própria classe e depois descarregar o SFX
@@ -159,12 +158,14 @@ VERSION 2.0.0 BETA 2
 - GAME::PROJECTILE: projétil deve usar flip assim como character
 
 
-
+- incorporar efeitos sonoros do Aurelien
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 3
 =========================================================================================================================================
+- investigar velocidade no PSP
+
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 - GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
@@ -193,6 +194,7 @@ VERSION 2.0.0 BETA 3
 - substituir todos os efeitos sonoros por versões free
 
 - tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
+- tentar melhorar leitura de joystick para pegar o estado, e não os eventos
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 4

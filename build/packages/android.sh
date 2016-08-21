@@ -28,10 +28,31 @@ case $response in
 		cd $ANDROIDSDK/rockbot_build
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
-		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
-		
 		LINENUMBERVERSION=`grep -n "AppVersionName=" AndroidAppSettings.cfg | cut -f1 -d:`
-		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.new
+		LINENUMBERAPPNAME=`grep -n "AppName=" AndroidAppSettings.cfg | cut -f1 -d:`
+		LINENUMBERFULLNAME=`grep -n "AppFullName=" AndroidAppSettings.cfg | cut -f1 -d:`
+		
+		if [[ -z "$LINENUMBER" ]]
+                    echo "Error getting LINENUMBER"
+                    return
+		fi
+		if [[ -z "$LINENUMBERVERSION" ]]
+                    echo "Error getting LINENUMBERVERSION"
+                    return
+		fi
+		if [[ -z "$LINENUMBERAPPNAME" ]]
+                    echo "Error getting LINENUMBERAPPNAME"
+                    return
+		fi
+		if [[ -z "$LINENUMBERFULLNAME" ]]
+                    echo "Error getting LINENUMBERFULLNAME"
+                    return
+		fi
+		
+		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
+		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
+		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot2Demo\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
+		sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot2demo" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.new
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg

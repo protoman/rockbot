@@ -200,8 +200,8 @@ void graphicsLib::updateScreen()
         anim_stars(); /// @TODO - move to draw class
     }
 
-
-    // clear non-used areas
+    /*
+    // clear non-used areasfor when screen is greater than game-size
     if (game_screen->w > RES_W) {
         clear_area_no_adjust(0, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0);
         clear_area_no_adjust(_screen_resolution_adjust.x+RES_W, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0);
@@ -210,6 +210,7 @@ void graphicsLib::updateScreen()
         clear_area_no_adjust(0, 0, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0);
         clear_area_no_adjust(0, _screen_resolution_adjust.y + RES_H, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0);
     }
+    */
 
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
@@ -236,20 +237,18 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 {
 	SDL_RWops *rwop;
 	SDL_Surface *spriteCopy;
-	SDL_Surface *display_surface;
+    SDL_Surface *display_surface;
 
-    rwop=SDL_RWFromFile(filename.c_str(), "rb");
+    rwop = SDL_RWFromFile(filename.c_str(), "rb");
 
     if (!rwop) {
         std::cout << "DEBUG.loadSpriteFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
 		return NULL;
 	}
-	spriteCopy = IMG_Load_RW(rwop, 1);
+    spriteCopy = IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
-        std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'" << std::endl;
-        printf("IMG_LoadPNG_RW: %s\n", IMG_GetError());
+        std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
-
     return spriteCopy;
 }
 
@@ -1734,15 +1733,16 @@ void graphicsLib::set_video_mode()
     }
     game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
 #elif defined(PSP)
+    _video_filter = VIDEO_FILTER_NOSCALE;
     if (game_config.video_fullscreen == false) {
-        game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
+        game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE);
     } else {
-        game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_FULLSCREEN | SDL_RESIZABLE);
+        game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
     }
 #elif defined(DREAMCAST)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(640, 480, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(640, 480, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
 #else
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
