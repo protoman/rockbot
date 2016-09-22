@@ -45,14 +45,12 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-Darkbot #1 sprites: 34 x 31, sprites: 14 => 476x31
+
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
-
-- em estágio com autoscroll, ao voltar da morte, deve esperar um pouco sem scroll, como faz no diálogo de entrada da fase
 
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
@@ -63,27 +61,36 @@ VERSION 2.0.0 BETA 1
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
-- update script files to copy font to GAMEDIR
+- update build script files to copy font to GAMEDIR
     # remove non-used fonts
     # remove non-used graphics
 
 - test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
     # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
 
+- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
+
+- adicionar suporte à configuração de controle do wii
+- adicionar suporte à configuração de resolução do playstation 2
+
+##################################
+             DONE
+##################################
+- em estágio com autoscroll, ao voltar da morte, deve esperar um pouco sem scroll, como faz no diálogo de entrada da fase
 - criar sub-menu para cada plataforma na config
     # PC: fullscreen
     # PSP: keep aspect ratio
     # ANDROID: play services, touch controls hide, touch controls enabled
     # WII: controller type (gamecube, classic, wiimote)
-    # PS2: resolution (keep aspect ratio)
-
-
-
-
-##################################
-             DONE
-##################################
-
+    # PS2: resolution (poder escolher uma das que melhor se encaixam, mesmo que corte a tela um pouco)
+        256, 224 - good
+        288, 224 - good (strange colors?)
+        256x256 -
+        320x200 - distortion
+        320x240 - distortion
+        320x256 - distortion (small)
+        400x256 - distortion
+        512x448 - good but small
 
 
 
@@ -98,7 +105,6 @@ VERSION 2.0.0 BETA 2
     # estes devem usar play from file
     # onde for necessário, guardar na própria classe e depois descarregar o SFX
 
-
 - descobrir como usar mkspaces de android para build, ou criar um próprio
 
 - AI: criar nova action WALK DISTANCE(dist)
@@ -107,7 +113,6 @@ VERSION 2.0.0 BETA 2
 - AI: action SHIELD, fica em escudo até a animação de shield acabar
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
-
 
 
 - ANDROID: opçao, na config do jogo, para tamanho do controle
@@ -231,13 +236,22 @@ VERSION 2.0.0 BETA 5
 - port to GCW:
     * http://www.gcw-zero.com/news.php?id=13
 
+- OSX port
+    * corrigir problema das transparências
 
 Inspirations:
 http://www23.atwiki.jp/rockmanforte/pages/21.html
 
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 6
+VERSION 2.0.0 RELEASE
+=========================================================================================================================================
+- fix all critical and high bugs
+- get some free sound effects to replace Capcom ones
+- remove all copyrighted assets that remain
+
+=========================================================================================================================================
+VERSION 2.0.1 RELEASE
 =========================================================================================================================================
 - AI ACTIONS:
     * add 4 types of jump in AI - short, medium, long, moonwalk
@@ -252,7 +266,7 @@ VERSION 2.0.0 BETA 6
 
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 7 (mm2 support)
+VERSION 2.0.2
 =========================================================================================================================================
 - some Megaman 2 features:
     - 1/ballom item (slowly up)
@@ -263,7 +277,7 @@ VERSION 2.0.0 BETA 7 (mm2 support)
 
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 8 (mm3 support)
+VERSION 2.0.3
 =========================================================================================================================================
 - some Megaman 3 features:
     - guided projectile (hardman)
@@ -274,44 +288,46 @@ VERSION 2.0.0 BETA 8 (mm3 support)
     - killing an NPC can activate/deactivate a list of objects (big-snake)
 
 =========================================================================================================================================
-VERSION 2.0.0
+VERSION 2.0.4
 =========================================================================================================================================
 - projectile _target_position must take target width/heigth in account
-
-- OSX port
-    * corrigir problema das transparências
-
 - optimizar hit_ground() -> tive que tirar a verificação de última posição, pois estava retornando false sempre
 - separate move and draw logic
-- get some free sound effects to replace Capcom ones
 - different icons for items depending on player (change colors, etc)
 - tentar tornar o jogo independente de FPS. Calcular frames a serem movidos de acordo com o fps médio
 - ask dreamcast and xbox porters to update and merge back their changes
 - logic to allow showing player even if stage/map are NULL
 - fundo de tela que se move sozinho (sem depender do scroll do jogador)
 
+=========================================================================================================================================
+VERSION 2.0.5
+=========================================================================================================================================
 - implement bolts and shop (https://www.facebook.com/photo.php?fbid=432642990156602&set=a.114335308654040.27951.114325318655039&type=1&relevant_count=1&ref=nf)
 - EDITOR: clean editor code (find slots that aren't used anymore)
 - HP bars must not be drawn under 3rd level of tiles
 - move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
-OPTIMIZATION:
-        - use coverity
-        - use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
-        - Optimize editor: in editor_area, do not alloc pixmaps every time, only when changing beaten flag or stage
-        - check for ALL places in game that can use game_data directly instead of creating new instances
-                - refactor code, so that "game_npcs" do not replicate(copy) data from game_data
-                - refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
-        - use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
-    - do not load unecessary graphics for the player
-        * only rockbot should load the shield graphic
-        * only candy should have up and diagonal firing graphics
-    - determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
 
+
+=========================================================================================================================================
+VERSION 2.0.6
+=========================================================================================================================================
+- optimization:
+    # use coverity
+    # use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
+    # Optimize editor: in editor_area, do not alloc pixmaps every time, only when changing beaten flag or stage
+    # check for ALL places in game that can use game_data directly instead of creating new instances
+            * refactor code, so that "game_npcs" do not replicate(copy) data from game_data
+            * refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
+    # use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
+- do not load unecessary graphics for the player
+    # only rockbot should load the shield graphic
+    # only candy should have up and diagonal firing graphics
+- determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
 
 
 
 =========================================================================================================================================
-VERSION 2.0.1
+VERSION 2.0.7
 =========================================================================================================================================
 - PS2: add ISO/CD version
 - remove build warnings in PS2, PSP and Dingux

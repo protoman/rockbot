@@ -220,7 +220,7 @@ void game::start_stage()
         showGame(true, false);
         draw_lib.update_screen();
     }
-    for (int i=0; i<15; i++) { // extra delay to show dialogs
+    for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
         input.clean_all();
         showGame(false, false);
         draw_lib.update_screen();
@@ -305,6 +305,19 @@ void game::restart_stage()
     soundManager.restart_music();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     show_ready();
+
+    while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
+        input.clean_all();
+        showGame(true, false);
+        draw_lib.update_screen();
+    }
+    for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to teleport without moving screen
+        input.clean_all();
+        showGame(false, false);
+        draw_lib.update_screen();
+        timer.delay(20);
+    }
+
 }
 
 
@@ -1158,7 +1171,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE3;
+    currentStage = STAGE5;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

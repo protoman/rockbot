@@ -286,11 +286,16 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
         } else if (selected_option == 2) { // CONFIG PLATFORM
 #ifdef PC
             show_config_video();
-            //show_config_android();
+            //show_config_android(); // line used for test/debug
 #elif ANDROID
             show_config_android();
 #elif PSP
             show_config_video_PSP();
+
+#elif WII
+            show_config_wii();
+#elif PLAYSTATION2
+            show_config_PS2();
 #endif
         } else if (selected_option == 3) { // LEAVE STAGE
             res = 1;
@@ -399,15 +404,8 @@ void scenesLib::show_config_video()
     }
     if (selected_option != -1) {
         fio.save_config(game_config);
-        input.clean();
-        input.waitTime(300);
+        show_config_ask_restart();
         st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 180,  180, 0, 0, 0);
-        graphLib.draw_text(menu_pos.x-14, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
-        graphLib.draw_text(menu_pos.x-14, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
-        graphLib.draw_text(menu_pos.x-14, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
-        graphLib.draw_text(menu_pos.x-14, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
-        input.wait_keypress();
         graphLib.clear_area(menu_pos.x-14, menu_pos.y, 195, 100, 0, 0, 0);
         show_config_video();
     }
@@ -435,16 +433,67 @@ void scenesLib::show_config_video_PSP()
     }
     if (selected_option != -1) {
         fio.save_config(game_config);
-        input.clean();
-        input.waitTime(300);
-        st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-        graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
-        graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
-        input.wait_keypress();
+        show_config_ask_restart();
     }
+}
+
+void scenesLib::show_config_wii()
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    input.waitTime(300);
+
+    std::vector<std::string> options;
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE));
+    short selected_option = 0;
+    option_picker main_config_picker(false, config_text_pos, options, true);
+    selected_option = main_config_picker.pick();
+    if (selected_option != -1) {
+        game_config.wii_joystick_type = selected_option;
+    }
+}
+
+void scenesLib::show_config_PS2()
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    input.waitTime(300);
+
+    std::vector<std::string> options;
+    options.push_back("320x200");
+    options.push_back("320x240");
+    options.push_back("320x256");
+    options.push_back("400x256");
+    options.push_back("512x448");
+    options.push_back("720p");
+
+    short selected_option = 0;
+    option_picker main_config_picker(false, config_text_pos, options, true);
+    selected_option = main_config_picker.pick();
+    if (selected_option != -1) {
+        game_config.playstation2_video_mode = selected_option;
+        fio.save_config(game_config);
+        show_config_ask_restart();
+    }
+}
+
+void scenesLib::show_config_ask_restart()
+{
+    input.clean();
+    input.waitTime(300);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
+    input.wait_keypress();
 }
 
 void scenesLib::show_config_audio()
