@@ -53,7 +53,9 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
 	// load items from save
     move_speed = PLAYER_MOVE_SPEED;
     selected_weapon = 0;
-    name = "PLAYER1";
+    char temp_name[30];
+    sprintf(temp_name, "PLAYER_%d", _number);
+    name = std::string(temp_name);
     reset_charging_shot();
 }
 

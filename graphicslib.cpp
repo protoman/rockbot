@@ -680,11 +680,11 @@ int graphicsLib::draw_progressive_text(short int x, short int y, string text, bo
 	int text_y = 0;
 	unsigned int i;
 
-	if (!font) {
+    if (!font) {
 		printf("ERROR - no fount found - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #09");
 		exit(-1);
-	}
+    }
 
 
 	for (i=0; i<text.size(); i++) {
@@ -700,17 +700,17 @@ int graphicsLib::draw_progressive_text(short int x, short int y, string text, bo
 				text_y++;
 		}
 		updateScreen();
-		/*
+        /*
         if (interrupt) {
-			cut = input.waitScapeTime(5);
-			if (cut) { return 1; }
-		} else {
-			input.waitTime(5);
-		}
-		*/
-		timer.delay(15);
+            cut = input.waitScapeTime(5);
+            if (cut) { return 1; }
+        } else {
+            input.waitTime(5);
+        }
+        */
+        timer.delay(15);
 	}
-	return 0;
+    return 0;
 }
 
 

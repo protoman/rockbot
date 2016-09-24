@@ -148,6 +148,7 @@ namespace format_v4 {
         sprintf(lines[strings_ingame_input], "%s", "INPUT");
         sprintf(lines[strings_ingame_video], "%s", "VIDEO");
         sprintf(lines[strings_ingame_leavestage], "%s", "LEAVE STAGE");
+        sprintf(lines[strings_ingame_language], "%s", "LANGUAGE");
         sprintf(lines[strings_ingame_video_windowed], "%s", "WINDOWED");
         sprintf(lines[strings_ingame_video_fullscreen], "%s", "FULLSCREEN");
         sprintf(lines[strings_ingame_video_noscale], "%s", "NO SCALE  ");
@@ -280,10 +281,18 @@ namespace format_v4 {
         return list;
     }
 
-    std::string fio_strings::get_stage_dialogs_filename(short stage_id)
+    std::string fio_strings::get_stage_dialogs_filename(short stage_id, int language)
     {
         char char_filename[100];
-        sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);
+        if (language == 1) {
+            sprintf(char_filename, "/dialogs/stage_dialogs_%d_fr.dat", stage_id);
+        } else if (language == 2) {
+            sprintf(char_filename, "/dialogs/stage_dialogs_%d_es.dat", stage_id);
+        } else if (language == 3) {
+            sprintf(char_filename, "/dialogs/stage_dialogs_%d_it.dat", stage_id);
+        } else {
+            sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);
+        }
         std::string filename = FILEPATH + std::string(char_filename);
         return filename;
     }
@@ -326,7 +335,9 @@ namespace format_v4 {
                     res.push_back(player_line_value);
                 }
             }
-            save_game_strings(res, get_stage_dialogs_filename(i));
+            for (int lang=0; lang<4; lang++) {
+                save_game_strings(res, get_stage_dialogs_filename(i, lang));
+            }
             res.clear();
         }
     }
@@ -371,14 +382,14 @@ namespace format_v4 {
         return common_strings_list.at(id);
     }
 
-    std::string fio_strings::get_stage_dialog(short stage_id, int id)
+    std::string fio_strings::get_stage_dialog(short stage_id, int id, int language)
     {
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
-            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings();
-                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
             }
         }
         if (id < 0 || id >= dialogs_strings_list.size()) {
@@ -387,17 +398,23 @@ namespace format_v4 {
         return dialogs_strings_list.at(id);
     }
 
-    std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id)
+    std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id, int language)
     {
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
-            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings();
-                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id));
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
             }
         }
-        // check size
+        // generate dialogs, if needed
+        if (dialogs_strings_list.size() == 0) {
+            std::cout << "Generating default stage dialogs..." << std::endl;
+            create_default_dialog_strings();
+            std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
+            dialogs_strings_list = load_game_strings_from_file(dialogs_filename);
+        }
         if (dialogs_strings_list.size() < 60) {
             std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is 60." << std::endl;
             exit(-1);
@@ -419,9 +436,23 @@ namespace format_v4 {
 
     void fio_strings::save_stage_dialogs(short stage_id, std::vector<std::string> data)
     {
-        save_game_strings(data, get_stage_dialogs_filename(stage_id));
+        // @TODO: add support for multiple languages
+        save_game_strings(data, get_stage_dialogs_filename(stage_id, 0));
     }
 
+    std::string fio_strings::get_language_prefix(int config)
+    {
+        std::string res = "en";
+        if (config == 1) {
+            res = "fr";
+        } else if (config == 2) {
+            res = "es";
+        } else if (config == 3) {
+            res = "it";
+        }
+        std::cout << "FIO_STRINGS::get_language_prefix[" << config << "]=[" << res << "]" << std::endl;
+        return res;
+    }
 
 
 

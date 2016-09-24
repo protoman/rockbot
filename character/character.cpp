@@ -907,7 +907,9 @@ void character::show() {
         show_sprite_graphic(state.direction, state.animation_type, state.animation_state);
 	}
     st_rectangle hitbox = get_hitbox();
-    hitbox.x -= map->getMapScrolling().x;
+    if (map != NULL) {
+        hitbox.x -= map->getMapScrolling().x;
+    }
     if (is_player() == false) {
         if (freeze_weapon_effect != FREEZE_EFFECT_NPC || is_weak_to_freeze() == false) {
             show_sprite();
@@ -1362,6 +1364,9 @@ bool character::is_on_screen()
 
 bool character::is_on_visible_screen()
 {
+    if (!map) { // used ins scenes
+        return true;
+    }
     st_float_position scroll = map->getMapScrolling();
     // entre scroll.x e scroll.x+RES_W
 

@@ -180,7 +180,6 @@ map_data[number].backgrounds[0].speed = 0;
 
 void classMap::showMap()
 {
-    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     draw_dynamic_backgrounds();
     int tile_x_ini = scroll.x/TILESIZE-1;
     if (tile_x_ini < 0) {
@@ -460,6 +459,11 @@ void classMap::load_map_npcs()
 
 void classMap::draw_dynamic_backgrounds()
 {
+    // only draw solid background color, if map-heigth is less than RES_H
+    if (bg1_surface.width <= 0 || bg1_surface.height < RES_H) {
+        graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
+    }
+
 
     float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
     int bg1_scroll_mode = map_data[number].backgrounds[0].auto_scroll;
@@ -612,8 +616,9 @@ int classMap::get_first_lock_on_bottom(int x_pos)
     return 0;
 }
 
-void classMap::drop_item(st_position position)
+void classMap::drop_item(int i)
 {
+    st_position position = st_position(_npc_list.at(i).getPosition().x + _npc_list.at(i).get_size().width/2, _npc_list.at(i).getPosition().y + _npc_list.at(i).get_size().height/2);
     // dying out of screen should not drop item
     if (position.y > RES_H) {
         return;
@@ -638,6 +643,12 @@ void classMap::drop_item(st_position position)
             //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
             obj_type = DROP_ITEM_WEAPON_BIG;
         }
+
+        // sub-bosses always will drop energy big
+        if (_npc_list.at(i).is_subboss()) {
+            obj_type = DROP_ITEM_ENERGY_BIG;
+        }
+
         short obj_type_n = gameControl.get_drop_item_id(obj_type);
         if (obj_type_n == -1) {
             std::cout << ">>>>>>>>> obj_type_n(" << obj_type_n << ") invalid for obj_type(" << obj_type << ")" << std::endl;
@@ -1440,7 +1451,6 @@ void classMap::collision_player_special_attack(character* playerObj, const short
 
 classnpc* classMap::find_nearest_npc(st_position pos)
 {
-    std::vector<classnpc*>::iterator npc_it;
     int min_dist = 9999;
     classnpc* min_dist_npc = NULL;
 
@@ -1462,7 +1472,7 @@ classnpc* classMap::find_nearest_npc(st_position pos)
         }
         float dist = sqrt(pow((pos.x - _npc_list.at(i).getPosition().x), 2) + pow((pos.y - _npc_list.at(i).getPosition().y), 2));
         if (dist < min_dist) {
-            min_dist_npc = (*npc_it);
+            min_dist_npc = &_npc_list.at(i);
             min_dist = dist;
         }
     }
@@ -1649,7 +1659,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
             _npc_list.at(i).revive();
             continue;
         } else if (dead_state == 1 && _npc_list.at(i).is_spawn() == false && _npc_list.at(i).is_boss() == false) {// drop item
-            drop_item(st_position(_npc_list.at(i).getPosition().x + _npc_list.at(i).get_size().width/2, _npc_list.at(i).getPosition().y + _npc_list.at(i).get_size().height/2));
+            drop_item(i);
         }
 
         // if is showing stage boss on a stage already finished, just teleport out, victory is yours!

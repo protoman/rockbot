@@ -34,11 +34,13 @@ public:
     std::string get_game_strings_filename();
     std::vector<std::string> get_common_strings();
     std::string get_common_string(int id);
-    std::string get_stage_dialog(short stage_id, int id);
-    std::vector<std::string> get_stage_dialogs(short stage_id);
+    std::string get_stage_dialog(short stage_id, int id, int language);
+    std::vector<std::string> get_stage_dialogs(short stage_id, int language);
     void save_common_strings(std::vector<std::string> data);
     void create_files();
     void save_stage_dialogs(short stage_id, std::vector<std::string> data);
+
+    std::string get_language_prefix(int config);
 
 private:
     // === GAME STRINGS === //
@@ -46,7 +48,7 @@ private:
     std::vector<std::string> get_default_ingame_strings_list();
     void create_default_ingame_strings();
     std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list);
-    std::string get_stage_dialogs_filename(short stage_id);
+    std::string get_stage_dialogs_filename(short stage_id, int language);
 
     // === COMMON STRINGS === //
     void create_default_common_strings();
