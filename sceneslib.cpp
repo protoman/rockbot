@@ -255,6 +255,8 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #else
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific), true));
 #endif
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language)));
+
     if (called_from_game) {
         if (stage_finished) {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
@@ -292,10 +294,12 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #elif PSP
             show_config_video_PSP();
 #endif
-        } else if (selected_option == 3) { // LEAVE STAGE
+        } else if (selected_option == 3) { // LANGUAGE
+            show_config_language();
+        } else if (selected_option == 4) { // LEAVE STAGE
             res = 1;
             break;
-        } else if (selected_option == 4) { // QUIT GAME
+        } else if (selected_option == 5) { // QUIT GAME
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 SDL_Quit();
@@ -484,6 +488,44 @@ void scenesLib::show_config_audio()
         soundManager.update_volumes();
         fio.save_config(game_config);
     }
+}
+
+void scenesLib::show_config_language()
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    input.waitTime(300);
+
+    std::vector<std::string> options;
+    if (game_config.selected_language == 1) {           // FRENCH
+        options.push_back("ANGLAIS");
+        options.push_back("FRANCAIS");
+        options.push_back("ESPANOL");
+        options.push_back("ITALIEN");
+    } else if (game_config.selected_language == 2) {    // SPANISH
+        options.push_back("INGLES");
+        options.push_back("FRANCES");
+        options.push_back("ESPANOL");
+        options.push_back("ITALIANO");
+    } else if (game_config.selected_language == 3) {    // ITALIAN
+        options.push_back("INGLESE");
+        options.push_back("FRANCESE");
+        options.push_back("SPAGNOLO");
+        options.push_back("ITALIANO");
+    } else {                                            // ENGLISH
+        options.push_back("ENGLISH");
+        options.push_back("FRENCH");
+        options.push_back("SPANISH");
+        options.push_back("ITALIAN");
+    }
+
+    short selected_option = 0;
+    option_picker main_config_picker(false, config_text_pos, options, true);
+    selected_option = main_config_picker.pick();
+    game_config.selected_language = selected_option;
+    fio.save_config(game_config);
 }
 
 void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)

@@ -842,6 +842,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_input,
     strings_ingame_video,
     strings_ingame_leavestage,
+    strings_ingame_language,
     strings_ingame_video_windowed,
     strings_ingame_video_fullscreen,
     strings_ingame_video_noscale,

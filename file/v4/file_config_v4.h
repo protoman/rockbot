@@ -18,7 +18,7 @@ namespace format_v4 {
         int button_codes[BTN_COUNT];            // number indicator for the keyboard-keys
         bool game_finished;                     // stores if game was finished, so we can show more options to player
         Uint8 selected_input_device;
-        char selected_language[2];
+        Uint8 selected_language;
         bool turbo_mode;
         Uint8 volume_sfx;
         Uint8 volume_music;
@@ -183,7 +183,7 @@ namespace format_v4 {
             platform = get_current_platform();
             // Note: do not change game_finished when resetting
             selected_input_device = 0;
-            selected_language[0] = '\0';
+            selected_language = 0;
             turbo_mode = false;
             volume_sfx = 128;
             volume_music = 128;
