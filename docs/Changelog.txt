@@ -281,6 +281,22 @@ FILE-FORMAT-V4:
 - implementar efeito "trem"
 - as vezes, ao atirar rápido, aparece um semi-charged shot sem que tenha sido carregado
 - slide parando quando não tem espaço acima
+- em estágio com autoscroll, ao voltar da morte, deve esperar um pouco sem scroll, como faz no diálogo de entrada da fase
+- criar sub-menu para cada plataforma na config
+    # PC: fullscreen
+    # PSP: keep aspect ratio
+    # ANDROID: play services, touch controls hide, touch controls enabled
+    # WII: controller type (gamecube, classic, wiimote)
+    # PS2: resolution (poder escolher uma das que melhor se encaixam, mesmo que corte a tela um pouco)
+        256x224 - good
+        288x224 - good (strange colors?)
+        256x256 - ?
+        320x200 - distortion
+        320x240 - distortion
+        320x256 - distortion (small)
+        400x256 - distortion
+        512x448 - good but small
+
 
 **********************************************************************
                            VERSION 1.1.2

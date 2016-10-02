@@ -71,6 +71,9 @@ namespace format_v4 {
 
         int get_heart_pieces_number(st_save game_save);
 
+        void read_castle_data(file_castle& data_out);
+        void write_castle_data(file_castle& data_in);
+
 #ifdef PS2
         //int file_io::listcdvd(const char *path, entries *FileEntry);
         void ps2_listfiles(std::string filepath, std::vector<std::string> &res);

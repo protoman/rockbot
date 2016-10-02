@@ -156,6 +156,7 @@ void Mediator::load_game() {
     Mediator::get_instance()->fio.read_game(game_data);
     Mediator::get_instance()->fio.read_all_stages(stage_data);
     Mediator::get_instance()->fio.read_all_maps(maps_data);
+    Mediator::get_instance()->fio.read_castle_data(castle_data);
 
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
     if (enemy_list.size() == 0) { // add one first item to avoid errors
@@ -199,6 +200,7 @@ void Mediator::save_game()
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
     Mediator::get_instance()->fio.write_all_maps(maps_data);
+    Mediator::get_instance()->fio.write_castle_data(castle_data);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);

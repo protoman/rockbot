@@ -1488,7 +1488,7 @@ void graphicsLib::show_debug_msg(string msg)
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);
     updateScreen();
-    input.waitTime(3000);
+    input.waitTime(2000);
 }
 
 void graphicsLib::draw_path(st_position initial_point, st_position final_point, short duration)
@@ -1497,6 +1497,10 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
     // calculate distance
     int distance = 0;
     int mode = 0;
+
+    initial_point.x += 2;
+    final_point.x += 2;
+    int horizontal_adjust = 10;
 
     // add four because of the curve ahead
     if (initial_point.x > final_point.x) {
@@ -1512,28 +1516,32 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
         mode = 1;
     }
     // calculate time for each part, being  (move_step)2 pixels each
-    int part_duration = duration / (distance/move_step*2);
     if (distance == 0) {
         return;
     }
+    int part_duration = duration / (distance/move_step*2);
     if (distance < 0) {
         move_step = -move_step;
     }
     if (duration > 0) {
         for (int i=0; i<abs(distance/move_step); i++) {
-            if (mode == 0) {
-                clear_area(initial_point.x + i*move_step, initial_point.y, abs(move_step), 4, 255, 255, 255);
+            if (mode == 0) { // HORIZONTAL
+                clear_area(initial_point.x + i*move_step, initial_point.y, abs(move_step), 4, 255, 0, 255);
             } else {
-                clear_area(initial_point.x, initial_point.y - (i+1)*move_step, 4, abs(move_step), 255, 255, 255);
-            }
+                clear_area(initial_point.x, initial_point.y - (i+1)*move_step, 4, abs(move_step), 255, 255, 0);
+            } // VERTICAL
             updateScreen();
             input.waitTime(part_duration);
         }
     } else {
-        if (mode == 0) {
-            clear_area(initial_point.x, initial_point.y, abs(distance), 4, 255, 255, 255);
-        } else {
-            clear_area(initial_point.x, initial_point.y-distance, 4, abs(distance), 255, 255, 255);
+        if (mode == 0) { // HORIZONTAL
+            if (initial_point.x < final_point.x) {
+                clear_area(initial_point.x+horizontal_adjust, initial_point.y+2, abs(distance)-horizontal_adjust, 4, 255, 255, 255);
+            } else {
+                clear_area(final_point.x+horizontal_adjust, initial_point.y+2, abs(distance)-horizontal_adjust, 4, 255, 255, 255);
+            }
+        } else { // VERTICAL
+            clear_area(initial_point.x, initial_point.y-distance+2, 4, abs(distance)-2, 255, 255, 255);
         }
         updateScreen();
     }

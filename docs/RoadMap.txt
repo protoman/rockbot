@@ -50,14 +50,23 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
-
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
     # em modo demo, não entra em estágios já finalizados
     # Daisiebot afunda no chão ao mudar direção (turn)
 
+
+- EDITOR: mover diálogos de estágio para edição de strings
+
+- EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
+
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
+    # principalmente em escadas
+
+- substituir tiro carregado e voz por original (está girl hadouken)
+
+
+- pontos do castelo tem que vir dos arquivos e ser definido no editor
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
@@ -65,32 +74,30 @@ VERSION 2.0.0 BETA 1
     # remove non-used fonts
     # remove non-used graphics
 
-- test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
-    # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
+- atualizar template de novo jogo
+
+- DEMO deve ser intro + 2 fases apenas
+- DEMO deve ser sequencial, um estágio depois do outro, sem seleção.
+- DEMO deve ter tela final agradecendo e mandando comprar full-version
 
 - criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
 
-- adicionar suporte à configuração de controle do wii
-- adicionar suporte à configuração de resolução do playstation 2
+>>>>>>>>>>>>>>>>>>>>>>>>>>
+ESTAGIOS:
+>>>>>>>>>>>>>>>>>>>>>>>>>>
+- beast: refatorar, arrumar
+- skull 1: definir estilo e tilesets, criar design
+- skull 2: definir estilo e tilesets, criar design
+- skull 3: definir estilo e tilesets, criar design
+- skull 4: definir estilo e tilesets, criar design
+- skull 5: definir estilo e tilesets, criar design
+
 
 ##################################
              DONE
 ##################################
-- em estágio com autoscroll, ao voltar da morte, deve esperar um pouco sem scroll, como faz no diálogo de entrada da fase
-- criar sub-menu para cada plataforma na config
-    # PC: fullscreen
-    # PSP: keep aspect ratio
-    # ANDROID: play services, touch controls hide, touch controls enabled
-    # WII: controller type (gamecube, classic, wiimote)
-    # PS2: resolution (poder escolher uma das que melhor se encaixam, mesmo que corte a tela um pouco)
-        256, 224 - good
-        288, 224 - good (strange colors?)
-        256x256 -
-        320x200 - distortion
-        320x240 - distortion
-        320x256 - distortion (small)
-        400x256 - distortion
-        512x448 - good but small
+- EDITOR: permitir definir pontos do castelo
+
 
 
 
@@ -99,7 +106,21 @@ VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+
+- se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
+- adicionar suporte à configuração de controle do wii
+    # The Wii controllers are mapped as SDL joysticks 0-3. The gamecube controller ports are mapped as SDL joysticks 4-7
+
+
+- PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
+
+- adicionar suporte à configuração de resolução do playstation 2
+- test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
+    # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
+
+
 - implementar water effect (fase azulada)
+    # usar posição do bg2 para definir altura
 
 - remover da memória SFX usados apenas uma única vez
     # estes devem usar play from file

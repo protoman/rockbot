@@ -772,12 +772,10 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
-        /*
         data_out.stages[INTRO_STAGE] = 1;
-        for (int i=1; i<CASTLE1_STAGE1; i++) {
+        for (int i=1; i<CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 1;
         }
-        */
         //data_out.stages[INTRO_STAGE] = 1;
         //data_out.stages[STAGE1] = 0;
         //data_out.stages[STAGE2] = 0;
@@ -877,6 +875,35 @@ namespace format_v4 {
             }
         }
         return res;
+    }
+
+    void file_io::read_castle_data(file_castle &data_out)
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + "castle_data" + sufix + ".dat";
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        fp.read(reinterpret_cast<char *>(&data_out), sizeof(struct format_v4::file_castle));
+        fp.close();
+    }
+
+    void file_io::write_castle_data(file_castle &data_in)
+    {
+        std::ofstream fp;
+        std::string filename = std::string(FILEPATH) + "castle_data" + sufix + ".dat";
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
+            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        } else {
+            std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
+        }
+        fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct format_v4::file_castle));
+        fp.close();
     }
 
 

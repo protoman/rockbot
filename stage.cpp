@@ -64,12 +64,11 @@ void stage::setNumber(int setNumber)
 void stage::loadStage() {
     //std::cout << "*************** stage::loadStage(" << number << ") ***************" << std::endl;
     if (number == -1) {
-
         graphLib.show_debug_msg("ERROR::stage::loadStage - stage number was not set, can't load it before setting the number");
 		return;
 	}
     if (number >= MAX_STAGES) {
-
+        graphLib.show_debug_msg("ERROR::loadStage invalid number");
         std::cout << "ERROR::stage::loadStage - stage number[" << number << "] is greater than the MAX_STAGES[" << MAX_STAGES << "].\n";
         return;
 	}

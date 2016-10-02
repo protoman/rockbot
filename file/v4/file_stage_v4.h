@@ -34,8 +34,15 @@ struct file_dialog { // DONE - Stage x2
 // defines a castle intro and details
 struct file_castle {
     st_position points[CASTLE_STAGES_MAX];
-    char filename[FS_FILENAME_SIZE];                                        // castle background image
     file_dialog boss_defeated_dialog;                                       // boss defeated dialog
+
+    file_castle() {
+        // default values from Rockbot1
+        points[0] = st_position(109, 150);
+        points[1] = st_position(177, 138);
+        points[2] = st_position(195, 110);
+        points[3] = st_position(167, 42);
+    }
 };
 
 

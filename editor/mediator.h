@@ -107,6 +107,7 @@ public:
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
     CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
+    CURRENT_FILE_FORMAT::file_castle castle_data;
 
     std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;

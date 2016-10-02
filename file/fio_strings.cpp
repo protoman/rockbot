@@ -284,11 +284,11 @@ namespace format_v4 {
     std::string fio_strings::get_stage_dialogs_filename(short stage_id, int language)
     {
         char char_filename[100];
-        if (language == 1) {
+        if (language == LANGUAGE_FRENCH) {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d_fr.dat", stage_id);
-        } else if (language == 2) {
+        } else if (language == LANGUAGE_SPANISH) {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d_es.dat", stage_id);
-        } else if (language == 3) {
+        } else if (language == LANGUAGE_ITALIAN) {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d_it.dat", stage_id);
         } else {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);

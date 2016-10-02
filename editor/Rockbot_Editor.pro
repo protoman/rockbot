@@ -64,7 +64,7 @@ SOURCES += main.cpp \
     dialogobjectedit.cpp \
     projectilepreviewarea.cpp \
     ../file/file_io.cpp \
-	player_preview_area.cpp \
+    player_preview_area.cpp \
     mainwindow_tab/npc_edit.cpp \
     common.cpp \
     mainwindow_tab/object_tab.cpp \
@@ -112,7 +112,8 @@ SOURCES += main.cpp \
     mainwindow_tab/anim_tiles_edit.cpp \
     framespreviewarea.cpp \
     widgets/animtilepalette.cpp \
-    mainwindow_tab/anim/animpackimport.cpp
+    mainwindow_tab/anim/animpackimport.cpp \
+    mainwindow_tab/castlepointspreviewarea.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -126,7 +127,7 @@ HEADERS += mainwindow.h \
     projectilepreviewarea.h \
     ../file/file_io.h \
     ../file/format.h \
-	player_preview_area.h \
+    player_preview_area.h \
     mainwindow_tab/npc_edit.h \
     common.h \
     mainwindow_tab/object_tab.h \
@@ -189,7 +190,8 @@ HEADERS += mainwindow.h \
     mainwindow_tab/anim_tiles_edit.h \
     framespreviewarea.h \
     widgets/animtilepalette.h \
-    mainwindow_tab/anim/animpackimport.h
+    mainwindow_tab/anim/animpackimport.h \
+    mainwindow_tab/castlepointspreviewarea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

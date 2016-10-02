@@ -76,6 +76,19 @@ void game_properties_tab::fill_data()
         ui->stageNumber_comboBox->setCurrentIndex(0);
     }
 
+    ui->castlePoint_1_x->setValue(Mediator::get_instance()->castle_data.points[0].x);
+    ui->castlePoint_1_y->setValue(Mediator::get_instance()->castle_data.points[0].y);
+
+    ui->castlePoint_2_x->setValue(Mediator::get_instance()->castle_data.points[1].x);
+    ui->castlePoint_2_y->setValue(Mediator::get_instance()->castle_data.points[1].y);
+
+    ui->castlePoint_3_x->setValue(Mediator::get_instance()->castle_data.points[2].x);
+    ui->castlePoint_3_y->setValue(Mediator::get_instance()->castle_data.points[2].y);
+
+    ui->castlePoint_4_x->setValue(Mediator::get_instance()->castle_data.points[3].x);
+    ui->castlePoint_4_y->setValue(Mediator::get_instance()->castle_data.points[3].y);
+
+
 
     _data_loading = false;
 }
@@ -197,4 +210,74 @@ void game_properties_tab::on_gameStartMusic_comboBox_currentIndexChanged(const Q
 {
     if (_data_loading == true) return;
     sprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
+}
+
+void game_properties_tab::on_castlePoint_1_x_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[0].x = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_1_y_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[0].y = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_2_x_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[1].x = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_2_y_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[1].y = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_3_x_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[2].x = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_3_y_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[2].y = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_4_x_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[3].x = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_4_y_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[3].y = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_5_x_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[4].x = arg1;
+    ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_castlePoint_5_y_valueChanged(int arg1)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->castle_data.points[4].y = arg1;
+    ui->castlePointsPreviewArea->repaint();
 }

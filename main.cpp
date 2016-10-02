@@ -352,7 +352,6 @@ int main(int argc, char *argv[])
 #endif
 
 
-    printf(">> WII.DEBUG #A <<");
     fflush(stdout);
 
     get_filepath();
@@ -427,11 +426,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-    printf(">> WII.DEBUG #B <<");
     fflush(stdout);
 
     /// DEBUG ///
-    GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX
@@ -448,7 +446,6 @@ int main(int argc, char *argv[])
         SAVEPATH = GAMEPATH;
     #endif
 
-    printf(">> WII.DEBUG #C <<");
     fflush(stdout);
 
 
@@ -460,13 +457,11 @@ int main(int argc, char *argv[])
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
-        printf(">> WII.DEBUG #D <<");
         fflush(stdout);
         std::cout << "ERROR intializing graphic mode." << std::endl;
         return -1;
     }
 
-    printf(">> WII.DEBUG #E <<");
     fflush(stdout);
 
 #ifdef ANDROID
@@ -478,7 +473,6 @@ int main(int argc, char *argv[])
 
     GAMENAME = gameControl.select_game_screen();
 
-    printf(">> WII.DEBUG #F <<");
     fflush(stdout);
 
     // DEBUG PS2 //
@@ -499,21 +493,13 @@ int main(int argc, char *argv[])
     }
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
 
-
-    printf(">> WII.DEBUG #G <<");
-    fflush(stdout);
-
-    std::cout << "GAMENAME: " << GAMENAME << std::endl;
-
 	fio.read_game(game_data);
-
 
     //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG
 
 
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();
-
 
     // define SAVEPATH
     #ifdef PLAYSTATION2
@@ -528,6 +514,7 @@ int main(int argc, char *argv[])
         }
 
     #endif
+
 
     /*
     #ifndef DEBUG_OUTPUT // redirect output to null
@@ -545,6 +532,17 @@ int main(int argc, char *argv[])
         #endif
     #endif
     */
+
+#ifdef WII
+        ofstream cout("output.txt");
+        ios_base::sync_with_stdio(false);
+        std::cout.rdbuf(cout.rdbuf());
+        /*
+        std::ofstream out("out.txt");
+        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+        */
+#endif
 
 
     graphLib.preload();
@@ -569,11 +567,10 @@ int main(int argc, char *argv[])
     input.clean();
 
 
+
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (gameControl.showIntro() == false) {
-            printf(">> WII.DEBUG #INTRO ERROR <<");
-            fflush(stdout);
             std::cout << "ERROR SHOWING INTRO" << std::endl;
 			return 0;
 		}
@@ -585,12 +582,14 @@ int main(int argc, char *argv[])
     }
 
 
+
     bool run_game = true;
 
     fps_control fps_manager;
     fps_manager.initialize();
 
     fflush(stdout);
+
 
 
     while (run_game) {

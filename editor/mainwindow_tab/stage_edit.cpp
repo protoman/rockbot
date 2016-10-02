@@ -120,7 +120,7 @@ void stage_edit::update_stage_data()
 
     int stage_id = Mediator::get_instance()->currentStage;
     if (Mediator::get_instance()->stage_dialog_list.find(Mediator::get_instance()->currentStage) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage)));
+        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, LANGUAGE_ENGLISH)));
     }
 
     ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(0).c_str()));

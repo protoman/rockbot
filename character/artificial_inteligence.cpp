@@ -196,7 +196,7 @@ void artificial_inteligence::execute_ai_step()
         //if (name == "Giant Fly") std::cout << "AI::FLY - " << _ai_chain_n << std::endl;
         execute_ai_step_fly();
     } else if (_current_ai_type == AI_ACTION_JUMP) {
-        std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
         execute_ai_step_jump();
     } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
         //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
@@ -1765,7 +1765,7 @@ enum AI_ACTION_JUMP_OPTION_LIST {
         //std::cout << ">> AI:exec[" << name << "] JUMP TO RANDOM <<" << std::endl;
         ia_action_jump_to_random();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_ONCE) {
-        std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] JUMP TO ONCE <<" << std::endl;
         ia_action_jump_once();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_UP) {
         //std::cout << ">> AI:exec[" << name << "] JUMP TO UP <<" << std::endl;

@@ -52,10 +52,10 @@ void stage_swap_dialog::on_buttonBox_accepted()
     // load data, if needed
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     if (Mediator::get_instance()->stage_dialog_list.find(dest_n) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(dest_n, fio_str.get_stage_dialogs(dest_n)));
+        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(dest_n, fio_str.get_stage_dialogs(dest_n, LANGUAGE_ENGLISH)));
     }
     if (Mediator::get_instance()->stage_dialog_list.find(origin_n) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(origin_n, fio_str.get_stage_dialogs(origin_n)));
+        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(origin_n, fio_str.get_stage_dialogs(origin_n, LANGUAGE_ENGLISH)));
     }
 
 

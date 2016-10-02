@@ -111,10 +111,12 @@ void classMap::setMapNumber(int setMapN) {
 void classMap::loadMap()
 {
 	if (stage_number == -1) {
+        graphLib.show_debug_msg("ERROR::loadStage invalid number[-1]");
 		cout << "ERROR::map::loadMap - stage number was not set, can't load it before setting the number.\n";
 		return;
 	}
 	if (number == -1) {
+        graphLib.show_debug_msg("ERROR::loadStage invalid number[>MAX]");
 		cout << "ERROR::map::loadMap - map number was not set, can't load it before setting the number.\n";
 		return;
     }
@@ -434,7 +436,6 @@ void classMap::load_map_npcs()
     while (!_npc_list.empty()) {
         _npc_list.pop_back();
     }
-
 
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
