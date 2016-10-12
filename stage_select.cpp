@@ -208,7 +208,6 @@ struct st_position stage_select::select() {
 	input.waitTime(200);
 
 	while (selection_end == 0) {
-		input.readInput();
 
         if (input.p1_input[BTN_QUIT]) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)

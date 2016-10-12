@@ -58,7 +58,6 @@ void key_map::draw_screen()
     graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
-        input.readInput();
         if (input.p1_input[BTN_START]) {
             if (_pick_pos == (short)_keys_list.size()) {
                 finished = true;

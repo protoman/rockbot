@@ -590,7 +590,6 @@ void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
     graphLib.draw_text(config_text_pos_x+34, config_text_pos_y, " >");
 
     while (true) {
-        input.readInput();
 
         if (value_ref < 10) {
             sprintf(value, "00%d", value_ref);
@@ -634,7 +633,6 @@ bool scenesLib::password_ball_selector()
     timer.delay(10);
 
 	while (true) {
-		input.readInput();
 		if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
 			soundManager.play_sfx(SFX_CURSOR);
 			if (selected_ball == 0) {
@@ -816,7 +814,6 @@ bool scenesLib::password_end_selector()
     timer.delay(10);
 
     while (true) {
-        input.readInput();
 		if (input.p1_input[BTN_UP] == 1) {
             graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w/2, _password_selector.get_surface()->h), end_pos1, &_password_selector, &graphLib.gameScreen);
             graphLib.copyArea(st_rectangle( _password_selector.get_surface()->w/2, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), end_pos2, &_password_selector, &graphLib.gameScreen);
@@ -861,7 +858,6 @@ void scenesLib::password_number_selector(int ball_type)
     timer.delay(10);
 
 	while (true) {
-		input.readInput();
 		if (input.p1_input[BTN_LEFT] == 1) {
             graphLib.copyArea(st_rectangle(0, _password_selector.get_surface()->h/2, _password_selector.get_surface()->w, _password_selector.get_surface()->h), st_position(selected_number.x*point_zero.w + point_zero.x, selected_number.y*point_zero.h + point_zero.y), &_password_selector, &graphLib.gameScreen);
 			selected_number.x--;
@@ -1071,7 +1067,6 @@ Uint8 scenesLib::select_player() {
     input.waitTime(100);
 
     while (true) {
-        input.readInput();
         if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
             soundManager.play_sfx(SFX_CURSOR);
             if (input.p1_input[BTN_RIGHT] == 1) {

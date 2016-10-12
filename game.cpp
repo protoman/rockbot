@@ -97,7 +97,7 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
         exit_game();
     }
     if (player1.is_teleporting() == false) { // ignore input while player is teleporting because it caused some issues
-        input.readInput();
+        input.read_input();
     }
 
     if (config_manager.execute_ingame_menu()) { // game is paused
@@ -1094,7 +1094,6 @@ void game::game_pause()
 void game::game_unpause()
 {
     timer.unpause();
-    input.readInput();
     player1.restore_input();
 }
 

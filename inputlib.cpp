@@ -8,8 +8,6 @@ extern SDL_Event event;
 #include "timerlib.h"
 extern timerLib timer;
 
-#include "graphicslib.h"
-extern graphicsLib graphLib;
 
 #include "game.h"
 extern game gameControl;
@@ -27,6 +25,18 @@ inputLib::inputLib() : _used_keyboard(false)
 		p1_input[i] = 0;
 	}
     _show_btn_debug = false;
+    _run_thread = false;
+}
+
+void inputLib::start_read()
+{
+    _run_thread = true;
+    read_thread = SDL_CreateThread(read_input_thread_function, (void *)this);
+}
+
+void inputLib::stop_read()
+{
+    _run_thread = false;
 }
 
 void inputLib::init_joystick()
@@ -72,7 +82,7 @@ void inputLib::clean_all()
 //                                                                                                //
 // ********************************************************************************************** //
 
-void inputLib::readInput()
+void inputLib::read_input()
 {
     _used_keyboard = false;
 
@@ -243,6 +253,23 @@ void inputLib::readInput()
     }
 }
 
+bool inputLib::must_run_thread()
+{
+    return _run_thread;
+}
+
+int inputLib::read_input_thread_function(void *ptr)
+{
+    inputLib* this_obj = (inputLib*)ptr;
+    while (this_obj->must_run_thread()) {
+#ifdef PLAYSTATION
+    RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
+#endif
+        this_obj->read_input();
+        SDL_Delay(1);
+    }
+}
+
 
 
 // ********************************************************************************************** //
@@ -265,7 +292,7 @@ void inputLib::waitTime(int wait_period) const {
 		#ifdef PLAYSTATION
 			RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
 		#endif
-        graphLib.updateScreen();
+        //graphLib.updateScreen();
 	}
 }
 
@@ -281,7 +308,6 @@ int inputLib::waitScapeTime(int wait_period) {
 	wait_period = now_time + wait_period;
 
 	while (now_time < wait_period) {
-		readInput();
         if (p1_input[BTN_START] == 1) {
 			return 1;
         } else if (p1_input[BTN_QUIT] == 1) {
@@ -303,11 +329,9 @@ void inputLib::wait_keypress()
 {
     bool fim = false;
     while (!fim) {
-        readInput();
         if (p1_input[BTN_START] == 1 || p1_input[BTN_JUMP] == 1) {
             fim = true;
         }
-        graphLib.updateScreen();
         waitTime(50);
     }
     clean();

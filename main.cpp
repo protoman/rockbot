@@ -471,6 +471,8 @@ int main(int argc, char *argv[])
 
 
 
+    input.start_read();
+    //GAMENAME = std::string("Rockbot2");
     GAMENAME = gameControl.select_game_screen();
 
     fflush(stdout);

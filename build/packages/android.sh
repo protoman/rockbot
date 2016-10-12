@@ -33,18 +33,22 @@ case $response in
 		LINENUMBERFULLNAME=`grep -n "AppFullName=" AndroidAppSettings.cfg | cut -f1 -d:`
 		
 		if [[ -z "$LINENUMBER" ]]
+		then
                     echo "Error getting LINENUMBER"
                     return
 		fi
 		if [[ -z "$LINENUMBERVERSION" ]]
+		then
                     echo "Error getting LINENUMBERVERSION"
                     return
 		fi
 		if [[ -z "$LINENUMBERAPPNAME" ]]
+		then
                     echo "Error getting LINENUMBERAPPNAME"
                     return
 		fi
 		if [[ -z "$LINENUMBERFULLNAME" ]]
+		then
                     echo "Error getting LINENUMBERFULLNAME"
                     return
 		fi
