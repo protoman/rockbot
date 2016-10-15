@@ -42,6 +42,13 @@ public:
 
     std::string get_language_prefix(int config);
 
+    // === COMMON STRINGS === //
+    std::string get_scenes_strings_filename();
+    std::vector<std::string> get_scenes_strings();
+    std::string get_scenes_string(int id);
+    void save_scenes_strings(std::vector<std::string> data);
+
+
 private:
     // === GAME STRINGS === //
     bool file_exists(std::string filename) const;
@@ -57,6 +64,7 @@ private:
 private:
     std::vector<std::string> string_list;
     std::vector<std::string> common_strings_list;
+    std::vector<std::string> scenes_strings_list;
     short _dialogs_stage_id;    // sotres the loaded stage dialogs id, if this changes, we get the dialogs form the new id
     std::vector<std::string> dialogs_strings_list;
 

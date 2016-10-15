@@ -106,15 +106,15 @@ QVariant ObjectListModel::headerData(int section, Qt::Orientation orientation, i
             switch (section)
             {
             case 0:
-                return QString("Object Name");
+                return QString("Item Name");
             case 1:
-                return QString("Delay for Next");
+                return QString("After Delay");
             case 2:
                 return QString("Repeat Type");
             case 3:
                 return QString("Repeat Value");
             case 4:
-                return QString("Run In Background");
+                return QString("Run In Parallel");
             }
         }
     }
@@ -127,7 +127,13 @@ Qt::ItemFlags ObjectListModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags result = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (index.column() != 0) {
+
+    if (index.column() == 0) {
+        int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[index.row()].type;
+        if (type != CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN)         {
+            result |= Qt::ItemIsEditable;
+        }
+    } else {
         result |= Qt::ItemIsEditable;
     }
     if (index.column() == 4) {
@@ -142,7 +148,34 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
     int row = index.row();
     int col = index.column();
 
-    if (col == 1) {
+    if (col == 0) {
+        std::string name = value.toString().toStdString();
+        int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].type;
+        int seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].seek_n;
+
+        if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
+            sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
+            sprintf(ScenesMediator::get_instance()->image_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
+            sprintf(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
+            sprintf(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
+            sprintf(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
+            sprintf(ScenesMediator::get_instance()->animation_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
+            sprintf(ScenesMediator::get_instance()->text_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
+            sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
+            sprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, "%s", name.c_str());
+        } else {
+            std::cout << "Invalid object to set name" << std::endl;
+            return false;
+        }
+    } else if (col == 1) {
         ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].delay_after = value.toInt();
     } else if (col == 2) {
         ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type = value.toInt();
@@ -151,13 +184,14 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
     } else if (col == 4) {
         ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background = value.toBool();
     }
-
+    return true;
 }
 
 void ObjectListModel::update()
 {
     QModelIndex topLeft = index(0, 0);
     QModelIndex bottomRight = index(rowCount()-1, columnCount()-1);
+
 
     //std::cout << "%%%%%%%%%%%%%% ObjectListModel::update - RUN, row: " << (rowCount()-1) << " %%%%%%%%%%%%%%" << std::endl;
 

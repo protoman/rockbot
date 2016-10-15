@@ -125,7 +125,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
         for (j=0; j<MAP_H; j++) {
 
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK) {
-                std::cout << "lock: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked << ", easy: " << TERRAIN_EASYMODEBLOCK << std::endl;
+                //std::cout << "lock: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked << ", easy: " << TERRAIN_EASYMODEBLOCK << std::endl;
             }
 
 
@@ -223,7 +223,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
             // EASY-mode tiles
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK) {
-                std::cout << "TERRAIN_EASYMODEBLOCK" << std::endl;
+                //std::cout << "TERRAIN_EASYMODEBLOCK" << std::endl;
 
                 QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
                 QRectF source(QPoint(0, 0), QSize(16, 16));

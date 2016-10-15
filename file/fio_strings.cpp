@@ -12,6 +12,7 @@ extern std::string GAMEPATH;
 
 #define STRINGS_INGAME_FILENAME "/strings_ingame.dat"
 #define STRINGS_COMMON_FILENAME "/common_strings.dat"
+#define STRINGS_SCENES_FILENAME "/scenes_strings.dat"
 
 fio_strings::fio_strings()
 {
@@ -94,8 +95,8 @@ namespace format_v4 {
         }
 
         for (int i=0; i<list.size(); i++) {
-            std::string line = list.at(i);
-            //std::cout << "save_game_strings - add line '" << line << "'" << std::endl;
+            // add line break to separate each line
+            std::string line = list.at(i) + std::string("\n");
             fp << line.c_str();
         }
         fp.close();
@@ -111,6 +112,13 @@ namespace format_v4 {
     std::string fio_strings::get_game_strings_filename()
     {
         std::string filename = std::string(GAMEPATH) + "/shared/" + STRINGS_INGAME_FILENAME;
+        filename = StringUtils::clean_filename(filename);
+        return filename;
+    }
+
+    std::string fio_strings::get_scenes_strings_filename()
+    {
+        std::string filename = FILEPATH + STRINGS_SCENES_FILENAME;
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
@@ -357,6 +365,49 @@ namespace format_v4 {
             common_strings_list = load_game_strings_from_file(get_common_strings_filename());
         }
         return common_strings_list;
+    }
+
+    std::vector<std::string> fio_strings::get_scenes_strings()
+    {
+        if (FILEPATH == "") {
+            std::cout << "FIO_STRINGS - NO FILEPATH count: " << scenes_strings_list.size() << std::endl;
+            return scenes_strings_list;
+        }
+
+        if (scenes_strings_list.size() == 0) {
+            std::cout << "FIO_STRINGS - LOAD count: " << scenes_strings_list.size() << std::endl;
+            scenes_strings_list = load_game_strings_from_file(get_scenes_strings_filename());
+        }
+        return scenes_strings_list;
+    }
+
+    std::string fio_strings::get_scenes_string(int id)
+    {
+        if (id == -1) {
+            return std::string("");
+        }
+        if (FILEPATH == "") {
+            return std::string("");
+        }
+
+        std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
+
+        if (scenes_strings_list.size() == 0) {
+            scenes_strings_list = load_game_strings_from_file(get_scenes_strings_filename());
+        }
+
+        if (id >= scenes_strings_list.size()) {
+            return std::string("");
+        }
+
+        std::string res = scenes_strings_list.at(id);
+
+        return res;
+    }
+
+    void fio_strings::save_scenes_strings(std::vector<std::string> data)
+    {
+        save_game_strings(data, get_scenes_strings_filename());
     }
 
     std::string fio_strings::get_common_string(int id)

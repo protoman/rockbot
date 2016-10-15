@@ -24,18 +24,21 @@ class StringsEditor : public QDialog
     Q_OBJECT
 
 public:
-    explicit StringsEditor(QWidget *parent, bool pick_mode);
+    explicit StringsEditor(QWidget *parent, int mode);
     ~StringsEditor();
     void save_data();
     void set_target_qline(QLineEdit* line);
     QLineEdit* get_target_qline();
     void set_target_property(int *prop);
     int *get_target_property();
+    int get_pick_mode();
+    void closeEvent (QCloseEvent *event);
 
 private:
     void fill_data();
     void fill_translation();
     void load_language(std::string filename);
+    void save();
 
 
 public slots:
@@ -49,6 +52,10 @@ private slots:
     void on_languageSelector_comboBox_currentTextChanged(const QString &arg1);
 
 
+
+    void on_addScenesString_pushButton_clicked();
+
+    void on_addCommonString_pushButton_clicked();
 
 signals:
     void on_accepted(int);                  // emits a signal indicating the selected line number
@@ -64,7 +71,8 @@ private:
     bool data_loading;
     std::string current_lang;
     StringEditModel string_edit_model;
-    bool pick_mode_enabled;
+    StringEditModel scenes_string_edit_model;
+    int pick_mode;
 
     // target QLineEdit
     QLineEdit* target_qline;

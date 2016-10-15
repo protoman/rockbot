@@ -166,7 +166,10 @@ void TabScenelist::on_addButton_clicked()
 void TabScenelist::on_sceneSelector_currentIndexChanged(int index)
 {
     ScenesMediator::get_instance()->selected_scene = index;
-    model_scenes.update();
+    if (index != -1) {
+        ui->name_lineEdit->setText(ScenesMediator::get_instance()->scenes_list.at(index).name);
+        model_scenes.update();
+    }
 }
 
 void TabScenelist::on_removeButton_clicked()

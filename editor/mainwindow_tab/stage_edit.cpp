@@ -221,7 +221,7 @@ void stage_edit::on_string_selected(int string_id)
 
 void stage_edit::string_tooltip_click(int *property, QLineEdit *qline)
 {
-    StringsEditor* strings_editor_window = new StringsEditor(this, true);
+    StringsEditor* strings_editor_window = new StringsEditor(this, 1);
     QObject::connect(strings_editor_window, SIGNAL(on_accepted(int)), this, SLOT(on_string_selected(int)));
     strings_editor_window->set_target_property(property);
     strings_editor_window->set_target_qline(qline);

@@ -594,7 +594,7 @@ void MainWindow::on_actionMovie_Editor_triggered()
 
 void MainWindow::on_actionStrings_Editor_triggered()
 {
-    strings_editor_window = new StringsEditor(this, false);
+    strings_editor_window = new StringsEditor(this, 0);
     strings_editor_window->show();
 }
 

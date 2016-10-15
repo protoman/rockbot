@@ -3,7 +3,7 @@
 StringEditModel::StringEditModel(QObject *parent)
 {
     _parent = parent;
-    pick_mode_enabled = false;
+    pick_mode = false;
 }
 
 int StringEditModel::columnCount(const QModelIndex &parent) const
@@ -63,7 +63,7 @@ Qt::ItemFlags StringEditModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags result = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-    if (pick_mode_enabled == false && index.column() == 1) {
+    if (pick_mode == pick_mode_edit && index.column() == 1) {
         result |= Qt::ItemIsEditable;
     }
 
@@ -87,10 +87,30 @@ bool StringEditModel::setData(const QModelIndex &index, const QVariant &value, i
 void StringEditModel::set_data(std::vector<std::string> data)
 {
     string_list = data;
+    update();
 }
 
-void StringEditModel::set_pick_mode(bool pick_mode)
+std::vector<std::string> StringEditModel::get_data()
 {
-    pick_mode_enabled = pick_mode;
+    return string_list;
+}
+
+void StringEditModel::add_line()
+{
+    string_list.push_back(std::string("NEW LINE"));
+    update();
+}
+
+void StringEditModel::set_pick_mode(int mode)
+{
+    pick_mode = mode;
+}
+
+void StringEditModel::update()
+{
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(rowCount()-1, columnCount()-1);
+    emit dataChanged ( topLeft, bottomRight );
+    emit layoutChanged();
 }
 

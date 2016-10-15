@@ -298,6 +298,10 @@ FILE-FORMAT-V4:
         512x448 - good but small
 
 
+- separar leitura de input em uma thread
+- EDITOR: permitir definir pontos do castelo
+
+
 **********************************************************************
                            VERSION 1.1.2
 **********************************************************************
