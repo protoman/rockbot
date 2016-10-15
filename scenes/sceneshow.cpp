@@ -45,6 +45,7 @@ void sceneShow::show_scene(int n)
         //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
         if (scene_seek_n != -1) {
             int scene_type = scene.objects[i].type;
+            //std::cout << "### scene_type[" << scene_type << "]" << std::endl;
             if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
                 show_text(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
@@ -68,9 +69,13 @@ void sceneShow::show_scene(int n)
             } else {
                 std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
+            std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
             timer.delay(scene.objects[i].delay_after);
+        } else {
+            break;
         }
     }
+    std::cout << "show_scene::DONE" << std::endl;
 }
 
 void sceneShow::show_image(int n)
@@ -208,7 +213,7 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     std::vector<std::string> text_lines;
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
 
-        std::string line = fio_str.get_common_string(text.line_string_id[i]);
+        std::string line = fio_str.get_scenes_string(text.line_string_id[i]);
 
         if (line.size() > 0) {
             text_lines.push_back(line);
@@ -247,15 +252,31 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
         pos_y = text.y;
     }
 
+    std::vector<std::string> lines;
+    int max_w = 0;
     for (int i=0; i<text_lines.size(); i++) {
         std::string line = std::string(text_lines.at(i));
         if (line.length() < 1) {
             break;
         }
+        lines.push_back(line);
+        if (line.length() * FONT_SIZE > max_w) {
+            max_w = line.length() * (FONT_SIZE+2);
+        }
+    }
+    // clear text area
+    int max_h = lines.size()*LINE_H_DIFF;
+    std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
+    graphLib.clear_area(pos_x, pos_y, max_w, max_h, 0, 0, 0);
+
+
+    for (int i=0; i<lines.size(); i++) {
+        std::string line = std::string(lines.at(i));
         int adjusted_y = pos_y+(LINE_H_DIFF*i);
         graphLib.clear_area(pos_x, adjusted_y, line.length()*9, 8, 0, 0, 0);
-        graphLib.draw_progressive_text(pos_x, adjusted_y, line, false);
+        graphLib.draw_progressive_text(pos_x, adjusted_y, line, false, 30);
     }
+    std::cout << "run_text::DONE" << std::endl;
 }
 
 void sceneShow::show_viewpoint(int n)

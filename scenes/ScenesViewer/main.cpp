@@ -127,11 +127,21 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    input.start_read();
     sceneShow show;
     show.show_scene(0);
 
-    input.wait_keypress();
+    // horizontal lines
+    graphLib.draw_rectangle(st_rectangle(0, 0, RES_W, 1), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(0, RES_H-1, RES_W, 1), 0, 200, 0, 180);
+    // vertical lines
+    graphLib.draw_rectangle(st_rectangle(0, 0, 1, RES_H), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(RES_W-1, 0, 1, RES_H), 0, 200, 0, 180);
+    graphLib.updateScreen();
 
+
+    input.wait_keypress();
+    input.stop_read();
 
     return 1;
 }

@@ -304,13 +304,9 @@ public:
      */
 
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt);
-    /**
-     * @brief returns if was cut (by user  pressing a key) or not
-     *
-     * @param x
-     * @param y
-     * @param text
-     */
+
+    int draw_progressive_text(short int x, short int y, std::string text, bool interrupt, int delay);
+
     void draw_text(short int x, short int y, std::string text);
 
     void draw_text(short int x, short int y, std::string text, st_color color);

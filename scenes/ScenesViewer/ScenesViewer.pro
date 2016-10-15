@@ -72,7 +72,9 @@ SOURCES += main.cpp \
     ../../file/fio_scenes.cpp \
     ../../strings_map.cpp \
     ../../aux_tools/stringutils.cpp \
-    ../../file/fio_strings.cpp
+    ../../file/fio_strings.cpp \
+    ../../game_mediator.cpp \
+    ../../file/fio_common.cpp
 
 HEADERS += \
     ../../graphicslib.h \
@@ -93,4 +95,6 @@ HEADERS += \
     ../../file/v4/file_strings.h \
     ../../strings_map.h \
     ../../aux_tools/stringutils.h \
-    ../../file/fio_strings.h
+    ../../file/fio_strings.h \
+    ../../game_mediator.h \
+    ../../file/fio_common.h

@@ -672,34 +672,39 @@ void graphicsLib::draw_rectangle(st_rectangle area, int r, int g, int b, int alp
 
 
 int graphicsLib::draw_progressive_text(short int x, short int y, string text, bool interrupt) {
+    return draw_progressive_text(x, y, text, interrupt, 15);
+}
+
+int graphicsLib::draw_progressive_text(short x, short y, string text, bool interrupt, int delay)
+{
     UNUSED(interrupt);
-	//SDL_Color font_color = {255,255,255};
-	string temp_text;
-	char temp_char;
-	int text_x = 0;
-	int text_y = 0;
-	unsigned int i;
+    //SDL_Color font_color = {255,255,255};
+    string temp_text;
+    char temp_char;
+    int text_x = 0;
+    int text_y = 0;
+    unsigned int i;
 
     if (!font) {
-		printf("ERROR - no fount found - TTF_OpenFont: %s\n", TTF_GetError());
+        printf("ERROR - no fount found - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #09");
-		exit(-1);
+        exit(-1);
     }
 
 
-	for (i=0; i<text.size(); i++) {
-		temp_char = text.at(i);
+    for (i=0; i<text.size(); i++) {
+        temp_char = text.at(i);
 
-		temp_text = "";
-		temp_text += temp_char;
+        temp_text = "";
+        temp_text += temp_char;
 
-		draw_text(text_x*9+x, text_y*11+y, temp_text);
-		text_x++;
-		if (temp_char == '\n') {
-				text_x = 0;
-				text_y++;
-		}
-		updateScreen();
+        draw_text(text_x*9+x, text_y*11+y, temp_text);
+        text_x++;
+        if (temp_char == '\n') {
+                text_x = 0;
+                text_y++;
+        }
+        updateScreen();
         /*
         if (interrupt) {
             cut = input.waitScapeTime(5);
@@ -708,8 +713,8 @@ int graphicsLib::draw_progressive_text(short int x, short int y, string text, bo
             input.waitTime(5);
         }
         */
-        timer.delay(15);
-	}
+        timer.delay(delay);
+    }
     return 0;
 }
 
