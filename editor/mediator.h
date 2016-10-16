@@ -6,6 +6,8 @@
 #include "file/fio_scenes.h"
 #include "file/fio_strings.h"
 
+#include "scenes/scenesmediator.h"
+
 struct st_player_graphics_data {
 	st_size frame_size;
 	st_rectangle hit_area;

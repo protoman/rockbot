@@ -22,6 +22,7 @@ extern timerLib timer;
 
 sceneShow::sceneShow()
 {
+    _interrupt_scene = false;
     scene_list = fio_scn.load_scenes();
     image_scenes = fio_scn.load_scenes_show_image();
     text_list = fio_scn.load_scenes_show_text();
@@ -34,15 +35,25 @@ sceneShow::sceneShow()
 
 void sceneShow::show_scene(int n)
 {
+    if (n < 0) {
+        return;
+    }
     if (scene_list.size() <= n) {
         std::cout << "ERROR: Scene List[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
-        exit(-1);
+        return;
     }
     CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(0);
+    input.clean();
 
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
         int scene_seek_n = scene.objects[i].seek_n;
         //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
+
+        if (_interrupt_scene == true) {
+            scene_seek_n = -1;
+            break;
+        }
+
         if (scene_seek_n != -1) {
             int scene_type = scene.objects[i].type;
             //std::cout << "### scene_type[" << scene_type << "]" << std::endl;
@@ -70,7 +81,9 @@ void sceneShow::show_scene(int n)
                 std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
             std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
-            timer.delay(scene.objects[i].delay_after);
+            if (input.waitScapeTime(scene.objects[i].delay_after) == 1) {
+                _interrupt_scene = true;
+            }
         } else {
             break;
         }
@@ -271,10 +284,17 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 
 
     for (int i=0; i<lines.size(); i++) {
+        if (input.p1_input[BTN_START] == 1) {
+            _interrupt_scene = true;
+            break;
+        }
         std::string line = std::string(lines.at(i));
         int adjusted_y = pos_y+(LINE_H_DIFF*i);
         graphLib.clear_area(pos_x, adjusted_y, line.length()*9, 8, 0, 0, 0);
-        graphLib.draw_progressive_text(pos_x, adjusted_y, line, false, 30);
+        if (graphLib.draw_progressive_text(pos_x, adjusted_y, line, false, 30) == 1) {
+            _interrupt_scene = true;
+            break;
+        }
     }
     std::cout << "run_text::DONE" << std::endl;
 }

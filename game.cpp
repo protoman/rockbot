@@ -51,6 +51,8 @@ extern bool leave_game;
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
+extern std::map<Uint8, Uint8> game_scenes_map;
+
 // ********************************************************************************************** //
 // class constructor                                                                              //
 // ********************************************************************************************** //
@@ -333,7 +335,7 @@ bool game::showIntro()
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
-
+    scenes.game_scenes_show_unbeaten_intro();
 	scenes.main_screen();
 
 	currentStage = 0;

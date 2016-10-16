@@ -14,8 +14,8 @@ struct st_game_scene_item {
     Uint8 id;
     Uint8 scene_id;
     st_game_scene_item() {
-        id = 0;
-        scene_id = 0;
+        id = -1;
+        scene_id = -1;
     }
     st_game_scene_item(Uint8 set_id, Uint8 set_scene_id) {
         id = set_id;

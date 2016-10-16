@@ -380,8 +380,12 @@ void common::fill_object_listWidget(QListWidget *listWidget)
 
 void common::fill_scenes_combo(QComboBox *combo)
 {
+    combo->clear();
+    // add empty item to be used to unset scene
+    combo->addItem(QString(""));
     for (int i=0; i<Mediator::get_instance()->scene_list.size(); i++) {
-        combo->addItem(Mediator::get_instance()->scene_list.at(i).name);
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->scene_list.at(i).name);
+        combo->addItem(temp_str);
     }
 }
 

@@ -12,6 +12,8 @@ class ScenesMediator
 {
 public:
     static ScenesMediator* get_instance();
+    void save_game_scenes();
+    void load_game_scenes();
 
 public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> image_list;

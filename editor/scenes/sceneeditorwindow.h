@@ -32,6 +32,8 @@ public:
 private slots:
     void on_actionSave_triggered();
 
+    void on_actionPlay_Movie_triggered();
+
 private:
     void save();
 
@@ -46,6 +48,7 @@ private:
     TabMusic* music_tab;
     TabClearArea* cleararea_tab;
     TabAnimation* animation_tab;
+    QProcess process;
 
 };
 

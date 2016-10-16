@@ -1,6 +1,10 @@
 #include "sceneeditorwindow.h"
 #include "ui_sceneeditorwindow.h"
 
+extern std::string GAMEPATH;
+extern std::string GAMENAME;
+
+
 SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SceneEditorWindow)
@@ -75,3 +79,14 @@ void SceneEditorWindow::save()
     animation_tab->save_data();
 }
 
+
+void SceneEditorWindow::on_actionPlay_Movie_triggered()
+{
+    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
+#ifdef WIN32
+    file += QString(".exe");
+#endif
+    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"");
+    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
+    process.start(file);
+}

@@ -705,14 +705,9 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
                 text_y++;
         }
         updateScreen();
-        /*
-        if (interrupt) {
-            cut = input.waitScapeTime(5);
-            if (cut) { return 1; }
-        } else {
-            input.waitTime(5);
+        if (input.p1_input[BTN_START] == 1) {
+            return 1;
         }
-        */
         timer.delay(delay);
     }
     return 0;

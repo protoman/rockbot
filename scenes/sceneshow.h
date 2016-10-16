@@ -43,6 +43,8 @@ private:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_viewpoint> viewpoint_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_animation> animation_list;
 
+    bool _interrupt_scene;
+
 };
 
 #endif // SCENESHOW_H

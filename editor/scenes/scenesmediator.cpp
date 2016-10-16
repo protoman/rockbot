@@ -5,7 +5,7 @@ ScenesMediator* ScenesMediator::_instance = NULL;
 ScenesMediator::ScenesMediator()
 {
     selected_scene = 0;
-    game_scenes_map = fio_scn.load_game_scenes();
+    load_game_scenes();
 }
 
 ScenesMediator *ScenesMediator::get_instance()
@@ -14,5 +14,15 @@ ScenesMediator *ScenesMediator::get_instance()
         _instance = new ScenesMediator;
     }
     return _instance;
+}
+
+void ScenesMediator::save_game_scenes()
+{
+    fio_scn.save_game_scenes(game_scenes_map);
+}
+
+void ScenesMediator::load_game_scenes()
+{
+    game_scenes_map = fio_scn.load_game_scenes();
 }
 

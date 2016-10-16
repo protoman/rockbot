@@ -193,6 +193,8 @@ void Mediator::load_game() {
         }
     }
 
+    ScenesMediator::get_instance()->load_game_scenes();
+
 }
 
 void Mediator::save_game()
@@ -209,6 +211,8 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", player_list);
+
+    ScenesMediator::get_instance()->save_game_scenes();
 
     save_dialogs();
 

@@ -3,6 +3,8 @@
 
 #include "defines.h"
 #include "graphicslib.h"
+#include "file/fio_scenes.h"
+
 
 /**
  * @brief
@@ -23,6 +25,7 @@ public:
     void show_password(); // show the password fot the current save
     void boss_intro(Uint8 pos_n) const;
     short show_main_config(short stage_finished, bool called_from_game);
+    void game_scenes_show_unbeaten_intro();
 
 private:
     // preload/unload
@@ -63,6 +66,9 @@ private:
     short _state; // animation state
     graphicsLib_gSurface* _blink_surface; // animation surface (light/dark)
     Sint8 _password_selected_balls[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE];
+
+    CURRENT_FILE_FORMAT::fio_scenes fio_scn;
+    std::map<Uint8, Uint8> game_scenes_map;
 
 
 };

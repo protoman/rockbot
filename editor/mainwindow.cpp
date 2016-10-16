@@ -164,6 +164,7 @@ void MainWindow::reload()
     player_edit_tab->reload();
     armor_edit_tab->reload();
     anim_tiles_edit_tab->reload();
+    game_scenes_tab->reload();
     this->show();
 }
 

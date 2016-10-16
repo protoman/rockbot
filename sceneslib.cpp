@@ -36,6 +36,8 @@ extern draw draw_lib;
 #include "game.h"
 extern game gameControl;
 
+#include "scenes/sceneshow.h"
+
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
@@ -67,6 +69,7 @@ scenesLib::scenesLib() : _timer(0), _state(0)
 // ********************************************************************************************** //
 void scenesLib::preloadScenes() const
 {
+    game_scenes_map = fio_scn.load_game_scenes();
     soundManager.load_boss_music(game_data.boss_music_filename);
 }
 
@@ -317,6 +320,13 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
         draw_lib.update_screen();
 	}
     return res;
+}
+
+void scenesLib::game_scenes_show_unbeaten_intro()
+{
+    sceneShow show;
+    show.show_scene(game_scenes_map[GAME_SCENE_TYPES_INTRO_GAME_UNBEATEN]);
+    //std::cout << "game_scenes_show_unbeaten_intro::DONE";
 }
 
 

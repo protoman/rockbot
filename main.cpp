@@ -102,7 +102,6 @@ int default_button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
 
 bool leave_game = false;
 
-
 #include "file/file_io.h"
 CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::file_game game_data;
@@ -110,6 +109,7 @@ CURRENT_FILE_FORMAT::file_stage stage_data;
 CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 
 #include "defines.h"
+
 
 FREEZE_EFFECT_TYPES freeze_weapon_effect = FREEZE_EFFECT_NONE;
 int freeze_weapon_id = -1;

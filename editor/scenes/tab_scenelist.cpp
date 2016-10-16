@@ -12,6 +12,11 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     ui->setupUi(this);
     ui->object_listView->setModel(&model_objects);
     ui->scenes_tableView->setModel(&model_scenes);
+    ui->scenes_tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
+    ui->scenes_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    ui->scenes_tableView->setAlternatingRowColors(true);
+    ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff;background-color: #dddddd;");
 
     ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
@@ -210,7 +215,7 @@ void TabScenelist::on_pushButton_clicked()
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"");
+    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex());
     std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
     process.start(file);
 }
@@ -238,6 +243,9 @@ void TabScenelist::on_up_pushButton_clicked()
     ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row-1] = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row];
     ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row] = temp;
 
+    QModelIndex next_index = ui->scenes_tableView->model()->index(selected_row - 1, 0);
+    ui->scenes_tableView->setCurrentIndex(next_index);
+
     model_scenes.update();
 }
 
@@ -257,6 +265,9 @@ void TabScenelist::on_down_pushButton_clicked()
     CURRENT_FILE_FORMAT::file_scene_object temp = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row+1];
     ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row+1] = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row];
     ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[selected_row] = temp;
+
+    QModelIndex next_index = ui->scenes_tableView->model()->index(selected_row + 1, 0);
+    ui->scenes_tableView->setCurrentIndex(next_index);
 
     model_scenes.update();
 }

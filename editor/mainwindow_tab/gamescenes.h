@@ -16,6 +16,10 @@ class GameScenes : public QWidget
 public:
     explicit GameScenes(QWidget *parent = 0);
     ~GameScenes();
+    void reload();
+
+private:
+    void fill_data();
 
 private slots:
     void on_company_combo_currentIndexChanged(int index);

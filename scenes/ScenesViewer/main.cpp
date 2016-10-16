@@ -131,12 +131,13 @@ int main(int argc, char *argv[])
     sceneShow show;
     show.show_scene(0);
 
+    int BORDER_SIZE = 4;
     // horizontal lines
-    graphLib.draw_rectangle(st_rectangle(0, 0, RES_W, 1), 0, 200, 0, 180);
-    graphLib.draw_rectangle(st_rectangle(0, RES_H-1, RES_W, 1), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(0, 0, RES_W, BORDER_SIZE), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(0, RES_H-BORDER_SIZE, RES_W, BORDER_SIZE), 0, 200, 0, 180);
     // vertical lines
-    graphLib.draw_rectangle(st_rectangle(0, 0, 1, RES_H), 0, 200, 0, 180);
-    graphLib.draw_rectangle(st_rectangle(RES_W-1, 0, 1, RES_H), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(0, 0, BORDER_SIZE, RES_H), 0, 200, 0, 180);
+    graphLib.draw_rectangle(st_rectangle(RES_W-BORDER_SIZE, 0, BORDER_SIZE, RES_H), 0, 200, 0, 180);
     graphLib.updateScreen();
 
 

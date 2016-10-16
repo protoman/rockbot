@@ -41,7 +41,7 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
         std::cout << "ObjectListModel::data - LEAVE #1" << std::endl;
         return QVariant();
     }
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].type;
         int seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].seek_n;
         if (col == 0) {
@@ -64,6 +64,8 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
                 name = std::string("STOP MUSIC");
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
                 name = std::string(ScenesMediator::get_instance()->scenes_list.at(seek_n).name);
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
+                name = std::string("CLEAR-SCREEN");
             }
             return QString(name.c_str());
         } else if (col == 1) {
@@ -79,21 +81,18 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
         } else if (col == 3) {
             return QString::number(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value);
         } else if (col == 4) {
-            return QVariant(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background);
+            return "";
         } else {
             return QString("Row%1, Column%2").arg(index.row() + 1).arg(index.column() +1);
         }
-    } else if (role == Qt::EditRole) {
-        if (col == 1) {
-            return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].delay_after;
-        } else if (col == 2) {
-            return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type;
-        } else if (col == 3) {
-            return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value;
-        } else if (col == 4) {
-            return ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background;
+    } else if (role == Qt::CheckStateRole && col == 4) {
+        if (ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background == true) {
+            return Qt::Checked;
+        } else {
+            return Qt::Unchecked;
         }
     }
+
 
     return QVariant();
 }
@@ -148,43 +147,54 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
     int row = index.row();
     int col = index.column();
 
-    if (col == 0) {
-        std::string name = value.toString().toStdString();
-        int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].type;
-        int seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].seek_n;
+    if (index.isValid() && role == Qt::EditRole) {
+        if (col == 0) {
+            std::string name = value.toString().toStdString();
+            int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].type;
+            int seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].seek_n;
 
-        if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
-            sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
-            sprintf(ScenesMediator::get_instance()->image_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
-            sprintf(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
-            sprintf(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
-            sprintf(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
-            sprintf(ScenesMediator::get_instance()->animation_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
-            sprintf(ScenesMediator::get_instance()->text_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
-            sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
-        } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
-            sprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, "%s", name.c_str());
+            if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
+                sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
+                sprintf(ScenesMediator::get_instance()->image_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
+                sprintf(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
+                sprintf(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
+                sprintf(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
+                sprintf(ScenesMediator::get_instance()->animation_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
+                sprintf(ScenesMediator::get_instance()->text_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
+                sprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
+                sprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, "%s", name.c_str());
+            } else {
+                std::cout << "Invalid object to set name" << std::endl;
+                return false;
+            }
+        } else if (col == 1) {
+            ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].delay_after = value.toInt();
+        } else if (col == 2) {
+            ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type = value.toInt();
+        } else if (col == 3) {
+            ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value = value.toInt();
+        } else if (col == 4) {
+            ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background = value.toBool();
+        }
+        emit(dataChanged(index, index));
+        return true;
+    } else if (role == Qt::CheckStateRole && col == 4) {
+        if ((Qt::CheckState)value.toInt() == Qt::Checked) {
+            return true;
         } else {
-            std::cout << "Invalid object to set name" << std::endl;
             return false;
         }
-    } else if (col == 1) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].delay_after = value.toInt();
-    } else if (col == 2) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_type = value.toInt();
-    } else if (col == 3) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].repeat_value = value.toInt();
-    } else if (col == 4) {
-        ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].run_in_background = value.toBool();
+    } else {
+        return false;
     }
-    return true;
 }
 
 void ObjectListModel::update()

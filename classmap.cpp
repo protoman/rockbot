@@ -461,7 +461,7 @@ void classMap::load_map_npcs()
 void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
-    if (bg1_surface.width <= 0 || bg1_surface.height < RES_H) {
+    if (bg1_surface.width <= 0 || bg1_surface.height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     }
 

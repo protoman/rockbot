@@ -35,8 +35,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -59,8 +59,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -83,8 +83,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -107,8 +107,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -131,8 +131,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -155,8 +155,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -179,8 +179,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -203,8 +203,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1007</width>
-             <height>432</height>
+             <width>1009</width>
+             <height>423</height>
             </rect>
            </property>
           </widget>
@@ -222,7 +222,7 @@
      <x>0</x>
      <y>0</y>
      <width>1051</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -246,6 +246,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSave"/>
+   <addaction name="actionPlay_Movie"/>
   </widget>
   <action name="actionSave">
    <property name="icon">
@@ -259,6 +260,18 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionPlay_Movie">
+   <property name="icon">
+    <iconset resource="../resources/icons/icons.qrc">
+     <normaloff>:/toolbar_icons/media-playback-start.png</normaloff>:/toolbar_icons/media-playback-start.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play Movie</string>
+   </property>
+   <property name="toolTip">
+    <string>Play Movie</string>
    </property>
   </action>
  </widget>
