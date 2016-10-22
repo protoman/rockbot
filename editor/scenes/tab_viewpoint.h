@@ -56,6 +56,10 @@ private slots:
 
     void on_comboBox_currentIndexChanged(int index);
 
+    void on_posx_spinBox_valueChanged(int arg1);
+
+    void on_posy_spinBox_valueChanged(int arg1);
+
 private:
     Ui::tab_viewpoint *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;

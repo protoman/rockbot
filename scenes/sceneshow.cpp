@@ -49,7 +49,7 @@ void sceneShow::show_scene(int n)
         int scene_seek_n = scene.objects[i].seek_n;
         //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
 
-        if (_interrupt_scene == true) {
+        if (_interrupt_scene == true || input.p1_input[BTN_START] == 1) {
             scene_seek_n = -1;
             break;
         }
@@ -66,7 +66,7 @@ void sceneShow::show_scene(int n)
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
                 show_image(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
-                /// @TODO
+                show_viewpoint(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
                 play_music(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
@@ -159,6 +159,38 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
 }
 
 
+void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoint viewpoint)
+{
+    std::cout << "** sceneShow::run_image_scene::START" << std::endl;
+    float x = viewpoint.ini_x;
+    float y = viewpoint.ini_y;
+
+
+    graphicsLib_gSurface image;
+    graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + viewpoint.filename, &image);
+
+    //std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
+
+    while (total_dist > 0) {
+        //std::cout << "total_dist: " << total_dist << std::endl;
+        timer.delay(viewpoint.move_delay);
+        std::cout << "rect - x[" << x << "], .y[" << y << "], w[" << viewpoint.w << "], h[" << viewpoint.h << "]" << std::endl;
+
+        //void graphicsLib::showSurfacePortion(graphicsLib_gSurface *surfaceOrigin, const st_rectangle origin_rect, st_rectangle destiny_rect)
+        graphLib.showSurfacePortion(&image, st_rectangle(x, y, viewpoint.w, viewpoint.h), st_rectangle(viewpoint.pos_x, viewpoint.pos_y, viewpoint.w, viewpoint.h));
+
+        graphLib.updateScreen();
+        x += speed_x;
+        y += speed_y;
+        total_dist--;
+    }
+    graphLib.showSurfacePortion(&image, st_rectangle(x, y, viewpoint.w, viewpoint.h), st_rectangle(viewpoint.pos_x, viewpoint.pos_y, viewpoint.w, image.height));
+    timer.delay(viewpoint.move_delay);
+
+    graphLib.updateScreen();
+}
+
+
 
 void sceneShow::show_text(int n)
 {
@@ -233,18 +265,21 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
             if (line.size() > max_line_w) {
                 max_line_w = line.size();
             }
-            lines_n++;
+            // only count as line if not empty
+            lines_n = i+1;
+        } else {
+            text_lines.push_back(std::string(" "));
         }
     }
 
     int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
-    int center_y = (RES_H * 0.5) - (lines_n * (LINE_H_DIFF * 0.5));
+    int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
     int pos_x = 0;
     int pos_y = 0;
 
     if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogbottom) {
         pos_x = 10;
-        pos_y = 140;
+        pos_y = SCENES_TEXT_BOTTOM_POSY;
     } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogtop) {
         pos_x = 10;
         pos_y = 10;
@@ -274,11 +309,11 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
         }
         lines.push_back(line);
         if (line.length() * FONT_SIZE > max_w) {
-            max_w = line.length() * (FONT_SIZE+2);
+            max_w = line.length() * (FONT_SIZE+5);
         }
     }
     // clear text area
-    int max_h = lines.size()*LINE_H_DIFF;
+    int max_h = lines.size()*SCENES_LINE_H_DIFF;
     std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
     graphLib.clear_area(pos_x, pos_y, max_w, max_h, 0, 0, 0);
 
@@ -289,7 +324,7 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
             break;
         }
         std::string line = std::string(lines.at(i));
-        int adjusted_y = pos_y+(LINE_H_DIFF*i);
+        int adjusted_y = pos_y+(SCENES_LINE_H_DIFF*i);
         graphLib.clear_area(pos_x, adjusted_y, line.length()*9, 8, 0, 0, 0);
         if (graphLib.draw_progressive_text(pos_x, adjusted_y, line, false, 30) == 1) {
             _interrupt_scene = true;
@@ -299,9 +334,41 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     std::cout << "run_text::DONE" << std::endl;
 }
 
+
+
 void sceneShow::show_viewpoint(int n)
 {
-
+    std::cout << "sceneShow::show_image::START" << std::endl;
+    if (image_scenes.size() <= n) {
+        std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        exit(-1);
+    }
+    speed_x = 1;
+    speed_y = 1;
+    inc_x = 0;
+    inc_y = 0;
+    CURRENT_FILE_FORMAT::file_scene_show_viewpoint viewpoint = viewpoint_list.at(n);
+    int diff_x = abs(viewpoint.ini_x - viewpoint.dest_x);
+    int diff_y = abs(viewpoint.ini_y - viewpoint.dest_y);
+    if (diff_x > diff_y) {
+        speed_y = (float)((float)diff_y / diff_x);
+        std::cout << "speed_y: " << speed_y << ", res: " << ((float)diff_y / diff_x) << std::endl;
+    } else if (diff_x < diff_y) {
+        speed_x = (float)((float)diff_x / diff_y);
+    }
+    if (viewpoint.ini_x > viewpoint.dest_x) {
+        speed_x = -speed_x;
+    }
+    if (viewpoint.ini_y > viewpoint.dest_y) {
+        speed_y = -speed_y;
+    }
+    if (diff_x >= diff_y) {
+        total_dist = diff_x;
+    } else {
+        total_dist = diff_y;
+    }
+    std::cout << "SCENE::VIEWPOINT - speed_y[" << speed_y << "], speed_x[" << speed_x << "]" << std::endl;
+    run_viewpoint_scene(viewpoint);
 }
 
 void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
@@ -320,41 +387,52 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
     graphLib.initSurface(st_size(scene.frame_w, scene.frame_h), &bg_image);
     graphLib.copy_gamescreen_area(st_rectangle(scene.x, scene.y, scene.frame_w, scene.frame_h), st_position(0, 0), &bg_image);
 
+
+    std::cout << "max_frames[" << max_frames << "], image.w[" << image.width << "], scene.frame_w[" << scene.frame_w << "]" << std::endl;
+
     while (true) {
 
         int x = frame_n*scene.frame_w;
 
+
+        // stop condition
+        if (repeat_times > 0 && repeat_n <= 1) {
+            std::cout << "sceneShow::show_animation::LEAVE#1" << std::endl;
+            break;
+        } else {
+            if (repeat_mode == 0) { // time-mode
+                if ((timer.getTimer() - started_timer) > repeat_n) {
+                    std::cout << "sceneShow::show_animation::LEAVE#2" << std::endl;
+                    break;
+                }
+            } else { // repeat number mode
+                if (repeat_times > repeat_n) {
+                    std::cout << "sceneShow::show_animation::LEAVE#3" << std::endl;
+                    break;
+                }
+            }
+        }
+        graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
+        std::cout << "x[" << x << "], img.w[" << image.width << "], frame.w[" << scene.frame_w << "]" << std::endl;
         graphLib.showSurfaceRegionAt(&image, st_rectangle(x, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
-
-
         graphLib.updateScreen();
+        timer.delay(scene.frame_delay);
+
 
         if (frame_timer < timer.getTimer()) {
             frame_n++;
-            if (frame_n > max_frames) {
+            if (frame_n >= max_frames) {
                 frame_n = 0;
                 repeat_times++;
             }
             frame_timer = timer.getTimer() + scene.frame_delay;
         }
 
-        // stop condition
-        if (repeat_times > 0 && repeat_n <= 1) {
-            std::cout << "sceneShow::show_animation::LEAVE#1" << std::endl;
-            return;
-        } else {
-            if (repeat_mode == 0) { // time-mode
-                if ((timer.getTimer() - started_timer) > repeat_n) {
-                    std::cout << "sceneShow::show_animation::LEAVE#2" << std::endl;
-                    return;
-                }
-            } else { // repeat number mode
-                if (repeat_times > repeat_n) {
-                    std::cout << "sceneShow::show_animation::LEAVE#3" << std::endl;
-                    return;
-                }
-            }
-        }
-        timer.delay(10);
+    }
+    // avoid leaving animation image trail if it is a repeating one
+    if (repeat_n > 1) {
+        graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
+        graphLib.updateScreen();
+        timer.delay(scene.frame_delay);
     }
 }

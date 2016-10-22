@@ -64,17 +64,17 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
             if (line.size() > max_line_w) {
                 max_line_w = line.size();
             }
-            lines_n++;
+            lines_n = i+1;
         }
     }
 
     int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
-    int center_y = (RES_H * 0.5) - (lines_n * (LINE_H_DIFF * 0.5));
+    int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 
     if (text_info.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogbottom) {
         pos_x = 10;
-        pos_y = 140;
+        pos_y = SCENES_TEXT_BOTTOM_POSY;
     } else if (text_info.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogtop) {
         pos_x = 10;
         pos_y = 10;
@@ -100,7 +100,7 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
 
     for (int i=0; i<lines_n; i++) {
         QString line = QString(fio_str.get_scenes_string(text_info.line_string_id[i]).c_str());
-        painter.drawText(pos_x, pos_y + (i*LINE_H_DIFF), line);
+        painter.drawText(pos_x, pos_y + (i*SCENES_LINE_H_DIFF), line);
         //std::cout << ">>OK - DRAW LINE[" << i << "]" << std::endl;
     }
 

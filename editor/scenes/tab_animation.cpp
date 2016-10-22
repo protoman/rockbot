@@ -75,6 +75,9 @@ void TabAnimation::set_fields(int index)
     ui->widget->set_w(ScenesMediator::get_instance()->animation_list.at(index).frame_w);
     ui->widget->set_h(ScenesMediator::get_instance()->animation_list.at(index).frame_h);
     ui->widget->set_delay(ScenesMediator::get_instance()->animation_list.at(index).frame_delay);
+
+    ui->posx_spinBox->setValue(ScenesMediator::get_instance()->animation_list.at(index).x);
+    ui->posy_spinBox->setValue(ScenesMediator::get_instance()->animation_list.at(index).y);
 }
 
 void TabAnimation::change_w(int value)

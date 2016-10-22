@@ -50,52 +50,6 @@ adicionar sistema de colisão que permite diagonais
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
-- EDITOR: arrumar sinais/slots inexistentes:
-    QMetaObject::connectSlotsByName: No matching signal for on_new_game_accepted(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_load_game_accepted()
-    QMetaObject::connectSlotsByName: No matching signal for on_npc_direction_combo_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_link_orientation_combobox_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_spinBox_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_listWidget_2_currentRowChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_toolBox_currentChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_editNPCButton_clicked()
-    QMetaObject::connectSlotsByName: No matching signal for on_listWidget_currentRowChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_comboBox_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_pallete_signalPalleteChanged()
-    QMetaObject::connectSlotsByName: No matching signal for on_comboBox_6_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg1_filename_currentIndexChanged(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_checkBox_clicked(bool)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg1_y_pos_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg2_filename_currentIndexChanged(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg2_y_pos_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg1_speed_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg2_speed_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_checkBox_2_clicked(bool)
-    QMetaObject::connectSlotsByName: No matching signal for on_checkBox_3_clicked(bool)
-    QMetaObject::connectSlotsByName: No matching signal for on_stage_boss_weapon_combo_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg1_speed_valueChanged(double)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg2_speed_valueChanged(double)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_maxshots_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_can_slide_checkbox_toggled(bool)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_movespeed_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_hasshield_toggled(bool)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_hp_valueChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_name_textChanged(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_chargedshot_combo_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_list_combo_2_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_npc_edit_tab_frametype_currentIndexChanged(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_bg_graphic_combo_currentIndexChanged(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_string_selected(int)
-    QMetaObject::connectSlotsByName: No matching signal for on_comboBox_currentIndexChanged(QString)
-    QMetaObject::connectSlotsByName: No matching signal for on_color_selected1(QColor)
-    QMetaObject::connectSlotsByName: No matching signal for on_color_selected1(QColor)
-    QMetaObject::connectSlotsByName: No matching signal for on_color_selected2(QColor)
-    QMetaObject::connectSlotsByName: No matching signal for on_color_selected3(QColor)
-    QMetaObject::connectSlotsByName: No matching signal for on_weapon_color_selected(QColor)
-    QMetaObject::connectSlotsByName: No matching signal for on_players_tab_movespeed_valueChanged(double)
-    QMetaObject::connectSlotsByName: No matching signal for on_string_selected(int)
-
-
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
     # em modo demo, não entra em estágios já finalizados
@@ -104,7 +58,6 @@ VERSION 2.0.0 BETA 1
 - melhorar script de build incluindo ABI (x86/ARM)
 
 - EDITOR: finalizar construtor de cenas
-    # formato de arquivo deve prever flag "parallel" para rodar cena de forma async
 
 - EDITOR: mover diálogos de estágio para edição de strings
 

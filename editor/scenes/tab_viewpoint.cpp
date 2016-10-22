@@ -104,6 +104,10 @@ void tab_viewpoint::set_fields(int index)
 
     ui->select_comboBox->setCurrentIndex(ScenesMediator::get_instance()->viewpoint_list.at(index).loop_mode);
 
+    ui->posx_spinBox->setValue( ScenesMediator::get_instance()->viewpoint_list.at(index).pos_x);
+    ui->posy_spinBox->setValue( ScenesMediator::get_instance()->viewpoint_list.at(index).pos_y);
+
+
     update_preview_image(0);
 
 }
@@ -200,4 +204,16 @@ void tab_viewpoint::on_comboBox_currentIndexChanged(int index)
 {
     if (data_loading) { return; }
     ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).loop_mode = index;
+}
+
+void tab_viewpoint::on_posx_spinBox_valueChanged(int arg1)
+{
+    if (data_loading) { return; }
+    ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).pos_x = arg1;
+}
+
+void tab_viewpoint::on_posy_spinBox_valueChanged(int arg1)
+{
+    if (data_loading) { return; }
+    ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).pos_y = arg1;
 }

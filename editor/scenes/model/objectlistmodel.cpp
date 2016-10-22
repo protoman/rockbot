@@ -51,7 +51,10 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
                 name = std::string(ScenesMediator::get_instance()->image_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
-                name = std::string(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name);
+                int list_size = ScenesMediator::get_instance()->viewpoint_list.size();
+                if (list_size > seek_n) {
+                    name = std::string(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name);
+                }
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
                 name = std::string(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {

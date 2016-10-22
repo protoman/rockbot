@@ -112,6 +112,9 @@ namespace format_v4 {
         int dest_y;
         int w;
         int h;
+        // where the image will be placed
+        int pos_x;
+        int pos_y;
         int move_delay;
         bool blocking;                              // to be used, if false, to run multiple scene-types in parallel. defaults to true.
         int loop_mode;
@@ -124,6 +127,8 @@ namespace format_v4 {
             h = 0;
             dest_x = 0;
             dest_y = 0;
+            pos_x = 0;
+            pos_y = 0;
             move_delay = 100;
             blocking = true;
             loop_mode = 0;

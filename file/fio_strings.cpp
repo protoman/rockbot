@@ -397,10 +397,12 @@ namespace format_v4 {
         }
 
         if (id >= scenes_strings_list.size()) {
+            std::cout << "get_scenes_string[" << id << "] NULL" << std::endl;
             return std::string("");
         }
 
         std::string res = scenes_strings_list.at(id);
+        std::cout << "get_scenes_string[" << id << "]:[" << res << "]" << std::endl;
 
         return res;
     }
