@@ -129,9 +129,9 @@ void TabScenelist::on_sceneTypeSelector_currentIndexChanged(int index)
         }
     } else if (index == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
         for (unsigned int i=0; i<ScenesMediator::get_instance()->scenes_list.size(); i++) {
-            if (i != ui->sceneSelector->currentIndex()) {
+            //if (i != ui->sceneSelector->currentIndex()) {
                 list.append(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
-            }
+            //}
         }
     }
     model_objects.setStringList(list);
@@ -143,7 +143,9 @@ void TabScenelist::on_addButton_clicked()
     if (ScenesMediator::get_instance()->scenes_list.size() == 0) {
         return;
     }
+
     int n = ui->sceneSelector->currentIndex();
+
 
     QModelIndexList selectedList = ui->object_listView->selectionModel()->selectedRows();
 
@@ -152,6 +154,15 @@ void TabScenelist::on_addButton_clicked()
     }
 
     int seek_n = selectedList.at(0).row();
+
+    // can't add sub-scene equal to the current scene
+    if (n == seek_n && ui->sceneTypeSelector->currentIndex() == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
+        QMessageBox msgBox;
+        msgBox.setText("Can't add scene itself as sub-scene of itself. This would create an infinite loop.");
+        msgBox.exec();
+        return;
+    }
+
 
     // search for a free slot
     for (unsigned int i = 0; i<SCENE_OBJECTS_MAX; i++) {

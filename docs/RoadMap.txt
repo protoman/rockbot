@@ -59,6 +59,14 @@ VERSION 2.0.0 BETA 1
 
 - EDITOR: finalizar construtor de cenas
 
+- EDITOR::CENA: adicionar botão para recalcular w/h com base na imagem e recalcular ao mudar imagem
+    DONE # animation
+    # viewpoint
+    #image
+
+
+- EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
+
 - EDITOR: mover diálogos de estágio para edição de strings
 
 - EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
@@ -101,6 +109,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- EDITOR::CENA: não pode adicionar a própria cena como sub-cena, pois cria loop infinito
 
 
 

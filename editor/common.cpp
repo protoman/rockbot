@@ -407,6 +407,17 @@ std::vector<std::string> common::get_weapon_names_list()
     return res;
 }
 
+st_size common::calc_image_size(std::__cxx11::string file)
+{
+    std::string filename = FILEPATH + std::string("/images/scenes/animations/") + file;
+    QPixmap image(filename.c_str());
+
+    if (image.isNull() == true || image.width() <= 0) {
+        return st_size(0, 0);
+    }
+    return st_size(image.width(), image.height());
+}
+
 void common::fill_anim_block_combo(QComboBox *combo)
 {
     combo->clear();

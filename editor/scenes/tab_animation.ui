@@ -52,6 +52,30 @@
        </property>
       </widget>
      </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="posy_spinBox">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="select_comboBox"/>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="posx_spinBox">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Frame Duration:</string>
+       </property>
+      </widget>
+     </item>
      <item row="7" column="1">
       <widget class="QSpinBox" name="height_spinBox">
        <property name="minimum">
@@ -62,20 +86,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Frame Duration:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="filename_comboBox"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="select_comboBox"/>
-     </item>
-     <item row="9" column="1">
+     <item row="10" column="1">
       <spacer name="verticalSpacer_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -88,30 +99,6 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="name_lineEdit"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="add_pushButton">
-       <property name="text">
-        <string>Add Entry</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Height:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -119,29 +106,8 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
-      <widget class="QSpinBox" name="duration_spinBox">
-       <property name="minimum">
-        <number>10</number>
-       </property>
-       <property name="maximum">
-        <number>999999</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>File:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Width:</string>
-       </property>
-      </widget>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="filename_comboBox"/>
      </item>
      <item row="6" column="1">
       <widget class="QSpinBox" name="width_spinBox">
@@ -153,6 +119,47 @@
        </property>
       </widget>
      </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Height:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>File:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="name_lineEdit"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Width:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QSpinBox" name="duration_spinBox">
+       <property name="minimum">
+        <number>10</number>
+       </property>
+       <property name="maximum">
+        <number>999999</number>
+       </property>
+      </widget>
+     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_8">
        <property name="text">
@@ -160,17 +167,22 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QSpinBox" name="posx_spinBox">
-       <property name="maximum">
-        <number>999</number>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="add_pushButton">
+       <property name="text">
+        <string>Add Entry</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QSpinBox" name="posy_spinBox">
-       <property name="maximum">
-        <number>999</number>
+     <item row="8" column="1">
+      <widget class="QPushButton" name="resetSize_pushButton">
+       <property name="text">
+        <string>Reset Size</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normalon>:/toolbar_icons/task-recurring.png</normalon>
+        </iconset>
        </property>
       </widget>
      </item>

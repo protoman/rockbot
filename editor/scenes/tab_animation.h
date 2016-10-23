@@ -33,6 +33,8 @@ private slots:
     void on_posx_spinBox_valueChanged(int arg1);
     void on_posy_spinBox_valueChanged(int arg1);
 
+    void on_resetSize_pushButton_clicked();
+
 private:
     void change_fields_enabled(bool state);
     void fill_data();

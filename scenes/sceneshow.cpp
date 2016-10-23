@@ -42,7 +42,7 @@ void sceneShow::show_scene(int n)
         std::cout << "ERROR: Scene List[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         return;
     }
-    CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(0);
+    CURRENT_FILE_FORMAT::file_scene_list scene = scene_list.at(n);
     input.clean();
 
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
