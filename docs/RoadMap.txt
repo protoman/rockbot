@@ -102,11 +102,12 @@ VERSION 2.0.0 BETA 1
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 - beast: refatorar, arrumar
-- skull 1: definir estilo e tilesets, criar design
-- skull 2: definir estilo e tilesets, criar design
-- skull 3: definir estilo e tilesets, criar design
-- skull 4: definir estilo e tilesets, criar design
-- skull 5: definir estilo e tilesets, criar design
+- ideia do castelo é ter uma "viagem no tempo"
+- skull 1: definir estilo (castelo medieval) e tilesets, criar design
+- skull 2: definir estilo (fábrica vitoriana) e tilesets, criar design
+- skull 3: definir estilo (toy fair 1910) e tilesets, criar design
+- skull 4: definir estilo (streets of rage (master system)) e tilesets, criar design
+- skull 5: definir estilo (estação espacial) e tilesets, criar design
 
 
 ##################################
