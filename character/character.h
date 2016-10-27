@@ -167,6 +167,10 @@ public:
      *
      */
     void fall();								// falls until reaching ground or leaving screen /// @TODO
+
+
+    void initialize_position_to_ground();
+
     /**
      * @brief
      *

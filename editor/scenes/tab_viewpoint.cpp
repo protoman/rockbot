@@ -125,6 +125,9 @@ void tab_viewpoint::on_filename_comboBox_currentIndexChanged(const QString &arg1
 {
     if (data_loading) { return; }
     sprintf(ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
+    ui->img_area_w->setValue(img_size.width);
+    ui->img_area_h->setValue(img_size.height);
     update_preview_image(ui->select_comboBox->currentIndex());
 }
 
@@ -216,4 +219,11 @@ void tab_viewpoint::on_posy_spinBox_valueChanged(int arg1)
 {
     if (data_loading) { return; }
     ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).pos_y = arg1;
+}
+
+void tab_viewpoint::on_pushButton_clicked()
+{
+    st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
+    ui->img_area_w->setValue(img_size.width);
+    ui->img_area_h->setValue(img_size.height);
 }

@@ -57,13 +57,7 @@ VERSION 2.0.0 BETA 1
 
 - melhorar script de build incluindo ABI (x86/ARM)
 
-- EDITOR: finalizar construtor de cenas
-
-- EDITOR::CENA: adicionar botão para recalcular w/h com base na imagem e recalcular ao mudar imagem
-    DONE # animation
-    # viewpoint
-    #image
-
+- fazer npcs não-voadores atingirem o chão ao carregar lista de npcs do mapa
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -77,9 +71,6 @@ VERSION 2.0.0 BETA 1
 - implementar abertura usando edição de cenas
 
 - substituir tiro carregado e voz por original (está girl hadouken)
-
-
-- pontos do castelo tem que vir dos arquivos e ser definido no editor
 
 - There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
 
@@ -110,6 +101,10 @@ ESTAGIOS:
              DONE
 ##################################
 - EDITOR::CENA: não pode adicionar a própria cena como sub-cena, pois cria loop infinito
+- EDITOR::CENA: adicionar botão para recalcular w/h com base na imagem e recalcular ao mudar imagem
+    # animation
+    # viewpoint
+    #image
 
 
 

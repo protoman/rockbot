@@ -2813,7 +2813,22 @@ void character::fall()
 		map->showAbove();
         draw_lib.update_screen();
         timer.delay(20);
-	}
+    }
+}
+
+void character::initialize_position_to_ground()
+{
+    if (can_fly == true) {
+        return;
+    }
+    // RES_H is a good enough limit
+    for (int i=0; i<RES_H; i++) {
+        char_update_real_position();
+        gravity(false);
+        if (hit_ground() == true) {
+            break;
+        }
+    }
 }
 
 void character::teleport_out() {

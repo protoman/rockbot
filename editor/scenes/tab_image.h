@@ -57,6 +57,8 @@ private slots:
 
     void on_name_textEdit_textChanged(const QString &arg1);
 
+    void on_pushButton_clicked();
+
 private:
     void change_fields_enabled(bool state);
     void fill_data();

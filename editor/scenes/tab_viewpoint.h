@@ -60,6 +60,8 @@ private slots:
 
     void on_posy_spinBox_valueChanged(int arg1);
 
+    void on_pushButton_clicked();
+
 private:
     Ui::tab_viewpoint *ui;
     CURRENT_FILE_FORMAT::fio_scenes fio;

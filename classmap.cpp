@@ -447,6 +447,9 @@ void classMap::load_map_npcs()
                 new_npc.set_stage_boss(true);
             } else if (GameMediator::get_instance()->get_enemy(map_data[number].map_npcs[i].id_npc).is_boss == true) {
                 new_npc.set_is_boss(true);
+            // adjust NPC position to ground, if needed
+            } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
+                new_npc.initialize_position_to_ground();
             }
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
