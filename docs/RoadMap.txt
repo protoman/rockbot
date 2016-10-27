@@ -55,9 +55,19 @@ VERSION 2.0.0 BETA 1
     # em modo demo, não entra em estágios já finalizados
     # Daisiebot afunda no chão ao mudar direção (turn)
 
+- não está pegando START às vezes na tela de seleção de armas
+
+- aviso de que precisa reiniciar o jogo, nas config, não está aparecendo
+
 - melhorar script de build incluindo ABI (x86/ARM)
 
-- verificar se opção turbo do botão está funcionando bem
+- separar GFX em sua própria classe que a draw usará
+    # rain
+    # snow
+    # underwater
+    # train
+    # flash-stopper
+    # lighthing-bolt
 
 - GFX lighting-storm para estágios como o mummy
 

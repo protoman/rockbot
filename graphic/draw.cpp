@@ -8,6 +8,8 @@
 #define FLASH_DELAY 260
 #define FLASH_IMG_SIZE 8
 #define SNOW_DELAY 40
+#define LIGHTINGBOLT_DELAY1 3000
+#define LIGHTINGBOLT_DELAY2 140
 
 #define TRAIN_DELAY 2000
 #define TRAIN_EFFECT_DELAY 180
@@ -48,6 +50,8 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     _train_effect_timer = 0;
     _train_effect_state = 0;
     _train_sfx = NULL;
+    _lightingbolt_effect_timer = 0;
+    _lightingbolt_effect_state = 0;
 
 }
 
@@ -75,12 +79,15 @@ void draw::preload()
 
 void draw::show_gfx()
 {
+    std::cout << "screen_gfx[" << (int)screen_gfx << "]" << std::endl;
     if (screen_gfx == SCREEN_GFX_RAIN) {
         show_rain();
     } else if (screen_gfx == SCREEN_GFX_SNOW) {
         show_snow_effect();
     } else if (screen_gfx == SCREEN_GFX_TRAIN) {
         show_train_effect();
+    } else if (screen_gfx == SCREEN_GFX_LIGHTINGBOLT) {
+        show_lightingbolt_effect();
     }
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
@@ -645,6 +652,27 @@ void draw::show_train_effect()
         }
     }
     //graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
+}
+
+void draw::show_lightingbolt_effect()
+{
+    if (_lightingbolt_effect_timer == 0) {
+        _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY1;
+        return;
+    }
+    if (_lightingbolt_effect_timer < timer.getTimer()) {
+        if (_lightingbolt_effect_state <= 3) {
+            _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY2;
+            _lightingbolt_effect_state++;
+        } else {
+            _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY1;
+            _lightingbolt_effect_state = 0;
+        }
+    } else {
+        if (_lightingbolt_effect_state == 1 || _lightingbolt_effect_state == 3) {
+            graphLib.clear_area(0, 0, RES_W, RES_H, 250, 250, 250);
+        }
+    }
 }
 
 

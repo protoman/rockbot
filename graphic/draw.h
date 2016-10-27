@@ -62,6 +62,7 @@ private:
     void generate_snow_particles();
     void show_snow_effect();
     void show_train_effect();
+    void show_lightingbolt_effect();
     void show_weapon_tooltip();
 
 
@@ -87,10 +88,14 @@ private:
     std::vector<st_snow_particle> _snow_particles;
     graphicsLib_gSurface snow_flacke;
 
-    // USED IN TARIN EFFECT
+    // USED IN TRAIN EFFECT
     int _train_effect_timer;
     int _train_effect_state;
     Mix_Chunk* _train_sfx;
+
+    // USED IN LIGHTINGBOLT
+    int _lightingbolt_effect_timer;
+    int _lightingbolt_effect_state;
 
     Uint8 screen_gfx;
     bool flash_effect_enabled;

@@ -133,15 +133,15 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page_map_properties">
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
-              <width>361</width>
-              <height>487</height>
+              <y>-92</y>
+              <width>384</width>
+              <height>442</height>
              </rect>
             </property>
             <attribute name="label">
@@ -169,12 +169,22 @@
                  </item>
                  <item>
                   <property name="text">
-                   <string>Water</string>
+                   <string>Underwater</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
                    <string>Train</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Flash Stopper</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Lighting Bolt</string>
                   </property>
                  </item>
                 </widget>
@@ -463,8 +473,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>228</width>
+              <height>174</height>
              </rect>
             </property>
             <attribute name="label">
@@ -601,8 +611,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
             <attribute name="label">
@@ -750,8 +760,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -851,8 +861,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
             <attribute name="label">
@@ -951,8 +961,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>98</width>
+              <height>28</height>
              </rect>
             </property>
             <property name="toolTip">
@@ -1020,8 +1030,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>295</height>
+              <width>98</width>
+              <height>94</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1038,8 +1048,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>354</width>
-                  <height>134</height>
+                  <width>98</width>
+                  <height>28</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">
