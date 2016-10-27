@@ -1,4 +1,4 @@
-# QtCreator arfifact
+]# QtCreator arfifact
 *.user
 
 # qmake artifiacts
@@ -9,3 +9,6 @@ Makefile
 rockbot
 data
 editor/moc_*.cpp
+build/*.cpp
+build/*.h
+build/editor

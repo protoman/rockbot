@@ -57,7 +57,9 @@ VERSION 2.0.0 BETA 1
 
 - melhorar script de build incluindo ABI (x86/ARM)
 
-- fazer npcs não-voadores atingirem o chão ao carregar lista de npcs do mapa
+- verificar se opção turbo do botão está funcionando bem
+
+- GFX lighting-storm para estágios como o mummy
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -100,11 +102,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- EDITOR::CENA: não pode adicionar a própria cena como sub-cena, pois cria loop infinito
-- EDITOR::CENA: adicionar botão para recalcular w/h com base na imagem e recalcular ao mudar imagem
-    # animation
-    # viewpoint
-    #image
 
 
 
