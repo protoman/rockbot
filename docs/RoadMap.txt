@@ -61,6 +61,12 @@ VERSION 2.0.0 BETA 1
 
 - melhorar script de build incluindo ABI (x86/ARM)
 
+- criar efeito wave (sinoidal) para ser usados sobre surfaces
+    # classe própria
+    # aplicada sobre cada linha
+    # pode avancar onda (speed-x)
+    # pode mudar amplitude
+
 - separar GFX em sua própria classe que a draw usará
     # rain
     # snow

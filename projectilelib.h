@@ -4,7 +4,6 @@
 #include "file/format/st_common.h"
 #include "defines.h"
 #include <string>
-#include "timerlib.h"
 #include "graphicslib.h"
 
 #include "aux_tools/trajectory_parabola.h"
@@ -15,6 +14,7 @@ class classMap; // advance declaration
 #include "graphic/draw.h"
 extern draw draw_lib;
 
+#include "timerlib.h"
 extern timerLib timer;
 
 /**

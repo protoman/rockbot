@@ -50,7 +50,7 @@ public:
     void show_ingame_warning(std::vector<std::string> message);
 
     void fade_in_screen(int r, int g, int b);
-    void fade_out_screen(int r, int g, int b);
+    void fade_out_screen(int r, int g, int b, int total_delay);
 
 
     void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);

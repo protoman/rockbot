@@ -320,6 +320,7 @@ bool class_config::execute_ingame_menu()
         if (ingame_menu_active) {
             gameControl.game_pause();
             generate_weapons_matrix();
+            draw_lib.fade_out_screen(0, 0, 0, 300);
             draw_ingame_menu();
         } else {
             // left menu, change player color/weapon and remove pause

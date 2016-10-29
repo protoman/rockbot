@@ -324,7 +324,8 @@ SOURCES += main.cpp \
     game_mediator.cpp \
     aux_tools/fps_control.cpp \
     docs/game_manual.cpp \
-    collision_detection.cpp
+    collision_detection.cpp \
+    graphic/gfx_sin_wave.cpp
 
 HEADERS += \
     character/character.h \
@@ -385,7 +386,8 @@ HEADERS += \
     file/v4/file_anim_block.h \
     ports/android/rockbot_android.h \
     docs/game_manual.h \
-    collision_detection.h
+    collision_detection.h \
+    graphic/gfx_sin_wave.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

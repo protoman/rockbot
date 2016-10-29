@@ -259,7 +259,7 @@ void game::restart_stage()
         checkpoint.x = TILESIZE*4;
     }
     // remove any used teleporter
-    draw_lib.fade_out_screen(0, 0, 0);
+    draw_lib.fade_out_screen(0, 0, 0, 500);
 
     player1.set_teleporter(-1);
     _player_teleporter.active = false;
@@ -585,7 +585,7 @@ bool game::test_teleport(classPlayer *test_player) {
 
     if (link_type == LINK_TELEPORTER || link_type == LINK_FADE_TELEPORT) {
         if (link_type == LINK_FADE_TELEPORT) {
-            draw_lib.fade_out_screen(0, 0, 0);
+            draw_lib.fade_out_screen(0, 0, 0, 300);
         } else {
             test_player->teleport_out();
         }

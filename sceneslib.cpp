@@ -21,6 +21,8 @@ extern soundLib soundManager;
 #include "graphic/draw.h"
 extern draw draw_lib;
 
+#include "graphic/gfx_sin_wave.h"
+
 
 #include "stage_select.h"
 #include "graphic/option_picker.h"
@@ -101,7 +103,10 @@ void scenesLib::draw_main()
     graphicsLib_gSurface intro_screen;
     std::string intro_path = FILEPATH + "/images/logo.png";
     graphLib.surfaceFromFile(intro_path, &intro_screen);
-    graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &intro_screen, &graphLib.gameScreen);
+    //graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &intro_screen, &graphLib.gameScreen);
+    gfx_sin_wave gfx_wave_obj(&intro_screen);
+    gfx_wave_obj.show(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20);
+
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
