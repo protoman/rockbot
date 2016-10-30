@@ -9,7 +9,7 @@
 #define FLASH_IMG_SIZE 8
 #define SNOW_DELAY 40
 #define LIGHTINGBOLT_DELAY1 3000
-#define LIGHTINGBOLT_DELAY2 140
+#define LIGHTINGBOLT_DELAY2 80
 
 #define TRAIN_DELAY 2000
 #define TRAIN_EFFECT_DELAY 180
@@ -669,7 +669,7 @@ void draw::show_lightingbolt_effect()
         return;
     }
     if (_lightingbolt_effect_timer < timer.getTimer()) {
-        if (_lightingbolt_effect_state <= 3) {
+        if (_lightingbolt_effect_state <= 5) {
             _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY2;
             _lightingbolt_effect_state++;
         } else {
@@ -677,8 +677,11 @@ void draw::show_lightingbolt_effect()
             _lightingbolt_effect_state = 0;
         }
     } else {
-        if (_lightingbolt_effect_state == 1 || _lightingbolt_effect_state == 3) {
-            graphLib.clear_area(0, 0, RES_W, RES_H, 250, 250, 250);
+        if (_lightingbolt_effect_state % 2 != 0) {
+            if (_lightingbolt_effect_state == 1) {
+                soundManager.play_shared_sfx("thunder.wav");
+            }
+            graphLib.clear_area(0, 0, RES_W, RES_H, 250, 250, 158);
         }
     }
 }

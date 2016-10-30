@@ -2,6 +2,7 @@
 #include "soundlib.h"
 
 extern string FILEPATH;
+extern string GAMEPATH;
 
 #include "file/format.h"
 extern struct CURRENT_FILE_FORMAT::st_game_config game_config;
@@ -352,6 +353,16 @@ void soundLib::play_sfx_from_file(string filename, int repeat_n)
     Mix_Volume(-1, game_config.volume_sfx);
 
     Sint8 channel = Mix_PlayChannel(-1, sfx, repeat_n-1);
+}
+
+void soundLib::play_shared_sfx(string filename)
+{
+    filename = GAMEPATH + "shared/sfx/" + filename;
+    Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+
+    Mix_Volume(-1, game_config.volume_sfx);
+
+    Sint8 channel = Mix_PlayChannel(-1, sfx, 0);
 }
 
 void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)

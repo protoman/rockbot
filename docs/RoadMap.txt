@@ -54,32 +54,15 @@ VERSION 2.0.0 BETA 1
     # Seahorse eventualmente fica preso dentro da porta
     # em modo demo, não entra em estágios já finalizados
     # Daisiebot afunda no chão ao mudar direção (turn)
+        # talvez seja hitarea do turn
 
 - não está pegando START às vezes na tela de seleção de armas
 
+- pulo na água está muito alto
+
 - aviso de que precisa reiniciar o jogo, nas config, não está aparecendo
 
-- melhorar script de build incluindo ABI (x86/ARM)
-
-- criar efeito wave (sinoidal) para ser usados sobre surfaces
-    # classe própria
-    # aplicada sobre cada linha
-    # pode avancar onda (speed-x)
-    # pode mudar amplitude
-
-- separar GFX em sua própria classe que a draw usará
-    # rain
-    # snow
-    # underwater
-    # train
-    # flash-stopper
-    # lighthing-bolt
-
-- GFX lighting-storm para estágios como o mummy
-
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
-
-- EDITOR: mover diálogos de estágio para edição de strings
 
 - EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
 
@@ -119,15 +102,26 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
-
-
+- criar efeito wave (sinoidal) para ser usados sobre surfaces
+- melhorar timing do efeito de fade-out
+- GFX lighting-storm para estágios como o mummy
 
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- melhorar script de build incluindo ABI (x86/ARM)
+
+- EDITOR: mover diálogos de estágio para edição de strings
+
+- separar GFX em sua própria classe que a draw usará
+    # rain
+    # snow
+    # underwater
+    # train
+    # flash-stopper
+    # lighthing-bolt
 
 - se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
 - adicionar suporte à configuração de controle do wii

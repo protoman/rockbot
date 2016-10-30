@@ -139,9 +139,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-92</y>
-              <width>384</width>
-              <height>442</height>
+              <y>0</y>
+              <width>362</width>
+              <height>429</height>
              </rect>
             </property>
             <attribute name="label">
@@ -192,7 +192,7 @@
                <item row="4" column="0">
                 <widget class="QLabel" name="label_56">
                  <property name="text">
-                  <string>Background1 Y Position:</string>
+                  <string>BG 1 Y Position:</string>
                  </property>
                 </widget>
                </item>
@@ -212,7 +212,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_58">
                  <property name="text">
-                  <string>Background Color:</string>
+                  <string>BG Color:</string>
                  </property>
                 </widget>
                </item>
@@ -226,21 +226,21 @@
                <item row="7" column="0">
                 <widget class="QLabel" name="label_60">
                  <property name="text">
-                  <string>Background2 Y Position:</string>
+                  <string>BG 2 Y Position:</string>
                  </property>
                 </widget>
                </item>
                <item row="5" column="0">
                 <widget class="QLabel" name="label_59">
                  <property name="text">
-                  <string>Background2 Image:</string>
+                  <string>BG 2 Image:</string>
                  </property>
                 </widget>
                </item>
                <item row="6" column="0">
                 <widget class="QLabel" name="label_62">
                  <property name="text">
-                  <string>Bg2 Speed Multiplier:</string>
+                  <string>BG 2 Speed Multiplier:</string>
                  </property>
                 </widget>
                </item>
@@ -298,7 +298,7 @@
                <item row="8" column="0">
                 <widget class="QLabel" name="label_16">
                  <property name="text">
-                  <string>Background 1 Auto-Scroll Mode:</string>
+                  <string>BG 1 Auto-Scroll Mode:</string>
                  </property>
                 </widget>
                </item>
@@ -342,7 +342,7 @@
                <item row="2" column="0">
                 <widget class="QLabel" name="label_52">
                  <property name="text">
-                  <string>Background1 Image:</string>
+                  <string>BG 1 Image:</string>
                  </property>
                 </widget>
                </item>
@@ -369,14 +369,14 @@
                <item row="1" column="1">
                 <widget class="QPushButton" name="bg_color_pick">
                  <property name="text">
-                  <string>Pick Color</string>
+                  <string>Pick</string>
                  </property>
                 </widget>
                </item>
                <item row="9" column="0">
                 <widget class="QLabel" name="label_17">
                  <property name="text">
-                  <string>Background 2 Auto-Scroll Mode:</string>
+                  <string>BG 2 Auto-Scroll Mode:</string>
                  </property>
                 </widget>
                </item>
@@ -396,7 +396,7 @@
                <item row="3" column="0">
                 <widget class="QLabel" name="label_61">
                  <property name="text">
-                  <string>Bg1 Speed Multiplier:</string>
+                  <string>BG 1 Speed Multiplier:</string>
                  </property>
                 </widget>
                </item>
@@ -473,8 +473,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>228</width>
-              <height>174</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <attribute name="label">
@@ -611,8 +611,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <attribute name="label">
@@ -760,8 +760,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <property name="sizePolicy">
@@ -861,8 +861,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <attribute name="label">
@@ -961,8 +961,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <property name="toolTip">
@@ -1030,8 +1030,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>94</height>
+              <width>376</width>
+              <height>315</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1048,8 +1048,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>98</width>
-                  <height>28</height>
+                  <width>356</width>
+                  <height>144</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">

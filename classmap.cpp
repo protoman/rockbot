@@ -464,6 +464,7 @@ void classMap::load_map_npcs()
 void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
+    //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
     if (bg1_surface.width <= 0 || bg1_surface.height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     }
@@ -886,7 +887,7 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
             n++;
         }
     } else {
-        graphLib.initSurface(st_size(RES_W*2, RES_H), &dest_surface);
+        graphLib.initSurface(st_size(RES_W*2, image_surface.height), &dest_surface);
         int total_w = 0;
         while (total_w <= RES_W*2) {
             graphLib.copyArea(st_position(total_w, 0), &image_surface, &dest_surface);
