@@ -163,7 +163,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
 			graphLib.draw_text(j*9+(dialog_pos.x+52), i*11+(dialog_pos.y+16), temp_text);
             draw_lib.update_screen();
-            input.waitTime(5);
+            timer.delay(5);
 		}
 	}
 
@@ -215,7 +215,7 @@ bool dialogs::show_leave_game_dialog() const
         }
     }
     input.clean();
-    input.waitTime(200);
+    timer.delay(200);
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
     gameControl.game_unpause();
@@ -245,7 +245,7 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 
             graphLib.draw_text(j*9+(dialog_pos.x+52), i*11+(dialog_pos.y+16), temp_text);
             draw_lib.update_screen();
-			input.waitTime(15);
+			timer.delay(15);
 		}
 	}
 
@@ -255,7 +255,7 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
     }
 
 
-    input.waitTime(delay);
+    timer.delay(delay);
     gameControl.game_unpause();
 }
 

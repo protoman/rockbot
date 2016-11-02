@@ -255,7 +255,7 @@ void class_config::use_tank(int tank_type)
 			n++;
             graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1, player_ref->get_max_hp());
             draw_lib.update_screen();
-			input.waitTime(50);
+			timer.delay(50);
 		}
 	}
 	if (tank_type == TANK_SPECIAL || tank_type == TANK_WEAPON) {
@@ -273,7 +273,7 @@ void class_config::use_tank(int tank_type)
 					n++;
                     graphLib.draw_weapon_cursor(weapon_pos, player_ref->get_weapon_value(i), -1, player_ref->get_max_hp());
                     draw_lib.update_screen();
-					input.waitTime(50);
+					timer.delay(50);
 				}
 			}
 			weapon_pos.y = weapon_pos.y+1;
@@ -313,7 +313,7 @@ bool class_config::execute_ingame_menu()
     if (input.p1_input[BTN_START] == 1) {
 
         input.clean();
-        input.waitTime(300);
+        timer.delay(100);
 
         ingame_menu_active = !ingame_menu_active;
 
@@ -374,7 +374,7 @@ bool class_config::execute_ingame_menu()
             }
         }
         input.clean();
-        input.waitTime(MENU_CHANGE_DELAY);
+        //timer.delay(MENU_CHANGE_DELAY);
     }
 
     return ingame_menu_active;

@@ -232,7 +232,7 @@ short scenesLib::pick_stage() {
             pos_n = i+1;
         }
     }
-	input.waitTime(100);
+    timer.delay(100);
     return pos_n;
 }
 
@@ -248,7 +248,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 	graphLib.show_config_bg(0);
     draw_lib.update_screen();
 	input.clean();
-	input.waitTime(300);
+    timer.delay(300);
 
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input)));
@@ -343,7 +343,7 @@ void scenesLib::show_config_android()
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
     std::vector<std::string> options;
     short selected_option = 0;
 
@@ -393,7 +393,7 @@ void scenesLib::show_config_video()
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
-	input.waitTime(300);
+    timer.delay(300);
 	std::vector<std::string> options;
 
     if (game_config.video_fullscreen == false) {
@@ -436,7 +436,7 @@ void scenesLib::show_config_video_PSP()
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     std::vector<std::string> options;
     if (game_config.video_fullscreen == true) {
@@ -462,7 +462,7 @@ void scenesLib::show_config_wii()
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     std::vector<std::string> options;
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE));
@@ -482,7 +482,7 @@ void scenesLib::show_config_PS2()
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     std::vector<std::string> options;
     options.push_back("320x200");
@@ -505,14 +505,17 @@ void scenesLib::show_config_PS2()
 void scenesLib::show_config_ask_restart()
 {
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
     graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
+    draw_lib.update_screen();
     input.wait_keypress();
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    draw_lib.update_screen();
 }
 
 void scenesLib::show_config_audio()
@@ -521,7 +524,7 @@ void scenesLib::show_config_audio()
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
-	input.waitTime(300);
+    timer.delay(300);
 
 	std::vector<std::string> options;
     if (game_config.sound_enabled == true) {
@@ -560,7 +563,7 @@ void scenesLib::show_config_language()
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     std::vector<std::string> options;
     if (game_config.selected_language == 1) {           // FRENCH
@@ -1079,7 +1082,7 @@ Uint8 scenesLib::select_player() {
 
 
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
 
     while (true) {
         if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
@@ -1120,7 +1123,7 @@ Uint8 scenesLib::select_player() {
             break;
         }
         input.clean();
-        input.waitTime(10);
+        timer.delay(10);
         draw_lib.update_screen();
     }
     return (selected-1);
@@ -1156,7 +1159,7 @@ Uint8 scenesLib::select_player() {
     int y = 0;
 
 	input.clean();
-    input.waitTime(100);
+    timer.delay(100);
 
 
     graphicsLib_gSurface lights_surface;
@@ -1189,7 +1192,7 @@ Uint8 scenesLib::select_player() {
         draw_lights_select_player(lights_surface, selected, adjustX, adjustY);
 
         input.clean();
-        input.waitTime(10);
+        timer.delay(10);
         draw_lib.update_screen();
     }
     return selected;
@@ -1205,7 +1208,7 @@ Uint8 scenesLib::select_difficulty()
     graphLib.show_config_bg(0);
     draw_lib.update_screen();
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal));
@@ -1316,7 +1319,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
             draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
             draw_castle_path(true, castle_data.points[1], castle_data.points[2], 0);
             draw_castle_path(true, castle_data.points[2], castle_data.points[3], 0);
-            input.waitTime(1000);
+            timer.delay(1000);
         }
 
         /*
@@ -1348,7 +1351,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
 
         soundManager.play_sfx(SFX_SKULL_CASTLE_INTRO);
         draw_lib.update_screen();
-        input.waitTime(7550);
+        timer.delay(7550);
 
 
         /// @TODO - instant path for drawing previous ones (do not need a for-loop)
@@ -1361,7 +1364,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         } else if (pos_n == CASTLE1_STAGE5) {
             draw_castle_path(true, castle_data.points[3], castle_data.points[4], 1000);
         }
-        input.waitTime(1500);
+        timer.delay(1500);
         return;
     } else if (game_save.stages[pos_n] != 0) {
         std::cout << "boss_intro - stage already finished" << std::endl;

@@ -903,7 +903,7 @@ void classPlayer::teleport_stand()
 		*/
 		//drawMap3rdLevel(game_screen);
 		//updateScreen(game_screen);
-		input.waitTime(20);
+        timer.delay(20);
 	}
 }
 

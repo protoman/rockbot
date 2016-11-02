@@ -37,6 +37,8 @@ void inputLib::start_read()
 void inputLib::stop_read()
 {
     _run_thread = false;
+    int threadReturnValue;
+    SDL_WaitThread(read_thread, &threadReturnValue);
 }
 
 void inputLib::init_joystick()
@@ -266,34 +268,8 @@ int inputLib::read_input_thread_function(void *ptr)
     RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
 #endif
         this_obj->read_input();
-        SDL_Delay(1);
+        timer.udelay(500);
     }
-}
-
-
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void inputLib::waitTime(int wait_period) const {
-    /*
-#ifdef PLAYSTATION2
-    if (wait_period < 20) {
-        return;
-    }
-#endif
-    */
-	int now_time=0;
-	now_time = timer.getTimer();
-	wait_period = now_time + wait_period;
-	while (now_time < wait_period) {
-		now_time = timer.getTimer();
-		SDL_Delay(1);
-		#ifdef PLAYSTATION
-			RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
-		#endif
-        //graphLib.updateScreen();
-	}
 }
 
 
@@ -303,7 +279,7 @@ void inputLib::waitTime(int wait_period) const {
 int inputLib::waitScapeTime(int wait_period) {
 	int now_time = 0;
 
-	waitTime(50);
+    timer.delay(50);
 	now_time = timer.getTimer();
 	wait_period = now_time + wait_period;
 
@@ -320,7 +296,7 @@ int inputLib::waitScapeTime(int wait_period) {
 		#ifdef PLAYSTATION
 			RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
 		#endif
-        SDL_Delay(5);
+        SDL_Delay(1);
 	}
 	return 0;
 }
@@ -332,7 +308,7 @@ void inputLib::wait_keypress()
         if (p1_input[BTN_START] == 1 || p1_input[BTN_JUMP] == 1) {
             fim = true;
         }
-        waitTime(50);
+        timer.delay(1);
     }
     clean();
 }
@@ -341,30 +317,28 @@ void inputLib::wait_keypress()
 bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key)
 {
     clean();
-    waitTime(50);
+    timer.delay(50);
     while (true) { // keep reading until a key is found
-        while (SDL_PollEvent(&event)) {
-            if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
-                if (event.type == SDL_KEYDOWN) {
-                    // do not allow user to reassign ESCAPE key
-                    if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
-                        return false;
-                    }
-                    game_config_copy.keys_codes[key] = event.key.keysym.sym;
+        if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
+            if (event.type == SDL_KEYDOWN) {
+                // do not allow user to reassign ESCAPE key
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
                     return false;
                 }
-                SDL_PumpEvents();
+                game_config_copy.keys_codes[key] = event.key.keysym.sym;
+                return false;
             }
-            if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
-                if (event.type == SDL_JOYBUTTONDOWN) {
-                    //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
-                    game_config_copy.button_codes[key] = event.jbutton.button;
-                    return true;
-                }
+            SDL_PumpEvents();
+        }
+        if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
+            if (event.type == SDL_JOYBUTTONDOWN) {
+                //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
+                game_config_copy.button_codes[key] = event.jbutton.button;
+                return true;
             }
         }
-        waitTime(5);
+        timer.delay(1);
     }
     return false;
 }

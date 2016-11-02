@@ -309,10 +309,10 @@ void execute_memory_test() {
 #endif
 
     std::fflush(stdout);
-    input.waitTime(200);
+    timer.delay(200);
     std::fflush(stdout);
     std::cout << "MEMTEST[END]" << std::endl;
-    input.waitTime(200);
+    timer.delay(200);
 }
 */
 
@@ -564,7 +564,7 @@ int main(int argc, char *argv[])
 
     input.clean();
     input.p1_input[BTN_START] = 0;
-    input.waitTime(200);
+    timer.delay(200);
 
     input.clean();
 

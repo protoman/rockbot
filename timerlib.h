@@ -1,6 +1,12 @@
 #ifndef TIMERLIB_H
 #define TIMERLIB_H
 
+#ifdef WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 /**
  * @brief
  *
@@ -19,6 +25,9 @@ public:
      * @param int
      */
     void delay(int) const;
+
+    void udelay(int useconds);
+
     /**
      * @brief
      *

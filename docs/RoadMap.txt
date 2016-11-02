@@ -56,11 +56,7 @@ VERSION 2.0.0 BETA 1
     # Daisiebot afunda no chão ao mudar direção (turn)
         # talvez seja hitarea do turn
 
-- não está pegando START às vezes na tela de seleção de armas
-
 - pulo na água está muito alto
-
-- aviso de que precisa reiniciar o jogo, nas config, não está aparecendo
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -73,8 +69,6 @@ VERSION 2.0.0 BETA 1
 
 - substituir tiro carregado e voz por original (está girl hadouken)
 
-- There's also a bug where after I release a fully charged shot, the sound of me charging will stay until I charge another shot
-
 - update build script files to copy font to GAMEDIR
     # remove non-used fonts
     # remove non-used graphics
@@ -85,7 +79,6 @@ VERSION 2.0.0 BETA 1
 - DEMO deve ser sequencial, um estágio depois do outro, sem seleção.
 - DEMO deve ter tela final agradecendo e mandando comprar full-version
 
-- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
@@ -105,12 +98,19 @@ ESTAGIOS:
 - criar efeito wave (sinoidal) para ser usados sobre surfaces
 - melhorar timing do efeito de fade-out
 - GFX lighting-storm para estágios como o mummy
-
+- cancela a thread em game::exit_game() e espera ela sair
+- aviso de que precisa reiniciar o jogo, nas configs, não está aparecendo
+- não está limpando direito a tela após aviso de "need restart" na config
+- substituir chamadas a input.waittime por timer.delay
+- melhor leitura de input com uso de microssegundos no lugar de SDL_Delay no loop da thread
+- leitura de input na tela de seleção de armas está ruim (deve ter algum delay)
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
+
 - melhorar script de build incluindo ABI (x86/ARM)
 
 - EDITOR: mover diálogos de estágio para edição de strings

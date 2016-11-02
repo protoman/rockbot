@@ -835,11 +835,11 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
         SDL_FillRect(game_screen, 0, SDL_MapRGB(game_screen->format, r, g, b));
 
 		updateScreen();
-		input.waitTime(80);
+        timer.delay(80);
 
         SDL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
 		updateScreen();
-		input.waitTime(80);
+        timer.delay(80);
     }
 }
 
@@ -1488,7 +1488,7 @@ void graphicsLib::show_debug_msg(string msg)
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);
     updateScreen();
-    input.waitTime(2000);
+    timer.delay(2000);
 }
 
 void graphicsLib::draw_path(st_position initial_point, st_position final_point, short duration)
@@ -1531,7 +1531,7 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
                 clear_area(initial_point.x, initial_point.y - (i+1)*move_step, 4, abs(move_step), 255, 255, 0);
             } // VERTICAL
             updateScreen();
-            input.waitTime(part_duration);
+            timer.delay(part_duration);
         }
     } else {
         if (mode == 0) { // HORIZONTAL

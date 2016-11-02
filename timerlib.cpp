@@ -13,7 +13,12 @@ timerLib::timerLib()
 
 void timerLib::delay(int waitMS) const
 {
-	SDL_Delay(waitMS);
+    SDL_Delay(waitMS);
+}
+
+void timerLib::udelay(int useconds)
+{
+    usleep(useconds);
 }
 
 unsigned long timerLib::getTimer() const

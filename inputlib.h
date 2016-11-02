@@ -19,7 +19,6 @@ public:
     void stop_read();
     void init_joystick();
     void change_joystick();
-    void waitTime(int wait_period) const;
     int waitScapeTime(int);
     void clean();
     void clean_all();     /// removes also the attack state

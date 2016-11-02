@@ -1526,7 +1526,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
 	//std::cout << "classMap::redraw_boss_door - is_close: " << is_close << std::endl;
 
-	input.waitTime(10);
+    timer.delay(10);
 	for (int k=0; k<nTiles; k++) {
 		//if (is_close == false) { std::cout << "classMap::redraw_boss_door - nTiles: " << nTiles << ", tilePieces: " << tilePieces << ", tileCount: " << tileCount << std::endl; }
 		// redraw screen
@@ -1590,14 +1590,14 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
         graphLib.draw_hp_bar(_player_ref->get_current_hp(), player_number, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
         showAbove();
         draw_lib.update_screen();
-		input.waitTime(100);
+        timer.delay(100);
 	}
     if (is_close == true) {
         _3rd_level_ignore_area = st_rectangle(-1, -1, -1, -1);
         showAbove();
         draw_lib.update_screen();
     }
-    input.waitTime(100);
+    timer.delay(100);
 }
 
 

@@ -13,6 +13,10 @@ extern inputLib input;
 #include "graphic/draw.h"
 extern draw draw_lib;
 
+#include "timerlib.h"
+extern timerLib timer;
+
+
 #include "strings_map.h"
 
 
@@ -77,7 +81,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
 {
     bool finished = false;
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
     _pick_pos = initial_pick_pos;
 
     //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
@@ -125,11 +129,11 @@ Sint8 option_picker::pick(int initial_pick_pos)
             return -1;
         }
         input.clean();
-        input.waitTime(10);
+        timer.delay(10);
         draw_lib.update_screen();
     }
 	graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
-    input.waitTime(10);
+    timer.delay(10);
     draw_lib.update_screen();
 
     if (_show_return == true) {

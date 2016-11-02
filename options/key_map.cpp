@@ -12,6 +12,10 @@ extern soundLib soundManager;
 #include "graphic/draw.h"
 extern draw draw_lib;
 
+#include "timerlib.h"
+extern timerLib timer;
+
+
 #include "graphic/option_picker.h"
 
 #include "strings_map.h"
@@ -45,7 +49,7 @@ void key_map::draw_screen()
 
     graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
     input.clean();
-    input.waitTime(300);
+    timer.delay(300);
 
     for (unsigned int i=0; i<_keys_list.size(); i++) {
         std::cout << "_keys_list[i]: " << _keys_list[i] << std::endl;
@@ -93,7 +97,7 @@ void key_map::draw_screen()
             finished = true;
         }
         input.clean();
-        input.waitTime(10);
+        timer.delay(10);
         draw_lib.update_screen();
     }
 }
@@ -121,9 +125,9 @@ Sint8 key_map::draw_config_input() const
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
 
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 195,  180, 0, 0, 0);
     std::vector<std::string> options;
@@ -178,9 +182,9 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
     input.clean();
-    input.waitTime(100);
+    timer.delay(100);
 
     graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
     std::vector<std::string> options;
@@ -318,7 +322,7 @@ void key_map::config_buttons()
             graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, 0, 0, 0);
             graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey));
             input.clean();
-            input.waitTime(20);
+            timer.delay(20);
             bool is_joystick = input.pick_key_or_button(game_config_copy, selected_key);
 
             check_key_duplicates(game_config_copy, selected_key, is_joystick);
@@ -329,21 +333,21 @@ void key_map::config_buttons()
             if (is_key_set(BTN_JUMP, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" JUMP KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                input.waitTime(20);
+                timer.delay(20);
                 input.clean_all();
                 input.wait_keypress();
                 selected_option = 0;
             } else if (is_key_set(BTN_ATTACK, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" ATTACK KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                input.waitTime(20);
+                timer.delay(20);
                 input.clean_all();
                 input.wait_keypress();
                 selected_option = 0;
             } else if (is_key_set(BTN_START, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" START KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                input.waitTime(20);
+                timer.delay(20);
                 input.clean_all();
                 input.wait_keypress();
                 selected_option = 0;

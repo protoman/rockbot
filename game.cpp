@@ -591,7 +591,7 @@ bool game::test_teleport(classPlayer *test_player) {
         }
         graphLib.blank_screen();
         draw_lib.update_screen();
-        input.waitTime(500);
+        timer.delay(500);
         currentMap = temp_map_n;
         new_map_pos_x = (stage_data.links[j].pos_destiny.x * TILESIZE) - TILESIZE*2;
     } else {
@@ -672,7 +672,7 @@ void game::map_present_boss(bool show_dialog)
 		}
         player1.show();
         loaded_stage.showAbove();
-		input.waitTime(8);
+        timer.delay(8);
         draw_lib.update_screen();
 	}
 
@@ -856,7 +856,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
             draw_lib.update_screen();
 #if !defined(PLAYSTATION2) && !defined(ANDROID)
-            input.waitTime(6);
+            timer.delay(6);
 #endif
 		}
 
@@ -932,7 +932,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         player1.show();
         loaded_stage.showAbove();
 #if defined(PC)
-        input.waitTime(1);
+        timer.delay(1);
 #endif
         draw_lib.update_screen();
         if (i%(TILESIZE/2) == 0) {
@@ -945,7 +945,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         loaded_stage.redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, player1.get_number());
         remove_players_slide();
     }
-	input.waitTime(6);
+    timer.delay(6);
     loaded_stage.showStage();
 }
 
@@ -991,17 +991,17 @@ void game::got_weapon()
         fill_player_weapon(player1.get_selected_weapon());
         player1.fall();
 		soundManager.play_sfx(SFX_GOT_WEAPON);
-		input.waitTime(5000);
+        timer.delay(5000);
 
         // fall to ground
         player1.fall();
-        input.waitTime(500);
+        timer.delay(500);
 
 
 		soundManager.play_sfx(SFX_TELEPORT);
         player1.teleport_out();
         player1.set_show_hp(false);
-        input.waitTime(1000);
+        timer.delay(1000);
 
 		/// @TODO
 		// show the "you got" screen
@@ -1112,6 +1112,8 @@ void game::exit_game()
         show_savegame_error();
     }
 
+    input.stop_read();
+
 #ifdef PSP
     sceKernelExitGame();
 #else
@@ -1124,7 +1126,7 @@ void game::game_over()
 {
     _last_stage_used_teleporters.clear();
 
-    input.waitTime(200);
+    timer.delay(200);
     input.clean();
     soundManager.load_music(game_data.game_over_music_filename);
     soundManager.play_music();
@@ -1143,7 +1145,7 @@ void game::game_over()
     graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover), graphLib.gameScreen, st_color(235, 235, 235));
 
     draw_lib.update_screen();
-    input.waitTime(400);
+    timer.delay(400);
     input.wait_keypress();
     if (currentStage != INTRO_STAGE) {
         leave_stage();
@@ -1252,7 +1254,7 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
 			}
 		}
         draw_lib.update_screen();
-		input.waitTime(10);
+        timer.delay(10);
 	}
 }
 
@@ -1292,7 +1294,7 @@ void game::draw_implosion(short int centerX, short int centerY) {
 			}
 		}
         draw_lib.update_screen();
-        input.waitTime(15);
+        timer.delay(15);
 	}
 }
 
@@ -1417,7 +1419,7 @@ std::string game::select_game_screen()
         main_picker.draw();
     }
     input.clean();
-    input.waitTime(200);
+    timer.delay(200);
 
     //std::string game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
 
@@ -1470,7 +1472,7 @@ void game::show_stage(int wait_time, bool move_npcs)
         loaded_stage.showAbove();
     }
 	if (wait_time > 0) {
-		input.waitTime(wait_time);
+        timer.delay(wait_time);
 	}
     draw_lib.update_screen();
 }
@@ -1492,7 +1494,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     test_player->teleport_out();
     graphLib.blank_screen();
     draw_lib.update_screen();
-    input.waitTime(500);
+    timer.delay(500);
 
     set_current_map(dest_map);
 
@@ -1512,7 +1514,7 @@ bool game::show_config(short finished_stage)
 {
     if (scenes.show_main_config(finished_stage, true) == 1) {
         input.clean();
-        input.waitTime(50);
+        timer.delay(50);
         config_manager.disable_ingame_menu();
         leave_stage();
         return true;

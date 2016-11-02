@@ -150,7 +150,7 @@ struct st_position stage_select::select() {
     soundManager.load_music(game_data.stage_select_music_filename);
 	soundManager.play_music();
 	input.clean();
-	input.waitTime(300);
+	timer.delay(300);
 
 	select_pos.x = 1;
 	select_pos.y = 1;
@@ -205,7 +205,7 @@ struct st_position stage_select::select() {
     if (finished_stages() < 9) {
 		draw_eyes(select_pos.x, select_pos.y, false);
 	}
-	input.waitTime(200);
+	timer.delay(200);
 
 	while (selection_end == 0) {
 
@@ -229,7 +229,7 @@ struct st_position stage_select::select() {
             }
             soundManager.play_sfx(SFX_CURSOR);
             move_highlight(0, spacing.y);
-            input.waitTime(200);
+            timer.delay(200);
             input.clean();
         } else if (select_pos.y > 0 && input.p1_input[BTN_UP]) {
             if (finished_stages() < 9) {
@@ -241,7 +241,7 @@ struct st_position stage_select::select() {
             }
             soundManager.play_sfx(SFX_CURSOR);
             move_highlight(0, -spacing.y);
-            input.waitTime(200);
+            timer.delay(200);
             input.clean();
         } else if (select_pos.x > 0 && input.p1_input[BTN_LEFT]) {
             if (finished_stages() < 9) {
@@ -253,7 +253,7 @@ struct st_position stage_select::select() {
             }
             soundManager.play_sfx(SFX_CURSOR);
             move_highlight(-spacing.x, 0);
-            input.waitTime(200);
+            timer.delay(200);
             input.clean();
         } else if (select_pos.x < 2 && input.p1_input[BTN_RIGHT]) {
             if (finished_stages() < 9) {
@@ -265,7 +265,7 @@ struct st_position stage_select::select() {
             }
             soundManager.play_sfx(SFX_CURSOR);
             move_highlight(spacing.x, 0);
-            input.waitTime(200);
+            timer.delay(200);
             input.clean();
         } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
 #ifdef DEMO_VERSION
@@ -290,7 +290,7 @@ struct st_position stage_select::select() {
 #endif
 		}
 		animate_highlight();
-		input.waitTime(10);
+		timer.delay(10);
 	}
 
     //std::cout << "stage_select::select - c.x: " << select_pos.x << ", c.y: " << select_pos.y << std::endl;
