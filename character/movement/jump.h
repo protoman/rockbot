@@ -14,9 +14,9 @@ class classjump
 public:
     classjump();
 
-    void start(bool bigjump_mode);
+    void start(bool bigjump_mode, int terrain_type);
     bool is_started();
-    void execute();
+    void execute(int terrain_type);
     void interrupt(); // used to interrupt a jump-up by releasing the button
     void finish(); // hit ground, must stop all jumping
     float get_speed();
@@ -35,6 +35,8 @@ private:
     bool is_bigjump;
     double JUMP_ACCELERATION;
     int JUMP_LIMIT;
+    int start_terrain_type;
+    bool start_big_jump;
 };
 
 #endif // JUMP_H

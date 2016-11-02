@@ -1180,7 +1180,7 @@ void game::quick_load_game()
 
     currentStage = CASTLE1_STAGE1;
     game_save.difficulty = DIFFICULTY_EASY;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_4;
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;

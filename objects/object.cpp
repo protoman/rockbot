@@ -16,6 +16,8 @@ extern graphicsLib graphLib;
 #include "soundlib.h"
 extern soundLib soundManager;
 
+extern CURRENT_FILE_FORMAT::st_save game_save;
+
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
@@ -341,8 +343,6 @@ void object::show(int adjust_y, int adjust_x)
 
     int max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
 
-
-
 	// checks if the Object is near the screen to show it
     if (position.x+TILESIZE >= abs(scroll_x) && position.x-TILESIZE <= abs(scroll_x)+RES_W) {
 		// animation
@@ -388,6 +388,8 @@ void object::show(int adjust_y, int adjust_x)
             frame = 0;
         }
 
+
+
 		//std::cout << "object::show - frame_n: " << frame << ", _animation_reversed: " << _animation_reversed << ", max_frames: " << max_frames << std::endl;
 		// direction
         if (framesize_h*2 <= draw_lib.get_object_graphic(_id)->height)  {
@@ -410,6 +412,15 @@ void object::show(int adjust_y, int adjust_x)
 		graphic_destiny.y = position.y + map->getMapScrolling().y;
 
         //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
+        if (type == OBJ_LIFE) {
+            int init_x = graphic_origin.w*game_save.selected_player;
+            // avoid drawing something we don't have
+            if (draw_lib.get_object_graphic(_id)->width < init_x + framesize_w) {
+                init_x = 0;
+            }
+            graphLib.copyArea(st_rectangle(init_x, 0, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y+adjust_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            return;
+        }
 
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it

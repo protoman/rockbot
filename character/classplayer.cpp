@@ -223,13 +223,13 @@ bool classPlayer::shoryuken()
         state.animation_type = ANIM_TYPE_SPECIAL_ATTACK;
         std::cout << ">>>>>>>>>>>>>>>>>>>> SHORYUKEN::START" << std::endl;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
-        _obj_jump.start(true);
+        _obj_jump.start(true, TERRAIN_UNBLOCKED);
         return true;
     // is executing
     } else if (state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
         std::cout << ">>>>>>>>>>>>>>>>>>>> SHORYUKEN::EXECUTE" << std::endl;
         //position.y -= move_speed;
-        _obj_jump.execute();
+        _obj_jump.execute(TERRAIN_UNBLOCKED);
         int jump_speed = _obj_jump.get_speed();
         bool jump_moved = false;
 

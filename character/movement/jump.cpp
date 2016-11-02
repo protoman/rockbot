@@ -16,13 +16,19 @@ classjump::classjump() : started(false)
     JUMP_LIMIT = 240;
     state = NOJUMP;
     jumps_number = 0;
+    start_terrain_type = TERRAIN_UNBLOCKED;
 }
 
-void classjump::start(bool bigjump_mode)
+void classjump::start(bool bigjump_mode, int terrain_type)
 {
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
+    start_terrain_type = terrain_type;
+    start_big_jump = bigjump_mode;
+    if (start_terrain_type == TERRAIN_WATER) {
+        is_bigjump = true;
+    }
     if (is_bigjump == true) {
         acceleration = JUMP_ACCELERATION * 0.4;
     } else {
@@ -41,10 +47,19 @@ bool classjump::is_started()
     return started;
 }
 
-void classjump::execute()
+void classjump::execute(int terrain_type)
 {
     if (!started) {
         return;
+    }
+
+    // if big jump was caused only because of water, acceleration changes if you are still in water or not
+    if (start_terrain_type == TERRAIN_WATER && start_big_jump == false) {
+        if (terrain_type == TERRAIN_WATER) {
+            acceleration = JUMP_ACCELERATION * 0.4;
+        } else {
+            acceleration = JUMP_ACCELERATION * 0.7;
+        }
     }
 
 

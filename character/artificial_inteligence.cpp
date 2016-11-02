@@ -611,7 +611,7 @@ void artificial_inteligence::ia_action_jump_up()
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _ai_state.action_status = 0;
         set_animation_type(ANIM_TYPE_JUMP);
-        _obj_jump.start(false);
+        _obj_jump.start(false, TERRAIN_UNBLOCKED);
         moveCommands.jump = 1;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         if (_ai_state.action_status == 0) {

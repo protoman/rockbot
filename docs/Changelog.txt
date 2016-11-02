@@ -297,6 +297,9 @@ FILE-FORMAT-V4:
         400x256 - distortion
         512x448 - good but small
 
+
+
+###################### (release notes foi até aqui em cima) ######################
 - separar leitura de input em uma thread
 - EDITOR: permitir definir pontos do castelo
 - fazer npcs não-voadores atingirem o chão ao carregar lista de npcs do mapa
@@ -306,4 +309,12 @@ FILE-FORMAT-V4:
     # viewpoint
     #image
 
-
+- criar efeito wave (sinoidal) para ser usados sobre surfaces
+- melhorar timing do efeito de fade-out
+- GFX lighting-storm para estágios como o mummy
+- cancela a thread em game::exit_game() e espera ela sair
+- aviso de que precisa reiniciar o jogo, nas configs, não está aparecendo
+- não está limpando direito a tela após aviso de "need restart" na config
+- substituir chamadas a input.waittime por timer.delay
+- melhor leitura de input com uso de microssegundos no lugar de SDL_Delay no loop da thread
+- leitura de input na tela de seleção de armas está ruim (deve ter algum delay)

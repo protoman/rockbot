@@ -56,7 +56,16 @@ VERSION 2.0.0 BETA 1
     # Daisiebot afunda no chão ao mudar direção (turn)
         # talvez seja hitarea do turn
 
-- pulo na água está muito alto
+- Fases Castle:
+    # dungeon medieval
+    # mina de carvão e diamantes
+    # feira de brinquedos (little nemo, chip & dale)
+    # ruas da cidade (streets of rage, mighty final fight)
+    # space, the final frontier (moon stage de duck tales)
+
+- definir uma arma (tipo de projétil) que quebra caixas como a bomba
+
+- se dash (air) for bloqueado, deve encerrar imediatamente
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -95,15 +104,9 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- criar efeito wave (sinoidal) para ser usados sobre surfaces
-- melhorar timing do efeito de fade-out
-- GFX lighting-storm para estágios como o mummy
-- cancela a thread em game::exit_game() e espera ela sair
-- aviso de que precisa reiniciar o jogo, nas configs, não está aparecendo
-- não está limpando direito a tela após aviso de "need restart" na config
-- substituir chamadas a input.waittime por timer.delay
-- melhor leitura de input com uso de microssegundos no lugar de SDL_Delay no loop da thread
-- leitura de input na tela de seleção de armas está ruim (deve ter algum delay)
+- quando pulo alto for iniciado só por água usar aceleração próxima à normal se não estiver na água
+- vida deve mostrar apenas o rosto do jogador selecionado
+
 
 
 =========================================================================================================================================

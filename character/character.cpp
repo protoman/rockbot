@@ -1594,6 +1594,8 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         return false;
     }
 
+    int water_lock = map->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
+
     if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
         //std::cout << "char::jump - button pressed" << std::endl;
 
@@ -1614,14 +1616,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         } else {
             //std::cout << "char::_jumps_number: " << _jumps_number << ", obj::_jumps_number: " << _obj_jump.get_jumps_number() << std::endl;
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
-                int water_lock = map->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
-                if (water_lock == TERRAIN_WATER) {
-                    _obj_jump.start(true);
-                } else if (_super_jump == true) {
+                if (_super_jump == true) {
                     _super_jump = false;
-                    _obj_jump.start(true);
+                    _obj_jump.start(true, water_lock);
                 } else {
-                    _obj_jump.start(false);
+                    _obj_jump.start(false, water_lock);
                 }
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
@@ -1676,7 +1675,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             }
         }
 
-        _obj_jump.execute();
+        _obj_jump.execute(water_lock);
         if (_obj_jump.is_started() == false) {
             //std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
             soundManager.play_sfx(SFX_PLAYER_JUMP);
