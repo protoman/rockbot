@@ -78,8 +78,11 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
+    std::cout << "GAME::INIT #1" << std::endl;
     player1.initialize();
+    std::cout << "GAME::INIT #2" << std::endl;
     loaded_stage = stage(currentStage, &player1);
+    std::cout << "GAME::INIT #3" << std::endl;
     player1.initFrames();
     player1.set_is_player(true);
     player1.reset_hp();
@@ -338,6 +341,8 @@ bool game::showIntro()
     scenes.game_scenes_show_unbeaten_intro();
 	scenes.main_screen();
 
+
+
 	currentStage = 0;
 
 	initGame();
@@ -373,7 +378,6 @@ void game::show_notice()
     st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
     graphLib.copyArea(st_rectangle(0, 0, presents_surface.width, presents_surface.height), st_position(RES_W*0.5-presents_surface.width*0.5, logo_pos.y + upperland_surface.height + 7), &presents_surface, &graphLib.gameScreen);
 
-    draw_lib.update_screen();
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
@@ -385,6 +389,8 @@ void game::show_notice()
         input.waitScapeTime(30);
     }
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+
+
     draw_lib.update_screen();
 
     timer.delay(1200);
@@ -400,9 +406,9 @@ void game::show_notice()
     graphLib.draw_centered_text(180, "RESPECTIVE CONTENT CREATOR.", graphLib.gameScreen, st_color(255, 255, 255));
 
     draw_lib.update_screen();
+
     timer.delay(3000);
 
-    graphLib.blank_screen();
 }
 
 // ********************************************************************************************** //
@@ -1096,6 +1102,7 @@ void game::game_pause()
 void game::game_unpause()
 {
     timer.unpause();
+    input.read_input();
     player1.restore_input();
 }
 
@@ -1111,8 +1118,6 @@ void game::exit_game()
     if (fio.write_save(game_save) == false) {
         show_savegame_error();
     }
-
-    input.stop_read();
 
 #ifdef PSP
     sceKernelExitGame();
@@ -1193,7 +1198,7 @@ void game::quick_load_game()
     }
 
     scenes.preloadScenes();
-	initGame();
+    initGame();
     start_stage();
 }
 

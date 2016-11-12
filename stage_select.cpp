@@ -208,7 +208,7 @@ struct st_position stage_select::select() {
 	timer.delay(200);
 
 	while (selection_end == 0) {
-
+        input.read_input();
         if (input.p1_input[BTN_QUIT]) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             dialogs dialogs_obj;

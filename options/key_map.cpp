@@ -62,6 +62,7 @@ void key_map::draw_screen()
     graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
+        input.read_input();
         if (input.p1_input[BTN_START]) {
             if (_pick_pos == (short)_keys_list.size()) {
                 finished = true;
@@ -250,7 +251,6 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
 
 void key_map::config_input()
 {
-    CURRENT_FILE_FORMAT::st_game_config game_config_copy = game_config;
     int selected_option = 0;
 
     while (selected_option != -1) {

@@ -185,6 +185,7 @@ private:
     Uint8 currentMap;
     classPlayer* _player_ref;
     unsigned int autoscroll_timer;
+    bool stage_is_loaded;
 };
 
 #endif // STAGE_H

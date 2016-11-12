@@ -471,7 +471,6 @@ int main(int argc, char *argv[])
 
 
 
-    input.start_read();
     //GAMENAME = std::string("Rockbot2");
     GAMENAME = gameControl.select_game_screen();
 
@@ -569,6 +568,7 @@ int main(int argc, char *argv[])
     input.clean();
 
 
+    std::cout << "DEBUG #1" << std::endl;
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -583,7 +583,7 @@ int main(int argc, char *argv[])
         //return 1;
     }
 
-
+    std::cout << "DEBUG #2" << std::endl;
 
     bool run_game = true;
 
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
-
+    std::cout << "DEBUG #3" << std::endl;
 
     while (run_game) {
         #if !defined(DINGUX)
@@ -601,7 +601,7 @@ int main(int argc, char *argv[])
 
 
 		#ifdef PLAYSTATION2
-			RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
+            //RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
         #endif
 
 

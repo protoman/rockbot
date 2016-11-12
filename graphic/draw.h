@@ -52,6 +52,8 @@ public:
     void fade_in_screen(int r, int g, int b);
     void fade_out_screen(int r, int g, int b, int total_delay);
 
+    void pixelate_screen();
+
 
     void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);
 

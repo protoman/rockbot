@@ -46,6 +46,7 @@ void sceneShow::show_scene(int n)
     input.clean();
 
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
+        input.read_input();
         int scene_seek_n = scene.objects[i].seek_n;
         //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
 
@@ -144,6 +145,7 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
     std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
 
     while (total_dist > 0) {
+        input.read_input();
         //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(scene_image.move_delay);
         // @TODO - copy background, but should be done in a smarter way as there can be several moving elements
@@ -172,6 +174,7 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
     //std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
 
     while (total_dist > 0) {
+        input.read_input();
         //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(viewpoint.move_delay);
         std::cout << "rect - x[" << x << "], .y[" << y << "], w[" << viewpoint.w << "], h[" << viewpoint.h << "]" << std::endl;
@@ -391,7 +394,7 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
     std::cout << "max_frames[" << max_frames << "], image.w[" << image.width << "], scene.frame_w[" << scene.frame_w << "]" << std::endl;
 
     while (true) {
-
+        input.read_input();
         int x = frame_n*scene.frame_w;
 
 

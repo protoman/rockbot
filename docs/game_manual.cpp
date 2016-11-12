@@ -33,6 +33,7 @@ void game_manual::execute()
     draw_page(page);
 
     while (true) {
+        input.read_input();
 
         if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
             soundManager.play_sfx(SFX_CURSOR);

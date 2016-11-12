@@ -88,7 +88,7 @@ bool graphicsLib::initGraphics()
 	string filename;
     _video_filter = game_config.video_filter;
 
-    printf(">> WII.DEBUG.INIT_GRAPHICS #1 <<");
+    printf(">> WII.DEBUG.INIT_GRAPHICS #1 <<\n");
     fflush(stdout);
 
 
@@ -116,7 +116,7 @@ bool graphicsLib::initGraphics()
     if (SDL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
 
-        printf(">> WII.DEBUG.INIT_GRAPHICS.NO_JOYSTICKS <<");
+        printf(">> WII.DEBUG.INIT_GRAPHICS.NO_JOYSTICKS <<\n");
         fflush(stdout);
 
 
@@ -126,7 +126,7 @@ bool graphicsLib::initGraphics()
 	input.init_joystick();
 
 
-    printf(">> WII.DEBUG.INIT_GRAPHICS #2 <<");
+    printf(">> WII.DEBUG.INIT_GRAPHICS #2 <<\n");
     fflush(stdout);
 
     // FONT
@@ -147,7 +147,7 @@ bool graphicsLib::initGraphics()
     }
     delete[] buffer;
 
-    printf(">> WII.DEBUG.INIT_GRAPHICS #3 <<");
+    printf(">> WII.DEBUG.INIT_GRAPHICS #3 <<\n");
     fflush(stdout);
 
 
@@ -171,7 +171,7 @@ bool graphicsLib::initGraphics()
 #endif
 	// other loading methods
 
-    printf(">> WII.DEBUG.INIT_GRAPHICS.END <<");
+    printf(">> WII.DEBUG.INIT_GRAPHICS.END <<\n");
     fflush(stdout);
 
 
@@ -194,7 +194,6 @@ void graphicsLib::updateScreen()
         std::cout << "FATAL-ERROR::updateScreen game_screen is NULL\n";
 		return;
     }
-
 
     if (_show_stars == true) {
         anim_stars(); /// @TODO - move to draw class
@@ -693,6 +692,7 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
 
 
     for (i=0; i<text.size(); i++) {
+        input.read_input();
         temp_char = text.at(i);
 
         temp_text = "";
@@ -801,6 +801,8 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 		text_pos.x = RES_W/2 - textSF->w/2;
 	}
     text_pos.y = y;
+    text_pos.x += _screen_resolution_adjust.x;
+    text_pos.y += _screen_resolution_adjust.y;
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
@@ -1750,7 +1752,8 @@ void graphicsLib::set_video_mode()
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(640, 480, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {

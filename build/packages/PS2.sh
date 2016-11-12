@@ -9,6 +9,7 @@ mkdir ./PS2/Rockbot
 cp ../rockbot.elf ./PS2/Rockbot/
 
 rsync -r --exclude=.svn ../fonts ./PS2/Rockbot/
+rsync -r --exclude=.svn ../shared ./PS2/Rockbot/
 rsync -r --exclude=.svn ../games ./PS2/Rockbot/
 rsync -r --exclude=.svn ../*.dat ./PS2/Rockbot/
 

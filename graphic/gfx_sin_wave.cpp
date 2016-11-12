@@ -39,7 +39,7 @@ void gfx_sin_wave::show(int x, int y)
             float pos_x = (sin(angle) + x)*amplitude;
             int pos_y = i + y;
             angle += angle_step;
-            std::cout << "i[" << i << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
+            //std::cout << "i[" << i << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
             graphLib.showSurfacePortion(surface, st_rectangle(0, i, surface->width, 1), st_rectangle(pos_x, pos_y, surface->width, 1));
         }
         amplitude--;

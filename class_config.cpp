@@ -248,6 +248,7 @@ void class_config::use_tank(int tank_type)
 	}
 	if (tank_type == TANK_ENERGY || tank_type == TANK_SPECIAL) {
 		while (player_ref->get_hp().current < player_ref->get_hp().total) {
+            input.read_input();
 			player_ref->set_current_hp(1);
 			if (n == 0 || n % 6 == 0) {
 				soundManager.play_sfx(SFX_GOT_ENERGY);
@@ -265,6 +266,7 @@ void class_config::use_tank(int tank_type)
 			short unsigned int value = player_ref->get_weapon_value(i);
 			if (value < player_ref->get_hp().total) {
 				while (value < player_ref->get_hp().total) {
+                    input.read_input();
 					value++;
 					player_ref->set_weapon_value(i, value);
 					if (n == 0 || n % 6 == 0) {

@@ -10,10 +10,11 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
+
+#CONFIG += linux
 #CONFIG += win32
 #CONFIG += android
-#CONFIG += ps2
+CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
@@ -199,8 +200,8 @@ dingoo_native {
 }
 
 
-ps2 {
-        DEFINES+= PS2=1
+playstation2 {
+        DEFINES+= PLAYSTATION2=1
 	TARGET = rockbot.elf
 
 	# pre-build commands
@@ -225,7 +226,7 @@ ps2 {
 
         SOURCES += ports/ps2/cdvd_rpc.c
 	QMAKE_CC = ee-gcc
-        QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -w
+        QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -I$(PS2SDK)/ee/ee/include/sys -w
 
 	QMAKE_CXX = ee-g++
 	QMAKE_LINK = ee-g++

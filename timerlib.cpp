@@ -18,7 +18,11 @@ void timerLib::delay(int waitMS) const
 
 void timerLib::udelay(int useconds)
 {
+#ifndef PC
+    SDL_Delay(useconds);
+#else
     usleep(useconds);
+#endif
 }
 
 unsigned long timerLib::getTimer() const

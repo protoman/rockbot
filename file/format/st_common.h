@@ -209,6 +209,7 @@ private:
     SDL_Surface *gSurface;
 
 
+
     SDL_Color get_pixel_color(Uint32 pixel) const {
         if (!gSurface) {
             return SDL_Color();
@@ -226,6 +227,27 @@ private:
         return theKey;
     }
 
+public:
+    st_color get_point_color(int x, int y) {
+        Uint32 pixel = this->get_pixel(x, y);
+        SDL_Color px_color = get_pixel_color(pixel);
+        /*
+        if (pixel != 0) {
+            std::cout << "pixel[" << pixel << "]: [" << (int)px_color.r << "][" << (int)px_color.g << "][" << (int)px_color.b << "]" << std::endl;
+        }
+        */
+        return st_color((int)px_color.r, (int)px_color.g, (int)px_color.b);
+    }
+
+    void set_point_color(int set_x, int set_y, int set_r, int set_g, int set_b) {
+        /*
+        if (set_r != 0 && set_g != 0 && set_b != 0) {
+            std::cout << "set_point_color[" << set_x << "][" << set_y << "]: [" << set_r << "][" << set_g << "][" << set_b << "]" << std::endl;
+        }
+        */
+        Uint32 new_color_n = SDL_MapRGB(gSurface->format, set_r, set_g, set_b);
+        put_pixel(set_x, set_y, new_color_n);
+    }
 
 
 public:
@@ -316,7 +338,7 @@ public:
         colorkey1_points.clear();
         colorkey2_points.clear();
         colorkey3_points.clear();
-	}
+    }
 
 
     bool is_on_tolerance(SDL_Color pixel_color, int r, int g, int b, int tolerance) {
@@ -412,7 +434,7 @@ public:
     void freeGraphic()
 	{
         if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
-            if (video_screen == false && gSurface != NULL) {
+            if (video_screen == false && gSurface != NULL && gSurface->hwdata) {
                 //std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
                 width = -1;
                 height = -1;

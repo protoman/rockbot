@@ -14,6 +14,9 @@ extern game gameControl;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
+#include "inputlib.h"
+extern inputLib input;
+
 extern bool leave_game;
 
 // ********************************************************************************************** //
@@ -25,20 +28,6 @@ inputLib::inputLib() : _used_keyboard(false)
 		p1_input[i] = 0;
 	}
     _show_btn_debug = false;
-    _run_thread = false;
-}
-
-void inputLib::start_read()
-{
-    _run_thread = true;
-    read_thread = SDL_CreateThread(read_input_thread_function, (void *)this);
-}
-
-void inputLib::stop_read()
-{
-    _run_thread = false;
-    int threadReturnValue;
-    SDL_WaitThread(read_thread, &threadReturnValue);
 }
 
 void inputLib::init_joystick()
@@ -255,24 +244,6 @@ void inputLib::read_input()
     }
 }
 
-bool inputLib::must_run_thread()
-{
-    return _run_thread;
-}
-
-int inputLib::read_input_thread_function(void *ptr)
-{
-    inputLib* this_obj = (inputLib*)ptr;
-    while (this_obj->must_run_thread()) {
-#ifdef PLAYSTATION
-    RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
-#endif
-        this_obj->read_input();
-        timer.udelay(500);
-    }
-}
-
-
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -305,6 +276,7 @@ void inputLib::wait_keypress()
 {
     bool fim = false;
     while (!fim) {
+        input.read_input();
         if (p1_input[BTN_START] == 1 || p1_input[BTN_JUMP] == 1) {
             fim = true;
         }

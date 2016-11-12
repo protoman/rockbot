@@ -69,6 +69,7 @@ void PS2_load_CDROM()
 {
     int ret;
     SifExecModuleBuffer(cdvd, size_cdvd, 0, NULL, &ret);
+    // @IURI: was crashing, removed it fow now
     cdInit(CDVD_INIT_INIT);
     CDVD_Init();
 }

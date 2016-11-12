@@ -66,7 +66,7 @@ void classPlayer::set_player_name(std::string set_name)
 
 void classPlayer::initialize()
 {
-
+    std::cout << "PLAYER::INIT #1" << std::endl;
     _number = game_save.selected_player;
     if (_number == 3 || _number == 0) {
         //_obj_jump.set_jump_acceleration(0.95);
@@ -80,9 +80,11 @@ void classPlayer::initialize()
     if (max_projectiles < 1) {
         max_projectiles = 1;
     }
+    std::cout << "PLAYER::INIT #2" << std::endl;
     if (GameMediator::get_instance()->player_list[_number].can_slide == true) {
         slide_type = 1;
     }
+    std::cout << "PLAYER::INIT #3" << std::endl;
     _charged_shot_projectile_id = GameMediator::get_instance()->player_list[_number].full_charged_projectile_id;
 
     _simultaneous_shots = GameMediator::get_instance()->player_list[_number].simultaneous_shots;
@@ -92,8 +94,10 @@ void classPlayer::initialize()
     } else {
         _jumps_number = 1;
     }
+    std::cout << "PLAYER::INIT #4" << std::endl;
     _damage_modifier = GameMediator::get_instance()->player_list[_number].damage_modifier;
     update_armor_properties();
+    std::cout << "PLAYER::INIT #5" << std::endl;
 }
 
 
@@ -894,6 +898,7 @@ void classPlayer::teleport_stand()
 	*/
 	soundManager.play_sfx(SFX_TELEPORT);
 	while (waitTimer > timer.getTimer()) {
+        input.read_input();
         draw_lib.update_screen();
 		show();
 		/*

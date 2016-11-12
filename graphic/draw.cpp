@@ -549,6 +549,63 @@ void draw::fade_out_screen(int r, int g, int b, int total_delay)
     }
 }
 
+void draw::pixelate_screen()
+{
+    graphicsLib_gSurface res_surface;
+    graphLib.initSurface(st_size(RES_W, RES_H), &res_surface);
+
+    int width = graphLib.gameScreen.width;
+    int height = graphLib.gameScreen.height;
+
+
+    for (int pixelationAmount=2; pixelationAmount<8; pixelationAmount++) {
+        for (int x = 0; x < width; x+= pixelationAmount) { // do the whole image
+            for (int y = 0; y < height; y+= pixelationAmount) {
+
+                int avR = 0;
+                int avG = 0;
+                int avB =0;
+
+
+                int pointsCount = 0;
+                for (int i=0; i<pixelationAmount; i++) {
+                    for (int j=0; j<pixelationAmount; j++) {
+                        st_color pt_color = graphLib.gameScreen.get_point_color(x+i, y+j);
+                        //res_surface.set_point_color((i+x), (j+y), pt_color.r, pt_color.g, pt_color.b);
+
+                        avR += (int) (pt_color.r);
+                        avG+= (int) (pt_color.g);
+                        avB += (int) (pt_color.b);
+                        if (pt_color.r != 0 && pt_color.g != 0 && pt_color.g != 0) {
+                            pointsCount++;
+                        }
+                    }
+                    //std::cout << "x[" << x << "], y[" << y << "], xx[" << (i+x) << "]" << std::endl;
+                }
+                if (pointsCount != 0) {
+                    avR = avR/pointsCount; //divide all by the amount of samples taken to get an average
+                    avG = avG/pointsCount;
+                    avB = avB/pointsCount;
+                }
+
+                for (int i=0; i<pixelationAmount; i++) {
+                    for (int j=0; j<pixelationAmount; j++) {
+                        res_surface.set_point_color(x+i, y+j, avR, avG, avB);
+                    }
+                }
+
+            }
+        }
+        //std::cout << "pixelationAmount[" << pixelationAmount << "]" << std::endl;
+        graphLib.copyArea(st_position(0, 0), &res_surface, &graphLib.gameScreen);
+        graphLib.updateScreen();
+        timer.delay(20);
+    }
+    std::cout << "END" << std::endl;
+    res_surface.freeGraphic();
+
+}
+
 void draw::add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction)
 {
     _weapon_tooltip_n = weapon_n;

@@ -442,7 +442,6 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
             // ignore Y movement if can't move in this axis
             /// @TODO: increase X virtual position until the point the NPC starts falling
             if (found_point == false) {
-                yinc = 0;
                 //std::cout << ">>>> AI::ia_action_jump_to_point - search for parabole flex point" << std::endl;
                 int temp_xinc = 1;
                 if (state.direction == ANIM_DIRECTION_LEFT) {

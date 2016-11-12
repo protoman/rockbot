@@ -89,6 +89,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
+        input.read_input();
         if (input.p1_input[BTN_START] || input.p1_input[BTN_JUMP]) {
             if (_items.at(_pick_pos).disabled == true) {
                 soundManager.play_sfx(SFX_NPC_HIT);

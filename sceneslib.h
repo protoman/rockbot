@@ -18,7 +18,7 @@ public:
  *
  */
     scenesLib();
-    void preloadScenes() const;
+    void preloadScenes();
     void draw_main();
     void main_screen();
     short pick_stage();

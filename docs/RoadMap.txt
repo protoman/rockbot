@@ -63,6 +63,19 @@ VERSION 2.0.0 BETA 1
     # ruas da cidade (streets of rage, mighty final fight)
     # space, the final frontier (moon stage de duck tales)
 
+
+- optimização:
+    # deve rodar a 60 fps no PSP, PS2 e Dingoo
+    # testar de criar usrface com a cor de fundo e fazer blit é mais rápido que fillrect
+    # criar lista de npcs e objetos "on-screen"
+    # rodar optimização no qtcreator (clang)
+
+
+
+- jogo está travando nos diálogos
+
+- editor está salvando diálogos com quebras a mais de linha
+
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
 
 - se dash (air) for bloqueado, deve encerrar imediatamente
@@ -104,6 +117,12 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- draw centered text está fora de posição no PSP
+- jogo está quebrando ao inicializar sem quickload
+- adicionar read_input em todos os loops while que usem input
+- não está conseguindo pular cenas na intro com velho método de input sem thread
+- reverter para sistema sem thread na leitura de input, já que várias plataformas deixam de funcionar com ela
+
 - quando pulo alto for iniciado só por água usar aceleração próxima à normal se não estiver na água
 - vida deve mostrar apenas o rosto do jogador selecionado
 

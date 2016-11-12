@@ -584,36 +584,59 @@ namespace format_v4 {
         entries *FileEntry;
         iox_dirent_t buf;
 
+        // DEBUG because code crashed //
+        res.push_back("Rockbot2");
+        return;
+
+        printf(">>> file_io::ps2_listfiles::START <<<\n");
+
         int dd = fioDopen(filepath.c_str());
         if (dd < 0) {
+            printf(">>> file_io::ps2_listfiles::DEBUG #1 <<<\n");
             std::cout << "ps2_listfiles - Could not read directory" << std::endl;
             return;
         } else {
             printf("Directory opened!\n");
+            printf(">>> file_io::ps2_listfiles::DEBUG #2 <<<\n");
+
+            /*
             //adds pseudo folder .. to every folder opened as mass: reported none but mc0: did
             strcpy(FileEntry[0].filename,"..");
             strcpy(FileEntry[0].displayname,"..");
             FileEntry[0].dircheck = 1;
             n=1;
-            while(fileXioDread(dd, &buf) > 0) {
+            */
+
+            printf(">>> file_io::ps2_listfiles::DEBUG #3 <<<\n");
+
+            while (fileXioDread(dd, &buf) > 0) {
+                printf(">>> file_io::ps2_listfiles::DEBUG #4 <<<\n");
                 if (buf.stat.mode & FIO_S_IFDIR && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
+                    printf(">>> file_io::ps2_listfiles::DEBUG #5 <<<\n");
                     continue;
                 }
+                printf(">>> file_io::ps2_listfiles::DEBUG #6 <<<\n");
                 if (buf.stat.mode & FIO_S_IFDIR) {
+                    printf(">>> file_io::ps2_listfiles::DEBUG #7 <<<\n");
                     FileEntry[n].dircheck = 1;
                     strcpy(FileEntry[n].filename, buf.name);
                     res.push_back(std::string(FileEntry[n].filename));
                     n++;
+                    printf(">>> file_io::ps2_listfiles::DEBUG #8 <<<\n");
                 }
 
+                printf(">>> file_io::ps2_listfiles::DEBUG #9 <<<\n");
                 if(n > 2046) {
+                    printf(">>> file_io::ps2_listfiles::DEBUG #10 <<<\n");
                     break;
                 }
             }
             if (dd >= 0) {
+                printf(">>> file_io::ps2_listfiles::DEBUG #11 <<<\n");
                 fioDclose(dd);
                 printf("Directory closed!\n");
             }
+            printf(">>> file_io::ps2_listfiles::DEBUG #12 <<<\n");
         }
     }
 #endif
@@ -627,6 +650,9 @@ namespace format_v4 {
 
 
         DIR *dir = opendir(filename.c_str());
+
+
+#ifndef PLAYSTATION2
         struct dirent *entry = readdir(dir);
 
         while (entry != NULL) {
@@ -650,14 +676,16 @@ namespace format_v4 {
         }
         closedir(dir);
 
-#ifdef PLAYSTATION2
+#else
         res.push_back(std::string("Rockbot2"));
+        /*
         if (filename.find("cdfs:") != std::string::npos) {
             // @TODO
             //ps2_listcdvd(filename, res);
         } else {
             ps2_listfiles(filename, res);
         }
+        */
 #endif
         return res;
 

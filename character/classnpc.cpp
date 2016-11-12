@@ -496,12 +496,7 @@ void classnpc::move() {
     }
 
 
-	int mapScrollX = map->getMapScrolling().x;
-
-
-
 	/// @TODO: this check must be placed in game.cpp and npc must have a set_frozen() method, for individual effect
-
 
 	move_projectiles();
 

@@ -164,11 +164,6 @@ void character::charMove() {
 		} else { // if is player, check collision agains NPCs to leave freeze
 			if (is_player()) {
                 std::cout << "CHAR::charMove::frozen - check collision (is_player)" << std::endl;
-				int diff_w = 0;
-				int diff_h = 0;
-				if (frameSize.width > 21) {
-                    diff_w = abs((float)frameSize.height-21);
-				}
                 std::cout << "collision_player_npcs #1" << std::endl;
                 classnpc* npc_touch = map->collision_player_npcs(this, 0, 0);
                 if (npc_touch != NULL) {
@@ -2756,6 +2751,7 @@ void character::execute_jump_up()
 	jump(1, map->getMapScrolling());
     //std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (_obj_jump.get_speed() < 0) {
+        input.read_input();
         char_update_real_position();
         jump(1, map->getMapScrolling());
         map->showMap();
@@ -2778,6 +2774,7 @@ void character::execute_jump()
 	jump(1, map->getMapScrolling());
 	std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (position.y != initial_y) {
+        input.read_input();
         //std::cout << "execute_jump::LOOP - " << initial_y << ", position.y: " << position.y << std::endl;
 		char_update_real_position();
 		bool resJump = jump(1, map->getMapScrolling());
@@ -2835,6 +2832,7 @@ void character::teleport_out() {
     set_animation_type(ANIM_TYPE_TELEPORT);
     _obj_jump.finish();
     while (position.y > -(frameSize.height+TILESIZE)) {
+        input.read_input();
         //std::cout << "teleport_out - position.y: " << position.y << std::endl;
         position.y -= GRAVITY_MAX_SPEED;
 		char_update_real_position();
