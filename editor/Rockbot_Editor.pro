@@ -83,7 +83,6 @@ SOURCES += main.cpp \
     mainwindow_tab/animtitle.cpp \
     mainwindow_tab/armor_edit.cpp \
     aboutwindow.cpp \
-    ../tools/tinyxml2/tinyxml2.cpp \
     scenes/tab_image.cpp \
     ../file/fio_scenes.cpp \
     scenes/imageareapreview.cpp \
@@ -113,7 +112,8 @@ SOURCES += main.cpp \
     framespreviewarea.cpp \
     widgets/animtilepalette.cpp \
     mainwindow_tab/anim/animpackimport.cpp \
-    mainwindow_tab/castlepointspreviewarea.cpp
+    mainwindow_tab/castlepointspreviewarea.cpp \
+    dialog_pick_color.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -155,7 +155,6 @@ HEADERS += mainwindow.h \
     ../file/format/st_teleporter.h \
     ../file/version.h \
     aboutwindow.h \
-    ../tools/tinyxml2/tinyxml2.h \
     scenes/tab_image.h \
     scenes/imageareapreview.h \
     scenes/scenesmediator.h \
@@ -191,7 +190,8 @@ HEADERS += mainwindow.h \
     framespreviewarea.h \
     widgets/animtilepalette.h \
     mainwindow_tab/anim/animpackimport.h \
-    mainwindow_tab/castlepointspreviewarea.h
+    mainwindow_tab/castlepointspreviewarea.h \
+    dialog_pick_color.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -224,7 +224,9 @@ FORMS += mainwindow.ui \
     mainwindow_tab/gamescenes.ui \
     files_editor/stringseditor.ui \
     mainwindow_tab/anim_tiles_edit.ui \
-    mainwindow_tab/anim/animpackimport.ui
+    mainwindow_tab/anim/animpackimport.ui \
+    dialog_pick_color.ui
+
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
 INCLUDEPATH += ../common

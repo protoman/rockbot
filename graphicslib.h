@@ -139,261 +139,52 @@ struct st_char_sprite_data {
 };
 
 
-/**
- * @brief
- *
- */
 class graphicsLib
 {
 public:
-/**
- * @brief
- *
- */
     graphicsLib();
-    /**
-     * @brief
-     *
-     */
     ~graphicsLib();
-
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool initGraphics();
-    /**
-     * @brief
-     *
-     */
     void preload();
-    /**
-     * @brief
-     *
-     */
     void updateScreen();
-
     void loadTileset(std::string file);
-
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
-
     void place_easymode_block_tile(st_position destiny, graphicsLib_gSurface &surface);
-
     void place_hardmode_block_tile(st_position destiny, graphicsLib_gSurface &surface);
-
-
     void place_anim_tile(int anim_tile_id, struct st_position pos_destiny, struct graphicsLib_gSurface* dest_surface);
-
     void update_anim_tiles_timers();
-
     void place_3rd_level_tile(int origin_x, int origin_y, int dest_x, int dest_y);
-
-
-    /**
-     * @brief
-     *
-     * @param rect
-     * @param st_position
-     * @param
-     * @param
-     */
     void copy_gamescreen_area(st_rectangle origin_rectangle, st_position pos, graphicsLib_gSurface *surfaceDestiny);
-
-    /**
-     * @brief
-     *
-     * @param rect
-     * @param st_position
-     * @param
-     * @param
-     */
     void copyArea(struct st_rectangle rect, struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*);
-
-
-    /**
-     * @brief
-     *
-     * @param st_position
-     * @param
-     * @param
-     */
     void copyArea(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
-    /**
-     * @brief overload of copyArea, use the whole width and height of given image
-     *
-     * @param st_position
-     * @param
-     * @param
-     */
     void copyAreaWithAdjust(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
-
-    /**
-     * @brief overload for copyArea that uses screen_adjust
-     *
-     * @param std::string
-     * @param
-     */
     void surfaceFromFile(std::string, graphicsLib_gSurface *);
-    /**
-     * @brief
-     *
-     * @param
-     */
     void showSurface(struct graphicsLib_gSurface*);
-
     void showSurfaceRegion(struct graphicsLib_gSurface*, const struct st_rectangle origin_rectangle);
-    /**
-     * @brief
-     *
-     * @param surfaceOrigin
-     * @param origin_rectangle
-     * @param pos_destiny
-     */
     void showSurfaceRegionAt(struct graphicsLib_gSurface* surfaceOrigin, const struct st_rectangle origin_rectangle, struct st_position pos_destiny);
-
-    /**
-     * @brief
-     *
-     * @param surfaceOrigin
-     * @param origin_rect
-     * @param destiny_rect
-     */
     void showSurfacePortion(struct graphicsLib_gSurface* surfaceOrigin, const struct st_rectangle origin_rect, struct st_rectangle destiny_rect);
-
-    /**
-     * @brief
-     *
-     * @param
-     * @param st_position
-     * @param fix_colors
-     */
     void showSurfaceAt(struct graphicsLib_gSurface*, struct st_position, bool fix_colors);
-    /**
-     * @brief
-     *
-     * @param st_size
-     * @param
-     */
-
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
-
     void initSurface(struct st_size, graphicsLib_gSurface *);
-
     void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
-
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
-    /**
-     * @brief
-     *
-     */
     void blank_screen();
-    /**
-     * @brief
-     *
-     * @param surface
-     */
     void blank_surface(struct graphicsLib_gSurface& surface);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     */
-
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt);
-
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt, int delay);
-
     void draw_text(short int x, short int y, std::string text);
-
     void draw_text(short int x, short int y, std::string text, st_color color);
-
-
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param text
-     * @param surface
-     */
     void draw_text(short int x, short int y, std::string text, struct graphicsLib_gSurface& surface);
-
-    /**
-     * @brief
-     *
-     * @param y
-     * @param text
-     */
     void draw_centered_text(short int y, std::string text, st_color font_color);
-    /**
-     * @brief
-     *
-     * @param y
-     * @param text
-     * @param surface
-     */
     void draw_centered_text(short int y, std::string text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
-
-    /**
-     * @brief
-     *
-     * @param r
-     * @param g
-     * @param b
-     * @return int
-     */
     Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
-    /**
-     * @brief
-     *
-     * @param st_position
-     */
     void drawCursor(st_position);
-    /**
-     * @brief
-     *
-     * @param st_position
-     */
     void eraseCursor(st_position);
-    /**
-     * @brief
-     *
-     * @param r
-     * @param g
-     * @param b
-     */
     void blink_screen(Uint8 r, Uint8 g, Uint8 b);
-    /**
-     * @brief
-     *
-     * @param surface
-     */
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
-    /**
-     * @brief
-     *
-     */
     void load_icons();
-    /**
-     * @brief
-     *
-     * @param WEAPON_ICONS_ENUM
-     * @param menu_pos
-     * @param active
-     */
     void draw_weapon_icon(short, st_position menu_pos, bool active);
-
     void draw_weapon_tooltip_icon(short weapon_n, st_position position);
-
-    /**
-     * @brief
-     *
-     * @param x_pos
-     */
     void draw_menu_item(int x_pos);
     /**
      * @brief
@@ -550,60 +341,16 @@ public:
      *
      */
     void start_stars_animation();
-    /**
-     * @brief
-     *
-     * @param period
-     */
     void wait_and_update_screen(int period); // used because can't use SDL_Flip inside a thread
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     st_position get_config_menu_pos() const;
-    /**
-     * @brief
-     *
-     * @return st_size
-     */
     st_size get_config_menu_size();
-
-    /**
-     * @brief
-     *
-     * @param surface
-     */
-    /**
-     * @brief
-     *
-     * @param y_adjust
-     * @param right
-     * @param hp
-     * @param player_n
-     */
     void draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n, short max_hp);
-    /**
-     * @brief
-     *
-     * @param pos
-     */
     void draw_explosion(st_position pos);
-    /**
-     * @brief
-     *
-     * @param msg
-     */
     void show_debug_msg(std::string msg);
-    /**
-     * @brief
-     *
-     */
-
     void draw_path(st_position initial_point, st_position final_point, short duration);
     graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
-
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
+    void convert_surface_to_screen_format(graphicsLib_gSurface &origin, graphicsLib_gSurface &dest);
 
 
 private:

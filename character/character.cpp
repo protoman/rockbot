@@ -1589,6 +1589,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         return false;
     }
 
+    // can't jump while on air dash
+    if (state.animation_type == ANIM_TYPE_SLIDE && hit_ground() == false) {
+        return false;
+    }
+
     int water_lock = map->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
 
     if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {

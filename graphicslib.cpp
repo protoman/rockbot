@@ -248,7 +248,9 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     if (spriteCopy == NULL) {
         std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
-    return spriteCopy;
+
+
+    return SDL_DisplayFormat(spriteCopy);
 }
 
 
@@ -1773,7 +1775,9 @@ void graphicsLib::set_video_mode()
         if (game_screen != NULL) {
             SDL_FreeSurface(game_screen);
         }
-        game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+        SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+        game_screen = SDL_DisplayFormat(temp_screen);
+        SDL_FreeSurface(temp_screen);
     }
 #endif
 
@@ -1925,6 +1929,12 @@ void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSu
 {
     initSurface(st_size(newSurface.width, newSurface.height), &frame->frameSurface);
     copyArea(st_position(0, 0), &newSurface, &frame->frameSurface);
+}
+
+void graphicsLib::convert_surface_to_screen_format(graphicsLib_gSurface &origin, graphicsLib_gSurface &dest)
+{
+    //SDL_Surface* temp_suface =
+    dest.set_surface(SDL_DisplayFormat(origin.get_surface()));
 }
 
 

@@ -2,6 +2,8 @@
 #define PLAYER_EDIT_H
 
 #include <QWidget>
+
+#include "dialog_pick_color.h"
 #include "mediator.h"
 
 namespace Ui {
@@ -19,13 +21,14 @@ public:
 
 
 public slots:
-
     void pick_bg_color();
-
     void on_color_selected1(const QColor & color);
     void on_color_selected2(const QColor & color);
     void on_color_selected3(const QColor & color);
     void on_weapon_color_selected(const QColor & color);
+    void pick_player_color1();
+    void pick_player_color2();
+    void pick_player_color3();
 
 private slots:
     void on_players_tab_list_combo_currentIndexChanged(int index);

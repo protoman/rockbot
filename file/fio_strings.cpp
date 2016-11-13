@@ -67,8 +67,10 @@ namespace format_v4 {
 
         std::string str;
         while (getline(fp, str)) {
-            StringUtils::replace_all(str, "\n", "");
-            StringUtils::replace_all(str, "\r", "");
+            if (str.length() > 0) {
+                StringUtils::replace_all(str, "\n", "");
+                StringUtils::replace_all(str, "\r", "");
+            }
             res.push_back(str);
         }
         fp.close();
@@ -96,7 +98,12 @@ namespace format_v4 {
 
         for (int i=0; i<list.size(); i++) {
             // add line break to separate each line
-            std::string line = list.at(i) + std::string("\n");
+            std::string line = list.at(i);
+            // if there are any remaining extra chars, remove it
+            StringUtils::replace_all(line, "\n", "");
+            StringUtils::replace_all(line, "\r", "");
+
+            line += std::string("\n");
             fp << line.c_str();
         }
         fp.close();
@@ -319,14 +326,14 @@ namespace format_v4 {
             char line_value[FS_CHAR_NAME_SIZE];
             // person dialogs
             for (int j=0; j<6; j++) {
-                sprintf(line_value, "START-STG[%d] DLG #%d\n", i, j);
+                sprintf(line_value, "START-STG[%d] DLG #%d", i, j);
                 res.push_back(line_value);
             }
             // players dialogs
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // phrases
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "START-STG[%d] DLG P[%d] %d\n", i, (j+1), k);
+                    sprintf(player_line_value, "START-STG[%d] DLG P[%d] %d", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
@@ -339,7 +346,7 @@ namespace format_v4 {
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // lines
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "BOSS STG[%d] DLG P[%d] %d\n", i, (j+1), k);
+                    sprintf(player_line_value, "BOSS STG[%d] DLG P[%d] %d", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
@@ -468,8 +475,8 @@ namespace format_v4 {
             std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
             dialogs_strings_list = load_game_strings_from_file(dialogs_filename);
         }
-        if (dialogs_strings_list.size() < 60) {
-            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is 60." << std::endl;
+        if (dialogs_strings_list.size() < STAGE_DIALOG_NUMBER) {
+            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << "." << std::endl;
             exit(-1);
         }
         return dialogs_strings_list;

@@ -41,7 +41,7 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(st_float_position(0.0, 0.0)), bg2_scroll(st_float_position(0.0, 0.0)), _platform_leave_counter(0)
+classMap::classMap() : stage_number(-1), number(-1), bg_scroll(st_float_position(0.0, 0.0)), _platform_leave_counter(0)
 {
 
     for (int i=0; i<MAP_W; i++) {
@@ -55,9 +55,7 @@ classMap::classMap() : stage_number(-1), number(-1), bg1_scroll(st_float_positio
     _3rd_level_ignore_area = st_rectangle(-1, -1, -1, -1);
     _level3_tiles = std::vector<struct st_level3_tile>();
     _break_npc_loop = false;
-    bg1_surface.width = 0;
-    bg2_surface.width = 0;
-
+    bg_surface.width = 0;
 }
 
 
@@ -200,9 +198,6 @@ void classMap::showMap()
             // don't draw easy-mode blocks if game difficulty not set to easy
 
             if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
-
-                //std::cout << "tile[" << i << "][" << j << "] TERRAIN_EASYMODEBLOCK" << std::endl;
-
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny, graphLib.gameScreen);
             } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
@@ -227,8 +222,8 @@ void classMap::showMap()
     }
 
 
-    graphLib.update_anim_tiles_timers();
-    draw_lib.show_gfx();
+    //graphLib.update_anim_tiles_timers();
+    //draw_lib.show_gfx();
 }
 
 
@@ -350,10 +345,7 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 		if (check_lock == false || wall_scroll_lock[tile_x] == false) {
             scroll.x += x_change;
             if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
-                bg1_scroll.x -= ((float)x_change*bg1_speed);
-            }
-            if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
-                bg2_scroll.x -= ((float)x_change*bg2_speed);
+                bg_scroll.x -= ((float)x_change*bg1_speed);
             }
             adjust_dynamic_background_position();
 		}
@@ -368,15 +360,10 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 			if (check_lock == false || wall_scroll_lock[tile_x] == false) {
 				//std::cout << "classMap::changeScrolling - 2" << std::endl;
                 scroll.x += x_chance;
-                bg1_scroll.x -= ((float)x_chance*bg1_speed);
-                if (bg1_scroll.x > 0) {
-                    bg1_scroll.x = -RES_W; // erro aqui
+                bg_scroll.x -= ((float)x_chance*bg1_speed);
+                if (bg_scroll.x > 0) {
+                    bg_scroll.x = -RES_W; // erro aqui
                 }
-                bg2_scroll.x -= ((float)x_chance*bg2_speed);
-                if (bg2_scroll.x > 0) {
-					//std::cout << "LEFT RESET BG2POS" << bg2_scroll << std::endl;
-                    bg2_scroll.x = -RES_W;
-				}
 			}
 		}
 	}
@@ -465,85 +452,50 @@ void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
     //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
-    if (bg1_surface.width <= 0 || bg1_surface.height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
+    if (bg_surface.width <= 0 || bg_surface.height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     }
-
 
     float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
     int bg1_scroll_mode = map_data[number].backgrounds[0].auto_scroll;
     if (bg1_scroll_mode == BG_SCROLL_MODE_LEFT) {
-        bg1_scroll.x -= ((float)1*bg1_speed);
+        bg_scroll.x -= ((float)1*bg1_speed);
     } else if (bg1_scroll_mode == BG_SCROLL_MODE_RIGHT) {
-        bg1_scroll.x += ((float)1*bg1_speed);
+        bg_scroll.x += ((float)1*bg1_speed);
     } else if (bg1_scroll_mode == BG_SCROLL_MODE_UP) {
-        bg1_scroll.y -= ((float)1*bg1_speed);
+        bg_scroll.y -= ((float)1*bg1_speed);
     } else if (bg1_scroll_mode == BG_SCROLL_MODE_DOWN) {
-        bg1_scroll.y += ((float)1*bg1_speed);
-    }
-
-    float bg2_speed = (float)map_data[number].backgrounds[1].speed/10;
-    int bg2_scroll_mode = map_data[number].backgrounds[1].auto_scroll;
-    if (bg2_scroll_mode == BG_SCROLL_MODE_LEFT) {
-        bg2_scroll.x -= ((float)1*bg2_speed);
-    } else if (bg2_scroll_mode == BG_SCROLL_MODE_RIGHT) {
-        bg2_scroll.x += ((float)1*bg2_speed);
-    } else if (bg2_scroll_mode == BG_SCROLL_MODE_UP) {
-        bg2_scroll.y -= ((float)1*bg2_speed);
-    } else if (bg2_scroll_mode == BG_SCROLL_MODE_DOWN) {
-        bg2_scroll.y += ((float)1*bg2_speed);
+        bg_scroll.y += ((float)1*bg1_speed);
     }
 
     adjust_dynamic_background_position();
 
-    int x1 = bg1_scroll.x;
+    int x1 = bg_scroll.x;
     if (x1 > 0) { // moving to right
         x1 = (RES_W - x1) * -1;
     }
-    int x2 = bg2_scroll.x;
-    if (x2 > 0) { // moving to right
-        x2 = (RES_W - x2) * -1;
-    }
-
     //std::cout << "## bg1_scroll.y: " << bg1_scroll.y << std::endl;
 
-    int y1 = bg1_scroll.y + map_data[number].backgrounds[0].adjust_y;
-    int y2 = bg2_scroll.y + map_data[number].backgrounds[1].adjust_y;
+    int y1 = bg_scroll.y + map_data[number].backgrounds[0].adjust_y;
 
-    if (bg1_surface.width > 0) {
+    if (bg_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(x1, y1), &bg1_surface, &graphLib.gameScreen);
-    }
-
-
-    if (bg2_surface.width > 0) {
-        // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg2_scroll.x, y2), &bg2_surface, &graphLib.gameScreen);
+        graphLib.copyAreaWithAdjust(st_position(x1, y1), &bg_surface, &graphLib.gameScreen);
     }
 }
 
 void classMap::adjust_dynamic_background_position()
 {
-    if (bg1_scroll.x < -RES_W) {
-        bg1_scroll.x = 0;
-    } else if (bg1_scroll.x > RES_W) {
-        bg1_scroll.x = 0;
-    }
-    if (bg2_scroll.x < -RES_W) {
-        bg2_scroll.x = 0;
-    } else if (bg2_scroll.x > RES_W) {
-        bg2_scroll.x = 0;
+    if (bg_scroll.x < -RES_W) {
+        bg_scroll.x = 0;
+    } else if (bg_scroll.x > RES_W) {
+        bg_scroll.x = 0;
     }
 
-    if (bg1_scroll.y < -RES_H) {
-        bg1_scroll.y = 0;
-    } else if (bg1_scroll.y > RES_H) {
-        bg1_scroll.y = 0;
-    }
-    if (bg2_scroll.y < -RES_H) {
-        bg2_scroll.y = 0;
-    } else if (bg2_scroll.y > RES_H) {
-        bg2_scroll.y = 0;
+    if (bg_scroll.y < -RES_H) {
+        bg_scroll.y = 0;
+    } else if (bg_scroll.y > RES_H) {
+        bg_scroll.y = 0;
     }
 }
 
@@ -552,15 +504,9 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
 {
     //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << map_data[number].background_color.r << ", " << map_data[number].background_color.g << ", " << map_data[number].background_color.b << ")" << std::endl;
     graphLib.clear_surface_area(0, 0, surface.width, surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, surface);
-    if (bg1_surface.width > 0) {
+    if (bg_surface.width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg1_scroll.x, bg1_scroll.y+map_data[number].backgrounds[0].adjust_y), &bg1_surface, &surface);
-    }
-
-
-    if (bg2_surface.width > 0) {
-        // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(bg2_scroll.x, bg2_scroll.y+map_data[number].backgrounds[1].adjust_y), &bg2_surface, &surface);
+        graphLib.copyAreaWithAdjust(st_position(bg_scroll.x, bg_scroll.y+map_data[number].backgrounds[0].adjust_y), &bg_surface, &surface);
     }
 }
 
@@ -666,25 +612,16 @@ void classMap::drop_item(int i)
     }
 }
 
-void classMap::set_bg1_scroll(int scrollx)
+void classMap::set_bg_scroll(int scrollx)
 {
-    bg1_scroll.x = scrollx;
+    bg_scroll.x = scrollx;
 }
 
-void classMap::set_bg2_scroll(int scrollx)
+int classMap::get_bg_scroll() const
 {
-    bg2_scroll.x = scrollx;
+    return bg_scroll.x;
 }
 
-int classMap::get_bg1_scroll() const
-{
-    return bg1_scroll.x;
-}
-
-int classMap::get_bg2_scroll() const
-{
-    return bg2_scroll.x;
-}
 
 void classMap::reset_objects_timers()
 {
@@ -778,25 +715,16 @@ Uint8 classMap::get_map_gfx()
     return map_data[number].backgrounds[0].gfx;
 }
 
-st_float_position classMap::get_bg1_scroll()
+st_float_position classMap::get_bg_scroll()
 {
-    return bg1_scroll;
+    return bg_scroll;
 }
 
-st_float_position classMap::get_bg2_scroll()
+void classMap::set_bg_scroll(st_float_position pos)
 {
-    return bg2_scroll;
+    bg_scroll = pos;
 }
 
-void classMap::set_bg1_scroll(st_float_position pos)
-{
-    bg1_scroll = pos;
-}
-
-void classMap::set_bg2_scroll(st_float_position pos)
-{
-    bg2_scroll = pos;
-}
 
 
 
@@ -858,17 +786,9 @@ void classMap::create_dynamic_background_surfaces()
         //std::cout << "bg1_filename: '" << bg1_filename << "'" << std::endl;
 
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
-        create_dynamic_background_surface(bg1_surface, temp_surface);
+        create_dynamic_background_surface(bg_surface, temp_surface);
     } else {
-        bg1_surface.freeGraphic();
-    }
-
-    if (strlen(map_data[number].backgrounds[1].filename) > 0) {
-        std::string bg2_filename(FILEPATH+"images/map_backgrounds/"+ map_data[number].backgrounds[1].filename);
-        graphLib.surfaceFromFile(bg2_filename, &temp_surface);
-        create_dynamic_background_surface(bg2_surface, temp_surface);
-    } else {
-        bg2_surface.freeGraphic();
+        bg_surface.freeGraphic();
     }
 }
 
@@ -878,23 +798,28 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
     int n = 0;
 
     //map_data[number].backgrounds[0].
+    graphicsLib_gSurface temp_surface;
     if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_UP || map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_DOWN) {
-        graphLib.initSurface(st_size(RES_W, RES_H*2), &dest_surface);
+        graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_surface);
         int total_h = 0;
         while (total_h <= RES_H*2) {
-            graphLib.copyArea(st_position(0, total_h), &image_surface, &dest_surface);
+            graphLib.copyArea(st_position(0, total_h), &image_surface, &temp_surface);
             total_h += image_surface.height;
             n++;
         }
     } else {
-        graphLib.initSurface(st_size(RES_W*2, image_surface.height), &dest_surface);
+        graphLib.initSurface(st_size(RES_W*2, image_surface.height), &temp_surface);
         int total_w = 0;
         while (total_w <= RES_W*2) {
-            graphLib.copyArea(st_position(total_w, 0), &image_surface, &dest_surface);
+            graphLib.copyArea(st_position(total_w, 0), &image_surface, &temp_surface);
             total_w += image_surface.width;
             n++;
         }
     }
+    // convert temp_surface to screen-format then release it
+    graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &dest_surface);
+    graphLib.convert_surface_to_screen_format(temp_surface, dest_surface);
+    temp_surface.freeGraphic();
 }
 
 

@@ -137,6 +137,7 @@ private:
     Mediator& operator=(Mediator const&){};  // assignment operator is private
 
     void save_dialogs();
+    void load_dialogs();
 
 
 private:

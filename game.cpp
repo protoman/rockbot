@@ -604,8 +604,7 @@ bool game::test_teleport(classPlayer *test_player) {
         transition_screen(transition_type, temp_map_n, new_map_pos_x, test_player);
     }
 
-    st_float_position bg1_pos = loaded_stage.get_current_map()->get_bg1_scroll();
-    st_float_position bg2_pos = loaded_stage.get_current_map()->get_bg2_scroll();
+    st_float_position bg1_pos = loaded_stage.get_current_map()->get_bg_scroll();
 
     set_current_map(temp_map_n);
 
@@ -628,8 +627,7 @@ bool game::test_teleport(classPlayer *test_player) {
         }
     } else {
         loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
-        loaded_stage.get_current_map()->set_bg1_scroll(bg1_pos);
-        loaded_stage.get_current_map()->set_bg2_scroll(bg2_pos);
+        loaded_stage.get_current_map()->set_bg_scroll(bg1_pos);
         test_player->set_position(st_position(abs((float)test_player->get_real_position().x+new_map_pos_x), test_player->getPosition().y));
         test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();
@@ -792,8 +790,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     short i = 0;
     graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
     classMap temp_map = loaded_stage.maps[map_n];
-    temp_map.set_bg1_scroll(loaded_stage.get_current_map()->get_bg1_scroll());
-    temp_map.set_bg2_scroll(loaded_stage.get_current_map()->get_bg2_scroll());
+    temp_map.set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
     temp_map.set_scrolling(st_float_position(adjust_x, 0));
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);

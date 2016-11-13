@@ -170,13 +170,9 @@ public:
 
     void drop_item(int i);
 
-    void set_bg1_scroll(int scrollx);
+    void set_bg_scroll(int scrollx);
 
-    void set_bg2_scroll(int scrollx);
-
-    int get_bg1_scroll() const;
-
-    int get_bg2_scroll() const;
+    int get_bg_scroll() const;
 
     void reset_objects_timers();
 
@@ -196,10 +192,8 @@ public:
 
     Uint8 get_map_gfx();
 
-    st_float_position get_bg1_scroll();
-    st_float_position get_bg2_scroll();
-    void set_bg1_scroll(st_float_position pos);
-    void set_bg2_scroll(st_float_position pos);
+    st_float_position get_bg_scroll();
+    void set_bg_scroll(st_float_position pos);
 
 
 private:
@@ -228,10 +222,8 @@ private:
     struct st_float_position scroll;
     st_float_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
-    st_float_position bg1_scroll;
-    st_float_position bg2_scroll;
-    graphicsLib_gSurface bg1_surface;
-    graphicsLib_gSurface bg2_surface;
+    st_float_position bg_scroll;
+    graphicsLib_gSurface bg_surface;
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;

@@ -71,12 +71,13 @@ VERSION 2.0.0 BETA 1
     # rodar optimização no qtcreator (clang)
 
 
-
-- jogo está travando nos diálogos
-
-- editor está salvando diálogos com quebras a mais de linha
-
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
+    # novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
+    # fogo-fátuo é o cara
+
+
+
+- se tem um muro acima, dash anda indefinidamente
 
 - se dash (air) for bloqueado, deve encerrar imediatamente
 
@@ -117,14 +118,12 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- draw centered text está fora de posição no PSP
-- jogo está quebrando ao inicializar sem quickload
-- adicionar read_input em todos os loops while que usem input
-- não está conseguindo pular cenas na intro com velho método de input sem thread
-- reverter para sistema sem thread na leitura de input, já que várias plataformas deixam de funcionar com ela
-
-- quando pulo alto for iniciado só por água usar aceleração próxima à normal se não estiver na água
-- vida deve mostrar apenas o rosto do jogador selecionado
+- está podendo pular em meio ao air-dash
+- ajustar tolerância para achar as cores e substituir nos jogadores de 5 para 6
+- EDITOR: não está mais alterando as cores do personagem se ele usa um colorscape de 8-bits
+- usar novamente SDL_DisplayFormat para imagens a fim de optimizar jogo
+- jogo está travando nos diálogos
+- editor está salvando diálogos com quebras a mais de linha
 
 
 
