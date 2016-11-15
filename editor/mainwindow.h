@@ -154,6 +154,12 @@ private slots:
 
     void on_actionReset_Stage_Links_triggered();
 
+    void on_actionZoomOne_triggered();
+
+    void on_actionZoomTwo_triggered();
+
+    void on_actionZoomThree_triggered();
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;

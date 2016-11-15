@@ -54,7 +54,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -78,7 +78,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -102,7 +102,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -126,7 +126,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -150,7 +150,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -174,7 +174,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -198,7 +198,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -222,7 +222,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -246,7 +246,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -270,7 +270,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -294,7 +294,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -318,7 +318,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>285</height>
+             <height>297</height>
             </rect>
            </property>
           </widget>
@@ -351,7 +351,7 @@
      <x>0</x>
      <y>0</y>
      <width>870</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFILE">
@@ -395,7 +395,16 @@
      <addaction name="actionTwo"/>
      <addaction name="actionThree"/>
     </widget>
+    <widget class="QMenu" name="menuZoom">
+     <property name="title">
+      <string>Zoom</string>
+     </property>
+     <addaction name="actionZoomOne"/>
+     <addaction name="actionZoomTwo"/>
+     <addaction name="actionZoomThree"/>
+    </widget>
     <addaction name="menuLevel"/>
+    <addaction name="menuZoom"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
@@ -587,6 +596,21 @@
    </property>
    <property name="toolTip">
     <string>Remove All Map Links</string>
+   </property>
+  </action>
+  <action name="actionZoomOne">
+   <property name="text">
+    <string>One</string>
+   </property>
+  </action>
+  <action name="actionZoomTwo">
+   <property name="text">
+    <string>Two</string>
+   </property>
+  </action>
+  <action name="actionZoomThree">
+   <property name="text">
+    <string>Three</string>
    </property>
   </action>
  </widget>

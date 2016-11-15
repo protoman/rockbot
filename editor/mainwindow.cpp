@@ -614,3 +614,21 @@ void MainWindow::on_actionReset_Stage_Links_triggered()
         Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type = LINK_VERTICAL;
     }
 }
+
+void MainWindow::on_actionZoomOne_triggered()
+{
+    Mediator::get_instance()->zoom = 1;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_actionZoomTwo_triggered()
+{
+    Mediator::get_instance()->zoom = 2;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_actionZoomThree_triggered()
+{
+    Mediator::get_instance()->zoom = 3;
+    map_edit_tab->update_edit_area();
+}

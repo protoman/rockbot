@@ -361,9 +361,6 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 				//std::cout << "classMap::changeScrolling - 2" << std::endl;
                 scroll.x += x_chance;
                 bg_scroll.x -= ((float)x_chance*bg1_speed);
-                if (bg_scroll.x > 0) {
-                    bg_scroll.x = -RES_W; // erro aqui
-                }
 			}
 		}
 	}
@@ -486,11 +483,24 @@ void classMap::draw_dynamic_backgrounds()
 
 void classMap::adjust_dynamic_background_position()
 {
-    if (bg_scroll.x < -RES_W) {
+    int bg_limit = bg_surface.width-RES_W;
+
+    // esq -> direita: #1 bg_limt[640], scroll.x[-640.799]
+
+    if (bg_scroll.x < -bg_limit) {
+        std::cout << "#1 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        std::cout << "RESET BG-SCROLL #1" << std::endl;
         bg_scroll.x = 0;
-    } else if (bg_scroll.x > RES_W) {
+    } else if (bg_scroll.x > bg_limit) {
+        std::cout << "#2 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        std::cout << "RESET BG-SCROLL #2" << std::endl;
         bg_scroll.x = 0;
+    } else if (bg_scroll.x > 0) {
+        std::cout << "#3 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        std::cout << "RESET BG-SCROLL #3" << std::endl;
+        bg_scroll.x = -(bg_surface.width-RES_W); // erro aqui
     }
+
 
     if (bg_scroll.y < -RES_H) {
         bg_scroll.y = 0;
@@ -800,7 +810,7 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
     //map_data[number].backgrounds[0].
     graphicsLib_gSurface temp_surface;
     if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_UP || map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_DOWN) {
-        graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_surface);
+        graphLib.initSurface(st_size(image_surface.width, RES_H*2), &temp_surface);
         int total_h = 0;
         while (total_h <= RES_H*2) {
             graphLib.copyArea(st_position(0, total_h), &image_surface, &temp_surface);
@@ -808,9 +818,9 @@ void classMap::create_dynamic_background_surface(graphicsLib_gSurface &dest_surf
             n++;
         }
     } else {
-        graphLib.initSurface(st_size(RES_W*2, image_surface.height), &temp_surface);
+        graphLib.initSurface(st_size(image_surface.width+RES_W, image_surface.height), &temp_surface);
         int total_w = 0;
-        while (total_w <= RES_W*2) {
+        while (total_w <= image_surface.width+RES_W) {
             graphLib.copyArea(st_position(total_w, 0), &image_surface, &temp_surface);
             total_w += image_surface.width;
             n++;

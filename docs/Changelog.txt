@@ -300,6 +300,7 @@ FILE-FORMAT-V4:
 
 
 ###################### (release notes foi até aqui em cima) ######################
+
 - separar leitura de input em uma thread
 - EDITOR: permitir definir pontos do castelo
 - fazer npcs não-voadores atingirem o chão ao carregar lista de npcs do mapa
@@ -318,7 +319,6 @@ FILE-FORMAT-V4:
 - substituir chamadas a input.waittime por timer.delay
 - melhor leitura de input com uso de microssegundos no lugar de SDL_Delay no loop da thread
 - leitura de input na tela de seleção de armas está ruim (deve ter algum delay)
-
 - draw centered text está fora de posição no PSP
 - jogo está quebrando ao inicializar sem quickload
 - adicionar read_input em todos os loops while que usem input
@@ -326,3 +326,15 @@ FILE-FORMAT-V4:
 - reverter para sistema sem thread na leitura de input, já que várias plataformas deixam de funcionar com ela
 - quando pulo alto for iniciado só por água usar aceleração próxima à normal se não estiver na água
 - vida deve mostrar apenas o rosto do jogador selecionado
+- está podendo pular em meio ao air-dash
+- ajustar tolerância para achar as cores e substituir nos jogadores de 5 para 6
+- EDITOR: não está mais alterando as cores do personagem se ele usa um colorscape de 8-bits
+- usar novamente SDL_DisplayFormat para imagens a fim de optimizar jogo
+- jogo está travando nos diálogos
+- editor está salvando diálogos com quebras a mais de linha
+
+- se tem um muro acima, dash anda indefinidamente
+- se dash (air) for bloqueado, deve encerrar imediatamente
+- corrigir scroll do fundo quando vindo da esquerda para a direita
+- EDITOR: remover BG2, deixar apenas um único fundo para performance.
+- EDITOR: melhorar UI na groupBox de terrenos, npcs e objetos para ter scroll e mais área usada

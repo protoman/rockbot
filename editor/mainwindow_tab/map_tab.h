@@ -26,7 +26,6 @@ public slots:
 private slots:
     void on_stageListCombo_currentIndexChanged(int index);
     void on_mapListCombo_currentIndexChanged(int index);
-    void on_spinBox_valueChanged(int arg1);
     void on_comboBox_currentIndexChanged(int index);
     void on_listWidget_2_currentRowChanged(int currentRow);
     void on_npc_listWidget_currentRowChanged(int currentRow);
@@ -39,12 +38,8 @@ private slots:
     void on_bg1_filename_currentIndexChanged(const QString &arg1);
     void on_bg1_speed_valueChanged(double arg1);
     void on_bg1_y_pos_valueChanged(int arg1);
-    void on_bg2_filename_currentIndexChanged(const QString &arg1);
-    void on_bg2_speed_valueChanged(double arg1);
-    void on_bg2_y_pos_valueChanged(int arg1);
     void on_checkBox_toggled(bool checked);
     void on_checkBox_2_toggled(bool checked);
-    void on_checkBox_3_toggled(bool checked);
     void on_object_direction_combo_currentIndexChanged(int index);
     void on_editTile_button_clicked();
     void on_editObject_button_clicked();
@@ -60,8 +55,6 @@ private slots:
     void on_mapGFX_comboBox_currentIndexChanged(int index);
 
     void on_autoScrollBG1_mode_currentIndexChanged(int index);
-
-    void on_autoScrollBG2_mode_currentIndexChanged(int index);
 
     void on_addAnimTile_toolButton_clicked();
 

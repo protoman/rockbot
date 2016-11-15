@@ -77,9 +77,6 @@ VERSION 2.0.0 BETA 1
 
 
 
-- se tem um muro acima, dash anda indefinidamente
-
-- se dash (air) for bloqueado, deve encerrar imediatamente
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -106,25 +103,27 @@ VERSION 2.0.0 BETA 1
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
+- phantom: atualizar tileset
+    # http://opengameart.org/content/8-bit-side-scroller-castle-tiles
+    # avisar autor
 - beast: refatorar, arrumar
+- dragon: melhorar tileset
+    # http://vgmaps.com/Atlas/NES/DoubleDragonIII-SacredStones-Mission3-Japan.png
 - ideia do castelo é ter uma "viagem no tempo"
 - skull 1: definir estilo (castelo medieval) e tilesets, criar design
+    # http://opengameart.org/content/dark-forest-town-tile-set-0
 - skull 2: definir estilo (fábrica vitoriana) e tilesets, criar design
-- skull 3: definir estilo (toy fair 1910) e tilesets, criar design
+- skull 3: definir estilo (toy fair 1910) e tilesets (city blocks, brincando de engenheiro), criar design
 - skull 4: definir estilo (streets of rage (master system)) e tilesets, criar design
+    # http://opengameart.org/content/8-bit-city-tile-set
+    # http://vgmaps.com/Atlas/NES/DoubleDragon-ModeA-Mission1.png
+    # avisar autor
 - skull 5: definir estilo (estação espacial) e tilesets, criar design
 
 
 ##################################
              DONE
 ##################################
-- está podendo pular em meio ao air-dash
-- ajustar tolerância para achar as cores e substituir nos jogadores de 5 para 6
-- EDITOR: não está mais alterando as cores do personagem se ele usa um colorscape de 8-bits
-- usar novamente SDL_DisplayFormat para imagens a fim de optimizar jogo
-- jogo está travando nos diálogos
-- editor está salvando diálogos com quebras a mais de linha
-
 
 
 =========================================================================================================================================

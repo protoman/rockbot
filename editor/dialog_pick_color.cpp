@@ -3,7 +3,6 @@
 #include <QPushButton>
 
 #include "mediator.h"
-extern Mediator *dataExchanger;
 
 
 dialog_pick_color::dialog_pick_color(QWidget *parent) :
@@ -34,7 +33,7 @@ dialog_pick_color::dialog_pick_color(QWidget *parent) :
 		QPushButton *button = new QPushButton("");
 		button->setMaximumWidth(32);
 		button->setMaximumHeight(32);
-		button->setStyleSheet(QString("background-color: rgb(") + QString::number(dataExchanger->colormap[i].r) + QString(", ") +  QString::number(dataExchanger->colormap[i].g) + QString(", ") +  QString::number(dataExchanger->colormap[i].b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
+        button->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->colormap[i].r) + QString(", ") +  QString::number(Mediator::get_instance()->colormap[i].g) + QString(", ") +  QString::number(Mediator::get_instance()->colormap[i].b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
 		connect(button, SIGNAL(clicked()), signalMapper, SLOT(map()));
 		signalMapper->setMapping(button, i);
 		ui->gridLayout->addWidget(button, row, column);
@@ -55,7 +54,7 @@ dialog_pick_color::~dialog_pick_color()
 void dialog_pick_color::clicked(const int &color_n)
 {
 	std::cout << "dialog_pick_color::clicked - color_n: " << color_n << std::endl;
-	dataExchanger->picked_color_n = color_n;
+    Mediator::get_instance()->picked_color_n = color_n;
 }
 
 void dialog_pick_color::on_buttonBox_accepted()

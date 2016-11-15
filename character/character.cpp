@@ -1463,8 +1463,22 @@ bool character::slide(st_float_position mapScrolling)
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide
-    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
-        set_animation_type(ANIM_TYPE_STAND);
+    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE) {
+        if (hit_ground()) {
+            set_animation_type(ANIM_TYPE_STAND);
+        } else {
+            set_animation_type(ANIM_TYPE_JUMP);
+        }
+        return false;
+    }
+
+    // getting blocked interrupts the slide
+    if (map_lock != BLOCK_UNBLOCKED && map_lock != BLOCK_WATER) {
+        if (hit_ground()) {
+            set_animation_type(ANIM_TYPE_STAND);
+        } else {
+            set_animation_type(ANIM_TYPE_JUMP);
+        }
         return false;
     }
 
