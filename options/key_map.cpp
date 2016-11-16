@@ -321,8 +321,9 @@ void key_map::config_buttons()
 
             graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, 0, 0, 0);
             graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey));
+            draw_lib.update_screen();
             input.clean();
-            timer.delay(20);
+            timer.delay(200);
             bool is_joystick = input.pick_key_or_button(game_config_copy, selected_key);
 
             check_key_duplicates(game_config_copy, selected_key, is_joystick);

@@ -4,7 +4,14 @@
 
 namespace format_v4 {
 
-
+    struct st_axis_config {
+        int axis_n;                             // number of the axis that fired the event
+        int axis_type;                          // indicate if is PLUS (+1) or MINUS (-1)
+        st_axis_config() {
+            axis_n = 0;
+            axis_type = 0;
+        }
+    };
 
 
     struct st_game_config {
@@ -15,7 +22,10 @@ namespace format_v4 {
         E_INPUT_MODES input_mode;               // inf directional is joypad-digital, analog sick or hat
         E_PLATFORM platform;                    // if changed, must reset config to default
         int keys_codes[BTN_COUNT];              // number indicator for the keyboard-keys
-        int button_codes[BTN_COUNT];            // number indicator for the keyboard-keys
+        int button_codes[BTN_COUNT];            // number indicator for the joystick-button-keys
+        int joyhat_codes[BTN_COUNT];            // number indicator for the joystick-hat-keys
+        st_axis_config axis_codes[BTN_COUNT];   // number indicator for the joystick-hat-keys
+
         bool game_finished;                     // stores if game was finished, so we can show more options to player
         Uint8 selected_input_device;
         Uint8 selected_language;

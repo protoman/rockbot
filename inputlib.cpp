@@ -290,27 +290,44 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 {
     clean();
     timer.delay(50);
+
     while (true) { // keep reading until a key is found
-        if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
-            if (event.type == SDL_KEYDOWN) {
-                // do not allow user to reassign ESCAPE key
-                if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
+        while (SDL_PollEvent(&event)) {
+            if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
+                if (event.type == SDL_KEYDOWN) {
+                    // do not allow user to reassign ESCAPE key
+                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
+                        return false;
+                    }
+                    game_config_copy.keys_codes[key] = event.key.keysym.sym;
                     return false;
                 }
-                game_config_copy.keys_codes[key] = event.key.keysym.sym;
-                return false;
+                SDL_PumpEvents();
             }
-            SDL_PumpEvents();
-        }
-        if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
-            if (event.type == SDL_JOYBUTTONDOWN) {
-                //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
-                game_config_copy.button_codes[key] = event.jbutton.button;
-                return true;
+            if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
+                if (event.type == SDL_JOYBUTTONDOWN) {
+                    //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
+                    game_config_copy.button_codes[key] = event.jbutton.button;
+                    return true;
+                } else if (event.type == SDL_JOYHATMOTION) { //joy-hat events
+                    game_config_copy.joyhat_codes[key] = event.jhat.value;
+                    return true;
+                } else if (event.type == SDL_JOYAXISMOTION) { // joy-axis event
+                    if (event.jaxis.value < -JOYVAL) {
+                        game_config_copy.axis_codes[key].axis_n = event.jaxis.axis;
+                        game_config_copy.axis_codes[key].axis_type = -1;
+                    } else if (event.jaxis.value > JOYVAL) {
+                        game_config_copy.axis_codes[key].axis_n = event.jaxis.axis;
+                        game_config_copy.axis_codes[key].axis_type = 1;
+                    }
+                    return true;
+                }
             }
+
+
+            timer.delay(1);
         }
-        timer.delay(1);
     }
     return false;
 }
