@@ -687,5 +687,16 @@ struct st_menu_option {
     }
 };
 
+struct st_input_button_config {
+    int type;                                           // use joystick_input_types
+    int value;                                          // stores button-n or hat-n or witch axis (0 horizontal1, 1 vertical 1, 2 hoz 2...)
+    int axis_type;                                      // only for axis, tell is positive (+1) or negative (-1) movement
+    st_input_button_config() {
+        type = JOYSTICK_INPUT_TYPE_BUTTON;
+        value = -1;
+        axis_type = 0;
+    }
+};
+
 
 #endif // ST_COMMON_H

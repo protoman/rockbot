@@ -125,7 +125,7 @@ void inputLib::read_input()
                 //std::cout << "#1 INPUT::readInput - joystick button[" << (int)event.jbutton.button << "] pressed." << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
                     //std::cout << "#1 INPUT::readInput - button_codes[" << i << "]: " << game_config.button_codes[i] << std::endl;
-                    if (game_config.button_codes[i] != -1 && game_config.button_codes[i] == event.jbutton.button) {
+                    if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jbutton.button) {
                         //std::cout << "#1 INPUT::readInput - FOUND ACTION for i: " << i << std::endl;
                         p1_input[i] = 1;
                         if (i == BTN_JUMP) {
@@ -137,7 +137,7 @@ void inputLib::read_input()
             } else if (event.type == SDL_JOYBUTTONUP) {
                 //std::cout << "#2 INPUT::readInput - joystick button[" << event.jbutton.button << "] released" << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
-                    if (game_config.button_codes[i] != -1 && game_config.button_codes[i] == event.jbutton.button) {
+                    if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jbutton.button) {
                         if (i == BTN_ATTACK) std::cout << "INPUT::readInput::BUTTONUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         if (i == BTN_JUMP) {
@@ -148,6 +148,22 @@ void inputLib::read_input()
                 }
             }
         }
+
+
+        // check AXIS buttons //
+        if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE)) {
+            for (int i=0; i<BTN_COUNT; i++) {
+                if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
+                    if (game_config.button_codes[i].axis_type > 0 && event.jaxis.value > JOYVAL) {
+                        p1_input[i] = 1;
+                    } else if (game_config.button_codes[i].axis_type < 0 && event.jaxis.value < JOYVAL) {
+                        p1_input[i] = 1;
+                    }
+                }
+            }
+        }
+
+        /*
         if ((game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE) && event.type == SDL_JOYAXISMOTION) {
             if (event.jaxis.axis == 0) {
                 if (event.jaxis.value < -JOYVAL) {
@@ -178,10 +194,27 @@ void inputLib::read_input()
                 }
             }
         }
+        */
+
         if ((game_config.input_mode == INPUT_MODE_DIGITAL || game_config.input_mode == INPUT_MODE_DOUBLE) && event.type == SDL_JOYHATMOTION) {
+
+            // check HAT input //
+            if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE)) {
+                for (int i=0; i<BTN_COUNT; i++) {
+                    if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
+                        if (game_config.button_codes[i].axis_type > 0 && event.jaxis.value > JOYVAL) {
+                            p1_input[i] = 1;
+                        } else if (game_config.button_codes[i].axis_type < 0 && event.jaxis.value < JOYVAL) {
+                            p1_input[i] = 1;
+                        }
+                    }
+                }
+            }
+
+
             // CODES: up - 1, right: 2, down: 4, left: 8
 #ifdef DREAMCAST
-
+/*
             if (event.jhat.value == 14) { // up
 
                 p1_input[BTN_DOWN] = 0;
@@ -203,6 +236,7 @@ void inputLib::read_input()
                 p1_input[BTN_RIGHT] = 0;
                 _used_keyboard = false;
             }
+*/
             if (event.jhat.value == 15 && _used_keyboard == false) {
                 p1_input[BTN_LEFT] = 0;
                 p1_input[BTN_RIGHT] = 0;
@@ -211,7 +245,8 @@ void inputLib::read_input()
             }
 
 #else
-
+/*
+ *          // hats are not used by default unless the platform qasks for it or user sets button to use //
             if (event.jhat.value == 1 || event.jhat.value == 3 || event.jhat.value == 9) { // up
                 p1_input[BTN_DOWN] = 0;
                 p1_input[BTN_UP] = 1;
@@ -237,6 +272,14 @@ void inputLib::read_input()
                 p1_input[BTN_RIGHT] = 0;
                 p1_input[BTN_DOWN] = 0;
                 p1_input[BTN_UP] = 0;
+            }
+*/
+
+            // prevent double-direction input //
+            if (p1_input[BTN_LEFT] == 1) {
+                p1_input[BTN_RIGHT] = 0;
+            } else if (p1_input[BTN_UP] == 1) {
+                p1_input[BTN_DOWN] = 0;
             }
 
 #endif
@@ -308,18 +351,22 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
                 if (event.type == SDL_JOYBUTTONDOWN) {
                     //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
-                    game_config_copy.button_codes[key] = event.jbutton.button;
+                    game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_BUTTON;
+                    game_config_copy.button_codes[key].value = event.jbutton.button;
                     return true;
                 } else if (event.type == SDL_JOYHATMOTION) { //joy-hat events
-                    game_config_copy.joyhat_codes[key] = event.jhat.value;
+                    game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_HAT;
+                    game_config_copy.button_codes[key].value = event.jhat.value;
                     return true;
                 } else if (event.type == SDL_JOYAXISMOTION) { // joy-axis event
                     if (event.jaxis.value < -JOYVAL) {
-                        game_config_copy.axis_codes[key].axis_n = event.jaxis.axis;
-                        game_config_copy.axis_codes[key].axis_type = -1;
+                        game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
+                        game_config_copy.button_codes[key].value = event.jaxis.axis;
+                        game_config_copy.button_codes[key].axis_type = -1;
                     } else if (event.jaxis.value > JOYVAL) {
-                        game_config_copy.axis_codes[key].axis_n = event.jaxis.axis;
-                        game_config_copy.axis_codes[key].axis_type = 1;
+                        game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
+                        game_config_copy.button_codes[key].value = event.jaxis.axis;
+                        game_config_copy.button_codes[key].axis_type = 1;
                     }
                     return true;
                 }

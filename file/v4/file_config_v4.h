@@ -1,42 +1,32 @@
 #ifndef FILE_CONFIG_301_H
 #define FILE_CONFIG_301_H
 
+#include "file/format/st_common.h"
 
 namespace format_v4 {
-
-    struct st_axis_config {
-        int axis_n;                             // number of the axis that fired the event
-        int axis_type;                          // indicate if is PLUS (+1) or MINUS (-1)
-        st_axis_config() {
-            axis_n = 0;
-            axis_type = 0;
-        }
-    };
 
 
     struct st_game_config {
         bool sound_enabled;
         bool video_fullscreen;
         Sint8 video_filter;
-        E_INPUT_TYPES input_type;               // if keyboard or joystick
-        E_INPUT_MODES input_mode;               // inf directional is joypad-digital, analog sick or hat
-        E_PLATFORM platform;                    // if changed, must reset config to default
-        int keys_codes[BTN_COUNT];              // number indicator for the keyboard-keys
-        int button_codes[BTN_COUNT];            // number indicator for the joystick-button-keys
-        int joyhat_codes[BTN_COUNT];            // number indicator for the joystick-hat-keys
-        st_axis_config axis_codes[BTN_COUNT];   // number indicator for the joystick-hat-keys
+        E_INPUT_TYPES input_type;                           // if keyboard or joystick
+        E_INPUT_MODES input_mode;                           // inf directional is joypad-digital, analog sick or hat
+        E_PLATFORM platform;                                // if changed, must reset config to default
+        int keys_codes[BTN_COUNT];                          // number indicator for the keyboard-keys
+        st_input_button_config button_codes[BTN_COUNT];     // number indicator for the joystick-button-keys
 
-        bool game_finished;                     // stores if game was finished, so we can show more options to player
+        bool game_finished;                                 // stores if game was finished, so we can show more options to player
         Uint8 selected_input_device;
         Uint8 selected_language;
         bool turbo_mode;
         Uint8 volume_sfx;
         Uint8 volume_music;
-        bool android_use_play_services;         // for android to use cloud save, trophies, etc
-        bool android_touch_controls_hide;       // define if touch controls must be hidden
-        Uint8 android_touch_controls_size;      // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
-        Sint8 wii_joystick_type;                // for wii to define between wiimote, classic, gamecube, etc
-        Uint8 playstation2_video_mode;
+        bool android_use_play_services;                     // for android to use cloud save, trophies, etc
+        bool android_touch_controls_hide;                   // define if touch controls must be hidden
+        Uint8 android_touch_controls_size;                  // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
+        Sint8 wii_joystick_type;                            // for wii to define between wiimote, classic, gamecube, etc
+        Uint8 playstation2_video_mode;                      // for playstation 2, define screen resolution setting
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -87,61 +77,169 @@ namespace format_v4 {
 #endif
         }
 
-        void get_default_buttons(int button_codes_copy[BTN_COUNT]) {
+        void get_default_buttons(st_input_button_config button_codes_copy[BTN_COUNT]) {
+            // reset values
+            for (int i=0; i<BTN_COUNT; i++) {
+                button_codes_copy[i].type = JOYSTICK_INPUT_TYPE_BUTTON;
+                button_codes_copy[i].value = -1;
+                button_codes_copy[i].axis_type = 0;
+            }
+
+
+            // COMMON INPUT FOR JOYSTICK AXIS //
+            button_codes_copy[BTN_DOWN].axis_type = 1;
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].value = 1;
+
+            button_codes_copy[BTN_UP].axis_type = -1;
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].value = 1;
+
+            button_codes_copy[BTN_RIGHT].axis_type = 1;
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].value = 0;
+
+            button_codes_copy[BTN_LEFT].axis_type = -1;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].value = 0;
+
+
+
 #ifdef PLAYSTATION2
-            button_codes_copy[BTN_SHIELD] = 0;
-            button_codes_copy[BTN_DASH] = 3;
-            button_codes_copy[BTN_JUMP] = 2;
-            button_codes_copy[BTN_ATTACK] = 1;
-            button_codes_copy[BTN_L] = 6;
-            button_codes_copy[BTN_R] = 7;
-            button_codes_copy[BTN_QUIT] = -1;
-            button_codes_copy[BTN_START] = 5;
-            button_codes_copy[BTN_LEFT] = -1; // uses default axis
-            button_codes_copy[BTN_RIGHT] = -1; // uses default axis
-            button_codes_copy[BTN_UP] = -1; // uses default axis
-            button_codes_copy[BTN_DOWN] = -1; // uses default axis
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 0;
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 3;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 2;
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 1;
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 6;
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 7;
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = -1;
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 5;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_LEFT].value = -1; // uses default axis
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_RIGHT].value = -1; // uses default axis
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_UP].value = -1; // uses default axis
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DOWN].value = -1; // uses default axis
 #elif PSP
-            button_codes_copy[BTN_SHIELD] = 3;
-            button_codes_copy[BTN_DASH] = 0;
-            button_codes_copy[BTN_JUMP] = 1;
-            button_codes_copy[BTN_ATTACK] = 2;
-            button_codes_copy[BTN_L] = 4;
-            button_codes_copy[BTN_R] = 5;
-            button_codes_copy[BTN_QUIT] = -1;
-            button_codes_copy[BTN_START] = 11;
-            button_codes_copy[BTN_LEFT] = 7; // PSP maps axis as buttons. Will use thos unless you pick analog mode
-            button_codes_copy[BTN_RIGHT] = 9; // PSP maps axis as buttons. Will use thos unless you pick analog mode
-            button_codes_copy[BTN_UP] = 8; // PSP maps axis as buttons. Will use thos unless you pick analog mode
-            button_codes_copy[BTN_DOWN] = 6; // PSP maps axis as buttons. Will use thos unless you pick analog mode
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 3;
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 0;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 1;
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 2;
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 4;
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 5;
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = -1;
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 11;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_LEFT].value = 7; // PSP maps axis as buttons. Will use thos unless you pick analog mode
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_RIGHT].value = 9; // PSP maps axis as buttons. Will use thos unless you pick analog mode
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_UP].value = 8; // PSP maps axis as buttons. Will use thos unless you pick analog mode
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DOWN].value = 6; // PSP maps axis as buttons. Will use thos unless you pick analog mode
 #elif WII
-            button_codes_copy[BTN_SHIELD] = 1;
-            button_codes_copy[BTN_DASH] = 0;
-            button_codes_copy[BTN_JUMP] = 3;
-            button_codes_copy[BTN_ATTACK] = 2;
-            button_codes_copy[BTN_L] = 4;
-            button_codes_copy[BTN_R] = 5;
-            button_codes_copy[BTN_QUIT] = -1;
-            button_codes_copy[BTN_START] = 6;
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 1;
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 0;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 3;
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 2;
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 4;
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 5;
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = -1;
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 6;
 #elif OPEN_PANDORA
-            button_codes_copy[BTN_JUMP] = SDLK_PAGEDOWN;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = SDLK_PAGEDOWN;
 #elif ANDROID
             for (int i=0; i<BTN_COUNT; i++) {
-                button_codes_copy[i] = -1;
+                button_codes_copy[i].type = JOYSTICK_INPUT_TYPE_BUTTON;
+                button_codes_copy[i].value = -1;
+                button_codes_copy[i].axis_type = 0;
             }
+#elif DREAMCAST
+            // down //
+            button_codes_copy[BTN_DOWN].axis_type = 0;
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_HAT;
+            button_codes_copy[BTN_DOWN].value = 11;
+            // up //
+            button_codes_copy[BTN_UP].axis_type = 0;
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_HAT;
+            button_codes_copy[BTN_UP].value = 14;
+            // left //
+            button_codes_copy[BTN_LEFT].axis_type = 0;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_HAT;
+            button_codes_copy[BTN_LEFT].value = 7;
+            // right //
+            button_codes_copy[BTN_RIGHT].axis_type = 0;
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_HAT;
+            button_codes_copy[BTN_RIGHT].value = 13;
+            // attack //
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 2;
+            // jump //
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 1;
+            // dash/slide //
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 0;
+            // shield //
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 3;
+            // shoulder-left //
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 6;
+            // shoulder-right //
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 7;
+            // quit //
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = 8;
+            // start //
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 9;
 #else
-            for (int i=0; i<BTN_COUNT; i++) {
-                button_codes_copy[i] = -1;
-            }
-            button_codes_copy[BTN_ATTACK] = 2;
-            button_codes_copy[BTN_JUMP] = 1;
-            button_codes_copy[BTN_DASH] = 0;
-            button_codes_copy[BTN_SHIELD] = 3;
-            button_codes_copy[BTN_L] = 6;
-            button_codes_copy[BTN_R] = 7;
-            button_codes_copy[BTN_QUIT] = 8;
-            button_codes_copy[BTN_START] = 9;
-    #endif
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 2;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 1;
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 0;
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 3;
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 6;
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 7;
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = 8;
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 9;
+#endif
         }
 
         void set_default_keys() {
@@ -180,6 +278,8 @@ namespace format_v4 {
             return PLATFORM_PSP;
     #elif WII
             return PLATFORM_WII;
+    #elif DREAMCAST
+            return PLATFORM_DREAMCAST;
     #else
             return PLATFORM_WINDOWS;
     #endif

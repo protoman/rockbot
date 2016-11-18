@@ -228,7 +228,6 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
 #endif
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump), std::string(btn_codes[BTN_JUMP])));
-
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire), std::string(btn_codes[BTN_ATTACK])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash), std::string(btn_codes[BTN_DASH])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl), std::string(btn_codes[BTN_L])));
@@ -369,7 +368,7 @@ bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config
     if (input.get_joysticks_number() > 0 && game_config_copy.selected_input_device < input.get_joysticks_number()) {
         have_joystick = true;
     }
-    if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key] == -1))) {
+    if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key].value == -1))) {
         return false;
     }
     return true;
@@ -379,7 +378,7 @@ bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config
 void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_config_copy, Uint8 set_key, bool is_joystick)
 {
     int default_keys_codes[BTN_COUNT];
-    int default_button_codes[BTN_COUNT];
+    st_input_button_config default_button_codes[BTN_COUNT];
 
     std::cout << "KEYMAP::CHECK_DUPLICATES - is_joystick: " << is_joystick << ", set_key: " << (int)set_key << std::endl;
 
@@ -393,8 +392,10 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
             }
         } else {
             std::cout << "set_key[" << set_key << "] disabled!" << std::endl;
-            if (i != set_key && game_config_copy.button_codes[i] == game_config_copy.button_codes[set_key]) { // found duplicate
-                game_config_copy.button_codes[i] = -1; // disable key
+            if (i != set_key && game_config_copy.button_codes[i].type == game_config_copy.button_codes[set_key].type && game_config_copy.button_codes[i].value == game_config_copy.button_codes[set_key].value && game_config_copy.button_codes[i].axis_type == game_config_copy.button_codes[set_key].axis_type) { // found duplicate
+                game_config_copy.button_codes[i].value = -1; // disable key
+                game_config_copy.button_codes[i].type = JOYSTICK_INPUT_TYPE_NONE;
+                game_config_copy.button_codes[i].axis_type = 0;
             }
         }
     }
@@ -404,8 +405,10 @@ void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_c
 {
     for (int i=0; i<BTN_COUNT; i++) {
         game_config.keys_codes[i] = game_config_copy.keys_codes[i];
-        std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i] << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i] << "]" << std::endl;
-        game_config.button_codes[i] = game_config_copy.button_codes[i];
+        std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i].value << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i].value << "]" << std::endl;
+        game_config.button_codes[i].value = game_config_copy.button_codes[i].value;
+        game_config.button_codes[i].type = game_config_copy.button_codes[i].type;
+        game_config.button_codes[i].axis_type = game_config_copy.button_codes[i].axis_type;
     }
 }
 

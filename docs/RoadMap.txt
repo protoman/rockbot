@@ -69,6 +69,7 @@ VERSION 2.0.0 BETA 1
     # testar de criar usrface com a cor de fundo e fazer blit é mais rápido que fillrect
     # criar lista de npcs e objetos "on-screen"
     # rodar optimização no qtcreator (clang)
+    # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
 
 
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
