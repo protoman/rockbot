@@ -80,7 +80,22 @@ enum E_PLATFORM {
  * @brief
  *
  */
-enum INPUT_COMMANDS { BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_JUMP, BTN_ATTACK, BTN_QUIT, BTN_START, BTN_L, BTN_R, BTN_DASH, BTN_SHIELD, BTN_JUMP_TIMER, BTN_COUNT };
+enum INPUT_COMMANDS {
+    BTN_UP,
+    BTN_DOWN,
+    BTN_LEFT,
+    BTN_RIGHT,
+    BTN_JUMP,
+    BTN_ATTACK,
+    BTN_QUIT,
+    BTN_START,
+    BTN_L,
+    BTN_R,
+    BTN_DASH,
+    BTN_SHIELD,
+    BTN_JUMP_TIMER,
+    BTN_COUNT
+};
 
 
 enum joystick_input_types {

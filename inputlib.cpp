@@ -14,15 +14,12 @@ extern game gameControl;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
-#include "inputlib.h"
-extern inputLib input;
-
 extern bool leave_game;
 
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-inputLib::inputLib() : _used_keyboard(false)
+inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_timer(0)
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
@@ -73,10 +70,14 @@ void inputLib::clean_all()
 //                                                                                                //
 // ********************************************************************************************** //
 
-void inputLib::read_input()
+void inputLib::read_input(bool check_input_reset)
 {
     _used_keyboard = false;
-
+    if (check_input_reset == false) {
+        //std::cout << "held_button_count::RESET" << std::endl;
+        held_button_count = 0;
+        held_button_timer = timer.getTimer();
+    }
 
     while (SDL_PollEvent(&event)) {
 
@@ -86,7 +87,6 @@ void inputLib::read_input()
 
         if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
             if (event.type == SDL_KEYDOWN) {
-
 
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
@@ -117,11 +117,23 @@ void inputLib::read_input()
             }
 #endif
         }
+
+
         if (_used_keyboard == true) { // next commands are all joystick only
             return;
         }
+
+
         if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
             if (event.type == SDL_JOYBUTTONDOWN) {
+
+
+                if (check_input_reset) {
+                    held_button_count++;
+                    std::cout << "held_button_count++ [" << held_button_count << "]" << std::endl;
+                    held_button_timer = timer.getTimer();
+                }
+
                 //std::cout << "#1 INPUT::readInput - joystick button[" << (int)event.jbutton.button << "] pressed." << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
                     //std::cout << "#1 INPUT::readInput - button_codes[" << i << "]: " << game_config.button_codes[i] << std::endl;
@@ -135,6 +147,17 @@ void inputLib::read_input()
                     }
                 }
             } else if (event.type == SDL_JOYBUTTONUP) {
+
+
+                if (check_input_reset) {
+                    held_button_count--;
+                    if (held_button_count < 0) {
+                        held_button_count = 0;
+                    }
+                    std::cout << "held_button_count-- [" << held_button_count << "]" << std::endl;
+                    held_button_timer = timer.getTimer();
+                }
+
                 //std::cout << "#2 INPUT::readInput - joystick button[" << event.jbutton.button << "] released" << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jbutton.button) {
@@ -151,13 +174,25 @@ void inputLib::read_input()
 
 
         // check AXIS buttons //
-        if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE)) {
+        if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE || game_config.input_mode == INPUT_MODE_DIGITAL)) {
             for (int i=0; i<BTN_COUNT; i++) {
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
-                    if (game_config.button_codes[i].axis_type > 0 && event.jaxis.value > JOYVAL) {
-                        p1_input[i] = 1;
-                    } else if (game_config.button_codes[i].axis_type < 0 && event.jaxis.value < JOYVAL) {
-                        p1_input[i] = 1;
+                    if (game_config.button_codes[i].axis_type > 0) {
+                        if (event.jaxis.value > JOYVAL) {
+                            std::cout << "AXIS[" << i << "].POSITIVE" << std::endl;
+                            p1_input[i] = 1;
+                        } else {
+                            p1_input[i] = 0;
+                        }
+                    } else if (game_config.button_codes[i].axis_type < 0) {
+                        if (event.jaxis.value < -JOYVAL) {
+                            std::cout << "AXIS[" << i << "].NEGATIVE[" << event.jaxis.value << "][" << JOYVAL << "]" << std::endl;
+                            p1_input[i] = 1;
+                        } else {
+                            p1_input[i] = 0;
+                        }
+                    } else {
+                        p1_input[i] = 0;
                     }
                 }
             }
@@ -196,8 +231,10 @@ void inputLib::read_input()
         }
         */
 
+
         if ((game_config.input_mode == INPUT_MODE_DIGITAL || game_config.input_mode == INPUT_MODE_DOUBLE) && event.type == SDL_JOYHATMOTION) {
 
+            /*
             // check HAT input //
             if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE)) {
                 for (int i=0; i<BTN_COUNT; i++) {
@@ -210,6 +247,7 @@ void inputLib::read_input()
                     }
                 }
             }
+            */
 
 
             // CODES: up - 1, right: 2, down: 4, left: 8
@@ -287,6 +325,17 @@ void inputLib::read_input()
     }
 }
 
+bool inputLib::is_check_input_reset_command_activated()
+{
+
+    //std::cout << "held_button_count-- [" << held_button_count << "]" << std::endl;
+
+    if (held_button_count > 1 && held_button_timer+5000 <= timer.getTimer()) {
+        return true;
+    }
+    return false;
+}
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -319,7 +368,7 @@ void inputLib::wait_keypress()
 {
     bool fim = false;
     while (!fim) {
-        input.read_input();
+        read_input();
         if (p1_input[BTN_START] == 1 || p1_input[BTN_JUMP] == 1) {
             fim = true;
         }
@@ -340,7 +389,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                 if (event.type == SDL_KEYDOWN) {
                     // do not allow user to reassign ESCAPE key
                     if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        std::cout << "EROR: Can't reassign ESCAPE key." << std::endl;
+                        std::cout << "ERROR: Can't reassign ESCAPE key." << std::endl;
                         return false;
                     }
                     game_config_copy.keys_codes[key] = event.key.keysym.sym;
@@ -363,12 +412,13 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
                         game_config_copy.button_codes[key].value = event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = -1;
+                        return true;
                     } else if (event.jaxis.value > JOYVAL) {
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
                         game_config_copy.button_codes[key].value = event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = 1;
+                        return true;
                     }
-                    return true;
                 }
             }
 

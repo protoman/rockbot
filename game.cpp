@@ -1410,6 +1410,7 @@ std::string game::select_game_screen()
     graphLib.draw_text(10, 10, "SELECT GAME:");
 
     option_picker main_picker(false, st_position(40, 50), game_list, false);
+    main_picker.enable_check_input_reset_command();
     draw_lib.update_screen();
     bool repeat_menu = true;
     int picked_n = -1;

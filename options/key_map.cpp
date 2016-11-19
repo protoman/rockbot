@@ -308,13 +308,13 @@ void key_map::config_buttons()
                 selected_key = BTN_R;
             } else if (selected_option == 6) {
                 selected_key = BTN_START;
-            } else if (selected_option == 8) {
+            } else if (selected_option == 7) {
                 selected_key = BTN_UP;
-            } else if (selected_option == 9) {
+            } else if (selected_option == 8) {
                 selected_key = BTN_DOWN;
-            } else if (selected_option == 10) {
+            } else if (selected_option == 9) {
                 selected_key = BTN_LEFT;
-            } else if (selected_option == 11) {
+            } else if (selected_option == 10) {
                 selected_key = BTN_RIGHT;
             }
 

@@ -143,6 +143,9 @@ void scenesLib::main_screen()
     option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
 
+    main_picker.enable_check_input_reset_command();
+
+
     int picked_n = 1;
 
     bool have_save = fio.save_exists();

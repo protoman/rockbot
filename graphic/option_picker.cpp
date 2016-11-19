@@ -19,6 +19,10 @@ extern timerLib timer;
 
 #include "strings_map.h"
 
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
+#include "file/file_io.h"
+extern CURRENT_FILE_FORMAT::file_io fio;
+
 
 option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_menu_option> options, bool show_return) : _pick_pos(0)
 {
@@ -41,6 +45,8 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     _pick_pos = 0;
 
     //std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
+
+    check_input_reset_command = false;
 
     draw();
 }
@@ -66,6 +72,9 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<stri
         _items.insert(_items.begin(), st_menu_option("RETURN"));
     }
 
+    check_input_reset_command = false;
+
+
     draw();
 
 }
@@ -86,10 +95,18 @@ Sint8 option_picker::pick(int initial_pick_pos)
 
     //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
 
+
+    std::cout << "option_picker::option_picker::START - check_input_reset_command[" << check_input_reset_command << "]" << std::endl;
+
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
-        input.read_input();
+        input.read_input(check_input_reset_command);
+        if (check_input_reset_command == true && input.is_check_input_reset_command_activated()) {
+            std::cout << "RESET ACTIVE!!" << std::endl;
+            show_reset_config_dialog();
+        }
+
         if (input.p1_input[BTN_START] || input.p1_input[BTN_JUMP]) {
             if (_items.at(_pick_pos).disabled == true) {
                 soundManager.play_sfx(SFX_NPC_HIT);
@@ -142,6 +159,55 @@ Sint8 option_picker::pick(int initial_pick_pos)
     }
     // erase cursor
     return _pick_pos;
+}
+
+void option_picker::enable_check_input_reset_command()
+{
+    check_input_reset_command = true;
+}
+
+void option_picker::show_reset_config_dialog()
+{
+    graphicsLib_gSurface screen_copy;
+    graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
+    graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
+    wait_release_reset_config();
+    graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
+    graphLib.draw_text(20, 20, "NOW PRESS TWO BUTTONS TOGETHER");
+    graphLib.draw_text(20, 32, "AND HOLD IT FOR 5 SECONDS");
+    graphLib.draw_text(20, 44, "TO RESET CONFIGURATION.");
+    graphLib.draw_text(20, 60, "OR WAIT 10 SECONDS TO");
+    graphLib.draw_text(20, 72, "RETURN.");
+    graphLib.updateScreen();
+    long init_timer = timer.getTimer();
+    while (input.is_check_input_reset_command_activated() == false) {
+        input.read_input(true);
+        timer.delay(1);
+        if (init_timer+10000 < timer.getTimer()) {
+            break;
+        } else if (input.is_check_input_reset_command_activated() == true) {
+            std::cout << "RESET CONFIG!!!" << std::endl;
+            // reset the configuration file //
+            game_config.reset();
+            fio.save_config(game_config);
+            break;
+        }
+    }
+
+    wait_release_reset_config();
+    graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
+    graphLib.updateScreen();
+}
+
+void option_picker::wait_release_reset_config()
+{
+    graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
+    graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS");
+    graphLib.updateScreen();
+    while (input.is_check_input_reset_command_activated() == true) {
+        input.read_input(true);
+        timer.delay(1);
+    }
 }
 
 

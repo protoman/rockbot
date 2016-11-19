@@ -338,3 +338,6 @@ FILE-FORMAT-V4:
 - corrigir scroll do fundo quando vindo da esquerda para a direita
 - EDITOR: remover BG2, deixar apenas um único fundo para performance.
 - EDITOR: melhorar UI na groupBox de terrenos, npcs e objetos para ter scroll e mais área usada
+
+- configuração de direções além dos botões
+- resetar config se segurar dois botões quaisquer de joystick por 5 segundos na tela de game-start ou select-game

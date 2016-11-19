@@ -27,7 +27,8 @@ public:
 
     std::string get_key_name(int key);
 
-    void read_input();
+    void read_input(bool check_input_reset=false);
+    bool is_check_input_reset_command_activated();
 
 protected:
 
@@ -40,6 +41,8 @@ private:
     SDL_Joystick *joystick1;
     bool _used_keyboard;
     bool _show_btn_debug;
+    int held_button_count;
+    long held_button_timer;
 };
 
 #endif // INPUTLIB_H

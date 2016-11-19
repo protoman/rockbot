@@ -77,10 +77,14 @@ VERSION 2.0.0 BETA 1
     # fogo-fátuo é o cara
 
 
+- após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
+
+
+- ver porque android tem mais de um joystick para selecionar
+
 - config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
 
 - mover funções de configuração de sceneslib para class_config
-
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
