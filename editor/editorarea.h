@@ -6,6 +6,8 @@
 #include <QMessageBox>
 #include <QColor>
 #include <QMouseEvent>
+#include <QBitmap>
+
 #include "mediator.h"
 
 #ifndef EDITORTILEPALLETE
@@ -33,6 +35,8 @@ public:
 
   // variables
   QWidget *myParent;
+
+  void update_files();
 
 private:
 
@@ -70,6 +74,13 @@ protected:
 
   QPixmap hard_mode_tile;
   QPixmap easy_mode_tile;
+  QPixmap tileset_image;
+  QBitmap tileset_bitmap;
+  QPixmap bg1_image;
+  QPixmap bg2_image;
+
+
+
 
 //signals:
 //     void save();

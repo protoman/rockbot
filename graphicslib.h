@@ -186,160 +186,26 @@ public:
     void draw_weapon_icon(short, st_position menu_pos, bool active);
     void draw_weapon_tooltip_icon(short weapon_n, st_position position);
     void draw_menu_item(int x_pos);
-    /**
-     * @brief
-     *
-     * @param x_pos
-     */
     void erase_menu_item(int x_pos);
-    /**
-     * @brief
-     *
-     * @param ITEM_ICONS_ENUM
-     * @param pos
-     */
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
-    /**
-     * @brief
-     *
-     * @param current_hp
-     * @param player_frame
-     */
     void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
-
-    /**
-     * @brief
-     *
-     * @param hp
-     * @param player_n
-     * @param weapon_n
-     */
     void draw_hp_bar(short int hp, short player_n, short weapon_n, short int max_hp);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param r
-     * @param g
-     * @param b
-     */
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param r
-     * @param g
-     * @param b
-     * @param surface
-     */
     void clear_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param r
-     * @param g
-     * @param b
-     * @param surface
-     */
-
     void blank_area(short int x, short int y, short int w, short int h);
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     * @param surface
-     */
     void blank_area(short int x, short int y, short int w, short int h, struct graphicsLib_gSurface& surface);
-
-
     void draw_rectangle(st_rectangle area, int r, int g, int b, int alpha);
-
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param text
-     * @param interrupt
-     * @return int
-     */
-
     void clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
-
-    /**
-     * @brief
-     *
-     * @param position
-     */
     void show_config_bg(Uint8 position);
-    /**
-     * @brief
-     *
-     * @param old_pos
-     * @param hp
-     * @param player_n
-     */
     void draw_weapon_cursor(st_position old_pos, short hp, short player_n, short max_hp);
-    /**
-     * @brief
-     *
-     * @param position
-     * @param show_btn
-     */
     void show_dialog(Uint8 position);
-
     void show_dialog_button(Uint8 position);
-
     void place_face(std::string face_file, st_position pos);
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     st_position get_dialog_pos() const;
-
-
     void change_surface_color(Sint8 colorkey_n, st_color new_color, struct graphicsLib_gSurface* surface);
-
-    /**
-     * @brief
-     *
-     * @param btn_pos
-     */
     void show_btn_a(st_position btn_pos);
-
-
-
-    /**
-     * @brief
-     *
-     * @param adjust
-     */
     void set_screen_adjust(st_position adjust);
-
-    /**
-     * @brief
-     *
-     */
     void stop_stars_animation();
-    /**
-     * @brief
-     *
-     */
     void start_stars_animation();
     void wait_and_update_screen(int period); // used because can't use SDL_Flip inside a thread
     st_position get_config_menu_pos() const;
@@ -350,8 +216,9 @@ public:
     void draw_path(st_position initial_point, st_position final_point, short duration);
     graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
-    void convert_surface_to_screen_format(graphicsLib_gSurface &origin, graphicsLib_gSurface &dest);
-
+#ifdef PSP
+    void psp_show_available_ram(int n);
+#endif
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);

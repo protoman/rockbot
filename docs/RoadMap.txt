@@ -45,7 +45,8 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-
+passo #2 -> #3 600k
+passo #3 -> #4 300k
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
@@ -66,10 +67,10 @@ VERSION 2.0.0 BETA 1
 
 - optimização:
     # deve rodar a 60 fps no PSP, PS2 e Dingoo
-    # testar de criar usrface com a cor de fundo e fazer blit é mais rápido que fillrect
     # criar lista de npcs e objetos "on-screen"
     # rodar optimização no qtcreator (clang)
     # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
+    # procurar memory leaks
 
 
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
@@ -79,10 +80,7 @@ VERSION 2.0.0 BETA 1
 
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
 
-
 - ver porque android tem mais de um joystick para selecionar
-
-- config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
 
 - mover funções de configuração de sceneslib para class_config
 
@@ -132,6 +130,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
 
 
 =========================================================================================================================================

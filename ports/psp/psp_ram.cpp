@@ -91,3 +91,57 @@ u32 psp_ram::ramAvailable (void) {
     return size;
 }
 
+/*
+void execute_memory_test() {
+#ifdef PSP
+    psp_ram _ram_counter;
+#endif
+
+    int stage_number = 1;
+    int map_id = 0;
+    int npc_id = 0;
+    int object_id = 0;
+
+    fio.read_stage(stage_data, stage_number);
+
+
+#ifdef PSP
+    std::cout << "MEMTEST[NPC]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+    classnpc* new_npc = new classnpc(stage_number, map_id, stage_data.maps[map_id].map_npcs[npc_id].id_npc, npc_id);
+    new_npc->clean_character_graphics_list();
+    delete new_npc;
+#ifdef PSP
+    std::cout << "MEMTEST[NPC]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+
+#ifdef PSP
+    std::cout << "MEMTEST[OBJECT]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+    object* new_obj = new object(object_id, NULL, st_position(0, 0));
+    new_obj->remove_graphic();
+    delete new_obj;
+#ifdef PSP
+    std::cout << "MEMTEST[OBJECT]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+
+
+#ifdef PSP
+    std::cout << "MEMTEST[MAP]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+    classMap* new_map = new classMap();
+    new_map->setMapNumber(map_id);
+    new_map->setStageNumber(stage_number);
+    new_map->loadMap();
+    delete new_map;
+#ifdef PSP
+    std::cout << "MEMTEST[MAP]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
+#endif
+
+    std::fflush(stdout);
+    timer.delay(200);
+    std::fflush(stdout);
+    std::cout << "MEMTEST[END]" << std::endl;
+    timer.delay(200);
+}
+*/

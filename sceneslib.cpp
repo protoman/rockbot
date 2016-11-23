@@ -87,6 +87,7 @@ void scenesLib::unload_stage_select() {
 	for (i=0; i<STAGE_SELECT_COUNT; i++) {
         if (STAGE_SELECT_SURFACES[i].get_surface()) {
             SDL_FreeSurface(STAGE_SELECT_SURFACES[i].get_surface());
+            delete STAGE_SELECT_SURFACES[i].get_surface();
 		}
     }
 }

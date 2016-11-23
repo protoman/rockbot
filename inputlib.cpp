@@ -458,3 +458,8 @@ std::string inputLib::get_key_name(int key)
 
     return res;
 }
+
+void inputLib::read_input()
+{
+    this->read_input(false);
+}

@@ -41,7 +41,7 @@ extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 extern graphicsLib_gSurface _explosion_surface;
 
-
+#define DEBUG_MSG_DELAY 1000
 
 #include "file/file_io.h"
 
@@ -236,7 +236,6 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 {
 	SDL_RWops *rwop;
 	SDL_Surface *spriteCopy;
-    SDL_Surface *display_surface;
 
     rwop = SDL_RWFromFile(filename.c_str(), "rb");
 
@@ -249,8 +248,11 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
 
+    SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
+    SDL_FreeSurface(spriteCopy);
+    SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
-    return SDL_DisplayFormat(spriteCopy);
+    return res_surface;
 }
 
 
@@ -589,13 +591,24 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         return;
     }
     gSurface->freeGraphic();
-    SDL_Surface* temp_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
+    SDL_Surface* temp_surface;
+    SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
+    if (rgb_surface != NULL) {
+        temp_surface = SDL_DisplayFormat(rgb_surface);
+        SDL_FreeSurface(rgb_surface);
+    }
 
     if (!temp_surface) {
         show_debug_msg("EXIT #21.INIT #1");
-        exit(-1);
-    }
+#ifdef PSP
+    graphLib.psp_show_available_ram(100);
+#endif
 
+
+    SDL_Quit();
+    exit(-1);
+
+    }
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
@@ -605,6 +618,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
     if (!gSurface->get_surface()) {
         show_debug_msg("EXIT #21.INIT #2");
+        SDL_Quit();
         exit(-1);
     }
 	gSurface->width = size.width;
@@ -1492,7 +1506,7 @@ void graphicsLib::show_debug_msg(string msg)
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);
     updateScreen();
-    timer.delay(2000);
+    timer.delay(DEBUG_MSG_DELAY);
 }
 
 void graphicsLib::draw_path(st_position initial_point, st_position final_point, short duration)
@@ -1887,17 +1901,9 @@ void graphicsLib::preload_anim_tiles()
 graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_flip_type flip_mode)
 {
     //Pointer to the soon to be flipped surface
-    SDL_Surface *flipped = NULL;
     SDL_Surface *surface = original.get_surface();
     graphicsLib_gSurface res = original;
     //initSurface(st_size(original.width, original.height), &res);
-
-    //If the image is color keyed
-    if (SDL_SRCCOLORKEY) {
-        flipped = SDL_CreateRGBSurface( SDL_SWSURFACE, surface->w, surface->h, surface->format->BitsPerPixel, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, 0 );
-    } else {
-        flipped = SDL_CreateRGBSurface( SDL_SWSURFACE, surface->w, surface->h, surface->format->BitsPerPixel, surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask );
-    }
 
     //If the surface must be locked
     if (SDL_MUSTLOCK( surface )) {
@@ -1906,9 +1912,9 @@ graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_fl
     }
 
     //Go through columns
-    for (int x = 0, rx = flipped->w - 1; x < flipped->w; x++, rx-- ) {
+    for (int x = 0, rx = original.get_surface()->w - 1; x < original.get_surface()->w; x++, rx-- ) {
         //Go through rows
-        for (int y = 0, ry = flipped->h - 1; y < flipped->h; y++, ry-- ) {
+        for (int y = 0, ry = original.get_surface()->h - 1; y < original.get_surface()->h; y++, ry-- ) {
             //Get pixel
             Uint32 pixel = original.get_pixel(x, y);
 
@@ -1931,12 +1937,15 @@ void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSu
     copyArea(st_position(0, 0), &newSurface, &frame->frameSurface);
 }
 
-void graphicsLib::convert_surface_to_screen_format(graphicsLib_gSurface &origin, graphicsLib_gSurface &dest)
+#ifdef PSP
+void graphicsLib::psp_show_available_ram(int n)
 {
-    //SDL_Surface* temp_suface =
-    dest.set_surface(SDL_DisplayFormat(origin.get_surface()));
+    char debug_msg[255];
+    sprintf(debug_msg, "MEM[%d][%d]", n, (int)_ram_counter.ramAvailable());
+    show_debug_msg(std::string(debug_msg));
+    //std::cout << "unload_stage::RAM::BF='" << ram_counter.ramAvailable() << "'" << std::endl;
 }
-
+#endif
 
 
 

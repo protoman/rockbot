@@ -48,14 +48,13 @@ public:
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);
     void show_ingame_warning(std::vector<std::string> message);
-
     void fade_in_screen(int r, int g, int b);
     void fade_out_screen(int r, int g, int b, int total_delay);
-
     void pixelate_screen();
-
-
     void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);
+    void clear_maps_dynamic_background_list();
+    void add_dynamic_background(std::string filename, int auto_scroll_mode);
+    graphicsLib_gSurface* get_dynamic_background(std::string filename);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);
@@ -66,6 +65,8 @@ private:
     void show_train_effect();
     void show_lightingbolt_effect();
     void show_weapon_tooltip();
+    //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
+
 
 
 private:
@@ -108,6 +109,11 @@ private:
     short _weapon_tooltip_n;                            // weapon number to show
     const Uint8* _weapon_tooltip_direction_ref;         // reference to player direction, so we can draw the icon in the correct position
     st_float_position *_map_scroll_ref;                 // reference to map scroll, so we can adjust position
+
+
+    // used to avoid having multiple copies of same background for all 3 maps in same stage
+    std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;
+
 
 };
 

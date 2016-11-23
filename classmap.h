@@ -122,7 +122,7 @@ public:
 
     void reset_beam_objects();
 
-    graphicsLib_gSurface get_map_area_surface();
+    void get_map_area_surface(graphicsLib_gSurface &mapSurface);
 
     void set_scrolling(st_float_position pos);
 
@@ -207,7 +207,8 @@ private:
 
     void create_dynamic_background_surfaces();
 
-    void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface) const;
+    graphicsLib_gSurface* get_dynamic_bg();
+
 
 public:
     std::vector<classnpc> _npc_list; // vector npcs
@@ -223,7 +224,6 @@ private:
     st_float_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
     st_float_position bg_scroll;
-    graphicsLib_gSurface bg_surface;
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;

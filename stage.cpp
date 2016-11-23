@@ -82,6 +82,8 @@ void stage::loadStage() {
         return;
 	}
 
+    draw_lib.clear_maps_dynamic_background_list();
+
     stage_is_loaded = true;
     //std::cout << "stage::loadStage - number: " << number << std::endl;
 

@@ -178,8 +178,11 @@ st_float_position game::checkScrolling()
 void game::start_stage()
 {
 
+
+
 	_show_boss_hp = false;
     input.clean();
+
 
     loaded_stage.reset_current_map();
 
@@ -206,8 +209,6 @@ void game::start_stage()
     player1.refill_weapons();
     player1.reset_hp();
 
-
-
     // find teleport stop point
     int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
     player1.set_teleport_minimal_y(min_y*TILESIZE);
@@ -217,7 +218,6 @@ void game::start_stage()
     show_ready();
 
     soundManager.play_music();
-
 
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
@@ -789,9 +789,10 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 	graphicsLib_gSurface temp_screen;
     short i = 0;
     graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
-    classMap temp_map = loaded_stage.maps[map_n];
-    temp_map.set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
-    temp_map.set_scrolling(st_float_position(adjust_x, 0));
+
+    classMap* temp_map = &loaded_stage.maps[map_n];
+    temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
+    temp_map->set_scrolling(st_float_position(adjust_x, 0));
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
@@ -807,12 +808,14 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
             graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_screen);
         }
 		// copy the new screen to the temp_area
-        graphicsLib_gSurface temp_map_area = temp_map.get_map_area_surface();
+        graphicsLib_gSurface temp_map_area;
+        temp_map->get_map_area_surface(temp_map_area);
 		if (type == TRANSITION_TOP_TO_BOTTOM) {
             graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_map_area, &temp_screen);
 		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
             graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_map_area, &temp_screen);
 		}
+        temp_map_area.freeGraphic();
 
 		// now, show the transition
         short int extra_y = 0;
@@ -846,14 +849,14 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
                 loaded_stage.showAbove(-i*TRANSITION_STEP);
                 loaded_stage.get_current_map()->show_objects(-i*TRANSITION_STEP);
                 int temp_map_3rdlevel_pos = (RES_H+TILESIZE*0.5) - i*TRANSITION_STEP - 8;
-                temp_map.show_objects(temp_map_3rdlevel_pos, adjust_x);
-                temp_map.showAbove(temp_map_3rdlevel_pos, adjust_x);
+                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+                temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
 			} else {
                 loaded_stage.showAbove(i*TRANSITION_STEP);
                 loaded_stage.get_current_map()->show_objects(i*TRANSITION_STEP);
                 int temp_map_3rdlevel_pos = -(RES_H+TILESIZE*0.5) + i*TRANSITION_STEP + 8; // 8 is a adjust for some error I don't know the reason
-                temp_map.show_objects(temp_map_3rdlevel_pos, adjust_x);
-                temp_map.showAbove(temp_map_3rdlevel_pos, adjust_x);
+                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+                temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
 			}
 
 
@@ -863,9 +866,8 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 #endif
 		}
 
-
         if (type == TRANSITION_TOP_TO_BOTTOM) {
-            temp_map.changeScrolling(st_float_position(temp_map.getMapScrolling().x, 0));
+            temp_map->changeScrolling(st_float_position(temp_map->getMapScrolling().x, 0));
         }
         if (type == TRANSITION_TOP_TO_BOTTOM) {
             if (pObj->getPosition().y > TILESIZE) {
@@ -877,6 +879,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
             }
         }
 	}
+
     temp_screen.freeGraphic();
 	pObj->set_teleporter(-1);
 	pObj->char_update_real_position();
@@ -1116,12 +1119,8 @@ void game::exit_game()
         show_savegame_error();
     }
 
-#ifdef PSP
-    sceKernelExitGame();
-#else
     SDL_Quit();
-#endif
-    exit(0);
+    exit(-1);
 }
 
 void game::game_over()
@@ -1180,7 +1179,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE6;
+    currentStage = STAGE3;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_4;
 
@@ -1193,6 +1192,7 @@ void game::quick_load_game()
     } else if (GAME_FLAGS[FLAG_PLAYER4]) {
         game_save.selected_player = PLAYER_4;
     }
+
 
     scenes.preloadScenes();
     initGame();

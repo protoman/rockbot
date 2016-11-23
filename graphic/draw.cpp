@@ -627,6 +627,58 @@ void draw::show_weapon_tooltip()
     }
 }
 
+/*
+void draw::create_dynamic_background_surface(graphicsLib_gSurface &dest_surface, graphicsLib_gSurface &image_surface, int auto_scroll_mode)
+{
+    // initialize dest_surface
+    int n = 0;
+
+    //map_data[number].backgrounds[0].
+    graphicsLib_gSurface temp_surface;
+    if (auto_scroll_mode == BG_SCROLL_MODE_UP || auto_scroll_mode == BG_SCROLL_MODE_DOWN) {
+        graphLib.initSurface(st_size(image_surface.width, RES_H*2), &temp_surface);
+        int total_h = 0;
+        while (total_h <= RES_H*2) {
+            graphLib.copyArea(st_position(0, total_h), &image_surface, &temp_surface);
+            total_h += image_surface.height;
+            n++;
+        }
+    } else {
+        graphLib.initSurface(st_size(image_surface.width+RES_W, image_surface.height), &temp_surface);
+        int total_w = 0;
+        while (total_w <= image_surface.width+RES_W) {
+            graphLib.copyArea(st_position(total_w, 0), &image_surface, &temp_surface);
+            total_w += image_surface.width;
+            n++;
+        }
+    }
+    // convert temp_surface to screen-format then release it
+    graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &dest_surface);
+    graphLib.convert_surface_to_screen_format(temp_surface, dest_surface);
+    temp_surface.freeGraphic();
+}
+*/
+
+graphicsLib_gSurface *draw::get_dynamic_background(string filename)
+{
+    return &maps_dynamic_background_list.find(filename)->second;
+}
+
+void draw::clear_maps_dynamic_background_list()
+{
+    maps_dynamic_background_list.clear();
+}
+
+void draw::add_dynamic_background(string filename, int auto_scroll_mode)
+{
+    // only add if not existing in map
+    if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
+        maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
+        std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
+        graphLib.surfaceFromFile(bg1_filename, &maps_dynamic_background_list.find(filename)->second);
+    }
+}
+
 
 void draw::generate_snow_particles()
 {

@@ -355,6 +355,8 @@ private:
 
     bool subboss_alive_on_left(short tileX);
 
+    void show_mem_debug(int n);
+
 
 
 public:

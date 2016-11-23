@@ -28,17 +28,19 @@ map_tab::~map_tab()
 void map_tab::reload()
 {
     ui->animTilePaletteWidget->reload();
+    ui->editArea->update_files();
     fill_data();
 }
 
 void map_tab::set_current_box(short n)
 {
     ui->toolBox->setCurrentIndex(n);
-    ui->editArea->repaint();
+    update_edit_area();
 }
 
 void map_tab::update_edit_area()
 {
+    ui->editArea->update_files();
     ui->editArea->repaint();
 }
 
@@ -147,7 +149,7 @@ void map_tab::on_stageListCombo_currentIndexChanged(int index)
 
     ui->mapGFX_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].gfx);
 
-    ui->editArea->repaint();
+    update_edit_area();
     ui->pallete->repaint();
     _data_loading = data_loading_before;
 }
@@ -162,7 +164,7 @@ void map_tab::on_mapListCombo_currentIndexChanged(int index)
     Mediator::get_instance()->currentMap = index;
     fill_background_list();
     _data_loading = data_loading_before;
-    ui->editArea->repaint();
+    update_edit_area();
 }
 
 void map_tab::on_comboBox_currentIndexChanged(int index)
@@ -172,7 +174,8 @@ void map_tab::on_comboBox_currentIndexChanged(int index)
         value = 3;
     }
     Mediator::get_instance()->layerLevel = value;
-    ui->editArea->repaint();
+    update_edit_area();
+
 }
 
 void map_tab::on_listWidget_2_currentRowChanged(int currentRow)
@@ -437,7 +440,7 @@ void map_tab::on_stageTileset_comboBox_currentIndexChanged(const QString &arg1)
         Mediator::get_instance()->setPallete(arg1.toStdString());
     }
     ui->pallete->repaint();
-    ui->editArea->repaint();
+    update_edit_area();
 }
 
 void map_tab::on_mapGFX_comboBox_currentIndexChanged(int index)

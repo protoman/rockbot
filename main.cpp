@@ -214,8 +214,15 @@ int SetupCallbacks(void) {
 }
 
 
+// LINKER PATCH
+/*
+extern "C" {
+void *__dso_handle = NULL;
+}
+*/
 
-
+// ram counter object
+psp_ram _ram_counter;
 #endif
 
 
@@ -260,61 +267,6 @@ void get_filepath()
     GAMEPATH = FILEPATH;
 }
 
-/// @TODO - move to ports
-/*
-void execute_memory_test() {
-#ifdef PSP
-    psp_ram _ram_counter;
-#endif
-
-    int stage_number = 1;
-    int map_id = 0;
-    int npc_id = 0;
-    int object_id = 0;
-
-    fio.read_stage(stage_data, stage_number);
-
-
-#ifdef PSP
-    std::cout << "MEMTEST[NPC]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-    classnpc* new_npc = new classnpc(stage_number, map_id, stage_data.maps[map_id].map_npcs[npc_id].id_npc, npc_id);
-    new_npc->clean_character_graphics_list();
-    delete new_npc;
-#ifdef PSP
-    std::cout << "MEMTEST[NPC]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
-#ifdef PSP
-    std::cout << "MEMTEST[OBJECT]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-    object* new_obj = new object(object_id, NULL, st_position(0, 0));
-    new_obj->remove_graphic();
-    delete new_obj;
-#ifdef PSP
-    std::cout << "MEMTEST[OBJECT]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
-
-#ifdef PSP
-    std::cout << "MEMTEST[MAP]::BEFORE='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-    classMap* new_map = new classMap();
-    new_map->setMapNumber(map_id);
-    new_map->setStageNumber(stage_number);
-    new_map->loadMap();
-    delete new_map;
-#ifdef PSP
-    std::cout << "MEMTEST[MAP]::AFTER='" << _ram_counter.ramAvailable() << "'" << std::endl;
-#endif
-
-    std::fflush(stdout);
-    timer.delay(200);
-    std::fflush(stdout);
-    std::cout << "MEMTEST[END]" << std::endl;
-    timer.delay(200);
-}
-*/
 
 #ifdef WII
 extern "C" int main(int argc, char *argv[])
@@ -429,7 +381,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     /// DEBUG ///
-    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX
@@ -548,11 +500,14 @@ int main(int argc, char *argv[])
 
     graphLib.preload();
 
+
+
 #ifdef PLAYSTATION2
     fio.load_config(game_config);
     PS2_create_save_icons();
 #endif
     draw_lib.preload();
+
 
     gameControl.currentStage = INTRO_STAGE;
 
@@ -568,8 +523,6 @@ int main(int argc, char *argv[])
     input.clean();
 
 
-    std::cout << "DEBUG #1" << std::endl;
-
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (gameControl.showIntro() == false) {
@@ -582,6 +535,8 @@ int main(int argc, char *argv[])
         //end_obj.start();
         //return 1;
     }
+
+
 
     std::cout << "DEBUG #2" << std::endl;
 

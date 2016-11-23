@@ -292,8 +292,8 @@ struct graphicsLib_gSurface {
                 colorkey3_points = original.colorkey3_points;
                 show_debug = false;
                 if (original.width > 0) {
+                    // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
-                    //SDL_FreeSurface(original.gSurface);
                 } else {
                     gSurface = NULL;
                 }
@@ -323,6 +323,7 @@ struct graphicsLib_gSurface {
                 colorkey3_points = original.colorkey3_points;
                 show_debug = false;
                 if (original.width > 0) {
+                    // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
                     gSurface = NULL;
@@ -407,7 +408,8 @@ struct graphicsLib_gSurface {
         }
 
         void set_surface(SDL_Surface *surface) {
-            if (gSurface != NULL && surface == NULL) {
+            // free old surface memory
+            if (gSurface != NULL) {
                 try {
                     SDL_FreeSurface(gSurface);
                 } catch (std::exception e) {}
@@ -457,8 +459,8 @@ struct graphicsLib_gSurface {
         void freeGraphic()
         {
             if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
-                if (video_screen == false && gSurface != NULL && gSurface->hwdata) {
-                    //std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
+                if (video_screen == false && gSurface != NULL) {
+                    std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
                     width = -1;
                     height = -1;
                     SDL_FreeSurface(gSurface);

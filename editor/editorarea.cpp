@@ -6,6 +6,7 @@
 #include <QBrush>
 #include <QDir>
 
+
 #include "defines.h"
 
 
@@ -31,14 +32,56 @@ EditorArea::EditorArea(QWidget *parent) : QWidget(parent) {
     selection_current_x = 0;
     selection_current_y = 0;
 
+    update_files();
+
     this->show();
 }
 
 void EditorArea::changeTile() {
-	printf("DEBUG.changeTile in editor area\n");
-	temp = 1;
-	repaint();
+    printf("DEBUG.changeTile in editor area\n");
+    update_files();
+    temp = 1;
+    repaint();
 }
+
+
+void EditorArea::update_files()
+{
+
+    std::string filename_str = FILEPATH + "images/tilesets/blocks/easymode.png";
+    easy_mode_tile = QPixmap(QString(filename_str.c_str()));
+
+    filename_str = FILEPATH + "images/tilesets/blocks/hardmode.png";
+    hard_mode_tile = QPixmap(QString(filename_str.c_str()));
+
+    filename_str = FILEPATH + std::string("/images/tilesets/") + Mediator::get_instance()->getPallete();
+    if (filename_str.length() <= 0) {
+        return;
+    }
+    //std::cout << "EditorArea::paintEvent - filename: " << filename.toStdString() << std::endl;
+    tileset_image = QPixmap(filename_str.c_str());
+    if (tileset_image.isNull() == false) {
+        QBitmap mask = tileset_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+        tileset_image.setMask(mask);
+    } else {
+        tileset_bitmap.clear();
+    }
+
+    std::string bg1_filename = FILEPATH +"/images/map_backgrounds/"+ Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename;
+    if (bg1_filename.length() > 0) {
+        if (bg1_filename.find(".png") != std::string::npos) {
+            bg1_image = QPixmap(bg1_filename.c_str());
+        }
+    }
+
+    std::string bg2_filename = FILEPATH +"/images/map_backgrounds/"+ Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename;
+    if (bg2_filename.length() > 0) {
+        if (bg2_filename.find(".png") != std::string::npos) {
+            bg2_image = QPixmap(bg2_filename.c_str());
+        }
+    }
+}
+
 
 
 
@@ -48,16 +91,9 @@ void EditorArea::paintEvent(QPaintEvent *) {
         return;
     }
 
-
-    if (easy_mode_tile.isNull()) {
-        std::string filename_str = FILEPATH + "images/tilesets/blocks/easymode.png";
-        easy_mode_tile = QPixmap(QString(filename_str.c_str()));
-    }
-
-
-    if (hard_mode_tile.isNull()) {
-        std::string filename_str = FILEPATH + "images/tilesets/blocks/hardmode.png";
-        hard_mode_tile = QPixmap(QString(filename_str.c_str()));
+    if (tileset_image.isNull()) {
+        std::cout << "ERROR: EditorArea::paintEvent - Could not load palette image file." << std::endl;
+        return;
     }
 
 
@@ -66,16 +102,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
     QLineF line;
     QString filename;
 
-    filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
-    if (filename.length() <= 0) {
-        return;
-    }
-    //std::cout << "EditorArea::paintEvent - filename: " << filename.toStdString() << std::endl;
-    QPixmap image(filename);
-    if (image.isNull()) {
-        std::cout << "ERROR: EditorArea::paintEvent - Could not load palette image file [" << filename.toStdString() << "]." << std::endl;
-        return;
-    }
 
 	// draw background-color
     if (Mediator::get_instance()->show_background_color == true) {
@@ -84,43 +110,28 @@ void EditorArea::paintEvent(QPaintEvent *) {
 	}
 	// draw background1
     std::string bg1_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
-    if (Mediator::get_instance()->show_bg1 == true && bg1_filename.length() > 0) {
-        filename.clear();
-        filename.append(QString(QString(FILEPATH.c_str())+"/images/map_backgrounds/"+QString(bg1_filename.c_str())));
-        // check that filename contains ".png"
-        if (filename.indexOf(".png") != -1) {
-            QPixmap bg1_image(filename);
-            if (!bg1_image.isNull()) {
-                int max_repeat = ((MAP_W*16)/bg1_image.width())*Mediator::get_instance()->zoom+1;
-                //std::cout << "bg1_image.width(): " << bg1_image.width() << ", max_repeat: " << max_repeat << std::endl;
-                for (int k=0; k<max_repeat; k++) {
-                    QRectF pos_source(QPoint(0, 0), QSize(bg1_image.width(), bg1_image.height()));
-                    QRectF pos_dest(QPoint(k*bg1_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y*Mediator::get_instance()->zoom), QSize(bg1_image.width()*Mediator::get_instance()->zoom, bg1_image.height()*Mediator::get_instance()->zoom));
-                    painter.drawPixmap(pos_dest, bg1_image, pos_source);
-                }
+    if (Mediator::get_instance()->show_bg1 == true) {
+        if (!bg1_image.isNull()) {
+            int max_repeat = ((MAP_W*16)/bg1_image.width())*Mediator::get_instance()->zoom+1;
+            //std::cout << "bg1_image.width(): " << bg1_image.width() << ", max_repeat: " << max_repeat << std::endl;
+            for (int k=0; k<max_repeat; k++) {
+                QRectF pos_source(QPoint(0, 0), QSize(bg1_image.width(), bg1_image.height()));
+                QRectF pos_dest(QPoint(k*bg1_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y*Mediator::get_instance()->zoom), QSize(bg1_image.width()*Mediator::get_instance()->zoom, bg1_image.height()*Mediator::get_instance()->zoom));
+                painter.drawPixmap(pos_dest, bg1_image, pos_source);
             }
         }
-	}
-	// draw background2
-    std::string bg2_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename);
-    if (Mediator::get_instance()->show_bg2 == true && bg2_filename.length() > 0) {
-        filename.clear();
-        filename.append(QString(QString(FILEPATH.c_str())+"/images/map_backgrounds/"+QString(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename)));
-        if (filename.indexOf(".png") != -1) {
-            QPixmap bg2_image(filename);
-            if (!bg2_image.isNull()) {
-                for (int k=0; k<((MAP_W*16)/bg2_image.width()*Mediator::get_instance()->zoom)+1; k++) {
-                    QRectF pos_source(QPoint(0, 0), QSize(bg2_image.width(), bg2_image.height()));
-                    QRectF pos_dest(QPoint(k*bg2_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y*Mediator::get_instance()->zoom), QSize(bg2_image.width()*Mediator::get_instance()->zoom, bg2_image.height()*Mediator::get_instance()->zoom));
-                    painter.drawPixmap(pos_dest, bg2_image, pos_source);
-                }
+        // draw background2
+        if (!bg2_image.isNull()) {
+            for (int k=0; k<((MAP_W*16)/bg2_image.width()*Mediator::get_instance()->zoom)+1; k++) {
+                QRectF pos_source(QPoint(0, 0), QSize(bg2_image.width(), bg2_image.height()));
+                QRectF pos_dest(QPoint(k*bg2_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y*Mediator::get_instance()->zoom), QSize(bg2_image.width()*Mediator::get_instance()->zoom, bg2_image.height()*Mediator::get_instance()->zoom));
+                painter.drawPixmap(pos_dest, bg2_image, pos_source);
             }
         }
-	}
+    }
 
 
-
-    // draw tiles
+    // DRAW TILES //
     for (i=0; i<MAP_W; i++) {
         for (j=0; j<MAP_H; j++) {
 
@@ -133,7 +144,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x >= 0 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y >= 0) {
                 QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
                 QRectF source(QPoint((Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x*16), (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y*16)), QSize(16, 16));
-                painter.drawPixmap(target, image, source);
+                painter.drawPixmap(target, tileset_image, source);
             // animated tiles
             } else if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x < -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y == 0) {
                 int anim_tile_id = (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x*-1) - 2;
@@ -148,6 +159,11 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     QPixmap anim_image(anim_tile_filename);
 
                     if (anim_image.isNull() == false) {
+
+                        QBitmap anim_image_mask = anim_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                        anim_image.setMask(anim_image_mask);
+
+
                         QRectF target(QPoint(i*TILESIZE*Mediator::get_instance()->zoom, j*TILESIZE*Mediator::get_instance()->zoom), QSize(TILESIZE*Mediator::get_instance()->zoom, TILESIZE*Mediator::get_instance()->zoom));
                         QRectF source(QPoint(0, 0), QSize(TILESIZE, TILESIZE));
 
@@ -182,7 +198,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     if (tile3x > -1 && tile3y != -1) {
                         QRectF target(QPoint(i*16*Mediator::get_instance()->zoom, j*16*Mediator::get_instance()->zoom), QSize(16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom));
                         QRectF source(QPoint((Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.x*16), (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.y*16)), QSize(16, 16));
-                        painter.drawPixmap(target, image, source);
+                        painter.drawPixmap(target, tileset_image, source);
                     // animated tiles
                     } else if (tile3x < -1 && tile3y == 0) {
                         int anim_tile_id = (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.x*-1) - 2;
@@ -197,6 +213,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
                             QPixmap anim_image(anim_tile_filename);
 
                             if (anim_image.isNull() == false) {
+
+                                QBitmap anim_image_mask = anim_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                                anim_image.setMask(anim_image_mask);
+
                                 QRectF target(QPoint(i*TILESIZE*Mediator::get_instance()->zoom, j*TILESIZE*Mediator::get_instance()->zoom), QSize(TILESIZE*Mediator::get_instance()->zoom, TILESIZE*Mediator::get_instance()->zoom));
                                 QRectF source(QPoint(0, 0), QSize(TILESIZE, TILESIZE));
 
@@ -327,7 +347,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
-
+    // DRAW LINKS //
     if (Mediator::get_instance()->show_teleporters_flag == true) {
         // draw links
         //printf("editoMode: %d, EDITMODE_NORMAL: %d, editTool: %d, EDITMODE_LINK_DEST: %d\n", Mediator::get_instance()->editMode, EDITMODE_NORMAL, Mediator::get_instance()->editTool, EDITMODE_LINK_DEST);
@@ -367,7 +387,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
-
+    // DRAW ENEMIES //
     if (Mediator::get_instance()->show_npcs_flag == true) {
         /// draw NPCs
         for (int i=0; i<FS_MAX_MAP_NPCS; i++) {
@@ -392,6 +412,9 @@ void EditorArea::paintEvent(QPaintEvent *) {
             QPixmap temp_image(filename.c_str());
             if (!temp_image.isNull()) {
 
+                QBitmap enemy_mask = temp_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                temp_image.setMask(enemy_mask);
+
                 int total_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.width*Mediator::get_instance()->zoom;
                 int total_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height*Mediator::get_instance()->zoom;
                 int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).sprites_pos_bg.x;
@@ -407,8 +430,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     if (!bg_image.isNull()) {
                         total_w = bg_image.width();
                         total_h = bg_image.height();
-                    }
-                    if (!bg_image.isNull()) {
+                        QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                        bg_image.setMask(enemy_bg_mask);
                         QRectF bg_target(QPoint(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w, total_h));
                         QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
                         painter.drawPixmap(bg_target, bg_image, bg_source);
@@ -443,7 +466,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     QImage temp_img(filename.c_str());
                     QImage mirror_image = temp_img.copy(source.x(), source.y(), source.width(), source.height());
                     mirror_image = mirror_image.mirrored(true, false);
-                    painter.drawPixmap(target, QPixmap().fromImage(mirror_image), source);
+                    QPixmap mirror_image_pixmap = QPixmap().fromImage(mirror_image);
+
+                    QBitmap mirror_enemy_bg_mask = mirror_image_pixmap.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                    mirror_image_pixmap.setMask(mirror_enemy_bg_mask);
+
+
+                    painter.drawPixmap(target, mirror_image_pixmap, source);
                 } else {
                     painter.drawPixmap(target, temp_image, source);
                 }
@@ -467,6 +496,11 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.setBrush(QColor(255, 255, 255, 180));
                     painter.drawRect(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].start_point.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
                 } else {
+
+                    QBitmap mask = temp_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                    temp_image.setMask(mask);
+
+
                     int obj_type = Mediator::get_instance()->object_list.at(obj_id).type;
                     int obj_direction = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_objects[i].direction;
                     if (obj_type == OBJ_RAY_HORIZONTAL) {

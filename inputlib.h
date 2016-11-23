@@ -27,7 +27,8 @@ public:
 
     std::string get_key_name(int key);
 
-    void read_input(bool check_input_reset=false);
+    void read_input();
+    void read_input(bool check_input_reset);
     bool is_check_input_reset_command_activated();
 
 protected:
