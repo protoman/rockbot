@@ -460,7 +460,7 @@ struct graphicsLib_gSurface {
         {
             if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
                 if (video_screen == false && gSurface != NULL) {
-                    std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
+                    //std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
                     width = -1;
                     height = -1;
                     SDL_FreeSurface(gSurface);

@@ -332,12 +332,12 @@ FILE-FORMAT-V4:
 - usar novamente SDL_DisplayFormat para imagens a fim de optimizar jogo
 - jogo está travando nos diálogos
 - editor está salvando diálogos com quebras a mais de linha
-
 - se tem um muro acima, dash anda indefinidamente
 - se dash (air) for bloqueado, deve encerrar imediatamente
 - corrigir scroll do fundo quando vindo da esquerda para a direita
 - EDITOR: remover BG2, deixar apenas um único fundo para performance.
 - EDITOR: melhorar UI na groupBox de terrenos, npcs e objetos para ter scroll e mais área usada
-
 - configuração de direções além dos botões
 - resetar config se segurar dois botões quaisquer de joystick por 5 segundos na tela de game-start ou select-game
+- config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
+- correção memory leak em surfaces

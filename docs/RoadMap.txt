@@ -45,9 +45,6 @@ adicionar sistema de colisão que permite diagonais
 ??????? mais features de metroidvania e mmx
 
 
-passo #2 -> #3 600k
-passo #3 -> #4 300k
-
 =========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
@@ -78,11 +75,15 @@ VERSION 2.0.0 BETA 1
     # fogo-fátuo é o cara
 
 
+- mover pasta games/rockbot2 para svn fechado
+
+- não está desenhando dynamic-bg ao transicionar tela (usar mesma lógica do novo draw_dynamic no draw_in_surface)
+
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
+    # também ao iniciar estágio (ver bg fase valkyrie)
 
 - ver porque android tem mais de um joystick para selecionar
 
-- mover funções de configuração de sceneslib para class_config
 
 - EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
 
@@ -130,8 +131,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
-
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
@@ -149,6 +148,9 @@ VERSION 2.0.0 BETA 2
     # train
     # flash-stopper
     # lighthing-bolt
+
+
+- mover funções de configuração de sceneslib para class_config
 
 - se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
 - adicionar suporte à configuração de controle do wii
