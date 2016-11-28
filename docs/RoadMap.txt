@@ -74,8 +74,10 @@ VERSION 2.0.0 BETA 1
     # novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
     # fogo-fátuo é o cara
 
-
 - mover pasta games/rockbot2 para svn fechado
+
+- EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
+- EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
 
 - não está desenhando dynamic-bg ao transicionar tela (usar mesma lógica do novo draw_dynamic no draw_in_surface)
 
@@ -83,11 +85,6 @@ VERSION 2.0.0 BETA 1
     # também ao iniciar estágio (ver bg fase valkyrie)
 
 - ver porque android tem mais de um joystick para selecionar
-
-
-- EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
-
-- EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
 
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
     # principalmente em escadas
@@ -131,6 +128,13 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- EDITOR: não está atualizando fundo ao mudar de mapa (rockbot1, daisie->seahorse)
+- EDITOR: tornar color-key transparente nos fundos de tela
+- ROCKBOT-1: ajuste dos pontos do castelo
+- ROCKBOT-1: edição sala de chefe Searhorse tornando terro regular para evitar ficar trancado
+- AI: adicionar fly to random x e fly to random y
+- dash debaixo d'água parece estar mais lento que andar
+
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2

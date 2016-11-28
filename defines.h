@@ -644,7 +644,9 @@ enum AI_ACTION_FLY_OPTION_LIST {
     AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1,
     AI_ACTION_FLY_OPTION_TO_PLAYER_X, // move only in the X axis
     AI_ACTION_FLY_OPTION_TO_PLAYER_Y, // move only in the Y axis
-    AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD // similar to horizontal-aahead but moving a bit on Y axias up/down
+    AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD, // similar to horizontal-aahead but moving a bit on Y axias up/down
+    AI_ACTION_FLY_OPTION_RANDOM_X,
+    AI_ACTION_FLY_OPTION_RANDOM_Y
 };
 
 /**

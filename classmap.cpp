@@ -224,9 +224,8 @@ void classMap::showMap()
         n++;
     }
 
-
-    //graphLib.update_anim_tiles_timers();
-    //draw_lib.show_gfx();
+    graphLib.update_anim_tiles_timers();
+    draw_lib.show_gfx();
 }
 
 
@@ -487,15 +486,15 @@ void classMap::draw_dynamic_backgrounds()
         graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_bg(), &graphLib.gameScreen);
 
         // draw rightmost part, if needed
-        std::cout << "bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
+        //std::cout << "bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
         if (abs(bg_scroll.x) > RES_W) {
-            std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
+            //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
             int bg_pos_x = RES_W - (abs(x1)-RES_W);
             std::cout << "Need to draw second part of surface, bg_pos_x[" << bg_pos_x << "]" << std::endl;
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &graphLib.gameScreen);
         }  else if (get_dynamic_bg()->width - abs(bg_scroll.x) < RES_W) {
             int bg_pos_x = get_dynamic_bg()->width - abs(bg_scroll.x);
-            std::cout << "### MUST DRAW SECOND BG-POS-RIGHT bg_pos_x[" << bg_pos_x << "] ###" << std::endl;
+            //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT bg_pos_x[" << bg_pos_x << "] ###" << std::endl;
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &graphLib.gameScreen);
         }
 

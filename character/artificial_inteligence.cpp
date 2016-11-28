@@ -1142,6 +1142,14 @@ void artificial_inteligence::execute_ai_step_fly()
             int rand_x = rand() % RES_W;
             int rand_y = rand() % RES_H;
             _dest_point = st_position(rand_x, rand_y);
+        } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
+            int rand_x = rand() % RES_W;
+            std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            _dest_point = st_position(rand_x, position.x);
+        } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
+            int rand_y = rand() % RES_H;
+            std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-Y[" << rand_y << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            _dest_point = st_position(position.y, rand_y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 _dest_point.x = position.x - frameSize.width/2 - walk_range;
@@ -1162,9 +1170,6 @@ void artificial_inteligence::execute_ai_step_fly()
             walk_range = RES_H + TILESIZE*4;
         } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
             _dest_point.y = RES_H/2 - frameSize.height/2;
-
-
-
 
         } else if (_parameter == AI_ACTION_FLY_OPTION_PLAYER_DIRECTION) {
             struct_player_dist dist_players = dist_npc_players();
@@ -1315,7 +1320,7 @@ void artificial_inteligence::execute_ai_step_fly()
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 }
             }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
+        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
 			//std::cout << "artificial_inteligence::execute_ai_step_fly - POINT" << std::endl;
             if (move_to_point(_dest_point, move_speed, move_speed, is_ghost) == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;

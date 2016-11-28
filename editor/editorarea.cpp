@@ -71,15 +71,20 @@ void EditorArea::update_files()
     if (bg1_filename.length() > 0) {
         if (bg1_filename.find(".png") != std::string::npos) {
             bg1_image = QPixmap(bg1_filename.c_str());
+            QBitmap bg1_mask = bg1_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+            bg1_image.setMask(bg1_mask);
+
         }
     }
 
+    /*
     std::string bg2_filename = FILEPATH +"/images/map_backgrounds/"+ Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename;
     if (bg2_filename.length() > 0) {
         if (bg2_filename.find(".png") != std::string::npos) {
             bg2_image = QPixmap(bg2_filename.c_str());
         }
     }
+    */
 }
 
 
@@ -120,6 +125,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 painter.drawPixmap(pos_dest, bg1_image, pos_source);
             }
         }
+        /*
         // draw background2
         if (!bg2_image.isNull()) {
             for (int k=0; k<((MAP_W*16)/bg2_image.width()*Mediator::get_instance()->zoom)+1; k++) {
@@ -128,6 +134,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 painter.drawPixmap(pos_dest, bg2_image, pos_source);
             }
         }
+        */
     }
 
 
@@ -265,7 +272,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
 			// locked areas, stairs, doors, etc
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked != 0 && Mediator::get_instance()->editTool == EDITMODE_LOCK) {
-                    // transparent rectangle
+                    // translucid rectangle
 					//painter.setBrush(QColor(255, 0, 0, 30));
 					//painter.drawRect(i*16, j*16, 16, 16);
                     // red border
@@ -354,7 +361,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
         if (Mediator::get_instance()->editMode == EDITMODE_LINK && (Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editTool == EDITMODE_LINK)) {
             for (int i=0; i<STAGE_MAX_LINKS; i++) {
                 if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin) {
-                    // transparent blue rectangle
+                    // translucid blue rectangle
                     if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type == LINK_TELEPORTER) {
                         painter.setBrush(QColor(0, 255, 0, 180));
                     } else {
@@ -368,7 +375,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.setPen(QColor(255, 255, 255, 255));
                     painter.drawText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x*16*Mediator::get_instance()->zoom, (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y+1)*16*Mediator::get_instance()->zoom, QString::number(i));
                 } else if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
-                    // transparent cyan rectangle
+                    // translucid cyan rectangle
                     if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type == LINK_TELEPORTER) {
                         painter.setBrush(QColor(60, 160, 60, 180));
                     } else {
@@ -446,15 +453,15 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     source = QRectF(QPoint(0, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height), QSize(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.width, Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).frame_size.height));
                 }
                 if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_npc == Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc) {
-                    // transparent green rectangle
+                    // translucid green rectangle
                     painter.setBrush(QColor(0, 255, 0, 180));
                     painter.drawRect(target);
                 } else if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_boss) {
-                    // transparent orange rectangle
+                    // translucid orange rectangle
                     painter.setBrush(QColor(255, 128, 35, 200));
                     painter.drawRect(target);
                 } else if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss) {
-                    // transparent bright-orange rectangle
+                    // translucid bright-orange rectangle
                     painter.setBrush(QColor(241, 188, 87, 200));
                     painter.drawRect(target);
                 }

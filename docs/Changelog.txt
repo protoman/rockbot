@@ -341,3 +341,11 @@ FILE-FORMAT-V4:
 - resetar config se segurar dois botões quaisquer de joystick por 5 segundos na tela de game-start ou select-game
 - config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
 - correção memory leak em surfaces
+
+- EDITOR: não está atualizando fundo ao mudar de mapa (rockbot1, daisie->seahorse)
+- EDITOR: tornar color-key transparente nos fundos de tela
+- ROCKBOT-1: ajuste dos pontos do castelo
+- ROCKBOT-1: edição sala de chefe Searhorse tornando terro regular para evitar ficar trancado
+- AI: adicionar fly to random x e fly to random y
+- dash debaixo d'água parece estar mais lento que andar
+

@@ -87,6 +87,9 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("TO PLAYER X");
     AI_ACTION_FLY_OPTIONS.push_back("TO PLAYER Y");
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD [Y-ZIG-ZAG]");
+    AI_ACTION_FLY_OPTIONS.push_back("RANDOM X");
+    AI_ACTION_FLY_OPTIONS.push_back("RANDOM Y");
+
     // -------------------------------------------------------------- //
     AI_ACTION_JUMP_OPTIONS.push_back("AHEAD");
     AI_ACTION_JUMP_OPTIONS.push_back("TO RANDOM POINT");

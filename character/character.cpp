@@ -1551,7 +1551,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
 
-    int res_move_x = 0;
+    float res_move_x = 0;
     int mapLockAfter = BLOCK_UNBLOCKED;
     _obj_jump.finish();
 
@@ -1571,11 +1571,7 @@ bool character::slide(st_float_position mapScrolling)
             res_move_x = temp_i;
             break;
         } else if (mapLockAfter == BLOCK_WATER) {
-			if (abs((float)i*WATER_SPEED_MULT) > 0) {
-                res_move_x = temp_i*WATER_SPEED_MULT;
-            } else {
-                res_move_x = temp_i;
-            }
+            res_move_x = temp_i*0.8;
             break;
         }
     }
