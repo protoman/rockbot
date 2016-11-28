@@ -128,12 +128,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- EDITOR: não está atualizando fundo ao mudar de mapa (rockbot1, daisie->seahorse)
-- EDITOR: tornar color-key transparente nos fundos de tela
-- ROCKBOT-1: ajuste dos pontos do castelo
-- ROCKBOT-1: edição sala de chefe Searhorse tornando terro regular para evitar ficar trancado
-- AI: adicionar fly to random x e fly to random y
-- dash debaixo d'água parece estar mais lento que andar
 
 
 =========================================================================================================================================
