@@ -250,10 +250,10 @@ void draw::show_teleport_small(int x, int y)
     graphLib.showSurfaceAt(&_teleport_small_gfx, st_position(x+_teleport_small_gfx.width/2, y+_teleport_small_gfx.height/2), false);
 }
 
-void draw::show_credits()
+int draw::show_credits(bool can_leave)
 {
     int line_n=0;
-    unsigned int scrolled=0;
+    unsigned int scrolled = 0;
     int posY = -RES_H;
     st_rectangle dest;
     graphicsLib_gSurface credits_surface;
@@ -266,13 +266,28 @@ void draw::show_credits()
     // add the initial lines to screen
     create_credits_text(credits_surface);
 
+    timer.delay(200);
+    input.clean();
+    timer.delay(200);
+
     update_screen();
 
     // scroll the lines
     while (scrolled < (credits_list.size()*12)+RES_H/2+46) {
+
+        std::cout << "CREDITS::posY[" << posY << "]" << std::endl;
+
         graphLib.copyArea(st_rectangle(0, posY, RES_W, RES_H), st_position(0, 0), &credits_surface, &graphLib.gameScreen);
         update_screen();
-        timer.delay(60);
+        if (can_leave) {
+            input.read_input();
+            if (input.waitScapeTime(60) == 1 || input.p1_input[BTN_START] == 1) {
+                update_screen();
+                return 1;
+            }
+        } else {
+            timer.delay(60);
+        }
         posY++;
         scrolled++;
         if (posY > 12) {
@@ -289,12 +304,20 @@ void draw::show_credits()
         }
     }
     update_screen();
+    return 0;
 }
 
 void draw::create_credits_text(graphicsLib_gSurface &surface)
 {
+    credits_list.clear();
+
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", 0);
+
     if (credits_list.size() > 0) {
-        return;
+        for (int i=0; i<6; i++) {
+            credits_list.push_back("");
+        }
     }
 
     credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
@@ -306,10 +329,14 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("- PLANNER -");
     credits_list.push_back("IURI FIEDORUK");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- HELPER -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
     credits_list.push_back("NELSON ROSENBERG");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
 
@@ -319,9 +346,13 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("IURI FIEDORUK");
     credits_list.push_back("NELSON ROSENBERG");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- OBJECT DESIGNER -");
     credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
     credits_list.push_back("- GRAPHICS DESIGNER -");
@@ -332,19 +363,27 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("SURT.OPENGAMEART");
     credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- DIALOGS EDITOR -");
     credits_list.push_back("NELSON ROSENBERG");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- TEST PLAYER -");
     credits_list.push_back("NELSON ROSENBERG");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
 
     credits_list.push_back("- ILLUSTRATION DESIGNER -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
     credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
     credits_list.push_back("- MUSIC COMPOSER -");
@@ -363,14 +402,20 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("HYOCHAN");
     credits_list.push_back("DR.BULLY/MAJIC12");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- SFX DESIGNER -");
     credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
 
     credits_list.push_back("- PROGRAMMER -");
     credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
     credits_list.push_back("- PORTING HELPER -");
@@ -381,10 +426,14 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("PS2: SP193");
     credits_list.push_back("ANDROID: PELYA");
     credits_list.push_back("");
+    credits_list.push_back("");
+    credits_list.push_back("");
 
     credits_list.push_back("- REVIEW & TESTING -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
     credits_list.push_back("NELSON ROSENBERG");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
     credits_list.push_back("- SPECIAL THANKS -");
@@ -395,6 +444,8 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("OPENGAMEART.ORG");
     credits_list.push_back("VENOM");
     credits_list.push_back("JERONIMO");
+    credits_list.push_back("");
+    credits_list.push_back("");
     credits_list.push_back("");
 
     credits_list.push_back("- DEVELOPMENT TOOLS -");
@@ -411,24 +462,9 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("AUDACITY EDITOR");
     credits_list.push_back("BFXR.NET");
 
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
+    for (int i=0; i<20; i++) {
+        credits_list.push_back("");
+    }
     credits_list.push_back("- PRESENTED BY -");
     credits_list.push_back("UPPERLAND STUDIOS");
 

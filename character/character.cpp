@@ -217,6 +217,11 @@ void character::charMove() {
 	}
 
 	if (moveCommands.left == 1 && position.x > 0 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+        // check inverting direction
+        if (state.direction != ANIM_DIRECTION_LEFT) {
+            state.direction = ANIM_DIRECTION_LEFT;
+            return;
+        }
 
 
         for (float i=temp_move_speed; i>=0.1; i--) {
@@ -259,6 +264,10 @@ void character::charMove() {
     }
 
 	if (moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+        if (state.direction != ANIM_DIRECTION_RIGHT) {
+            state.direction = ANIM_DIRECTION_RIGHT;
+            return;
+        }
         for (float i=temp_move_speed; i>=0.1; i--) {
             if (state.animation_type == ANIM_TYPE_HIT) {
                 hit_moved_back_n += temp_move_speed;

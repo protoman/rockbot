@@ -75,7 +75,6 @@ graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_a
     color_keys[2].r = 0;
     color_keys[2].g = 255;
     color_keys[2].b = 255;
-
 }
 
 graphicsLib::~graphicsLib()
@@ -210,6 +209,10 @@ void graphicsLib::updateScreen()
         clear_area_no_adjust(0, _screen_resolution_adjust.y + RES_H, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0);
     }
     */
+
+    if (_screen_resolution_adjust.x > 0 || _screen_resolution_adjust.y > 0) {
+        copyArea(st_position(-_screen_resolution_adjust.x, -_screen_resolution_adjust.y), &_screen_border, &gameScreen);
+    }
 
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
@@ -1376,6 +1379,16 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
     SDL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
 }
 
+void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short h, short r, short g, short b, graphicsLib_gSurface &surface) const
+{
+    SDL_Rect dest;
+    dest.x = x;
+    dest.y = y;
+    dest.w = w;
+    dest.h = h;
+    SDL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
+}
+
 
 void graphicsLib::show_config_bg(Uint8 position) // 0 - centered, 1 - top, 2 - bottom
 {
@@ -1808,6 +1821,18 @@ void graphicsLib::set_video_mode()
     gameScreen.height = game_screen->h;
     _screen_resolution_adjust.x = (game_screen->w - RES_W)/2;
     _screen_resolution_adjust.y = (game_screen->h - RES_H)/2;
+
+    // need border
+    if (_screen_resolution_adjust.x > 0 || _screen_resolution_adjust.y > 0) {
+        initSurface(st_size(game_screen->w, game_screen->h), &_screen_border);
+        clear_surface_area_no_adjust(0, 0, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0, _screen_border);
+        clear_surface_area_no_adjust(0, game_screen->h-_screen_resolution_adjust.y, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0, _screen_border);
+
+
+        clear_surface_area_no_adjust(0, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0, _screen_border);
+        clear_surface_area_no_adjust(game_screen->w-_screen_resolution_adjust.x, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0, _screen_border);
+
+    }
 
 }
 

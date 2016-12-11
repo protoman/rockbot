@@ -1,51 +1,4 @@
-﻿http://www.hardcoregaming101.net/megaman/megaman.htm
-
-
-
-SEQUENCE:
-1. Snow (flecha perfura)
-2. Kurupira (apaga fogo)
-3. Valkyrie (queima "asinhas")
-4. Dragon (a lança dela é tipo uma dragonslayer)
-5. Gear (escamas refletem ondas sônicas)
-6. Phantom (ondas ultra-sônicas do gear tonteiam ele)
-7. Beast-Master (a música do phantom poderia acalmar as feras),
-8. Zodiac (garras cortam armadura)
-
-ARMAS:
-    * claw stratch (tipo do slash man de mm7)
-    * snow gale (vendaval de neve) impede inimigos de se mover
-        # apaga fogo e lava nos outros estágios (tem que ser objetos)
-    * slayer spear (???)
-    * fogo fátuo (Will-o'-the-wisp) tipo magic missile, segue alvo até um determinado limite de distância (algo como 1/4 da largura da tela)
-    * sonar Ring (pode ser igual do rockbot1 por hora)
-        # quebra vidro (criar objeto)
-    * golden arrow (flecha da armadura de sagitário) se gruda no oponente e vai ferindo ele aos poucos
-    * Dimension Vortex: suga objetos e inimigos para dentro (como o buraco negro de mm9)
-        # puxa iterms de lugares inalcancáveis
-    * scales armor (tipo arma do mage, melhorar visual apenas)
-
-- games-styles:
-    * megaman: seleção de estágios e cia
-    * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
-    * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
-
-
-
-OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
-OK - adicionar sistema de Xp/level ao save
-OK - adicionar suporte a heart-containers (mmx)
-	OK - save
-        OK - HP in game (fazer crescer para baixo, armas tb ganham aumento)
-	OK - barra vertical
-        OK - barra horizontal (weapon menu)
-adicionar grab edge (metroid, prince of persia)
-adicionar wall-slide/jump (mmx)
-adicionar sistema de colisão que permite diagonais
-??????? mais features de metroidvania e mmx
-
-
-=========================================================================================================================================
+﻿=========================================================================================================================================
 VERSION 2.0.0 BETA 1
 =========================================================================================================================================
 - ROCKBOT1:
@@ -62,32 +15,18 @@ VERSION 2.0.0 BETA 1
     # space, the final frontier (moon stage de duck tales)
 
 
-- optimização:
-    # deve rodar a 60 fps no PSP, PS2 e Dingoo
-    # criar lista de npcs e objetos "on-screen"
-    # rodar optimização no qtcreator (clang)
-    # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
-    # procurar memory leaks
-
 
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
     # novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
-    # fogo-fátuo é o cara
+    # vai reto e depois quebra em 4 pedaços que voam nas diagonais
+    # quebra em paredes
+    # fogo-fátuo é o cara!
 
-- mover pasta games/rockbot2 para svn fechado
 
-- EDITOR::CENA: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
-- EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes
-
-- não está desenhando dynamic-bg ao transicionar tela (usar mesma lógica do novo draw_dynamic no draw_in_surface)
 
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
     # também ao iniciar estágio (ver bg fase valkyrie)
 
-- ver porque android tem mais de um joystick para selecionar
-
-- colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
-    # principalmente em escadas
 
 - implementar abertura usando edição de cenas
 
@@ -99,8 +38,6 @@ VERSION 2.0.0 BETA 1
 
 - atualizar template de novo jogo
 
-- DEMO deve ser intro + 2 fases apenas
-- DEMO deve ser sequencial, um estágio depois do outro, sem seleção.
 - DEMO deve ter tela final agradecendo e mandando comprar full-version
 
 
@@ -125,14 +62,39 @@ ESTAGIOS:
 - skull 5: definir estilo (estação espacial) e tilesets, criar design
 
 
+
 ##################################
              DONE
 ##################################
+- EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes e strings
+- EDITOR::SCENES: está quebrando ao trocar seletor na tab de imagem (está apontando para anim_list e não img_list)
+- EDITOR::SCENES: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
+- EDITOR: se muda de fase com fundo para uma sem fundo, não apaga
+- não está desenhando dynamic-bg ao transicionar tela (usar mesma lógica do novo draw_dynamic no draw_in_surface)
+- arquivo texto de créditos do jogo
+- pode interromper créditos se estiver vendo pelo menu principal
+- colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
+    # principalmente em escadas
+    # quando mudar direção, só inverter flag, não mover
 
 
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- adicionar créditos ao terminar jogo
+
+- criar final
+
+- optimização:
+    # deve rodar a 60 fps no PSP, PS2 e Dingoo
+    # criar lista de npcs e objetos "on-screen"
+    # rodar optimização no qtcreator (clang)
+    # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
+    # procurar memory leaks
+
+- ver porque android tem mais de um joystick para selecionar
+
+
 - criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
 
 - melhorar script de build incluindo ABI (x86/ARM)

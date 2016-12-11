@@ -196,6 +196,7 @@ public:
     void blank_area(short int x, short int y, short int w, short int h, struct graphicsLib_gSurface& surface);
     void draw_rectangle(st_rectangle area, int r, int g, int b, int alpha);
     void clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
+    void clear_surface_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
     void show_config_bg(Uint8 position);
     void draw_weapon_cursor(st_position old_pos, short hp, short player_n, short max_hp);
     void show_dialog(Uint8 position);
@@ -314,6 +315,9 @@ private:
     Uint8 _video_filter;                                     // copy from game_options, so graphlib isn't affected when the option is changed while game running
     long _timer;
     st_color color_keys[3];                                 // holds the 3 color-keys we use for changing colors
+
+
+    struct graphicsLib_gSurface _screen_border;
 
 
 #ifdef PSP

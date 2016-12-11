@@ -74,7 +74,12 @@ void EditorArea::update_files()
             QBitmap bg1_mask = bg1_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
             bg1_image.setMask(bg1_mask);
 
+        } else {
+            bg1_image = QPixmap();
         }
+    } else {
+        std::cout << "RESET BG1" << std::endl;
+        bg1_image = QPixmap();
     }
 
     /*
@@ -117,6 +122,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     std::string bg1_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
     if (Mediator::get_instance()->show_bg1 == true) {
         if (!bg1_image.isNull()) {
+            std::cout << "DRAW BG1" << std::endl;
             int max_repeat = ((MAP_W*16)/bg1_image.width())*Mediator::get_instance()->zoom+1;
             //std::cout << "bg1_image.width(): " << bg1_image.width() << ", max_repeat: " << max_repeat << std::endl;
             for (int k=0; k<max_repeat; k++) {
@@ -124,6 +130,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 QRectF pos_dest(QPoint(k*bg1_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y*Mediator::get_instance()->zoom), QSize(bg1_image.width()*Mediator::get_instance()->zoom, bg1_image.height()*Mediator::get_instance()->zoom));
                 painter.drawPixmap(pos_dest, bg1_image, pos_source);
             }
+        } else {
+            std::cout << "EMMPTY BG1" << std::endl;
         }
         /*
         // draw background2

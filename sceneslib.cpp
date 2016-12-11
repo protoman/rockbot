@@ -111,8 +111,11 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-    graphLib.draw_text(8, 18, "FREE VERSION");
-
+if (gameControl.is_free_version() == true) {
+    graphLib.draw_text(RES_W-12*9, 8, "FREE VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
+} else {
+    graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
+}
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
 
 }
@@ -132,11 +135,11 @@ void scenesLib::main_screen()
     std::vector<st_menu_option> options;
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame)));
-#ifdef DEMO_VERSION
+if (gameControl.is_free_version() == true) {
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_password), true));
-#else
+} else {
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_password)));
-#endif
+}
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
@@ -173,16 +176,16 @@ void scenesLib::main_screen()
 				repeat_menu = false;
 			}
         } else if (picked_n == 2) { // PASSWORD
-#ifndef DEMO_VERSION
+if (gameControl.is_free_version() == true) {
             if (show_password_input() == true) {
 				repeat_menu = false;
 			} else {
 				draw_main();
 				main_picker.draw();
 			}
-#else
+} else {
             soundManager.play_sfx(SFX_NPC_HIT);
-#endif
+}
 		} else if (picked_n == 3) {
             show_main_config(0, false);
 			draw_main();
@@ -193,8 +196,10 @@ void scenesLib::main_screen()
             draw_main();
             main_picker.draw();
         } else if (picked_n == 5) {
-            draw_lib.show_credits();
-            input.wait_keypress();
+            // only wait for keypress if user did not interrupted credits
+            if (draw_lib.show_credits(true) == 0) {
+                input.wait_keypress();
+            }
             draw_main();
             main_picker.draw();
         }
@@ -204,11 +209,11 @@ void scenesLib::main_screen()
     if (picked_n == 0) {
         game_save.difficulty = select_difficulty();
         // demo do not have player selection, only rockbot is playable
-#ifndef DEMO_VERSION
+if (gameControl.is_free_version() == true) {
         game_save.selected_player = select_player();
-#else
+} else {
         game_save.selected_player = PLAYER_1;
-#endif
+}
     }
 }
 

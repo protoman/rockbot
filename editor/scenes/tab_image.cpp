@@ -154,10 +154,17 @@ void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
     sprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
-    st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
-    ui->img_area_w->setValue(img_size.width);
-    ui->img_area_h->setValue(img_size.height);
-    update_preview_image(ui->select_comboBox->currentIndex());
+    std::string filename = ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename;
+    if (filename.length() > 0) {
+        st_size img_size = common::calc_image_size(filename);
+        ui->img_area_w->setValue(img_size.width);
+        ui->img_area_h->setValue(img_size.height);
+        update_preview_image(ui->select_comboBox->currentIndex());
+    } else {
+        ui->img_area_w->setValue(0);
+        ui->img_area_h->setValue(0);
+        update_preview_image(ui->select_comboBox->currentIndex());
+    }
 }
 
 void tab_image::on_init_x_spinBox_valueChanged(int arg1)
@@ -235,7 +242,7 @@ void tab_image::on_name_textEdit_textChanged(const QString &arg1)
 
 void tab_image::on_pushButton_clicked()
 {
-    st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
+    st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename);
     ui->img_area_w->setValue(img_size.width);
     ui->img_area_h->setValue(img_size.height);
 }

@@ -335,6 +335,10 @@ bool game::showIntro()
 
     show_notice();
 
+#ifdef BETA_VERSION
+    show_beta_version_warning();
+#endif
+
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
@@ -362,6 +366,29 @@ bool game::showIntro()
 	}
 
     return true;
+}
+
+void game::show_beta_version_warning()
+{
+    graphLib.blank_screen();
+    draw_lib.update_screen();
+    input.clean();
+    timer.delay(100);
+
+    graphLib.draw_centered_text(30, "--BETA VERSION WARNING--", graphLib.gameScreen, st_color(255, 130, 0));
+    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.", graphLib.gameScreen, st_color(255, 255, 255));
+
+    graphLib.draw_centered_text(120, "SOFTWARE IS PROVIDED \"AS IS\"", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(135, "WITHOUT WARRANTY OF ANY KIND,", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(150, "EXPRESS OR IMPLIED FROM AUTHOR.", graphLib.gameScreen, st_color(255, 255, 255));
+
+    graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES AT", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(185, "github.com/protoman/rockbot", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.", graphLib.gameScreen, st_color(255, 255, 255));
+    draw_lib.update_screen();
+    input.wait_keypress();
 }
 
 void game::show_notice()
@@ -1179,7 +1206,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE3;
+    currentStage = CASTLE1_STAGE5;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_4;
 
@@ -1398,13 +1425,15 @@ void game::remove_current_teleporter_from_list()
     player1.set_teleporter(-1);
 }
 
-std::string game::select_game_screen()
+void game::select_game_screen()
 {
     std::vector<std::string> game_list = fio.read_game_list();
     if (game_list.size() < 1) {
-        return std::string("");
+        _selected_game = std::string("");
+        return;
     } else if (game_list.size() == 1) {
-        return game_list.at(0);
+        _selected_game = game_list.at(0);
+        return;
     }
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
     graphLib.draw_text(10, 10, "SELECT GAME:");
@@ -1426,7 +1455,22 @@ std::string game::select_game_screen()
 
     //std::string game_dir = std::string("/games/") + game_list.at(picked_n) + std::string("/");
 
-    return game_list.at(picked_n);
+    _selected_game = game_list.at(picked_n);
+}
+
+string game::get_selected_game()
+{
+    return _selected_game;
+}
+
+bool game::is_free_version()
+{
+#ifdef DEMO_VERSION
+    if (_selected_game == "Rockbot2") {
+        return true;
+    }
+#endif
+    return false;
 }
 
 void game::finish_player_teleporter()

@@ -169,12 +169,12 @@ struct st_position stage_select::select() {
             if (i == 1 && j == 1) {
                 continue;
             }
-#ifdef DEMO_VERSION
-            if (stage_n ==2 || stage_n == 4 || stage_n == 7 || stage_n == 5) {
+if (gameControl.is_free_version() == true) {
+            if (stage_n != 1 && stage_n != 3) {
                 stage_n++;
                 continue;
             }
-#endif
+}
 
             if (game_save.stages[stage_n] == 0) {
                 // @TODO: name could miss \n, so get only 8 characters
@@ -200,6 +200,10 @@ struct st_position stage_select::select() {
     draw_lib.update_screen();
     std::string press_start_string = "STAGE SELECT - PRESS START";
     graphLib.draw_text(RES_W*0.5-(FONT_SIZE*press_start_string.length())/2, 227, press_start_string);
+if (gameControl.is_free_version() == true) {
+    graphLib.clear_area(0, 3, RES_W, 11, 0, 0, 0);
+    graphLib.draw_centered_text(5, "FREE VERSION", graphLib.gameScreen, st_color(255, 130, 0));
+}
 
 	input.clean();
     if (finished_stages() < 9) {
@@ -268,26 +272,25 @@ struct st_position stage_select::select() {
             timer.delay(200);
             input.clean();
         } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
-#ifdef DEMO_VERSION
+if (gameControl.is_free_version() == true) {
             int pos_n = select_pos.x + 1 + select_pos.y*3;
 
             std::cout << ">>>>>>>>>>>>>>>>>> pos_n: " << pos_n << std::endl;
 
-            if (pos_n ==2 || pos_n == 4 || pos_n == 6 || pos_n == 8) {
-                soundManager.play_sfx(SFX_NPC_HIT);
-
-            } else {
+            if (pos_n == 1 || pos_n == 3) {
                 selection_end = 1;
+            } else {
+                soundManager.play_sfx(SFX_NPC_HIT);
             }
-#else
+} else {
             selection_end = 1;
-#endif
+}
         } else if (input.p1_input[BTN_START] && finished_stages() >= 9) {
-#ifdef DEMO_VERSION
+if (gameControl.is_free_version() == true) {
             selection_end = 0;
-#else
+} else {
 			selection_end = 1;
-#endif
+}
 		}
 		animate_highlight();
 		timer.delay(10);

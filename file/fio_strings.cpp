@@ -419,6 +419,29 @@ namespace format_v4 {
         save_game_strings(data, get_scenes_strings_filename());
     }
 
+    std::vector<std::string> fio_strings::get_string_list_from_file(std::string filename, int language)
+    {
+        std::vector<std::string> res;
+        filename = StringUtils::clean_filename(filename);
+        std::ifstream fp(filename.c_str());
+
+        if (!fp.is_open()) {
+            std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
+            return res;
+        }
+
+        std::string str;
+        while (getline(fp, str)) {
+            if (str.length() > 0) {
+                StringUtils::replace_all(str, "\n", "");
+                StringUtils::replace_all(str, "\r", "");
+            }
+            res.push_back(str);
+        }
+        fp.close();
+        return res;
+    }
+
     std::string fio_strings::get_common_string(int id)
     {
 

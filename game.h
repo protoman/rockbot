@@ -51,6 +51,8 @@ public:
      */
     bool showIntro();
 
+    void show_beta_version_warning();
+
     void show_notice();
 
     /**
@@ -259,23 +261,8 @@ public:
      *
      */
     void reset_scroll();
-    /**
-     * @brief
-     *
-     * @param type
-     * @return short
-     */
     short get_drop_item_id(short type);
-    /**
-     * @brief
-     *
-     */
     void get_drop_item_ids();
-    /**
-     * @brief
-     *
-     * @param finished_stage
-     */
     bool show_config(short finished_stage);
 
     void show_savegame_error();
@@ -286,7 +273,11 @@ public:
 
     void remove_current_teleporter_from_list(); // used when player dies
 
-    std::string select_game_screen();
+    void select_game_screen();
+
+    std::string get_selected_game();
+
+    bool is_free_version();
 
 private:
     void exit_game();
@@ -385,6 +376,8 @@ private:
     short _drop_item_list[DROP_ITEM_COUNT];
     bool invencible_old_value; // used to store flag value in order we don't loose it when setting to true due to temporary "got weapon" invencibility
     bool _dark_mode;                    // on dark mode we only show animation and projectiles
+
+    std::string _selected_game;
 
 #ifdef PSP
     psp_ram _ram_counter;

@@ -25,8 +25,9 @@ CONFIG += linux
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
-#DEFINESLIST = -DDEMO_VERSION
-
+DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
+DEFINES+= BETA_VERSION=1
+DEFINES+= DEMO_VERSION=1
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
 
@@ -395,6 +396,9 @@ OTHER_FILES += \
     rockbot_dingux.pro \
     docs/Changelog.txt \
     docs/graphic_conversion.txt
+
+DISTFILES += \
+    docs/notes.txt
 
 
 

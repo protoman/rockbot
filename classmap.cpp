@@ -535,6 +535,7 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
 {
     //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << map_data[number].background_color.r << ", " << map_data[number].background_color.g << ", " << map_data[number].background_color.b << ")" << std::endl;
     graphLib.clear_surface_area(0, 0, surface.width, surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, surface);
+    /*
     if (get_dynamic_bg()->width > 0) {
         // draw leftmost part
         graphLib.copyAreaWithAdjust(st_position(bg_scroll.x, bg_scroll.y+map_data[number].backgrounds[0].adjust_y), get_dynamic_bg(), &surface);
@@ -546,6 +547,34 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, bg_scroll.y), get_dynamic_bg(), &graphLib.gameScreen);
         }
     }
+    */
+
+    int x1 = bg_scroll.x;
+    if (x1 > 0) { // moving to right
+        x1 = (RES_W - x1) * -1;
+    }
+
+    int y1 = bg_scroll.y + map_data[number].backgrounds[0].adjust_y;
+
+
+    if (get_dynamic_bg()->width > 0) {
+        // draw leftmost part
+        graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_bg(), &surface);
+
+        // draw rightmost part, if needed
+        //std::cout << "bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
+        if (abs(bg_scroll.x) > RES_W) {
+            //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
+            int bg_pos_x = RES_W - (abs(x1)-RES_W);
+            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &surface);
+        }  else if (get_dynamic_bg()->width - abs(bg_scroll.x) < RES_W) {
+            int bg_pos_x = get_dynamic_bg()->width - abs(bg_scroll.x);
+            //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT bg_pos_x[" << bg_pos_x << "] ###" << std::endl;
+            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &surface);
+        }
+
+    }
+
 }
 
 void classMap::add_object(object obj)

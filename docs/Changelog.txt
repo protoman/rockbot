@@ -349,3 +349,8 @@ FILE-FORMAT-V4:
 - AI: adicionar fly to random x e fly to random y
 - dash debaixo d'água parece estar mais lento que andar
 
+- se tiver flag BETA_VERSION definida, mostra msg tipo "app contém erros"
+- trocar #ifdef DEMO_VERSION por método em game que também verifica se o jogo escolhido é "Rockbot2"
+- mover pasta games/rockbot2 para svn fechado
+- DEMO deve ser intro + 2 fases apenas
+

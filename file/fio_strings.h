@@ -48,6 +48,9 @@ public:
     std::string get_scenes_string(int id);
     void save_scenes_strings(std::vector<std::string> data);
 
+    // === GENERIC FROM-FILE STRINGS === //
+    std::vector<std::string> get_string_list_from_file(std::string filename, int language);
+
 
 private:
     // === GAME STRINGS === //

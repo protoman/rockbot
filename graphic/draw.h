@@ -43,7 +43,7 @@ public:
     void show_bubble(int x, int y);
     void set_teleport_small_colors(st_color color1, st_color color2);
     void show_teleport_small(int x, int y);
-    void show_credits();
+    int show_credits(bool can_leave);
     void create_credits_text(graphicsLib_gSurface& surface);
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);
