@@ -1,0 +1,45 @@
+http://www.hardcoregaming101.net/megaman/megaman.htm
+
+
+
+SEQUENCE:
+1. Snow (flecha perfura)
+2. Kurupira (apaga fogo)
+3. Valkyrie (queima "asinhas")
+4. Dragon (a lança dela é tipo uma dragonslayer)
+5. Gear (escamas refletem ondas sônicas)
+6. Phantom (ondas ultra-sônicas do gear tonteiam ele)
+7. Beast-Master (a música do phantom poderia acalmar as feras),
+8. Zodiac (garras cortam armadura)
+
+ARMAS:
+    * claw stratch (tipo do slash man de mm7)
+    * snow gale (vendaval de neve) impede inimigos de se mover
+        # apaga fogo e lava nos outros estágios (tem que ser objetos)
+    * slayer spear (???)
+    * fogo fátuo (Will-o'-the-wisp) tipo magic missile, segue alvo até um determinado limite de distância (algo como 1/4 da largura da tela)
+    * sonar Ring (pode ser igual do rockbot1 por hora)
+        # quebra vidro (criar objeto)
+    * golden arrow (flecha da armadura de sagitário) se gruda no oponente e vai ferindo ele aos poucos
+    * Dimension Vortex: suga objetos e inimigos para dentro (como o buraco negro de mm9)
+        # puxa iterms de lugares inalcancáveis
+    * scales armor (tipo arma do mage, melhorar visual apenas)
+
+- games-styles:
+    * megaman: seleção de estágios e cia
+    * ghost & goblins / contra (fases sequenciais, chefe ao final de cada uma, ao morrer volta mesmo ponto)
+    * metroidvania (mapas unificados com scroll vertical, links entre estágios, derrotar chefe não muda fase)
+
+
+
+OK - aumentar número máximo possível de armor-pieces (para fazer tipo metroid ou equipamento tipo RPG)
+OK - adicionar sistema de Xp/level ao save
+OK - adicionar suporte a heart-containers (mmx)
+        OK - save
+        OK - HP in game (fazer crescer para baixo, armas tb ganham aumento)
+        OK - barra vertical
+        OK - barra horizontal (weapon menu)
+adicionar grab edge (metroid, prince of persia)
+adicionar wall-slide/jump (mmx)
+adicionar sistema de colisão que permite diagonais
+??????? mais features de metroidvania e mmx
