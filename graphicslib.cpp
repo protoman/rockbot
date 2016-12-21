@@ -1309,7 +1309,10 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
         id = 0;
     }
 
-    st_color color1(game_data.weapon_menu_colors[id].r, game_data.weapon_menu_colors[id].g, game_data.weapon_menu_colors[id].b);    // player color or weapon color
+    st_color color1(10, 10, 10); // black
+    if (player_n != -1) {
+        color1 = st_color(game_data.weapon_menu_colors[id].r, game_data.weapon_menu_colors[id].g, game_data.weapon_menu_colors[id].b);    // player color or weapon color
+    }
     st_color color2(188, 188, 188); // dark grey
     st_color color3(235, 235, 235); // light grey
 
@@ -1328,14 +1331,6 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
         showSurfaceRegionAt(&small_weapon_icons.at(WEAPON_COUNT), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 54));
 	}
 
-    /*
-	for (i=0; i<hp; i++) {
-        y = ((max_hp-i)*2+1)+bar_pos.y-2;
-		clear_area(bar_pos.x+1, y, 2, 1, color2.r, color2.g, color2.b);
-		clear_area(bar_pos.x+3, y, 2, 1, color3.r, color3.g, color3.b);
-		clear_area(bar_pos.x+5, y, 2, 1, color2.r, color2.g, color2.b);
-	}
-    */
     y = bar_pos.y + 1 + (50 - graph_lenght);
     clear_area(bar_pos.x+1, y, 2, graph_lenght, color2.r, color2.g, color2.b);
     clear_area(bar_pos.x+3, y, 2, graph_lenght, color3.r, color3.g, color3.b);

@@ -232,7 +232,7 @@ namespace format_v4 {
 
     struct file_npc { // DONE - Game
         Sint8 id;                                                  // serial number
-        //unsigned int projectile_id;                               // indicates the projectile ID (relation with file_projectile)
+        //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
         Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
         char name[CHAR_NAME_SIZE];
         char graphic_filename[FS_CHAR_NAME_SIZE];
@@ -242,7 +242,7 @@ namespace format_v4 {
         Sint16 walk_range;                                         // defines how long from the start point it can go
         Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
         struct st_position start_point;
-        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]; // changed in 2.0.4
+        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
         st_size_int8 frame_size;
         bool is_ghost;
         Sint8 shield_type;
@@ -250,10 +250,10 @@ namespace format_v4 {
         Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
         st_weakness weakness[FS_NPC_WEAKNESSES];                                    // each npc have weaknesses for each boss weapon, plus the normal weapon
         char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
-        st_position sprites_pos_bg;                                 // holds position of sprites in relation with background
-        bool is_boss;                                               // indicates if this NPC is a boss
-        bool is_sub_boss;                                           // a middle-stage boss, the doors will only open after it's dead
-        int respawn_delay;                                          // if > 0, will respawn even if on-screen
+        st_position sprites_pos_bg;                                // holds position of sprites in relation with background
+        bool is_boss;                                              // indicates if this NPC is a boss
+        bool is_sub_boss;                                          // a middle-stage boss, the doors will only open after it's dead
+        int respawn_delay;                                         // if > 0, will respawn even if on-screen
         st_position_int8 attack_arm_pos;
         Uint8 attack_frame;
 

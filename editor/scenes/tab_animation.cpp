@@ -112,6 +112,7 @@ void TabAnimation::on_select_comboBox_currentIndexChanged(int index)
 {
     if (data_loading == true) { return; }
     set_fields(index);
+    ScenesMediator::get_instance()->selected_scene = index;
 }
 
 void TabAnimation::on_name_lineEdit_textChanged(const QString &arg1)

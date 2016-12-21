@@ -146,6 +146,8 @@ public slots:
 
     void on_actionImage_Browser_triggered();
 
+    void on_scenes_editor_window_closed();
+
 
 private slots:
     void on_actionMovie_Editor_triggered();
@@ -159,6 +161,8 @@ private slots:
     void on_actionZoomTwo_triggered();
 
     void on_actionZoomThree_triggered();
+
+
 
 private:
     Ui::MainWindow *ui;
@@ -180,7 +184,7 @@ private:
 	std::string _npcedit_tab_graphic;
 	int _npcedit_tab_selectednpc;
 	bool _data_loading;
-    SceneEditorWindow scenes_window;
+    SceneEditorWindow* scenes_window;
     AboutWindow* about_window;
     FilesEditor* files_editor_window;
     StringsEditor* strings_editor_window;

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "file/fio_scenes.h"
 #include "scenes/scenesmediator.h"
+#include "mediator.h"
 
 namespace Ui {
 class GameScenes;

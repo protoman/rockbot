@@ -273,6 +273,7 @@ void map_tab::on_editTile_button_clicked()
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editTile_button->setChecked(true);
@@ -295,6 +296,7 @@ void map_tab::on_editObject_button_clicked()
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editObject_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
@@ -314,6 +316,7 @@ void map_tab::on_editLink_button_clicked()
     ui->editTile_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(true);
@@ -334,6 +337,7 @@ void map_tab::on_editNpc_button_clicked()
     ui->editTile_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(true);
@@ -352,6 +356,7 @@ void map_tab::on_editSetSubBoss_button_clicked()
 {
     ui->editTile_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
@@ -371,6 +376,7 @@ void map_tab::on_editSetBoss_button_clicked()
 {
     ui->editTile_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
@@ -383,14 +389,38 @@ void map_tab::on_editSetBoss_button_clicked()
     set_current_box(3);
     Mediator::get_instance()->editMode = EDITMODE_SET_BOSS;
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
-
 }
+
+
+void map_tab::on_editSetFinalBoss_button_clicked()
+{
+    ui->editTile_button->setChecked(false);
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(true);
+    ui->editSetBoss_button->setChecked(false);
+    ui->editObject_button->setChecked(false);
+    ui->editLink_button->setChecked(false);
+    ui->editNpc_button->setChecked(false);
+    ui->editModeNormal_button->setEnabled(true);
+
+    ui->editModeLock_button->setEnabled(false);
+    ui->editModeErase_button->setEnabled(false);
+
+    set_current_box(3);
+    Mediator::get_instance()->editMode = EDITMODE_SET_FINAL_BOSS;
+    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
+}
+
 
 void map_tab::on_editModeNormal_button_clicked()
 {
     ui->editModeNormal_button->setChecked(true);
     ui->editModeLock_button->setChecked(false);
     ui->editModeErase_button->setChecked(false);
+
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
 
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
     if (ui->editTile_button->isChecked()) {
@@ -412,6 +442,10 @@ void map_tab::on_editModeLock_button_clicked()
     ui->editModeLock_button->setChecked(true);
     ui->editModeErase_button->setChecked(false);
 
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
+
     set_current_box(2);
     Mediator::get_instance()->editTool = EDITMODE_LOCK;
     update_edit_area();
@@ -422,6 +456,10 @@ void map_tab::on_editModeErase_button_clicked()
     ui->editModeNormal_button->setChecked(false);
     ui->editModeLock_button->setChecked(false);
     ui->editModeErase_button->setChecked(true);
+
+    ui->editSetSubBoss_button->setChecked(false);
+    ui->editSetFinalBoss_button->setChecked(false);
+    ui->editSetBoss_button->setChecked(false);
 
     Mediator::get_instance()->editTool = EDITMODE_ERASER;
     update_edit_area();
@@ -520,3 +558,4 @@ void map_tab::on_mapAutoScroll_checkBox_clicked(bool checked)
     if (_data_loading == true) { return; }
     Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll[Mediator::get_instance()->currentMap] = checked;
 }
+

@@ -76,12 +76,7 @@ bool check_parameters(int argc, char *argv[]) {
 
 
     // check command-line paramethers
-    bool ignore_param = false;
     for (int i=1; i<argc; i++) {
-        if (ignore_param == true) { // jump a parameter if already was used, no need to re-check
-            ignore_param = false;
-            continue;
-        }
         std::string temp_argv(argv[i]);
         if (temp_argv == "--gamename") {
             if (argc <= i+1) {
@@ -89,7 +84,6 @@ bool check_parameters(int argc, char *argv[]) {
                 return false;
             } else {
                 GAMENAME = std::string(argv[i+1]);
-                ignore_param = true;
             }
         } else if (temp_argv == "--scenenumber") {
             if (argc <= i+1) {
@@ -97,17 +91,15 @@ bool check_parameters(int argc, char *argv[]) {
                 return false;
             } else {
                 istringstream ss(argv[i+1]);
-                int x;
-                if (!(ss >> x)) {
+                if (!(ss >> animation_n)) {
                     std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --scenenumber flag." << std::endl;
                     return false;
                 }
-                ignore_param = true;
             }
         }
     }
     FILEPATH = GAMEPATH + std::string("/games/") + GAMENAME + std::string("/");
-    std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
+    std::cout << "get_filepath - FILEPATH:" << FILEPATH << ", animation_n[" << animation_n << "]" << std::endl;
     return true;
 }
 
@@ -127,9 +119,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    input.start_read();
     sceneShow show;
-    show.show_scene(0);
+    show.show_scene(animation_n);
 
     int BORDER_SIZE = 4;
     // horizontal lines
@@ -142,7 +133,6 @@ int main(int argc, char *argv[])
 
 
     input.wait_keypress();
-    input.stop_read();
 
     return 1;
 }

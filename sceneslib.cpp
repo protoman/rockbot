@@ -344,6 +344,32 @@ void scenesLib::game_scenes_show_unbeaten_intro()
     //std::cout << "game_scenes_show_unbeaten_intro::DONE";
 }
 
+void scenesLib::show_game_scene(e_game_scenes_types n)
+{
+    sceneShow show;
+    show.show_scene(game_scenes_map[n]);
+}
+
+void scenesLib::show_player_ending()
+{
+    switch (game_save.selected_player) {
+        case PLAYER_1:
+            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER1);
+            break;
+        case PLAYER_2:
+            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER2);
+            break;
+        case PLAYER_3:
+            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER3);
+            break;
+        case PLAYER_4:
+            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER4);
+            break;
+        default:
+            break;
+    }
+}
+
 
 
 
@@ -1336,33 +1362,6 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
             draw_castle_path(true, castle_data.points[2], castle_data.points[3], 0);
             timer.delay(1000);
         }
-
-        /*
-        if (pos_n == CASTLE1_STAGE2) {
-            graphLib.copyArea(castle_data.points[0], &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == CASTLE1_STAGE3) {
-            draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
-            graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == CASTLE1_STAGE4) {
-            draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
-            draw_castle_path(false, st_position(117, 152), st_position(179, 140), 0);
-            graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(st_position(195, 110), &castle_point, &graphLib.gameScreen);
-        } else if (pos_n == CASTLE1_STAGE5) {
-            draw_castle_path(true, st_position(76, 228), st_position(105, 152), 0);
-            draw_castle_path(false, st_position(117, 152), st_position(179, 146), 0);
-            draw_castle_path(true, st_position(179, 138), st_position(191, 112), 0);
-            graphLib.copyArea(st_position(109, 150), &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(st_position(177, 138), &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(st_position(195, 110), &castle_point, &graphLib.gameScreen);
-            graphicsLib_gSurface castle_skull_point;
-            filename = FILEPATH + "images/backgrounds/castle_skull_point.png";
-            graphLib.surfaceFromFile(filename, &castle_skull_point);
-            graphLib.copyArea(st_position(167, 42), &castle_skull_point, &graphLib.gameScreen);
-        }
-        */
 
         soundManager.play_sfx(SFX_SKULL_CASTLE_INTRO);
         draw_lib.update_screen();

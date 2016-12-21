@@ -20,6 +20,8 @@ public:
     void show_viewpoint(int n);
     void show_animation(int n, int repeat_n, int repeat_mode);
 
+
+
 private:
     void run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image);
     void run_text(CURRENT_FILE_FORMAT::file_scene_show_text text);

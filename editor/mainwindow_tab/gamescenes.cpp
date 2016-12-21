@@ -20,6 +20,7 @@ GameScenes::~GameScenes()
 void GameScenes::reload()
 {
     data_loading = true;
+    Mediator::get_instance()->reload_game_scenes();
     fill_data();
     data_loading = false;
 }

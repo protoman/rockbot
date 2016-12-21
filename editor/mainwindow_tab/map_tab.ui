@@ -1054,7 +1054,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Set Boss</string>
+        <string>Set Stage Boss</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -1062,6 +1062,20 @@
        <property name="icon">
         <iconset resource="../resources/icons/icons.qrc">
          <normaloff>:/toolbar_icons/face-devilish.png</normaloff>:/toolbar_icons/face-devilish.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="editSetFinalBoss_button">
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/icons/icons.qrc">
+         <normaloff>:/toolbar_icons/King-icon.png</normaloff>:/toolbar_icons/King-icon.png</iconset>
        </property>
        <property name="checkable">
         <bool>true</bool>

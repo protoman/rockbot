@@ -77,6 +77,8 @@ public:
 
 	int get_stage_n(const int map_n);
 
+    void reload_game_scenes();
+
 	// auxiliary functions for map_links
 
 

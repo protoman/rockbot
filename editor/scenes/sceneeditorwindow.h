@@ -2,6 +2,7 @@
 #define SCENEEDITORWINDOW_H
 
 #include <QMainWindow>
+#include <QObject>
 #include <QMessageBox>
 #include <QCloseEvent>
 
@@ -29,6 +30,9 @@ public:
     void closeEvent (QCloseEvent *event);
     void reload();
 
+signals:
+    void scenes_editor_window_closed();
+
 private slots:
     void on_actionSave_triggered();
 
@@ -49,7 +53,6 @@ private:
     TabClearArea* cleararea_tab;
     TabAnimation* animation_tab;
     QProcess process;
-
 };
 
 #endif // SCENEEDITORWINDOW_H

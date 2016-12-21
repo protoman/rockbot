@@ -24,9 +24,9 @@ VERSION 2.0.0 BETA 1
 
 
 
+
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
     # também ao iniciar estágio (ver bg fase valkyrie)
-
 
 - implementar abertura usando edição de cenas
 
@@ -38,7 +38,7 @@ VERSION 2.0.0 BETA 1
 
 - atualizar template de novo jogo
 
-- DEMO deve ter tela final agradecendo e mandando comprar full-version
+- DEMO deve ter tela final agradecendo e pedindo comprar full-version
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -66,6 +66,10 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- diminuir pontos de vida dos chefes (x2 é muito, fazer x1.5)
+- borda da barra de energia de chefes deve ser preta, não roxa
+- EDITOR: não está recarregando cenas na aba game-scenes ao fechar janela de cenas nem trocar de aba
+- EDITOR: botão de play-scene não está pegando a cena selecionada, mas a primeira da lista
 
 
 

@@ -122,7 +122,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     std::string bg1_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
     if (Mediator::get_instance()->show_bg1 == true) {
         if (!bg1_image.isNull()) {
-            std::cout << "DRAW BG1" << std::endl;
+            //std::cout << "DRAW BG1" << std::endl;
             int max_repeat = ((MAP_W*16)/bg1_image.width())*Mediator::get_instance()->zoom+1;
             //std::cout << "bg1_image.width(): " << bg1_image.width() << ", max_repeat: " << max_repeat << std::endl;
             for (int k=0; k<max_repeat; k++) {
@@ -130,8 +130,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 QRectF pos_dest(QPoint(k*bg1_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y*Mediator::get_instance()->zoom), QSize(bg1_image.width()*Mediator::get_instance()->zoom, bg1_image.height()*Mediator::get_instance()->zoom));
                 painter.drawPixmap(pos_dest, bg1_image, pos_source);
             }
-        } else {
-            std::cout << "EMMPTY BG1" << std::endl;
         }
         /*
         // draw background2
@@ -473,6 +471,12 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.setBrush(QColor(241, 188, 87, 200));
                     painter.drawRect(target);
                 }
+                if (Mediator::get_instance()->game_data.final_boss_id == Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc) {
+                    // golden border
+                    painter.setBrush(Qt::NoBrush);
+                    painter.setPen(QColor(255, 215, 0, 255));
+                    painter.drawRect(target);
+                }
 
 
                 int direction = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].direction;
@@ -643,7 +647,7 @@ void EditorArea::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void EditorArea::mousePressEvent(QMouseEvent *event) {
-    if (mouse_released == false && (Mediator::get_instance()->editTool == EDITMODE_LINK || Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editMode == EDITMODE_NPC || Mediator::get_instance()->editMode == EDITMODE_OBJECT || Mediator::get_instance()->editMode == EDITMODE_SET_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS || Mediator::get_instance()->editMode == EDITMODE_ANIM_TILE)) {
+    if (mouse_released == false && (Mediator::get_instance()->editTool == EDITMODE_LINK || Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editMode == EDITMODE_NPC || Mediator::get_instance()->editMode == EDITMODE_OBJECT || Mediator::get_instance()->editMode == EDITMODE_SET_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_FINAL_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS || Mediator::get_instance()->editMode == EDITMODE_ANIM_TILE)) {
         std::cout << "EDITORAREA::mousePressEvent - IGNORED" << std::endl;
 		return;
 	}
@@ -804,17 +808,25 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
 
     } else if (Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS) {
-        std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_BOSS" << std::endl;
+        std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_SUBBOSS" << std::endl;
         // search if there is an existing NPC in ths position, and if yes, set as sub-boss
         for (int i=0; i<MAX_MAP_NPC_N; i++) {
             if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y == editor_selectedTileY) {
-                std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_BOSS - FOUND NPC" << std::endl;
+                std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_SUBBOSS - FOUND NPC" << std::endl;
                 Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss = !Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc).is_sub_boss;
                 break;
             }
         }
 
-
+    } else if (Mediator::get_instance()->editMode == EDITMODE_SET_FINAL_BOSS) {
+        std::cout << ">> EditorArea::mousePressEvent - EDITMODE_SET_FINAL_BOSS" << std::endl;
+        // search if there is an existing NPC in ths position, and if yes, set as boss
+        for (int i=0; i<MAX_MAP_NPC_N; i++) {
+            if (Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc != -1 && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].start_point.y == editor_selectedTileY) {
+                Mediator::get_instance()->game_data.final_boss_id = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].map_npcs[i].id_npc;
+                break;
+            }
+        }
 
 /// @TODO: convert to new file-system ///
 

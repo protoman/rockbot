@@ -492,6 +492,7 @@ bool game::test_teleport(classPlayer *test_player) {
         }
 
         if (stage_data.links[j].id_map_origin != -1) {
+            // @TODO: replace CASTLE1_STAGE5 by a flag that indicates last level
             if (currentStage == CASTLE1_STAGE5 && _last_stage_used_teleporters.find(i) != _last_stage_used_teleporters.end()) {
 				i++;
 				continue;
@@ -1195,6 +1196,9 @@ void game::show_ending(st_position boss_pos)
     player1.set_show_hp(false);
     // reset player colors to original
     player1.set_weapon(0, false);
+
+    scenes.show_player_ending();
+    scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
 
     /// @TODO add scene ending
     leave_game = true;

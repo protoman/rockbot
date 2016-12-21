@@ -500,7 +500,15 @@ int Mediator::get_stage_n(const int map_n) {
 	if (map_n < 19) {
 		return map_n-9;
 	}
-	return map_n-18;
+    return map_n-18;
+}
+
+void Mediator::reload_game_scenes()
+{
+    scene_list = fio_scenes.load_scenes();
+    if (scene_list.size() == 0) {
+        scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
+    }
 }
 
 

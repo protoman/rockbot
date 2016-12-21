@@ -26,6 +26,8 @@ public:
     void boss_intro(Uint8 pos_n) const;
     short show_main_config(short stage_finished, bool called_from_game);
     void game_scenes_show_unbeaten_intro();
+    void show_game_scene(e_game_scenes_types n);
+    void show_player_ending();
 
 private:
     // preload/unload

@@ -64,6 +64,8 @@ private slots:
 
     void on_mapAutoScroll_checkBox_clicked(bool checked);
 
+    void on_editSetFinalBoss_button_clicked();
+
 private:
     void fill_data();
     void fill_background_list();

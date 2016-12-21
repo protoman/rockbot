@@ -346,7 +346,7 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define PLAYER_INITIAL_HP 28
 
-#define BOSS_INITIAL_HP 56 // twice player, so each shot makes "half" point of damage
+#define BOSS_INITIAL_HP 42 // x1.5 player HP so it will endure a bit more on the fight
 
 #define HIT_BLINK_ANIMATION_LAPSE 100
 
@@ -399,6 +399,7 @@ enum EDITOR_MODES {
 	EDITMODE_ADDNPC,
     EDITMODE_OBJECT,
     EDITMODE_SET_BOSS,
+    EDITMODE_SET_FINAL_BOSS,
     EDITMODE_SET_SUBBOSS,
     EDITMODE_ANIM_TILE,
     EDITMODE_OBJECT_LINK_PLACING,

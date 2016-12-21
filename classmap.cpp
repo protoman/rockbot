@@ -1673,7 +1673,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     //std::cout << "classMap::showMap - killed boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));
                     /// @TODO - replace with game_data.final_boss_id
-                    if (stage_number == CASTLE1_STAGE5) {
+                    if (game_data.final_boss_id == _npc_list.at(i).get_number()) {
                         gameControl.show_ending(npc_pos);
                         return;
                     } else {

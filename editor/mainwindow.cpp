@@ -79,12 +79,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     anim_tiles_edit_tab = new anim_tiles_edit();
     ui->anim_tab_scrollArea->setWidget(anim_tiles_edit_tab);
 
-    scenes_window.hide();
+    scenes_window = new SceneEditorWindow;
+    QObject::connect(scenes_window, SIGNAL(scenes_editor_window_closed()), this, SLOT(on_scenes_editor_window_closed()));
+    scenes_window->hide();
 
 }
 
 MainWindow::~MainWindow()
 {
+    delete scenes_window;
     delete ui;
 }
 
@@ -500,8 +503,8 @@ void MainWindow::on_actionSwap_Maps_triggered()
 
 void MainWindow::on_actionScenes_Editor_triggered()
 {
-    scenes_window.reload();
-    scenes_window.show();
+    scenes_window->reload();
+    scenes_window->show();
 }
 
 void MainWindow::on_actionObjects_toggled(bool arg1)
@@ -595,8 +598,8 @@ void MainWindow::on_load_game_accepted()
 
 void MainWindow::on_actionMovie_Editor_triggered()
 {
-    scenes_window.reload();
-    scenes_window.show();
+    scenes_window->reload();
+    scenes_window->show();
 }
 
 void MainWindow::on_actionStrings_Editor_triggered()
@@ -637,4 +640,9 @@ void MainWindow::on_actionZoomThree_triggered()
 {
     Mediator::get_instance()->zoom = 3;
     map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_scenes_editor_window_closed()
+{
+    game_scenes_tab->reload();
 }

@@ -117,172 +117,33 @@ public:
     int get_direction() const;
     void set_direction(int direction);
     void clean_projectiles();
-
     void clean_effect_projectiles();
-
     void char_update_real_position();
-    /**
-     * @brief
-     *
-     * @param damage_points
-     */
     virtual void damage(unsigned int damage_points, bool ignore_hit_timer);
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_dead() const;
-    /**
-     * @brief
-     *
-     * @return st_hit_points
-     */
     st_hit_points get_hp() const;
-    /**
-     * @brief
-     *
-     * @return Uint8
-     */
     Uint8 get_current_hp() const;
-
-    /**
-     * @brief
-     *
-     * @param inc
-     */
     void set_current_hp(Uint8 inc);
-    /**
-     * @brief
-     *
-     */
     void execute_jump();								// execute a complete jump
-    /**
-     * @brief
-     *
-     */
     void execute_jump_up();					// execute jump until reaches the maximum height
-    /**
-     * @brief
-     *
-     */
     void fall();								// falls until reaching ground or leaving screen /// @TODO
-
-
     void initialize_position_to_ground();
-
-    /**
-     * @brief
-     *
-     */
     void teleport_out();
-
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @param yinc
-     * @return bool
-     */
     bool change_position(short int xinc, short int yinc);
-
-
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @return bool
-     */
     void change_position_x(short int xinc);
-
-    /**
-     * @brief
-     *
-     * @param yinc
-     * @return bool
-     */
     int change_position_y(short int yinc);
-
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @param yinc
-     * @return bool
-     */
     bool test_change_position(short int xinc, short int yinc);
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @param yinc
-     * @return bool
-     */
     bool test_change_position_debug(short int xinc, short int yinc);
-    /**
-     * @brief
-     *
-     * @param projectile_direction
-     * @return bool
-     */
     bool is_shielded(int projectile_direction) const;
-
     bool is_intangible();
-
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short get_anim_type() const;
-    /**
-     * @brief
-     *
-     * @param direction
-     * @param type
-     * @param frame
-     * @return graphicsLib_gSurface
-     */
     graphicsLib_gSurface* get_char_frame(int direction, int type, int frame);
-    /**
-     * @brief
-     *
-     * @param key_n
-     * @return st_color
-     */
     st_color get_color_key(short int key_n) const;
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short int get_number() const;
-    /**
-     * @brief
-     *
-     */
     void charMove();
-    /**
-     * @brief
-     *
-     */
     void clear_move_commands();
-    /**
-     * @brief
-     *
-     * @param boss_demo_mode
-     * @return bool
-     */
-
-
     void reset_gravity_speed();
-
     bool gravity(bool boss_demo_mode);							// returns true if finished (reached ground)
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool hit_ground();
     /**
      * @brief

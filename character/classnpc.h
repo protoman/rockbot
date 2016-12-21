@@ -31,115 +31,29 @@ class classnpc : public artificial_inteligence
 public:
 	classnpc();
     ~classnpc();
-/**
- * @brief
- *
- * @param set_name
- */
     classnpc(std::string set_name);
-/**
- * @brief
- *
- * @param stage_id
- * @param map_id
- * @param main_id
- * @param id
- */
     classnpc(int stage_id, int map_id, int main_id, int id); // load data from game_data and create a new npc
-/**
- * @brief
- *
- * @param stage_id
- * @param map_id
- * @param main_id
- * @param npc_pos
- * @param direction
- */
     classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend); // spawned npc
-    /**
-     * @brief
-     *
-     */
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     void initFrames();
-    /**
-     * @brief
-     *
-     */
     void execute();
-
-
     void boss_move();
-
-    /**
-     * @brief
-     *
-     * @param from
-     */
     void copy(classnpc *from);
-    /**
-     * @brief
-     *
-     */
     void move();
-    /**
-     * @brief
-     *
-     */
     void move_projectiles();
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     virtual bool is_boss();
-
-    /**
-     * @brief
-     *
-     * @param set_boss
-     */
     void set_is_boss(bool set_boss);
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_player_friend();
-    /**
-     * @brief
-     *
-     */
     void set_stage_boss(bool boss_flag);
-    /**
-     * @brief
-     *
-     */
     void revive();
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short get_dead_state();
-
     bool is_able_to_fly();
-
     bool is_spawn();
-
     bool is_subboss();
-
     void reset_position();
-
     st_position get_start_position();
-
     st_rectangle get_hitbox();
-
     void show();
+
 
 
 
