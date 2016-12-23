@@ -804,8 +804,8 @@ namespace format_v4 {
         for (int i=1; i<CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 0;
         }
-        //data_out.stages[INTRO_STAGE] = 1;
-        //data_out.stages[STAGE1] = 0;
+        data_out.stages[INTRO_STAGE] = 1;
+        data_out.stages[STAGE1] = 1;
         //data_out.stages[STAGE2] = 0;
         //data_out.stages[STAGE8] = 0;
         //data_out.selected_player = PLAYER_3;

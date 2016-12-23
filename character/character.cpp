@@ -188,10 +188,10 @@ void character::charMove() {
 
     if (state.animation_type == ANIM_TYPE_HIT) {
 
-        //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
+        if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
-            //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
+            std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
 
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
@@ -218,7 +218,7 @@ void character::charMove() {
 
 	if (moveCommands.left == 1 && position.x > 0 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         // check inverting direction
-        if (state.direction != ANIM_DIRECTION_LEFT) {
+        if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_LEFT) {
             state.direction = ANIM_DIRECTION_LEFT;
             return;
         }
@@ -264,7 +264,7 @@ void character::charMove() {
     }
 
 	if (moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        if (state.direction != ANIM_DIRECTION_RIGHT) {
+        if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_RIGHT) {
             state.direction = ANIM_DIRECTION_RIGHT;
             return;
         }
@@ -280,13 +280,17 @@ void character::charMove() {
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                     //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
                     if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
+                        std::cout << ">> MV.R #1 << " << std::endl;
                         position.x += i - map->get_last_scrolled().x;
+                        std::cout << ">> MV.R #16 << " << std::endl;
                     } else {
                         position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
+                        std::cout << ">> MV.R #2 << " << std::endl;
                     }
                     if (state.animation_type != ANIM_TYPE_HIT) {
                         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
                             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+                            std::cout << ">> MV.R #3 << " << std::endl;
                         }
                         state.direction = ANIM_DIRECTION_RIGHT;
                     } else {
@@ -308,6 +312,7 @@ void character::charMove() {
 	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+            std::cout << ">> MV.R #4 << " << std::endl;
         }
         state.direction = ANIM_DIRECTION_RIGHT;
     }
@@ -357,6 +362,7 @@ void character::charMove() {
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                             //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x += inertia_xinc;
+                            std::cout << ">> MV.R #5 << " << std::endl;
                         //} else {
                             //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
@@ -1087,7 +1093,7 @@ bool character::gravity(bool boss_demo_mode=false)
     /// @TODO: gravity speed is starting at 1.25, it should start at 0.25
 
     if (_progressive_appear_pos != 0) {
-        std::cout << "CHAR::GRAVITY leave #1" << std::endl;
+        //std::cout << "CHAR::GRAVITY leave #1" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -1113,7 +1119,7 @@ bool character::gravity(bool boss_demo_mode=false)
     }
 
     if (can_use_air_dash == true && state.animation_type == ANIM_TYPE_SLIDE) {
-        std::cout << "CHAR::GRAVITY leave #3" << std::endl;
+        //std::cout << "CHAR::GRAVITY leave #3" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -1464,23 +1470,29 @@ bool character::slide(st_float_position mapScrolling)
 
     // player have double jump (without being armor) can't use slide
     if (GameMediator::get_instance()->player_list[_number].can_double_jump) {
+        std::cout << "CHAR::slide - RETURN #4" << std::endl;
         return false;
     }
 
-
-    st_map_collision map_col = map_collision(0, -TILESIZE, map->getMapScrolling()); // this is minus TILESIZE because of adjustments in slide collision
+    int adjust = -1;
+    if (slide_type == 1) { // if is slide-type, use greater adjust
+        adjust = -TILESIZE;
+    }
+    st_map_collision map_col = map_collision(0, adjust, map->getMapScrolling(), ANIM_TYPE_SLIDE); // slide_adjust is used because of adjustments in slide collision
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide
-    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE) {
+    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
         if (hit_ground()) {
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
+        std::cout << "CHAR::slide - RETURN #5" << std::endl;
         return false;
     }
 
+    /*
     // getting blocked interrupts the slide
     if (map_lock != BLOCK_UNBLOCKED && map_lock != BLOCK_WATER) {
         if (hit_ground()) {
@@ -1488,8 +1500,10 @@ bool character::slide(st_float_position mapScrolling)
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
+        std::cout << "CHAR::slide - RETURN #6" << std::endl;
         return false;
     }
+    */
 
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
@@ -1499,10 +1513,11 @@ bool character::slide(st_float_position mapScrolling)
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
+        std::cout << "CHAR::slide - RETURN #7" << std::endl;
         return false;
     }
 
-    //std::cout << "_dash_button_released: " << _dash_button_released << std::endl;
+    std::cout << "_dash_button_released: " << _dash_button_released << std::endl;
 
     // start slide
     if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
@@ -1525,7 +1540,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     if (state.animation_type != ANIM_TYPE_SLIDE) {
-        //std::cout << "CHAR::slide - RETURN #6" << std::endl;
+        std::cout << "CHAR::slide - RETURN #6" << std::endl;
         return false;
     }
 
@@ -1587,7 +1602,9 @@ bool character::slide(st_float_position mapScrolling)
 
 
     if (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER) {
+        std::cout << "##### SLIDE::MOVE #####" << std::endl;
         position.x += res_move_x;
+        std::cout << ">> MV.R #6 << " << std::endl;
 		state.slide_distance += abs((float)res_move_x);
     }
 
@@ -1823,15 +1840,18 @@ void character::check_platform_move(short map_lock)
             if (point_terrain != TERRAIN_UNBLOCKED && point_terrain != TERRAIN_WATER) {
                 can_move = false;
             }
+        } else {
+            return;
         }
         if (can_move) {
             position.x += move;
+            std::cout << ">> MV.R #7 << " << std::endl;
             _moving_platform_timer = timer.getTimer()+MOVING_GROUND;
         }
     }
 }
 
-st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling)
+st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling, int hitbox_anim_type)
 {
     int py_adjust = 0;
     if (is_player() == true) {
@@ -1935,7 +1955,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 	/// @TODO - use collision rect for the current frame. Until there, use 3 points check
 	int py_top, py_middle, py_bottom;
 	int px_left, px_center, px_right;
-    st_rectangle rect_hitbox = get_hitbox();
+    st_rectangle rect_hitbox = get_hitbox(hitbox_anim_type);
 
     py_top = rect_hitbox.y + incy + py_adjust;
 
@@ -2230,16 +2250,20 @@ st_size character::get_size() const
     return frameSize;
 }
 
-st_rectangle character::get_hitbox()
+st_rectangle character::get_hitbox(int anim_type)
 {
     float x = position.x;
     float y = position.y;
     float w = frameSize.width;
     float h = frameSize.height;
 
+    if (anim_type == -1) {
+        anim_type = state.animation_type;
+    }
+
     // player hitbox is hardcoded
     if (is_player()) {
-        if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 1) {
+        if (anim_type == ANIM_TYPE_SLIDE && slide_type == 1) {
             x = position.x + 2;
             w = 23;
             y = position.y + 15;
@@ -2252,9 +2276,9 @@ st_rectangle character::get_hitbox()
         }
     } else {
         int anim_n = state.animation_state;
-        int anim_type = state.animation_type;
+        int anim_type = anim_type;
         // prevent getting size from a frame that does not have information, use STAND instead
-        if (GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w <= 0) {
+        if (GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][state.animation_state].collision_rect.w <= 0) {
             anim_n = ANIM_TYPE_STAND;
             anim_type = 0;
         }
@@ -2512,6 +2536,7 @@ void character::push_back(short direction)
 
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
+        std::cout << ">> MV.R #8 << " << std::endl;
     }
 }
 
@@ -2699,6 +2724,9 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
 
     if (is_player() == true && state.animation_type != ANIM_TYPE_HIT) {
+
+        std::cout << ">> SET-ANIM_TYPE_HIT <<" << std::endl;
+
         set_animation_type(ANIM_TYPE_HIT);
         if (_obj_jump.is_started() == true) {
             hit_moved_back_n = get_hit_push_back_n()/2;
@@ -2884,6 +2912,7 @@ bool character::change_position(short xinc, short yinc)
 		return false;
 	}
 	position.x += xinc;
+    std::cout << ">> MV.R #10 << " << std::endl;
     //std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
 	position.y += yinc;
     return true;
@@ -2906,8 +2935,10 @@ void character::change_position_x(short xinc)
             //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
             if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
                 position.x += i - map->get_last_scrolled().x;
+                std::cout << ">> MV.R #11 << " << std::endl;
             } else {
                 position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
+                std::cout << ">> MV.R #12 << " << std::endl;
             }
             if (state.animation_type != ANIM_TYPE_HIT) {
                 state.direction = ANIM_DIRECTION_RIGHT;
@@ -2922,6 +2953,7 @@ void character::change_position_x(short xinc)
                 set_animation_type(ANIM_TYPE_WALK);
             }
             position.x += xinc;
+            std::cout << ">> MV.R #13 << " << std::endl;
             break;
         }
     }
@@ -3117,6 +3149,7 @@ void character::set_animation_type(ANIM_TYPE type)
         if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
             if (state.direction == ANIM_DIRECTION_RIGHT) {
                 position.x += 2;
+                std::cout << ">> MV.R #14 << " << std::endl;
             }
         }
 
@@ -3135,6 +3168,7 @@ void character::set_animation_type(ANIM_TYPE type)
         if (type == ANIM_TYPE_SLIDE) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 position.x += 6;
+                std::cout << ">> MV.R #15 << " << std::endl;
             } else {
                 position.x -= 6;
             }

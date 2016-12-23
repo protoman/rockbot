@@ -170,7 +170,7 @@ struct st_position stage_select::select() {
                 continue;
             }
 if (gameControl.is_free_version() == true) {
-            if (stage_n != 1 && stage_n != 3) {
+            if (stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2) {
                 stage_n++;
                 continue;
             }
@@ -277,7 +277,7 @@ if (gameControl.is_free_version() == true) {
 
             std::cout << ">>>>>>>>>>>>>>>>>> pos_n: " << pos_n << std::endl;
 
-            if (pos_n == 1 || pos_n == 3) {
+            if (pos_n == DEMO_VERSION_STAGE1 || pos_n == DEMO_VERSION_STAGE2) {
                 selection_end = 1;
             } else {
                 soundManager.play_sfx(SFX_NPC_HIT);

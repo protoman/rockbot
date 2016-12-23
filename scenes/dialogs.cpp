@@ -53,7 +53,7 @@ void dialogs::show_stage_dialog(int stage_n)
 	}
     show_dialog(stage_data.dialog_face_graphics_filename, stage_data.dialog_top_side, lines, true);
 
-    int ini = 6 + game_save.selected_player*6 + 1;
+    int ini = 6 + game_save.selected_player*6;
     n = 0;
     for (int i=ini; i<(ini+FS_DIALOG_LINES); i++) {
         lines[n] = stage_dialogs.at(i);

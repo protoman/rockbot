@@ -309,7 +309,6 @@ FILE-FORMAT-V4:
     # animation
     # viewpoint
     #image
-
 - criar efeito wave (sinoidal) para ser usados sobre surfaces
 - melhorar timing do efeito de fade-out
 - GFX lighting-storm para estágios como o mummy
@@ -341,19 +340,16 @@ FILE-FORMAT-V4:
 - resetar config se segurar dois botões quaisquer de joystick por 5 segundos na tela de game-start ou select-game
 - config button não está mostrando tela de "pressione botão" e fica com enter ou sai direto
 - correção memory leak em surfaces
-
 - EDITOR: não está atualizando fundo ao mudar de mapa (rockbot1, daisie->seahorse)
 - EDITOR: tornar color-key transparente nos fundos de tela
 - ROCKBOT-1: ajuste dos pontos do castelo
 - ROCKBOT-1: edição sala de chefe Searhorse tornando terro regular para evitar ficar trancado
 - AI: adicionar fly to random x e fly to random y
 - dash debaixo d'água parece estar mais lento que andar
-
 - se tiver flag BETA_VERSION definida, mostra msg tipo "app contém erros"
 - trocar #ifdef DEMO_VERSION por método em game que também verifica se o jogo escolhido é "Rockbot2"
 - mover pasta games/rockbot2 para svn fechado
 - DEMO deve ser intro + 2 fases apenas
-
 - EDITOR: colocar diálogo de salvar ao sair no editor principal, assim como na janela de scenes e strings
 - EDITOR::SCENES: está quebrando ao trocar seletor na tab de imagem (está apontando para anim_list e não img_list)
 - EDITOR::SCENES: resetar campos quando janela for aberta (senão continua com anterior e dá crash)
@@ -364,3 +360,8 @@ FILE-FORMAT-V4:
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
     # principalmente em escadas
     # quando mudar direção, só inverter flag, não mover
+
+- diminuir pontos de vida dos chefes (x2 é muito, fazer x1.5)
+- borda da barra de energia de chefes deve ser preta, não roxa
+- EDITOR: não está recarregando cenas na aba game-scenes ao fechar janela de cenas nem trocar de aba
+- EDITOR: botão de play-scene não está pegando a cena selecionada, mas a primeira da lista

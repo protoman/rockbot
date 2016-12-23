@@ -11,11 +11,11 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += win32
 #CONFIG += android
 #CONFIG += playstation2
-#CONFIG += dingux
+CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
@@ -28,6 +28,7 @@ CONFIG += linux
 DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
 DEFINES+= BETA_VERSION=1
 DEFINES+= DEMO_VERSION=1
+DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
 

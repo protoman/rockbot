@@ -1039,7 +1039,10 @@ enum e_LANGUAGES {
 
 //#define SHOW_HITBOXES 1
 
-//#define DEMO_VERSION 1
+#define DEMO_VERSION 1
+
+#define DEMO_VERSION_STAGE1 4
+#define DEMO_VERSION_STAGE2 8
 
 #endif // DEFINES_H
 

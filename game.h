@@ -116,13 +116,9 @@ public:
      *
      */
     void show_ending(st_position boss_pos);
-    /**
-     * @brief
-     *
-     * @param centerX
-     * @param centerY
-     * @param show_players
-     */
+    void show_demo_ending();
+
+
     void draw_explosion(short int centerX, short int centerY, bool show_players);
     /**
      * @brief

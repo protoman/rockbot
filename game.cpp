@@ -1085,6 +1085,11 @@ void game::got_weapon()
 
     game_save.stages[currentStage] = 1;
 
+
+    if (is_free_version() && game_save.stages[DEMO_VERSION_STAGE1] == 1 && game_save.stages[DEMO_VERSION_STAGE2] == 1) {
+        show_demo_ending();
+    }
+
     leave_stage();
 }
 
@@ -1204,6 +1209,21 @@ void game::show_ending(st_position boss_pos)
     leave_game = true;
 }
 
+void game::show_demo_ending()
+{
+    input.clean();
+    timer.delay(200);
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    graphLib.draw_centered_text(10, "-THANKS FOR PLAYING-", st_color(255, 130, 0));
+    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S DEMO VERSION.", st_color(240, 240, 240));
+    graphLib.draw_centered_text(45, "THE COMPLETE GAME WILL BE AVAILABLE", st_color(240, 240, 240));
+    graphLib.draw_centered_text(60, "FOR PURSHASE LATER DURING IN 2017.", st_color(240, 240, 240));
+    graphLib.draw_centered_text(RES_H-40, "PRESENTED BY UPPERLAND.", st_color(240, 240, 240));
+    graphLib.draw_centered_text(RES_H-20, "PRESS A BUTTON TO CONTINUE PLAYING.", st_color(240, 240, 240));
+    draw_lib.update_screen();
+    input.wait_keypress();
+}
+
 void game::quick_load_game()
 {
     if (fio.save_exists()) {
@@ -1212,7 +1232,7 @@ void game::quick_load_game()
 
     currentStage = CASTLE1_STAGE5;
     game_save.difficulty = DIFFICULTY_EASY;
-    game_save.selected_player = PLAYER_4;
+    game_save.selected_player = PLAYER_1;
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;

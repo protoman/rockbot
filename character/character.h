@@ -111,7 +111,7 @@ public:
     void show_sprite();
     void show_sprite_graphic(short direction, short type, short n);
     st_size get_size() const;
-    st_rectangle get_hitbox();
+    st_rectangle get_hitbox(int anim_type=-1);
     void set_platform(object*);
     object* get_platform();
     int get_direction() const;
@@ -230,7 +230,7 @@ protected:
     void change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change);
     bool slide(st_float_position mapScrolling);
     bool jump(int, st_float_position);
-    st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling);
+    st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
     bool is_on_teleporter_capsulse(object* object);
     void check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
     bool process_special_map_points(int map_lock, int incx, int incy, st_position map_pos);
