@@ -6,6 +6,9 @@ VERSION 2.0.0 BETA 1
     # em modo demo, não entra em estágios já finalizados
     # Daisiebot afunda no chão ao mudar direção (turn)
         # talvez seja hitarea do turn
+    # mage: roof shooter não está disparando
+    # implementar final com editor de cenas
+    # adicionar limpar a tela quando inicia uma sequência de cenas (a primeira cena, no caso)
 
 - Fases Castle:
     # dungeon medieval
@@ -21,19 +24,19 @@ VERSION 2.0.0 BETA 1
     # quebra em paredes
     # fogo-fátuo é o cara!
 
+- Kurupira trancou na porta
+    # tem que impedir que eles entrem parcialmente dentro de terreno door, nem que expandindo área de colisão neste caso
 
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
     # também ao iniciar estágio (ver bg fase valkyrie)
 
-- criar diálogos para fases demo (intro, 1 e 3)
+- criar diálogos para fases demo (intro, 1 e 8)
 
 - air-dash consegue entrar na sala do boss
     # tem que cancelar qualquer dash e input
 
 - Gear Bot pára de andar:
     # >> character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos
-
-
 
 - implementar abertura usando edição de cenas
 
@@ -71,6 +74,19 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- em modo demo, na tela de seleção, está entrando na fase do zodiac ao invés de na fase snow
+- slide/dash não funciona na água
+- teleport out sem transparência (fundo preto)
+- novo tipo de teleportadores que setam scroll para lock à esquerda ou direita após a troca da mapa
+
+- Rockbot1:
+    # projétil do gambit está muito lento
+    # morcego tem muitos pontos de vida
+    # faltando tiles na sala de chefe do seahorse
+    # alguns fundos de mapa não funciona corretamente (é preciso ser 320px de largura agora)
+    # castle5: ao ir para teleportadores, fica com scroll-x errado (mais para a direita do que deveria)
+
+
 - está ficando preso ao ser atingido (muda esquerda/direita sem parar)
 - fases da demo: kurupira e snow
 - criar chefe kurupira: 41x53 x 25 frames
@@ -86,6 +102,8 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 BETA 2
 =========================================================================================================================================
+- criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
+
 - colocar alguma imagem nos estágios que não podem ser selecionados na demo
 
 - atualizar template de novo jogo

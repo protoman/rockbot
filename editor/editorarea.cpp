@@ -363,12 +363,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
     // DRAW LINKS //
     if (Mediator::get_instance()->show_teleporters_flag == true) {
         // draw links
+        int link_type = Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type;
         //printf("editoMode: %d, EDITMODE_NORMAL: %d, editTool: %d, EDITMODE_LINK_DEST: %d\n", Mediator::get_instance()->editMode, EDITMODE_NORMAL, Mediator::get_instance()->editTool, EDITMODE_LINK_DEST);
         if (Mediator::get_instance()->editMode == EDITMODE_LINK && (Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editTool == EDITMODE_LINK)) {
             for (int i=0; i<STAGE_MAX_LINKS; i++) {
                 if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin) {
                     // translucid blue rectangle
-                    if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type == LINK_TELEPORTER) {
+                    if (link_type == LINK_TELEPORTER || link_type == LINK_TELEPORT_LEFT_LOCK || link_type == LINK_TELEPORT_RIGHT_LOCK || link_type == LINK_FADE_TELEPORT) {
                         painter.setBrush(QColor(0, 255, 0, 180));
                     } else {
                         painter.setBrush(QColor(0, 0, 255, 180));
@@ -382,7 +383,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.drawText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x*16*Mediator::get_instance()->zoom, (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y+1)*16*Mediator::get_instance()->zoom, QString::number(i));
                 } else if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
                     // translucid cyan rectangle
-                    if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].type == LINK_TELEPORTER) {
+                    if (link_type == LINK_TELEPORTER || link_type == LINK_TELEPORT_LEFT_LOCK || link_type == LINK_TELEPORT_RIGHT_LOCK || link_type == LINK_FADE_TELEPORT) {
                         painter.setBrush(QColor(60, 160, 60, 180));
                     } else {
                         painter.setBrush(QColor(0, 255, 255, 180));

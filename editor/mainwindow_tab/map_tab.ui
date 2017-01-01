@@ -131,6 +131,9 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="currentIndex">
             <number>1</number>
            </property>
@@ -142,8 +145,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>324</width>
+              <height>327</height>
              </rect>
             </property>
             <attribute name="label">
@@ -386,8 +389,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>374</width>
+              <height>337</height>
              </rect>
             </property>
             <attribute name="label">
@@ -511,8 +514,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>96</width>
+              <height>96</height>
              </rect>
             </property>
             <attribute name="label">
@@ -656,8 +659,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>158</width>
+              <height>121</height>
              </rect>
             </property>
             <attribute name="label">
@@ -739,8 +742,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>374</width>
+              <height>337</height>
              </rect>
             </property>
             <attribute name="label">
@@ -776,6 +779,16 @@
                 <item>
                  <property name="text">
                   <string>Fade Teleport</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Teleporter [Left-Lock]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Teleporter [Right-Lock]</string>
                  </property>
                 </item>
                </widget>
@@ -839,8 +852,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>158</width>
+              <height>131</height>
              </rect>
             </property>
             <attribute name="label">
@@ -892,8 +905,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>376</width>
-              <height>358</height>
+              <width>96</width>
+              <height>102</height>
              </rect>
             </property>
             <attribute name="label">
@@ -910,8 +923,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>356</width>
-                  <height>165</height>
+                  <width>76</width>
+                  <height>76</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">

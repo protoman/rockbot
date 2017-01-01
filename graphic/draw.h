@@ -53,7 +53,7 @@ public:
     void pixelate_screen();
     void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);
     void clear_maps_dynamic_background_list();
-    void add_dynamic_background(std::string filename, int auto_scroll_mode);
+    void add_dynamic_background(std::string filename, int auto_scroll_mode, st_color bg_color);
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
 
 private:

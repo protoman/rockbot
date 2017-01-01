@@ -164,6 +164,8 @@ public:
      */
     int get_first_lock_on_left(int x_pos);
 
+    int get_first_lock_on_right(int x_pos);
+
     int get_teleport_minimal_y_tile(int xpos);
 
     void reset_objects_timers();

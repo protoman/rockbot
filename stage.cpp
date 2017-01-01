@@ -297,6 +297,11 @@ int stage::get_first_lock_on_left(int x_pos)
     return maps[currentMap].get_first_lock_on_left(x_pos);
 }
 
+int stage::get_first_lock_on_right(int x_pos)
+{
+    return maps[currentMap].get_first_lock_on_right(x_pos);
+}
+
 int stage::get_teleport_minimal_y_tile(int xpos)
 {
     int tilex = xpos/TILESIZE;

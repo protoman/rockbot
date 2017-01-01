@@ -705,13 +705,18 @@ void draw::clear_maps_dynamic_background_list()
     maps_dynamic_background_list.clear();
 }
 
-void draw::add_dynamic_background(string filename, int auto_scroll_mode)
+void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_color bg_color)
 {
     // only add if not existing in map
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
-        graphLib.surfaceFromFile(bg1_filename, &maps_dynamic_background_list.find(filename)->second);
+        graphicsLib_gSurface temp_surface;
+        graphLib.surfaceFromFile(bg1_filename, &temp_surface);
+        graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
+        graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
+        graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
+        //maps_dynamic_background_list.find(filename)->second
     }
 }
 

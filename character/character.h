@@ -101,6 +101,7 @@ public:
     st_float_position getPosition() const;
     struct st_position get_real_position() const;
     void set_position(struct st_position);
+    void inc_position(float inc_x, float inc_y);
     void addSpriteFrame(int, int, graphicsLib_gSurface&, int);
     void set_map(classMap *set_map);
     classMap *get_map();

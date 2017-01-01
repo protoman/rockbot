@@ -288,6 +288,8 @@ private:
      */
     bool test_teleport(classPlayer *test_player);
 
+    bool is_link_teleporter(int type);
+
     /**
      * @brief
      *

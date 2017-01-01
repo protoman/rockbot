@@ -272,25 +272,25 @@ if (gameControl.is_free_version() == true) {
             timer.delay(200);
             input.clean();
         } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
-if (gameControl.is_free_version() == true) {
-            int pos_n = select_pos.x + 1 + select_pos.y*3;
+            if (gameControl.is_free_version() == true) {
+                int pos_n = select_pos.x + 1 + select_pos.y*3;
 
-            std::cout << ">>>>>>>>>>>>>>>>>> pos_n: " << pos_n << std::endl;
+                std::cout << ">>>>>>>>>>>>>>>>>> pos_n: " << pos_n << std::endl;
 
-            if (pos_n == DEMO_VERSION_STAGE1 || pos_n == DEMO_VERSION_STAGE2) {
-                selection_end = 1;
+                if (pos_n == DEMO_VERSION_STAGE1 || pos_n == DEMO_VERSION_STAGE2+1) { // +1 because of middle/center castle selection
+                    selection_end = 1;
+                } else {
+                    soundManager.play_sfx(SFX_NPC_HIT);
+                }
             } else {
-                soundManager.play_sfx(SFX_NPC_HIT);
+                selection_end = 1;
             }
-} else {
-            selection_end = 1;
-}
         } else if (input.p1_input[BTN_START] && finished_stages() >= 9) {
-if (gameControl.is_free_version() == true) {
-            selection_end = 0;
-} else {
-			selection_end = 1;
-}
+            if (gameControl.is_free_version() == true) {
+                selection_end = 0;
+            } else {
+                selection_end = 1;
+            }
 		}
 		animate_highlight();
 		timer.delay(10);

@@ -847,7 +847,7 @@ bool classMap::value_in_range(int value, int min, int max) const
 void classMap::create_dynamic_background_surfaces()
 {
     if (strlen(map_data[number].backgrounds[0].filename) > 0) {
-        draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[0].filename), map_data[number].backgrounds[0].auto_scroll);
+        draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[0].filename), map_data[number].backgrounds[0].auto_scroll, map_data[number].background_color);
     }
 }
 

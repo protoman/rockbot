@@ -280,17 +280,13 @@ void character::charMove() {
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                     //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
                     if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
-                        std::cout << ">> MV.R #1 << " << std::endl;
                         position.x += i - map->get_last_scrolled().x;
-                        std::cout << ">> MV.R #16 << " << std::endl;
                     } else {
                         position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
-                        std::cout << ">> MV.R #2 << " << std::endl;
                     }
                     if (state.animation_type != ANIM_TYPE_HIT) {
                         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
                             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
-                            std::cout << ">> MV.R #3 << " << std::endl;
                         }
                         state.direction = ANIM_DIRECTION_RIGHT;
                     } else {
@@ -312,7 +308,6 @@ void character::charMove() {
 	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
-            std::cout << ">> MV.R #4 << " << std::endl;
         }
         state.direction = ANIM_DIRECTION_RIGHT;
     }
@@ -362,7 +357,6 @@ void character::charMove() {
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                             //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x += inertia_xinc;
-                            std::cout << ">> MV.R #5 << " << std::endl;
                         //} else {
                             //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
@@ -1423,7 +1417,13 @@ void character::set_position(struct st_position new_pos)
 	//std::cout << "\\\\\\\\\\\\ character::set_position - pos.y: " << position.x << ", new_pos.y: " << new_pos.x << std::endl;
 	position.x = new_pos.x;
 	position.y = new_pos.y;
-	char_update_real_position();
+    char_update_real_position();
+}
+
+void character::inc_position(float inc_x, float inc_y)
+{
+    position.x += inc_x;
+    position.y += inc_y;
 }
 
 
@@ -1482,13 +1482,13 @@ bool character::slide(st_float_position mapScrolling)
     int map_lock =  map_col.block;
 
     // releasing down (or dash button) interrupts the slide
-    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
+    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (hit_ground()) {
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
-        std::cout << "CHAR::slide - RETURN #5" << std::endl;
+        std::cout << "CHAR::slide - RETURN #5, map_lock[" << map_lock << "]" << std::endl;
         return false;
     }
 
@@ -1604,7 +1604,6 @@ bool character::slide(st_float_position mapScrolling)
     if (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER) {
         std::cout << "##### SLIDE::MOVE #####" << std::endl;
         position.x += res_move_x;
-        std::cout << ">> MV.R #6 << " << std::endl;
 		state.slide_distance += abs((float)res_move_x);
     }
 
@@ -1845,7 +1844,6 @@ void character::check_platform_move(short map_lock)
         }
         if (can_move) {
             position.x += move;
-            std::cout << ">> MV.R #7 << " << std::endl;
             _moving_platform_timer = timer.getTimer()+MOVING_GROUND;
         }
     }
@@ -2276,7 +2274,7 @@ st_rectangle character::get_hitbox(int anim_type)
         }
     } else {
         int anim_n = state.animation_state;
-        int anim_type = anim_type;
+        int anim_type = state.animation_type;
         // prevent getting size from a frame that does not have information, use STAND instead
         if (GameMediator::get_instance()->get_enemy(_number).sprites[anim_type][state.animation_state].collision_rect.w <= 0) {
             anim_n = ANIM_TYPE_STAND;
@@ -2536,7 +2534,6 @@ void character::push_back(short direction)
 
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
-        std::cout << ">> MV.R #8 << " << std::endl;
     }
 }
 
@@ -2912,7 +2909,6 @@ bool character::change_position(short xinc, short yinc)
 		return false;
 	}
 	position.x += xinc;
-    std::cout << ">> MV.R #10 << " << std::endl;
     //std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
 	position.y += yinc;
     return true;
@@ -2935,10 +2931,8 @@ void character::change_position_x(short xinc)
             //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", map->get_last_scrolled().x: " << map->get_last_scrolled().x << std::endl;
             if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
                 position.x += i - map->get_last_scrolled().x;
-                std::cout << ">> MV.R #11 << " << std::endl;
             } else {
                 position.x += i*WATER_SPEED_MULT - map->get_last_scrolled().x;
-                std::cout << ">> MV.R #12 << " << std::endl;
             }
             if (state.animation_type != ANIM_TYPE_HIT) {
                 state.direction = ANIM_DIRECTION_RIGHT;
@@ -2953,7 +2947,6 @@ void character::change_position_x(short xinc)
                 set_animation_type(ANIM_TYPE_WALK);
             }
             position.x += xinc;
-            std::cout << ">> MV.R #13 << " << std::endl;
             break;
         }
     }
@@ -3149,7 +3142,6 @@ void character::set_animation_type(ANIM_TYPE type)
         if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
             if (state.direction == ANIM_DIRECTION_RIGHT) {
                 position.x += 2;
-                std::cout << ">> MV.R #14 << " << std::endl;
             }
         }
 
@@ -3168,7 +3160,6 @@ void character::set_animation_type(ANIM_TYPE type)
         if (type == ANIM_TYPE_SLIDE) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 position.x += 6;
-                std::cout << ">> MV.R #15 << " << std::endl;
             } else {
                 position.x -= 6;
             }
