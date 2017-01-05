@@ -360,8 +360,35 @@ FILE-FORMAT-V4:
 - colisão ao inverter posição ainda está fazendo jogador "entrar" nas paredes
     # principalmente em escadas
     # quando mudar direção, só inverter flag, não mover
-
 - diminuir pontos de vida dos chefes (x2 é muito, fazer x1.5)
 - borda da barra de energia de chefes deve ser preta, não roxa
 - EDITOR: não está recarregando cenas na aba game-scenes ao fechar janela de cenas nem trocar de aba
 - EDITOR: botão de play-scene não está pegando a cena selecionada, mas a primeira da lista
+- está ficando preso ao ser atingido (muda esquerda/direita sem parar)
+- fases da demo: kurupira e snow
+- criar chefe kurupira: 41x53 x 25 frames
+- colocar inimigos na fase kurupira
+- DEMO deve ter tela final agradecendo e pedindo comprar full-version
+    # pressionando qualquer botão, volta à seleção
+- última linha do diálogo de início de fase parece estar errada
+- dash não está funcionando quando teto é baixo (kurupira)
+- as vezes slide é interrompido e jogador é empurrado rapidamente para trás
+- in free version, in stage-selections creen, user can't pick snow, but rather zodiac
+- slide/dash not working underwater
+- teleport frame without transparency
+- new kind of teleporter that set scroll to the first lock on left or right from the destination point
+- Fixes for Rockbot1:
+    # Gamebit projectile too slow
+    # Bat has too many hit points
+    # missing tiles in Seahorse's boss room
+    # castle5 teleporters get scroll out of position
+
+
+
+
+
+
+- warning on intro about the free version
+- remove final-boss flag from air-pusher
+
+- setar destrin como final boss no rockbot1

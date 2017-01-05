@@ -24,6 +24,11 @@ VERSION 2.0.0 BETA 1
     # quebra em paredes
     # fogo-fátuo é o cara!
 
+
+- adicionar opção "high-end graphics"
+    # habilita background2 (que vira foreground)
+    # tiles de água ganham uma transparência azul por cima
+
 - Kurupira trancou na porta
     # tem que impedir que eles entrem parcialmente dentro de terreno door, nem que expandindo área de colisão neste caso
 
@@ -41,6 +46,8 @@ VERSION 2.0.0 BETA 1
 - implementar abertura usando edição de cenas
 
 - substituir tiro carregado e voz por original (está girl hadouken)
+    # gravar vozes
+    # usar vozes do Nelson
 
 - update build script files to copy font to GAMEDIR
     # remove non-used fonts
@@ -74,28 +81,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- em modo demo, na tela de seleção, está entrando na fase do zodiac ao invés de na fase snow
-- slide/dash não funciona na água
-- teleport out sem transparência (fundo preto)
-- novo tipo de teleportadores que setam scroll para lock à esquerda ou direita após a troca da mapa
-
-- Rockbot1:
-    # projétil do gambit está muito lento
-    # morcego tem muitos pontos de vida
-    # faltando tiles na sala de chefe do seahorse
-    # alguns fundos de mapa não funciona corretamente (é preciso ser 320px de largura agora)
-    # castle5: ao ir para teleportadores, fica com scroll-x errado (mais para a direita do que deveria)
-
-
-- está ficando preso ao ser atingido (muda esquerda/direita sem parar)
-- fases da demo: kurupira e snow
-- criar chefe kurupira: 41x53 x 25 frames
-- colocar inimigos na fase kurupira
-- DEMO deve ter tela final agradecendo e pedindo comprar full-version
-    # pressionando qualquer botão, volta à seleção
-- última linha do diálogo de início de fase parece estar errada
-- dash não está funcionando quando teto é baixo (kurupira)
-- as vezes slide é interrompido e jogador é empurrado rapidamente para trás
 
 
 
@@ -149,6 +134,8 @@ VERSION 2.0.0 BETA 2
 - adicionar suporte à configuração de resolução do playstation 2
 - test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
     # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
+
+
 
 
 - implementar water effect (fase azulada)

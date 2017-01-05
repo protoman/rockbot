@@ -339,6 +339,10 @@ bool game::showIntro()
     show_beta_version_warning();
 #endif
 
+    if (is_free_version()) {
+        show_free_version_warning();
+    }
+
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
@@ -375,7 +379,7 @@ void game::show_beta_version_warning()
     input.clean();
     timer.delay(100);
 
-    graphLib.draw_centered_text(30, "--BETA VERSION WARNING--", graphLib.gameScreen, st_color(255, 130, 0));
+    graphLib.draw_centered_text(30, "-- BETA VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
     graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.", graphLib.gameScreen, st_color(255, 255, 255));
@@ -384,8 +388,30 @@ void game::show_beta_version_warning()
     graphLib.draw_centered_text(135, "WITHOUT WARRANTY OF ANY KIND,", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(150, "EXPRESS OR IMPLIED FROM AUTHOR.", graphLib.gameScreen, st_color(255, 255, 255));
 
-    graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES AT", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(185, "github.com/protoman/rockbot", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES TO", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(185, "protoman@upperland.net", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.", graphLib.gameScreen, st_color(255, 255, 255));
+    draw_lib.update_screen();
+    input.wait_keypress();
+}
+
+void game::show_free_version_warning()
+{
+    graphLib.blank_screen();
+    draw_lib.update_screen();
+    input.clean();
+    timer.delay(100);
+
+    graphLib.draw_centered_text(30, "-- FREE VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
+    graphLib.draw_centered_text(60, "THIS IS ROCKBOT 2'S FREE VERSION.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(75, "IT CONTAINS THREE STAGES", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(90, "AND LACKS SUPPORT FOR", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(105, "A FEW FEATURES LIKE PASSWORDS.", graphLib.gameScreen, st_color(255, 255, 255));
+
+    graphLib.draw_centered_text(130, "FULL VERSION WILL BE RELEASED", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(145, "LATER DURING THE YEAR 2017.", graphLib.gameScreen, st_color(255, 255, 255));
+
+    graphLib.draw_centered_text(185, "ENJOY!", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.", graphLib.gameScreen, st_color(255, 255, 255));
     draw_lib.update_screen();
     input.wait_keypress();
@@ -1243,7 +1269,7 @@ void game::show_demo_ending()
     timer.delay(200);
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
     graphLib.draw_centered_text(10, "-THANKS FOR PLAYING-", st_color(255, 130, 0));
-    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S DEMO VERSION.", st_color(240, 240, 240));
+    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S FREE VERSION.", st_color(240, 240, 240));
     graphLib.draw_centered_text(45, "THE COMPLETE GAME WILL BE AVAILABLE", st_color(240, 240, 240));
     graphLib.draw_centered_text(60, "FOR PURSHASE LATER DURING IN 2017.", st_color(240, 240, 240));
     graphLib.draw_centered_text(RES_H-40, "PRESENTED BY UPPERLAND.", st_color(240, 240, 240));

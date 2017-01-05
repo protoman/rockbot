@@ -53,6 +53,8 @@ public:
 
     void show_beta_version_warning();
 
+    void show_free_version_warning();
+
     void show_notice();
 
     /**
