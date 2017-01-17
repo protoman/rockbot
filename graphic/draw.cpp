@@ -700,6 +700,11 @@ graphicsLib_gSurface *draw::get_dynamic_background(string filename)
     return &maps_dynamic_background_list.find(filename)->second;
 }
 
+graphicsLib_gSurface *draw::get_dynamic_foreground(string filename)
+{
+    return &maps_dynamic_background_list.find(filename)->second;
+}
+
 void draw::clear_maps_dynamic_background_list()
 {
     maps_dynamic_background_list.clear();

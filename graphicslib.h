@@ -167,6 +167,7 @@ public:
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
     void initSurface(struct st_size, graphicsLib_gSurface *);
     void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
+    void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
     void blank_screen();
     void blank_surface(struct graphicsLib_gSurface& surface);
@@ -217,6 +218,7 @@ public:
     void draw_path(st_position initial_point, st_position final_point, short duration);
     graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
+    void place_water_tile(st_position dest);
 #ifdef PSP
     void psp_show_available_ram(int n);
 #endif
@@ -282,6 +284,7 @@ private:
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
+    SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
     std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface

@@ -55,6 +55,7 @@ public:
     void clear_maps_dynamic_background_list();
     void add_dynamic_background(std::string filename, int auto_scroll_mode, st_color bg_color);
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
+    graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);

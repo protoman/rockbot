@@ -2,6 +2,7 @@
 #include "game.h"
 #include "timerlib.h"
 
+
 extern game gameControl;
 #include "timerlib.h"
 extern timerLib timer;
@@ -32,6 +33,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
+
 
 // initialize static member
 static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
@@ -115,7 +117,9 @@ void character::charMove() {
 
     int mapLock = 0;
 	bool moved = false;
-    float temp_move_speed = move_speed;
+    float temp_move_speed = move_speed * gameControl.get_fps_speed_multiplier();
+
+    //std::cout << "move_speed[" << move_speed << "], multi[" << gameControl.get_fps_speed_multiplier() << "], temp_move_speed[" << temp_move_speed << "]" << std::endl;;
 
     if (timer.is_paused() == true) {
         std::cout << "# CHAR::MOVE::PAUSED" << std::endl;
@@ -127,7 +131,7 @@ void character::charMove() {
 
     if (_dashed_jump == true) {
         if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
-            temp_move_speed = move_speed*2;
+            temp_move_speed = move_speed * 2 * gameControl.get_fps_speed_multiplier();
             if (did_hit_ground == true) {
                 _dashed_jump = false;
             }
@@ -1135,7 +1139,7 @@ bool character::gravity(bool boss_demo_mode=false)
         }
         if (can_fly == false || gameControl.is_showing_boss_intro == true) {
 			bool is_moved = false;
-			short int limit_speed = move_speed;
+            short int limit_speed = move_speed * gameControl.get_fps_speed_multiplier();
 			if (boss_demo_mode == true) {
                 limit_speed = gravity_max_speed;
 			}
@@ -1580,7 +1584,8 @@ bool character::slide(st_float_position mapScrolling)
     _obj_jump.finish();
 
     // reduce progressively the jump-move value in oder to deal with collision
-    for (float i=move_speed*2; i>0.0; i--) {
+    int max_speed = move_speed * 2 * gameControl.get_fps_speed_multiplier();
+    for (float i=max_speed; i>0.0; i--) {
 
         int temp_i;
         if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -1823,7 +1828,7 @@ void character::check_platform_move(short map_lock)
     if (_moving_platform_timer < timer.getTimer()) {
         int pos_y = (position.y + frameSize.height/2) / TILESIZE;
         if (map_lock == TERRAIN_MOVE_LEFT) {
-            move = (move_speed-0.5)*-1;
+            move = ((move_speed-0.5)*-1) * gameControl.get_fps_speed_multiplier();
             int pos_x = (position.x + move) / TILESIZE;
             if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) { // add a few pixels because of graphic when turned right
                 pos_x = (position.x + 5 + move) / TILESIZE;
@@ -1833,7 +1838,7 @@ void character::check_platform_move(short map_lock)
                 can_move = false;
             }
         } else if (map_lock == TERRAIN_MOVE_RIGHT) {
-            move = move_speed-0.5;
+            move = (move_speed-0.5) * gameControl.get_fps_speed_multiplier();
             int pos_x = (position.x + frameSize.width - 10 + move) / TILESIZE;
             int point_terrain = gameControl.getMapPointLock(st_position(pos_x, pos_y));
             if (point_terrain != TERRAIN_UNBLOCKED && point_terrain != TERRAIN_WATER) {
@@ -2525,9 +2530,9 @@ Uint8 character::get_projectile_max_shots()
 
 void character::push_back(short direction)
 {
-    int xinc = -(move_speed-0.2);
+    int xinc = -(move_speed-0.2) * gameControl.get_fps_speed_multiplier();
     if (direction == ANIM_DIRECTION_LEFT) {
-        xinc = move_speed-0.2;
+        xinc = (move_speed-0.2) * gameControl.get_fps_speed_multiplier();
     }
 
     //std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;

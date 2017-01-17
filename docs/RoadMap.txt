@@ -1,5 +1,5 @@
 ﻿=========================================================================================================================================
-VERSION 2.0.0 BETA 1
+VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
 - ROCKBOT1:
     # Seahorse eventualmente fica preso dentro da porta
@@ -25,9 +25,9 @@ VERSION 2.0.0 BETA 1
     # fogo-fátuo é o cara!
 
 
-- adicionar opção "high-end graphics"
-    # habilita background2 (que vira foreground)
-    # tiles de água ganham uma transparência azul por cima
+- não está entrando na configuração pela tela de armas, com o botão R, no android
+
+- Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
 - Kurupira trancou na porta
     # tem que impedir que eles entrem parcialmente dentro de terreno door, nem que expandindo área de colisão neste caso
@@ -45,15 +45,13 @@ VERSION 2.0.0 BETA 1
 
 - implementar abertura usando edição de cenas
 
-- substituir tiro carregado e voz por original (está girl hadouken)
-    # gravar vozes
-    # usar vozes do Nelson
+
 
 - update build script files to copy font to GAMEDIR
     # remove non-used fonts
     # remove non-used graphics
 
-
+TESTAR - desabilitar opção do google play services por hora
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -81,11 +79,16 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
+- adicionar opção performance mode
+    OK # HIGH: habilita background2 (que vira foreground)
+    OK # HIGH: tiles de água ganham uma transparência azul por cima
+    OK # LOW: desabilita background com autoscroll
+    OK # LOW: target FPS setado para 30, velocidade de movimento x2 (criar global)
+- fazer valkyrie ir no chão para soltar raio
 
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 2
+VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
 - criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
 
@@ -95,7 +98,7 @@ VERSION 2.0.0 BETA 2
 
 - adicionar créditos ao terminar jogo
 
-- criar final
+- criar final com editor de cenas
 
 - optimização:
     # deve rodar a 60 fps no PSP, PS2 e Dingoo
@@ -105,7 +108,6 @@ VERSION 2.0.0 BETA 2
     # procurar memory leaks
 
 - ver porque android tem mais de um joystick para selecionar
-
 
 - criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
 
@@ -135,12 +137,6 @@ VERSION 2.0.0 BETA 2
 - test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
     # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
 
-
-
-
-- implementar water effect (fase azulada)
-    # usar posição do bg2 para definir altura
-
 - remover da memória SFX usados apenas uma única vez
     # estes devem usar play from file
     # onde for necessário, guardar na própria classe e depois descarregar o SFX
@@ -158,10 +154,6 @@ VERSION 2.0.0 BETA 2
 - ANDROID: opçao, na config do jogo, para tamanho do controle
 - ANDROID: opçao no jogo, para esconder joystick
     # ou ver se tem como decetar se esta usando um que nao seja a tela de toque
-- ANDROID: implementar login play services (opção na configuração do jogo)
-- ANDROID: implementar save na nuvem
-- ANDROID: new icon
-- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
 
 - WII: cores dos personagens não estão sendo setadas
 - WII: fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
@@ -207,8 +199,18 @@ VERSION 2.0.0 BETA 2
 
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 3
+VERSION 2.0.0 PRE-RELEASE #4
 =========================================================================================================================================
+- substituir tiro carregado e voz por original (está girl hadouken)
+    # gravar vozes
+    # usar vozes do Nelson
+
+- ANDROID: implementar login play services (opção na configuração do jogo)
+- ANDROID: implementar save na nuvem
+- ANDROID: new icon
+- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
+
+
 - investigar velocidade no PSP
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
@@ -242,7 +244,7 @@ VERSION 2.0.0 BETA 3
 - tentar melhorar leitura de joystick para pegar o estado, e não os eventos
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 4
+VERSION 2.0.0 PRE-RELEASE #5
 =========================================================================================================================================
 - ANDROID: implementar In-app Billing - http://developer.android.com/google/play/billing/billing_integrate.html
 
@@ -269,7 +271,7 @@ VERSION 2.0.0 BETA 4
     * criar uma fase do megaman 9 para testar template
 
 =========================================================================================================================================
-VERSION 2.0.0 BETA 5
+VERSION 2.0.0 PRE-RELEASE #6
 =========================================================================================================================================
 - ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
 

@@ -82,14 +82,21 @@ void EditorArea::update_files()
         bg1_image = QPixmap();
     }
 
-    /*
-    std::string bg2_filename = FILEPATH +"/images/map_backgrounds/"+ Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename;
-    if (bg2_filename.length() > 0) {
-        if (bg2_filename.find(".png") != std::string::npos) {
-            bg2_image = QPixmap(bg2_filename.c_str());
+    std::string fg_filename = FILEPATH +"/images/map_backgrounds/"+ Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename;
+    if (fg_filename.length() > 0) {
+        if (fg_filename.find(".png") != std::string::npos) {
+            fg_layer__image = QPixmap(fg_filename.c_str());
+            QBitmap bg1_mask = fg_layer__image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+            fg_layer__image.setMask(bg1_mask);
+
+        } else {
+            fg_layer__image = QPixmap();
         }
+    } else {
+        std::cout << "RESET BG1" << std::endl;
+        fg_layer__image = QPixmap();
     }
-    */
+    fg_opacity = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].gfx/100;
 }
 
 
@@ -131,16 +138,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 painter.drawPixmap(pos_dest, bg1_image, pos_source);
             }
         }
-        /*
-        // draw background2
-        if (!bg2_image.isNull()) {
-            for (int k=0; k<((MAP_W*16)/bg2_image.width()*Mediator::get_instance()->zoom)+1; k++) {
-                QRectF pos_source(QPoint(0, 0), QSize(bg2_image.width(), bg2_image.height()));
-                QRectF pos_dest(QPoint(k*bg2_image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y*Mediator::get_instance()->zoom), QSize(bg2_image.width()*Mediator::get_instance()->zoom, bg2_image.height()*Mediator::get_instance()->zoom));
-                painter.drawPixmap(pos_dest, bg2_image, pos_source);
-            }
-        }
-        */
     }
 
 
@@ -617,6 +614,23 @@ void EditorArea::paintEvent(QPaintEvent *) {
             }
         }
     }
+
+    // === FOREGROUND LAYER IMAGE == //
+    if (Mediator::get_instance()->show_fg_layer == true) {
+        if (!fg_layer__image.isNull()) {
+            //std::cout << "DRAW BG1" << std::endl;
+            int max_repeat = ((MAP_W*16)/fg_layer__image.width())*Mediator::get_instance()->zoom+1;
+            //std::cout << "fg_layer__image.width(): " << fg_layer__image.width() << ", max_repeat: " << max_repeat << std::endl;
+            for (int k=0; k<max_repeat; k++) {
+                QRectF pos_source(QPoint(0, 0), QSize(fg_layer__image.width(), fg_layer__image.height()));
+                QRectF pos_dest(QPoint(k*fg_layer__image.width()*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y*Mediator::get_instance()->zoom), QSize(fg_layer__image.width()*Mediator::get_instance()->zoom, fg_layer__image.height()*Mediator::get_instance()->zoom));
+                painter.setOpacity(fg_opacity);
+                painter.drawPixmap(pos_dest, fg_layer__image, pos_source);
+                painter.setOpacity(1);
+            }
+        }
+    }
+
 
     // === draw selection === //
     if (Mediator::get_instance()->editMode == EDITMODE_SELECT) {

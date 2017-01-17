@@ -47,14 +47,15 @@ jobject activity_ref;
 #endif
 
 #include "defines.h"
+#include "aux_tools/fps_control.h"
+#include "aux_tools/stringutils.h"
+
 #include "graphicslib.h"
 #include "graphic/draw.h"
 #include "inputlib.h"
 #include "timerlib.h"
 #include "soundlib.h"
 #include "game.h"
-#include "aux_tools/fps_control.h"
-#include "aux_tools/stringutils.h"
 
 #define MAXPATHLEN 256
 
@@ -86,16 +87,18 @@ jobject activity_ref;
     std::string EXEC_NAME("rockbot");
 #endif
 
-// INTERNAL GLOBALS
+// EXTERNAL GLOBALS
 timerLib timer;
 inputLib input;
 soundLib soundManager;
 graphicsLib graphLib;
 draw draw_lib;
+fps_control fps_manager;
 game gameControl;
 CURRENT_FILE_FORMAT::st_save game_save;
 struct CURRENT_FILE_FORMAT::st_game_config game_config;
 bool GAME_FLAGS[FLAG_COUNT];
+
 
 int default_keys_codes[BTN_COUNT]; // number indicator for the keyboard-keys
 int default_button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
@@ -543,8 +546,10 @@ int main(int argc, char *argv[])
 
     bool run_game = true;
 
-    fps_control fps_manager;
     fps_manager.initialize();
+    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
+        fps_manager.set_max_fps(30);
+    }
 
     fflush(stdout);
 

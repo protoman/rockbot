@@ -964,6 +964,7 @@ enum E_STRINGS_INGAME {
     strings_config_wii_platformspecific,
 
     strings_config_keys_unet,
+    strings_ingame_config_graphics_performance,
 
     strings_ingame_COUNT
 };
@@ -1043,6 +1044,13 @@ enum e_LANGUAGES {
 
 #define DEMO_VERSION_STAGE1 4
 #define DEMO_VERSION_STAGE2 8
+
+enum e_PERFORMANCE_MODES {
+    PERFORMANCE_MODE_LOW,
+    PERFORMANCE_MODE_NORMAL,
+    PERFORMANCE_MODE_HIGH,
+    PERFORMANCE_MODE_COUNT
+};
 
 #endif // DEFINES_H
 

@@ -277,6 +277,8 @@ public:
 
     bool is_free_version();
 
+    float get_fps_speed_multiplier();
+
 private:
     void exit_game();
 

@@ -20,6 +20,8 @@ public:
     fps_control();
     void initialize();
     bool limit();
+    void set_max_fps(unsigned short max);
+    float get_fps_speed_multiplier();
 
 
 private:
@@ -35,6 +37,9 @@ private:
 
     unsigned int current_ticks;
     unsigned int target_ticks;
+
+    unsigned short fps_max;
+    float fps_speed_multiplier;
 };
 
 #endif // FPS_CONTROL_H

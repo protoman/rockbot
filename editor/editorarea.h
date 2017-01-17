@@ -77,7 +77,8 @@ protected:
   QPixmap tileset_image;
   QBitmap tileset_bitmap;
   QPixmap bg1_image;
-  QPixmap bg2_image;
+  QPixmap fg_layer__image;
+  float fg_opacity;
 
 
 

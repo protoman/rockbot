@@ -44,6 +44,7 @@ private:
     void show_config_ask_restart();
     void show_config_audio();
     void show_config_language();
+    void show_config_performance();
 
 
     void config_int_value(Uint8 &value_ref, int min, int max);

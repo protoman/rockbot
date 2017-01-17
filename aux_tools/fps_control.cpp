@@ -1,16 +1,20 @@
 #include "fps_control.h"
 
-#define FPS_MAX 60
+#include <iostream>
 
+#define DEFULT_PLAYER_SPEED 1.2
+#define DEFAULT_FPS_MAX 60
 
 fps_control::fps_control()
 {
+    fps_max = DEFAULT_FPS_MAX;
+    fps_speed_multiplier = 1.0;
 }
 
 
 void fps_control::initialize()
 {
-    max_frame_ticks = (1000.0/(float)FPS_MAX)+0.00001;
+    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
     frame_count = 0;
     last_second_ticks = SDL_GetTicks();
 }
@@ -56,4 +60,27 @@ bool fps_control::limit()
     }
 
     return false;
+}
+
+void fps_control::set_max_fps(unsigned short max)
+{
+    fps_max = max;
+    float percent = (100 * fps_max) / DEFAULT_FPS_MAX;
+
+    std::cout << "FPS_CONTROL.set_max_fps[" << max << "], percent[" << percent << "]" << std::endl;
+
+    if (fps_max < DEFAULT_FPS_MAX) {
+        fps_speed_multiplier = 1.0 + (percent / 100);
+    } else if (fps_max == DEFAULT_FPS_MAX) {
+        fps_speed_multiplier = 1.0;
+    } else {
+        fps_speed_multiplier = 1.0 - (percent / 100);
+    }
+    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
+}
+
+float fps_control::get_fps_speed_multiplier()
+{
+    //std::cout << "FPS_CONTROL::get_fps_speed_multiplier[" << fps_speed_multiplier << "]" << std::endl;
+    return fps_speed_multiplier;
 }

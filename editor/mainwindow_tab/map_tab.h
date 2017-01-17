@@ -66,6 +66,16 @@ private slots:
 
     void on_editSetFinalBoss_button_clicked();
 
+    void on_fb_image_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_fg_speed_doubleSpinBox_valueChanged(double arg1);
+
+    void on_fg_position_spinBox_valueChanged(int arg1);
+
+    void on_fg_show_checkBox_toggled(bool checked);
+
+    void on_fg_opacity_spinBox_valueChanged(int arg1);
+
 private:
     void fill_data();
     void fill_background_list();

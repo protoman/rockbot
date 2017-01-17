@@ -8,6 +8,9 @@
 
 #define JUMP_INITIAL_SPEED 5.375
 
+#include "game.h"
+extern game gameControl;
+
 
 classjump::classjump() : started(false)
 {
@@ -34,6 +37,7 @@ void classjump::start(bool bigjump_mode, int terrain_type)
     } else {
         acceleration = JUMP_ACCELERATION;
     }
+    acceleration = acceleration * gameControl.get_fps_speed_multiplier();
     jumps_number++;
     speed = -JUMP_INITIAL_SPEED;
 
@@ -116,7 +120,7 @@ void classjump::finish()
 
 float classjump::get_speed()
 {
-    return speed;
+    return speed * gameControl.get_fps_speed_multiplier();
 }
 
 short classjump::get_jumps_number()

@@ -53,7 +53,7 @@ Mediator::Mediator() : stage_data() {
 	current_player = 0;
 	show_background_color = true;
 	show_bg1 = true;
-	show_bg2 = true;
+	show_fg_layer = true;
     playing_sprites = false;
     current_sprite_type = 0;
     current_sprite_selection = 0;

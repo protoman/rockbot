@@ -260,6 +260,9 @@ namespace format_v4 {
 
         sprintf(lines[strings_config_keys_unet], "%s", "PLEASE SET");
 
+        sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
+
+
 
 
         /// @TODO: add assert to check that we set all the values from the enum

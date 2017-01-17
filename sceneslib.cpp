@@ -50,6 +50,9 @@ extern timerLib timer;
 
 extern bool leave_game;
 
+#include "aux_tools/fps_control.h"
+extern fps_control fps_manager;
+
 #define TIME_SHORT 120
 #define TIME_LONG 300
 #define INTRO_DIALOG_DURATION_TIME 4000
@@ -275,6 +278,9 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #endif
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language)));
 
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance)));
+
+
     if (called_from_game) {
         if (stage_finished) {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
@@ -319,10 +325,12 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #endif
         } else if (selected_option == 3) { // LANGUAGE
             show_config_language();
-        } else if (selected_option == 4) { // LEAVE STAGE
+        } else if (selected_option == 4) { // PERFORMANCE
+            show_config_performance();
+        } else if (selected_option == 5) { // LEAVE STAGE
             res = 1;
             break;
-        } else if (selected_option == 5) { // QUIT GAME
+        } else if (selected_option == 6) { // QUIT GAME
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 SDL_Quit();
@@ -380,29 +388,30 @@ void scenesLib::show_config_android()
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
-    std::vector<std::string> options;
     short selected_option = 0;
+
+    std::vector<st_menu_option> options;
 
     while (selected_option != -1) {
         options.clear();
         //graphLib.clear_area(menu_pos.x-14, menu_pos.y, 180,  180, 0, 0, 0);
 
         if (game_config.android_touch_controls_hide == false) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled)));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled)));
         }
         if (game_config.android_touch_controls_size == 0) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL)));
         } else if (game_config.android_touch_controls_size == 2) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG)));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM)));
         }
         if (game_config.android_use_play_services == false) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled),true));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled), true));
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
@@ -628,6 +637,33 @@ void scenesLib::show_config_language()
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
     game_config.selected_language = selected_option;
+    fio.save_config(game_config);
+}
+
+void scenesLib::show_config_performance()
+{
+    st_position config_text_pos;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+    input.clean();
+    timer.delay(300);
+
+    std::vector<std::string> options;
+    options.push_back("LOW-END");
+    options.push_back("NORMAL");
+    options.push_back("HIGH-END");
+
+    short selected_option = 0;
+    option_picker main_config_picker(false, config_text_pos, options, true);
+    selected_option = main_config_picker.pick(game_config.graphics_performance_mode+1);
+    game_config.graphics_performance_mode = selected_option;
+
+    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
+        fps_manager.set_max_fps(30);
+    } else {
+        fps_manager.set_max_fps(60);
+    }
+
     fio.save_config(game_config);
 }
 

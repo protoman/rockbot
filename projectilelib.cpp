@@ -11,6 +11,9 @@ extern soundLib soundManager;
 extern timerLib timer;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
+#include "game.h"
+extern game gameControl;
+
 #define QUAKE_TIMER 20 // time between changing direction of screen movement in quake
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
@@ -132,8 +135,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     // for damage, use get_damage
     // for trajectory, get_trajectory
 
-    _speed_x = 8;
-    _accel_x = 0.95;
+    _speed_x = 8 * gameControl.get_fps_speed_multiplier();
+    _accel_x = 0.95 * gameControl.get_fps_speed_multiplier();
 
     //std::cout << "_accel_x: " << _accel_x << std::endl;
 }
@@ -268,7 +271,7 @@ void projectile::set_direction_from_targetpos(int middle_tolerance)
 
 Uint8 projectile::get_speed() const
 {
-    return _speed;
+    return _speed * gameControl.get_fps_speed_multiplier();
 }
 
 Uint8 projectile::get_damage() const

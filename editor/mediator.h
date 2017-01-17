@@ -53,7 +53,7 @@ public:
     int object_direction;
 	bool show_background_color;
 	bool show_bg1;
-	bool show_bg2;
+    bool show_fg_layer;
     // sprites
     bool playing_sprites;
     int current_sprite_type;

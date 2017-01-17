@@ -53,6 +53,9 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 extern std::map<Uint8, Uint8> game_scenes_map;
 
+#include "aux_tools/fps_control.h"
+extern fps_control fps_manager;
+
 // ********************************************************************************************** //
 // class constructor                                                                              //
 // ********************************************************************************************** //
@@ -1549,6 +1552,12 @@ bool game::is_free_version()
     }
 #endif
     return false;
+}
+
+float game::get_fps_speed_multiplier()
+{
+    float speed = fps_manager.get_fps_speed_multiplier();
+    return speed;
 }
 
 void game::finish_player_teleporter()

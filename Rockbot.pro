@@ -11,9 +11,9 @@ QT       -= gui
 
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
-CONFIG += android
+#CONFIG += android
 #CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -291,7 +291,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-	character/character.cpp \
+    aux_tools/fps_control.cpp \
+    character/character.cpp \
     graphicslib.cpp \
     inputlib.cpp \
     game.cpp \
@@ -325,12 +326,12 @@ SOURCES += main.cpp \
     aux_tools/stringutils.cpp \
     file/fio_common.cpp \
     game_mediator.cpp \
-    aux_tools/fps_control.cpp \
     docs/game_manual.cpp \
     collision_detection.cpp \
     graphic/gfx_sin_wave.cpp
 
 HEADERS += \
+    aux_tools/fps_control.h \
     character/character.h \
     graphicslib.h \
     defines.h \
@@ -385,7 +386,6 @@ HEADERS += \
     file/v4/file_map.h \
     file/fio_common.h \
     game_mediator.h \
-    aux_tools/fps_control.h \
     file/v4/file_anim_block.h \
     ports/android/rockbot_android.h \
     docs/game_manual.h \

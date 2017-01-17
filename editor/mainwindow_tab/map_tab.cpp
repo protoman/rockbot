@@ -86,15 +86,16 @@ void map_tab::fill_data()
 
 void map_tab::fill_background_list()
 {
+
+    // BACKGROUND //
     QString bg1_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
-    QString bg2_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename);
     common::fill_files_combo("images/map_backgrounds", ui->bg1_filename);
     ui->bg1_filename->setCurrentIndex(ui->bg1_filename->findText(bg1_filename));
     ui->bg1_y_pos->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y);
 
     float bg1_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed/10;
     ui->bg1_speed->setValue(bg1_speed);
-    float bg2_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed/10;
+
     std::stringstream ss;
     ss.str(std::string());
     ss << "background-color: rgb(" << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g << ", " << Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b << ")";
@@ -104,6 +105,19 @@ void map_tab::fill_background_list()
 
     ui->autoScrollBG1_mode->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].auto_scroll);
 
+    // FOREGROUND //
+    QString fg_layer_filename(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename);
+
+    common::fill_files_combo("images/map_backgrounds", ui->fb_image_comboBox);
+    ui->fb_image_comboBox->setCurrentIndex(ui->fb_image_comboBox->findText(fg_layer_filename));
+    ui->fg_position_spinBox->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y);
+    float fg_layer_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed/10;
+    ui->fg_speed_doubleSpinBox->setValue(fg_layer_speed);
+    ui->fg_opacity_spinBox->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].gfx);
+
+
+
+    // TILESET //
     QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
     if (tileset.length() > 0) {
         ui->stageTileset_comboBox->setCurrentIndex(ui->stageTileset_comboBox->findText(tileset));
@@ -559,3 +573,43 @@ void map_tab::on_mapAutoScroll_checkBox_clicked(bool checked)
     Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].autoscroll[Mediator::get_instance()->currentMap] = checked;
 }
 
+
+void map_tab::on_fb_image_comboBox_currentIndexChanged(const QString &arg1)
+{
+    if (_data_loading == true) { return; }
+    if (arg1.toStdString() == std::string("None")) {
+        Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
+    } else {
+        sprintf(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
+    }
+    update_edit_area();
+}
+
+void map_tab::on_fg_speed_doubleSpinBox_valueChanged(double arg1)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    std::cout << ">> on_FG_speed_valueChanged - setvalue: " << arg1 << ", FG.speed: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed << std::endl;
+    update_edit_area();
+}
+
+void map_tab::on_fg_position_spinBox_valueChanged(int arg1)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
+    update_edit_area();
+}
+
+void map_tab::on_fg_show_checkBox_toggled(bool checked)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->show_fg_layer = checked;
+    update_edit_area();
+}
+
+void map_tab::on_fg_opacity_spinBox_valueChanged(int arg1)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].gfx = arg1;
+    update_edit_area();
+}

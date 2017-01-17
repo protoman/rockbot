@@ -27,6 +27,7 @@ namespace format_v4 {
         Uint8 android_touch_controls_size;                  // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
         Sint8 wii_joystick_type;                            // for wii to define between wiimote, classic, gamecube, etc
         Uint8 playstation2_video_mode;                      // for playstation 2, define screen resolution setting
+        Uint8 graphics_performance_mode;                                // 0 => lowend, 1=> normal, 2 => highend
 
 
         void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
@@ -304,6 +305,7 @@ namespace format_v4 {
             android_touch_controls_size = 1;
             wii_joystick_type = 0;
             playstation2_video_mode = 0;
+            graphics_performance_mode = 1;
         }
 
 

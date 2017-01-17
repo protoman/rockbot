@@ -383,7 +383,7 @@ void MainWindow::on_checkBox_2_clicked(bool checked)
 
 void MainWindow::on_checkBox_3_clicked(bool checked)
 {
-    Mediator::get_instance()->show_bg2 = checked;
+    Mediator::get_instance()->show_fg_layer = checked;
     map_edit_tab->update_edit_area();
 }
 

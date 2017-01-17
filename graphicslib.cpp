@@ -184,6 +184,8 @@ void graphicsLib::preload()
     preload_faces();
     preload_images();
     preload_anim_tiles();
+    water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
+    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
 }
 
 
@@ -631,6 +633,11 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 {
     SDL_SetAlpha(surface.get_surface(), SDL_SRCALPHA, alpha);
+}
+
+void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
+{
+    SDL_SetAlpha(surface->get_surface(), SDL_SRCALPHA, alpha);
 }
 
 
@@ -1955,6 +1962,17 @@ void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSu
 {
     initSurface(st_size(newSurface.width, newSurface.height), &frame->frameSurface);
     copyArea(st_position(0, 0), &newSurface, &frame->frameSurface);
+}
+
+void graphicsLib::place_water_tile(st_position dest)
+{
+    //copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
+
+    //std::cout << "GRAPH::place_water_tile[" << dest.x << "][" << dest.y << "]" << std::endl;
+
+    if (dest.x >= -TILESIZE) {
+        copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), dest, water_tile, game_screen);
+    }
 }
 
 #ifdef PSP

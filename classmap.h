@@ -201,13 +201,19 @@ private:
 
     void draw_dynamic_backgrounds();
 
+    void draw_foreground_layer(int scroll_x, int scroll_y);
+
     void adjust_dynamic_background_position();
+
+    void adjust_foreground_position();
 
     bool value_in_range(int value, int min, int max) const;
 
     void create_dynamic_background_surfaces();
 
     graphicsLib_gSurface* get_dynamic_bg();
+
+    graphicsLib_gSurface* get_dynamic_foreground();
 
 
 public:
@@ -224,6 +230,7 @@ private:
     st_float_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
     st_float_position bg_scroll;
+    st_float_position fg_layer_scroll;
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;
