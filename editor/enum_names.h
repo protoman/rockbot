@@ -70,6 +70,7 @@ void init_enum_names() {
     AI_ACTION_WALK_OPTIONS.push_back("TO SAVED POINT");
     AI_ACTION_WALK_OPTIONS.push_back("TURN TO PLAYER");
     AI_ACTION_WALK_OPTIONS.push_back("RANDOM DIRECTION");
+    AI_ACTION_WALK_OPTIONS.push_back("TO OPPOSITE WALL");
 
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD");
     AI_ACTION_FLY_OPTIONS.push_back("TURN");
@@ -82,8 +83,8 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("DRILL DOWN");
     AI_ACTION_FLY_OPTIONS.push_back("VERTICAL CENTER");
     AI_ACTION_FLY_OPTIONS.push_back("PLAYER DIRECTION");
-    AI_ACTION_FLY_OPTIONS.push_back("TO OPOSITE WALL");
-    AI_ACTION_FLY_OPTIONS.push_back("TO OPOSITE (SHOOT #1)");
+    AI_ACTION_FLY_OPTIONS.push_back("TO OPPOSITE WALL");
+    AI_ACTION_FLY_OPTIONS.push_back("TO OPPOSITE (SHOOT #1)");
     AI_ACTION_FLY_OPTIONS.push_back("TO PLAYER X");
     AI_ACTION_FLY_OPTIONS.push_back("TO PLAYER Y");
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD [Y-ZIG-ZAG]");
@@ -114,6 +115,7 @@ void init_enum_names() {
     AI_ACTION_DASH_OPTIONS.push_back("LEFT");
     AI_ACTION_DASH_OPTIONS.push_back("RIGHT");
     AI_ACTION_DASH_OPTIONS.push_back("TO PLAYER");
+    AI_ACTION_DASH_OPTIONS.push_back("TO OPPOSITE WALL");
     // -------------------------------------------------------------- //
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("LEFT");
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("RIGHT");

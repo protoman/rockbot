@@ -382,13 +382,14 @@ FILE-FORMAT-V4:
     # Bat has too many hit points
     # missing tiles in Seahorse's boss room
     # castle5 teleporters get scroll out of position
-
-
-
-
-
-
 - warning on intro about the free version
 - remove final-boss flag from air-pusher
-
 - setar destrin como final boss no rockbot1
+
+
+- adicionar opção performance mode
+    OK # HIGH: habilita background2 (que vira foreground)
+    OK # HIGH: tiles de água ganham uma transparência azul por cima
+    OK # LOW: desabilita background com autoscroll
+    OK # LOW: target FPS setado para 30, velocidade de movimento x2 (criar global)
+- fazer valkyrie ir no chão para soltar raio

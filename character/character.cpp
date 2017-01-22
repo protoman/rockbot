@@ -192,10 +192,10 @@ void character::charMove() {
 
     if (state.animation_type == ANIM_TYPE_HIT) {
 
-        if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
+        //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
-            std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
+            //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
 
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
@@ -1451,30 +1451,25 @@ bool character::slide(st_float_position mapScrolling)
     /// @TODO: share common code between jump and slide
 
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        //std::cout << "CHAR::slide - RETURN #0" << std::endl;
         return false;
     }
 
     if ((state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && can_air_dash() == false) {
-        //std::cout << "CHAR::slide - RETURN #1" << std::endl;
         return false;
     }
 
 
 	if (is_in_stairs_frame()) {
-        //std::cout << "CHAR::slide - RETURN #2" << std::endl;
 		return false;
 	}
 
 	// no need to slide
     if (state.animation_type != ANIM_TYPE_SLIDE && moveCommands.dash != 1) {
-        //std::cout << "CHAR::slide - RETURN #3" << std::endl;
 		return false;
 	}
 
     // player have double jump (without being armor) can't use slide
     if (GameMediator::get_instance()->player_list[_number].can_double_jump) {
-        std::cout << "CHAR::slide - RETURN #4" << std::endl;
         return false;
     }
 
@@ -1492,7 +1487,6 @@ bool character::slide(st_float_position mapScrolling)
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
-        std::cout << "CHAR::slide - RETURN #5, map_lock[" << map_lock << "]" << std::endl;
         return false;
     }
 
@@ -1504,7 +1498,6 @@ bool character::slide(st_float_position mapScrolling)
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
-        std::cout << "CHAR::slide - RETURN #6" << std::endl;
         return false;
     }
     */
@@ -1517,11 +1510,10 @@ bool character::slide(st_float_position mapScrolling)
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
-        std::cout << "CHAR::slide - RETURN #7" << std::endl;
         return false;
     }
 
-    std::cout << "_dash_button_released: " << _dash_button_released << std::endl;
+    //std::cout << "_dash_button_released: " << _dash_button_released << std::endl;
 
     // start slide
     if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
@@ -1537,14 +1529,11 @@ bool character::slide(st_float_position mapScrolling)
                     adjust_x = frameSize.width+3;
                 }
                 map->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction, st_size(8, 8));
-//            } else {
-//                std::cout << "CHAR::slide - RETURN #A" << std::endl;
             }
 		}
     }
 
     if (state.animation_type != ANIM_TYPE_SLIDE) {
-        std::cout << "CHAR::slide - RETURN #6" << std::endl;
         return false;
     }
 
@@ -1607,7 +1596,6 @@ bool character::slide(st_float_position mapScrolling)
 
 
     if (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER) {
-        std::cout << "##### SLIDE::MOVE #####" << std::endl;
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
     }
@@ -1763,6 +1751,8 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
             must_block = true;
+        } else if (is_player() == false && new_map_lock == TERRAIN_DOOR) {
+            must_block = true;
         } else if (new_map_lock == TERRAIN_EASYMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_EASY) {
                 must_block = true;
@@ -1798,21 +1788,21 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     if (incx > 0) {
         direction = ANIM_DIRECTION_RIGHT;
     }
-	if (is_player() && incx > 0 && map_lock == TERRAIN_DOOR) {
+    if (incx > 0 && map_lock == TERRAIN_DOOR) {
         gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
 		return true;
 	}
-	if (is_player() && incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
+    if (incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
         gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
 		return true;
 	}
-    if (is_player() == true && state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
+    if (state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
         damage(SPIKES_DAMAGE, false);
         return true;
     }
-	if (is_player() && map_lock == TERRAIN_CHECKPOINT) {
+    if (map_lock == TERRAIN_CHECKPOINT) {
 		checkpoint.x = position.x;
-                checkpoint.y = position.y/TILESIZE;
+        checkpoint.y = position.y/TILESIZE;
 		checkpoint.map = map->get_number();
 		checkpoint.map_scroll_x = map->getMapScrolling().x;
 	}
@@ -2005,7 +1995,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             }
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, 0, map_point);
-            if (process_special_map_points(new_map_lock, incx, incy, map_point)) {
+            if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
 		}
@@ -2037,7 +2027,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 terrain_type = new_map_lock;
             }
 
-            if (process_special_map_points(new_map_lock, incx, incy, map_point)) {
+            if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
 			// STAIRS
@@ -2719,6 +2709,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
     if (now_timer > hit_duration+last_hit_time) {
         hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
     }
+    GAME_FLAGS[FLAG_INFINITE_HP] = true;
     if (!is_player() || GAME_FLAGS[FLAG_INFINITE_HP] == false) {
         hitPoints.current -= damage_points;
         //std::cout << "CHAR::DAMAGE::damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
@@ -2726,8 +2717,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
 
     if (is_player() == true && state.animation_type != ANIM_TYPE_HIT) {
-
-        std::cout << ">> SET-ANIM_TYPE_HIT <<" << std::endl;
 
         set_animation_type(ANIM_TYPE_HIT);
         if (_obj_jump.is_started() == true) {

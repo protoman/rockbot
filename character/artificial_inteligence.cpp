@@ -920,15 +920,15 @@ void artificial_inteligence::execute_ai_step_walk()
     short move_type = _parameter;
     _dest_point.y = position.y; // is not flying, keep the position
 
-    //std::cout << "execute_ai_step_walk::EXEC - status: " << _ai_state.sub_status << ", move_type: " << move_type << std::endl;
+    //if (name == "KURUPIRA BOT") std::cout << "execute_ai_step_walk::EXEC - status: " << _ai_state.sub_status << ", move_type: " << move_type << std::endl;
 
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
 
-        //std::cout << "execute_ai_step_walk::INIT" << std::endl;
+        //if (name == "KURUPIRA BOT") std::cout << "execute_ai_step_walk::INIT" << std::endl;
 
         // if not on ground and can't fly, leave
         if (hit_ground() == false && can_fly == false) {
-            //std::cout << "**** AI::execute_ai_step_walk - INIT - can't walk on midair" << std::endl;
+            if (name == "KURUPIRA BOT") std::cout << "**** AI::execute_ai_step_walk - INIT - can't walk on midair" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             set_animation_type(ANIM_TYPE_STAND);
             return;
@@ -954,21 +954,31 @@ void artificial_inteligence::execute_ai_step_walk()
                 }
             } else if (move_type == AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION) {
                 state.direction = rand() % 2;
-                std::cout << "AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION, direction: " << (int)state.direction << std::endl;
+                if (name == "KURUPIRA BOT") std::cout << "AI_ACTION_WALK_OPTION_TO_RANDOM_DIRECTION, direction: " << (int)state.direction << std::endl;
                 if (state.direction == ANIM_DIRECTION_LEFT) {
                     _dest_point.x = position.x - frameSize.width/2 - walk_range;
                 } else {
                     _dest_point.x = position.x + frameSize.width/2 + walk_range;
                 }
+            } else if (move_type == AI_ACTION_WALK_OPTION_TO_OPPOSITE_DIRECTION) {
+                if (realPosition.x > RES_W/2) {
+                    state.direction = ANIM_DIRECTION_LEFT;
+                    _dest_point.x = position.x - walk_range;
+                } else {
+                    state.direction = ANIM_DIRECTION_RIGHT;
+                    _dest_point.x = position.x + walk_range;
+                }
+                //std::cout << "AI::AI_ACTION_WALK_OPTION_TO_OPPOSITE_DIRECTION - dest.x: " << _dest_point.x << ", dest.y: " << _dest_point.y << ", pos.x: " << position.x << ", pos.y: " << position.y << std::endl;
+                _origin_point.x = position.x;
             }
             set_animation_type(ANIM_TYPE_WALK);
         }
 
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-        //std::cout << ">>>>>>> artificial_inteligence::execute_ai_step_walk - direction" << state.direction << std::endl;
+        //if (name == "KURUPIRA BOT") std::cout << ">>>>>>> artificial_inteligence::execute_ai_step_walk - direction" << (int)state.direction << std::endl;
 	} else {
         if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_TURN) {
-            //std::cout << "AI::execute_ai_step_walk::exec - TURN - direction: " << state.direction << std::endl;
+            //if (name == "KURUPIRA BOT") std::cout << "AI::execute_ai_step_walk::exec - TURN - direction: " << state.direction << std::endl;
             if (_is_last_frame == true) { // finished turn animation
                 //std::cout << "AI::execute_ai_step_walk::exec - TURN - last frame - direction: " << state.direction << std::endl;
                 if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -991,7 +1001,7 @@ void artificial_inteligence::execute_ai_step_walk()
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         } else {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
-                //std::cout << "AI::execute_ai_step_walk::exec - reached point or is blocked" << std::endl;
+                if (name == "KURUPIRA BOT") std::cout << "AI::execute_ai_step_walk::exec - reached point or is blocked" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -1051,7 +1061,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
                 set_animation_type(ANIM_TYPE_STAND);
             }
         } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
-            std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
+            //std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
             throw_projectile(_parameter, invert_direction);
             _did_shot = true;
         }
@@ -1461,6 +1471,16 @@ void artificial_inteligence::execute_ai_step_dash()
             //_dest_point.x = dist_players.pObj->getPosition().x;
             _dest_point.y = position.y;
             std::cout << ">>>>>>>>> AI::DASH::INIT - dest_point.x: " << _dest_point.x << ", walk_range: " << walk_range << ", position.x: " << position.x << std::endl;
+        } else if (_parameter == AI_ACTION_DASH_OPTION_OPPOSITE_DIRECTION) {
+            if (realPosition.x > RES_W/2) {
+                state.direction = ANIM_DIRECTION_LEFT;
+                _dest_point.x = position.x - walk_range;
+            } else {
+                state.direction = ANIM_DIRECTION_RIGHT;
+                _dest_point.x = position.x + walk_range;
+            }
+            //std::cout << "AI::AI_ACTION_DASH_OPTION_OPPOSITE_DIRECTION - dest.x: " << _dest_point.x << ", dest.y: " << _dest_point.y << ", pos.x: " << position.x << ", pos.y: " << position.y << std::endl;
+            _origin_point.x = position.x;
         } else {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED; // unknown mode
             if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #10" << std::endl;
@@ -1468,7 +1488,7 @@ void artificial_inteligence::execute_ai_step_dash()
         }
     } else {
         //std::cout << "###### AI::execute_ai_step_dash - execute - dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
-        if (move_to_point(_dest_point, move_speed*1.5, 0, is_ghost) == true) {
+        if (move_to_point(_dest_point, move_speed*2, 0, is_ghost) == true) {
             std::cout << "AI::DASH::FINISH #1" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
@@ -1578,7 +1598,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         bool test_x_move = test_change_position(block_speed_x, 0);
         bool test_y_move = test_change_position(0, block_speed_y);
 
-        //if (name == "Giant Fly") std::cout << "AI::move_to_point - test_x_move: " << test_x_move << ", block_speed_x: " << block_speed_x << std::endl;
+        //if (name == "KURUPIRA BOT") std::cout << "AI::move_to_point - test_x_move: " << test_x_move << ", block_speed_x: " << block_speed_x << std::endl;
 
 
         if (test_x_move == false) {
@@ -1602,13 +1622,15 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         yinc = -speed_y;
     }
 
-    //std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
+    if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
 
     // checking
     bool can_move_x = true;
     bool can_move_y = true;
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
+
+    if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
         return true;
@@ -1622,7 +1644,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
 
     // check that we are not in a infinite loop of walking, because if we do, we don't stop moving
     if (_always_move_ahead == false) {
-        if (type == AI_ACTION_WALK && can_fly == false && can_move_x == true && xinc != 0 && yinc == 0) {
+        if ((type == AI_ACTION_WALK || type == AI_ACTION_DASH) && can_fly == false && can_move_x == true && xinc != 0 && yinc == 0) {
             st_position map_point(position.x/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
             if (state.direction == ANIM_DIRECTION_RIGHT) {
                 map_point.x = (position.x + frameSize.width)/TILESIZE;
@@ -1630,7 +1652,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
             int map_lock = map->getMapPointLock(map_point);
             //std::cout << "AI::move_to_point - HOLE check: " << map_lock << " - direction: " << state.direction << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER) {
-                //std::cout << "AI::move_to_point - HOLE AHEAD - direction: " << state.direction << std::endl;
+                if (name == "KURUPIRA BOT") std::cout << "AI::move_to_point - HOLE AHEAD - direction: " << state.direction << std::endl;
                 return true;
             }
         }
@@ -1648,7 +1670,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
 
 
 
-        //std::cout << "pos.x/TILESIZE: " << (position.x/TILESIZE) << ", map_point_ahead.x: " << map_point_ahead.x << ", map_point_ahead.y: " << map_point_ahead.y << ", map_lock_ahead: " << map_lock_ahead << ", map_lock_top: " << map_lock_top << std::endl;
+        if (name == "KURUPIRA BOT") std::cout << "pos.x/TILESIZE: " << (position.x/TILESIZE) << ", map_point_ahead.x: " << map_point_ahead.x << ", map_point_ahead.y: " << map_point_ahead.y << ", map_lock_ahead: " << map_lock_ahead << ", map_lock_top: " << map_lock_top << std::endl;
         if (hit_ground() == true && speed_y == 0 && speed_x != 0) { // check if is trying to move on X axis only
             if ((map_lock_ahead != TERRAIN_WATER && map_lock_ahead != TERRAIN_UNBLOCKED) && (map_lock_top == TERRAIN_WATER || map_lock_top == TERRAIN_UNBLOCKED)) { // check that the terrain over the block is free
                 std::cout << ">> AI::move_to_point - TRY TO JUMP <<" << std::endl;

@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
 
 			} else if (temp_argv == "--quickload") {
 				GAME_FLAGS[FLAG_QUICKLOAD] = true;
-			} else if (temp_argv == "--invencible") { // player have infinite HP
+            } else if (temp_argv == "--invencible") { // player is not hit by enemies
 				GAME_FLAGS[FLAG_INVENCIBLE] = true;
 			} else if (temp_argv == "--allweapons") { // player have all weapons available even if
 				GAME_FLAGS[FLAG_ALLWEAPONS] = true;
