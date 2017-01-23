@@ -25,12 +25,11 @@ VERSION 2.0.0 RELEASE #2
     # fogo-fátuo é o cara!
 
 
-
+- arma do snow está com cores erradas (ou está mostrando as erradas)
 
 - não está entrando na configuração pela tela de armas, com o botão R, no android
 
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
-
 
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
     # também ao iniciar estágio (ver bg fase valkyrie)
@@ -79,11 +78,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- chefe trancando na porta
-    # tem que impedir que eles entrem parcialmente dentro de terreno door, nem que expandindo área de colisão neste caso
-    # parece que ao atirar projétil ele move para frente e depois para trás
-- adicionar "to oposite wall" na IA de walk e dash (como de fly)
-- dash de inimigos está muito lento
+
 
 
 =========================================================================================================================================

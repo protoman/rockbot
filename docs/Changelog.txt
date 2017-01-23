@@ -385,11 +385,18 @@ FILE-FORMAT-V4:
 - warning on intro about the free version
 - remove final-boss flag from air-pusher
 - setar destrin como final boss no rockbot1
-
-
 - adicionar opção performance mode
     OK # HIGH: habilita background2 (que vira foreground)
     OK # HIGH: tiles de água ganham uma transparência azul por cima
     OK # LOW: desabilita background com autoscroll
     OK # LOW: target FPS setado para 30, velocidade de movimento x2 (criar global)
 - fazer valkyrie ir no chão para soltar raio
+- chefe trancando na porta
+    # tem que impedir que eles entrem parcialmente dentro de terreno door, nem que expandindo área de colisão neste caso
+    # parece que ao atirar projétil ele move para frente e depois para trás
+- adicionar "to oposite wall" na IA de walk e dash (como de fly)
+- dash de inimigos está muito lento
+
+
+
+

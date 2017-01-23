@@ -27,6 +27,9 @@ extern std::string GAMEPATH;
 extern std::string GAMENAME;
 extern bool GAME_FLAGS[FLAG_COUNT];
 
+// versioned file for config, so we can force resetting it
+#define CONFIG_FILENAME "/config_v200.sav"
+
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ************************************************************************************************************* //
@@ -722,7 +725,7 @@ namespace format_v4 {
     void file_io::load_config(format_v4::st_game_config& config)
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/config.sav";
+        std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -757,7 +760,7 @@ namespace format_v4 {
     void file_io::save_config(st_game_config &config) const
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + "/config.sav";
+        std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {

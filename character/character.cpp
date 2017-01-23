@@ -2709,7 +2709,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
     if (now_timer > hit_duration+last_hit_time) {
         hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
     }
-    GAME_FLAGS[FLAG_INFINITE_HP] = true;
+
     if (!is_player() || GAME_FLAGS[FLAG_INFINITE_HP] == false) {
         hitPoints.current -= damage_points;
         //std::cout << "CHAR::DAMAGE::damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
