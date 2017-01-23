@@ -32,8 +32,6 @@ VERSION 2.0.0 RELEASE #2
 - após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
     # também ao iniciar estágio (ver bg fase valkyrie)
 
-- criar diálogos para fases demo (intro, 1 e 8)
-
 - air-dash consegue entrar na sala do boss
     # tem que cancelar qualquer dash e input
 
@@ -42,21 +40,14 @@ VERSION 2.0.0 RELEASE #2
 
 - implementar abertura usando edição de cenas
 
-
-
 - update build script files to copy font to GAMEDIR
     # remove non-used fonts
     # remove non-used graphics
-
-TESTAR - desabilitar opção do google play services por hora
 
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
-- phantom: atualizar tileset
-    # http://opengameart.org/content/8-bit-side-scroller-castle-tiles
-    # avisar autor
 - beast: refatorar, arrumar
 - dragon: melhorar tileset
     # http://vgmaps.com/Atlas/NES/DoubleDragonIII-SacredStones-Mission3-Japan.png
@@ -76,6 +67,8 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- criar diálogos para fases demo (intro, snow e kurupira)
+- desabilitar opção do google play services por hora
 
 
 
@@ -84,9 +77,7 @@ VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
 - criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
 
-- colocar alguma imagem nos estágios que não podem ser selecionados na demo
-
-- atualizar template de novo jogo
+- testar rockbot1 inteiro. jogo deve ser finalizável do início ao fim
 
 - adicionar créditos ao terminar jogo
 
@@ -94,6 +85,7 @@ VERSION 2.0.0 RELEASE #3
 
 - optimização:
     # deve rodar a 60 fps no PSP, PS2 e Dingoo
+    # deve rodar a 30 fps bem no PSP com a opção low-end
     # criar lista de npcs e objetos "on-screen"
     # rodar optimização no qtcreator (clang)
     # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
@@ -101,31 +93,14 @@ VERSION 2.0.0 RELEASE #3
 
 - ver porque android tem mais de um joystick para selecionar
 
-- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
-
 - melhorar script de build incluindo ABI (x86/ARM)
 
-- EDITOR: mover diálogos de estágio para edição de strings
-
-- separar GFX em sua própria classe que a draw usará
-    # rain
-    # snow
-    # underwater
-    # train
-    # flash-stopper
-    # lighthing-bolt
-
-
 - mover funções de configuração de sceneslib para class_config
-
-- se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
-- adicionar suporte à configuração de controle do wii
-    # The Wii controllers are mapped as SDL joysticks 0-3. The gamecube controller ports are mapped as SDL joysticks 4-7
-
 
 - PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
 
 - adicionar suporte à configuração de resolução do playstation 2
+
 - test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
     # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
 
@@ -142,15 +117,12 @@ VERSION 2.0.0 RELEASE #3
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 
-
 - ANDROID: opçao, na config do jogo, para tamanho do controle
 - ANDROID: opçao no jogo, para esconder joystick
     # ou ver se tem como decetar se esta usando um que nao seja a tela de toque
+    # só esconde, deve confinuar funcionando para caso dê problema
 
-- WII: cores dos personagens não estão sendo setadas
-- WII: fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
 
-- PSP: investigar razão da lentidão
 - PSP: Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
 
 - tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
@@ -164,28 +136,16 @@ VERSION 2.0.0 RELEASE #3
 - usar mirror em projéteis assim como players (remover duplicata das imagems)
     # proj.position_to_ground deve ser ajustada
 
-- substituir exit() por saída graciosa em todos os lugares possíveis
-
 - objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
 
-- investigar porque projéteis e tiles animados estão tendo que ser convertidos para 8 bits de cor senão perdem transparência
-
 - EDITOR: gerar UI das actions da AI via código
 
-- four player selection
-    # art for beta and kitty
-    # pixel art for beta and kitty
-    # update template
-
-- portas devem ser um objeto
-    # melhorar a animação (player piscando)
+- melhorar animação das portas (piscam)
 
 - se pulo/teleporte tiver mais de um frame  de animação, os últimos deve ser usados como "aterrisagem" quando encostar no chão
 
-
 - GAME::PROJECTILE: projétil deve usar flip assim como character
-
 
 - incorporar efeitos sonoros do Aurelien
 
@@ -197,13 +157,10 @@ VERSION 2.0.0 PRE-RELEASE #4
     # gravar vozes
     # usar vozes do Nelson
 
-- ANDROID: implementar login play services (opção na configuração do jogo)
-- ANDROID: implementar save na nuvem
 - ANDROID: new icon
-- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
 
+- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
 
-- investigar velocidade no PSP
 
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 - GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
@@ -233,15 +190,14 @@ VERSION 2.0.0 PRE-RELEASE #4
 - substituir todos os efeitos sonoros por versões free
 
 - tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
-- tentar melhorar leitura de joystick para pegar o estado, e não os eventos
+
+- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
+
 
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #5
 =========================================================================================================================================
-- ANDROID: implementar In-app Billing - http://developer.android.com/google/play/billing/billing_integrate.html
 
-- não tirar tiro carregado ao passar por uma porta
-    * manter tiro carregado mesmo se aparecer dialogos e o usuário soltar o botão (o que vale é ele estar preso quando acabar o diálogo)
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
     - usar mais disseppearing blocks
     - usar mais plataformas move-left/right
@@ -265,7 +221,11 @@ VERSION 2.0.0 PRE-RELEASE #5
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #6
 =========================================================================================================================================
-- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
+- atualizar template de novo jogo
+
+- tirar teleporte de debug das fases
+
+- tentar optimizar PSP para rodar a 60 fps
 
 - port to GCW:
     * http://www.gcw-zero.com/news.php?id=13
@@ -276,6 +236,12 @@ VERSION 2.0.0 PRE-RELEASE #6
 Inspirations:
 http://www23.atwiki.jp/rockmanforte/pages/21.html
 
+- se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
+- adicionar suporte à configuração de controle do wii
+    # The Wii controllers are mapped as SDL joysticks 0-3. The gamecube controller ports are mapped as SDL joysticks 4-7
+
+- WII: cores dos personagens não estão sendo setadas
+- WII: fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE
@@ -287,6 +253,16 @@ VERSION 2.0.0 RELEASE
 =========================================================================================================================================
 VERSION 2.0.1 RELEASE
 =========================================================================================================================================
+- substituir exit() por saída graciosa em todos os lugares possíveis
+
+- separar GFX em sua própria classe que a draw usará
+    # rain
+    # snow
+    # underwater
+    # train
+    # flash-stopper
+    # lighthing-bolt
+
 - AI ACTIONS:
     * add 4 types of jump in AI - short, medium, long, moonwalk
     * add jump-up (and jump-down together) to AI (parameter for jump up is gravity level)
@@ -302,6 +278,11 @@ VERSION 2.0.1 RELEASE
 =========================================================================================================================================
 VERSION 2.0.2
 =========================================================================================================================================
+- ANDROID: implementar login play services (opção na configuração do jogo)
+- ANDROID: implementar save na nuvem
+- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
+
+
 - some Megaman 2 features:
     - 1/ballom item (slowly up)
     - weapon that explodes releasing several NPCs (ave com ovo)
@@ -320,6 +301,9 @@ VERSION 2.0.3
     - NPC that darkens screen if visible (shadow)
     - laser projectile (gemini)
     - killing an NPC can activate/deactivate a list of objects (big-snake)
+
+- ANDROID: implementar In-app Billing - http://developer.android.com/google/play/billing/billing_integrate.html
+
 
 =========================================================================================================================================
 VERSION 2.0.4
