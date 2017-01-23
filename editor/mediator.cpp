@@ -78,8 +78,10 @@ Mediator::Mediator() : stage_data() {
         ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     }
     if (projectile_list.size() == 0) {
-        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     }
+
+
     if (scene_list.size() == 0) {
         scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
     }
@@ -394,9 +396,17 @@ void Mediator::load_game() {
             ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
         }
     }
+
+    /*
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat");
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    }
+    */
+
+    projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat");
+    if (projectile_list.size() == 0) {
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     }
 
     scene_list = fio_scenes.load_scenes();
@@ -427,7 +437,11 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
+    //fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
+
+    //convertProjectileListToV2();
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat", projectile_list);
+
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", player_list);
@@ -437,6 +451,16 @@ void Mediator::save_game()
     save_dialogs();
 
 }
+
+/*
+void Mediator::convertProjectileListToV2()
+{
+    projectile_list.clear();
+    for (int i=0; i<projectile_list.size(); i++) {
+        projectile_list_v2.push_back(CURRENT_FILE_FORMAT::file_projectilev2(projectile_list.at(i)));
+    }
+}
+*/
 
 
 void Mediator::centNumberFormat(int n) {

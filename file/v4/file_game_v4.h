@@ -20,7 +20,7 @@
 
 namespace format_v4 {
 
-
+/*
     struct file_projectile {
         char name[CHAR_NAME_SIZE];
         char graphic_filename[FS_CHAR_NAME_SIZE];
@@ -53,7 +53,63 @@ namespace format_v4 {
             spawn_npc_n = 0;
         }
     };
+*/
 
+    struct file_projectilev2 {
+        char name[CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        st_size size;
+        bool is_destructible;                                   // indicates if the projectile can be shot down, if true, uses HP
+        Uint8 hp;                                               // how much danage needs to be taken to destruct the projectile
+        Uint8 trajectory;                                       // RENAMED from projectile_type in 2.1
+        Uint8 max_shots;                                        // number of maximum simultaneous projectiles, if 0, is infinite
+        Uint8 speed;                                            // now many pixels are moved into a step
+        Uint8 damage;                                           // how many hitpoints will be reduced from target
+        // new in 3.0.1
+        char sfx_filename[FS_CHAR_NAME_SIZE];                  // allows to use different projectile shot sound
+        bool can_be_reflected;                                  // if false, like in a charged-shot, can't be reflected by shield
+        Uint8 spawn_npc_id;                                     // will spawn NPCs (like bird egg in mm2)
+        Uint8 spawn_npc_n;
+        bool is_explosive;
+        // number of NPCs that will be spawned
+        file_projectilev2() {
+            sprintf(name, "%s", "Projectile");
+            sprintf(graphic_filename, "%s", "projectile_normal.png");
+            is_destructible = false;
+            hp = 1;
+            size.width = 6;
+            size.height = 6;
+            trajectory = TRAJECTORY_LINEAR;
+            max_shots = 3;
+            speed = PROJECTILE_DEFAULT_SPEED;
+            damage = PROJECTILE_DEFAULT_DAMAGE;
+            sfx_filename[0] = '\0';
+            can_be_reflected = true;
+            spawn_npc_id = -1;
+            spawn_npc_n = 0;
+            is_explosive = false;
+        }
+
+        /*
+        file_projectilev2(file_projectile v1) {
+            sprintf(name, "%s", v1.name);
+            sprintf(graphic_filename, "%s", v1.graphic_filename);
+            size.width = v1.size.width;
+            size.height = v1.size.height;
+            is_destructible = v1.is_destructible;
+            hp = v1.hp;
+            trajectory = v1.trajectory;
+            max_shots = v1.max_shots;
+            speed = v1.speed;
+            damage = v1.damage;
+            sprintf(sfx_filename, "%s", v1.sfx_filename);
+            can_be_reflected = v1.can_be_reflected;
+            spawn_npc_id = v1.spawn_npc_id;
+            spawn_npc_n = v1.spawn_npc_n;
+            is_explosive = false;
+        }
+        */
+    };
 
 
     struct st_sprite_data {

@@ -2,13 +2,11 @@
 VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
 - ROCKBOT1:
-    # Seahorse eventualmente fica preso dentro da porta
     # em modo demo, não entra em estágios já finalizados
     # Daisiebot afunda no chão ao mudar direção (turn)
         # talvez seja hitarea do turn
-    # mage: roof shooter não está disparando
     # implementar final com editor de cenas
-    # adicionar limpar a tela quando inicia uma sequência de cenas (a primeira cena, no caso)
+    # adicionar limpar a tela quando inicia uma sequência de cenas (a primeira cena da sequẽncia apenas, no caso)
 
 - Fases Castle:
     # dungeon medieval
@@ -17,13 +15,13 @@ VERSION 2.0.0 RELEASE #2
     # ruas da cidade (streets of rage, mighty final fight)
     # space, the final frontier (moon stage de duck tales)
 
-
 - definir uma arma (tipo de projétil) que quebra caixas como a bomba
     # novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
     # vai reto e depois quebra em 4 pedaços que voam nas diagonais
     # quebra em paredes
     # fogo-fátuo é o cara!
-
+    # adicionar uma propriedade ao projétil que determina ser explosivo
+        # ler do arquivo/formato antigo e salvar no novo
 
 - arma do snow está com cores erradas (ou está mostrando as erradas)
 

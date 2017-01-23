@@ -1071,7 +1071,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
 // creates a projectile, return false if could not fire
 bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_direction)
 {
-    CURRENT_FILE_FORMAT::file_projectile temp_projectile = GameMediator::get_instance()->get_projectile(projectile_type);
+    CURRENT_FILE_FORMAT::file_projectilev2 temp_projectile = GameMediator::get_instance()->get_projectile(projectile_type);
     // some projectile types are limited to one
     if (temp_projectile.trajectory == TRAJECTORY_CENTERED && projectile_list.size() > 0) {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;

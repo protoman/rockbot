@@ -142,7 +142,7 @@ void projectile_edit::on_damage_valueChanged(int arg1)
 
 void projectile_edit::on_pushButton_clicked()
 {
-    Mediator::get_instance()->projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    Mediator::get_instance()->projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     ui->projectileList_combo->addItem(QString("[") + QString::number(Mediator::get_instance()->projectile_list.size()-1) + QString("] Projectile Name"));
     ui->projectileList_combo->setCurrentIndex(Mediator::get_instance()->projectile_list.size()-1);
 }
