@@ -398,5 +398,7 @@ FILE-FORMAT-V4:
 - dash de inimigos está muito lento
 
 
+- criar diálogos para fases demo (intro, snow e kurupira)
+- desabilitar opção do google play services por hora
 
 

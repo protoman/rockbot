@@ -541,9 +541,6 @@ int main(int argc, char *argv[])
     }
 
 
-
-    std::cout << "DEBUG #2" << std::endl;
-
     bool run_game = true;
 
     fps_manager.initialize();
@@ -552,8 +549,6 @@ int main(int argc, char *argv[])
     }
 
     fflush(stdout);
-
-    std::cout << "DEBUG #3" << std::endl;
 
     while (run_game) {
         #if !defined(DINGUX)

@@ -364,12 +364,18 @@ void EditorArea::paintEvent(QPaintEvent *) {
         //printf("editoMode: %d, EDITMODE_NORMAL: %d, editTool: %d, EDITMODE_LINK_DEST: %d\n", Mediator::get_instance()->editMode, EDITMODE_NORMAL, Mediator::get_instance()->editTool, EDITMODE_LINK_DEST);
         if (Mediator::get_instance()->editMode == EDITMODE_LINK && (Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editTool == EDITMODE_LINK)) {
             for (int i=0; i<STAGE_MAX_LINKS; i++) {
+                // link is from and to the same map, draw in a different color
                 if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin) {
                     // translucid blue rectangle
                     if (link_type == LINK_TELEPORTER || link_type == LINK_TELEPORT_LEFT_LOCK || link_type == LINK_TELEPORT_RIGHT_LOCK || link_type == LINK_FADE_TELEPORT) {
                         painter.setBrush(QColor(0, 255, 0, 180));
                     } else {
-                        painter.setBrush(QColor(0, 0, 255, 180));
+                        // if origin and destiny are the same map, use yellow
+                        if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
+                            painter.setBrush(QColor(231, 209, 58, 180));
+                        } else {
+                            painter.setBrush(QColor(0, 0, 255, 180));
+                        }
                     }
                     painter.drawRect(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y *16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom*Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].size, 16*Mediator::get_instance()->zoom);
                     // blue border
@@ -378,12 +384,18 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.drawRect(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom*Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].size, 16*Mediator::get_instance()->zoom);
                     painter.setPen(QColor(255, 255, 255, 255));
                     painter.drawText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.x*16*Mediator::get_instance()->zoom, (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_origin.y+1)*16*Mediator::get_instance()->zoom, QString::number(i));
-                } else if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
+                }
+                if (Mediator::get_instance()->currentMap == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
                     // translucid cyan rectangle
                     if (link_type == LINK_TELEPORTER || link_type == LINK_TELEPORT_LEFT_LOCK || link_type == LINK_TELEPORT_RIGHT_LOCK || link_type == LINK_FADE_TELEPORT) {
                         painter.setBrush(QColor(60, 160, 60, 180));
                     } else {
-                        painter.setBrush(QColor(0, 255, 255, 180));
+                        // if origin and destiny are the same map, use yellow
+                        if (Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_origin == Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].id_map_destiny) {
+                            painter.setBrush(QColor(184, 171, 84, 180));
+                        } else {
+                            painter.setBrush(QColor(0, 255, 255, 180));
+                        }
                     }
                     painter.drawRect(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_destiny.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].pos_destiny.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom*Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].links[i].size, 16*Mediator::get_instance()->zoom);
                     // cyan border

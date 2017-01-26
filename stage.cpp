@@ -182,19 +182,19 @@ Uint8 stage::get_current_map_number()
 
 void stage::set_current_map(int new_map_n)
 {
-    std::cout << "------- stage::set_current_map to " << new_map_n << "-------" << std::endl;
+    //std::cout << "------- stage::set_current_map to " << new_map_n << "-------" << std::endl;
     std::fflush(stdout);
 
 	currentMap = new_map_n;
 
-    std::cout << ">> PASS #1" << std::endl;
+    //std::cout << ">> PASS #1" << std::endl;
     std::fflush(stdout);
 
     // no need to get effect for map zero, as it is set in loadStage method
     if (new_map_n != 0) {
         check_map_effect();
     }
-    std::cout << ">> PASS #2" << std::endl;
+    //std::cout << ">> PASS #2" << std::endl;
     std::fflush(stdout);
 }
 
@@ -308,7 +308,7 @@ int stage::get_teleport_minimal_y_tile(int xpos)
 
     for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
 
-        std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
+        //std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
 
         int map_lock = maps[currentMap].getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
@@ -354,9 +354,9 @@ void stage::check_map_effect()
     if (number == -1 || number >= PRELOAD_MAP_N || stage_is_loaded == false) {
         return;
     }
-    std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
+    //std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
     std::fflush(stdout);
-    std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
+    //std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (maps[currentMap].get_map_gfx() != draw_lib.get_gfx()) {
         draw_lib.set_gfx(maps[currentMap].get_map_gfx());
     }

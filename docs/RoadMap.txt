@@ -23,6 +23,9 @@ VERSION 2.0.0 RELEASE #2
     # adicionar uma propriedade ao projétil que determina ser explosivo
         # ler do arquivo/formato antigo e salvar no novo
 
+
+- JOGO: suportar links de uma sala para ela mesma
+
 - arma do snow está com cores erradas (ou está mostrando as erradas)
 
 - não está entrando na configuração pela tela de armas, com o botão R, no android
@@ -67,8 +70,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- criar diálogos para fases demo (intro, snow e kurupira)
-- desabilitar opção do google play services por hora
+- EDITOR: suportar links de uma sala para ela mesma
 
 
 

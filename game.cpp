@@ -594,7 +594,7 @@ bool game::test_teleport(classPlayer *test_player) {
                         test_player->set_teleporter(i);
                     }
                     link_type = stage_data.links[j].type;
-                    std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
+                    //std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
                     set_player_teleporter(i, st_position(player1.getPosition().x, player1.getPosition().y), false);
 					break;
 				}
@@ -634,6 +634,9 @@ bool game::test_teleport(classPlayer *test_player) {
     // must move the map, so that the dest position in screen is equal to player_real_pos_x
     int new_map_pos_x;
     new_map_pos_x = loaded_stage.getMapScrolling().x - teleporter_dist;
+
+    std::cout << "GAME::test_teleport - old_map_x[" << loaded_stage.getMapScrolling().x << "], new_map_pos_x[" << new_map_pos_x << "], teleporter_dist[" << teleporter_dist << "], dest_x[" << dest_x << "]" << std::endl;
+
     if (new_map_pos_x < 0) {
        new_map_pos_x = 0;
     } else if (new_map_pos_x > MAP_W*TILESIZE) {
@@ -646,6 +649,7 @@ bool game::test_teleport(classPlayer *test_player) {
        diff_h = abs((float)test_player->get_size().width-30);
     }
     new_map_pos_x -= diff_h +2;
+
 
     if (is_link_teleporter(stage_data.links[j].type) == true) {
         if (link_type == LINK_FADE_TELEPORT) {
@@ -868,12 +872,23 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     classMap* temp_map = &loaded_stage.maps[map_n];
     temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
-    temp_map->set_scrolling(st_float_position(adjust_x, 0));
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
+    // if map destiny and map origin are the same, adjust player's X position
+    if (loaded_stage.get_current_map_number() == map_n) {
+        //std::cout << "p.x[" << (int)test_player->getPosition().x << "], p.real.x[" << test_player->get_real_position().x << "]" << std::endl;
+        pObj->set_position(st_position(pObj->get_real_position().x+adjust_x, pObj->get_real_position().y));
+        adjust_x -= TILESIZE;
+    }
+
+    // TODO: adjust player X position when changing from the same map
+    // pegar posição relativa do jogador em relação à tela
+    // posição nova é o scroll-x novo mais essa diferença
+
 	// draw map in the screen, erasing all players/objects/npcs
     loaded_stage.showStage();
+
 
     // draw the offscreen with the new loaded map
 	if (type == TRANSITION_TOP_TO_BOTTOM || type == TRANSITION_BOTTOM_TO_TOP) {
@@ -883,6 +898,9 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
             graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_screen);
         }
+
+        temp_map->set_scrolling(st_float_position(adjust_x, 0));
+
 		// copy the new screen to the temp_area
         graphicsLib_gSurface temp_map_area;
         temp_map->get_map_area_surface(temp_map_area);
@@ -909,10 +927,12 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 			}
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
+                std::cout << "TRANSITION_TOP_TO_BOTTOM, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y > 6) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y - TRANSITION_STEP + extra_y));
 				}
 			} else if (type == TRANSITION_BOTTOM_TO_TOP) {
+                std::cout << "TRANSITION_BOTTOM_TO_TOP, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y < RES_H-TILESIZE*2) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y + TRANSITION_STEP - extra_y));
 				}
@@ -938,7 +958,8 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
             draw_lib.update_screen();
 #if !defined(PLAYSTATION2) && !defined(ANDROID)
-            timer.delay(6);
+            //timer.delay(6);
+            timer.delay(100);
 #endif
 		}
 
@@ -1287,7 +1308,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE8;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 

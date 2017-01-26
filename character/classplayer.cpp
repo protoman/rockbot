@@ -326,7 +326,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (moveCommands.attack == 0 && attack_button_released == false) {
-        std::cout << ">>>>>>>>> attack_button_released[TRUE] #2 <<<<<<<<<<<<<" << std::endl;
+        //std::cout << ">>>>>>>>> attack_button_released[TRUE] #2 <<<<<<<<<<<<<" << std::endl;
         attack_button_released = true;
         return;
     }
@@ -1034,7 +1034,7 @@ void classPlayer::refill_weapons()
 
 void classPlayer::set_teleport_minimal_y(int y)
 {
-    std::cout << "PLAYER::set_teleport_minimal_y[" << y << "]" << std::endl;
+    //std::cout << "PLAYER::set_teleport_minimal_y[" << y << "]" << std::endl;
     _teleport_minimal_y = y-2;
 }
 
@@ -1220,7 +1220,7 @@ void classPlayer::reset_charging_shot()
         return;
     }
     state.attack_timer = 0;
-    std::cout << ">>>>>>>>> attack_button_released[TRUE] #3 <<<<<<<<<<<<<" << std::endl;
+    //std::cout << ">>>>>>>>> attack_button_released[TRUE] #3 <<<<<<<<<<<<<" << std::endl;
     attack_button_released = true;
     soundManager.stop_repeated_sfx();
 
