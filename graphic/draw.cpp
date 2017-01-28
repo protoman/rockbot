@@ -15,6 +15,8 @@
 #define TRAIN_EFFECT_DELAY 180
 #define TRAIN_EFFECT_SCREEN_MOVE 1
 
+#define INFERNO_ALPHA_STEP 3
+
 extern graphicsLib graphLib;
 
 #include "timerlib.h"
@@ -52,6 +54,9 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     _train_sfx = NULL;
     _lightingbolt_effect_timer = 0;
     _lightingbolt_effect_state = 0;
+    // INFERNO EFFECT //
+    _inferno_alpha = 0;
+    _inferno_alpha_mode = 0;
 
 }
 
@@ -65,6 +70,9 @@ void draw::preload()
 
     filename = GAMEPATH + "shared/images/rain.png";
     graphLib.surfaceFromFile(filename, &rain_obj);
+
+    filename = GAMEPATH + "shared/images/black_line.png";
+    graphLib.surfaceFromFile(filename, &shadow_line);
 
     // DROPABLE OBJECT GRAPHICS
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
@@ -88,7 +96,18 @@ void draw::show_gfx()
         show_train_effect();
     } else if (screen_gfx == SCREEN_GFX_LIGHTINGBOLT) {
         show_lightingbolt_effect();
+    } else if (screen_gfx == SCREEN_GFX_SHADOW_TOP) {
+        show_shadow_top_effect();
+    } else if (screen_gfx == SCREEN_GFX_INFERNO) {
+        show_inferno_effect();
+    } else if (screen_gfx != SCREEN_GFX_NONE) {
+        std::cout << "screen_gfx[" << (int)screen_gfx << "] UNKNOWN" << std::endl;
     }
+    // effects that run over the map brackground
+    if (screen_gfx != SCREEN_GFX_INFERNO) {
+        free_inferno_surface();
+    }
+
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
@@ -100,9 +119,10 @@ void draw::update_screen()
     graphLib.updateScreen();
 }
 
-void draw::set_gfx(Uint8 gfx)
+void draw::set_gfx(Uint8 gfx, short mode)
 {
     screen_gfx = gfx;
+    screen_gfx_mode = mode;
     // free train sfx if not using it
     if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
         Mix_FreeChunk(_train_sfx);
@@ -697,6 +717,13 @@ void draw::create_dynamic_background_surface(graphicsLib_gSurface &dest_surface,
 
 graphicsLib_gSurface *draw::get_dynamic_background(string filename)
 {
+    std::map<std::string, graphicsLib_gSurface>::iterator it;
+
+    it = maps_dynamic_background_list.find(filename);
+    if (it == maps_dynamic_background_list.end()) {
+        return NULL;
+    }
+
     return &maps_dynamic_background_list.find(filename)->second;
 }
 
@@ -716,8 +743,14 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
+
+
         graphicsLib_gSurface temp_surface;
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
+
+        std::cout << "MAP::add_bg[" << bg1_filename << "], w[" << (int)temp_surface.width << "], h[" << (int)temp_surface.height << "]" << std::endl;
+
+
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
         graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
         graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
@@ -839,6 +872,46 @@ void draw::show_lightingbolt_effect()
             graphLib.clear_area(0, 0, RES_W, RES_H, 250, 250, 158);
         }
     }
+}
+
+void draw::show_shadow_top_effect()
+{
+
+    int max = 100;
+    int alpha = 255;
+    int alpha_step = alpha/12;
+    for (int i=0; i<max; i+=10) {
+        graphLib.set_surface_alpha(alpha, &shadow_line);
+        std::cout << "shadow.y[" << i << "], alpha[" << alpha << "]" << std::endl;
+        graphLib.copyArea(st_rectangle(0, 0, shadow_line.width, shadow_line.height), st_position(0, i), &shadow_line, &graphLib.gameScreen);
+        alpha -= alpha_step;
+    }
+}
+
+void draw::show_inferno_effect()
+{
+    if (_inferno_surface.width == 0) {
+        graphLib.initSurface(st_size(RES_W, RES_H), &_inferno_surface);
+        graphLib.clear_surface_area(0, 0, RES_W, RES_H, 180, 0, 0, _inferno_surface);
+    }
+    graphLib.set_surface_alpha(_inferno_alpha, _inferno_surface);
+    graphLib.showSurface(&_inferno_surface);
+    if (_inferno_alpha_mode == 0) {
+        _inferno_alpha += INFERNO_ALPHA_STEP;
+        if (_inferno_alpha >= 180) {
+            _inferno_alpha_mode = 1;
+        }
+    } else {
+        _inferno_alpha -= INFERNO_ALPHA_STEP;
+        if (_inferno_alpha <= 50) {
+            _inferno_alpha_mode = 0;
+        }
+    }
+}
+
+void draw::free_inferno_surface()
+{
+    _inferno_surface.freeGraphic();
 }
 
 

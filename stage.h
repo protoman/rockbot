@@ -174,6 +174,8 @@ public:
 
     void activate_final_boss_teleporter();
 
+    short get_current_map_gfx_mode();
+
 private:
     void check_map_effect();
 

@@ -192,6 +192,8 @@ public:
 
     Uint8 get_map_gfx();
 
+    Uint8 get_map_gfx_mode();
+
     st_float_position get_bg_scroll();
     void set_bg_scroll(st_float_position pos);
 

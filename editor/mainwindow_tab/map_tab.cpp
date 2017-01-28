@@ -114,7 +114,7 @@ void map_tab::fill_background_list()
     float fg_layer_speed = (float)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed/10;
     ui->fg_speed_doubleSpinBox->setValue(fg_layer_speed);
     ui->fg_opacity_spinBox->setValue(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].gfx);
-
+    ui->mapGFXMode_comboBox->setCurrentIndex(Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll);
 
 
     // TILESET //
@@ -612,4 +612,10 @@ void map_tab::on_fg_opacity_spinBox_valueChanged(int arg1)
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].gfx = arg1;
     update_edit_area();
+}
+
+void map_tab::on_mapGFXMode_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll = index;
 }

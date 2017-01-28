@@ -35,7 +35,7 @@ public:
     void preload();
     void show_gfx();
     void update_screen(); // replaces external calls to graphLib.updateScreen
-    void set_gfx(Uint8 gfx);
+    void set_gfx(Uint8 gfx, short mode);
     Uint8 get_gfx();
     void set_flash_enabled(bool enabled);
     void show_boss_intro_sprites(short boss_id, bool show_fall);
@@ -65,6 +65,9 @@ private:
     void show_snow_effect();
     void show_train_effect();
     void show_lightingbolt_effect();
+    void show_shadow_top_effect();
+    void show_inferno_effect();
+    void free_inferno_surface();
     void show_weapon_tooltip();
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
 
@@ -91,6 +94,11 @@ private:
     // USED IN SNOW EFFECT
     std::vector<st_snow_particle> _snow_particles;
     graphicsLib_gSurface snow_flacke;
+    graphicsLib_gSurface shadow_line;
+    graphicsLib_gSurface _inferno_surface;
+    int _inferno_alpha;
+    short _inferno_alpha_mode; // 0 increasing, 1 decreasing
+
 
     // USED IN TRAIN EFFECT
     int _train_effect_timer;
@@ -102,6 +110,7 @@ private:
     int _lightingbolt_effect_state;
 
     Uint8 screen_gfx;
+    Uint8 screen_gfx_mode;
     bool flash_effect_enabled;
 
     // WEAPON ICON TOOLTIP

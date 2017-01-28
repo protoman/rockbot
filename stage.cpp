@@ -16,21 +16,13 @@ extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 // ********************************************************************************************** //
 stage::stage(int setStageN, classPlayer* set_player_ref) : stage_is_loaded(false)
 {
-    std::cout << "STAGE #1" << std::endl;
     // ignore -1, as it is an unitialized copy
     if (setStageN == -1) {
         return;
     }
-    std::cout << "STAGE #2" << std::endl;
-    std::fflush(stdout);
     number = -1;
-    std::cout << "STAGE #3" << std::endl;
-    std::fflush(stdout);
     set_current_map(0);
-    std::cout << "STAGE #4" << std::endl;
-    std::fflush(stdout);
     setNumber(setStageN);
-    std::cout << "STAGE #5" << std::endl;
     fio.read_stage(stage_data, setStageN);
     fio.read_stage_maps(setStageN, map_data);
 
@@ -62,9 +54,7 @@ int stage::get_number()
 // ********************************************************************************************** //
 void stage::setNumber(int setNumber)
 {
-    std::cout << "STAGE #A.1" << std::endl;
 	number = setNumber;
-    std::cout << "STAGE #A.2" << std::endl;
 }
 
 // ********************************************************************************************** //
@@ -344,21 +334,29 @@ bool stage::subboss_alive_on_left(short tileX)
 void stage::activate_final_boss_teleporter()
 {
     for (int i=0; i<PRELOAD_MAP_N; i++) {
-        std::cout << "stage::activate_final_boss_teleporter - currentMap: " << currentMap << std::endl;
+        //std::cout << "stage::activate_final_boss_teleporter - currentMap: " << currentMap << std::endl;
         maps[currentMap].activate_final_boss_teleporter();
     }
 }
 
+short stage::get_current_map_gfx_mode()
+{
+    return maps[currentMap].get_map_gfx_mode();
+}
+
 void stage::check_map_effect()
 {
-    if (number == -1 || number >= PRELOAD_MAP_N || stage_is_loaded == false) {
+    if (number == -1 || stage_is_loaded == false) {
+        return;
+    }
+    if (currentMap == -1 || currentMap >= PRELOAD_MAP_N) {
         return;
     }
     //std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
     std::fflush(stdout);
     //std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (maps[currentMap].get_map_gfx() != draw_lib.get_gfx()) {
-        draw_lib.set_gfx(maps[currentMap].get_map_gfx());
+        draw_lib.set_gfx(maps[currentMap].get_map_gfx(), maps[currentMap].get_map_gfx_mode());
     }
 }
 

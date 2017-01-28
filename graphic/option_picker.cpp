@@ -93,11 +93,6 @@ Sint8 option_picker::pick(int initial_pick_pos)
     timer.delay(100);
     _pick_pos = initial_pick_pos;
 
-    //std::cout << "option_picker::option_picker::START, _position.x: " << _position.x << ",_position.y: " << _position.y << std::endl;
-
-
-    std::cout << "option_picker::option_picker::START - check_input_reset_command[" << check_input_reset_command << "]" << std::endl;
-
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {

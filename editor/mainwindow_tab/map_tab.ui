@@ -144,9 +144,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-66</y>
               <width>362</width>
-              <height>424</height>
+              <height>452</height>
              </rect>
             </property>
             <attribute name="label">
@@ -230,6 +230,16 @@
                  <item>
                   <property name="text">
                    <string>Lighting Bolt</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Shadow Top</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Inferno</string>
                   </property>
                  </item>
                 </widget>
@@ -445,6 +455,35 @@
                  </property>
                 </widget>
                </item>
+               <item row="11" column="0">
+                <widget class="QLabel" name="label_18">
+                 <property name="text">
+                  <string>Map GFX Mode:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="11" column="2">
+                <widget class="QComboBox" name="mapGFXMode_comboBox">
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Full</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Background</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Overlay</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
               </layout>
              </item>
             </layout>
@@ -454,8 +493,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>228</width>
-              <height>166</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -579,8 +618,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>88</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -724,8 +763,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>146</width>
-              <height>112</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -807,8 +846,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>28</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -917,8 +956,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>146</width>
-              <height>118</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -970,8 +1009,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>98</width>
-              <height>94</height>
+              <width>376</width>
+              <height>358</height>
              </rect>
             </property>
             <attribute name="label">
@@ -988,8 +1027,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>98</width>
-                  <height>28</height>
+                  <width>356</width>
+                  <height>165</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">

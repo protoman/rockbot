@@ -166,6 +166,9 @@ public:
     void showSurfaceAt(struct graphicsLib_gSurface*, struct st_position, bool fix_colors);
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
     void initSurface(struct st_size, graphicsLib_gSurface *);
+
+    void initAlphaSurface(struct st_size size, graphicsLib_gSurface& gSurface);
+
     void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
     void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
@@ -192,6 +195,9 @@ public:
     void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
     void draw_hp_bar(short int hp, short player_n, short weapon_n, short int max_hp);
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
+
+    void clear_area_alpha(short int x, short int y, short int w, short int h, short int r, short int g, short int b, int alpha);
+
     void clear_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
     void blank_area(short int x, short int y, short int w, short int h);
     void blank_area(short int x, short int y, short int w, short int h, struct graphicsLib_gSurface& surface);

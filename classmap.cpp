@@ -191,6 +191,10 @@ void classMap::showMap()
         tile_x_ini = 0;
     }
 
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
+        draw_lib.show_gfx();
+    }
+
     // draw the tiles of the screen region
     struct st_position pos_origin;
     struct st_position pos_destiny;
@@ -227,7 +231,9 @@ void classMap::showMap()
     }
 
     graphLib.update_anim_tiles_timers();
-    draw_lib.show_gfx();
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
+        draw_lib.show_gfx();
+    }
 }
 
 
@@ -462,6 +468,10 @@ void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
     //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
+    if (get_dynamic_bg() == NULL) {
+        graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
+        return;
+    }
     if (get_dynamic_bg()->width <= 0 || get_dynamic_bg()->height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     }
@@ -604,22 +614,26 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 
 void classMap::adjust_dynamic_background_position()
 {
+    if (get_dynamic_bg() == NULL) {
+        return;
+    }
+
     //int bg_limit = get_dynamic_bg()->width-RES_W;
     int bg_limit = get_dynamic_bg()->width;
 
     // esq -> direita: #1 bg_limt[640], scroll.x[-640.799]
 
     if (bg_scroll.x < -bg_limit) {
-        std::cout << "#1 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #1" << std::endl;
+        //std::cout << "#1 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #1" << std::endl;
         bg_scroll.x = 0;
     } else if (bg_scroll.x > bg_limit) {
-        std::cout << "#2 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #2" << std::endl;
+        //std::cout << "#2 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #2" << std::endl;
         bg_scroll.x = 0;
     } else if (bg_scroll.x > 0) {
-        std::cout << "#3 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #3" << std::endl;
+        //std::cout << "#3 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #3" << std::endl;
         bg_scroll.x = -(get_dynamic_bg()->width); // erro aqui
     }
 
@@ -663,8 +677,14 @@ void classMap::adjust_foreground_position()
 
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
+
     //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << map_data[number].background_color.r << ", " << map_data[number].background_color.g << ", " << map_data[number].background_color.b << ")" << std::endl;
     graphLib.clear_surface_area(0, 0, surface.width, surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, surface);
+
+
+    if (get_dynamic_bg() == NULL) {
+        return;
+    }
 
     int x1 = bg_scroll.x;
     if (x1 > 0) { // moving to right
@@ -895,8 +915,13 @@ void classMap::activate_final_boss_teleporter()
 
 Uint8 classMap::get_map_gfx()
 {
-    std::cout << ">> MAP::get_map_gfx[" << number << "]" << std::endl;
+    //std::cout << ">> MAP::get_map_gfx[" << number << "]" << std::endl;
     return map_data[number].backgrounds[0].gfx;
+}
+
+Uint8 classMap::get_map_gfx_mode()
+{
+    return map_data[number].backgrounds[1].auto_scroll;
 }
 
 st_float_position classMap::get_bg_scroll()
@@ -963,15 +988,19 @@ bool classMap::value_in_range(int value, int min, int max) const
 
 void classMap::create_dynamic_background_surfaces()
 {
-    if (strlen(map_data[number].backgrounds[0].filename) > 0) {
-        draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[0].filename), map_data[number].backgrounds[0].auto_scroll, map_data[number].background_color);
+    std::string bg_filename = std::string(map_data[number].backgrounds[0].filename);
+    if (bg_filename.length() > 0) {
+        //std::cout << "MAP[" << (int)number << "]::create_bg[" << bg_filename << "]" << std::endl;
+        draw_lib.add_dynamic_background(bg_filename, map_data[number].backgrounds[0].auto_scroll, map_data[number].background_color);
     }
     // foreground image
     if (strlen(map_data[number].backgrounds[1].filename) > 0) {
         draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[1].filename), map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        int fg_alpha = (255 * map_data[number].backgrounds[1].gfx)/100;
-        //std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << fg_alpha << "]" << std::endl;
-        graphLib.set_surface_alpha(fg_alpha, get_dynamic_foreground());
+        if (map_data[number].backgrounds[1].gfx != 100) {
+            int fg_alpha = (255 * map_data[number].backgrounds[1].gfx)/100;
+            //std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << fg_alpha << "]" << std::endl;
+            graphLib.set_surface_alpha(fg_alpha, get_dynamic_foreground());
+        }
     }
 }
 

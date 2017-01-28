@@ -165,7 +165,7 @@ bool graphicsLib::initGraphics()
             SDL_WM_SetIcon(icon_img, NULL);
         }
     } else {
-        std::cout << "graphicsLib::initGraphics(set-window-icon): rwop is NULL " << std::endl;
+        std::cout << "graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
     }
 #endif
 	// other loading methods
@@ -608,11 +608,8 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 #ifdef PSP
     graphLib.psp_show_available_ram(100);
 #endif
-
-
-    SDL_Quit();
-    exit(-1);
-
+        SDL_Quit();
+        exit(-1);
     }
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
@@ -628,6 +625,40 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     }
 	gSurface->width = size.width;
     gSurface->height = size.height;
+}
+
+void graphicsLib::initAlphaSurface(st_size size, graphicsLib_gSurface &gSurface)
+{
+    if (game_screen == NULL) {
+        return;
+    }
+    gSurface.freeGraphic();
+
+    SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+
+    SDL_FillRect(rgb_surface, NULL, SDL_MapRGBA(rgb_surface->format, 0, 0, 0, 0));
+
+
+    if (rgb_surface == NULL) {
+        show_debug_msg("EXIT #21.INIT #1");
+#ifdef PSP
+    graphLib.psp_show_available_ram(100);
+#endif
+        SDL_Quit();
+        exit(-1);
+
+    }
+
+    gSurface.set_surface(rgb_surface);
+
+
+    if (!gSurface.get_surface()) {
+        show_debug_msg("EXIT #21.INIT #2");
+        SDL_Quit();
+        exit(-1);
+    }
+    gSurface.width = size.width;
+    gSurface.height = size.height;
 }
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
@@ -1355,6 +1386,17 @@ void graphicsLib::clear_area(short int x, short int y, short int w, short int h,
     SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
+void graphicsLib::clear_area_alpha(short x, short y, short w, short h, short r, short g, short b, int alpha)
+{
+    SDL_Rect dest;
+    dest.x = x + _screen_resolution_adjust.x;
+    dest.y = y + _screen_resolution_adjust.y;
+    dest.w = w;
+    dest.h = h;
+    SDL_FillRect(game_screen, &dest, SDL_MapRGBA(game_screen->format, 0xff, 0xff, 0x00, 0xff));
+    //SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+}
+
 void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short r, short g, short b)
 {
     //std::cout << ">> graphicsLib::clear_area - x: " << x << ", w: " << w << std::endl;
@@ -1901,11 +1943,11 @@ void graphicsLib::preload_images()
 void graphicsLib::preload_anim_tiles()
 {
     int max = GameMediator::get_instance()->anim_tile_list.size();
-    std::cout << "graphicsLib::preload_anim_tiles - max: " << max << std::endl;
+    //std::cout << "graphicsLib::preload_anim_tiles - max: " << max << std::endl;
     for (int i=0; i<max; i++) {
         std::string file(GameMediator::get_instance()->anim_tile_list.at(i).filename);
         if (file.length() < 1) {
-            std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;
+            //std::cout << "### graphicsLib::preload_anim_tiles::STOP, file: " << file << std::endl;
             break;
         } else {
             std::string filename = FILEPATH + std::string("images/tilesets/anim/") + file;

@@ -660,7 +660,7 @@ namespace format_v4 {
 
         while (entry != NULL) {
 
-            std::cout << ">>>>>>>>> entry->d_name: " << entry->d_name << std::endl;
+            //std::cout << ">>>>>>>>> entry->d_name: " << entry->d_name << std::endl;
 
             std::string dir_name = std::string(entry->d_name);
             if (dir_name != "." && dir_name != "..") {

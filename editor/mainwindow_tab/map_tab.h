@@ -76,6 +76,8 @@ private slots:
 
     void on_fg_opacity_spinBox_valueChanged(int arg1);
 
+    void on_mapGFXMode_comboBox_currentIndexChanged(int index);
+
 private:
     void fill_data();
     void fill_background_list();
