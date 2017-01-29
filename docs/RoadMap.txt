@@ -21,7 +21,10 @@ VERSION 2.0.0 RELEASE #2
     # quebra em paredes
     # fogo-fátuo é o cara!
     # adicionar uma propriedade ao projétil que determina ser explosivo
-        # ler do arquivo/formato antigo e salvar no novo
+
+- EDITOR: adicionar flag explosive em projétil
+
+- se flag explosive estiver setada, explode ao encontrar paredes ou caixas quebráveis
 
 - GFX não deve aparecer ao transicionar mapas
 
