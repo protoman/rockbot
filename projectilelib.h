@@ -49,8 +49,10 @@ public:
     Uint8 get_direction() const;
     void reflect();
     Uint8 get_move_type() const;
+    bool is_explosive();
     void set_y(int sety);
     void consume_projectile();
+    void transform_into_explosion();
 
 
     void finish(); // force finish, used in char::clean_projectiles, handles effects that should be removed

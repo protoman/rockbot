@@ -722,7 +722,7 @@ void classPlayer::execute_projectiles()
 
 
         // if projectile is a bomb, check collision against objects
-        if ((*it).get_effect_n() == 1 && ((*it).get_move_type() == TRAJECTORY_BOMB || (*it).get_move_type() == TRAJECTORY_FALL_BOMB)) {
+        if ((*it).get_effect_n() == 1 && ((*it).get_move_type() == TRAJECTORY_BOMB || (*it).get_move_type() == TRAJECTORY_FALL_BOMB) || (*it).is_explosive() == true) {
             //std::cout << "PLAYER::execute_projectiles - Have exploding bomb, checking objects that collide..." << std::endl;
             std::vector<object*> res_obj = map->check_collision_with_objects((*it).get_area());
             if (res_obj.size() > 0) {
@@ -733,6 +733,9 @@ void classPlayer::execute_projectiles()
                     if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WALL) {
                         //std::cout << "PLAYER::execute_projectiles - Found destructible block!!!!" << std::endl;
                         temp_obj->set_finished(true);
+                        if ((*it).is_explosive() == true) {
+                            (*it).transform_into_explosion();
+                        }
                     }
                 }
             }

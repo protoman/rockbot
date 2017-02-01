@@ -22,9 +22,6 @@ VERSION 2.0.0 RELEASE #2
     # fogo-fátuo é o cara!
     # adicionar uma propriedade ao projétil que determina ser explosivo
 
-- EDITOR: adicionar flag explosive em projétil
-
-- se flag explosive estiver setada, explode ao encontrar paredes ou caixas quebráveis
 
 - GFX não deve aparecer ao transicionar mapas
 
@@ -72,8 +69,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
-
+- explosive flag in projectile
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3

@@ -458,24 +458,13 @@ st_size projectile::move() {
 
     } else if (_move_type == TRAJECTORY_BOMB) {
         if (_effect_n == 0 && (status > 0 || _effect_timer < timer.getTimer())) {
-            std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
-			/// morph into a bigger explosion
-			_points = 5000;
-			_effect_timer = timer.getTimer()+3600;
-
-			_size.width = 56;
-			_size.height = 56;
-			position.x -= 28;
-			position.y -= 28;
-			_max_frames = get_surface()->width / _size.width;
-			_effect_n++;
-			soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 3);
-		} else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
+            transform_into_explosion();
+        } else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
             std::cout << "BOMB - FINISH" << std::endl;
-			is_finished = true;
-		}
-		//std::cout << "projectile::move - BOMB" << std::endl;
-		// do nothing, it is a bomb, it just stays until explodes
+            is_finished = true;
+        }
+        //std::cout << "projectile::move - BOMB" << std::endl;
+        // do nothing, it is a bomb, it just stays until explodes
 	} else if (_move_type == TRAJECTORY_CHAIN) {
         if (_owner_position == NULL) {
             std::cout << "ERROR: owner positoon NOT set in TRAJECTORY_CHAIN projectile" << std::endl;
@@ -884,6 +873,14 @@ Uint8 projectile::get_move_type() const
     return GameMediator::get_instance()->get_projectile(_id).trajectory;
 }
 
+bool projectile::is_explosive()
+{
+    if (_id == -1) {
+        return false;
+    }
+    return GameMediator::get_instance()->get_projectile(_id).is_explosive;
+}
+
 void projectile::set_y(int sety)
 {
 	position.y = sety;
@@ -905,6 +902,24 @@ void projectile::consume_projectile()
 	if (_points <= 0) {
 		is_finished = true;
     }
+}
+
+void projectile::transform_into_explosion()
+{
+    // if not a bomb, transform into one
+    _move_type = TRAJECTORY_BOMB;
+    std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
+    /// morph into a bigger explosion
+    _points = 5000;
+    _effect_timer = timer.getTimer()+3600;
+
+    _size.width = 56;
+    _size.height = 56;
+    position.x -= 28;
+    position.y -= 28;
+    _max_frames = get_surface()->width / _size.width;
+    _effect_n++;
+    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 3);
 }
 
 void projectile::finish()

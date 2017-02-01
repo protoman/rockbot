@@ -40,7 +40,14 @@
        <item>
         <widget class="QCheckBox" name="projectileDestructibleCheckBox">
          <property name="text">
-          <string/>
+          <string>Destructible</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="explosive_checkBox">
+         <property name="text">
+          <string>Explosive</string>
          </property>
         </widget>
        </item>
@@ -141,7 +148,7 @@
      <item row="11" column="0">
       <widget class="QLabel" name="label_32">
        <property name="text">
-        <string>Destructible:</string>
+        <string/>
        </property>
       </widget>
      </item>

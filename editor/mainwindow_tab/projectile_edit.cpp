@@ -57,6 +57,7 @@ void projectile_edit::set_edit_data(int index)
     ui->max_shots->setValue(Mediator::get_instance()->projectile_list.at(index).max_shots);
     ui->speed->setValue(Mediator::get_instance()->projectile_list.at(index).speed);
     ui->damage->setValue(Mediator::get_instance()->projectile_list.at(index).damage);
+    ui->explosive_checkBox->setChecked(Mediator::get_instance()->projectile_list.at(index).is_explosive);
 	ui->projectilePreviewAreaWidget->repaint();
     data_loading = false;
 }
@@ -147,3 +148,9 @@ void projectile_edit::on_pushButton_clicked()
     ui->projectileList_combo->setCurrentIndex(Mediator::get_instance()->projectile_list.size()-1);
 }
 
+
+void projectile_edit::on_explosive_checkBox_toggled(bool checked)
+{
+    if (data_loading) { return; }
+    Mediator::get_instance()->projectile_list.at(Mediator::get_instance()->current_projectile).is_explosive = checked;
+}
