@@ -422,7 +422,7 @@ void character::charMove() {
         if (is_already_on_stairs == true) {
             // if frame is semi, but already entered whole body, change to full-stairs frame
             if (state.animation_type == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
-                std::cout << "STAIRS *MOVE* - SET #2" << std::endl;
+                //std::cout << "STAIRS *MOVE* - SET #2" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
             }
 
@@ -450,7 +450,7 @@ void character::charMove() {
                     //std::cout << "STAIRS SEMI - SET #2" << std::endl;
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
 
-                    std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
+                    //std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
 
                     position.y += temp_move_speed/2;
                     position.x = stairs_pos_bottom.x * TILESIZE - 6;
@@ -469,7 +469,7 @@ void character::charMove() {
     } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
         _stairs_stopped_count = 0;
         if (state.animation_type == ANIM_TYPE_STAIRS) {
-            std::cout << "STAIRS *MOVE* - SET #3" << std::endl;
+            //std::cout << "STAIRS *MOVE* - SET #3" << std::endl;
             set_animation_type(ANIM_TYPE_STAIRS_MOVE);
         }
     }

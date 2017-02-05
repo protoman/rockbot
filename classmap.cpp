@@ -57,6 +57,9 @@ classMap::classMap() : stage_number(-1), number(-1), bg_scroll(st_float_position
     _3rd_level_ignore_area = st_rectangle(-1, -1, -1, -1);
     _level3_tiles = std::vector<struct st_level3_tile>();
     _break_npc_loop = false;
+    _show_map_pos_x = -1;
+
+    graphLib.initSurface(st_size(RES_W+(TILESIZE*2), RES_H), &map_screen);
 }
 
 
@@ -175,6 +178,8 @@ void classMap::loadMap()
 
     create_dynamic_background_surfaces();
 
+    init_animated_tiles();
+
 
 #ifdef HANDLELD // portable consoles aren't strong enought for two dynamic backgrounds
 map_data[number].backgrounds[0].speed = 0;
@@ -185,6 +190,28 @@ map_data[number].backgrounds[0].speed = 0;
 
 void classMap::showMap()
 {
+    draw_dynamic_backgrounds();
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
+        draw_lib.show_gfx();
+    }
+
+    // redraw screen, if needed
+    if (_show_map_pos_x == -1 || abs(_show_map_pos_x - scroll.x) > TILESIZE) {
+        draw_map_tiles();
+    // use memory screen
+    }
+    int diff_scroll_x = scroll.x - _show_map_pos_x;
+    graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &graphLib.gameScreen);
+
+    // draw animated tiles
+    draw_animated_tiles();
+
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
+        draw_lib.show_gfx();
+    }
+
+
+    /*
     draw_dynamic_backgrounds();
     int tile_x_ini = scroll.x/TILESIZE-1;
     if (tile_x_ini < 0) {
@@ -233,6 +260,120 @@ void classMap::showMap()
     graphLib.update_anim_tiles_timers();
     if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
         draw_lib.show_gfx();
+    }
+    */
+}
+
+void classMap::draw_map_tiles()
+{
+
+    _show_map_pos_x = scroll.x;
+
+    int tile_x_ini = scroll.x/TILESIZE-1;
+    if (tile_x_ini < 0) {
+        tile_x_ini = 0;
+    }
+
+
+    graphLib.clear_surface(map_screen);
+
+    // draw the tiles of the screen region
+    struct st_position pos_origin;
+    struct st_position pos_destiny;
+    int n = -1;
+    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+3; i++) {
+        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
+        pos_destiny.x = n*TILESIZE - diff + TILESIZE;
+        for (int j=0; j<MAP_H; j++) {
+
+            // don't draw easy-mode blocks if game difficulty not set to easy
+
+            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_easymode_block_tile(pos_destiny, map_screen);
+            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+                pos_destiny.y = j*TILESIZE;
+                graphLib.place_hardmode_block_tile(pos_destiny, map_screen);
+            } else {
+                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+
+                if (pos_origin.x >= 0 && pos_origin.y >= 0) {
+                    pos_destiny.y = j*TILESIZE;
+                    graphLib.placeTile(pos_origin, pos_destiny, &map_screen);
+                }
+            }
+        }
+        n++;
+    }
+}
+
+void classMap::draw_animated_tiles()
+{
+    /*
+    int tile_x_ini = scroll.x/TILESIZE-1;
+    if (tile_x_ini < 0) {
+        tile_x_ini = 0;
+    }
+
+    // draw the tiles of the screen region
+    struct st_position pos_origin;
+    struct st_position pos_destiny;
+    int n = -1;
+    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
+        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
+        pos_destiny.x = n*TILESIZE - diff;
+        for (int j=0; j<MAP_H; j++) {
+
+            // don't draw easy-mode blocks if game difficulty not set to easy
+
+            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+
+            if (pos_origin.x < -1 && pos_origin.y == 0) {
+                int anim_tile_id = (pos_origin.x * -1) - 2;
+                pos_destiny.y = j*TILESIZE;
+                //std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
+                graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
+            }
+        }
+        n++;
+    }
+    */
+
+    //scroll.x - dest.x
+    for (int i=0; i<anim_tile_list.size(); i++) {
+        //std::cout << "draw-anim-tile[" << i << "][" << anim_tile_list.at(i).anim_tile_id << "], x[" << anim_tile_list.at(i).dest_x << "], y[" << anim_tile_list.at(i).dest_y << "]" << std::endl;
+
+        int pos_x = anim_tile_list.at(i).dest_x-scroll.x;
+        if (pos_x >= -TILESIZE && pos_x <= RES_W+1) {
+            //std::cout << "## scroll.x[" << scroll.x << "], dest.x[" << anim_tile_list.at(i).dest_x << "]" << std::endl;
+            st_position dest_pos(pos_x, anim_tile_list.at(i).dest_y);
+            graphLib.place_anim_tile(anim_tile_list.at(i).anim_tile_id, dest_pos, &graphLib.gameScreen);
+        }
+    }
+
+    graphLib.update_anim_tiles_timers();
+}
+
+void classMap::init_animated_tiles()
+{
+    // draw the tiles of the screen region
+    struct st_position pos_origin;
+    struct st_position pos_destiny;
+    for (int i=0; i<MAP_W; i++) {
+        pos_destiny.x = i*TILESIZE;
+        for (int j=0; j<MAP_H; j++) {
+            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
+            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+
+            if (pos_origin.x < -1 && pos_origin.y == 0) {
+                int anim_tile_id = (pos_origin.x * -1) - 2;
+                pos_destiny.y = j*TILESIZE;
+                //std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
+                anim_tile_list.push_back(anim_tile_desc(anim_tile_id, pos_destiny));
+            }
+        }
     }
 }
 
@@ -653,16 +794,16 @@ void classMap::adjust_foreground_position()
     // esq -> direita: #1 bg_limt[640], scroll.x[-640.799]
 
     if (fg_layer_scroll.x < -foreground_limit) {
-        std::cout << "#1 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #1" << std::endl;
+        //std::cout << "#1 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #1" << std::endl;
         fg_layer_scroll.x = 0;
     } else if (fg_layer_scroll.x > foreground_limit) {
-        std::cout << "#2 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #2" << std::endl;
+        //std::cout << "#2 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #2" << std::endl;
         fg_layer_scroll.x = 0;
     } else if (fg_layer_scroll.x > 0) {
-        std::cout << "#3 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        std::cout << "RESET BG-SCROLL #3" << std::endl;
+        //std::cout << "#3 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
+        //std::cout << "RESET BG-SCROLL #3" << std::endl;
         fg_layer_scroll.x = -(get_dynamic_foreground()->width); // erro aqui
     }
 
@@ -932,6 +1073,11 @@ st_float_position classMap::get_bg_scroll()
 void classMap::set_bg_scroll(st_float_position pos)
 {
     bg_scroll = pos;
+}
+
+st_rectangle classMap::get_player_hitbox()
+{
+    return _player_ref->get_hitbox();
 }
 
 

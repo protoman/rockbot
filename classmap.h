@@ -17,10 +17,7 @@ class classPlayer; // forward declaration
 
 class character;
 
-/**
- * @brief
- *
- */
+
 struct object_collision {
     int _block;
     object* _object;
@@ -58,6 +55,18 @@ struct st_level3_tile {
 
 };
 
+struct anim_tile_desc {
+    int anim_tile_id;
+    int dest_x;
+    int dest_y;
+
+    anim_tile_desc(int id, st_position pos) {
+        anim_tile_id = id;
+        dest_x = pos.x;
+        dest_y = pos.y;
+    }
+};
+
 
 /**
  * @brief
@@ -79,6 +88,12 @@ public:
     void loadMap();
 
     void showMap();
+
+    void draw_map_tiles();
+
+    void draw_animated_tiles();
+
+    void init_animated_tiles();
 
     void showAbove(int scroll_y=0, int temp_scroll_x = -99999);
 
@@ -197,6 +212,8 @@ public:
     st_float_position get_bg_scroll();
     void set_bg_scroll(st_float_position pos);
 
+    st_rectangle get_player_hitbox();
+
 
 private:
     void load_map_npcs();
@@ -240,6 +257,11 @@ private:
     std::vector<st_level3_tile> _level3_tiles;
     std::vector<object> object_list;
     bool _break_npc_loop;                       // used to prevent looping through the npc list after adding a new one (needed because using vector instead of list, because of old-Dingux crashes)
+
+    // DRAW MEMBERS //
+    int _show_map_pos_x;                            // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
+    graphicsLib_gSurface map_screen;                // use to avoid having to draw the tilesets each time we update screen
+    std::vector<anim_tile_desc> anim_tile_list;     // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
 };
 
 

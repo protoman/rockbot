@@ -191,8 +191,8 @@ void common::fill_projectiles_combo(QComboBox *combo, bool add_empty_slot)
     if (add_empty_slot) {
         combo->addItem(QString(""));
     }
-    for (int i=0; i<Mediator::get_instance()->projectile_list.size(); i++) {
-        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->projectile_list.at(i).name);
+    for (int i=0; i<Mediator::get_instance()->projectile_list_v2.size(); i++) {
+        QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(Mediator::get_instance()->projectile_list_v2.at(i).name);
         combo->addItem(temp_str);
     }
 }
@@ -401,8 +401,8 @@ std::vector<std::string> common::get_npc_names_list()
 std::vector<std::string> common::get_weapon_names_list()
 {
     std::vector<std::string> res;
-    for (int i=0; i<Mediator::get_instance()->projectile_list.size(); i++) {
-        res.push_back(std::string(Mediator::get_instance()->projectile_list.at(i).name));
+    for (int i=0; i<Mediator::get_instance()->projectile_list_v2.size(); i++) {
+        res.push_back(std::string(Mediator::get_instance()->projectile_list_v2.at(i).name));
     }
     return res;
 }

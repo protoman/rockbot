@@ -10,6 +10,7 @@ extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -180,10 +181,7 @@ void stage::set_current_map(int new_map_n)
     //std::cout << ">> PASS #1" << std::endl;
     std::fflush(stdout);
 
-    // no need to get effect for map zero, as it is set in loadStage method
-    if (new_map_n != 0) {
-        check_map_effect();
-    }
+    check_map_effect();
     //std::cout << ">> PASS #2" << std::endl;
     std::fflush(stdout);
 }
@@ -352,9 +350,15 @@ void stage::check_map_effect()
     if (currentMap == -1 || currentMap >= PRELOAD_MAP_N) {
         return;
     }
+    // no map effects unless config is set to high-end performance mode
+    if (game_config.graphics_performance_mode != PERFORMANCE_MODE_HIGH) {
+        return;
+    }
+
+
     //std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
     std::fflush(stdout);
-    //std::cout << "####### STAGE::check_map_effect - map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
+    std::cout << "####### STAGE::check_map_effect - currentMap[" << (int)currentMap << "], map.gfx: " << (int)maps[currentMap].get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (maps[currentMap].get_map_gfx() != draw_lib.get_gfx()) {
         draw_lib.set_gfx(maps[currentMap].get_map_gfx(), maps[currentMap].get_map_gfx_mode());
     }

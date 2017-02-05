@@ -167,7 +167,7 @@ public:
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
     void initSurface(struct st_size, graphicsLib_gSurface *);
 
-    void initAlphaSurface(struct st_size size, graphicsLib_gSurface& gSurface);
+    void clear_surface(struct graphicsLib_gSurface&surface);
 
     void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
     void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);

@@ -627,39 +627,12 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     gSurface->height = size.height;
 }
 
-void graphicsLib::initAlphaSurface(st_size size, graphicsLib_gSurface &gSurface)
+void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 {
-    if (game_screen == NULL) {
-        return;
-    }
-    gSurface.freeGraphic();
-
-    SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-
-    SDL_FillRect(rgb_surface, NULL, SDL_MapRGBA(rgb_surface->format, 0, 0, 0, 0));
-
-
-    if (rgb_surface == NULL) {
-        show_debug_msg("EXIT #21.INIT #1");
-#ifdef PSP
-    graphLib.psp_show_available_ram(100);
-#endif
-        SDL_Quit();
-        exit(-1);
-
-    }
-
-    gSurface.set_surface(rgb_surface);
-
-
-    if (!gSurface.get_surface()) {
-        show_debug_msg("EXIT #21.INIT #2");
-        SDL_Quit();
-        exit(-1);
-    }
-    gSurface.width = size.width;
-    gSurface.height = size.height;
+    SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 }
+
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 {
@@ -1817,11 +1790,8 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    if (game_config.video_fullscreen == false) {
-        game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_SWSURFACE);
-    } else {
-        game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
-    }
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
+
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)

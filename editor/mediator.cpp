@@ -77,8 +77,13 @@ Mediator::Mediator() : stage_data() {
     if (ai_list.size() == 0) { // add one first item to avoid errors
         ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     }
+    /*
     if (projectile_list.size() == 0) {
-        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
+    }
+    */
+    if (projectile_list_v2.size() == 0) {
+        projectile_list_v2.push_back(CURRENT_FILE_FORMAT::file_projectile());
     }
 
 
@@ -390,7 +395,7 @@ void Mediator::load_game() {
     }
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
 
-    std::cout << "MEDIATOR::load_game::ai_list.size(): " << ai_list.size() << std::endl;
+    //std::cout << "MEDIATOR::load_game::ai_list.size(): " << ai_list.size() << std::endl;
     if (ai_list.size() == 0) { // add one first item to avoid errors
         for (int i=0; i<enemy_list.size(); i++) {
             ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
@@ -402,12 +407,15 @@ void Mediator::load_game() {
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectile());
     }
+    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ projectile_list.size[" << projectile_list.size() << "]" << std::endl;
+    convertProjectileListToV2();
     */
 
-    projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat");
-    if (projectile_list.size() == 0) {
-        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
+    projectile_list_v2 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat");
+    if (projectile_list_v2.size() == 0) {
+        projectile_list_v2.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     }
+    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ projectile_list_v2.size[" << projectile_list_v2.size() << "]" << std::endl;
 
     scene_list = fio_scenes.load_scenes();
     if (scene_list.size() == 0) {
@@ -440,7 +448,7 @@ void Mediator::save_game()
     //fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectile>("game_projectile_list.dat", projectile_list);
 
     //convertProjectileListToV2();
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat", projectile_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat", projectile_list_v2);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
@@ -455,12 +463,14 @@ void Mediator::save_game()
 /*
 void Mediator::convertProjectileListToV2()
 {
-    projectile_list.clear();
+    projectile_list_v2.clear();
     for (int i=0; i<projectile_list.size(); i++) {
         projectile_list_v2.push_back(CURRENT_FILE_FORMAT::file_projectilev2(projectile_list.at(i)));
     }
+    std::cout << "############# convertProjectileListToV2 - v1.size[" << projectile_list.size() << "], v2.size[" << projectile_list_v2.size() << "]" << std::endl;
 }
 */
+
 
 
 void Mediator::centNumberFormat(int n) {

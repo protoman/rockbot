@@ -305,7 +305,7 @@ namespace format_v4 {
             android_touch_controls_size = 1;
             wii_joystick_type = 0;
             playstation2_video_mode = 0;
-            graphics_performance_mode = 1;
+            graphics_performance_mode = PERFORMANCE_MODE_HIGH;
         }
 
 

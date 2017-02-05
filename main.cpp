@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
 #ifdef PSP
     SetupCallbacks();
-    //scePowerSetClockFrequency(333, 333, 166);
+    scePowerSetClockFrequency(333, 333, 166);
 #endif
 
     for (int i=0; i<FLAG_COUNT; i++) {
@@ -516,8 +516,10 @@ int main(int argc, char *argv[])
     gameControl.currentStage = INTRO_STAGE;
 
     // === DEBUG === //
-    game_config.volume_sfx = 128;
-    game_config.volume_music = 128;
+    //game_config.volume_sfx = 128;
+    //game_config.volume_music = 128;
+    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    // === DEBUG === //
 
 
     input.clean();
@@ -525,6 +527,7 @@ int main(int argc, char *argv[])
     timer.delay(200);
 
     input.clean();
+
 
 
 	// INIT GAME

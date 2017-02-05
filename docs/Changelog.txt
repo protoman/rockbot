@@ -396,9 +396,12 @@ FILE-FORMAT-V4:
     # parece que ao atirar projétil ele move para frente e depois para trás
 - adicionar "to oposite wall" na IA de walk e dash (como de fly)
 - dash de inimigos está muito lento
-
-
 - criar diálogos para fases demo (intro, snow e kurupira)
 - desabilitar opção do google play services por hora
-
+- explosive flag in projectile
+- button "R" not working on Abndroid build
+- OPTIMIZATION - use a mix of tile-by-tile and screen saving
+    # draw visible map (-1, +1) into a surface and use it until scroll changes more than TILESIZE
+- map should not set GFX effects unless config is set to high-end performance mode
+- high-end performance mode should be the default one
 

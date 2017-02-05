@@ -118,9 +118,11 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
+
+
     //std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
-    //std::vector<CURRENT_FILE_FORMAT::file_projectilev2> projectile_list_v2;
-    std::vector<CURRENT_FILE_FORMAT::file_projectilev2> projectile_list;
+    std::vector<CURRENT_FILE_FORMAT::file_projectilev2> projectile_list_v2;
+
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_block_list;
     std::vector<CURRENT_FILE_FORMAT::file_player> player_list;

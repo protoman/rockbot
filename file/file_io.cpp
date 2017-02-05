@@ -28,7 +28,7 @@ extern std::string GAMENAME;
 extern bool GAME_FLAGS[FLAG_COUNT];
 
 // versioned file for config, so we can force resetting it
-#define CONFIG_FILENAME "/config_v200.sav"
+#define CONFIG_FILENAME "/config_v201.sav"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 

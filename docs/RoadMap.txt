@@ -15,19 +15,12 @@ VERSION 2.0.0 RELEASE #2
     # ruas da cidade (streets of rage, mighty final fight)
     # space, the final frontier (moon stage de duck tales)
 
-- definir uma arma (tipo de projétil) que quebra caixas como a bomba
-    # novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
-    # vai reto e depois quebra em 4 pedaços que voam nas diagonais
-    # quebra em paredes
-    # fogo-fátuo é o cara!
-    # adicionar uma propriedade ao projétil que determina ser explosivo
-
 
 - GFX não deve aparecer ao transicionar mapas
 
-- arma do snow está com cores erradas (ou está mostrando as erradas)
+- setar as cores das armas
 
-- não está entrando na configuração pela tela de armas, com o botão R, no android
+- remover flag fullscreen do PSP, vamos deixar sempre em fullscreen por questões de performance
 
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
@@ -69,11 +62,28 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- explosive flag in projectile
+- not removing GFX effect when returning to a map that does not have it
+
+
+
+
+
+
+
+
+
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+- em modo de performance low, os fundos devem ser fixos, desenhados junto com os tiles
+
+- adjustar melhor a velocidade do modo 30fps
+
+- novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
+    # vai reto e depois quebra em 4 pedaços que voam nas diagonais
+    # quebra em paredes
+
 - criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
 
 - testar rockbot1 inteiro. jogo deve ser finalizável do início ao fim
@@ -87,12 +97,11 @@ VERSION 2.0.0 RELEASE #3
     # deve rodar a 30 fps bem no PSP com a opção low-end
     # criar lista de npcs e objetos "on-screen"
     # rodar optimização no qtcreator (clang)
-    # input deve ter um único loop para comandos ao invés de vários apra cada tipo de evento
+    # input deve ter um único loop para comandos ao invés de vários para cada tipo de evento
     # procurar memory leaks
 
 - ver porque android tem mais de um joystick para selecionar
 
-- melhorar script de build incluindo ABI (x86/ARM)
 
 - mover funções de configuração de sceneslib para class_config
 
@@ -152,7 +161,9 @@ VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #4
 =========================================================================================================================================
-- gfx de mapa fixios como shadow-top e inferno devem aparecer na transição de tela (por cima dela)
+- melhorar script de build incluindo ABI (x86/ARM)
+
+- gfx de mapa fixos como shadow-top e inferno devem aparecer na transição de tela (por cima dela)
 
 - substituir tiro carregado e voz por original (está girl hadouken)
     # gravar vozes

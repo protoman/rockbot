@@ -20,7 +20,6 @@
 
 namespace format_v4 {
 
-/*
     struct file_projectile {
         char name[CHAR_NAME_SIZE];
         char graphic_filename[FS_CHAR_NAME_SIZE];
@@ -53,7 +52,6 @@ namespace format_v4 {
             spawn_npc_n = 0;
         }
     };
-*/
 
     struct file_projectilev2 {
         char name[CHAR_NAME_SIZE];
@@ -90,7 +88,6 @@ namespace format_v4 {
             is_explosive = false;
         }
 
-        /*
         file_projectilev2(file_projectile v1) {
             sprintf(name, "%s", v1.name);
             sprintf(graphic_filename, "%s", v1.graphic_filename);
@@ -108,7 +105,6 @@ namespace format_v4 {
             spawn_npc_n = v1.spawn_npc_n;
             is_explosive = false;
         }
-        */
     };
 
 

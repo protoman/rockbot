@@ -419,7 +419,7 @@ void classnpc::move_projectiles()
 	// animate projectiles
     //if (name == "Dynamite Bot") std::cout << "******* NPC::move_projectiles - projectile_list.size: " << projectile_list.size() << std::endl;
     std::vector<projectile>::iterator it;
-    st_rectangle player_hitbox = map->_player_ref->get_hitbox();
+    st_rectangle player_hitbox = map->get_player_hitbox();
 
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         (*it).draw();

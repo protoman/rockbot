@@ -589,7 +589,7 @@ bool game::test_teleport(classPlayer *test_player) {
     int new_map_pos_x;
     new_map_pos_x = loaded_stage.getMapScrolling().x - teleporter_dist;
 
-    std::cout << "GAME::test_teleport - old_map_x[" << loaded_stage.getMapScrolling().x << "], new_map_pos_x[" << new_map_pos_x << "], teleporter_dist[" << teleporter_dist << "], dest_x[" << dest_x << "]" << std::endl;
+    //std::cout << "GAME::test_teleport - old_map_x[" << loaded_stage.getMapScrolling().x << "], new_map_pos_x[" << new_map_pos_x << "], teleporter_dist[" << teleporter_dist << "], dest_x[" << dest_x << "]" << std::endl;
 
     if (new_map_pos_x < 0) {
        new_map_pos_x = 0;
@@ -708,7 +708,7 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
                 test_player->set_teleporter(teleport_count);
             }
             link_type = stage_data.links[link_n].type;
-            std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
+            //std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
             set_player_teleporter(teleport_count, st_position(player1.getPosition().x, player1.getPosition().y), false);
             return true;
         }
@@ -940,12 +940,12 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 			}
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
-                std::cout << "TRANSITION_TOP_TO_BOTTOM, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
+                //std::cout << "TRANSITION_TOP_TO_BOTTOM, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y > 6) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y - TRANSITION_STEP + extra_y));
 				}
 			} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-                std::cout << "TRANSITION_BOTTOM_TO_TOP, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
+                //std::cout << "TRANSITION_BOTTOM_TO_TOP, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y < RES_H-TILESIZE*2) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y + TRANSITION_STEP - extra_y));
 				}
@@ -1321,7 +1321,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE8;
+    currentStage = CASTLE1_STAGE4;
     game_save.difficulty = DIFFICULTY_EASY;
     game_save.selected_player = PLAYER_1;
 
