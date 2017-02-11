@@ -74,6 +74,7 @@ public:
 	void setPallete(char *value);
     void load_game();
     void save_game();
+    void clean_data();                                      // any sanity data cleaning goest here
 
     //void convertProjectileListToV2();
 

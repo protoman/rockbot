@@ -16,6 +16,10 @@ VERSION 2.0.0 RELEASE #2
     # space, the final frontier (moon stage de duck tales)
 
 
+- fazer plataforma que quebra ao pisar
+
+- holding left+right at same time makes player float in middle-air
+
 - GFX não deve aparecer ao transicionar mapas
 
 - setar as cores das armas
@@ -44,27 +48,34 @@ VERSION 2.0.0 RELEASE #2
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 - beast: refatorar, arrumar
+- gear: trocar tileset, refatorar
 - dragon: melhorar tileset
     # http://vgmaps.com/Atlas/NES/DoubleDragonIII-SacredStones-Mission3-Japan.png
 - ideia do castelo é ter uma "viagem no tempo"
-- skull 1: definir estilo (castelo medieval) e tilesets, criar design
-    # http://opengameart.org/content/dark-forest-town-tile-set-0
-- skull 2: definir estilo (fábrica vitoriana) e tilesets, criar design
-- skull 3: definir estilo (toy fair 1910) e tilesets (city blocks, brincando de engenheiro), criar design
-- skull 4: definir estilo (streets of rage (master system)) e tilesets, criar design
-    # http://opengameart.org/content/8-bit-city-tile-set
-    # http://vgmaps.com/Atlas/NES/DoubleDragon-ModeA-Mission1.png
-    # avisar autor
-- skull 5: definir estilo (estação espacial) e tilesets, criar design
+    - skull 1: definir estilo (castelo medieval) e tilesets, criar design
+        # http://opengameart.org/content/dark-forest-town-tile-set-0
+    - skull 2: definir estilo (fábrica vitoriana) e tilesets, criar design
+    - skull 3: definir estilo (toy fair 1910) e tilesets (city blocks, brincando de engenheiro), criar design
+    - skull 4: definir estilo (streets of rage (master system)) e tilesets, criar design
+        # http://opengameart.org/content/8-bit-city-tile-set
+        # http://vgmaps.com/Atlas/NES/DoubleDragon-ModeA-Mission1.png
+        # avisar autor
+    - skull 5: definir estilo (estação espacial) e tilesets, criar design
 
 
 
 ##################################
              DONE
 ##################################
+- EDITOR: add fix to remove invalid level 3 tiles
+- do not try to show invalid surface areas
+- fix ice slash graphic
+- fix joe set was sub-boss in snow stage
+- reset anim-type if one is invalid, not only anim-n
+- remove duplicated level3 tiles code
+- fix animation trying to show invalid position
 - not removing GFX effect when returning to a map that does not have it
-
-
+- EDITOR: zoom in/out using mouse wheel on editor-area
 
 
 

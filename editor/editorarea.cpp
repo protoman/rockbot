@@ -673,6 +673,26 @@ void EditorArea::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
+void EditorArea::wheelEvent(QWheelEvent *event)
+{
+    int numDegrees = event->delta() / 8;
+    int numSteps = numDegrees / 15;
+
+    if (numSteps > 0) {
+        if (Mediator::get_instance()->zoom < 3) {
+            Mediator::get_instance()->zoom++;
+            std::cout << "### INC-SET ZOOM TO[" << Mediator::get_instance()->zoom << "]" << std::endl;
+            repaint();
+        }
+    } else if (numSteps < 0) {
+        if (Mediator::get_instance()->zoom > 1) {
+            Mediator::get_instance()->zoom--;
+            std::cout << "### DEC-SET ZOOM TO[" << Mediator::get_instance()->zoom << "]" << std::endl;
+            repaint();
+        }
+    }
+}
+
 void EditorArea::mousePressEvent(QMouseEvent *event) {
     if (mouse_released == false && (Mediator::get_instance()->editTool == EDITMODE_LINK || Mediator::get_instance()->editTool == EDITMODE_LINK_DEST || Mediator::get_instance()->editMode == EDITMODE_NPC || Mediator::get_instance()->editMode == EDITMODE_OBJECT || Mediator::get_instance()->editMode == EDITMODE_SET_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_FINAL_BOSS || Mediator::get_instance()->editMode == EDITMODE_SET_SUBBOSS || Mediator::get_instance()->editMode == EDITMODE_ANIM_TILE)) {
         std::cout << "EDITORAREA::mousePressEvent - IGNORED" << std::endl;

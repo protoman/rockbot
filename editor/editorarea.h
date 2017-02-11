@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QMouseEvent>
 #include <QBitmap>
+#include <QInputEvent>
 
 #include "mediator.h"
 
@@ -53,6 +54,7 @@ protected:
   void mousePressEvent(QMouseEvent * event);
   void mouseReleaseEvent(QMouseEvent * event);
   void mouseMoveEvent(QMouseEvent *event);
+  void wheelEvent(QWheelEvent *event);
 
   // variables
   int temp;

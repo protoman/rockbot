@@ -68,12 +68,15 @@ void animation::execute()
     //std::cout << ">> animation::execute - _current_frame_timer: " << (int)_current_frame_timer << ", now_timer: " << now_timer << std::endl;
     st_rectangle g_rect(_current_frame*_framesize.width, 0, _framesize.width, _framesize.height);
     st_position dest(get_position().x -_map_scroll->x + _adjust_pos.x, get_position().y + _adjust_pos.y);
+
+    //std::cout << "ANIMATION::exec - _current_frame[" << (int)_current_frame << "], _frames_number[" << (int)_frames_number << "]" << std::endl;
+
     graphLib.showSurfaceRegionAt(_surface, g_rect, dest);
     if (_current_frame_timer < now_timer) {
         _current_frame++;
         _current_frame_timer = now_timer + _frame_time;
         //std::cout << "SET _current_frame_timer: " << _current_frame_timer << std::endl;
-        if (_current_frame > _frames_number) {
+        if (_current_frame >= _frames_number) {
             _current_frame = 0;
             _repeated_times++;
             //std::cout << ">> animation::execute - _repeated_times: <<" << _repeated_times << std::endl;

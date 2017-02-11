@@ -405,3 +405,8 @@ FILE-FORMAT-V4:
 - map should not set GFX effects unless config is set to high-end performance mode
 - high-end performance mode should be the default one
 
+- fix Rockbot 1 projectile that was not converted to new format
+- fix crash on player reference when used from classNPC, add method into map class to get player hitbox instead
+- not removing GFX effect when returning to a map that does not have it
+- fix errors in editor for projectile v2 format
+- reenable PSP's turbo CPU mode

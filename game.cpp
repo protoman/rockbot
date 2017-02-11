@@ -926,7 +926,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
 		// now, show the transition
         short int extra_y = 0;
-		for (i=0; i<(RES_H+TILESIZE*0.5)/TRANSITION_STEP; i++) {
+        for (i=0; i<(RES_H)/TRANSITION_STEP; i++) {
             if (type == TRANSITION_TOP_TO_BOTTOM) {
                 graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
             } else if (type == TRANSITION_BOTTOM_TO_TOP) {
@@ -1321,9 +1321,9 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE4;
+    currentStage = STAGE8;
     game_save.difficulty = DIFFICULTY_EASY;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_2;
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;

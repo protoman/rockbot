@@ -124,26 +124,11 @@ void classMap::loadMap()
     }
 
 
-    _level3_tiles.clear();
     object_list.clear();
 
     _npc_list.clear();
     animation_list.clear();
 
-    for (int i=0; i<MAP_W; i++) {
-        for (int j=0; j<MAP_H; j++) {
-            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
-            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
-            if (lvl3_x > -1 && lvl3_y != -1) {
-                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
-                _level3_tiles.push_back(temp_tile);
-            } else if (lvl3_x < -1 && lvl3_y == 0) { // anim tiles
-                lvl3_y = j*TILESIZE;
-                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
-                _level3_tiles.push_back(temp_tile);
-            }
-        }
-    }
 
 	bool column_locked = true;
 	for (int i=0; i<MAP_W; i++) {
@@ -165,12 +150,34 @@ void classMap::loadMap()
             int lvl3_x = map_data[number].tiles[i][j].tile3.x;
             int lvl3_y = map_data[number].tiles[i][j].tile3.y;
             if (lvl3_x != -1 && lvl3_y != -1) {
+                //std::cout << "tile_lvl3[" << lvl3_x << "][" << lvl3_y << "]" << std::endl;
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
                 _level3_tiles.push_back(temp_tile);
             }
         }
     }
 
+/*
+    for (int i=0; i<MAP_W; i++) {
+        for (int j=0; j<MAP_H; j++) {
+            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
+            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
+
+            if (lvl3_x != -1 || lvl3_y != -1) {
+                std::cout << "tile_lvl3[" << lvl3_x << "][" << lvl3_y << "]" << std::endl;
+            }
+
+            if (lvl3_x > -1 && lvl3_y != -1) {
+                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
+                _level3_tiles.push_back(temp_tile);
+            } else if (lvl3_x < -1 && lvl3_y == 0) { // anim tiles
+                lvl3_y = j*TILESIZE;
+                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
+                _level3_tiles.push_back(temp_tile);
+            }
+        }
+    }
+*/
 
 	load_map_npcs();
 
@@ -402,7 +409,11 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x)
         if (_3rd_level_ignore_area.x != -1 && _3rd_level_ignore_area.w > 0 && ((*tile3_it).map_position.x >= _3rd_level_ignore_area.x && (*tile3_it).map_position.x < _3rd_level_ignore_area.x+_3rd_level_ignore_area.w && (*tile3_it).map_position.y >= _3rd_level_ignore_area.y && (*tile3_it).map_position.y < _3rd_level_ignore_area.y+_3rd_level_ignore_area.h)) {
             continue;
         }
-        graphLib.place_3rd_level_tile((*tile3_it).tileset_pos.x, (*tile3_it).tileset_pos.y, ((*tile3_it).map_position.x*TILESIZE)-scroll_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
+        int pos_x = (*tile3_it).tileset_pos.x;
+        int pos_y = (*tile3_it).tileset_pos.y;
+        // only show tile if it is on the screen range
+
+        graphLib.place_3rd_level_tile(pos_x, pos_y, ((*tile3_it).map_position.x*TILESIZE)-scroll_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
     }
 
     if (_water_bubble.pos.x != -1) {
@@ -1022,8 +1033,9 @@ bool classMap::subboss_alive_on_left(short tileX)
     for (int i=0; i<_npc_list.size(); i++) {
         if (_npc_list.at(i).is_subboss() == true && _npc_list.at(i).is_dead() == false) {
             std::cout << "Opa, achou um sub-boss!" << std::endl;
-            std::cout << "pos.x: " << _npc_list.at(i).getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
-            if (_npc_list.at(i).getPosition().x >= (tileX-20)*TILESIZE && _npc_list.at(i).getPosition().x<= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
+            int dist_door_npc = tileX*TILESIZE - _npc_list.at(i).getPosition().x;
+            std::cout << "dist_door_npc[" << dist_door_npc << "], NPC-pos.x: " << _npc_list.at(i).getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
+            if (_npc_list.at(i).getPosition().x >= (tileX-20)*TILESIZE && _npc_list.at(i).getPosition().x <= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
                 std::cout << "Opa, achou um sub-boss NA ESQUERDA!!" << std::endl;
                 return true;
             }
@@ -1554,6 +1566,9 @@ void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
     draw_dynamic_backgrounds_into_surface(mapSurface);
 
     int tile_x_ini = scroll.x/TILESIZE-1;
+    if (tile_x_ini < 0) {
+        tile_x_ini = 0;
+    }
 
     // draw the tiles of the screen region
     struct st_position pos_origin;

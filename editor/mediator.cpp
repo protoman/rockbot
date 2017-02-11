@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <QFile>
 #include <QDir>
+#include <QPixmap>
 #include "../file/format.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -437,6 +438,8 @@ void Mediator::load_game() {
 
 void Mediator::save_game()
 {
+    clean_data();
+
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
     Mediator::get_instance()->fio.write_all_maps(maps_data);
@@ -458,6 +461,43 @@ void Mediator::save_game()
 
     save_dialogs();
 
+}
+
+void Mediator::clean_data()
+{
+
+    QString filename;
+    if (Mediator::get_instance()->getPallete().length() < 1) {
+         filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString("default.png");
+    } else {
+         filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
+    }
+
+    QPixmap *image = new QPixmap(filename);
+    if (image->isNull()) {
+        printf("DEBUG.Tile - Could not load image file '%s'\n", qPrintable(filename));
+    }
+
+    int tileset_w = image->width();
+    int tileset_h = image->height();
+
+    std::cout << "tileset_w[" <<  tileset_w << "], tileset_h[" <<  tileset_h << "]" << std::endl;
+    // remove all invalid level-3 tiles from maps
+    for (int i=0; i<FS_MAX_STAGES; i++) {
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            for (int x=0; x<MAP_W; x++) {
+                for (int y=0; y<MAP_H; y++) {
+                    if (maps_data[i][j].tiles[x][y].tile3.x*TILESIZE >= tileset_w || maps_data[i][j].tiles[x][y].tile3.y*TILESIZE >= tileset_h) {
+                        std::cout << "ERASE LV3 TILE stage[" << i << "], map[" << j << "], tile[" << x << "][" << y << "], values[" << (int)maps_data[i][j].tiles[x][y].tile3.x << "][" << (int)maps_data[i][j].tiles[x][y].tile3.y << "]" << std::endl;
+                        maps_data[i][j].tiles[x][y].tile3.x = -1;
+                        maps_data[i][j].tiles[x][y].tile3.y = -1;
+                    }
+                }
+            }
+
+        }
+
+    }
 }
 
 /*

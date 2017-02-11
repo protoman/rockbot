@@ -1028,11 +1028,24 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
         return;
     }
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
-        std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
-        frame_n = 0;
-        //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
+
+
+        if (frame_n == 0) {
+            std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
+            if (type == ANIM_TYPE_TELEPORT) {
+                type = ANIM_TYPE_JUMP;
+            } else {
+                type = ANIM_TYPE_STAND;
+            }
+        } else {
+            std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
+            frame_n = 0;
+        }
         state.animation_state = 0;
         _was_animation_reset = true;
+
+
+        //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
@@ -2987,22 +3000,10 @@ bool character::test_change_position(short xinc, short yinc)
         return false;
     }
 
-#ifdef ANDROID
-        if (is_player() == false) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::TEST_CHANGE_POS[%s], is_ghost[%d]", name.c_str(), is_ghost);
-        }
-#endif
-
-
     if (is_ghost == false) {
         st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
         short int mapLock = map_col.block;
 
-#ifdef ANDROID
-        if (is_player() == false) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::TEST_CHANGE_POS[%s], mapLock[%d], yinc[%d]", name.c_str(), mapLock, yinc);
-        }
-#endif
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
             return false;
         }
@@ -3019,26 +3020,6 @@ bool character::test_change_position(short xinc, short yinc)
     return true;
 }
 
-
-bool character::test_change_position_debug(short xinc, short yinc)
-{
-	if (yinc < 0 && position.y < 0) {
-		std::cout << ">>> test_change_position_debug - TRUE #1" << std::endl;
-		return false;
-	}
-	if (yinc > 0 && position.y > RES_H) {
-		return false;
-	}
-    st_map_collision map_col = map_collision(xinc, yinc, map->getMapScrolling());
-    short int mapLock = map_col.block;
-	//std::cout << "character::test_change_position - pos.x: " << position.x << ", pos.y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", mapLock: " << mapLock << std::endl;
-	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
-		std::cout << ">>> test_change_position_debug - FALSE #1 - mapLock: " << mapLock << std::endl;
-		return false;
-	}
-	std::cout << ">>> test_change_position_debug - TRUE #2" << std::endl;
-	return true;
-}
 
 bool character::is_shielded(int projectile_direction) const
 {

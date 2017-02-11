@@ -135,7 +135,6 @@ public:
     void change_position_x(short int xinc);
     int change_position_y(short int yinc);
     bool test_change_position(short int xinc, short int yinc);
-    bool test_change_position_debug(short int xinc, short int yinc);
     bool is_shielded(int projectile_direction) const;
     bool is_intangible();
     short get_anim_type() const;

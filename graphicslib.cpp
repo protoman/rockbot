@@ -338,14 +338,20 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     }
 
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
-        //printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
-        //return;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+#endif
+        return;
     }
     if (src.y >= surfaceOrigin->h || (src.y+src.h) > surfaceOrigin->h) {
         printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
         fflush(stdout);
-        //return;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
+#endif
+        return;
     }
 
     if (surfaceDestiny == game_screen) { // if painting on game_screen, use position adjusts
@@ -489,6 +495,12 @@ void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, i
     }
 
     struct st_rectangle origin_rectangle(origin_x*TILESIZE, origin_y*TILESIZE, TILESIZE, TILESIZE);
+
+    if (origin_rectangle.x < 0 || origin_rectangle.x > origin_rectangle.w) {
+        std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position, ignoring." << std::endl;
+        return;
+    }
+
     copySDLArea(origin_rectangle, pos_destiny, tileset, game_screen);
 }
 
@@ -636,11 +648,25 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 {
+    if (surface.width <= 0 || surface.get_surface() == NULL) {
+        std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring" << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
+#endif
+        return;
+    }
     SDL_SetAlpha(surface.get_surface(), SDL_SRCALPHA, alpha);
 }
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 {
+    if (surface->width <= 0 || surface->get_surface() == NULL) {
+        std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[*] - invalid surface, ignoring" << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
+#endif
+        return;
+    }
     SDL_SetAlpha(surface->get_surface(), SDL_SRCALPHA, alpha);
 }
 
