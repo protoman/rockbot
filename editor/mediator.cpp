@@ -439,6 +439,7 @@ void Mediator::load_game() {
 void Mediator::save_game()
 {
     clean_data();
+    //temp_fix_player_colors_order();
 
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
@@ -497,6 +498,26 @@ void Mediator::clean_data()
 
         }
 
+    }
+}
+
+void Mediator::temp_fix_player_colors_order()
+{
+    for (int i=0; i<player_list.size(); i++) {
+        CURRENT_FILE_FORMAT::file_player temp_player = player_list.at(i);
+        CURRENT_FILE_FORMAT::file_weapon_colors copy_weapon_colors[MAX_WEAPON_N];
+        for (int j=0; j<MAX_WEAPON_N; j++) {
+            copy_weapon_colors[j] = player_list.at(i).weapon_colors[j];
+        }
+        // gear <-> beast
+        player_list.at(i).weapon_colors[1] = copy_weapon_colors[5];
+        player_list.at(i).weapon_colors[5] = copy_weapon_colors[1];
+        // dragon (laranja) <-> snow
+        player_list.at(i).weapon_colors[2] = copy_weapon_colors[8];
+        player_list.at(i).weapon_colors[8] = copy_weapon_colors[2];
+        // zodiac (yellow) <-> phantom (dark-blue+white)
+        player_list.at(i).weapon_colors[6] = copy_weapon_colors[7];
+        player_list.at(i).weapon_colors[7] = copy_weapon_colors[6];
     }
 }
 

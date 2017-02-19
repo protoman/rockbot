@@ -23,6 +23,7 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
+        p1_save_input[i] = 0;
 	}
     _show_btn_debug = false;
 }
@@ -64,6 +65,15 @@ void inputLib::clean_all()
         SDL_PumpEvents(); // check keyboard events
     }
 }
+
+void inputLib::save()
+{
+    for (int i=0; i<BTN_COUNT; i++) {
+        p1_save_input[i] = p1_input[i];
+
+    }
+}
+
 
 
 // ********************************************************************************************** //

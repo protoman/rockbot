@@ -66,7 +66,7 @@ case $response in
 		# remove as assinaturas do Android (caso haja alguma, por engano)
 		zip -d $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk META-INF/*
 		# assina e realinha o APK
-		/opt/java/jdk1.7.0_71/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk alias_name
+		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk alias_name
 		/home/iuri/Programas/android-studio/sdk/build-tools/23.0.3/zipalign -v 4 $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
 		;;
 	*)

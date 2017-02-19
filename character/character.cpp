@@ -260,14 +260,14 @@ void character::charMove() {
 			}
 		}
 	}
-	if (moveCommands.left == 1 && state.direction != ANIM_DIRECTION_LEFT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+    if (moveCommands.right != 1 && moveCommands.left == 1 && state.direction != ANIM_DIRECTION_LEFT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
         if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
             position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
         }
         state.direction = ANIM_DIRECTION_LEFT;
     }
 
-	if (moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+    if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_RIGHT) {
             state.direction = ANIM_DIRECTION_RIGHT;
             return;
@@ -1340,9 +1340,11 @@ bool character::will_hit_ground(int y_change) const
 bool character::is_on_screen()
 {
     st_float_position scroll(0, 0);
-    if (map != NULL) {
-        scroll = map->getMapScrolling();
+    if (map == NULL) {
+        return false;
     }
+
+    scroll = map->getMapScrolling();
 
     // is on screen
     if (abs((float)position.x+frameSize.width*2) >= scroll.x && abs((float)position.x-frameSize.width*2) <= scroll.x+RES_W) {
@@ -1859,6 +1861,8 @@ void character::check_platform_move(short map_lock)
 
 st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling, int hitbox_anim_type)
 {
+    UNUSED(mapScrolling);
+
     int py_adjust = 0;
     if (is_player() == true) {
         py_adjust = 8;
@@ -1870,33 +1874,37 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         py_adjust = 1;
     }
 
-    UNUSED(mapScrolling);
     int map_block = BLOCK_UNBLOCKED;
 
+    if (map == NULL) {
+        return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
+    }
 
     map->collision_char_object(this, incx, incy);
     object_collision res_collision_object = map->get_obj_collision();
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (res_collision_object._object != NULL && (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true))) {
-            if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
-                state.direction = ANIM_DIRECTION_RIGHT;
-                gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
-            }
-        } else if (res_collision_object._object != NULL && (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false)) {
-            // ignore block
-        } else if (!get_item(res_collision_object)) {
-            map_block = res_collision_object._block;
+        if (res_collision_object._object != NULL) {
+            if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
+                if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
+                    state.direction = ANIM_DIRECTION_RIGHT;
+                    gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
+                }
+            } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
+                // ignore block
+            } else if (!get_item(res_collision_object)) {
+                map_block = res_collision_object._block;
 
-            if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
-                _can_execute_airdash = true;
-            }
-            // INSIDE PLATFORM OBJECT, MUST DIE
-            if (map_block == BLOCK_INSIDE_OBJ) {
-                std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
-                damage(999, true);
-                return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+                if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
+                    _can_execute_airdash = true;
+                }
+                // INSIDE PLATFORM OBJECT, MUST DIE
+                if (map_block == BLOCK_INSIDE_OBJ) {
+                    std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
+                    damage(999, true);
+                    return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+                }
             }
         }
     } else if (is_player() == false && res_collision_object._block != 0) {
@@ -2986,6 +2994,9 @@ int character::change_position_y(short yinc)
 
 bool character::test_change_position(short xinc, short yinc)
 {
+    if (map == NULL) {
+        return false;
+    }
     if (yinc < 0 && position.y < 0) {
 		return false;
 	}

@@ -169,12 +169,12 @@ struct st_position stage_select::select() {
             if (i == 1 && j == 1) {
                 continue;
             }
-if (gameControl.is_free_version() == true) {
-            if (stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2) {
-                stage_n++;
-                continue;
+            if (gameControl.is_free_version() == true) {
+                if (stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2) {
+                    stage_n++;
+                    continue;
+                }
             }
-}
 
             if (game_save.stages[stage_n] == 0) {
                 // @TODO: name could miss \n, so get only 8 characters
@@ -187,7 +187,7 @@ if (gameControl.is_free_version() == true) {
     }
 
 
-    if (finished_stages() < 9) {
+    if (gameControl.is_free_version() == true || finished_stages() < 9) {
         char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
         sprintf(eyes_filename_char, "player%d.png", (game_save.selected_player+1));
         place_face(std::string(eyes_filename_char), "", st_position(1, 1));
@@ -206,7 +206,7 @@ if (gameControl.is_free_version() == true) {
 }
 
 	input.clean();
-    if (finished_stages() < 9) {
+    if (gameControl.is_free_version() == true || finished_stages() < 9) {
 		draw_eyes(select_pos.x, select_pos.y, false);
 	}
 	timer.delay(200);
@@ -224,11 +224,11 @@ if (gameControl.is_free_version() == true) {
 		}
 
         if (select_pos.y < 2 && input.p1_input[BTN_DOWN]) {
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
             select_pos.y++;
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, false);
             }
             soundManager.play_sfx(SFX_CURSOR);
@@ -236,11 +236,11 @@ if (gameControl.is_free_version() == true) {
             timer.delay(200);
             input.clean();
         } else if (select_pos.y > 0 && input.p1_input[BTN_UP]) {
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
             select_pos.y--;
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, false);
             }
             soundManager.play_sfx(SFX_CURSOR);
@@ -248,11 +248,11 @@ if (gameControl.is_free_version() == true) {
             timer.delay(200);
             input.clean();
         } else if (select_pos.x > 0 && input.p1_input[BTN_LEFT]) {
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
             select_pos.x--;
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, false);
             }
             soundManager.play_sfx(SFX_CURSOR);
@@ -260,18 +260,18 @@ if (gameControl.is_free_version() == true) {
             timer.delay(200);
             input.clean();
         } else if (select_pos.x < 2 && input.p1_input[BTN_RIGHT]) {
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, true);
             }
             select_pos.x++;
-            if (finished_stages() < 9) {
+            if (gameControl.is_free_version() == true || finished_stages() < 9) {
                 draw_eyes(select_pos.x, select_pos.y, false);
             }
             soundManager.play_sfx(SFX_CURSOR);
             move_highlight(spacing.x, 0);
             timer.delay(200);
             input.clean();
-        } else if (input.p1_input[BTN_START] && finished_stages() < 9 && (select_pos.x != 1 || select_pos.y != 1)) {
+        } else if (input.p1_input[BTN_START] && (gameControl.is_free_version() == true || finished_stages() < 9) && (select_pos.x != 1 || select_pos.y != 1)) {
             if (gameControl.is_free_version() == true) {
                 int pos_n = select_pos.x + 1 + select_pos.y*3;
 

@@ -16,6 +16,7 @@
 #include <mach-o/dyld.h>
 #elif DREAMCAST
 #include <kos.h>
+#include <android/log.h>
 #endif
 
 #include <iostream>
@@ -41,6 +42,7 @@ std::string FILEPATH; // path including game-data dir
 std::string SAVEPATH;
 std::string GAMENAME; // the gamename, part of path
 SDL_Event event;
+bool run_game = true;
 
 #ifdef ANDROID
 jobject activity_ref;
@@ -519,6 +521,7 @@ int main(int argc, char *argv[])
     //game_config.volume_sfx = 128;
     //game_config.volume_music = 128;
     //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_INVENCIBLE] = true;
     // === DEBUG === //
 
 
@@ -544,7 +547,6 @@ int main(int argc, char *argv[])
     }
 
 
-    bool run_game = true;
 
     fps_manager.initialize();
     if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
@@ -563,7 +565,6 @@ int main(int argc, char *argv[])
             //RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
         #endif
 
-
         gameControl.showGame(true, true);
 #ifdef DEBUG_SHOW_FPS
         gameControl.fps_count();
@@ -576,6 +577,11 @@ int main(int argc, char *argv[])
         fps_manager.limit();
 
     }
+
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### Leaving game gracefully ###");
+#endif
 
 #ifdef PSP
     sceKernelExitGame();

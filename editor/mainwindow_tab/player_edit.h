@@ -25,7 +25,6 @@ public slots:
     void on_color_selected1(const QColor & color);
     void on_color_selected2(const QColor & color);
     void on_color_selected3(const QColor & color);
-    void on_weapon_color_selected(const QColor & color);
     void pick_player_color1();
     void pick_player_color2();
     void pick_player_color3();

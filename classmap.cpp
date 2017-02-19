@@ -27,6 +27,10 @@ extern inputLib input;
 #include "soundlib.h"
 extern soundLib soundManager;
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include "file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 
@@ -211,64 +215,39 @@ void classMap::showMap()
     graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &graphLib.gameScreen);
 
     // draw animated tiles
-    draw_animated_tiles();
+    draw_animated_tiles(graphLib.gameScreen);
 
     if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
         draw_lib.show_gfx();
     }
 
 
-    /*
-    draw_dynamic_backgrounds();
-    int tile_x_ini = scroll.x/TILESIZE-1;
-    if (tile_x_ini < 0) {
-        tile_x_ini = 0;
+}
+
+void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
+{
+    graphLib.initSurface(st_size(RES_W, RES_H), &mapSurface);
+
+    if (!mapSurface.get_surface()) {
+        graphLib.show_debug_msg("EXIT #21.MALLOC");
+        SDL_Quit();
+        exit(-1);
     }
 
-    if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
-        draw_lib.show_gfx();
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, mapSurface);
+
+    draw_dynamic_backgrounds_into_surface(mapSurface);
+
+    // redraw screen, if needed
+    if (_show_map_pos_x == -1 || abs(_show_map_pos_x - scroll.x) > TILESIZE) {
+        draw_map_tiles();
+    // use memory screen
     }
+    int diff_scroll_x = scroll.x - _show_map_pos_x;
+    graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &mapSurface);
 
-    // draw the tiles of the screen region
-    struct st_position pos_origin;
-    struct st_position pos_destiny;
-    int n = -1;
-    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
-        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
-        pos_destiny.x = n*TILESIZE - diff;
-        for (int j=0; j<MAP_H; j++) {
-
-            // don't draw easy-mode blocks if game difficulty not set to easy
-
-            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
-                pos_destiny.y = j*TILESIZE;
-                graphLib.place_easymode_block_tile(pos_destiny, graphLib.gameScreen);
-            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
-                pos_destiny.y = j*TILESIZE;
-                graphLib.place_hardmode_block_tile(pos_destiny, graphLib.gameScreen);
-            } else {
-                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
-
-                if (pos_origin.x >= 0 && pos_origin.y >= 0) {
-                    pos_destiny.y = j*TILESIZE;
-                    graphLib.placeTile(pos_origin, pos_destiny, &graphLib.gameScreen);
-                } else if (pos_origin.x < -1 && pos_origin.y == 0) {
-                    int anim_tile_id = (pos_origin.x * -1) - 2;
-                    pos_destiny.y = j*TILESIZE;
-                    //std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
-                    graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
-                }
-            }
-        }
-        n++;
-    }
-
-    graphLib.update_anim_tiles_timers();
-    if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
-        draw_lib.show_gfx();
-    }
-    */
+    // draw animated tiles
+    draw_animated_tiles(mapSurface);
 }
 
 void classMap::draw_map_tiles()
@@ -315,39 +294,8 @@ void classMap::draw_map_tiles()
     }
 }
 
-void classMap::draw_animated_tiles()
+void classMap::draw_animated_tiles(graphicsLib_gSurface &surface)
 {
-    /*
-    int tile_x_ini = scroll.x/TILESIZE-1;
-    if (tile_x_ini < 0) {
-        tile_x_ini = 0;
-    }
-
-    // draw the tiles of the screen region
-    struct st_position pos_origin;
-    struct st_position pos_destiny;
-    int n = -1;
-    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
-        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
-        pos_destiny.x = n*TILESIZE - diff;
-        for (int j=0; j<MAP_H; j++) {
-
-            // don't draw easy-mode blocks if game difficulty not set to easy
-
-            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
-
-            if (pos_origin.x < -1 && pos_origin.y == 0) {
-                int anim_tile_id = (pos_origin.x * -1) - 2;
-                pos_destiny.y = j*TILESIZE;
-                //std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
-                graphLib.place_anim_tile(anim_tile_id, pos_destiny, &graphLib.gameScreen);
-            }
-        }
-        n++;
-    }
-    */
-
     //scroll.x - dest.x
     for (int i=0; i<anim_tile_list.size(); i++) {
         //std::cout << "draw-anim-tile[" << i << "][" << anim_tile_list.at(i).anim_tile_id << "], x[" << anim_tile_list.at(i).dest_x << "], y[" << anim_tile_list.at(i).dest_y << "]" << std::endl;
@@ -356,7 +304,7 @@ void classMap::draw_animated_tiles()
         if (pos_x >= -TILESIZE && pos_x <= RES_W+1) {
             //std::cout << "## scroll.x[" << scroll.x << "], dest.x[" << anim_tile_list.at(i).dest_x << "]" << std::endl;
             st_position dest_pos(pos_x, anim_tile_list.at(i).dest_y);
-            graphLib.place_anim_tile(anim_tile_list.at(i).anim_tile_id, dest_pos, &graphLib.gameScreen);
+            graphLib.place_anim_tile(anim_tile_list.at(i).anim_tile_id, dest_pos, &surface);
         }
     }
 
@@ -620,11 +568,12 @@ void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
     //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
-    if (get_dynamic_bg() == NULL) {
+    graphicsLib_gSurface* surface_bg = get_dynamic_bg();
+    if (surface_bg == NULL || surface_bg->width <= 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
         return;
     }
-    if (get_dynamic_bg()->width <= 0 || get_dynamic_bg()->height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
+    if (surface_bg->width <= 0 || surface_bg->height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
     }
 
@@ -649,9 +598,6 @@ void classMap::draw_dynamic_backgrounds()
 
     //std::cout << "## bg1_speed[" << bg1_speed << "], bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
 
-
-
-
     int x1 = bg_scroll.x;
     if (x1 > 0) { // moving to right
         x1 = (RES_W - x1) * -1;
@@ -662,21 +608,18 @@ void classMap::draw_dynamic_backgrounds()
     //std::cout << "## x1[" << x1 << "]" << std::endl;
 
 
-    if (get_dynamic_bg()->width > 0) {
+    if (surface_bg->width > 0) {
         // draw leftmost part
-        graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_bg(), &graphLib.gameScreen);
+        graphLib.copyAreaWithAdjust(st_position(x1, y1), surface_bg, &graphLib.gameScreen);
 
         // draw rightmost part, if needed
-        //std::cout << "bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
         if (abs(bg_scroll.x) > RES_W) {
             //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
             int bg_pos_x = RES_W - (abs(x1)-RES_W);
-            std::cout << "Need to draw second part of surface, bg_pos_x[" << bg_pos_x << "]" << std::endl;
-            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &graphLib.gameScreen);
-        }  else if (get_dynamic_bg()->width - abs(bg_scroll.x) < RES_W) {
-            int bg_pos_x = get_dynamic_bg()->width - (int)abs(bg_scroll.x);
-            //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT bg_pos_x[" << bg_pos_x << "] ###" << std::endl;
-            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &graphLib.gameScreen);
+            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
+        }  else if (surface_bg->width - abs(bg_scroll.x) < RES_W) {
+            int bg_pos_x = surface_bg->width - (int)abs(bg_scroll.x);
+            graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
         }
     }
 }
@@ -1356,7 +1299,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 bool entered_platform = false;
 
                 if (temp_obj.get_state() != 0 && temp_obj.get_type() == OBJ_TRACK_PLATFORM) {
-                    temp_blocked = 0;
                     continue;
                 }
 
@@ -1366,12 +1308,10 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
 
                     charObj->damage(TOUCH_DAMAGE_BIG, false);
-                    temp_blocked = 0;
                     continue;
                 } else if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
                     std::cout << "DEATHRAY(damage) - player.x: " << char_rect.x << ", map.scroll_x: " << scroll.x << ", pos.x: " << temp_obj.get_position().x << ", size.w: " << temp_obj.get_size().width << std::endl;
                     charObj->damage(999, false);
-                    temp_blocked = 0;
                     continue;
                 }
 
@@ -1552,66 +1492,7 @@ void classMap::reset_beam_objects()
     }
 }
 
-void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
-{
-    graphLib.initSurface(st_size(RES_W, RES_H), &mapSurface);
 
-    if (!mapSurface.get_surface()) {
-        graphLib.show_debug_msg("EXIT #21.MALLOC");
-        exit(-1);
-    }
-
-    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, mapSurface);
-
-    draw_dynamic_backgrounds_into_surface(mapSurface);
-
-    int tile_x_ini = scroll.x/TILESIZE-1;
-    if (tile_x_ini < 0) {
-        tile_x_ini = 0;
-    }
-
-    // draw the tiles of the screen region
-    struct st_position pos_origin;
-    struct st_position pos_destiny;
-    int n = -1;
-    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
-        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
-        pos_destiny.x = n*TILESIZE - diff;
-        for (int j=0; j<MAP_H; j++) {
-            /*
-            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
-            pos_destiny.y = j*TILESIZE;
-            graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
-            */
-
-
-            // don't draw easy-mode blocks if game difficulty not set to easy
-            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
-                pos_destiny.y = j*TILESIZE;
-                graphLib.place_easymode_block_tile(pos_destiny, mapSurface);
-            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
-                pos_destiny.y = j*TILESIZE;
-                graphLib.place_hardmode_block_tile(pos_destiny, mapSurface);
-            } else {
-                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
-
-                if (pos_origin.x >= 0 && pos_origin.y >= 0) {
-                    pos_destiny.y = j*TILESIZE;
-                    graphLib.placeTile(pos_origin, pos_destiny, &mapSurface);
-                } else if (pos_origin.x < -1 && pos_origin.y == 0) {
-                    int anim_tile_id = (pos_origin.x * -1) - 2;
-                    pos_destiny.y = j*TILESIZE;
-                    graphLib.place_anim_tile(anim_tile_id, pos_destiny, &mapSurface);
-                }
-            }
-
-
-        }
-        n++;
-    }
-}
 
 bool classMap::get_map_point_wall_lock(int x) const
 {
@@ -1825,6 +1706,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                                     if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.C");
+                                        SDL_Quit();
                                         exit(-1);
                                     }
 
@@ -1838,6 +1720,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                                     if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.D");
+                                        SDL_Quit();
                                         exit(-1);
                                     }
 
@@ -1851,6 +1734,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                             if (!graphLib.gameScreen.get_surface()) {
                                 graphLib.show_debug_msg("EXIT #21.E");
+                                SDL_Quit();
                                 exit(-1);
                             }
 

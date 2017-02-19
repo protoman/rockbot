@@ -91,7 +91,7 @@ public:
 
     void draw_map_tiles();
 
-    void draw_animated_tiles();
+    void draw_animated_tiles(graphicsLib_gSurface &surface);
 
     void init_animated_tiles();
 

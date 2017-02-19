@@ -404,9 +404,31 @@ FILE-FORMAT-V4:
     # draw visible map (-1, +1) into a surface and use it until scroll changes more than TILESIZE
 - map should not set GFX effects unless config is set to high-end performance mode
 - high-end performance mode should be the default one
-
 - fix Rockbot 1 projectile that was not converted to new format
 - fix crash on player reference when used from classNPC, add method into map class to get player hitbox instead
 - not removing GFX effect when returning to a map that does not have it
 - fix errors in editor for projectile v2 format
 - reenable PSP's turbo CPU mode
+- EDITOR: add fix to remove invalid level 3 tiles
+- do not try to show invalid surface areas
+- fix ice slash graphic
+- fix joe set was sub-boss in snow stage
+- reset anim-type if one is invalid, not only anim-n
+- remove duplicated level3 tiles code
+- fix animation trying to show invalid position
+- not removing GFX effect when returning to a map that does not have it
+- EDITOR: zoom in/out using mouse wheel on editor-area
+- music restarting twice when dying
+- inferno effect crashes due to incorrect check of surface existance
+- firey snake missing walk frames
+- holding left+right at same time makes player float in middle-air
+- hide GFX when transitioning between maps
+- small increase in player movement speed
+- made snowbot water jumping part easier
+- use player first color of normal weapon as HP color, and first for weapon color also.
+- EDITOR: removed weapon color picker
+- EDITOR: weapon color preview not working
+- there is a piece of another sprite in Rockbot's walk-attack animation
+- candy blinking sprite has a small difference from the stand one
+- after screen transition, player gets fast (clean new press inputs)
+- fix not entering stages if finished stages is greater than 8 and in demo-mode

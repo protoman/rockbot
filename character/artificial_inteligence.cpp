@@ -276,11 +276,13 @@ struct_player_dist artificial_inteligence::dist_npc_players()
     if (!map) {
         std::cout << "ERROR: trying to calc NPC-player distance before map pointer is set on NPC" << std::endl;
         graphLib.show_debug_msg("EXIT #A.01");
+        SDL_Quit();
         exit(-1);
     }
     if (map->_player_ref == NULL) {
         std::cout << "ERROR: trying to calc NPC-player distance before there is a player in the game or this NPC does not have set the player_list" << std::endl;
         graphLib.show_debug_msg("EXIT #01");
+        SDL_Quit();
         exit(-1);
     }
 

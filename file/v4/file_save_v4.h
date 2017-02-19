@@ -80,7 +80,23 @@ namespace format_v4 {
                 stages[i] = 0;
             }
             selected_player = 0;
-            difficulty = 1;
+            difficulty = DIFFICULTY_NORMAL;
+            defeated_enemies_count = 0;
+            used_countinue = false;
+            for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX; i++) {
+                armor_pieces[i] = false;
+            }
+            xp_points = 0;
+            level = 0;
+        }
+
+        void reset() {
+            finished_stages = 0;
+            for (int i=0; i<MAX_STAGES; i++) {
+                stages[i] = 0;
+            }
+            selected_player = 0;
+            difficulty = DIFFICULTY_NORMAL;
             defeated_enemies_count = 0;
             used_countinue = false;
             for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX; i++) {

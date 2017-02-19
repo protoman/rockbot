@@ -23,7 +23,7 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
-#define PLAYER_MOVE_SPEED 1.2 // higher is faster
+#define PLAYER_MOVE_SPEED 1.25 // higher is faster
 
 #include "file/file_io.h"
 
@@ -37,7 +37,7 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(WEAPON_DEFAULT), l_key_released(true), r_key_released(true)
 {
 
-    std::cout << "### PLAYER::CREATE::number: " << _number << std::endl;
+    std::cout << "### PLAYER::CREATE::number[" << _number << "]" << std::endl;
 
     _number = playerNumber;
     if (_number == 3 || _number == 0) {
@@ -342,7 +342,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (moveCommands.attack != 0 && (timer.getTimer()-state.attack_timer) > 100 && attack_button_released == true) {
-        std::cout << "########## attack_button_released[FALSE] #1 ##########" << std::endl;
+        //std::cout << "########## attack_button_released[FALSE] #1 ##########" << std::endl;
         attack_button_released = false;
 
 
@@ -806,8 +806,7 @@ void classPlayer::move()
 	int wpn_max = WEAPON_COUNT;
     //wpn_max--;
 	if (input.p1_input[BTN_L] == 1 && l_key_released == true) {
-		int selected_weapon_c = selected_weapon;
-		selected_weapon_c = find_next_weapon(selected_weapon, -1);
+        int selected_weapon_c = find_next_weapon(selected_weapon, -1);
         if (selected_weapon_c != -1) {
             set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c, true);
         }
@@ -819,8 +818,7 @@ void classPlayer::move()
 		r_key_released = true;
 	}
 	if (input.p1_input[BTN_R] == 1 && r_key_released == true) {
-		int selected_weapon_c = selected_weapon;
-		selected_weapon_c = find_next_weapon(selected_weapon, 1);
+        int selected_weapon_c = find_next_weapon(selected_weapon, 1);
 		if (selected_weapon_c >= wpn_max) {
 			selected_weapon_c = WEAPON_DEFAULT;
 		}

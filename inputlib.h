@@ -19,6 +19,7 @@ public:
     int waitScapeTime(int);
     void clean();
     void clean_all();     /// removes also the attack state
+    void save();
     void wait_keypress(); /// waits intil a key is pressed
 
     bool pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key);
@@ -36,6 +37,7 @@ protected:
 
 public:
     Uint8 p1_input[BTN_COUNT];
+    Uint8 p1_save_input[BTN_COUNT];
 
 
 private:

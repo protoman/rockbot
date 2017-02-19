@@ -75,6 +75,7 @@ public:
     void load_game();
     void save_game();
     void clean_data();                                      // any sanity data cleaning goest here
+    void temp_fix_player_colors_order();
 
     //void convertProjectileListToV2();
 

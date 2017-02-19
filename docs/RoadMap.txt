@@ -15,21 +15,27 @@ VERSION 2.0.0 RELEASE #2
     # ruas da cidade (streets of rage, mighty final fight)
     # space, the final frontier (moon stage de duck tales)
 
+###################################################################################################################
+BACKTRACES:
+###################################################################################################################
 
-- fazer plataforma que quebra ao pisar
+###################################################################################################################
+###################################################################################################################
 
-- holding left+right at same time makes player float in middle-air
+- ROCKBOT1 - setar as cores das armas
 
-- GFX não deve aparecer ao transicionar mapas
+- após passar por uma porta ou transição, player executa comandos acelerado, comos e viessem todos de uma vez só
+    # ver se player ainda tem um last-executed e conferir que esteja usando timers corretos, com pause
 
-- setar as cores das armas
+- as vezes, projétil atravessa inimigos, principalmente mola-puladeira
+
+- won't reset from walk-attack to stand-attack if keep firing even if not moving
 
 - remover flag fullscreen do PSP, vamos deixar sempre em fullscreen por questões de performance
 
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
-- após transisionar a tela, personagem fica acelerado (algo a ver com pause e controle de fps?)
-    # também ao iniciar estágio (ver bg fase valkyrie)
+- ao trocar de mapa, deve limpar objetos temporários (dropped)
 
 - air-dash consegue entrar na sala do boss
     # tem que cancelar qualquer dash e input
@@ -67,19 +73,9 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- EDITOR: add fix to remove invalid level 3 tiles
-- do not try to show invalid surface areas
-- fix ice slash graphic
-- fix joe set was sub-boss in snow stage
-- reset anim-type if one is invalid, not only anim-n
-- remove duplicated level3 tiles code
-- fix animation trying to show invalid position
-- not removing GFX effect when returning to a map that does not have it
-- EDITOR: zoom in/out using mouse wheel on editor-area
-
-
-
-
+- do not leave game if can't draw an animated-tile
+- add SDL_Quit() before all exit() calls, to prevent causing an exception that hides the actual error
+- increase show_debug_msg() time to 4 seconds
 
 
 

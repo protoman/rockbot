@@ -215,7 +215,7 @@ public:
     void set_screen_adjust(st_position adjust);
     void stop_stars_animation();
     void start_stars_animation();
-    void wait_and_update_screen(int period); // used because can't use SDL_Flip inside a thread
+    void wait_and_update_screen(int period);    // keep updating screen for a given period (ms)
     st_position get_config_menu_pos() const;
     st_size get_config_menu_size();
     void draw_horizontal_hp_bar(short int y_adjust, short int right, short int hp, short int player_n, short max_hp);
@@ -313,8 +313,7 @@ private:
 
     st_position _screen_adjust;
 
-    SDL_PixelFormat screen_pixel_format;
-
+  
     bool _show_stars;
 
     unsigned int _explosion_animation_timer;

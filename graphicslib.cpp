@@ -41,7 +41,7 @@ extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 extern graphicsLib_gSurface _explosion_surface;
 
-#define DEBUG_MSG_DELAY 1000
+#define DEBUG_MSG_DELAY 5000
 
 #include "file/file_io.h"
 
@@ -49,11 +49,15 @@ extern graphicsLib_gSurface _explosion_surface;
 
 #include "strings_map.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 // initialize static member
 std::map<std::string, st_char_sprite_data> graphicsLib::character_graphics_list;
 std::map<std::string, graphicsLib_gSurface> graphicsLib::character_graphics_background_list;
 
-graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0)
+graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0), font(NULL)
 {
 
 	tileset = NULL;
@@ -75,6 +79,8 @@ graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_a
     color_keys[2].r = 0;
     color_keys[2].g = 255;
     color_keys[2].b = 255;
+
+    _screen_resolution_adjust = st_position(0, 0);
 }
 
 graphicsLib::~graphicsLib()
@@ -96,6 +102,7 @@ bool graphicsLib::initGraphics()
         std::cout << "SDL Error" << std::endl;
         std::cout << "Unable to init SDL. Error: " << SDL_GetError() << std::endl;
         std::fflush(stdout);
+        SDL_Quit();
 		exit(-1);
     }
 #else
@@ -104,6 +111,7 @@ bool graphicsLib::initGraphics()
         std::cout << "SDL Error" << std::endl;
         std::cout << "Unable to init SDL. Error: " << SDL_GetError() << std::endl;
         std::fflush(stdout);
+        SDL_Quit();
 		exit(-1);
     }
 #endif
@@ -118,7 +126,7 @@ bool graphicsLib::initGraphics()
         printf(">> WII.DEBUG.INIT_GRAPHICS.NO_JOYSTICKS <<\n");
         fflush(stdout);
 
-
+        SDL_Quit();
         exit(-1);
     }
 #endif
@@ -157,7 +165,7 @@ bool graphicsLib::initGraphics()
 #endif
     set_video_mode();
 #ifdef PC
-    std::string icon_filename = FILEPATH + "images/faces/rockbot.png";
+    std::string icon_filename = FILEPATH + "shared/images/window_icon.png";
     SDL_RWops *rwop = SDL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
@@ -252,6 +260,9 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     if (spriteCopy == NULL) {
         std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
 
     SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
     SDL_FreeSurface(spriteCopy);
@@ -278,6 +289,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         fflush(stdout);
         timer.delay(1000);
         show_debug_msg("EXIT #05");
+        SDL_Quit();
         exit(-1);
 	} else {
         //std::cout << "surfaceFromFile - file: '" << filename << "'" << std::endl;
@@ -298,6 +310,7 @@ void graphicsLib::loadTileset(std::string file)
 	if (tileset == NULL) {
         cout << "ERROR::GRAPHLIB::loadTileset: Could not find file '" << filename << "'\n";
         show_debug_msg("EXIT #06");
+        SDL_Quit();
 		exit(-1);
 	}
 }
@@ -308,8 +321,8 @@ void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_po
     UNUSED(fix_colors);
     if (!surfaceDestiny) {
         std::cout << "copySDLArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.1");
-        exit(-1);
+        show_debug_msg("ERROR #21.1");
+        return;
     }
     copySDLPortion(origin_rectangle, st_rectangle(destiny_pos.x, destiny_pos.y, origin_rectangle.w, origin_rectangle.h), surfaceOrigin, surfaceDestiny);
 }
@@ -328,20 +341,26 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
 
     if (!surfaceOrigin) {
         cout << "copySDLArea - ERROR surfaceOrigin is NULL\n";
-        show_debug_msg("EXIT #20");
-        exit(-1);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "ERROR surfaceOrigin is NULL");
+#endif
+        show_debug_msg("ERROR #20");
+        return;
     }
     if (!surfaceDestiny) {
         std::cout << "copySDLPortion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21");
-        exit(-1);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "ERROR surfaceDestiny is NULL");
+#endif
+        show_debug_msg("ERROR #21");
+        return;
     }
 
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
         printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion <<\n");
 #endif
         return;
     }
@@ -349,7 +368,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
         fflush(stdout);
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid Y portion <<\n");
 #endif
         return;
     }
@@ -376,8 +395,8 @@ void graphicsLib::copyArea(struct st_rectangle origin_rectangle, struct st_posit
 {
     if (!surfaceDestiny->get_surface()) {
         std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.3");
-        exit(-1);
+        show_debug_msg("ERROR #21.3");
+        return;
     }
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
@@ -387,8 +406,8 @@ void graphicsLib::copyArea(struct st_position pos, struct graphicsLib_gSurface* 
 {
     if (!surfaceDestiny->get_surface()) {
         std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.4");
-        exit(-1);
+        show_debug_msg("ERROR #21.4");
+        return;
     }
     st_rectangle origin_rectangle(0, 0, surfaceOrigin->width, surfaceOrigin->height);
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
@@ -398,8 +417,8 @@ void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_
 {
     if (!surfaceDestiny->get_surface()) {
         std::cout << "copyAreaWithAdjust - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.4");
-        exit(-1);
+        show_debug_msg("ERROR #21.4");
+        return;
     }
     int w = surfaceOrigin->width;
     int h = surfaceOrigin->height;
@@ -414,8 +433,8 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
 {
     if (!gSurface->get_surface()) {
         std::cout << "placeTile - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.5");
-        exit(-1);
+        show_debug_msg("ERROR #21.5");
+        return;
     }
     struct st_rectangle origin_rectangle;
 
@@ -448,15 +467,30 @@ void graphicsLib::place_hardmode_block_tile(st_position destiny, graphicsLib_gSu
 
 void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, struct graphicsLib_gSurface* dest_surface)
 {
+
+    //std::cout << "place_anim_tile - id[" << anim_tile_id << "]" << std::endl;
     if (anim_tile_id >= ANIM_TILES_SURFACES.size()) {
         std::cout << "place_anim_tile - ERROR Invalid anim-tile-id: " << anim_tile_id << " - ignoring..." << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "place_anim_tile - ERROR Invalid anim-tile-id[%d], ignoring.", anim_tile_id);
+#endif
         return;
     }
-    if (!ANIM_TILES_SURFACES.at(anim_tile_id).get_surface()) {
+
+    struct graphicsLib_gSurface* tile_ref = &ANIM_TILES_SURFACES.at(anim_tile_id);
+
+
+    if (tile_ref->get_surface() == NULL) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
-        show_debug_msg("EXIT place_anim_tile");
-        exit(-1);
+        char debug_msg[255];
+        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%d]", anim_tile_id, ANIM_TILES_SURFACES.size());
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
+#endif
+        show_debug_msg(debug_msg);
+        return;
     }
+
 
     struct st_rectangle origin_rectangle;
 
@@ -468,7 +502,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     pos_destiny.x += _screen_adjust.x;
     pos_destiny.y += _screen_adjust.y;
 
-    copySDLArea(origin_rectangle, pos_destiny, ANIM_TILES_SURFACES.at(anim_tile_id).get_surface(), dest_surface->get_surface());
+    copySDLArea(origin_rectangle, pos_destiny, tile_ref->get_surface(), dest_surface->get_surface());
 
 }
 
@@ -510,8 +544,8 @@ void graphicsLib::showSurface(struct graphicsLib_gSurface* surfaceOrigin)
 {
     if (!game_screen) {
         std::cout << "showSurface - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.6");
-        exit(-1);
+        show_debug_msg("ERROR #21.6");
+        return;
     }
 	struct st_rectangle origin_rectangle;
 	struct st_position pos_destiny;
@@ -540,8 +574,8 @@ void graphicsLib::showSurfaceRegionAt(struct graphicsLib_gSurface* surfaceOrigin
 {
     if (!game_screen) {
         std::cout << "showSurfaceRegionAt - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.4");
-        exit(-1);
+        show_debug_msg("ERROR #21.4");
+        return;
     }
     copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->get_surface(), game_screen);
 }
@@ -550,8 +584,8 @@ void graphicsLib::showSurfacePortion(graphicsLib_gSurface *surfaceOrigin, const 
 {
     if (!game_screen) {
         std::cout << "showSurfacePortion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.2");
-        exit(-1);
+        show_debug_msg("ERROR #21.2");
+        return;
     }
     copySDLPortion(origin_rect, destiny_rect, surfaceOrigin->get_surface(), game_screen);
 }
@@ -563,8 +597,8 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 {
     if (!game_screen) {
         std::cout << "showSurfaceAt - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("EXIT #21.7");
-        exit(-1);
+        show_debug_msg("ERROR #21.7");
+        return;
     }
 
 	struct st_rectangle origin_rectangle;
@@ -572,8 +606,8 @@ void graphicsLib::showSurfaceAt(struct graphicsLib_gSurface* surfaceOrigin, stru
 
     if (surfaceOrigin->get_surface() == NULL) {
 		std::cout << "Error: no data in surfaceOrigin at graphicsLib::showSurfaceAt." << std::endl;
-        exit(-1);
-		return;
+        show_debug_msg("ERROR #41.0");
+        return;
 	}
 
 	origin_rectangle.x = 0;
@@ -591,7 +625,8 @@ void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_
 
     if (surfaceOrigin->get_surface() == NULL) {
         std::cout << "CRITICAL ERROR!" << std::endl;
-        exit(-1);
+        show_debug_msg("ERROR #41.1");
+        return;
     }
 
     // create a new surface
@@ -604,25 +639,28 @@ void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_
 
 void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* gSurface)
 {
-    if (game_screen == NULL) {
+    if (game_screen == NULL || game_screen->format == NULL) {
         return;
     }
+
     gSurface->freeGraphic();
-    SDL_Surface* temp_surface;
+    SDL_Surface* temp_surface = NULL;
     SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != NULL) {
         temp_surface = SDL_DisplayFormat(rgb_surface);
+        if (!temp_surface) {
+            show_debug_msg("EXIT #21.INIT #1");
+#ifdef PSP
+            graphLib.psp_show_available_ram(100);
+#endif
+            show_debug_msg("EXIT #41.2");
+            SDL_Quit();
+            exit(-1);
+        }
         SDL_FreeSurface(rgb_surface);
     }
 
-    if (!temp_surface) {
-        show_debug_msg("EXIT #21.INIT #1");
-#ifdef PSP
-    graphLib.psp_show_available_ram(100);
-#endif
-        SDL_Quit();
-        exit(-1);
-    }
+
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
@@ -630,7 +668,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     gSurface->set_surface(temp_surface);
 
 
-    if (!gSurface->get_surface()) {
+    if (gSurface->get_surface() == NULL) {
         show_debug_msg("EXIT #21.INIT #2");
         SDL_Quit();
         exit(-1);
@@ -641,6 +679,10 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
 void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 {
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
+
     SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 }
@@ -681,9 +723,10 @@ struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle r
 	struct graphicsLib_gSurface res;
 	initSurface(st_size(rect_origin.w, rect_origin.h), &res);
 
-    if (!res.get_surface()) {
+    if (res.get_surface() == NULL) {
         std::cout << "surfaceFromRegion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.8");
+        SDL_Quit();
         exit(-1);
     }
 
@@ -696,11 +739,19 @@ struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle r
 
 
 void graphicsLib::blank_screen() {
-	SDL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
+
+    SDL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
 }
 
 void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
 {
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
+
     SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
 }
 
@@ -743,6 +794,7 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
     if (!font) {
         printf("ERROR - no fount found - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #09");
+        SDL_Quit();
         exit(-1);
     }
 
@@ -781,7 +833,7 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
     if (text.length() <= 0) {
         return;
     }
-    SDL_Color font_color;
+    SDL_Color font_color = SDL_Color();
     font_color.r = color.r;
     font_color.g = color.g;
     font_color.b = color.b;
@@ -791,6 +843,7 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
     if (!font) {
         printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #10");
+        SDL_Quit();
         exit(-1);
         // handle error
     }
@@ -819,6 +872,7 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
 	if (!font) {
 		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #11");
+        SDL_Quit();
 		exit(-1);
 		// handle error
 	}
@@ -846,6 +900,7 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 	if (!font) {
 		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #12");
+        SDL_Quit();
 		exit(-1);
 		// handle error
 	}
@@ -868,7 +923,11 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 
 
 Uint8 graphicsLib::getColorNumber(Uint8 r, Uint8 g, Uint8 b) {
-	return SDL_MapRGB(game_screen->format, r, g, b);
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return 0;
+    }
+
+    return SDL_MapRGB(game_screen->format, r, g, b);
 }
 
 
@@ -885,6 +944,11 @@ void graphicsLib::eraseCursor(st_position pos) {
 void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 	int i;
     struct graphicsLib_gSurface screen_copy;
+
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
+
 
 	initSurface(st_size(gameScreen.width, gameScreen.height), &screen_copy);
 	copyArea(st_position(0, 0), &gameScreen, &screen_copy);
@@ -905,6 +969,10 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 {
     st_color color_white(235, 235, 235);
     st_color color_black(0, 0, 0);
+
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
 
     Uint32 key_n = SDL_MapRGB(game_screen->format, color_black.r, color_black.g, color_black.b);
     for (int i=0; i<5; i++) {
@@ -1341,14 +1409,10 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 
     //std::cout << "GRAPH::DRAW_HP_BAR::graph_lenght: " << graph_lenght << std::endl;
 
-    int id = weapon_n;
-    if (weapon_n == -1) {
-        id = 0;
-    }
-
     st_color color1(10, 10, 10); // black
     if (player_n != -1) {
-        color1 = st_color(game_data.weapon_menu_colors[id].r, game_data.weapon_menu_colors[id].g, game_data.weapon_menu_colors[id].b);    // player color or weapon color
+        st_color menu_color = GameMediator::get_instance()->player_list[player_n].weapon_colors[weapon_n].color1;
+        color1 = st_color(menu_color.r, menu_color.g, menu_color.b);    // player color or weapon color
     }
     st_color color2(188, 188, 188); // dark grey
     st_color color3(235, 235, 235); // light grey
@@ -1376,6 +1440,9 @@ void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon
 }
 
 void graphicsLib::clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b) {
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
     //std::cout << ">> graphicsLib::clear_area - x: " << x << ", w: " << w << std::endl;
 	SDL_Rect dest;
     dest.x = x + _screen_resolution_adjust.x;
@@ -1387,6 +1454,9 @@ void graphicsLib::clear_area(short int x, short int y, short int w, short int h,
 
 void graphicsLib::clear_area_alpha(short x, short y, short w, short h, short r, short g, short b, int alpha)
 {
+    if (game_screen == NULL || game_screen->format) {
+        return;
+    }
     SDL_Rect dest;
     dest.x = x + _screen_resolution_adjust.x;
     dest.y = y + _screen_resolution_adjust.y;
@@ -1398,6 +1468,10 @@ void graphicsLib::clear_area_alpha(short x, short y, short w, short h, short r, 
 
 void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short r, short g, short b)
 {
+    if (game_screen == NULL || game_screen->format == NULL) {
+        return;
+    }
+
     //std::cout << ">> graphicsLib::clear_area - x: " << x << ", w: " << w << std::endl;
     SDL_Rect dest;
     dest.x = x;
@@ -1409,6 +1483,11 @@ void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short
 
 void graphicsLib::clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const {
 	SDL_Rect dest;
+
+    if (surface.get_surface() == NULL || surface.get_surface()->format == NULL) {
+        return;
+    }
+
     if (surface.get_surface() == gameScreen.get_surface()) {
         dest.x = x + _screen_resolution_adjust.x;
         dest.y = y + _screen_resolution_adjust.y;
@@ -1424,6 +1503,9 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
 
 void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short h, short r, short g, short b, graphicsLib_gSurface &surface) const
 {
+    if (surface.get_surface() == NULL || surface.get_surface()->format == NULL) {
+        return;
+    }
     SDL_Rect dest;
     dest.x = x;
     dest.y = y;
@@ -1851,11 +1933,11 @@ void graphicsLib::set_video_mode()
 	if (!game_screen) {
         std::cout << "FATAL-ERROR::initGraphics Could not create game_screen" << std::endl;
         show_debug_msg("EXIT #13");
+        SDL_Quit();
 		exit(-1);
 	}
     gameScreen.set_surface(game_screen);
     gameScreen.video_screen = true;
-	screen_pixel_format = *game_screen->format;
 
     gameScreen.width = game_screen->w;
     gameScreen.height = game_screen->h;
@@ -1965,6 +2047,10 @@ void graphicsLib::preload_anim_tiles()
 
 graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_flip_type flip_mode)
 {
+
+
+    std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+
     //Pointer to the soon to be flipped surface
     SDL_Surface *surface = original.get_surface();
     graphicsLib_gSurface res = original;
@@ -1990,6 +2076,10 @@ graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_fl
                 res.put_pixel(rx, y, pixel );
             } else if(flip_mode == flip_type_vertical) {
                 res.put_pixel(x, ry, pixel );
+            } else {
+                std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
+                SDL_Quit();
+                exit(-1);
             }
         }
     }

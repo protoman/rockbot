@@ -173,6 +173,7 @@ if (gameControl.is_free_version() == true) {
             }
         } else if (picked_n == 0) { // NEW GAME
 			repeat_menu = false;
+            game_save.reset();
         } else if (picked_n == 1) { // LOAD GAME
             if (have_save == true) {
 				fio.read_save(game_save);
@@ -211,6 +212,7 @@ if (gameControl.is_free_version() == true) {
 
     if (picked_n == 0) {
         game_save.difficulty = select_difficulty();
+        std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
 if (gameControl.is_free_version() == true) {
         game_save.selected_player = select_player();
@@ -1306,7 +1308,10 @@ Uint8 scenesLib::select_difficulty()
                 SDL_Quit();
                 exit(0);
             }
+        } else {
+            res = selected_option;
         }
+        std::cout << "############ select_difficulty.selected_option[" << selected_option << "]" << std::endl;
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
         draw_lib.update_screen();
     }

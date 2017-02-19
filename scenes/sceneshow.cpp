@@ -51,7 +51,6 @@ void sceneShow::show_scene(int n)
         //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
 
         if (_interrupt_scene == true || input.p1_input[BTN_START] == 1) {
-            scene_seek_n = -1;
             break;
         }
 
@@ -97,6 +96,8 @@ void sceneShow::show_image(int n)
     std::cout << "sceneShow::show_image::START" << std::endl;
     if (image_scenes.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.0");
+        SDL_Quit();
         exit(-1);
     }
     speed_x = 1;
@@ -199,6 +200,8 @@ void sceneShow::show_text(int n)
 {
     if (text_list.size() <= n) {
         std::cout << "ERROR: Scene Text[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.1");
+        SDL_Quit();
         exit(-1);
     }
     run_text(text_list.at(n));
@@ -208,6 +211,8 @@ void sceneShow::clear_area(int n)
 {
     if (cleararea_list.size() <= n) {
         std::cout << "ERROR: Scene ClearArea[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.2");
+        SDL_Quit();
         exit(-1);
     }
     graphLib.clear_area(cleararea_list.at(n).x, cleararea_list.at(n).y, cleararea_list.at(n).w, cleararea_list.at(n).h, cleararea_list.at(n).r, cleararea_list.at(n).g, cleararea_list.at(n).b);
@@ -224,6 +229,8 @@ void sceneShow::play_sfx(int n)
 {
     if (playsfx_list.size() <= n) {
         std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.3");
+        SDL_Quit();
         exit(-1);
     }
     if (playsfx_list.at(n).repeat_times < 1) {
@@ -236,6 +243,8 @@ void sceneShow::play_music(int n)
 {
     if (playmusic_list.size() <= n) {
         std::cout << "ERROR: Scene PlayMusic[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.4");
+        SDL_Quit();
         exit(-1);
     }
     soundManager.stop_music();
@@ -344,6 +353,8 @@ void sceneShow::show_viewpoint(int n)
     std::cout << "sceneShow::show_image::START" << std::endl;
     if (image_scenes.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.5");
+        SDL_Quit();
         exit(-1);
     }
     speed_x = 1;

@@ -38,6 +38,11 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
+extern bool run_game;
+
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 
 
 extern string FILEPATH;
@@ -282,9 +287,6 @@ void game::restart_stage()
     loaded_stage.reset_current_map();
 	// TODO - this must be on a single method in soundlib
 
-    soundManager.stop_music();
-    soundManager.unload_music();
-    soundManager.load_stage_music(stage_data.bgmusic_filename);
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
@@ -476,7 +478,10 @@ void game::show_notice()
 // ********************************************************************************************** //
 void game::fps_count()
 {
-	fps_counter++;
+    if (timer.is_paused()) {
+        return;
+    }
+    fps_counter++;
 	if (fps_timer <= timer.getTimer()) {
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
 		fps_counter = 0;
@@ -573,23 +578,11 @@ bool game::test_teleport(classPlayer *test_player) {
 
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
-    int dest_x = (player_x*TILESIZE) - loaded_stage.getMapScrolling().x;
-
-
-    int max_pos_x = MAP_W*TILESIZE - RES_W;
-    if (dest_x > max_pos_x) {
-       dest_x = max_pos_x;
-    }
-    if (dest_x < 0) {
-       dest_x = 0;
-    }
 
 
     // must move the map, so that the dest position in screen is equal to player_real_pos_x
     int new_map_pos_x;
     new_map_pos_x = loaded_stage.getMapScrolling().x - teleporter_dist;
-
-    //std::cout << "GAME::test_teleport - old_map_x[" << loaded_stage.getMapScrolling().x << "], new_map_pos_x[" << new_map_pos_x << "], teleporter_dist[" << teleporter_dist << "], dest_x[" << dest_x << "]" << std::endl;
 
     if (new_map_pos_x < 0) {
        new_map_pos_x = 0;
@@ -614,8 +607,8 @@ bool game::test_teleport(classPlayer *test_player) {
         graphLib.blank_screen();
         draw_lib.update_screen();
         timer.delay(500);
-        currentMap = temp_map_n;
         int calc_pos_x = ((int)stage_data.links[j].pos_destiny.x * TILESIZE) - TILESIZE*2;
+
         if (link_type == LINK_TELEPORT_LEFT_LOCK) {
             //std::cout << "%%%% LEFT %%%%" << std::endl;
             new_map_pos_x = loaded_stage.get_first_lock_on_left(calc_pos_x/TILESIZE) - TILESIZE;
@@ -658,6 +651,8 @@ bool game::test_teleport(classPlayer *test_player) {
         test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();
     }
+
+    timer.delay(100);
 
     draw_lib.update_screen();
 
@@ -739,6 +734,7 @@ void game::set_current_map(int temp_map_n)
 
     if (loaded_stage.get_current_map() != player1.map) {
         graphLib.show_debug_msg("EXIT #03");
+        SDL_Quit();
 		exit(-1);
 	}
 }
@@ -799,6 +795,8 @@ void game::map_present_boss(bool show_dialog)
 	fill_boss_hp_bar();
 
     soundManager.play_boss_music();
+
+    timer.delay(100);
 
 	_show_boss_hp = true;
 	is_showing_boss_intro = false;
@@ -899,7 +897,8 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     // pegar posição relativa do jogador em relação à tela
     // posição nova é o scroll-x novo mais essa diferença
 
-	// draw map in the screen, erasing all players/objects/npcs
+    // draw map in the screen, erasing all players/objects/npcs/GFX
+    draw_lib.set_gfx(SCREEN_GFX_NONE, BG_SCROLL_MODE_NONE);
     loaded_stage.showStage();
 
 
@@ -1239,12 +1238,18 @@ void game::exit_game()
         return;
     }
 
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### GAME::exit_game ###");
+#endif
+
+
     if (fio.write_save(game_save) == false) {
         show_savegame_error();
     }
 
-    SDL_Quit();
-    exit(-1);
+    run_game = false;
+
 }
 
 void game::game_over()
@@ -1278,7 +1283,7 @@ void game::game_over()
         scenes.show_password();
         soundManager.stop_music();
         soundManager.load_stage_music(stage_data.bgmusic_filename);
-        soundManager.play_music();
+        // restart stage will play the music
         restart_stage();
     }
 }
@@ -1322,8 +1327,8 @@ void game::quick_load_game()
     }
 
     currentStage = STAGE8;
-    game_save.difficulty = DIFFICULTY_EASY;
-    game_save.selected_player = PLAYER_2;
+    game_save.difficulty = DIFFICULTY_HARD;
+    game_save.selected_player = PLAYER_1;
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;

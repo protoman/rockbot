@@ -2,6 +2,8 @@
 #define PLAYER_PREVIEW_AREA_H
 
 #include <QWidget>
+#include <QImage>
+#include <QPixmap>
 
 class player_preview_area : public QWidget
 {

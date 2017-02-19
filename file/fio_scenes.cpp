@@ -140,6 +140,7 @@ namespace format_v4 {
             //std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
             if (res_read == -1) {
                 std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
+                SDL_Quit();
                 exit(-1);
             } else if (res_read == 1) {
                 res.push_back(out);

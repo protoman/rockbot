@@ -187,15 +187,15 @@ namespace format_v4 {
 
 
 // -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
-                // st_color weapon_menu_colors[MAX_WEAPON_N];
-                filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
-                fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-                if (!fp.is_open()) {
-                    std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-                    fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-                }
-                fp.write(reinterpret_cast<char *>(&data_in.weapon_menu_colors), sizeof(st_color) * MAX_WEAPON_N);
-                fp.close();
+        // st_color weapon_menu_colors[MAX_WEAPON_N];
+        filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
+            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        }
+        fp.write(reinterpret_cast<char *>(&data_in.weapon_menu_colors), sizeof(st_color) * MAX_WEAPON_N);
+        fp.close();
 
     }
 
@@ -806,7 +806,7 @@ namespace format_v4 {
         /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=1; i<CASTLE1_STAGE5; i++) {
-            data_out.stages[i] = 0;
+            data_out.stages[i] = 1;
         }
         */
         //data_out.stages[INTRO_STAGE] = 1;

@@ -103,10 +103,6 @@ void draw::show_gfx()
     } else if (screen_gfx != SCREEN_GFX_NONE) {
         std::cout << "screen_gfx[" << (int)screen_gfx << "] UNKNOWN" << std::endl;
     }
-    // effects that run over the map brackground
-    if (screen_gfx != SCREEN_GFX_INFERNO) {
-        free_inferno_surface();
-    }
 
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
@@ -127,6 +123,14 @@ void draw::set_gfx(Uint8 gfx, short mode)
     if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
         Mix_FreeChunk(_train_sfx);
         _train_sfx = NULL;
+    }
+    if (screen_gfx == SCREEN_GFX_INFERNO) {
+        if (_inferno_surface.is_null()) {
+            graphLib.initSurface(st_size(RES_W, RES_H), &_inferno_surface);
+            graphLib.clear_surface_area(0, 0, RES_W, RES_H, 180, 0, 0, _inferno_surface);
+        }
+    } else {
+        free_inferno_surface();
     }
 }
 
@@ -890,7 +894,7 @@ void draw::show_shadow_top_effect()
 
 void draw::show_inferno_effect()
 {
-    if (_inferno_surface.width == 0) {
+    if (_inferno_surface.is_null()) {
         graphLib.initSurface(st_size(RES_W, RES_H), &_inferno_surface);
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, 180, 0, 0, _inferno_surface);
     }

@@ -5,6 +5,10 @@
 #define DEFULT_PLAYER_SPEED 1.2
 #define DEFAULT_FPS_MAX 60
 
+#include "timerlib.h"
+extern timerLib timer;
+
+
 fps_control::fps_control()
 {
     fps_max = DEFAULT_FPS_MAX;
@@ -16,14 +20,18 @@ void fps_control::initialize()
 {
     max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
     frame_count = 0;
-    last_second_ticks = SDL_GetTicks();
+    last_second_ticks = timer.getTimer();
 }
 
 bool fps_control::limit()
 {
+    if (timer.is_paused()) {
+        return true;
+    }
     ++frame_count;
     target_ticks = last_second_ticks + static_cast<unsigned int>(frame_count * max_frame_ticks);
-    current_ticks = SDL_GetTicks();
+    current_ticks = timer.getTimer();
+    //std::cout << "timer.ticks[" << timer.getTimer() << "], sdl.ticks[" << current_ticks << "]" << std::endl;
 
     average_ticks += current_ticks - last_frame_ticks;
     if (current_ticks - last_frame_ticks <= min_ticks)
@@ -39,7 +47,7 @@ bool fps_control::limit()
     if (current_ticks < target_ticks)
     {
         SDL_Delay(target_ticks - current_ticks);
-        current_ticks = SDL_GetTicks();
+        current_ticks = timer.getTimer();
     }
 
     last_frame_ticks = current_ticks;
@@ -55,7 +63,7 @@ bool fps_control::limit()
         min_ticks = 1000;
         max_ticks = 0;
         average_ticks = 0;
-        last_second_ticks = SDL_GetTicks();
+        last_second_ticks = timer.getTimer();
         return true;
     }
 

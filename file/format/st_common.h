@@ -244,6 +244,9 @@ struct graphicsLib_gSurface {
                 std::cout << "set_point_color[" << set_x << "][" << set_y << "]: [" << set_r << "][" << set_g << "][" << set_b << "]" << std::endl;
             }
             */
+            if (gSurface == NULL || gSurface->format == NULL) {
+                return;
+            }
             Uint32 new_color_n = SDL_MapRGB(gSurface->format, set_r, set_g, set_b);
             put_pixel(set_x, set_y, new_color_n);
         }
@@ -422,14 +425,15 @@ struct graphicsLib_gSurface {
         }
 
         void change_colorkey_color(Sint8 key_n, st_color new_color) {
+            if (gSurface == NULL || gSurface->format == NULL) {
+                return;
+            }
+
             if (key_n < 0 || key_n > 3) { // we have only 3 color-keys, ignore everything else
                 if (show_debug == true) std::cout << "change_colorkey_color LEAVE #1, key_n: " << (int)key_n << std::endl;
                 return;
             }
-            if (!gSurface) {
-                if (show_debug == true) std::cout << "change_colorkey_color LEAVE #2" << std::endl;
-                return;
-            }
+
             Uint32 new_color_n = SDL_MapRGB(gSurface->format, new_color.r, new_color.g, new_color.b);
 
             if (key_n == 0) {
@@ -470,8 +474,20 @@ struct graphicsLib_gSurface {
         }
 
 
+        bool is_null() {
+            if (width <= 0 || height <= 0) {
+                std::cout << "GSURFACE - invalid size[" << width << "][" << height << "]" << std::endl;
+                return true;
+            }
+            if (gSurface == NULL) {
+                std::cout << "GSURFACE - SDL-Surface is NULL" << std::endl;
+                return true;
+            }
+        }
+
+
         Uint8 get_pixel_8bpp(Sint16 x, Sint16 y) {
-            if (!gSurface) {
+            if (gSurface == NULL || gSurface->format == NULL) {
                 return 0;
             }
             if (x >= gSurface->w || y >= gSurface->h) {
@@ -491,9 +507,10 @@ struct graphicsLib_gSurface {
         }
 
 
+
         Uint32 get_pixel(Sint16 x, Sint16 y)
         {
-            if (!gSurface) {
+            if (gSurface == NULL || gSurface->format == NULL) {
                 return 0;
             }
             if (x >= gSurface->w || y >= gSurface->h) {
@@ -523,6 +540,9 @@ struct graphicsLib_gSurface {
 
         void put_pixel(int x, int y, Uint32 pixel)
         {
+            if (gSurface == NULL || gSurface->format == NULL) {
+                return;
+            }
             int bpp = gSurface->format->BytesPerPixel;
             /* Here p is the address to the pixel we want to set */
             Uint8 *p = (Uint8 *)gSurface->pixels + y * gSurface->pitch + x * bpp;
