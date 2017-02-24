@@ -22,6 +22,11 @@ BACKTRACES:
 ###################################################################################################################
 ###################################################################################################################
 
+
+
+
+- slim platform só pode bloquear player de ele estiver pisando, não atravessando a plataforma
+
 - ROCKBOT1 - setar as cores das armas
 
 - após passar por uma porta ou transição, player executa comandos acelerado, comos e viessem todos de uma vez só
@@ -69,13 +74,17 @@ ESTAGIOS:
     - skull 5: definir estilo (estação espacial) e tilesets, criar design
 
 
-
 ##################################
              DONE
 ##################################
-- do not leave game if can't draw an animated-tile
-- add SDL_Quit() before all exit() calls, to prevent causing an exception that hides the actual error
-- increase show_debug_msg() time to 4 seconds
+- criar objeto tipo plataforma que faz dano no player caso esteja pisando após X tempo (garras megaman 3)
+- plataforma tipo a active-disappearing, mas que player pode pular de baixo para cima sem colisão
+- objeto item-coil deve parar sobre espinhos para que player possa pular sobre eles o usando
+- primeira animação de objeto funciona, na segunda vai direto para último frame
+- se habilitar animation reverse, não reseta slim-platform para estado hidden false
+- se estiver em teleport, player deve ignorar colisão com objetos
+
+
 
 
 

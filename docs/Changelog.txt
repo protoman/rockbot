@@ -432,3 +432,8 @@ FILE-FORMAT-V4:
 - candy blinking sprite has a small difference from the stand one
 - after screen transition, player gets fast (clean new press inputs)
 - fix not entering stages if finished stages is greater than 8 and in demo-mode
+
+
+- do not leave game if can't draw an animated-tile
+- add SDL_Quit() before all exit() calls, to prevent causing an exception that hides the actual error
+- increase show_debug_msg() time to 4 seconds

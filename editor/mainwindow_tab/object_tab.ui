@@ -219,6 +219,16 @@
             <string>Final Boss Teleporter</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Platform Active Slim Opening</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Platform Active Damaging</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

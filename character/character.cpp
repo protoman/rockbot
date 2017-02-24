@@ -1880,18 +1880,27 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
+    //std::cout << "CHAR::map_collision, y_inc[" << incy << "]" << std::endl;
     map->collision_char_object(this, incx, incy);
     object_collision res_collision_object = map->get_obj_collision();
 
+    if (is_player() == true) {
+        //std::cout << "CHAR::PLAYER::res_collision_object.block[" << res_collision_object._block << "]" << std::endl;
+    }
+
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (res_collision_object._object != NULL) {
+        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
+
+            //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "]" << std::endl;
+
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                     state.direction = ANIM_DIRECTION_RIGHT;
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
                 }
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
+                //std::cout << "CHAR::PLAYER::check-obj-collision #2"  << std::endl;
                 // ignore block
             } else if (!get_item(res_collision_object)) {
                 map_block = res_collision_object._block;
@@ -1901,9 +1910,11 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 }
                 // INSIDE PLATFORM OBJECT, MUST DIE
                 if (map_block == BLOCK_INSIDE_OBJ) {
-                    std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
+                    //std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
                     damage(999, true);
                     return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+                } else {
+                    //std::cout << "player-over-obj-platform, map_block[" << map_block << "], py[" << position.y << "]" << std::endl;
                 }
             }
         }

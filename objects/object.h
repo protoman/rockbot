@@ -44,6 +44,8 @@ public:
     void show_deathray_vertical(int adjust_x=0, int adjust_y=0);
     void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
 
+    bool is_platform();                                             // tell if object is of platform type
+
     /**
      * @brief
      *
@@ -270,6 +272,7 @@ private:
     Uint8 type;
     unsigned int obj_timer;														// used as time for disapearing block
     unsigned int _obj_frame_timer;
+    int _frame_duration;
     int speed;																	// used as speed for moving platform
     int limit;																	// used as range (pixels) for moving platform, visible time for disapearing block
     Uint8 direction;																// used to check if moving away from oiginalpoint or moving to it
@@ -300,6 +303,7 @@ private:
     Uint8 _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
     bool _expanding;
     int _size;
+    int max_frames;
 };
 
 #endif // OBJECT_H

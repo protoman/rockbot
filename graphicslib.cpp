@@ -2049,7 +2049,7 @@ graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_fl
 {
 
 
-    std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+    //std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 
     //Pointer to the soon to be flipped surface
     SDL_Surface *surface = original.get_surface();

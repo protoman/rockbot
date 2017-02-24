@@ -73,7 +73,9 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _command_up = false;
 	_command_down = false;
     _start_timer = 0;
-    _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
+    _frame_duration = GameMediator::get_instance()->object_list.at(_id).frame_duration;
+    _obj_frame_timer = timer.getTimer()+_frame_duration;
+    frame = 0;
     _timer_limit = 0;
     _must_play_appearing_sfx = false;    _must_teleport_in = false;
     _teleport_state = 0;
@@ -110,6 +112,7 @@ void object::reset()
     _size = 0;
     _duration = 0;
     _timer_limit = 0;
+    //std::cout << "OBJECT - set_start_false[RESET]" << std::endl;
     _started = false;
     _animation_finished = false;
     _animation_reversed = false;
@@ -131,6 +134,8 @@ void object::reset()
         _timer_limit = timer.getTimer() + obj_timer;
         //std::cout << "OBJ[" << name << "] RESET, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
     }
+    _obj_frame_timer = timer.getTimer() + _frame_duration;
+    frame = 0;
 }
 
 
@@ -140,6 +145,7 @@ void object::reset()
 void object::add_graphic()
 {
     draw_lib.get_object_graphic(_id);
+    max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
 }
 
 void object::remove_graphic()
@@ -154,7 +160,7 @@ void object::gravity()
         return;
     }
 	// non-falling object types
-    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL) {
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
 		return;
 	}
     for (int i=GRAVITY_SPEED * gameControl.get_fps_speed_multiplier(); i>0; i--) {
@@ -211,9 +217,14 @@ bool object::test_change_position(short xinc, short yinc)
 
 	short p1 = map->getMapPointLock(st_position((position.x+2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
-    //std::cout << "object::test_change_position - p1: " << p1 << ", p2: " << p2 << std::endl;
-    if ((p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE) && (p2 ==TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER|| p2 == TERRAIN_SPIKE)) {
-		return true;
+    //std::cout << "object::test_change_position[" << name << "] - p1: " << p1 << ", p2: " << p2 << std::endl;
+
+    if (type == OBJ_ITEM_JUMP && p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
+        return false;
+    }
+
+    if ((p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE) && (p2 == TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER || p2 == TERRAIN_SPIKE)) {
+        return true;
 	}
 	return false;
 }
@@ -251,6 +262,7 @@ void object::reset_timers()
 {
     _obj_frame_timer = 0;
     _timer_limit = 0;
+    frame = 0;
 }
 
 void object::use_teleport_in_out()
@@ -309,7 +321,7 @@ void object::show(int adjust_y, int adjust_x)
 		return;
 	}
 
-    if (_hidden == true) {
+    if (_hidden == true && type != OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
         //std::cout << "### OBJECT::SHOW::HIDDEN ###" << std::endl;
 		return;
 	}
@@ -341,32 +353,43 @@ void object::show(int adjust_y, int adjust_x)
         return;
     }
 
-    int max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
-
 	// checks if the Object is near the screen to show it
     if (position.x+TILESIZE >= abs(scroll_x) && position.x-TILESIZE <= abs(scroll_x)+RES_W) {
 		// animation
         if ((GameMediator::get_instance()->object_list.at(_id).animation_auto_start == true || (GameMediator::get_instance()->object_list.at(_id).animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
 			graphic_origin.x = frame * framesize_w;
             if (_obj_frame_timer < timer.getTimer()) {
-				if (_animation_finished == false) { //
+
+                //std::cout << "OBJECT::SHOW - timer passed, _animation_finished[" << _animation_finished << "]" << std::endl;
+
+                if (_animation_finished == false) {
 					if (_animation_reversed == false) {
 						frame++;
-					} else {
+                        //std::cout << "obj[" << name << "].show.frame++[" << (int)frame << "]" << std::endl;
+                    } else {
 						frame--;
 					}
-				}
-                _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
+                    _obj_frame_timer = timer.getTimer() + _frame_duration;
+                }
 			}
 
 			if (frame <= 0) {
 				if (_animation_reversed == true) {
 					_animation_finished = false;
 					_animation_reversed = false;
-					_started = false;
+                    //std::cout << "OBJECT - set_start_false[FRAME]" << std::endl;
+                    _started = false;
+                    // force stop if active block
+                    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
+                        _hidden = false;
+                        _obj_frame_timer = timer.getTimer() + _frame_duration;
+                        _animation_finished = false;
+                    }
 				}
 				frame = 0;
 			}
+            //std::cout << "obj[" << name << "].show.frame[" << (int)frame << "]" << std::endl;
+
 			if	(_animation_reversed == false && frame > max_frames) {
                 if (GameMediator::get_instance()->object_list.at(_id).animation_loop == false) { // if animation loop is set to false, set this to show always the last frame
                     if (GameMediator::get_instance()->object_list.at(_id).animation_reverse == false) { // don't need to reverse animation, finish it
@@ -381,7 +404,9 @@ void object::show(int adjust_y, int adjust_x)
 				}
 			}
 		} else {
+            //std::cout << "obj[" << name << "].show - using frame zero, because!" << std::endl;
 			graphic_origin.x = 0;
+            frame = 0;
 		}
 
         if (type == OBJ_FINAL_BOSS_TELEPORTER && _started == false) {
@@ -456,7 +481,7 @@ void object::show_deathray_vertical(int adjust_x, int adjust_y)
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
-            _obj_frame_timer = timer.getTimer() + GameMediator::get_instance()->object_list.at(_id).frame_duration;
+            _obj_frame_timer = timer.getTimer() + _frame_duration;
             _teleport_state = !_teleport_state;
         }
 
@@ -506,7 +531,7 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
-            _obj_frame_timer = timer.getTimer() + GameMediator::get_instance()->object_list.at(_id).frame_duration;
+            _obj_frame_timer = timer.getTimer() + _frame_duration;
             _teleport_state = !_teleport_state;
         }
 
@@ -551,6 +576,14 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
             }
         }
     }
+}
+
+bool object::is_platform()
+{
+    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+        return true;
+    }
+
 }
 
 void object::show_vertical_ray(int adjust_x, int adjust_y)
@@ -849,17 +882,41 @@ void object::move(bool paused)
                 }
             }
         }
-    } else if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK) {
+    } else if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
         //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - MOVE - _started: " << _started << ", _timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
         if (_started == true && _timer_limit < timer.getTimer()) {
             if (_hidden == false) { // turn hidden
-                //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - HIDE" << std::endl;
+                std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - HIDE" << std::endl;
                 _hidden = true;
                 _timer_limit = timer.getTimer() + DISAPPEARNING_HIDDEN_TIME;
             } else { // return to visible state
-                //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - SHOW" << std::endl;
+                std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - SHOW" << std::endl;
                 _started = false;
                 _hidden = false;
+                _obj_frame_timer = timer.getTimer() + _frame_duration;
+                _animation_finished = false;
+            }
+        }
+    } else if (type == OBJ_DAMAGING_PLATFORM) {
+        //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - MOVE - _started: " << _started << ", _timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
+        if (_started == true && _timer_limit < timer.getTimer()) {
+            if (_state == 0) {
+                // check is player is above it
+                int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 2, 0, 0);
+
+                std::cout << "OBJ_DAMAGING_PLATFORM - DAMAGE-CHECK, blocked[" << blocked << "]" << std::endl;
+
+                /// @TODO - consumable items should not stop if blocked by player
+                if (gameControl.get_player_platform() == this && blocked != 0) {
+                    //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
+                    gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
+                }
+                _state++;
+                _timer_limit = timer.getTimer() + 100;
+            } else {
+                _state = 0;
+                _started = false;
+                reset_animation();
             }
         }
     } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
@@ -994,12 +1051,13 @@ void object::reset_animation()
 {
     frame = 0;
     _animation_finished = false;
-    _obj_frame_timer = timer.getTimer()+GameMediator::get_instance()->object_list.at(_id).frame_duration;
+    _obj_frame_timer = timer.getTimer() + _frame_duration;
 }
 
 void object::stop()
 {
     _state = OBJ_STATE_STAND;
+    //std::cout << "OBJECT - set_start_false[STOP]" << std::endl;
     _started = false;
     reset_animation();
 }
@@ -1190,9 +1248,10 @@ void object::start()
 {
 	_started = true;
     _start_timer = timer.getTimer() + INITIAL_ACTIVATION_DELAY;
+    _obj_frame_timer = timer.getTimer() + _frame_duration;
     //std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
-    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK) {
-        //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - STARTED - obj_timer: " << obj_timer << std::endl;
+    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+        std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
         _timer_limit = timer.getTimer() + obj_timer;
     }
 }
