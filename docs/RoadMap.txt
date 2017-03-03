@@ -16,16 +16,32 @@ VERSION 2.0.0 RELEASE #2
     # space, the final frontier (moon stage de duck tales)
 
 ###################################################################################################################
-BACKTRACES:
+STAGES:
+###################################################################################################################
+- Gear: melhorar tileset - http://vgmaps.com/Atlas/NES/Batman-ReturnOfTheJoker-Stage6.png
+- Beast: escolher design, melhorar tileset
+- Castle2: terminar edição do mapa
+- Castle3: repensar gráficos/estilo
+- Castle4: inimigos
+- Castle5: editar mapa
+
+
+###################################################################################################################
+backtrace:
+    #00 pc 00028a7c  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib14copySDLPortionE12st_rectangleS0_P11SDL_SurfaceS2_+111)
+    #01 pc 00028c91  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib11copySDLAreaE12st_rectangle11st_positionP11SDL_SurfaceS3_b+64)
+    #02 pc 00029695  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib19showSurfaceRegionAtEP20graphicsLib_gSurface12st_rectangle11st_position+40)
+    #03 pc 00050a6f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN10projectile4drawEv+154)
+    #04 pc 000427bb  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer19execute_projectilesEv+118)
+    #05 pc 0004321f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer4moveEv+238)
+    #06 pc 00044023  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer7executeEv+18)
+    #07 pc 0003586b  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN4game8showGameEbb+254)
+    #08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
 ###################################################################################################################
 
-###################################################################################################################
-###################################################################################################################
-
-
-
-
-- slim platform só pode bloquear player de ele estiver pisando, não atravessando a plataforma
+- won't leave stairs when transitioning bottom-top if it has only 1 tile in new map (moving too much up)
+    # lover extra_y in game::transition_screen
+    # adjust teleporting detection to not transition if just neat bottom/top
 
 - ROCKBOT1 - setar as cores das armas
 
@@ -36,11 +52,9 @@ BACKTRACES:
 
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 
-- remover flag fullscreen do PSP, vamos deixar sempre em fullscreen por questões de performance
-
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
-- ao trocar de mapa, deve limpar objetos temporários (dropped)
+- ao trocar de mapa, deve limpar objetos temporários (dropped-items, for example)
 
 - air-dash consegue entrar na sala do boss
     # tem que cancelar qualquer dash e input
@@ -77,12 +91,23 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- criar objeto tipo plataforma que faz dano no player caso esteja pisando após X tempo (garras megaman 3)
-- plataforma tipo a active-disappearing, mas que player pode pular de baixo para cima sem colisão
-- objeto item-coil deve parar sobre espinhos para que player possa pular sobre eles o usando
-- primeira animação de objeto funciona, na segunda vai direto para último frame
-- se habilitar animation reverse, não reseta slim-platform para estado hidden false
-- se estiver em teleport, player deve ignorar colisão com objetos
+- add adjust-y of +1 for object collision, so player walking from a platform won't be blocked when there is an object in same y
+- player must be able to jump-up when inside obj_item_coil or obj_item_jet
+- while teleporting, object must not collide with player or enemies
+- EDITOR: copy/paste must also copy the tile3 and lock properties
+- item teleporting colors are not being correctly set
+- coil item jump acceleration is too slow
+- coil item must jump ~6 tiles only
+- increase slide speed
+- damage platform don't need to be set as player platform for damage, just check if he is above it
+- slim platform must block player only if he is above it, not on its middle
+- player should not collide with object that is teleporting itself up/down
+- change coil item colors to red/white
+- coil/jet item animation is not working
+- collision with item-jump must add 6px of tolerance in y (hardcoded for now, in the future needs a flag in editor)
+
+
+
 
 
 

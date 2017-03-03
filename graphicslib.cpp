@@ -531,7 +531,7 @@ void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, i
     struct st_rectangle origin_rectangle(origin_x*TILESIZE, origin_y*TILESIZE, TILESIZE, TILESIZE);
 
     if (origin_rectangle.x < 0 || origin_rectangle.x > origin_rectangle.w) {
-        std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position, ignoring." << std::endl;
+        //std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position, ignoring." << std::endl;
         return;
     }
 

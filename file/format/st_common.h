@@ -373,6 +373,9 @@ struct graphicsLib_gSurface {
                         Uint32 pixel = get_pixel(x, y);
                         SDL_Color pixel_color = get_pixel_color(pixel);
 
+
+                        //std::cout << "r[" << (int)r << "], point.r[" << (int)pixel_color.r << ", g[" << (int)g << "], point.g[" << (int)pixel_color.g << ", b[" << (int)b << "], point.b[" << (int)pixel_color.b << "]" << std::endl;
+
                         // ignore colorkey [74][125][123]/[75][125][125]
                         /*
                         if (!((int)pixel_color.r == 0 && (int)pixel_color.g == 0 && (int)pixel_color.b == 0)) {
@@ -430,11 +433,18 @@ struct graphicsLib_gSurface {
             }
 
             if (key_n < 0 || key_n > 3) { // we have only 3 color-keys, ignore everything else
-                if (show_debug == true) std::cout << "change_colorkey_color LEAVE #1, key_n: " << (int)key_n << std::endl;
+                if (show_debug == true) {
+                    std::cout << "change_colorkey_color LEAVE #1, key_n: " << (int)key_n << std::endl;
+                }
                 return;
             }
 
             Uint32 new_color_n = SDL_MapRGB(gSurface->format, new_color.r, new_color.g, new_color.b);
+
+            //std::cout << "change_colorkey_color, key_n[" << (int)key_n << "], new_color_n[" << (int)new_color_n << "]" << std::endl;
+
+
+            //std::cout << "change_colorkey_color - colorkey1_points.size[" << colorkey1_points.size() << "], colorkey2_points.size[" << colorkey2_points.size() << "], colorkey3_points.size[" << colorkey3_points.size() << "]" << std::endl;
 
             if (key_n == 0) {
                 for (int i=0; i<colorkey1_points.size(); i++) {

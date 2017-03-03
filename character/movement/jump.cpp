@@ -33,13 +33,15 @@ void classjump::start(bool bigjump_mode, int terrain_type)
         is_bigjump = true;
     }
     if (is_bigjump == true) {
-        acceleration = JUMP_ACCELERATION * 0.4;
+        //acceleration = JUMP_ACCELERATION * 0.4;
+        speed = -(JUMP_INITIAL_SPEED * 1.25);
     } else {
-        acceleration = JUMP_ACCELERATION;
+
+        speed = -JUMP_INITIAL_SPEED;
     }
+    acceleration = JUMP_ACCELERATION;
     acceleration = acceleration * gameControl.get_fps_speed_multiplier();
     jumps_number++;
-    speed = -JUMP_INITIAL_SPEED;
 
     //std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
 

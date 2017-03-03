@@ -663,20 +663,32 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
 {
     int lim1 = temp_x*TILESIZE;
     int lim2 = temp_x*TILESIZE + stage_data.links[link_n].size*TILESIZE;
-    int lim3 = (temp_y)*TILESIZE;
+    int lim3 = (temp_y)*TILESIZE + (TILESIZE*0.5);
     int lim4 = ((temp_y)*TILESIZE)+TILESIZE;
 
     int px = test_player->getPosition().x + (test_player->get_size().width*0.5);
     int py = test_player->getPosition().y + (test_player->get_size().height*0.5) + (test_player->get_size().height*0.25);
 
+    // if teleporter is out of screen, ignore it
+    st_float_position scroll = loaded_stage.getMapScrolling();
+    int min = scroll.x-RES_W/2;
+    int max = scroll.x+RES_W*1.5;
+    if (abs(px) < min || abs(px) > max) {
+        //std::cout << "IGN - px[" << px << "], scroll.x[" << scroll.x << "], min[" << min << "], max[" << max << "]" << std::endl;
+        return false;
+    }
+
+
     // give extra pixels in the END-Y, if top to bottom ot bottom to top
     if (is_link_teleporter(stage_data.links[link_n].type) == false) {
         if (transition_type == TRANSITION_TOP_TO_BOTTOM) {
-            lim4 += TILESIZE;
+            lim4 += TILESIZE*1.5;
         } else if (transition_type == TRANSITION_BOTTOM_TO_TOP) {
-            lim3 -= TILESIZE;
+            lim3 -= TILESIZE*1.5;
         }
     }
+
+    //std::cout << "GAME::check_player_is_on_teleport - lim3[" << lim3 << "], lim4[" << lim4 << "], py[" << py << "]" << std::endl;
 
     if ((px >= lim1 && px <= lim2) && ((py > lim3 && py < lim4))) {
 
@@ -932,7 +944,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
                 graphLib.copyArea(st_rectangle(0, RES_H-i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 			}
 
-            if (i % 2 == 0 || i % 3 == 0) {
+            if (i % 5 == 0) {
 				extra_y = 1;
 			} else {
                 extra_y = 0;
@@ -1326,7 +1338,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE3;
+    currentStage = CASTLE1_STAGE2;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_1;
 

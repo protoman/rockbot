@@ -64,6 +64,7 @@ void draw::preload()
 {
     std::string filename = GAMEPATH + "shared/images/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
+    _teleport_small_gfx.init_colorkeys();
 
     filename = GAMEPATH + "shared/images/snowflacke.png";
     graphLib.surfaceFromFile(filename, &snow_flacke);
@@ -266,7 +267,8 @@ void draw::show_bubble(int x, int y)
 
 void draw::set_teleport_small_colors(st_color color1, st_color color2)
 {
-    /// @TODO new colormap
+    graphLib.change_surface_color(0, color1, &_teleport_small_gfx);
+    graphLib.change_surface_color(1, color2, &_teleport_small_gfx);
 }
 
 void draw::show_teleport_small(int x, int y)

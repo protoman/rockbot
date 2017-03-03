@@ -234,6 +234,8 @@ public:
 
     void set_obj_map_id(Uint8 id);
 
+    bool is_teleporting();
+
 
 private:
     /**
@@ -297,7 +299,8 @@ private:
     enum collision_modes _collision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
     bool _must_teleport_in;                                                     // if set, the object will teleport in when added and out when finished
-    Uint8 _teleport_state;                                                        // used to control when start/finish the teleport
+    Uint8 _teleport_state;                                                      // used to control when start/finish the teleport
+    Uint8 _ray_state;                                                           // controls death-ray movement
     st_position _boss_teleporter_dest;
     Uint8 _boss_teleporter_map_dest;
     Uint8 _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]

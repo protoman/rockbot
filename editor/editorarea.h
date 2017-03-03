@@ -26,6 +26,19 @@ struct pointElement{
    int palleteX, palleteY, type;
 };
 
+// used in copy/paste
+struct st_tile_point {
+    st_position_int8 tile1;
+    st_position_int8 tile3;
+    Sint8 locked;
+
+    st_tile_point(st_position_int8 t1, st_position_int8 t3, Sint8 lk) {
+        tile1 = t1;
+        tile3 = t3;
+        locked = lk;
+    }
+};
+
 class EditorArea : public QWidget
 {
   Q_OBJECT
@@ -70,7 +83,7 @@ protected:
 
   int selection_start_x;
   int selection_start_y;
-  std::vector<std::vector<st_position> > selection_matrix;
+  std::vector<std::vector<st_tile_point> > selection_matrix;
   int selection_current_x;
   int selection_current_y;
 

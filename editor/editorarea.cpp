@@ -1021,11 +1021,14 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
             for (int i=0; i<selection_matrix.size(); i++) {
                 std::cout << "EDITMODE_PASTE[" << i << "].size: " << selection_matrix.at(i).size() << std::endl;
                 for (int j=0; j<selection_matrix.at(i).size(); j++) {
-                    st_position tile_pos = selection_matrix.at(i).at(j);
+                    st_tile_point tile_point = selection_matrix.at(i).at(j);
                     int x = editor_selectedTileX+i;
                     int y = editor_selectedTileY+j;
-                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile1.x = tile_pos.x;
-                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile1.y = tile_pos.y;
+                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile1 = tile_point.tile1;
+                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].tile3 = tile_point.tile3;
+                    Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].locked = tile_point.locked;
+
+                    //Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[x][y].locked
                 }
             }
             repaint();
@@ -1069,11 +1072,13 @@ void EditorArea::mouseReleaseEvent(QMouseEvent *event) {
         std::cout << "### EDITMODE_SELECT - start_x: " << start_x << ", end_x: " << end_x << ", start_y: " << start_y << ", end_y: " << end_y << std::endl;
 
         for (int i=start_x; i<end_x; i++) {
-            std::vector<st_position> temp;
+            std::vector<st_tile_point> temp;
             for (int j=start_y; j<end_y; j++) {
-                int tile_x = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x;
-                int tile_y = Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y;
-                temp.push_back(st_position(tile_x, tile_y));
+                temp.push_back(st_tile_point(
+                     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1,
+                     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3,
+                     Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked
+                   ));
             }
             selection_matrix.push_back(temp);
         }

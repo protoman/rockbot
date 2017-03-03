@@ -77,18 +77,18 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _obj_frame_timer = timer.getTimer()+_frame_duration;
     frame = 0;
     _timer_limit = 0;
-    _must_play_appearing_sfx = false;    _must_teleport_in = false;
+    _must_play_appearing_sfx = false;
+    _must_teleport_in = false;
     _teleport_state = 0;
+    _ray_state = 0;
     _collision_mode = COLlISION_MODE_XY;
     if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
         _timer_limit = 1000;
         direction = 0;
         _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
-        _teleport_state = 0;
     } else if (type == OBJ_TRACK_PLATFORM) {
         _timer_limit = 100;
         direction = ANIM_DIRECTION_LEFT;
-        _teleport_state = 0;
     }
     if (type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL) {
         _timer_limit = timer.getTimer() + obj_timer;
@@ -165,7 +165,7 @@ void object::gravity()
 	}
     for (int i=GRAVITY_SPEED * gameControl.get_fps_speed_multiplier(); i>0; i--) {
         bool can_fall = test_change_position(0, i);
-        //std::cout << "OBJECT::gravity - can_fall: " << can_fall << std::endl;
+        //std::cout << "OBJECT::gravity[" << name << "], i[" << i << "], y[" << position.y << "], can_fall[" << can_fall << "]" << std::endl;
         if (can_fall == true) {
 			position.y += i;
 			check_player_move(0, i);
@@ -201,12 +201,13 @@ bool object::test_change_position(short xinc, short yinc)
     }
 
     if (is_consumable() == false) {
-        // collision agains player when player is not using a platform
+        // collision against player when player is not using a platform
         int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
         //if (blocked != 0) std::cout << "obj.blocked: " << blocked << std::endl;
         /// @TODO - consumable items should not stop if blocked by player
-        if (gameControl.get_player_platform() != this && blocked != 0) {
-            //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
+        ///
+        if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false) {
+            std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
             return false;
         }
     }
@@ -333,6 +334,12 @@ void object::show(int adjust_y, int adjust_x)
         }
     }
 
+    /*
+    if (type == OBJ_ITEM_JUMP) {
+        std::cout << "OBJ::SHOW, y[" << position.y << "]" << std::endl;
+    }
+    */
+
     //std::cout << "LOOP: obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
     // ray have a different way to show itself
@@ -355,8 +362,12 @@ void object::show(int adjust_y, int adjust_x)
 
 	// checks if the Object is near the screen to show it
     if (position.x+TILESIZE >= abs(scroll_x) && position.x-TILESIZE <= abs(scroll_x)+RES_W) {
-		// animation
+
+        // animation
         if ((GameMediator::get_instance()->object_list.at(_id).animation_auto_start == true || (GameMediator::get_instance()->object_list.at(_id).animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
+
+            //std::cout << "OBJECT::SHOW::ANIM[#1], _obj_frame_timer[" << _obj_frame_timer << "], timer[" << timer.getTimer() << "]" << std::endl;
+
 			graphic_origin.x = frame * framesize_w;
             if (_obj_frame_timer < timer.getTimer()) {
 
@@ -482,35 +493,35 @@ void object::show_deathray_vertical(int adjust_x, int adjust_y)
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
             _obj_frame_timer = timer.getTimer() + _frame_duration;
-            _teleport_state = !_teleport_state;
+            _ray_state = !_ray_state;
         }
 
         // draw base
-        graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, 0, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(framesize_w*_ray_state, 0, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         if (_state == 1) {
             // point
-            graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         } else if (_state == 2) {
             // point
-            graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*2), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*2), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // body
-            graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         } else if (_state > 2) {
             if (_expanding == true) {
                 // point
-                graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*_state), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*_state), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
                 for (int i=1; i<_state; i++) {
-                    graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
             } else {
                 int start_x = _state - MAP_H;
                 // body
                 for (int i=start_x+1; i<_state; i++) {
-                    graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
                 // tail
-                graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, TILESIZE, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*start_x), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*start_x), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             }
 
         }
@@ -532,46 +543,46 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
             _obj_frame_timer = timer.getTimer() + _frame_duration;
-            _teleport_state = !_teleport_state;
+            _ray_state = !_ray_state;
         }
 
 
         if (direction == ANIM_DIRECTION_LEFT) {
             // draw base
-            graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             if (_size == 1) {
                 // point
-                graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             } else if (_size == 2) {
                 // point
-                graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
-                graphLib.copyArea(st_rectangle(TILESIZE+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(TILESIZE+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             } else if (_size > 2) {
                 // point
-                graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*_size, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*_size, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
                 for (int i=1; i<_size; i++) {
-                    graphLib.copyArea(st_rectangle(TILESIZE+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*i, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(TILESIZE+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x-TILESIZE*i, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
             }
         } else {
             // draw base
-            graphLib.copyArea(st_rectangle(framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             if (_size == 1) {
                 // point
-                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             } else if (_size == 2) {
                 // point
-                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*2, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
-                graphLib.copyArea(st_rectangle(TILESIZE*2+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(TILESIZE*2+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             } else if (_size > 2) {
                 // point
-                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*_size, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(TILESIZE*3+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*_size, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
                 for (int i=1; i<_size; i++) {
-                    graphLib.copyArea(st_rectangle(TILESIZE*2+framesize_w*_teleport_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*i, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(TILESIZE*2+framesize_w*_ray_state, framesize_h*direction, TILESIZE, framesize_h), st_position(graphic_destiny.x+TILESIZE*i, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
             }
         }
@@ -600,11 +611,11 @@ void object::show_vertical_ray(int adjust_x, int adjust_y)
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
             _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
-            _teleport_state = !_teleport_state;
+            _ray_state = !_ray_state;
         }
         int dest_y = draw_lib.get_object_graphic(_id)->height-(TILESIZE*(_state+1));
         //std::cout << "OBJECT::show_vertical_ray - dest_y: " << dest_y << ", _state: " << _state << std::endl;
-        graphLib.copyArea(st_rectangle(TILESIZE*_teleport_state, dest_y, TILESIZE, TILESIZE*(_state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(_state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(TILESIZE*_ray_state, dest_y, TILESIZE, TILESIZE*(_state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(_state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
 }
 
@@ -622,16 +633,16 @@ void object::show_horizontal_ray(int adjust_x, int adjust_y)
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
             _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
-            _teleport_state = !_teleport_state;
+            _ray_state = !_ray_state;
         }
 
         if (direction == ANIM_DIRECTION_LEFT) {
-            int graphic_x = framesize_w - TILESIZE*(_state+1) + framesize_w*_teleport_state;
+            int graphic_x = framesize_w - TILESIZE*(_state+1) + framesize_w*_ray_state;
             int graphic_w = TILESIZE*(_state+1);
             int dest_x = graphic_destiny.x - graphic_w + TILESIZE;
             graphLib.copyArea(st_rectangle(graphic_x, 0, graphic_w, TILESIZE), st_position(dest_x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         } else {
-            int graphic_x = framesize_w*_teleport_state;
+            int graphic_x = framesize_w*_ray_state;
             int graphic_w = TILESIZE*(_state+1);
             graphLib.copyArea(st_rectangle(graphic_x, framesize_h, graphic_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         }
@@ -662,13 +673,13 @@ void object::move(bool paused)
     }
     // check teleport
     if (_must_teleport_in == true) {
-        //std::cout << "OBJECT::TELEPORT #1 - _teleport_state: " << _teleport_state << std::endl;
+        //std::cout << "OBJECT::TELEPORT #1 - _teleport_state: " << (int)_teleport_state << std::endl;
         // init teleport IN
         if (_teleport_state == e_object_teleport_state_initial) {
             if (type == OBJ_ITEM_FLY) {
                 draw_lib.set_teleport_small_colors(st_color(219, 43, 0), st_color(235, 235, 235));
             } else if (type == OBJ_ITEM_JUMP) {
-                draw_lib.set_teleport_small_colors(st_color(0, 147, 59), st_color(235, 235, 235));
+                draw_lib.set_teleport_small_colors(st_color(235, 235, 235), st_color(219, 43, 0));
             } else {
                 draw_lib.set_teleport_small_colors(st_color(112, 110, 110), st_color(235, 235, 235));
             }
@@ -679,7 +690,7 @@ void object::move(bool paused)
         // teleporting IN
         } else if (_teleport_state == e_object_teleport_state_teleport_in) {
             int yinc = GRAVITY_SPEED*3 * gameControl.get_fps_speed_multiplier();
-            //std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
+            std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
             if (position.y+yinc > start_point.y) {
                 position.y = start_point.y;
             } else {
@@ -689,8 +700,10 @@ void object::move(bool paused)
                 // check if not teleported inside terrain, if so, teleport out
                 int map_lock = map->getMapPointLock(st_position((position.x+framesize_w/2)/TILESIZE, (position.y+framesize_h/2)/TILESIZE));
                 if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                    std::cout << "OBJECT::TELEPORT #4 - finish(map-lock), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
                     _teleport_state = e_object_teleport_state_teleport_out;
                 } else {
+                    std::cout << "OBJECT::TELEPORT #4 - finish(reached-start-point), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
                     _teleport_state = e_object_teleport_state_waiting;
                 }
             }
@@ -907,7 +920,7 @@ void object::move(bool paused)
                 std::cout << "OBJ_DAMAGING_PLATFORM - DAMAGE-CHECK, blocked[" << blocked << "]" << std::endl;
 
                 /// @TODO - consumable items should not stop if blocked by player
-                if (gameControl.get_player_platform() == this && blocked != 0) {
+                if (blocked != 0) {
                     //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
                     gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
                 }
@@ -1323,5 +1336,13 @@ Uint8 object::get_obj_map_id()
 void object::set_obj_map_id(Uint8 id)
 {
     _obj_map_id = id;
+}
+
+bool object::is_teleporting()
+{
+    if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
+        return true;
+    }
+    return false;
 }
 

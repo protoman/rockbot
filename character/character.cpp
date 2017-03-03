@@ -398,13 +398,13 @@ void character::charMove() {
             int map_terrain = map->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
             //std::cout << ">> map_terrain: " << map_terrain << ", _dropped_from_stairs: " << _dropped_from_stairs << std::endl;
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
-                //std::cout << "STAIRS SEMI - SET #1" << std::endl;
+                if (is_player()) std::cout << "STAIRS SEMI - SET #1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
 				position.y -= temp_move_speed/2;
 			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
-                if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
+                if (is_player()) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
-                //std::cout << "LEAVE STAIRS (BOTTOM->UP)" << std::endl;
+                std::cout << "LEAVE STAIRS (BOTTOM->UP)" << std::endl;
                 position.y -= 2;
 			}
 		}
@@ -434,6 +434,7 @@ void character::charMove() {
             // if bottom point is not stairs, leave it
             if (bottom_point_lock != TERRAIN_STAIR) {
                 if (stairs_pos_center.x == -1 && (bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_WATER)) {
+                    if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #A" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
                 }
                 if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
@@ -447,7 +448,7 @@ void character::charMove() {
                 // over stairs, enter it
                 st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
                 if (stairs_pos_bottom.x != -1) {
-                    //std::cout << "STAIRS SEMI - SET #2" << std::endl;
+                    std::cout << "STAIRS SEMI - SET #2" << std::endl;
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
 
                     //std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
@@ -1259,6 +1260,7 @@ bool character::gravity(bool boss_demo_mode=false)
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                    std::cout << "LEAVE STAIRS - GRAVITY #1, current-anim-type[" << state.animation_type << "]" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
 				}
 				was_moved = true;
@@ -1588,7 +1590,7 @@ bool character::slide(st_float_position mapScrolling)
     _obj_jump.finish();
 
     // reduce progressively the jump-move value in oder to deal with collision
-    int max_speed = move_speed * 2 * gameControl.get_fps_speed_multiplier();
+    float max_speed = move_speed * 2.5 * gameControl.get_fps_speed_multiplier();
     for (float i=max_speed; i>0.0; i--) {
 
         int temp_i;
@@ -2262,7 +2264,7 @@ st_position character::is_on_stairs(st_rectangle pos)
         return st_position(map_tile_x, map_tile_y);
     }
 
-    //if (is_player()) std::cout << "is_on_stairs - FALSE 2" << std::endl;
+    if (is_player()) std::cout << "is_on_stairs - FALSE 2" << std::endl;
 	return st_position(-1, -1);
 }
 
