@@ -348,7 +348,7 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define PLAYER_INITIAL_HP 28
 
-#define BOSS_INITIAL_HP 42 // x1.5 player HP so it will endure a bit more on the fight
+#define BOSS_INITIAL_HP 36 // a bit more HP (8 pts) than player, so it will endure a bit more on the fight
 
 #define HIT_BLINK_ANIMATION_LAPSE 100
 
@@ -1044,7 +1044,7 @@ enum e_ANDROID_BUTTON_SIZE {
 
 #define STAGE_DIALOG_NUMBER 60
 
-#define OBJ_JUMP_Y_ADJUST 7
+#define OBJ_JUMP_Y_ADJUST 6
 
 enum e_LANGUAGES {
     LANGUAGE_ENGLISH,

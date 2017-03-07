@@ -373,6 +373,8 @@ void classPlayer::attack(bool dont_update_colors)
 
         if (weapon_id == 0) { /// @TODO - this is a temporary exit to handle incomplete weapons
             return;
+        } else if (weapon_id == -1) {
+            weapon_id = 0;
         }
 
         // check if projectiles limit from weapon/projectile os not reached

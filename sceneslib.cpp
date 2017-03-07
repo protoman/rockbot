@@ -120,6 +120,7 @@ if (gameControl.is_free_version() == true) {
     graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
 }
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
+    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
 
 }
 
@@ -214,11 +215,11 @@ if (gameControl.is_free_version() == true) {
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
-if (gameControl.is_free_version() == true) {
-        game_save.selected_player = select_player();
-} else {
-        game_save.selected_player = PLAYER_1;
-}
+        if (gameControl.is_free_version() == false) {
+                game_save.selected_player = select_player();
+        } else {
+                game_save.selected_player = PLAYER_1;
+        }
     }
 }
 

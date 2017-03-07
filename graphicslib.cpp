@@ -261,7 +261,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
     if (game_screen == NULL || game_screen->format == NULL) {
-        return;
+        return NULL;
     }
 
     SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
@@ -356,6 +356,10 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         return;
     }
 
+    //std::cout << "GRAPHLIB::copySDLPortion - src.x[" << src.x << "]" << std::endl;
+    //std::cout << "GRAPHLIB::copySDLPortion - src.w[" << src.w << "]" << std::endl;
+    //std::cout << "GRAPHLIB::copySDLPortion - surfaceOrigin.w[" << surfaceOrigin->w << "]" << std::endl;
+
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
         printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
@@ -397,6 +401,10 @@ void graphicsLib::copyArea(struct st_rectangle origin_rectangle, struct st_posit
         std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("ERROR #21.3");
         return;
+    }
+    if (surfaceDestiny == &gameScreen) {
+        pos.x += _screen_adjust.x;
+        pos.y += _screen_adjust.y;
     }
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
@@ -530,9 +538,14 @@ void graphicsLib::place_3rd_level_tile(int origin_x, int origin_y, int dest_x, i
 
     struct st_rectangle origin_rectangle(origin_x*TILESIZE, origin_y*TILESIZE, TILESIZE, TILESIZE);
 
-    if (origin_rectangle.x < 0 || origin_rectangle.x > origin_rectangle.w) {
-        //std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position, ignoring." << std::endl;
+    if (origin_rectangle.x < 0 || origin_rectangle.x > tileset->w) {
+        std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position #1, ignoring. origin.x[" << origin_x << "], origin.y[" << origin_y << "], origin.w[" << origin_rectangle.w << "]" << std::endl;
         return;
+    } else if (origin_rectangle.y < 0 || origin_rectangle.y> tileset->h) {
+        std::cout << "[WARNING] GRAPHLIB::place_tile - invalid position #2, ignoring. origin.x[" << origin_x << "], origin.y[" << origin_y << "], origin.w[" << origin_rectangle.w << "]" << std::endl;
+        return;
+    //} else {
+        //std::cout << "GRAPHLIB::place_3rd_level_tile - origin.x[" << origin_x << "], origin.y[" << origin_y << "]" << std::endl;
     }
 
     copySDLArea(origin_rectangle, pos_destiny, tileset, game_screen);
@@ -577,6 +590,13 @@ void graphicsLib::showSurfaceRegionAt(struct graphicsLib_gSurface* surfaceOrigin
         show_debug_msg("ERROR #21.4");
         return;
     }
+
+    if (surfaceOrigin == NULL) {
+        std::cout << "showSurfaceRegionAt - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
+        show_debug_msg("ERROR #31.0");
+        return;
+    }
+
     copySDLArea(origin_rectangle, pos_destiny, surfaceOrigin->get_surface(), game_screen);
 }
 
@@ -1192,17 +1212,17 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     */
 
     if (game_save.armor_pieces[ARMOR_ARMS] == true) {
-        copyArea(st_position(198, 197), &armor_icon_arms, &gameScreen);
+        copyArea(st_position(198, 200), &armor_icon_arms, &gameScreen);
     }
     if (game_save.armor_pieces[ARMOR_BODY] == true) {
-        copyArea(st_position(221, 197), &armor_icon_body, &gameScreen);
+        copyArea(st_position(221, 200), &armor_icon_body, &gameScreen);
     }
     if (game_save.armor_pieces[ARMOR_LEGS] == true) {
-        copyArea(st_position(175, 197), &armor_icon_legs, &gameScreen);
+        copyArea(st_position(175, 200), &armor_icon_legs, &gameScreen);
     }
 
     draw_text(212, 23, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" (R)"));
-    draw_text(37, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_life));
+    draw_text(41, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_life));
     draw_text(111, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_item));
     draw_text(187, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_armor));
 

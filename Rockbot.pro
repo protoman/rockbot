@@ -399,7 +399,8 @@ OTHER_FILES += \
     docs/graphic_conversion.txt
 
 DISTFILES += \
-    docs/notes.txt
+    docs/notes.txt \
+    docs/Releases.txt
 
 
 

@@ -6,6 +6,8 @@
 
 #include "mediator.h"
 
+#define PREVIEW_SCALE 2
+
 player_preview_area::player_preview_area(QWidget *parent) :
 QWidget(parent), selected_player(0)
 {
@@ -20,7 +22,7 @@ void player_preview_area::update_sprites()
         return;
     }
     std::cout << ">>>>>>>>>>>>>>>>> count[" << _original_sprites.colorCount() << "]" << std::endl;
-    //_original_sprites = _original_sprites.scaled(_original_sprites.width()*2, _original_sprites.height()*2+1);
+    _original_sprites = _original_sprites.scaled(_original_sprites.width()*PREVIEW_SCALE, _original_sprites.height()*PREVIEW_SCALE+1);
 
     replace_colors();
 

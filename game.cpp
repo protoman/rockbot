@@ -245,13 +245,13 @@ void game::start_stage()
     }
 
 	/// @TODO: do not show twice
-    if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
+    //if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (game_save.stages[currentStage] == 0) {
             game_dialogs.show_stage_dialog(currentStage);
             // reset timers for objects
             loaded_stage.reset_objects_timers();
 		}
-    }
+    //}
 }
 
 void game::show_ready()
@@ -443,6 +443,7 @@ void game::show_notice()
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
     draw_lib.update_screen();
     input.waitScapeTime(400);
     for (int i=1; i<6; i++) {
@@ -1338,9 +1339,16 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE2;
+    currentStage = CASTLE1_STAGE5+2;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_4;
+
+    /*
+    // DEBUG //
+    game_save.armor_pieces[ARMOR_ARMS] = true;
+    game_save.armor_pieces[ARMOR_BODY] = true;
+    game_save.armor_pieces[ARMOR_LEGS] = true;
+    */
 
     if (GAME_FLAGS[FLAG_PLAYER1]) {
         game_save.selected_player = PLAYER_1;
@@ -1633,6 +1641,7 @@ void game::finish_player_teleporter()
     }
     player1.set_map(loaded_stage.get_current_map());
     loaded_stage.set_scrolling(st_float_position(_player_teleporter.old_map_scroll));
+    std::cout << "CHAR::RESET_TO_STAND #Y.5" << std::endl;
     player1.set_animation_type(ANIM_TYPE_STAND);
     if (_player_teleporter.is_object == true) {
         loaded_stage.get_current_map()->finish_object_teleporter(_player_teleporter.teleporter_n);

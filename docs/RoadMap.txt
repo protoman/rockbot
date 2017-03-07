@@ -39,11 +39,18 @@ backtrace:
     #08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
 ###################################################################################################################
 
-- won't leave stairs when transitioning bottom-top if it has only 1 tile in new map (moving too much up)
-    # lover extra_y in game::transition_screen
-    # adjust teleporting detection to not transition if just neat bottom/top
 
-- ROCKBOT1 - setar as cores das armas
+- ROCKBOT 1 issues:
+    # apebot stops moving after using quake
+     @@@ i: 0, new_map_lock: 1
+     @@@ i: 1, new_map_lock: 1
+     @@@ i: 2, new_map_lock: 1
+
+
+- jumping on water is in normal speed (due to changes for coil)
+    # must add new option to tell jump it is executing underwater
+
+- air dash won't stop if head is colliding with above terrain
 
 - após passar por uma porta ou transição, player executa comandos acelerado, comos e viessem todos de uma vez só
     # ver se player ainda tem um last-executed e conferir que esteja usando timers corretos, com pause
@@ -55,9 +62,6 @@ backtrace:
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
 - ao trocar de mapa, deve limpar objetos temporários (dropped-items, for example)
-
-- air-dash consegue entrar na sala do boss
-    # tem que cancelar qualquer dash e input
 
 - Gear Bot pára de andar:
     # >> character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos
@@ -91,20 +95,9 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- add adjust-y of +1 for object collision, so player walking from a platform won't be blocked when there is an object in same y
-- player must be able to jump-up when inside obj_item_coil or obj_item_jet
-- while teleporting, object must not collide with player or enemies
-- EDITOR: copy/paste must also copy the tile3 and lock properties
-- item teleporting colors are not being correctly set
-- coil item jump acceleration is too slow
-- coil item must jump ~6 tiles only
-- increase slide speed
-- damage platform don't need to be set as player platform for damage, just check if he is above it
-- slim platform must block player only if he is above it, not on its middle
-- player should not collide with object that is teleporting itself up/down
-- change coil item colors to red/white
-- coil/jet item animation is not working
-- collision with item-jump must add 6px of tolerance in y (hardcoded for now, in the future needs a flag in editor)
+- objects falling should stop on spikes
+- enemy dropping items rate is bad, big weapon pill drops a lot
+
 
 
 
@@ -117,6 +110,10 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+- ice terrain must have initial inertia when stopped
+
+- adicionar efeito "wave" a estágio
+
 - em modo de performance low, os fundos devem ser fixos, desenhados junto com os tiles
 
 - adjustar melhor a velocidade do modo 30fps

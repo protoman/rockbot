@@ -430,11 +430,13 @@ FILE-FORMAT-V4:
 - EDITOR: weapon color preview not working
 - there is a piece of another sprite in Rockbot's walk-attack animation
 - candy blinking sprite has a small difference from the stand one
-- after screen transition, player gets fast (clean new press inputs)
 - fix not entering stages if finished stages is greater than 8 and in demo-mode
 - do not leave game if can't draw an animated-tile
 - add SDL_Quit() before all exit() calls, to prevent causing an exception that hides the actual error
 - increase show_debug_msg() time to 4 seconds
+
+
+
 
 - criar objeto tipo plataforma que faz dano no player caso esteja pisando após X tempo (garras megaman 3)
 - plataforma tipo a active-disappearing, mas que player pode pular de baixo para cima sem colisão
@@ -442,3 +444,35 @@ FILE-FORMAT-V4:
 - primeira animação de objeto funciona, na segunda vai direto para último frame
 - se habilitar animation reverse, não reseta slim-platform para estado hidden false
 - se estiver em teleport, player deve ignorar colisão com objetos
+- add adjust-y of +1 for object collision, so player walking from a platform won't be blocked when there is an object in same y
+- player must be able to jump-up when inside obj_item_coil or obj_item_jet
+- while teleporting, object must not collide with player or enemies
+- EDITOR: copy/paste must also copy the tile3 and lock properties
+- item teleporting colors are not being correctly set
+- coil item jump acceleration is too slow
+- coil item must jump ~6 tiles only
+- increase slide speed
+- damage platform don't need to be set as player platform for damage, just check if he is above it
+- slim platform must block player only if he is above it, not on its middle
+- player should not collide with object that is teleporting itself up/down
+- change coil item colors to red/white
+- coil/jet item animation is not working
+- collision with item-jump must add 6px of tolerance in y (hardcoded for now, in the future needs a flag in editor)
+
+- decrease bosses hit points do adjust difficulty
+- map drawing ignoring adjust x/y for things like quake effect
+- player selection is showing in demo and not in full-game (rockbot 1)
+- 3rd level not showing problem
+- ROCKBOT 1 issues:
+    # charged projectile is slow
+    # graphic glitch in intro stage's moon
+    # intro stage's dialogs are broken in position
+    # tamanduá not walking
+    # giant fly graphic is blinking
+    # adjust bosses weak points due to the greater number of hit points in Rockbot2 engine
+    # shot crossing through mine cart without damaging it
+    # spike won't move:  character::show_sprite_graphic(Spike Bot) #1 - no graphic for type (4):fra
+    # game weapon screen must be updated to the positions used on rockbot 2
+    # coil item not working
+    # firing weapon when using coild/jet crashes the game
+    # weapon colors aren't set in editor

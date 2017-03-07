@@ -54,7 +54,7 @@ character::character() : map(NULL), hitPoints(1, 1), last_hit_time(0), is_player
     can_fly = false;
 	attack_state = ATTACK_NOT;
 	max_projectiles = 1;
-    _debug_char_name = "Bat";
+    _debug_char_name = "PLAYER_9";
     _frame_pos_adjust.x = 0;
     _frame_pos_adjust.y = 0;
     _stairs_stopped_count = 0;
@@ -438,7 +438,7 @@ void character::charMove() {
                     set_animation_type(ANIM_TYPE_JUMP);
                 }
                 if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
-                    if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #B" << std::endl;
+                    if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #B, bottom_point_lock[" << bottom_point_lock << "]" << std::endl;
                     set_animation_type(ANIM_TYPE_STAND);
                 }
             }
@@ -1287,6 +1287,7 @@ bool character::gravity(bool boss_demo_mode=false)
         if (was_moved == false && _is_falling == true) {
             _is_falling = false;
             if (is_player()) {
+                if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 //std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
                 soundManager.play_sfx(SFX_PLAYER_JUMP);
@@ -1500,28 +1501,18 @@ bool character::slide(st_float_position mapScrolling)
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (hit_ground()) {
+            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.2" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
         }
         return false;
     }
-
-    /*
-    // getting blocked interrupts the slide
-    if (map_lock != BLOCK_UNBLOCKED && map_lock != BLOCK_WATER) {
-        if (hit_ground()) {
-            set_animation_type(ANIM_TYPE_STAND);
-        } else {
-            set_animation_type(ANIM_TYPE_JUMP);
-        }
-        return false;
-    }
-    */
 
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (hit_ground() == true) {
+            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.3" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);
@@ -3215,6 +3206,7 @@ void character::cancel_slide()
     state.slide_distance = 999;
     if (state.animation_type == ANIM_TYPE_SLIDE) {
         if (hit_ground() == true) {
+            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.4" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
             set_animation_type(ANIM_TYPE_JUMP);

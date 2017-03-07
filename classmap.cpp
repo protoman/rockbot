@@ -418,7 +418,7 @@ bool classMap::is_point_solid(st_position pos) const
 // ********************************************************************************************** //
 int classMap::getMapPointLock(st_position pos) const
 {
-	if (pos.x < 0 || pos.y < 0 || pos.y > RES_H/TILESIZE || pos.x > MAP_W) {
+    if (pos.x < 0 || pos.y < 0 || pos.y >= MAP_H || pos.x >= MAP_W) {
 		return TERRAIN_UNBLOCKED;
 	}
     return map_data[number].tiles[pos.x][pos.y].locked;
@@ -874,41 +874,42 @@ void classMap::drop_item(int i)
         return;
     }
     int rand_n = rand() % 100;
-    //std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
-    if (rand_n <= 95) {
-        st_position obj_pos;
-        obj_pos.y = position.y/TILESIZE;
-        obj_pos.x = (position.x - TILESIZE)/TILESIZE;
-        DROP_ITEMS_LIST obj_type;
-        if (rand_n < 15) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_SMALL" << std::endl;
-            obj_type = DROP_ITEM_ENERGY_SMALL;
-        } else if (rand_n < 25) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_SMALL" << std::endl;
-            obj_type = DROP_ITEM_WEAPON_SMALL;
-        } else if (rand_n < 30) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_BIG" << std::endl;
-            obj_type = DROP_ITEM_ENERGY_BIG;
-        } else {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
-            obj_type = DROP_ITEM_WEAPON_BIG;
-        }
-
-        // sub-bosses always will drop energy big
-        if (_npc_list.at(i).is_subboss()) {
-            obj_type = DROP_ITEM_ENERGY_BIG;
-        }
-
-        short obj_type_n = gameControl.get_drop_item_id(obj_type);
-        if (obj_type_n == -1) {
-            std::cout << ">>>>>>>>> obj_type_n(" << obj_type_n << ") invalid for obj_type(" << obj_type << ")" << std::endl;
-            return;
-        }
-        object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
-        temp_obj.set_position(position);
-        temp_obj.set_duration(4500);
-        add_object(temp_obj);
+    std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
+    DROP_ITEMS_LIST obj_type;
+    if (rand_n <= 10) {
+        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_SMALL" << std::endl;
+        obj_type = DROP_ITEM_ENERGY_SMALL;
+    } else if (rand_n <= 20) {
+        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_SMALL" << std::endl;
+        obj_type = DROP_ITEM_WEAPON_SMALL;
+    } else if (rand_n <= 25) {
+        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_BIG" << std::endl;
+        obj_type = DROP_ITEM_ENERGY_BIG;
+    } else if (rand_n <= 30) {
+        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
+        obj_type = DROP_ITEM_WEAPON_BIG;
+    } else {
+        return;
     }
+
+    st_position obj_pos;
+    obj_pos.y = position.y/TILESIZE;
+    obj_pos.x = (position.x - TILESIZE)/TILESIZE;
+
+    // sub-bosses always will drop energy big
+    if (_npc_list.at(i).is_subboss()) {
+        obj_type = DROP_ITEM_ENERGY_BIG;
+    }
+
+    short obj_type_n = gameControl.get_drop_item_id(obj_type);
+    if (obj_type_n == -1) {
+        std::cout << ">>>>>>>>> obj_type_n(" << obj_type_n << ") invalid for obj_type(" << obj_type << ")" << std::endl;
+        return;
+    }
+    object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
+    temp_obj.set_position(position);
+    temp_obj.set_duration(4500);
+    add_object(temp_obj);
 }
 
 void classMap::set_bg_scroll(int scrollx)
@@ -1131,7 +1132,7 @@ int classMap::collision_rect_player_obj(st_rectangle player_rect, object* temp_o
     st_rectangle p_rect(player_rect.x+x_inc, player_rect.y+y_inc, player_rect.w, player_rect.h);
 
     // if only moving up/down, give one extra pivel free (otherwise in won't be able to jump next an object)
-    obj_rect.y++;
+
     if (x_inc == 0 && y_inc != 0) {
         p_rect.x++;
         p_rect.w -= 2;
@@ -1139,6 +1140,8 @@ int classMap::collision_rect_player_obj(st_rectangle player_rect, object* temp_o
 
     if (temp_obj->get_type() == OBJ_ITEM_JUMP) {
         obj_rect.y += OBJ_JUMP_Y_ADJUST;
+    } else {
+        obj_rect.y += 1;
     }
 
     bool xObjOver = value_in_range(obj_rect.x, p_rect.x, p_rect.x + p_rect.w);

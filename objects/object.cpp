@@ -220,7 +220,7 @@ bool object::test_change_position(short xinc, short yinc)
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
     //std::cout << "object::test_change_position[" << name << "] - p1: " << p1 << ", p2: " << p2 << std::endl;
 
-    if (type == OBJ_ITEM_JUMP && p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
+    if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
         return false;
     }
 
@@ -998,7 +998,7 @@ void object::move(bool paused)
             }
             int objy = (position.y+framesize_h/2)/TILESIZE;
             int map_lock = map->getMapPointLock(st_position(objx, objy));
-            std::cout << "map_lock: " << map_lock << ", _state: " << _state << ", objx: " << objx << std::endl;
+            //std::cout << "map_lock: " << map_lock << ", _state: " << (int)_state << ", objx: " << objx << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER) {
                 _size = _state;
             //} else {
