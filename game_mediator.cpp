@@ -44,7 +44,7 @@ int GameMediator::get_projectile_list_size()
     return projectile_list.size();
 }
 
-CURRENT_FILE_FORMAT::file_npc GameMediator::get_enemy(int n)
+CURRENT_FILE_FORMAT::file_npc* GameMediator::get_enemy(int n)
 {
     // boss not yet set
     if (n < 0 || n >= enemy_list.size()) {
@@ -52,7 +52,7 @@ CURRENT_FILE_FORMAT::file_npc GameMediator::get_enemy(int n)
         // return first NPC to avoid errors
         n = 0;
     }
-    return enemy_list.at(n);
+    return &enemy_list.at(n);
 }
 
 int GameMediator::get_enemy_list_size()

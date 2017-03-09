@@ -214,7 +214,6 @@ public:
 
     st_rectangle get_player_hitbox();
 
-
 private:
     void load_map_npcs();
 
@@ -256,8 +255,6 @@ private:
     object_collision _obj_collision;
     std::vector<st_level3_tile> _level3_tiles;
     std::vector<object> object_list;
-    bool _break_npc_loop;                       // used to prevent looping through the npc list after adding a new one (needed because using vector instead of list, because of old-Dingux crashes)
-
     // DRAW MEMBERS //
     int _show_map_pos_x;                            // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
     graphicsLib_gSurface map_screen;                // use to avoid having to draw the tilesets each time we update screen

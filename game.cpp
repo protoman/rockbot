@@ -72,6 +72,7 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), fps_timer(0), playe
     invencible_old_value = false;
     _dark_mode = false;
     is_showing_boss_intro = false;
+    must_break_npc_loop = false;
 }
 
 // ********************************************************************************************** //
@@ -576,6 +577,7 @@ bool game::test_teleport(classPlayer *test_player) {
     }
 
     //std::cout << "START TELEPORT!!!!" << std::endl;
+    game_pause();
 
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
@@ -654,6 +656,8 @@ bool game::test_teleport(classPlayer *test_player) {
     }
 
     timer.delay(100);
+
+    game_unpause();
 
     draw_lib.update_screen();
 
@@ -1339,7 +1343,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE5+2;
+    currentStage = CASTLE1_STAGE2;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_4;
 

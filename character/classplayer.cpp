@@ -500,7 +500,7 @@ void classPlayer::damage_ground_npcs()
 		}
 
 		// check if NPC is vulnerable to quake (all bosses except the one with weakness are not)
-        short damage = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number()).weakness[weapon_n].damage_multiplier;
+        short damage = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number())->weakness[weapon_n].damage_multiplier;
 
 		// check if NPC is on ground
         st_position npc_pos(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y);
@@ -707,7 +707,7 @@ void classPlayer::execute_projectiles()
                 }
 
                 if ((*it).get_damage() > 0) {
-                    int multiplier = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number()).weakness[wpn_id].damage_multiplier;
+                    int multiplier = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
                     if (multiplier <= 0) {
                         multiplier = 1;
                     }

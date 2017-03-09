@@ -31,15 +31,19 @@ void classjump::start(bool bigjump_mode, int terrain_type)
     start_big_jump = bigjump_mode;
     if (start_terrain_type == TERRAIN_WATER) {
         is_bigjump = true;
-    }
-    if (is_bigjump == true) {
+        speed = -(JUMP_INITIAL_SPEED * 0.9);
+    } else if (is_bigjump == true) {
         //acceleration = JUMP_ACCELERATION * 0.4;
         speed = -(JUMP_INITIAL_SPEED * 1.25);
     } else {
-
         speed = -JUMP_INITIAL_SPEED;
     }
-    acceleration = JUMP_ACCELERATION;
+
+    if (start_terrain_type == TERRAIN_WATER) {
+        acceleration = JUMP_ACCELERATION * 0.3;
+    } else {
+        acceleration = JUMP_ACCELERATION;
+    }
     acceleration = acceleration * gameControl.get_fps_speed_multiplier();
     jumps_number++;
 
@@ -62,7 +66,7 @@ void classjump::execute(int terrain_type)
     // if big jump was caused only because of water, acceleration changes if you are still in water or not
     if (start_terrain_type == TERRAIN_WATER && start_big_jump == false) {
         if (terrain_type == TERRAIN_WATER) {
-            acceleration = JUMP_ACCELERATION * 0.4;
+            acceleration = JUMP_ACCELERATION * 0.3;
         } else {
             acceleration = JUMP_ACCELERATION * 0.7;
         }

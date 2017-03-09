@@ -95,7 +95,7 @@ public:
 	character();
     virtual ~character();
     void setName(std::string);
-    std::string getName(void) const;
+    std::string get_name(void) const;
     void setHitPoints(st_hit_points);
     virtual void initFrames() = 0; // pure virtual
     virtual void execute() = 0; // pure virtual

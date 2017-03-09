@@ -18,7 +18,7 @@ public:
     CURRENT_FILE_FORMAT::file_projectilev2 get_projectile(int n);
     int get_projectile_list_size();
 
-    CURRENT_FILE_FORMAT::file_npc get_enemy(int n);
+    CURRENT_FILE_FORMAT::file_npc* get_enemy(int n);
     int get_enemy_list_size();
 #ifdef WII
     void short_to_little_endian(short &s);

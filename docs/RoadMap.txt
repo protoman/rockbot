@@ -28,15 +28,15 @@ STAGES:
 
 ###################################################################################################################
 backtrace:
-    #00 pc 00028a7c  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib14copySDLPortionE12st_rectangleS0_P11SDL_SurfaceS2_+111)
-    #01 pc 00028c91  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib11copySDLAreaE12st_rectangle11st_positionP11SDL_SurfaceS3_b+64)
-    #02 pc 00029695  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib19showSurfaceRegionAtEP20graphicsLib_gSurface12st_rectangle11st_position+40)
-    #03 pc 00050a6f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN10projectile4drawEv+154)
-    #04 pc 000427bb  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer19execute_projectilesEv+118)
-    #05 pc 0004321f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer4moveEv+238)
-    #06 pc 00044023  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer7executeEv+18)
-    #07 pc 0003586b  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN4game8showGameEbb+254)
-    #08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
+#00 pc 00028a7c  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib14copySDLPortionE12st_rectangleS0_P11SDL_SurfaceS2_+111)
+#01 pc 00028c91  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib11copySDLAreaE12st_rectangle11st_positionP11SDL_SurfaceS3_b+64)
+#02 pc 00029695  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib19showSurfaceRegionAtEP20graphicsLib_gSurface12st_rectangle11st_position+40)
+#03 pc 00050a6f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN10projectile4drawEv+154)
+#04 pc 000427bb  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer19execute_projectilesEv+118)
+#05 pc 0004321f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer4moveEv+238)
+#06 pc 00044023  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer7executeEv+18)
+#07 pc 0003586b  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN4game8showGameEbb+254)
+#08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
 ###################################################################################################################
 
 
@@ -47,13 +47,9 @@ backtrace:
      @@@ i: 2, new_map_lock: 1
 
 
-- jumping on water is in normal speed (due to changes for coil)
-    # must add new option to tell jump it is executing underwater
+- limit spawn npc in AI somehow
 
 - air dash won't stop if head is colliding with above terrain
-
-- após passar por uma porta ou transição, player executa comandos acelerado, comos e viessem todos de uma vez só
-    # ver se player ainda tem um last-executed e conferir que esteja usando timers corretos, com pause
 
 - as vezes, projétil atravessa inimigos, principalmente mola-puladeira
 
@@ -95,6 +91,11 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- spawn NPC crashes on android due to map not being set on new npc
+    # use gameControl to handle loop-breaking instead of map
+    # set the map on map::spawn_npc
+- jumping on water is in normal speed (due to changes for coil)
+- after a screen-transition, games become to fast. missing puase call
 - objects falling should stop on spikes
 - enemy dropping items rate is bad, big weapon pill drops a lot
 
@@ -110,6 +111,8 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+- jump must change acceleration when entering or leaving water terrain
+
 - ice terrain must have initial inertia when stopped
 
 - adicionar efeito "wave" a estágio

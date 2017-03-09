@@ -1,0 +1,20 @@
+====================================================================================
+2.0.0 Beta 19:
+====================================================================================
+- several fixes for Rockbot 1
+- improved Coil item animation and hitarea
+- new object type that damages player if he is above it when animation finishes
+- new object type that allows player to jump under it to above it
+- fixes for object animation and reverse-animation
+- increase movement and slide/dash speed a bit
+- fix jump for coild to be smaller
+- both player and objects should not collide with each other when teleporting
+- lowered bosses hit points to lower difficulty
+- fix quake effect animation
+- fix 3rd level of tiles not showing sometimes
+- player selection must be shown only in full-game, not demo
+
+
+====================================================================================
+2.0.0 Beta 20:
+====================================================================================

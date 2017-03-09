@@ -4,7 +4,15 @@
 #include <cstdlib>
 #include "character/classplayer.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include "game_mediator.h"
+
+#include "game.h"
+extern game gameControl;
+
 
 #include "soundlib.h"
 extern soundLib soundManager;
@@ -31,7 +39,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _ai_state.main_status = 0;
     _parameter = 0;
     _show_reset_stand = false;
-    _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
+    _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number)->respawn_delay;
     _dest_point = position;
     _execution_state = 0;
     jump_attack_type = -1;
@@ -320,7 +328,7 @@ void artificial_inteligence::push_back_players(short direction)
 
 bool artificial_inteligence::auto_respawn() const
 {
-    if (GameMediator::get_instance()->get_enemy(_number).respawn_delay > 0 && timer.getTimer() > _auto_respawn_timer)  {
+    if (GameMediator::get_instance()->get_enemy(_number)->respawn_delay > 0 && timer.getTimer() > _auto_respawn_timer)  {
         return true;
     }
     return false;
@@ -1106,7 +1114,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
         proj_direction = !proj_direction;
     }
 
-    st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number).attack_arm_pos;
+    st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number)->attack_arm_pos;
     if (attack_arm_pos.x < 1 && attack_arm_pos.y < 1) {
         if (state.direction == ANIM_DIRECTION_LEFT) {
             proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
@@ -1902,6 +1910,13 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         } else {
             temp = map->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
         }
+
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, must_break_loop[%d]", gameControl.must_break_npc_loop?1:0);
+#endif
+
+
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 3 && _is_stage_boss == true) {
             _is_stage_boss = false;

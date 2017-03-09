@@ -10,6 +10,10 @@
 
 #include "game_mediator.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include "inputlib.h"
 extern inputLib input;
 
@@ -131,8 +135,19 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	// TODO - usar operador igual e também para cópia de toda a classe para ela mesma
 	graphicsLib_gSurface npc_sprite_surface;
 
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, id[%d]", _number);
+#endif
 
-    name = std::string(GameMediator::get_instance()->get_enemy(main_id).name);
+    CURRENT_FILE_FORMAT::file_npc* copyref = GameMediator::get_instance()->get_enemy(main_id);
+
+    name = std::string(copyref->name);
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, name#1[%s]", copyref->name);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, name#2[%s]", name.c_str());
+#endif
+
 
 	add_graphic();
 
@@ -149,35 +164,35 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 
 
 
-    hitPoints.total = GameMediator::get_instance()->get_enemy(main_id).hp.total;
+    hitPoints.total = GameMediator::get_instance()->get_enemy(main_id)->hp.total;
 	hitPoints.current = hitPoints.total;
 
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
 		state.direction = ANIM_DIRECTION_RIGHT;
 	}
 
-    move_speed = GameMediator::get_instance()->get_enemy(main_id).speed;
-    walk_range = GameMediator::get_instance()->get_enemy(main_id).walk_range;
+    move_speed = GameMediator::get_instance()->get_enemy(main_id)->speed;
+    walk_range = GameMediator::get_instance()->get_enemy(main_id)->walk_range;
 	if (walk_range < 0 || walk_range > 1000) { // fix data errors by setting value to default
 		walk_range = TILESIZE*6;
 	}
 
 
 
-    graphic_filename = GameMediator::get_instance()->get_enemy(main_id).graphic_filename;
+    graphic_filename = GameMediator::get_instance()->get_enemy(main_id)->graphic_filename;
 
 
-    frameSize.width = GameMediator::get_instance()->get_enemy(main_id).frame_size.width;
-    frameSize.height = GameMediator::get_instance()->get_enemy(main_id).frame_size.height;
-    is_ghost = (GameMediator::get_instance()->get_enemy(main_id).is_ghost != 0);
-    shield_type = GameMediator::get_instance()->get_enemy(main_id).shield_type;
+    frameSize.width = GameMediator::get_instance()->get_enemy(main_id)->frame_size.width;
+    frameSize.height = GameMediator::get_instance()->get_enemy(main_id)->frame_size.height;
+    is_ghost = (GameMediator::get_instance()->get_enemy(main_id)->is_ghost != 0);
+    shield_type = GameMediator::get_instance()->get_enemy(main_id)->shield_type;
 	_is_boss = false;
 
-    _attack_frame_n = GameMediator::get_instance()->get_enemy(main_id).attack_frame;
+    _attack_frame_n = GameMediator::get_instance()->get_enemy(main_id)->attack_frame;
 
 
     // TODO - this logic can be passed to the editor
-    if (GameMediator::get_instance()->get_enemy(main_id).fly_flag != 0) {
+    if (GameMediator::get_instance()->get_enemy(main_id)->fly_flag != 0) {
         //std::cout << "******** classnpc::set_file_data - npc: " << name << ", canfly: " << can_fly << std::endl;
         can_fly = true;
     }
@@ -206,8 +221,8 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 
         for (int i=0; i<ANIM_TYPE_COUNT; i++) {
             for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
-                if (GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].used == true) {
-                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].sprite_graphic_pos_x, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id).sprites[i][j].duration);
+                if (GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].used == true) {
+                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].sprite_graphic_pos_x, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].duration);
                 }
             }
         }
@@ -216,7 +231,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 
     if (have_background_graphics() == false) {
         graphicsLib_gSurface bg_surface;
-        std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id).bg_graphic_filename);
+        std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
         //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
         if (bg_filename.size() > 0) {
             std::string full_bggraphic_filename = FILEPATH + "images/sprites/backgrounds/" + bg_filename;
@@ -228,8 +243,8 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
             }
             graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
             _has_background = true;
-            _frame_pos_adjust.x = GameMediator::get_instance()->get_enemy(main_id).sprites_pos_bg.x;
-            _frame_pos_adjust.y = GameMediator::get_instance()->get_enemy(main_id).sprites_pos_bg.y;
+            _frame_pos_adjust.x = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.x;
+            _frame_pos_adjust.y = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.y;
         }
     }
 
@@ -256,7 +271,7 @@ bool classnpc::is_spawn()
 
 bool classnpc::is_subboss()
 {
-    return GameMediator::get_instance()->get_enemy(_number).is_sub_boss;
+    return GameMediator::get_instance()->get_enemy(_number)->is_sub_boss;
 }
 
 void classnpc::reset_position()
@@ -276,17 +291,17 @@ st_position classnpc::get_start_position()
 
 st_rectangle classnpc::get_hitbox()
 {
-    int temp_x = position.x + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.x;
-    int temp_y = position.y + GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.y;
-    int temp_w = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w;
-    int temp_h = GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.h;
+    int temp_x = position.x + GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x;
+    int temp_y = position.y + GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.y;
+    int temp_w = GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w;
+    int temp_h = GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.h;
 
     // @TODO - invert X depending on direction
 
     //std::cout << "#NPC::get_hitbox[" << name << "] - x: " << temp_x << ", y: " << temp_y << ", w: " << temp_w << ", h: " << temp_h << std::endl;
 
     if (state.direction == ANIM_DIRECTION_LEFT) {
-        temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number).sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
+        temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
     }
 
     return st_rectangle(temp_x, temp_y, temp_w, temp_h);
@@ -332,7 +347,9 @@ void classnpc::execute()
         } else {
             move();
         }
-        charMove();
+        if (gameControl.must_break_npc_loop == false) {
+            charMove();
+        }
     }
 }
 
@@ -363,6 +380,9 @@ void classnpc::boss_move()
         gameControl.map_present_boss(_is_boss);
         return;
     } else if (_initialized == 1 && _is_boss == true) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::GRAVITY #1, position.x[%f]", position.x);
+#endif
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;
         }
@@ -377,8 +397,16 @@ void classnpc::boss_move()
         return;
     }
 
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::EXECUTE_AI");
+#endif
     execute_ai();
-    gravity(false);
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::GRAVITY #2, must_break_loop[%d]", gameControl.must_break_npc_loop?1:0);
+#endif
+    if (gameControl.must_break_npc_loop == false) {
+        gravity(false);
+    }
 }
 
 
@@ -556,7 +584,7 @@ void classnpc::death()
     _obj_jump.interrupt();
     _obj_jump.finish();
     dead = true;
-    _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number).respawn_delay;
+    _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number)->respawn_delay;
     //std::cout << "classnpc::death" << std::endl;
     if (_ai_state.main_status == IA_STATE_QUAKE_ATTACK) {
         graphLib.set_screen_adjust(st_position(0, 0));

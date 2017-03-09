@@ -357,6 +357,7 @@ private:
 public:
     Uint8 currentStage;
     bool is_showing_boss_intro;
+    bool must_break_npc_loop;
 
 
 private:
