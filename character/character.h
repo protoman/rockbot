@@ -104,8 +104,6 @@ public:
     void set_position(struct st_position);
     void inc_position(float inc_x, float inc_y);
     void addSpriteFrame(int, int, graphicsLib_gSurface&, int);
-    void set_map(classMap *set_map);
-    classMap *get_map();
     void set_is_player(bool set_player);
     bool is_player() const;
     void advance_frameset(); // changes the state for the next (or previous) frame
@@ -208,8 +206,6 @@ public:
 
     void set_animation_type(enum ANIM_TYPE type);
 
-    void set_show_hp(bool show);
-
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();
     void clean_character_graphics_list();
@@ -248,7 +244,6 @@ protected:
     unsigned int get_projectile_count(); // returns the number of projectiles (some special attacks count as max)
     int frames_count(); // find out the number of frames in the current direction/type
     void advance_to_last_frame();
-    virtual void show_hp(); // player and boss will implement this
     int is_executing_effect_weapon(); // returns type, or -1 if none
     st_position get_int_position(); // converts float position to integer position
     void check_reset_stand();
@@ -263,7 +258,7 @@ protected:
 public:
 	// projectile list
     std::vector<projectile> projectile_list;
-    classMap *map;										// reference to the map this npc is in
+    //classMap *map;										// reference to the map this npc is in
 
 
 protected:
@@ -354,7 +349,6 @@ protected:
     bool _was_hit;                                           // indicates if the character was hit during the current cicle/loop
     short int _simultaneous_shots;                            // how many shots at a time the character can fire
     bool _is_boss;
-    bool _show_hp;                                          // show or hide the HP bat
     bool _always_move_ahead;                                // indicates to character class that the AI is to always move on
     bool _check_always_move_ahead;                          // used to prevent setting _always_move_ahead each time we can AI exec
     int _progressive_appear_pos;                            // used by spawn-npc to show just a part of the NPC

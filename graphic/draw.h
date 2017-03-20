@@ -56,6 +56,7 @@ public:
     void add_dynamic_background(std::string filename, int auto_scroll_mode, st_color bg_color);
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
+    void show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);

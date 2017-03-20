@@ -237,7 +237,7 @@ bool classPlayer::shoryuken()
             } else {
                 speed_y = i*-1;
             }
-            st_map_collision map_col = map_collision(0, speed_y, map->getMapScrolling());
+            st_map_collision map_col = map_collision(0, speed_y, gameControl.get_current_map_obj()->getMapScrolling());
             int map_lock = map_col.block;
             //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
@@ -356,13 +356,13 @@ void classPlayer::attack(bool dont_update_colors)
 
 
         if (used_weapon == WEAPON_ITEM_COIL) {
-            if (map->have_player_object() == true) {
+            if (gameControl.get_current_map_obj()->have_player_object() == true) {
                 weapon_id = -1;
             } else {
                 add_coil_object();
             }
         } else if (used_weapon == WEAPON_ITEM_JET) {
-            if (map->have_player_object() == true) {
+            if (gameControl.get_current_map_obj()->have_player_object() == true) {
                 weapon_id = -1;
             } else {
                 add_jet_object();
@@ -389,7 +389,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         //std::cout << "############ weapon_id: " << weapon_id << std::endl;
 
-        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, proj_pos, map, is_player()));
+        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, proj_pos, is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();
@@ -408,7 +408,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
             st_rectangle hitbox = get_hitbox();
-            classnpc* temp = map->find_nearest_npc(st_position(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2));
+            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc(st_position(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2));
             if (temp != NULL) {
                 //std::cout << "PLAYER::attack - could not find target" << std::endl;
                 temp_proj.set_target_position(temp->get_position_ref());
@@ -416,7 +416,7 @@ void classPlayer::attack(bool dont_update_colors)
         } else if (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
             st_rectangle hitbox = get_hitbox();
             st_position player_pos(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2);
-            classnpc* temp = map->find_nearest_npc_on_direction(player_pos, state.direction);
+            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(player_pos, state.direction);
             if (temp != NULL) {
                 //std::cout << "PLAYER::attack - could not find target" << std::endl;
                 temp_proj.set_target_position(temp->get_position_ref());
@@ -494,23 +494,23 @@ void classPlayer::damage_ground_npcs()
 		return;
 	}
 
-    for (int i=0; i<map->_npc_list.size(); i++) {
-        if (map->_npc_list.at(i).is_on_visible_screen() == false) {
+    for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
+        if (gameControl.get_current_map_obj()->_npc_list.at(i).is_on_visible_screen() == false) {
 			continue;
 		}
 
 		// check if NPC is vulnerable to quake (all bosses except the one with weakness are not)
-        short damage = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number())->weakness[weapon_n].damage_multiplier;
+        short damage = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[weapon_n].damage_multiplier;
 
 		// check if NPC is on ground
-        st_position npc_pos(map->_npc_list.at(i).getPosition().x, map->_npc_list.at(i).getPosition().y);
-        npc_pos.x = (npc_pos.x + map->_npc_list.at(i).get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + map->_npc_list.at(i).get_size().height)/TILESIZE;
-		int lock = map->getMapPointLock(npc_pos);
+        st_position npc_pos(gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x, gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y);
+        npc_pos.x = (npc_pos.x + gameControl.get_current_map_obj()->_npc_list.at(i).get_size().width/2)/TILESIZE;
+        npc_pos.y = (npc_pos.y + gameControl.get_current_map_obj()->_npc_list.at(i).get_size().height)/TILESIZE;
+        int lock = gameControl.get_current_map_obj()->getMapPointLock(npc_pos);
 		if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_STAIR || lock == TERRAIN_WATER) {
 			continue;
 		} else {
-            map->_npc_list.at(i).damage(damage, false);
+            gameControl.get_current_map_obj()->_npc_list.at(i).damage(damage, false);
 		}
 	}
 }
@@ -649,27 +649,27 @@ void classPlayer::execute_projectiles()
         }
         // check collision against enemies
 
-        for (int i=0; i<map->_npc_list.size(); i++) {
+        for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
                 projectile_list.erase(it);
                 break;
             }
-            if (map->_npc_list.at(i).is_on_visible_screen() == false) {
+            if (gameControl.get_current_map_obj()->_npc_list.at(i).is_on_visible_screen() == false) {
                 continue;
             }
-            if (map->_npc_list.at(i).is_dead() == true) {
+            if (gameControl.get_current_map_obj()->_npc_list.at(i).is_dead() == true) {
                 continue;
             }
 
 
-            st_rectangle npc_hitbox = map->_npc_list.at(i).get_hitbox();
+            st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
 
             //classnpc* enemy = (*enemy_it);
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
                 // shielded NPC: reflects/finishes shot
-                if (map->_npc_list.at(i).is_intangible() == true) {
+                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                     continue;
-                } else if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {
@@ -677,12 +677,12 @@ void classPlayer::execute_projectiles()
                     }
                     continue;
                 }
-                if (map->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
+                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
                     continue;
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle enemy_hit_area = map->_npc_list.at(i).get_hitbox();
+                st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
 
                 if ((*it).check_collision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
                     (*it).consume_projectile();
@@ -696,10 +696,10 @@ void classPlayer::execute_projectiles()
                 }
 
                 // NPC using cicrcle weapon, is only be destroyed by CHAIN, but NPC won't take damage
-                if (map->_npc_list.at(i).is_using_circle_weapon() == true) {
+                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_using_circle_weapon() == true) {
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         std::cout << "PROJ::END #3" << std::endl;
-                        map->_npc_list.at(i).consume_projectile();
+                        gameControl.get_current_map_obj()->_npc_list.at(i).consume_projectile();
                     }
                     std::cout << "PROJ::END #4" << std::endl;
                     (*it).consume_projectile();
@@ -707,11 +707,11 @@ void classPlayer::execute_projectiles()
                 }
 
                 if ((*it).get_damage() > 0) {
-                    int multiplier = GameMediator::get_instance()->get_enemy(map->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
+                    int multiplier = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
                     if (multiplier <= 0) {
                         multiplier = 1;
                     }
-                    map->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
+                    gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
                 } else {
                     std::cout << "PLAYER::EXECUTE_PROJ - projectile damage is zero" << std::endl;
                 }
@@ -726,7 +726,7 @@ void classPlayer::execute_projectiles()
         // if projectile is a bomb, check collision against objects
         if ((*it).get_effect_n() == 1 && ((*it).get_move_type() == TRAJECTORY_BOMB || (*it).get_move_type() == TRAJECTORY_FALL_BOMB) || (*it).is_explosive() == true) {
             //std::cout << "PLAYER::execute_projectiles - Have exploding bomb, checking objects that collide..." << std::endl;
-            std::vector<object*> res_obj = map->check_collision_with_objects((*it).get_area());
+            std::vector<object*> res_obj = gameControl.get_current_map_obj()->check_collision_with_objects((*it).get_area());
             if (res_obj.size() > 0) {
                 //std::cout << "PLAYER::execute_projectiles - Found objects (" << res_obj.size() << ") that collides with bomb!" << std::endl;
                 for (unsigned int i=0; i<res_obj.size(); i++) {
@@ -910,12 +910,12 @@ void classPlayer::teleport_stand()
 void classPlayer::death()
 {
     //std::cout << "PLAYER::death, x: " << position.x << std::endl;
-    map->print_objects_number();
+    gameControl.get_current_map_obj()->print_objects_number();
     reset_charging_shot();
-	map->clear_animations();
-    map->print_objects_number();
-    map->reset_objects();
-    map->print_objects_number();
+    gameControl.get_current_map_obj()->clear_animations();
+    gameControl.get_current_map_obj()->print_objects_number();
+    gameControl.get_current_map_obj()->reset_objects();
+    gameControl.get_current_map_obj()->print_objects_number();
 	dead = true;
     _obj_jump.interrupt();
     _obj_jump.finish();
@@ -1018,7 +1018,12 @@ CURRENT_FILE_FORMAT::file_weapon_colors classPlayer::get_weapon_colors(short int
 
 short classPlayer::get_selected_weapon()
 {
-	return selected_weapon;
+    return selected_weapon;
+}
+
+short classPlayer::get_selected_weapon_value()
+{
+    return get_weapon_value(get_selected_weapon());
 }
 
 void classPlayer::refill_weapons()
@@ -1052,13 +1057,13 @@ void classPlayer::add_coil_object()
             obj_pos.x = position.x + frameSize.width + 2;
 		}
 
-        object temp_obj(game_data.player_items[0], this->map, st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1); /// @TODO - remove hardcoded number
+        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1); /// @TODO - remove hardcoded number
         temp_obj.set_precise_position(obj_pos, state.direction);
 		temp_obj.set_duration(2500);
         temp_obj.use_teleport_in_out();
         temp_obj.set_collision_mode(COLlISION_MODE_Y);
         temp_obj.set_direction(state.direction);
-		map->add_object(temp_obj);
+        gameControl.get_current_map_obj()->add_object(temp_obj);
         consume_weapon(1);
     }
 }
@@ -1074,12 +1079,12 @@ void classPlayer::add_jet_object()
         } else {
             obj_pos.x = position.x + frameSize.width + 2;
         }
-        object temp_obj(game_data.player_items[1], this->map, st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
+        object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
         temp_obj.set_precise_position(obj_pos, state.direction);
         temp_obj.use_teleport_in_out();
 		temp_obj.set_duration(4500);
 		temp_obj.set_direction(state.direction);
-		map->add_object(temp_obj);
+        gameControl.get_current_map_obj()->add_object(temp_obj);
 	}
 }
 
@@ -1091,16 +1096,7 @@ int classPlayer::find_next_weapon(int current, int move)
     return res;
 }
 
-void classPlayer::show_hp()
-{
-    if (_show_hp == false) {
-        return;
-    }
-    graphLib.draw_hp_bar(get_current_hp(), get_number(), WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
-    if (get_selected_weapon() != WEAPON_DEFAULT) {
-        graphLib.draw_hp_bar(get_weapon_value(get_selected_weapon()),get_number(), get_selected_weapon(), fio.get_heart_pieces_number(game_save));
-    }
-}
+
 
 void classPlayer::clean_move_commands()
 {

@@ -26,7 +26,7 @@ extern int freeze_weapon_id;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, classMap *set_map, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(-1), _is_temporary(true)
+projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(-1), _is_temporary(true)
 {
     set_default_values();
 	_id = id; // -1 is default projectile
@@ -34,7 +34,6 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 
     std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "]" << std::endl;
 
-    map = set_map;
     position = set_position;
     direction = set_direction;
 	_size = get_size();
@@ -108,7 +107,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         _effect_n = 0;
         position0.x = position.x;
         position0.y = position.y;
-        int first_bottom_lock = map->get_first_lock_on_bottom(position.x + get_size().width/2);
+        int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2);
         position.y = 0;
         std::cout << "Y: " << position.y << std::endl;
         _size.height = first_bottom_lock*TILESIZE + TILESIZE;
@@ -202,7 +201,7 @@ void projectile::position_to_ground()
 {
     // change y until the projectile reachs ground
     while ((position.y + get_surface()->height/2) < RES_H) {
-        int lock = map->getMapPointLock(st_position(position.x/TILESIZE, (position.y + get_surface()->height/2)/TILESIZE)); //map->map_tiles.tiles[position.x/TILESIZE][position.y/TILESIZE].locked;
+        int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y + get_surface()->height/2)/TILESIZE)); //map->map_tiles.tiles[position.x/TILESIZE][position.y/TILESIZE].locked;
         if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
             return;
         }
@@ -581,7 +580,7 @@ st_size projectile::move() {
         if (_effect_n == 0) {
             position.y += get_speed();
             // check if hit ground
-            int point_lock = map->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
+            int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
             if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
                 //std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
                 /// morph into a bigger explosion
@@ -665,8 +664,8 @@ st_size projectile::move() {
         std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
 	}
 
-	realPosition.x = position.x - map->getMapScrolling().x;
-	realPosition.y = position.y - map->getMapScrolling().y;
+    realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
+    realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
 	// check out of screen
 	if (_move_type != TRAJECTORY_FREEZE && _move_type != TRAJECTORY_QUAKE) { // special effect weapons can work out of screen
 		if (realPosition.x > RES_W+TILESIZE*2 || realPosition.x < 0-TILESIZE*2 || realPosition.y > RES_H+TILESIZE*2 || realPosition.y < 0-+TILESIZE*2) {
@@ -833,7 +832,7 @@ bool projectile::check_map_collision(st_position pos_inc) const
 		p_x = position.x + get_size().width + pos_inc.x;
 	}
     for (int i=0; i<3; i++) {
-        int lock = map->getMapPointLock(st_position(p_x/TILESIZE, p_y[i]/TILESIZE));// map->map_tiles.tiles[p_x/TILESIZE][p_y[i]/TILESIZE].locked;
+        int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(p_x/TILESIZE, p_y[i]/TILESIZE));// map->map_tiles.tiles[p_x/TILESIZE][p_y[i]/TILESIZE].locked;
 		if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
             //std::cout << ">> projectile::check_map_collision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
 			return true;

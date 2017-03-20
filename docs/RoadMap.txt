@@ -18,12 +18,27 @@ VERSION 2.0.0 RELEASE #2
 ###################################################################################################################
 STAGES:
 ###################################################################################################################
-- Gear: melhorar tileset - http://vgmaps.com/Atlas/NES/Batman-ReturnOfTheJoker-Stage6.png
-- Beast: escolher design, melhorar tileset
-- Castle2: terminar edição do mapa
+- Beast:
+    # melhorar tileset
+- Zodiac:
+    # terminar parte visual do mapa
+    # inimigos
+- Snow:
+    # embelezar com mais detalhes e animações
+- Castle1:
+    #importar minecart rockbot1
+    # adicionar animações (máquinas, parafusos, etc)
+    # criar efeito luz piscando (tipo shovel knight)
+    # inimigos
 - Castle3: repensar gráficos/estilo
-- Castle4: inimigos
-- Castle5: editar mapa
+- Castle4:
+    # refazer gráficos da parte de cidade
+    # inimigos
+- Castle5:
+    # editar mapa
+    # inimigos
+    # teleportadores
+    # chefe-final
 
 
 ###################################################################################################################
@@ -38,7 +53,16 @@ backtrace:
 #07 pc 0003586b  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN4game8showGameEbb+254)
 #08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
 ###################################################################################################################
+#00  pc 000e0208  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so
+#01  pc 0001fd79  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::map_collision(float, short, st_float_position, int)+924)
+#02  pc 0002054f  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::test_change_position(short, short)+182)
+#03  pc 00021fb5  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::gravity(bool)+172)
+#04  pc 00053c81  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (classnpc::boss_move()+184)
 
+Causa deve ser o mapa no próprio character. Tenho que me livrar disto e mover para o game_control
+que pega do currentLevel->currentMap.
+Tirar de projectile tb.
+###################################################################################################################
 
 - ROCKBOT 1 issues:
     # apebot stops moving after using quake
@@ -47,11 +71,38 @@ backtrace:
      @@@ i: 2, new_map_lock: 1
 
 
+- remove password system
+
+- lower SFX volume and change shot SFX
+
+- ending: mostrar cada NPC usando o nome dado no editor mesmo, como final de super mario world
+
+- efeitos e 3rd level estão por cima do HUB (barras de energia)
+
+- things like teleport_out in player class must be moved to game class because it even uses showMap
+
+- review classmap public methods and decide witch ones should be turned private and "moved" to gameControl
+
+- fade teleport must change player to jump and set Y to the dest-point
+
+- after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
+
+- door should activate transition only if py > link.y
+
+- usuário reportou crash no snowbot
+
+- enemies should not be killer by death-ray
+
+- do not show password in demo mode
+
+- red shield dropped from platform and died (gear bot stage)
+
 - limit spawn npc in AI somehow
 
 - air dash won't stop if head is colliding with above terrain
 
 - as vezes, projétil atravessa inimigos, principalmente mola-puladeira
+    # >> character::show_sprite_graphic([Gear] Shooting Joe) #1 - no graphic for type (1):frame_n(0), set to STAND
 
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 
@@ -91,6 +142,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- horizontal screen transition (door) missing pause
 - spawn NPC crashes on android due to map not being set on new npc
     # use gameControl to handle loop-breaking instead of map
     # set the map on map::spawn_npc
@@ -111,6 +163,12 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+- make show fps an option in config
+
+- create floating platform that starts returning to the origin once player leaves it
+
+- platform tht rotates around an axis-point
+
 - jump must change acceleration when entering or leaving water terrain
 
 - ice terrain must have initial inertia when stopped
@@ -172,13 +230,11 @@ VERSION 2.0.0 RELEASE #3
     # só esconde, deve confinuar funcionando para caso dê problema
 
 
-- PSP: Ao pular sobre coil está parando antes de atingi-lo e não aciona pulo.
-
 - tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
 
-- melhorar explosões de morte (refazer gráfico, posições)
+- melhorar explosões de morte (refazer gráfico, usar mais posições usando ângulo)
 
-- melhorar implosão de ghot weapon (espiral)
+- melhorar implosão de ghost weapon (espiral)
 
 - jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
 

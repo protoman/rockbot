@@ -157,6 +157,10 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     if (loaded_stage.get_current_map_gfx_mode() == SCREEN_GFX_MODE_OVERLAY) {
         draw_lib.show_gfx();
     }
+
+    // draw HUD
+    draw_lib.show_player_hp(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon());
+
 }
 
 // ********************************************************************************************** //
@@ -218,7 +222,6 @@ void game::start_stage()
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_direction(ANIM_DIRECTION_RIGHT);
-    player1.set_map(loaded_stage.get_current_map());
     player1.refill_weapons();
     player1.reset_hp();
 
@@ -303,7 +306,6 @@ void game::restart_stage()
     player1.set_teleport_minimal_y(min_y*TILESIZE);
 
 
-    player1.set_map(loaded_stage.get_current_map());
     player1.reset_hp();
     loaded_stage.reset_stage_maps();
 
@@ -416,7 +418,7 @@ void game::show_free_version_warning()
     graphLib.draw_centered_text(60, "THIS IS ROCKBOT 2'S FREE VERSION.", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(75, "IT CONTAINS THREE STAGES", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(90, "AND LACKS SUPPORT FOR", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(105, "A FEW FEATURES LIKE PASSWORDS.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(105, "A FEW FEATURES.", graphLib.gameScreen, st_color(255, 255, 255));
 
     graphLib.draw_centered_text(130, "FULL VERSION WILL BE RELEASED", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(145, "LATER DURING THE YEAR 2017.", graphLib.gameScreen, st_color(255, 255, 255));
@@ -491,7 +493,7 @@ void game::fps_count()
 	}
     if (fps_counter > 1) {
         std::string temp_str(_fps_buffer);
-        graphLib.draw_text(10, 10, temp_str);
+        graphLib.draw_text(12, 2, temp_str);
     }
 }
 
@@ -639,13 +641,17 @@ bool game::test_teleport(classPlayer *test_player) {
         //loaded_stage.set_scrolling(st_float_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
         loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
 
-        test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
-        test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();
         if (link_type == LINK_FADE_TELEPORT) {
+            test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, stage_data.links[j].pos_destiny.y*TILESIZE));
+            test_player->char_update_real_position();
+            test_player->set_animation_type(ANIM_TYPE_JUMP);
             showGame(false, true);
             timer.delay(50);
             draw_lib.fade_in_screen(0, 0, 0);
+        } else {
+            test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
+            test_player->char_update_real_position();
         }
     } else {
         loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
@@ -747,13 +753,6 @@ void game::set_current_map(int temp_map_n)
 {
     loaded_stage.set_current_map(temp_map_n);
     loaded_stage.reset_current_map_objects();
-    player1.set_map(loaded_stage.get_current_map());
-
-    if (loaded_stage.get_current_map() != player1.map) {
-        graphLib.show_debug_msg("EXIT #03");
-        SDL_Quit();
-		exit(-1);
-	}
 }
 
 Uint8 game::get_current_map()
@@ -1017,6 +1016,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     int i = 0;
     int upTile = 0;
     int downTile = 0;
+
     classMap* temp_map = loaded_stage.get_current_map();
     st_float_position scroll_move;
 	if (direction == ANIM_DIRECTION_LEFT) {
@@ -1054,6 +1054,8 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         loaded_stage.redraw_boss_door(false, (downTile-upTile+1), tileX, tileY, player1.get_number());//bool is_close, int nTiles, int tileX
 	}
 
+    game_pause();
+
 
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
     float player_move_x = (float)(TILESIZE*2.5)/(float)move_limit; // player should move two tilesize, to avoid doors
@@ -1087,6 +1089,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         remove_players_slide();
     }
     timer.delay(6);
+    game_unpause();
     loaded_stage.showStage();
 }
 
@@ -1141,7 +1144,6 @@ void game::got_weapon()
 
 		soundManager.play_sfx(SFX_TELEPORT);
         player1.teleport_out();
-        player1.set_show_hp(false);
         timer.delay(1000);
 
 		/// @TODO
@@ -1188,7 +1190,6 @@ void game::got_weapon()
     } else {
         player1.teleport_out();
 	}
-    player1.set_show_hp(true);
 
     game_save.stages[currentStage] = 1;
 
@@ -1210,11 +1211,8 @@ void game::leave_stage()
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
     GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
 
-    // show password
     input.clean();
     timer.delay(200);
-    scenes.show_password();
-
 
     // return to stage selection
     player1.reset_charging_shot();
@@ -1279,10 +1277,10 @@ void game::game_over()
     soundManager.play_music();
     graphLib.blank_screen();
 
-    graphicsLib_gSurface password_screen;
+    graphicsLib_gSurface config_bg;
     std::string filename = FILEPATH + "images/backgrounds/config.png";
-    graphLib.surfaceFromFile(filename, &password_screen);
-    graphLib.copyArea(st_rectangle(0, 0, password_screen.get_surface()->w, password_screen.get_surface()->h), st_position(0, 0), &password_screen, &graphLib.gameScreen);
+    graphLib.surfaceFromFile(filename, &config_bg);
+    graphLib.copyArea(st_rectangle(0, 0, config_bg.get_surface()->w, config_bg.get_surface()->h), st_position(0, 0), &config_bg, &graphLib.gameScreen);
 
     graphicsLib_gSurface dialog_img;
     filename = FILEPATH + "images/backgrounds/dialog.png";
@@ -1297,7 +1295,6 @@ void game::game_over()
     if (currentStage != INTRO_STAGE) {
         leave_stage();
     } else {
-        scenes.show_password();
         soundManager.stop_music();
         soundManager.load_stage_music(stage_data.bgmusic_filename);
         // restart stage will play the music
@@ -1311,7 +1308,6 @@ void game::show_ending(st_position boss_pos)
     game_config.game_finished = true;
     fio.save_config(game_config);
 
-    player1.set_show_hp(false);
     // reset player colors to original
     player1.set_weapon(0, false);
 
@@ -1343,7 +1339,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE2;
+    currentStage = STAGE6;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_4;
 
@@ -1643,7 +1639,6 @@ void game::finish_player_teleporter()
         // search for the final-boss teleporter capsule and start it
         loaded_stage.activate_final_boss_teleporter();
     }
-    player1.set_map(loaded_stage.get_current_map());
     loaded_stage.set_scrolling(st_float_position(_player_teleporter.old_map_scroll));
     std::cout << "CHAR::RESET_TO_STAND #Y.5" << std::endl;
     player1.set_animation_type(ANIM_TYPE_STAND);
@@ -1678,6 +1673,11 @@ void game::show_stage(int wait_time, bool move_npcs)
 bool game::subboss_alive_on_left(short tileX)
 {
     return loaded_stage.subboss_alive_on_left(tileX);
+}
+
+classMap *game::get_current_map_obj()
+{
+    return loaded_stage.get_current_map();
 }
 
 void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)

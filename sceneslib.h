@@ -22,7 +22,6 @@ public:
     void draw_main();
     void main_screen();
     short pick_stage();
-    void show_password(); // show the password fot the current save
     void boss_intro(Uint8 pos_n) const;
     short show_main_config(short stage_finished, bool called_from_game);
     void game_scenes_show_unbeaten_intro();
@@ -48,11 +47,6 @@ private:
 
 
     void config_int_value(Uint8 &value_ref, int min, int max);
-    bool password_ball_selector();
-    bool password_set();
-    bool password_end_selector();
-    void password_number_selector(int ball_type);
-    bool show_password_input();
     Uint8 select_player();
     Uint8 select_difficulty();
     void draw_lights_select_player(graphicsLib_gSurface& lights, int mode, int adjustX, int adjustY);
@@ -62,12 +56,10 @@ private:
 private:
     graphicsLib_gSurface STAGE_SELECT_SURFACES[STAGE_SELECT_COUNT];
     st_position selected_stage;
-    graphicsLib_gSurface _password_selector;
 
     unsigned int _timer; // animation timer
     short _state; // animation state
     graphicsLib_gSurface* _blink_surface; // animation surface (light/dark)
-    Sint8 _password_selected_balls[PASSWORD_GRID_SIZE][PASSWORD_GRID_SIZE];
 
     CURRENT_FILE_FORMAT::fio_scenes fio_scn;
     std::map<Uint8, Uint8> game_scenes_map;

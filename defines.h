@@ -729,8 +729,6 @@ enum DROP_ITEMS_LIST {
 #define COIL_GOT_STAGE 1
 #define JET_GOT_STAGE 6
 
-#define PASSWORD_GRID_SIZE 6
-
 #define KEY_MAP_N 7
 
 
@@ -1056,8 +1054,6 @@ enum e_LANGUAGES {
 };
 
 //#define SHOW_HITBOXES 1
-
-#define DEMO_VERSION 1
 
 #define DEMO_VERSION_STAGE1 4
 #define DEMO_VERSION_STAGE2 8

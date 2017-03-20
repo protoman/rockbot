@@ -279,6 +279,8 @@ public:
 
     float get_fps_speed_multiplier();
 
+    classMap* get_current_map_obj();
+
 private:
     void exit_game();
 

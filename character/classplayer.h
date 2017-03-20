@@ -94,6 +94,8 @@ public:
      */
     short get_selected_weapon();
 
+    short get_selected_weapon_value();
+
     /**
      * @brief fully recharge energy value of all weapons
      */
@@ -193,10 +195,6 @@ private:
      * @return int weapon id of the next one
      */
     int find_next_weapon(int current, int move);
-
-    void show_hp();
-
-
 
     void clean_move_commands();
 

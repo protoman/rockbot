@@ -30,10 +30,10 @@
 #include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
-#define DEBUG_SHOW_FPS 1
-#define PS2LOADFROMFIXEDPOINT 1
+//#define DEBUG_SHOW_FPS 1
+//#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
-#define PS2LINK 1
+//#define PS2LINK 1
 #define DEBUG_OUTPUT 1 // will output all DEBUG_COUT messages, comments this out to disable all console output messages
 
 // GLOBAL/EXTERN VARIABLES
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
     /// DEBUG ///
-    GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX

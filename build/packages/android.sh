@@ -55,8 +55,8 @@ case $response in
 		
 		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
 		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
-		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot2Demo\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
-		sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot2demo" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.new
+		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot2\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
+		sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot2" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.new
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg

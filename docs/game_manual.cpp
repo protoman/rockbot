@@ -158,10 +158,6 @@ void game_manual::generate_pages()
     temp.add_line_text("GAME IS SAVED EACH TIME YOU BEAT");
     temp.add_line_text("A BOSS OR LEAVE GAME OR STAGE.");
     temp.add_line_text("");
-    temp.add_line_text("PASSWORD:");
-    temp.add_line_text("YOU CAN INPUT A PASSWORD TO RESUME");
-    temp.add_line_text("GAME FROM A GIVEN POINT.");
-    temp.add_line_text("");
     temp.add_line_text("CONFIG:");
     temp.add_line_text("CHANGE GAME AND DEVICE SETTINGS.");
     temp.add_line_text("");
@@ -363,16 +359,6 @@ void game_manual::generate_pages()
     temp.add_line_text("EACH CHARACTER YOU CAN PLAY");
     temp.add_line_text("HAVE DIFFERENT ABILITIES FOR");
     temp.add_line_text("EACH ARMOR PIECE HE GETS.");
-    page_list.push_back(temp);
-    temp.clear_text();
-
-
-    temp.add_line_text("== USING PASSWORDS ==");
-    temp.add_line_text("");
-    temp.add_line_text("EVERY TIME YOU BEAT AN STAGE,");
-    temp.add_line_text("A PASSWORD WILL APPEAR ON SCREEN.");
-    temp.add_line_text("TAKE NOTE OF THIS IN ORDER TO");
-    temp.add_line_text("CONTINUE GAME ON ANOTHER DEVICE.");
     page_list.push_back(temp);
     temp.clear_text();
 

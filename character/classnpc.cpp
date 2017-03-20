@@ -311,7 +311,7 @@ void classnpc::show()
 {
 #ifdef SHOW_HITBOXES
     st_rectangle hitbox = get_hitbox();
-    hitbox.x -= map->getMapScrolling().x;
+    hitbox.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
     graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     character::show();
@@ -356,7 +356,7 @@ void classnpc::execute()
 void classnpc::boss_move()
 {
     //std::cout << "NPC::boss_move::BEGIN" << std::endl;
-    if (hitPoints.current <= 0 || position.x < map->getMapScrolling().x-TILESIZE*2 || position.x > map->getMapScrolling().x+RES_W+TILESIZE*2) {
+    if (hitPoints.current <= 0 || position.x < gameControl.get_current_map_obj()->getMapScrolling().x-TILESIZE*2 || position.x > gameControl.get_current_map_obj()->getMapScrolling().x+RES_W+TILESIZE*2) {
         //std::cout << "classboss::execute - LEAVE #1" << std::endl;
         return;
     }
@@ -447,7 +447,7 @@ void classnpc::move_projectiles()
 	// animate projectiles
     //if (name == "Dynamite Bot") std::cout << "******* NPC::move_projectiles - projectile_list.size: " << projectile_list.size() << std::endl;
     std::vector<projectile>::iterator it;
-    st_rectangle player_hitbox = map->get_player_hitbox();
+    st_rectangle player_hitbox = gameControl.get_current_map_obj()->get_player_hitbox();
 
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         (*it).draw();
@@ -474,34 +474,34 @@ void classnpc::move_projectiles()
             }
 
             if ((*it).check_collision(player_hitbox, st_position(moved.width, moved.height)) == true) {
-                if (map->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                if (gameControl.get_current_map_obj()->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     (*it).reflect();
-                } else if (map->_player_ref->is_using_circle_weapon() == true) {
+                } else if (gameControl.get_current_map_obj()->_player_ref->is_using_circle_weapon() == true) {
                     std::cout << "NPC projectile hit player centered-weapon" << std::endl;
                     (*it).consume_projectile();
-                    map->_player_ref->consume_projectile();
+                    gameControl.get_current_map_obj()->_player_ref->consume_projectile();
                 } else {
                     int damage_pts = (*it).get_damage();
                     if (damage_pts < 2) {
                         damage_pts = 2;
                     }
-                    map->_player_ref->damage(damage_pts, false);
+                    gameControl.get_current_map_obj()->_player_ref->damage(damage_pts, false);
                     (*it).consume_projectile();
                 }
             }
         } else { // NPC attacking other NPCs
 
-            for (int i=0; i<map->_npc_list.size(); i++) {
-                st_rectangle other_npc_hitbox = map->_npc_list.at(i).get_hitbox();
+            for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
+                st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
 				//classnpc* enemy = (*enemy_it);
                 if ((*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
-                    if (map->_npc_list.at(i).is_intangible() == true) {
+                    if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                         continue;
-                    } else if (map->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                    } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                         (*it).reflect();
 					} else {
-                        map->_npc_list.at(i).damage((*it).get_damage(), false);
+                        gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage(), false);
                         if ((*it).get_move_type() != TRAJECTORY_CHAIN) { /// @TODO non-destructable types
                             (*it).consume_projectile();
 						}
@@ -590,7 +590,7 @@ void classnpc::death()
         graphLib.set_screen_adjust(st_position(0, 0));
     }
     if (is_stage_boss()) {
-        map->clear_animations();
+        gameControl.get_current_map_obj()->clear_animations();
     }
 }
 

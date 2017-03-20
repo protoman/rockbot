@@ -8,9 +8,6 @@
 
 #include "aux_tools/trajectory_parabola.h"
 
-class classMap; // advance declaration
-
-
 #include "graphic/draw.h"
 extern draw draw_lib;
 
@@ -37,13 +34,12 @@ struct quake_info {
 class projectile
 {
 public:
-    projectile(Uint8 id, Uint8 set_direction, st_position set_position, classMap *set_map, bool _owner_is_player); // common constructor
+    projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player); // common constructor
     void set_is_permanent();
     void set_default_values(); // set some common values for all constructors
     ~projectile();
     st_size move();
     void draw();
-    void set_map(classMap *set_map);
     bool check_collision(st_rectangle enemy_pos, st_position pos_inc) const;
     bool check_map_collision(st_position pos_inc) const;
     Uint8 get_direction() const;
@@ -109,7 +105,6 @@ private:
     st_position position0;
     st_position position1;
     st_position map_position;
-    classMap *map;
     st_float_position _diagonal_speed;
 
     bool diagonal_flag; // used to control diagonal shot angle

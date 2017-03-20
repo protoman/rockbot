@@ -38,6 +38,9 @@ extern soundLib soundManager;
 
 #define FADE_INC 2
 
+#include "file/file_io.h"
+extern CURRENT_FILE_FORMAT::file_io fio;
+extern CURRENT_FILE_FORMAT::st_save game_save;
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -738,6 +741,28 @@ graphicsLib_gSurface *draw::get_dynamic_foreground(string filename)
     return &maps_dynamic_background_list.find(filename)->second;
 }
 
+void draw::show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value)
+{
+    graphLib.draw_hp_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+    if (selected_weapon != WEAPON_DEFAULT) {
+        graphLib.draw_hp_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
+    }
+}
+
+/*
+void classPlayer::show_hp()
+{
+    if (_show_hp == false) {
+        return;
+    }
+    graphLib.draw_hp_bar(get_current_hp(), get_number(), WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+    if (get_selected_weapon() != WEAPON_DEFAULT) {
+        graphLib.draw_hp_bar(get_weapon_value(get_selected_weapon()),get_number(), get_selected_weapon(), fio.get_heart_pieces_number(game_save));
+    }
+}
+*/
+
+
 void draw::clear_maps_dynamic_background_list()
 {
     maps_dynamic_background_list.clear();
@@ -839,13 +864,11 @@ void draw::show_train_effect()
     } else {
         if (_train_effect_timer < timer.getTimer()) {
             if (_train_effect_state == 0) {
-                std::cout << "TRAIN_EFFECT-UP" << std::endl;
                 graphLib.set_screen_adjust(st_position(0, -TRAIN_EFFECT_SCREEN_MOVE));
                 _train_effect_timer = timer.getTimer() + TRAIN_EFFECT_DELAY;
                 _train_effect_state++;
                 soundManager.play_sfx_from_chunk(_train_sfx, 1);
             } else {
-                std::cout << "TRAIN_EFFECT-DOWN" << std::endl;
                 graphLib.set_screen_adjust(st_position(0, 0));
                 _train_effect_timer = timer.getTimer() + TRAIN_DELAY;
                 _train_effect_state = 0;
@@ -888,7 +911,7 @@ void draw::show_shadow_top_effect()
     int alpha_step = alpha/12;
     for (int i=0; i<max; i+=10) {
         graphLib.set_surface_alpha(alpha, &shadow_line);
-        std::cout << "shadow.y[" << i << "], alpha[" << alpha << "]" << std::endl;
+        //std::cout << "shadow.y[" << i << "], alpha[" << alpha << "]" << std::endl;
         graphLib.copyArea(st_rectangle(0, 0, shadow_line.width, shadow_line.height), st_position(0, i), &shadow_line, &graphLib.gameScreen);
         alpha -= alpha_step;
     }

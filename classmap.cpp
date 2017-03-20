@@ -436,10 +436,11 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
 // ********************************************************************************************** //
 void classMap::changeScrolling(st_float_position pos, bool check_lock)
 {
-
+    /*
     if (timer.is_paused() == true) {
         return;
     }
+    */
 
     //std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
 
@@ -542,7 +543,6 @@ void classMap::load_map_npcs()
 	for (int i=0; i<MAX_MAP_NPC_N; i++) {
         if (map_data[number].map_npcs[i].id_npc != -1) {
             classnpc new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
-            new_npc.set_map(this);
 
 
             if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
@@ -1851,14 +1851,12 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 
     classnpc new_npc(stage_number, number, npc_id, npc_pos, direction, player_friend);
 
-    new_npc.set_map(this);
     if (progressive_span == true) {
         new_npc.set_progressive_appear_pos(new_npc.get_size().height);
     }
     _npc_list.push_back(new_npc); // insert new npc at the list-end
 
     classnpc* npc_ref = &(_npc_list.back());
-    npc_ref->set_map(this);
 
     int id = npc_ref->get_number();
     std::string npc_name = npc_ref->get_name();

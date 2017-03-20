@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-#CONFIG += linux
-CONFIG += android
+CONFIG += linux
+#CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
@@ -25,9 +25,15 @@ CONFIG += android
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
-DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
+### FREE VERSION ###
+DEFINESLIST = -DBETA_VERSION
 DEFINES+= BETA_VERSION=1
-DEFINES+= DEMO_VERSION=1
+### DEMO VERSION ###
+#DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
+#DEFINES+= DEMO_VERSION=1
+
+
+
 DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
@@ -318,7 +324,6 @@ SOURCES += main.cpp \
     file/convert.cpp \
     character/movement/jump.cpp \
     character/movement/inertia.cpp \
-    scenes/password_generator.cpp \
     file/fio_scenes.cpp \
     scenes/sceneshow.cpp \
     strings_map.cpp \
@@ -371,7 +376,6 @@ HEADERS += \
     character/movement/jump.h \
     character/movement/inertia.h \
     file/version.h \
-    scenes/password_generator.h \
     file/fio_scenes.h \
     scenes/sceneshow.h \
     file/v4/file_config_v4.h \
