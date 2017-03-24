@@ -80,7 +80,10 @@ void classPlayer::initialize()
     if (GameMediator::get_instance()->player_list[_number].can_slide == true) {
         slide_type = 1;
     }
+
+    //std::cout << "player.number[" << _number << "]" << std::endl;
     _charged_shot_projectile_id = GameMediator::get_instance()->player_list[_number].full_charged_projectile_id;
+    std::cout << "classjump::set_acceleration - player[" << _number << "][" << name << "], _charged_shot_projectile_id[" << _charged_shot_projectile_id << "]" << std::endl;
 
     _simultaneous_shots = GameMediator::get_instance()->player_list[_number].simultaneous_shots;
     //std::cout << "classjump::set_acceleration - player[" << name << "], accel[" << GameMediator::get_instance()->player_list[_number].jump_gravity << "]" << std::endl;

@@ -71,7 +71,24 @@ Tirar de projectile tb.
      @@@ i: 2, new_map_lock: 1
 
 
-- remove password system
+###################################################################################################################
+### ROCKBOT 1 COPYLEFT EDITION ###
+###################################################################################################################
+- ending with minor enemies
+- set armor pieces abilities, text and projectiles
+- fix castle path algorithm
+
+
+- explosions, add to credits:
+    # http://opengameart.org/content/pixel-explosion-12-frames
+    # http://opengameart.org/content/bubble-explosion
+    # http://opengameart.org/content/explosions-2
+###################################################################################################################
+
+
+
+
+
 
 - lower SFX volume and change shot SFX
 
@@ -123,6 +140,7 @@ Tirar de projectile tb.
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
+- remove password system
 - beast: refatorar, arrumar
 - gear: trocar tileset, refatorar
 - dragon: melhorar tileset

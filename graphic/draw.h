@@ -58,6 +58,8 @@ public:
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
     void show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value);
 
+    void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
+
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line);
     void show_rain();

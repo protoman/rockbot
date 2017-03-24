@@ -1012,43 +1012,44 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         CURRENT_FILE_FORMAT::file_castle castle_data;
         fio.read_castle_data(castle_data);
 
-        graphicsLib_gSurface castle_point;
-        filename = FILEPATH + "images/backgrounds/castle_point.png";
-        graphLib.surfaceFromFile(filename, &castle_point);
-        graphLib.copyArea(castle_data.points[0], &castle_point, &graphLib.gameScreen);
 
 
         if (pos_n == CASTLE1_STAGE2) {
-            graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
         } else if (pos_n == CASTLE1_STAGE3) {
-            graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
-            draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
+            //graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
+            //draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
         } else if (pos_n == CASTLE1_STAGE4) {
-            graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(castle_data.points[3], &castle_point, &graphLib.gameScreen);
-            draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
-            draw_castle_path(true, castle_data.points[1], castle_data.points[2], 0);
+            //graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[3], &castle_point, &graphLib.gameScreen);
+            //draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
+            //draw_castle_path(true, castle_data.points[1], castle_data.points[2], 0);
         } else if (pos_n == CASTLE1_STAGE5) {
-            graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
-            graphLib.copyArea(castle_data.points[3], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[1], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[2], &castle_point, &graphLib.gameScreen);
+            //graphLib.copyArea(castle_data.points[3], &castle_point, &graphLib.gameScreen);
             graphicsLib_gSurface castle_skull_point;
             filename = FILEPATH + "images/backgrounds/castle_skull_point.png";
             graphLib.surfaceFromFile(filename, &castle_skull_point);
             graphLib.copyArea(castle_data.points[4], &castle_skull_point, &graphLib.gameScreen);
-            draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
-            draw_castle_path(true, castle_data.points[1], castle_data.points[2], 0);
-            draw_castle_path(true, castle_data.points[2], castle_data.points[3], 0);
+            //draw_castle_path(true, castle_data.points[0], castle_data.points[1], 0);
+            //draw_castle_path(true, castle_data.points[1], castle_data.points[2], 0);
+            //draw_castle_path(true, castle_data.points[2], castle_data.points[3], 0);
+            draw_lib.draw_castle_path(false, castle_data.points[0], castle_data.points[1]);
+            draw_lib.draw_castle_path(false, castle_data.points[1], castle_data.points[2]);
+            draw_lib.draw_castle_path(false, castle_data.points[2], castle_data.points[3]);
+            draw_lib.draw_castle_path(false, castle_data.points[3], castle_data.points[4]);
             timer.delay(1000);
         }
 
-        soundManager.play_sfx(SFX_SKULL_CASTLE_INTRO);
         draw_lib.update_screen();
-        timer.delay(7550);
+        timer.delay(4000);
+        exit(0);
 
 
+        /*
         /// @TODO - instant path for drawing previous ones (do not need a for-loop)
         if (pos_n == CASTLE1_STAGE2) {
             draw_castle_path(true, castle_data.points[0], castle_data.points[1], 1000);
@@ -1061,6 +1062,7 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         }
         timer.delay(1500);
         return;
+        */
     } else if (game_save.stages[pos_n] != 0) {
         std::cout << "boss_intro - stage already finished" << std::endl;
     }

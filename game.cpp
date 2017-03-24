@@ -1339,9 +1339,9 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE6;
+    currentStage = CASTLE1_STAGE5;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_4;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //
@@ -1363,6 +1363,7 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
     initGame();
+    scenes.boss_intro(currentStage);
     start_stage();
 }
 

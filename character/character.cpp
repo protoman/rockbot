@@ -641,6 +641,8 @@ void character::check_charging_colors()
     }
 
 
+    std::cout << "_charged_shot_projectile_id[" << _charged_shot_projectile_id << "]" << std::endl;
+
     if (_charged_shot_projectile_id > 0 && attack_diff_timer > CHARGED_SHOT_INITIAL_TIME && attack_diff_timer < CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1) {
         if (is_player() && soundManager.is_playing_repeated_sfx() == false) {
             soundManager.play_repeated_sfx(SFX_CHARGING1, 0);

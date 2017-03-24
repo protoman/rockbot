@@ -17,6 +17,8 @@
 
 #define INFERNO_ALPHA_STEP 3
 
+#define CASTLE_PATH_DURATION 1000
+
 extern graphicsLib graphLib;
 
 #include "timerlib.h"
@@ -747,6 +749,78 @@ void draw::show_player_hp(int hp, int player_n, int selected_weapon, int selecte
     if (selected_weapon != WEAPON_DEFAULT) {
         graphLib.draw_hp_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
     }
+}
+
+void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
+{
+    int dist_x = initial_point.x - final_point.x;
+    int dist_y = initial_point.y - final_point.y;
+    int duration = CASTLE_PATH_DURATION;
+    int step_delay = duration / (abs(dist_x) + abs(dist_y));
+    if (instant == true) {
+        duration = 0;
+        step_delay = 0;
+    }
+
+    std::cout << "step_delay[" << step_delay << "]" << std::endl;
+
+    graphicsLib_gSurface castle_point;
+    std::string filename = FILEPATH + "images/backgrounds/castle_point.png";
+    graphLib.surfaceFromFile(filename, &castle_point);
+
+    graphLib.copyArea(st_position(initial_point.x, initial_point.y), &castle_point, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(final_point.x, final_point.y), &castle_point, &graphLib.gameScreen);
+    graphLib.updateScreen();
+
+    int pos_y = initial_point.y - 1;
+    int pos_x = initial_point.x + 2;
+
+    // first, move Y axis
+    if (dist_y < 0) {
+        pos_y += castle_point.height + 1;
+    }
+    std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
+    if (dist_y != 0) {
+        for (int i=0; i<abs(dist_y)-2; i++) {
+            graphLib.clear_area(pos_x, pos_y, 4, 1, 220, 220, 220);
+            if (dist_y > 0) {
+                pos_y--;
+            } else {
+                pos_y++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+    // remove extra bit
+    if (dist_y > 0) {
+        pos_y++;
+    } else {
+        pos_y -= 4;
+    }
+
+    // secondly, move x axis
+    if (dist_x > 0) {
+        pos_x += 3;
+    }
+    std::cout << "ini.x[" << initial_point.x << "], end.x[" << final_point.x << "], dist_x[" << dist_x << "]" << std::endl;
+    if (dist_x != 0) {
+        for (int i=0; i<abs(dist_x)-2; i++) {
+            graphLib.clear_area(pos_x, pos_y, 1, 4, 220, 220, 220);
+            if (dist_x > 0) {
+                pos_x--;
+            } else {
+                pos_x++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+
 }
 
 /*
