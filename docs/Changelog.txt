@@ -476,3 +476,23 @@ FILE-FORMAT-V4:
     # coil item not working
     # firing weapon when using coild/jet crashes the game
     # weapon colors aren't set in editor
+
+
+
+
+
+
+
+- teto ape (castle 5)
+- gráficos spike (castle 5)
+- colocar umas cápsulas de recarga (castle 5)
+
+
+- horizontal screen transition (door) missing pause
+- spawn NPC crashes on android due to map not being set on new npc
+    # use gameControl to handle loop-breaking instead of map
+    # set the map on map::spawn_npc
+- jumping on water is in normal speed (due to changes for coil)
+- after a screen-transition, games become to fast. missing puase call
+- objects falling should stop on spikes
+- enemy dropping items rate is bad, big weapon pill drops a lot
