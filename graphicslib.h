@@ -297,7 +297,6 @@ private:
     std::vector<struct graphicsLib_gSurface> faces;				// faces for players and npcs
     std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars
     std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars
-    std::vector<struct graphicsLib_gSurface> item_icons;		// item icons, used in menu and energy bars
 
     struct graphicsLib_gSurface ingame_menu;
     struct graphicsLib_gSurface config_menu;

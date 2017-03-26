@@ -286,7 +286,6 @@ protected:
     int radius;
     short int jump_attack_type;                               // used by jump attack to store attack-type, if any. otherwise, it is set as -1
     bool did_hit_player;                                 // when player collides with this enemy, it will set this flag as on, so the enemy knows it
-    std::vector<character*> child_list;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

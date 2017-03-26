@@ -85,10 +85,23 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 ###################################################################################################################
 
+- EDITOR: set final boss in the game's properties instead of in the map
 
+- castle 5 - parafusos entram no chão e não voltam
 
+- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=76738
+    (sfx, stage select)
 
+- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=127339
+    (skull castle intro)
 
+- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=85147
+    (got weapon)
+
+- candy afundando no chão (castle5)
+
+- não tem final (destrin não faz spawn do último chefe, aparece opção sair jogo)
+    # tem que corrigir spawn NPC reaction
 
 - lower SFX volume and change shot SFX
 
@@ -160,6 +173,11 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- teto ape (castle 5)
+- gráficos spike (castle 5)
+- colocar umas cápsulas de recarga (castle 5)
+
+
 - horizontal screen transition (door) missing pause
 - spawn NPC crashes on android due to map not being set on new npc
     # use gameControl to handle loop-breaking instead of map

@@ -1957,7 +1957,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     continue;
                 } else {
                     gameControl.remove_all_projectiles();
-                    //std::cout << "classMap::showMap - killed boss" << std::endl;
+                    std::cout << "classMap::showMap - killed stage boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));
                     /// @TODO - replace with game_data.final_boss_id
                     if (game_data.final_boss_id == _npc_list.at(i).get_number()) {

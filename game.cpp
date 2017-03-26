@@ -466,10 +466,11 @@ void game::show_notice()
     graphLib.draw_centered_text(30, "ROCKBOT ENGINE", graphLib.gameScreen, st_color(199, 215, 255));
     graphLib.draw_centered_text(60, "THIS GAME RUNS WITH", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(120, "THE SOURCE-CODE IS LICENSED UNDER", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(140, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(160, "GAME CONTENT IS COPYRIGHT OF ITS", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(180, "RESPECTIVE CONTENT CREATOR.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(120, "GAME'S SOURCE-CODE IS LICENSED UNDER", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(132, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(144, "GAME CONTENT IS UNDER DIFFERENT", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(156, "LICENCES BY ITS RESPECTIVE CREATORS", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(268, "AND USED WITH AUTHORIZATION.", graphLib.gameScreen, st_color(255, 255, 255));
 
     draw_lib.update_screen();
 

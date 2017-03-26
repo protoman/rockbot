@@ -2,6 +2,7 @@
 #include "classmap.h"
 #include <cmath>
 #include <cstdlib>
+#include <algorithm>
 #include "character/classplayer.h"
 
 #ifdef ANDROID
@@ -1911,7 +1912,10 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
         }
 
-
+        if (npc_ref == NULL) {
+            std::cout << "ERROR: Could not create child NPC, leaving" << std::endl;
+            return;
+        }
 
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, must_break_loop[%d]", gameControl.must_break_npc_loop?1:0);
@@ -1922,8 +1926,6 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         if (_reaction_state == 1 && _reaction_type == 3 && _is_stage_boss == true) {
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
-        } else {
-            child_list.push_back(npc_ref);
         }
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else {

@@ -253,7 +253,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     rwop = SDL_RWFromFile(filename.c_str(), "rb");
 
     if (!rwop) {
-        std::cout << "DEBUG.loadSpriteFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
+        std::cout << "DEBUG.SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
 		return NULL;
 	}
     spriteCopy = IMG_Load_RW(rwop, 1);
@@ -1008,17 +1008,9 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 void graphicsLib::load_icons()
 {
 	struct graphicsLib_gSurface tmp;
-    std::string filename = FILEPATH + "images/items.png";
-
-	surfaceFromFile(filename, &tmp);
-	for (int i=0; i<(tmp.width/16); i++) {
-		item_icons.push_back(graphicsLib_gSurface());
-		initSurface(st_size(16, 16), &item_icons.at(item_icons.size()-1));
-		copyArea(st_rectangle(i*16, 0, 16, 16), st_position(0, 0), &tmp, &(item_icons.at(item_icons.size()-1)));
-	}
+    std::string filename = FILEPATH + "images/icons.png";
 
 	// big icon
-    filename = FILEPATH + "images/icons.png";
 	surfaceFromFile(filename, &tmp);
     int icon_size = tmp.height/2;
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
@@ -1059,12 +1051,6 @@ void graphicsLib::load_icons()
     surfaceFromFile(filename, &_hardmode_block);
 
 
-}
-
-
-void graphicsLib::draw_item_icon(enum ITEM_ICONS_ENUM item_n, st_position pos)
-{
-	showSurfaceAt(&(item_icons.at(item_n)), pos);
 }
 
 
