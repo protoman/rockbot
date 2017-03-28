@@ -64,8 +64,6 @@ private slots:
 
     void on_mapAutoScroll_checkBox_clicked(bool checked);
 
-    void on_editSetFinalBoss_button_clicked();
-
     void on_fb_image_comboBox_currentIndexChanged(const QString &arg1);
 
     void on_fg_speed_doubleSpinBox_valueChanged(double arg1);

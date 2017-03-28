@@ -34,7 +34,7 @@ private slots:
 
     void on_bossMusic_comboBox_currentIndexChanged(const QString &arg1);
 
-    void on_finalBoss_comboBox_currentIndexChanged(const QString &arg1);
+    void on_finalBossMusic_comboBox_currentIndexChanged(const QString &arg1);
 
     void on_gotWeaponMusic_comboBox_currentIndexChanged(const QString &arg1);
 
@@ -69,6 +69,8 @@ private slots:
     void on_castlePoint_5_x_valueChanged(int arg1);
 
     void on_castlePoint_5_y_valueChanged(int arg1);
+
+    void on_finalBoss_comboBox_currentIndexChanged(int index);
 
 private:
     void fill_data();

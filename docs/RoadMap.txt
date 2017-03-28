@@ -85,7 +85,6 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 ###################################################################################################################
 
-- EDITOR: set final boss in the game's properties instead of in the map
 
 - castle 5 - parafusos entram no chão e não voltam
 
@@ -100,12 +99,8 @@ Tirar de projectile tb.
 
 - candy afundando no chão (castle5)
 
-- não tem final (destrin não faz spawn do último chefe, aparece opção sair jogo)
-    # tem que corrigir spawn NPC reaction
-
 - lower SFX volume and change shot SFX
 
-- ending: mostrar cada NPC usando o nome dado no editor mesmo, como final de super mario world
 
 - efeitos e 3rd level estão por cima do HUB (barras de energia)
 
@@ -150,6 +145,10 @@ Tirar de projectile tb.
     # remove non-used graphics
 
 
+}
+
+
+
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -173,6 +172,10 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- EDITOR: set final boss in the game's properties instead of in the map
+- no ending at all
+- npc replace-itself reaction not continuing the boss fight
+- ending: show each enemy with its name, not only bosses
 
 
 

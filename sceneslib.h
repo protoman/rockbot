@@ -27,6 +27,7 @@ public:
     void game_scenes_show_unbeaten_intro();
     void show_game_scene(e_game_scenes_types n);
     void show_player_ending();
+    void show_enemies_ending();
 
 private:
     // preload/unload

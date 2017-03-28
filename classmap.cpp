@@ -1946,16 +1946,24 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     _npc_list.at(i).clean_effect_projectiles();
                 }
             } else {
-                // run npc move one more time, so reaction is executed to test if it will spawn a new boss
+
+                std::cout << "##### STAGE-BOSS IS DEAD (#1) #####" << std::endl;
+
+                // run npc move one more time, so reaction is executed to test if it will spawn a new boss (replace-itself)
                 _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
                 _npc_list.at(i).execute_ai(); // to ensure death-reaction is run
+
+
+
                 if (_npc_list.at(i).is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
+                    std::cout << "##### STAGE-BOSS IS DEAD (#2) #####" << std::endl;
                     gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
                     gameControl.fill_boss_hp_bar();
                     continue;
                 } else {
+                    std::cout << "##### STAGE-BOSS IS DEAD (#3) #####" << std::endl;
                     gameControl.remove_all_projectiles();
                     std::cout << "classMap::showMap - killed stage boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));

@@ -1888,7 +1888,8 @@ void artificial_inteligence::execute_ai_replace_itself()
         // spawn new npc
         classnpc* npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
-        if (_reaction_state == 1 && _reaction_type == 3 && _is_stage_boss == true) {
+        if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
+            std::cout << "########################## SET NEW BOSS (REPLACE)" << std::endl;
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
         // just a regular spwn-npc, add it to the list
@@ -1923,7 +1924,8 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
 
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
-        if (_reaction_state == 1 && _reaction_type == 3 && _is_stage_boss == true) {
+        if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
+            std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
         }

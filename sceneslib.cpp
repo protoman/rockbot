@@ -359,6 +359,36 @@ void scenesLib::show_player_ending()
     }
 }
 
+// show all enemies from the game //
+void scenesLib::show_enemies_ending()
+{
+    graphicsLib_gSurface bg_surface;
+    st_color font_color(250, 250, 250);
+
+    graphLib.blank_screen();
+    std::string filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
+    graphLib.surfaceFromFile(filename, &bg_surface);
+
+    for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
+        std::string name = GameMediator::get_instance()->get_enemy(i)->name;
+        std::cout << "[enemy[" << i << "].name[" << name << "]" << std::endl;
+        int w = GameMediator::get_instance()->get_enemy(i)->frame_size.width;
+        int h = GameMediator::get_instance()->get_enemy(i)->frame_size.height;
+
+        std::string temp_filename = FILEPATH + "images/sprites/enemies/" + GameMediator::get_instance()->get_enemy(i)->graphic_filename;
+        graphicsLib_gSurface npc_sprite_surface;
+        graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
+
+
+        graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(0, 0, w, h), st_position(20, RES_H/2 - h/2), &npc_sprite_surface, &graphLib.gameScreen);
+        graphLib.draw_progressive_text(RES_W - 20 - name.length()*9, RES_H/2, name, false);
+        timer.delay(3000);
+    }
+    std::cout << "DONE" << std::endl;
+
+}
+
 
 
 

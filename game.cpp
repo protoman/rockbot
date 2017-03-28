@@ -1313,7 +1313,10 @@ void game::show_ending(st_position boss_pos)
     player1.set_weapon(0, false);
 
     scenes.show_player_ending();
+    scenes.show_enemies_ending();
+
     scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
+    draw_lib.show_credits(false);
 
     /// @TODO add scene ending
     leave_game = true;
@@ -1340,7 +1343,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE5;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_1;
 

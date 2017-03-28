@@ -32,7 +32,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 	_id = id; // -1 is default projectile
 
 
-    std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "]" << std::endl;
+    //std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "]" << std::endl;
 
     position = set_position;
     direction = set_direction;

@@ -33,11 +33,13 @@ void game_properties_tab::fill_data()
     common::fill_graphicfiles_combobox(std::string("images/faces"), ui->stagefaces_face_combo);
     common::fill_object_combo(ui->special_item1_combo);
     common::fill_object_combo(ui->special_item2_combo);
+    common::fill_npc_combo(ui->finalBoss_comboBox);
 
     // set values/positions
     ui->special_item1_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[0]);
     ui->special_item2_combo->setCurrentIndex(Mediator::get_instance()->game_data.player_items[1]);
     ui->semicharged_shot_combo->setCurrentIndex(Mediator::get_instance()->game_data.semi_charged_projectile_id);
+    ui->finalBoss_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.final_boss_id);
 
 
     int combo_n = ui->stagefaces_face_combo->findText(QString(Mediator::get_instance()->game_data.stage_face_filename[_current_stage]));
@@ -48,7 +50,7 @@ void game_properties_tab::fill_data()
 
     // file-format 4.0 fields
     common::fill_files_combo(std::string("/music"), ui->bossMusic_comboBox);
-    common::fill_files_combo(std::string("/music"), ui->finalBoss_comboBox);
+    common::fill_files_combo(std::string("/music"), ui->finalBossMusic_comboBox);
     common::fill_files_combo(std::string("/music"), ui->gotWeaponMusic_comboBox);
     common::fill_files_combo(std::string("/music"), ui->gameOverMusic_comboBox);
     common::fill_files_combo(std::string("/music"), ui->stageSelectMusic_comboBox);
@@ -58,8 +60,8 @@ void game_properties_tab::fill_data()
     ui->gameStyle_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.game_style);
     combo_n = ui->bossMusic_comboBox->findText(QString(Mediator::get_instance()->game_data.boss_music_filename));
     ui->bossMusic_comboBox->setCurrentIndex(combo_n);
-    combo_n = ui->finalBoss_comboBox->findText(QString(Mediator::get_instance()->game_data.final_boss_music_filename));
-    ui->finalBoss_comboBox->setCurrentIndex(combo_n);
+    combo_n = ui->finalBossMusic_comboBox->findText(QString(Mediator::get_instance()->game_data.final_boss_music_filename));
+    ui->finalBossMusic_comboBox->setCurrentIndex(combo_n);
     combo_n = ui->gotWeaponMusic_comboBox->findText(QString(Mediator::get_instance()->game_data.got_weapon_music_filename));
     ui->gotWeaponMusic_comboBox->setCurrentIndex(combo_n);
     combo_n = ui->gameOverMusic_comboBox->findText(QString(Mediator::get_instance()->game_data.game_over_music_filename));
@@ -154,7 +156,7 @@ void game_properties_tab::on_bossMusic_comboBox_currentIndexChanged(const QStrin
     sprintf(Mediator::get_instance()->game_data.boss_music_filename, "%s", arg1.toStdString().c_str());
 }
 
-void game_properties_tab::on_finalBoss_comboBox_currentIndexChanged(const QString &arg1)
+void game_properties_tab::on_finalBossMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
     sprintf(Mediator::get_instance()->game_data.final_boss_music_filename, "%s", arg1.toStdString().c_str());
@@ -280,4 +282,10 @@ void game_properties_tab::on_castlePoint_5_y_valueChanged(int arg1)
     if (_data_loading == true) return;
     Mediator::get_instance()->castle_data.points[4].y = arg1;
     ui->castlePointsPreviewArea->repaint();
+}
+
+void game_properties_tab::on_finalBoss_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) return;
+    Mediator::get_instance()->game_data.final_boss_id = index;
 }

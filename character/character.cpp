@@ -2641,15 +2641,15 @@ void character::check_reset_stand()
     if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
         switch (state.animation_type) {
             case ANIM_TYPE_WALK_ATTACK:
-                std::cout << "CHAR::check_reset_stand #1" << std::endl;
+                //std::cout << "CHAR::check_reset_stand #1" << std::endl;
                 state.animation_type = ANIM_TYPE_WALK;
                 break;
             case ANIM_TYPE_JUMP_ATTACK:
-                std::cout << "CHAR::check_reset_stand #2" << std::endl;
+                //std::cout << "CHAR::check_reset_stand #2" << std::endl;
                 state.animation_type = ANIM_TYPE_JUMP;
                 break;
             default:
-                std::cout << "CHAR::check_reset_stand #3" << std::endl;
+                //std::cout << "CHAR::check_reset_stand #3" << std::endl;
                 state.animation_type = ANIM_TYPE_STAND;
                 break;
         }

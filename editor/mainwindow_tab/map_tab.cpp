@@ -287,7 +287,6 @@ void map_tab::on_editTile_button_clicked()
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editTile_button->setChecked(true);
@@ -310,7 +309,6 @@ void map_tab::on_editObject_button_clicked()
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editObject_button->setChecked(true);
     ui->addAnimTile_toolButton->setChecked(false);
@@ -330,7 +328,6 @@ void map_tab::on_editLink_button_clicked()
     ui->editTile_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(true);
@@ -351,7 +348,6 @@ void map_tab::on_editNpc_button_clicked()
     ui->editTile_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(true);
@@ -370,7 +366,6 @@ void map_tab::on_editSetSubBoss_button_clicked()
 {
     ui->editTile_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
@@ -390,7 +385,6 @@ void map_tab::on_editSetBoss_button_clicked()
 {
     ui->editTile_button->setChecked(false);
     ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editObject_button->setChecked(false);
     ui->editLink_button->setChecked(false);
     ui->editNpc_button->setChecked(false);
@@ -406,26 +400,6 @@ void map_tab::on_editSetBoss_button_clicked()
 }
 
 
-void map_tab::on_editSetFinalBoss_button_clicked()
-{
-    ui->editTile_button->setChecked(false);
-    ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(true);
-    ui->editSetBoss_button->setChecked(false);
-    ui->editObject_button->setChecked(false);
-    ui->editLink_button->setChecked(false);
-    ui->editNpc_button->setChecked(false);
-    ui->editModeNormal_button->setEnabled(true);
-
-    ui->editModeLock_button->setEnabled(false);
-    ui->editModeErase_button->setEnabled(false);
-
-    set_current_box(3);
-    Mediator::get_instance()->editMode = EDITMODE_SET_FINAL_BOSS;
-    Mediator::get_instance()->editTool = EDITMODE_NORMAL;
-}
-
-
 void map_tab::on_editModeNormal_button_clicked()
 {
     ui->editModeNormal_button->setChecked(true);
@@ -433,7 +407,6 @@ void map_tab::on_editModeNormal_button_clicked()
     ui->editModeErase_button->setChecked(false);
 
     ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
 
     Mediator::get_instance()->editTool = EDITMODE_NORMAL;
@@ -457,7 +430,6 @@ void map_tab::on_editModeLock_button_clicked()
     ui->editModeErase_button->setChecked(false);
 
     ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
 
     set_current_box(2);
@@ -472,7 +444,6 @@ void map_tab::on_editModeErase_button_clicked()
     ui->editModeErase_button->setChecked(true);
 
     ui->editSetSubBoss_button->setChecked(false);
-    ui->editSetFinalBoss_button->setChecked(false);
     ui->editSetBoss_button->setChecked(false);
 
     Mediator::get_instance()->editTool = EDITMODE_ERASER;

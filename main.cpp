@@ -541,8 +541,8 @@ int main(int argc, char *argv[])
 		}
 	} else {
         gameControl.quick_load_game();
-        //ending end_obj;
-        //end_obj.start();
+        //scenesLib scenesObj;
+        //scenesObj.show_enemies_ending();
         //return 1;
     }
 
