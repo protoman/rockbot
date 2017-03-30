@@ -85,6 +85,7 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 ###################################################################################################################
 
+- EDITOR: scenes clear-area color picker not getting RGB (gets a gray)
 
 - castle 5 - parafusos entram no chão e não voltam
 

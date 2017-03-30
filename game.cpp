@@ -1303,7 +1303,7 @@ void game::game_over()
     }
 }
 
-void game::show_ending(st_position boss_pos)
+void game::show_ending()
 {
     // save the data indicating game was finished, so user can see ending later or get access to more features
     game_config.game_finished = true;

@@ -117,7 +117,7 @@ public:
      * @brief
      *
      */
-    void show_ending(st_position boss_pos);
+    void show_ending();
     void show_demo_ending();
 
 
