@@ -85,6 +85,12 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 ###################################################################################################################
 
+- Trocar sistema de seleção de personagem:
+    # adicionar crédito: http://funky93.deviantart.com/art/Custom-Map-Tileset-86220256
+    # seleção esquerda/direita
+    # mini-mapa esquerda
+    # informação nome fase e inimigo na direita
+
 - EDITOR: scenes clear-area color picker not getting RGB (gets a gray)
 
 - castle 5 - parafusos entram no chão e não voltam

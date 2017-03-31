@@ -299,5 +299,10 @@ if (gameControl.is_free_version() == true) {
     //std::cout << "stage_select::select - c.x: " << select_pos.x << ", c.y: " << select_pos.y << std::endl;
 
 	graphLib.blink_screen(255, 255, 255);
-	return select_pos;
+    return select_pos;
+}
+
+int stage_select::pick_stage()
+{
+
 }

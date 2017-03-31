@@ -16,70 +16,28 @@ class stage_select
 {
 public:
 	stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]);
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short finished_stages() const;
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     struct st_position select();
 
 private:
-    /**
-     * @brief
-     *
-     */
     void load_graphics();
-    /**
-     * @brief
-     *
-     * @param x_inc
-     * @param y_inc
-     */
     void move_highlight(Sint8 x_inc, Sint8 y_inc);
-    /**
-     * @brief
-     *
-     */
     void show_highlight();
-    /**
-     * @brief
-     *
-     * @param face_file
-     * @param botname
-     * @param pos
-     */
     void place_face(std::string face_file, std::string botname, st_position pos) const;
-    /**
-     * @brief
-     *
-     */
     void animate_highlight();
-    /**
-     * @brief
-     *
-     * @param x
-     * @param y
-     * @param erase_eyes
-     */
     void draw_eyes(Uint8 x, Uint8 y, bool erase_eyes);
 
 private:
-    graphicsLib_gSurface s_light; /**< TODO */
-    graphicsLib_gSurface s_dark; /**< TODO */
-    graphicsLib_gSurface eyes_surface; /**< TODO */
-    graphicsLib_gSurface background; /**< TODO */
-    struct st_position highlight_pos; /**< TODO */
-    struct st_position select_pos; /**< TODO */
-    graphicsLib_gSurface *STAGE_SELECT_SURFACES[STAGE_SELECT_COUNT]; /**< TODO */
-    bool highlight_animation_white; /**< TODO */
-    unsigned int timer_intro; /**< TODO */
-    graphicsLib_gSurface *light_mode; /**< TODO */
+    graphicsLib_gSurface s_light;
+    graphicsLib_gSurface s_dark;
+    graphicsLib_gSurface eyes_surface;
+    graphicsLib_gSurface background;
+    struct st_position highlight_pos;
+    struct st_position select_pos;
+    graphicsLib_gSurface *STAGE_SELECT_SURFACES[STAGE_SELECT_COUNT];
+    bool highlight_animation_white;
+    unsigned int timer_intro;
+    graphicsLib_gSurface *light_mode;
 };
 
 #endif // STAGE_SELECT_H
