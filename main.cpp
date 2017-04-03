@@ -58,6 +58,7 @@ jobject activity_ref;
 #include "timerlib.h"
 #include "soundlib.h"
 #include "game.h"
+#include "stage_select.h"
 
 #define MAXPATHLEN 256
 
@@ -540,9 +541,7 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 	} else {
-        //gameControl.quick_load_game();
-        gameControl.show_ending();
-        return 1;
+        gameControl.quick_load_game();
     }
 
 

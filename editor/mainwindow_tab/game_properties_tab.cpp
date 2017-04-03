@@ -289,3 +289,9 @@ void game_properties_tab::on_finalBoss_comboBox_currentIndexChanged(int index)
     if (_data_loading == true) return;
     Mediator::get_instance()->game_data.final_boss_id = index;
 }
+
+void game_properties_tab::on_editMap_pushButton_clicked()
+{
+    if (_data_loading == true) return;
+    map_dialog.show();
+}

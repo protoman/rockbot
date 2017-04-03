@@ -17,7 +17,8 @@ class stage_select
 public:
 	stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]);
     short finished_stages() const;
-    struct st_position select();
+    int pick_stage(int start_stage);
+    bool walk_path(int incx, int incy, st_position &pos, CURRENT_FILE_FORMAT::file_stage_select map_data);
 
 private:
     void load_graphics();

@@ -297,7 +297,7 @@ namespace format_v4 {
             selected_input_device = 0;
             selected_language = 0;
             turbo_mode = false;
-            volume_sfx = 128;
+            volume_sfx = 90;
             volume_music = 128;
 
             android_use_play_services = false;

@@ -204,19 +204,11 @@ void scenesLib::main_screen()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-short scenesLib::pick_stage() {
+short scenesLib::pick_stage(int last_stage) {
 	graphLib.blank_screen();
 	stage_select selection(STAGE_SELECT_SURFACES);
 
-	selected_stage = selection.select();
-
-
-	int pos_n = selected_stage.x + 1 + selected_stage.y*3;
-    if (pos_n == 5) { // hack for skullcastle position
-        pos_n = CASTLE1_STAGE1;
-    } else if (pos_n >= 6) {
-        pos_n--;
-    }
+    int pos_n = selection.pick_stage(last_stage);
 
     if (pos_n == CASTLE1_STAGE1) { // look for the actual stage in skullcastle
         for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
@@ -995,6 +987,8 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
         std::cout << "WARNING: Ignoring boss intro, as boss is not set." << std::endl;
         return;
     }
+
+    std::cout << "scenesLib::boss_intro[" << (int)pos_n << "]" << std::endl;
 
     graphicsLib_gSurface spriteCopy;
     unsigned int intro_frames_n = 1;

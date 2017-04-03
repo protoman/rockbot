@@ -7,6 +7,11 @@ CastlePointsPreviewArea::CastlePointsPreviewArea(QWidget *parent) : QWidget(pare
 
 }
 
+CastlePointsPreviewArea::~CastlePointsPreviewArea()
+{
+
+}
+
 void CastlePointsPreviewArea::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 

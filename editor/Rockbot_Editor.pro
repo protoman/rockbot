@@ -113,7 +113,9 @@ SOURCES += main.cpp \
     widgets/animtilepalette.cpp \
     mainwindow_tab/anim/animpackimport.cpp \
     mainwindow_tab/castlepointspreviewarea.cpp \
-    dialog_pick_color.cpp
+    dialog_pick_color.cpp \
+    mainwindow_tab/stageselectmapdialog.cpp \
+    mainwindow_tab/stageselectmapeditarea.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -178,20 +180,22 @@ HEADERS += mainwindow.h \
     ../file/v4/file_save_v4.h \
     ../file/v4/file_scene_v4.h \
     ../file/v4/file_stage_v4.h \
-    ../file/v4/file_strings_v4.h \
+    ../file/v4/file_strings.h \
     mainwindow_tab/gamescenes.h \
     files_editor/stringseditor.h \
     ../file/fio_strings.h \
     ../aux_tools/stringutils.h \
     model/stringeditmodel.h \
     ../file/v4/file_strings.h \
-    ../file/fio_common.hpp \
+    ../file/fio_common.h \
     mainwindow_tab/anim_tiles_edit.h \
     framespreviewarea.h \
     widgets/animtilepalette.h \
     mainwindow_tab/anim/animpackimport.h \
     mainwindow_tab/castlepointspreviewarea.h \
-    dialog_pick_color.h
+    dialog_pick_color.h \
+    mainwindow_tab/stageselectmapdialog.h \
+    mainwindow_tab/stageselectmapeditarea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -225,7 +229,8 @@ FORMS += mainwindow.ui \
     files_editor/stringseditor.ui \
     mainwindow_tab/anim_tiles_edit.ui \
     mainwindow_tab/anim/animpackimport.ui \
-    dialog_pick_color.ui
+    dialog_pick_color.ui \
+    mainwindow_tab/stageselectmapdialog.ui
 
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console

@@ -21,7 +21,7 @@ public:
     void preloadScenes();
     void draw_main();
     void main_screen();
-    short pick_stage();
+    short pick_stage(int last_stage);
     void boss_intro(Uint8 pos_n) const;
     short show_main_config(short stage_finished, bool called_from_game);
     void game_scenes_show_unbeaten_intro();
@@ -56,7 +56,6 @@ private:
 
 private:
     graphicsLib_gSurface STAGE_SELECT_SURFACES[STAGE_SELECT_COUNT];
-    st_position selected_stage;
 
     unsigned int _timer; // animation timer
     short _state; // animation state

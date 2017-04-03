@@ -331,7 +331,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     //std::cout << "=============" << std::endl;
 
 
-
+    // DRAW GRID //
     QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
     QPen pen_red(QColor(180, 50, 50), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
     painter.setPen(pen);

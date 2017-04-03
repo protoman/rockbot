@@ -109,6 +109,11 @@ Mediator::Mediator() : stage_data() {
     */
 
 
+    stage_select_edit_mode = STAGE_SELECT_EDIT_MODE_PATH;
+    stage_select_stage_number = STAGE1;
+
+
+
     colormap[0].r = 97;
     colormap[0].g = 97;
     colormap[0].b = 97;
@@ -432,6 +437,8 @@ void Mediator::load_game() {
         }
     }
 
+    load_stage_select_data();
+
     ScenesMediator::get_instance()->load_game_scenes();
 
 }
@@ -461,6 +468,8 @@ void Mediator::save_game()
     ScenesMediator::get_instance()->save_game_scenes();
 
     save_dialogs();
+
+    save_stage_select_data();
 
 }
 
@@ -519,6 +528,16 @@ void Mediator::temp_fix_player_colors_order()
         player_list.at(i).weapon_colors[6] = copy_weapon_colors[7];
         player_list.at(i).weapon_colors[7] = copy_weapon_colors[6];
     }
+}
+
+void Mediator::load_stage_select_data()
+{
+    fio.read_stage_select_data(stage_select_data);
+}
+
+void Mediator::save_stage_select_data()
+{
+    fio.write_stage_select_data(stage_select_data);
 }
 
 /*

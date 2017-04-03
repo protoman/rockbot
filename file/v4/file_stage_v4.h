@@ -46,6 +46,17 @@ struct file_castle {
 };
 
 
+struct file_stage_select {
+    Uint8 points[RES_W/TILESIZE][RES_H/TILESIZE];
+
+    file_stage_select() {
+        for (int i=0; i<RES_W/TILESIZE; i++) {
+            for (int j=0; j<RES_H/TILESIZE; j++) {
+                points[i][j] = STAGE_SELECT_EDIT_MODE_LOCKED;
+            }
+        }
+    }
+};
 
 
 struct file_link { // DONE - Stage

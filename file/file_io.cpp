@@ -722,6 +722,16 @@ namespace format_v4 {
         return false;
     }
 
+    bool file_io::can_access_castle(st_save &data_in)
+    {
+        for (int i=0; i<CASTLE1_STAGE1; i++) {
+            if (data_in.stages[i] == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void file_io::load_config(format_v4::st_game_config& config)
     {
         FILE *fp;
@@ -803,16 +813,14 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
-        /*
         data_out.stages[INTRO_STAGE] = 1;
-        for (int i=1; i<CASTLE1_STAGE5; i++) {
-            data_out.stages[i] = 1;
+        for (int i=1; i<CASTLE1_STAGE1; i++) {
+            data_out.stages[i] = 0;
         }
-        */
         //data_out.stages[INTRO_STAGE] = 1;
-        //data_out.stages[STAGE1] = 1;
-        //data_out.stages[STAGE4] = 0;
-        //data_out.stages[STAGE8] = 0;
+        data_out.stages[STAGE1] = 1;
+        data_out.stages[STAGE4] = 1;
+        data_out.stages[STAGE8] = 1;
         //data_out.selected_player = PLAYER_3;
         /*
         //data_out.stages[MUMMYBOT] = 1;
@@ -936,6 +944,34 @@ namespace format_v4 {
             std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
         }
         fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct format_v4::file_castle));
+        fp.close();
+    }
+
+    void file_io::read_stage_select_data(file_stage_select &data_out)
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + "stage_select_data" + sufix + ".dat";
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        fp.read(reinterpret_cast<char *>(&data_out), sizeof(struct format_v4::file_stage_select));
+        fp.close();    }
+
+    void file_io::write_stage_select_data(file_stage_select &data_in)
+    {
+        std::ofstream fp;
+        std::string filename = std::string(FILEPATH) + "stage_select_data" + sufix + ".dat";
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
+            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        } else {
+            std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
+        }
+        fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct format_v4::file_stage_select));
         fp.close();
     }
 

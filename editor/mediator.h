@@ -63,6 +63,9 @@ public:
     bool show_objects_flag;
     bool show_npcs_flag;
     bool show_teleporters_flag;
+    short stage_select_edit_mode;
+    short stage_select_stage_number;
+    CURRENT_FILE_FORMAT::file_stage_select stage_select_data;
 
 
 	int getPalleteX();
@@ -76,6 +79,8 @@ public:
     void save_game();
     void clean_data();                                      // any sanity data cleaning goest here
     void temp_fix_player_colors_order();
+    void load_stage_select_data();
+    void save_stage_select_data();
 
     //void convertProjectileListToV2();
 

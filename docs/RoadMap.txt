@@ -83,7 +83,15 @@ Tirar de projectile tb.
     # http://opengameart.org/content/pixel-explosion-12-frames
     # http://opengameart.org/content/bubble-explosion
     # http://opengameart.org/content/explosions-2
+
 ###################################################################################################################
+
+- tileset stage select map (add credits):
+    # http://opengameart.org/content/js-saga-style-tileset-2-ascent
+    # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
+
+
+- http://opengameart.org/content/opp2017-sprites-characters-objects-effects
 
 - Trocar sistema de seleção de personagem:
     # adicionar crédito: http://funky93.deviantart.com/art/Custom-Map-Tileset-86220256

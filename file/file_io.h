@@ -62,6 +62,7 @@ namespace format_v4 {
         bool write_save(st_save& data_in);
         void read_save(st_save& data_out) const;
         bool save_exists() const;
+        bool can_access_castle(st_save& data_in);
 
         void load_config(st_game_config &config);
         void save_config(st_game_config &config) const;
@@ -73,6 +74,10 @@ namespace format_v4 {
 
         void read_castle_data(file_castle& data_out);
         void write_castle_data(file_castle& data_in);
+
+        void read_stage_select_data(file_stage_select& data_out);
+        void write_stage_select_data(file_stage_select& data_in);
+
 
 #ifdef PS2
         //int file_io::listcdvd(const char *path, entries *FileEntry);

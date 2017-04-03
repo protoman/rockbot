@@ -371,7 +371,7 @@ bool game::showIntro()
 		input.clean();
 		start_stage();
 	} else {
-        currentStage = scenes.pick_stage();
+        currentStage = scenes.pick_stage(INTRO_STAGE);
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
@@ -1218,7 +1218,7 @@ void game::leave_stage()
     // return to stage selection
     player1.reset_charging_shot();
     player1.set_weapon(WEAPON_DEFAULT, false);
-    currentStage = scenes.pick_stage();
+    currentStage = scenes.pick_stage(currentStage);
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
     soundManager.stop_music();
@@ -1366,7 +1366,15 @@ void game::quick_load_game()
 
 
     scenes.preloadScenes();
+
+    // DEBUG //
+    std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
+
     initGame();
+
+    // TEST //
+    scenes.pick_stage(0);
+
     scenes.boss_intro(currentStage);
     start_stage();
 }
