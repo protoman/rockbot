@@ -86,6 +86,12 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
+- game's credits
+    # editor (text-file)
+
+- boss credits
+    # editor (3 lines for each stage)
+
 - tileset stage select map (add credits):
     # http://opengameart.org/content/js-saga-style-tileset-2-ascent
     # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
