@@ -343,7 +343,7 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.clear();
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", 0);
+    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", LANGUAGE_ENGLISH);
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {

@@ -445,6 +445,27 @@ namespace format_v4 {
         return res;
     }
 
+    void fio_strings::write_string_list_to_file(std::vector<std::string> list, std::string filename, int language)
+    {
+        std::ofstream fp(filename.c_str());
+        if (!fp.is_open()) {
+            std::cout << ">> fio_strings::create_default_ingame_strings: Could not open '" << filename << "' for writting." << std::endl;
+            return;
+        }
+
+        for (int i=0; i<list.size(); i++) {
+            // add line break to separate each line
+            std::string line = list.at(i);
+            // if there are any remaining extra chars, remove it
+            StringUtils::replace_all(line, "\n", "");
+            StringUtils::replace_all(line, "\r", "");
+
+            line += std::string("\n");
+            fp << line.c_str();
+        }
+        fp.close();
+    }
+
     std::string fio_strings::get_common_string(int id)
     {
 

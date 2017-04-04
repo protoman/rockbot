@@ -93,6 +93,7 @@ void StringsEditor::save()
 {
     fio_str.save_common_strings(string_edit_model.get_data());
     fio_str.save_scenes_strings(scenes_string_edit_model.get_data());
+    ui->gameCredits_widget->save_data();
 }
 
 StringsEditor::~StringsEditor()

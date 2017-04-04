@@ -115,7 +115,8 @@ SOURCES += main.cpp \
     mainwindow_tab/castlepointspreviewarea.cpp \
     dialog_pick_color.cpp \
     mainwindow_tab/stageselectmapdialog.cpp \
-    mainwindow_tab/stageselectmapeditarea.cpp
+    mainwindow_tab/stageselectmapeditarea.cpp \
+    files_editor/gametextcreditstab.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -195,7 +196,8 @@ HEADERS += mainwindow.h \
     mainwindow_tab/castlepointspreviewarea.h \
     dialog_pick_color.h \
     mainwindow_tab/stageselectmapdialog.h \
-    mainwindow_tab/stageselectmapeditarea.h
+    mainwindow_tab/stageselectmapeditarea.h \
+    files_editor/gametextcreditstab.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -230,7 +232,8 @@ FORMS += mainwindow.ui \
     mainwindow_tab/anim_tiles_edit.ui \
     mainwindow_tab/anim/animpackimport.ui \
     dialog_pick_color.ui \
-    mainwindow_tab/stageselectmapdialog.ui
+    mainwindow_tab/stageselectmapdialog.ui \
+    files_editor/gametextcreditstab.ui
 
 RESOURCES += resources/icons/icons.qrc
 CONFIG += console
