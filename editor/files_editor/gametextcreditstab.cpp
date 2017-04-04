@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "file/file_io.h"
 #include "file/fio_strings.h"
+#include "aux_tools/stringutils.h"
 #include "common.h"
 
 extern std::string FILEPATH;
@@ -40,13 +41,18 @@ void GameTextCreditsTab::load_data()
             boss_credits_data.push_back(std::string(""));
         }
     }
+
+    ui->gameCredits_textEdit->clear();
+    for (int i=0; i<game_credits_data.size(); i++) {
+        ui->gameCredits_textEdit->append(QString(game_credits_data.at(i).c_str()));
+    }
 }
 
 void GameTextCreditsTab::set_stage_data(int stage_n)
 {
     std::cout << "change-stage, old[" << current_stage << "], new[" << stage_n << "]" << std::endl;
     current_stage = stage_n;
-    ui->bossCredits_lineEdit2->setText(boss_credits_data.at(current_stage*3).c_str());
+    ui->bossCredits_lineEdit1->setText(boss_credits_data.at(current_stage*3).c_str());
     ui->bossCredits_lineEdit2->setText(boss_credits_data.at(current_stage*3+1).c_str());
     ui->bossCredits_lineEdit3->setText(boss_credits_data.at(current_stage*3+2).c_str());
 }
@@ -54,6 +60,15 @@ void GameTextCreditsTab::set_stage_data(int stage_n)
 void GameTextCreditsTab::save_data()
 {
     CURRENT_FILE_FORMAT::fio_strings fio_str;
+    QString game_credits_text = ui->gameCredits_textEdit->toPlainText();
+    game_credits_text.replace("\r", "");
+    QStringList splitted_list = game_credits_text.split("\n");
+
+    game_credits_data.clear();
+    foreach(QString str, splitted_list) {
+      game_credits_data.push_back(str.toStdString());
+    }
+
     fio_str.write_string_list_to_file(game_credits_data, FILEPATH + "/game_credits.txt", LANGUAGE_ENGLISH);
     fio_str.write_string_list_to_file(boss_credits_data, FILEPATH + "/boss_credits.txt", LANGUAGE_ENGLISH);
 }

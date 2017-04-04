@@ -17,13 +17,9 @@ public:
     void save_data();
 
 private slots:
-
     void on_bossCredits_lineEdit1_textChanged(const QString &arg1);
-
     void on_bossCredits_lineEdit2_textChanged(const QString &arg1);
-
     void on_bossCredits_lineEdit3_textChanged(const QString &arg1);
-
     void on_stageSelect_comboBox_currentIndexChanged(int index);
 
 private:
