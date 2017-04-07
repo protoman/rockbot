@@ -1372,6 +1372,8 @@ void game::quick_load_game()
 
     initGame();
 
+    draw_lib.show_credits(true);
+
     // TEST //
     scenes.pick_stage(0);
 

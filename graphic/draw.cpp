@@ -293,6 +293,8 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     graphLib.blank_surface(credits_surface);
     graphLib.blank_screen();
 
+
+    std::cout << "draw::show_credits_text::START" << std::endl;
     for (unsigned int i=0; i<=RES_H/12 && i<credit_text.size(); i++) {
         std::size_t found = credit_text.at(i).find("- ");
 
@@ -318,23 +320,24 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     // scroll the lines
     while (scrolled < (credit_text.size()*12)+RES_H/2+46) {
 
-        std::cout << "CREDITS::posY[" << posY << "]" << std::endl;
+        //@TODO: draw stars fields //
 
         graphLib.copyArea(st_rectangle(0, posY, RES_W, RES_H), st_position(0, 0), &credits_surface, &graphLib.gameScreen);
         update_screen();
         if (can_leave) {
             input.read_input();
-            if (input.waitScapeTime(60) == 1 || input.p1_input[BTN_START] == 1) {
+            if (input.waitScapeTime(10) == 1 || input.p1_input[BTN_START] == 1) {
                 update_screen();
                 return 1;
             }
         } else {
-            timer.delay(60);
+            timer.delay(10);
         }
         posY++;
         scrolled++;
-        if (posY > 12) {
-            graphLib.copyArea(st_rectangle(0, posY, credits_surface.width, RES_H), st_position(0, 0), &credits_surface, &credits_surface);
+        // need to copy next line and reposition
+        if (posY >= 12) {
+            graphLib.copyArea(st_rectangle(0, 12, credits_surface.width, credits_surface.height-12), st_position(0, 0), &credits_surface, &credits_surface);
             // scroll the lines
             dest.x = 0;
             dest.y = RES_H;
@@ -522,12 +525,15 @@ std::vector<string> draw::create_engine_credits_text()
 void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,std::vector<std::string> credit_text)
 {
     if (initial_line < credit_text.size()) {
+        std::cout << "draw::draw_credit_line - text[" << credit_text.at(initial_line) << "]" << std::endl;
         std::size_t found = credit_text.at(initial_line).find("- ");
         if (found != std::string::npos) {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(95, 151, 255));
         } else {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(235, 235, 235));
         }
+    } else {
+        std::cout << "ERROR draw_credit_line, initial_line[" << initial_line << "], credit_text.size()[" << credit_text.size() << "]" << std::endl;
     }
 }
 
