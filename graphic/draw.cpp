@@ -281,7 +281,7 @@ void draw::show_teleport_small(int x, int y)
     graphLib.showSurfaceAt(&_teleport_small_gfx, st_position(x+_teleport_small_gfx.width/2, y+_teleport_small_gfx.height/2), false);
 }
 
-int draw::show_credits(bool can_leave)
+int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text)
 {
     int line_n=0;
     unsigned int scrolled = 0;
@@ -293,9 +293,21 @@ int draw::show_credits(bool can_leave)
     graphLib.blank_surface(credits_surface);
     graphLib.blank_screen();
 
+    for (unsigned int i=0; i<=RES_H/12 && i<credit_text.size(); i++) {
+        std::size_t found = credit_text.at(i).find("- ");
+
+        if (found != std::string::npos) {
+            graphLib.draw_centered_text(12*i, credit_text.at(i), credits_surface, st_color(95, 151, 255));
+        } else {
+            graphLib.draw_centered_text(12*i, credit_text.at(i), credits_surface, st_color(235, 235, 235));
+        }
+    }
+
+
+
 
     // add the initial lines to screen
-    create_credits_text(credits_surface);
+    create_engine_credits_text();
 
     timer.delay(200);
     input.clean();
@@ -304,7 +316,7 @@ int draw::show_credits(bool can_leave)
     update_screen();
 
     // scroll the lines
-    while (scrolled < (credits_list.size()*12)+RES_H/2+46) {
+    while (scrolled < (credit_text.size()*12)+RES_H/2+46) {
 
         std::cout << "CREDITS::posY[" << posY << "]" << std::endl;
 
@@ -329,7 +341,7 @@ int draw::show_credits(bool can_leave)
             dest.w = RES_W;
             dest.h = 12;
             graphLib.blank_area(dest.x, dest.y, dest.w, dest.h, credits_surface);
-            draw_credit_line(credits_surface, line_n+21);
+            draw_credit_line(credits_surface, line_n+21, credit_text);
             posY = 0;
             line_n++;
         }
@@ -338,12 +350,16 @@ int draw::show_credits(bool can_leave)
     return 0;
 }
 
-void draw::create_credits_text(graphicsLib_gSurface &surface)
+int draw::show_credits(bool can_leave)
 {
-    credits_list.clear();
+    return show_credits_text(can_leave, create_engine_credits_text());
+}
+
+std::vector<string> draw::create_engine_credits_text()
+{
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", LANGUAGE_ENGLISH);
+    std::vector<string> credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", LANGUAGE_ENGLISH);
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {
@@ -499,26 +515,18 @@ void draw::create_credits_text(graphicsLib_gSurface &surface)
     credits_list.push_back("- PRESENTED BY -");
     credits_list.push_back("UPPERLAND STUDIOS");
 
-    for (unsigned int i=0; i<=RES_H/12 && i<credits_list.size(); i++) {
-        std::size_t found = credits_list.at(i).find("- ");
-
-        if (found != std::string::npos) {
-            graphLib.draw_centered_text(12*i, credits_list.at(i), surface, st_color(95, 151, 255));
-        } else {
-            graphLib.draw_centered_text(12*i, credits_list.at(i), surface, st_color(235, 235, 235));
-        }
-    }
+    return credits_list;
 }
 
 
-void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line)
+void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,std::vector<std::string> credit_text)
 {
-    if (initial_line < credits_list.size()) {
-        std::size_t found = credits_list.at(initial_line).find("- ");
+    if (initial_line < credit_text.size()) {
+        std::size_t found = credit_text.at(initial_line).find("- ");
         if (found != std::string::npos) {
-            graphLib.draw_centered_text(RES_H, credits_list.at(initial_line), surface, st_color(95, 151, 255));
+            graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(95, 151, 255));
         } else {
-            graphLib.draw_centered_text(RES_H, credits_list.at(initial_line), surface, st_color(235, 235, 235));
+            graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(235, 235, 235));
         }
     }
 }

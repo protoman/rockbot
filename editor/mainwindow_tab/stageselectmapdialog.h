@@ -15,6 +15,15 @@ public:
     explicit StageSelectMapDialog(QWidget *parent = 0);
     ~StageSelectMapDialog();
 
+private slots:
+    void on_path_pushButton_clicked();
+
+    void on_stage_pushButton_clicked();
+
+    void on_castle_pushButton_clicked();
+
+    void on_stageNumber_spinBox_valueChanged(int arg1);
+
 private:
     Ui::StageSelectMapDialog *ui;
 };

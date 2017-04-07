@@ -2,10 +2,25 @@
 #define STAGESELECTMAPEDITAREA_H
 
 
-class StageSelectMapEditArea
+#include <QDialog>
+
+#include <QWidget>
+#include <QPainter>
+#include <QMouseEvent>
+
+class StageSelectMapEditArea : public QWidget
 {
+    Q_OBJECT
 public:
-    StageSelectMapEditArea();
+    explicit StageSelectMapEditArea(QWidget *parent = 0);
+    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent * event);
+
+signals:
+
+public slots:
+
 };
+
 
 #endif // STAGESELECTMAPEDITAREA_H
