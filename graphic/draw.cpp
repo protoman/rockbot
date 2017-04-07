@@ -288,9 +288,19 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     int posY = -RES_H;
     st_rectangle dest;
     graphicsLib_gSurface credits_surface;
+    float bg1_speed = 0.5;
+    float bg2_speed = 2.0;
+    float bg1_pos = 0;
+    float bg2_pos = 0;
+    graphicsLib_gSurface bg1;
+    graphicsLib_gSurface bg2;
 
     graphLib.initSurface(st_size(RES_W, RES_H+12), &credits_surface);
-    graphLib.blank_surface(credits_surface);
+    graphLib.clear_surface_area(0, 0, credits_surface.width, credits_surface.height, 75, 125, 125, credits_surface);
+
+    graphLib.surfaceFromFile(GAMEPATH + "/shared/images/star_field1.png", &bg1);
+    graphLib.surfaceFromFile(GAMEPATH + "/shared/images/star_field2.png", &bg2);
+
     graphLib.blank_screen();
 
 
@@ -321,6 +331,14 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     while (scrolled < (credit_text.size()*12)+RES_H/2+46) {
 
         //@TODO: draw stars fields //
+        graphLib.copyArea(st_position(0, bg1_pos), &bg1, &graphLib.gameScreen);
+        graphLib.copyArea(st_position(0, bg2_pos), &bg2, &graphLib.gameScreen);
+        if (bg1_pos > 0) {
+            graphLib.copyArea(st_rectangle(0, RES_H-bg1_pos, RES_W, bg1_pos), st_position(0, 0), &bg1, &graphLib.gameScreen);
+        }
+        if (bg2_pos > 0) {
+            graphLib.copyArea(st_rectangle(0, RES_H-bg2_pos, RES_W, bg2_pos), st_position(0, 0), &bg2, &graphLib.gameScreen);
+        }
 
         graphLib.copyArea(st_rectangle(0, posY, RES_W, RES_H), st_position(0, 0), &credits_surface, &graphLib.gameScreen);
         update_screen();
@@ -343,10 +361,20 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
             dest.y = RES_H;
             dest.w = RES_W;
             dest.h = 12;
-            graphLib.blank_area(dest.x, dest.y, dest.w, dest.h, credits_surface);
+            graphLib.clear_surface_area(dest.x, dest.y, dest.w, dest.h, 75, 125, 125, credits_surface);
             draw_credit_line(credits_surface, line_n+21, credit_text);
             posY = 0;
             line_n++;
+        }
+
+        bg1_pos += bg1_speed;
+        bg2_pos += bg2_speed;
+
+        if (bg1_pos >= RES_H) {
+            bg1_pos = 0;
+        }
+        if (bg2_pos >= RES_H) {
+            bg2_pos = 0;
         }
     }
     update_screen();
