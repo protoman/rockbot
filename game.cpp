@@ -1372,10 +1372,10 @@ void game::quick_load_game()
 
     initGame();
 
-    draw_lib.show_credits(true);
+    //draw_lib.show_credits(true);
 
     // TEST //
-    scenes.pick_stage(0);
+    //scenes.pick_stage(0);
 
     scenes.boss_intro(currentStage);
     start_stage();

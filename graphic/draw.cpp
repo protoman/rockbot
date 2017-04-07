@@ -787,10 +787,24 @@ graphicsLib_gSurface *draw::get_dynamic_foreground(string filename)
 
 void draw::show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
+    char player_hp_bar_text[125];
+    std::string prefix_str = "";
+    if (hp < 10) {
+        prefix_str = "00";
+    } else if (hp < 100) {
+        prefix_str = "0";
+    } else {
+        prefix_str = "";
+    }
+    int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
+    sprintf(player_hp_bar_text, "HP: %s%d", prefix_str.c_str(), hp_percent);
+    graphLib.draw_text(20, 10, std::string(player_hp_bar_text), graphLib.gameScreen);
+    /*
     graphLib.draw_hp_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
     if (selected_weapon != WEAPON_DEFAULT) {
         graphLib.draw_hp_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
     }
+    */
 }
 
 void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
