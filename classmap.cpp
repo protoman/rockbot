@@ -1960,7 +1960,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
-                    gameControl.fill_boss_hp_bar();
                     continue;
                 } else {
                     std::cout << "##### STAGE-BOSS IS DEAD (#3) #####" << std::endl;
@@ -1993,13 +1992,18 @@ void classMap::move_npcs() /// @TODO - check out of screen
 
 void classMap::show_npcs() /// @TODO - check out of screen
 {
+    bool has_boss = false;
     for (int i=0; i<_npc_list.size(); i++) {
         if (gameControl.must_show_boss_hp() && _npc_list.at(i).is_boss() && _npc_list.at(i).is_on_visible_screen() == true) {
-            graphLib.draw_hp_bar(_npc_list.at(i).get_current_hp(), -1, -1, BOSS_INITIAL_HP);
+            has_boss = true;
+            draw_lib.set_boss_hp(_npc_list.at(i).get_current_hp());
 		}
         if (_npc_list.at(i).is_dead() == false) {
             _npc_list.at(i).show();
         }
+    }
+    if (has_boss == false) {
+        draw_lib.set_boss_hp(-99);
     }
 }
 

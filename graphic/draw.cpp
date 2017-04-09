@@ -19,6 +19,8 @@
 
 #define CASTLE_PATH_DURATION 1000
 
+#define STARS_DELAY 50
+
 extern graphicsLib graphLib;
 
 #include "timerlib.h"
@@ -62,6 +64,7 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     // INFERNO EFFECT //
     _inferno_alpha = 0;
     _inferno_alpha_mode = 0;
+    _boss_current_hp = -99;
 
 }
 
@@ -89,6 +92,20 @@ void draw::preload()
             }
         }
     }
+
+    filename = GAMEPATH + "shared/images/hp_ball.png";
+    graphLib.surfaceFromFile(filename, &hud_player_hp_ball);
+
+    filename = GAMEPATH + "shared/images/wpn_ball.png";
+    graphLib.surfaceFromFile(filename, &hud_player_wpn_ball);
+    hud_player_wpn_ball.init_colorkeys();
+
+    filename = GAMEPATH + "shared/images/boss_hp_ball.png";
+    graphLib.surfaceFromFile(filename, &hud_boss_hp_ball);
+
+
+    filename = FILEPATH + "/images/1up_icons.png";
+    graphLib.surfaceFromFile(filename, &hud_player_1up);
 }
 
 void draw::show_gfx()
@@ -189,7 +206,6 @@ void draw::show_flash()
 
 void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
 {
-    UNUSED(show_fall);
     unsigned int intro_frames_n = 0;
     //int intro_frames_rollback = 0;
     st_position boss_pos(20, -37);
@@ -218,13 +234,17 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     }
 
     // fall into position
-    while (boss_pos.y < sprite_pos_y) {
-        boss_pos.y += 4;
-        graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
-        graphLib.wait_and_update_screen(5);
+    if (show_fall == true) {
+        while (boss_pos.y < sprite_pos_y) {
+            boss_pos.y += 4;
+            graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
+            graphLib.wait_and_update_screen(5);
+        }
+        graphLib.wait_and_update_screen(500);
+    } else {
+        boss_pos.y = sprite_pos_y;
     }
-    graphLib.wait_and_update_screen(500);
 
 
     // show intro sprites
@@ -285,18 +305,14 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 {
     int line_n=0;
     unsigned int scrolled = 0;
-    int posY = -RES_H;
+    int posY = RES_H;
     st_rectangle dest;
-    graphicsLib_gSurface credits_surface;
     float bg1_speed = 0.5;
-    float bg2_speed = 2.0;
+    float bg2_speed = 3.5;
     float bg1_pos = 0;
     float bg2_pos = 0;
     graphicsLib_gSurface bg1;
     graphicsLib_gSurface bg2;
-
-    graphLib.initSurface(st_size(RES_W, RES_H+12), &credits_surface);
-    graphLib.clear_surface_area(0, 0, credits_surface.width, credits_surface.height, 75, 125, 125, credits_surface);
 
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/star_field1.png", &bg1);
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/star_field2.png", &bg2);
@@ -305,17 +321,6 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
 
     std::cout << "draw::show_credits_text::START" << std::endl;
-    for (unsigned int i=0; i<=RES_H/12 && i<credit_text.size(); i++) {
-        std::size_t found = credit_text.at(i).find("- ");
-
-        if (found != std::string::npos) {
-            graphLib.draw_centered_text(12*i, credit_text.at(i), credits_surface, st_color(95, 151, 255));
-        } else {
-            graphLib.draw_centered_text(12*i, credit_text.at(i), credits_surface, st_color(235, 235, 235));
-        }
-    }
-
-
 
 
     // add the initial lines to screen
@@ -328,44 +333,54 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     update_screen();
 
     // scroll the lines
-    while (scrolled < (credit_text.size()*12)+RES_H/2+46) {
+    int limit = (credit_text.size()*12)+RES_H/2;
+    std::cout << "credit_text.size[" << credit_text.size() << "]" << std::endl;
+    while (scrolled < limit) {
+
+        //std::cout << "scrolled[" << scrolled << "], limit[" << limit << "]" << std::endl;
 
         //@TODO: draw stars fields //
+        graphLib.blank_screen();
         graphLib.copyArea(st_position(0, bg1_pos), &bg1, &graphLib.gameScreen);
-        graphLib.copyArea(st_position(0, bg2_pos), &bg2, &graphLib.gameScreen);
         if (bg1_pos > 0) {
             graphLib.copyArea(st_rectangle(0, RES_H-bg1_pos, RES_W, bg1_pos), st_position(0, 0), &bg1, &graphLib.gameScreen);
         }
+        graphLib.copyArea(st_position(0, bg2_pos), &bg2, &graphLib.gameScreen);
         if (bg2_pos > 0) {
             graphLib.copyArea(st_rectangle(0, RES_H-bg2_pos, RES_W, bg2_pos), st_position(0, 0), &bg2, &graphLib.gameScreen);
         }
 
-        graphLib.copyArea(st_rectangle(0, posY, RES_W, RES_H), st_position(0, 0), &credits_surface, &graphLib.gameScreen);
-        update_screen();
+
+        // @TODO: calculate min and max to trestrain loop number
+        for (unsigned int i=0; i<credit_text.size(); i++) {
+            int text_pos = posY+12*i;
+
+            if (text_pos >= -12 && text_pos <= RES_H+12) {
+                std::size_t found = credit_text.at(i).find("- ");
+                if (found != std::string::npos) {
+                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
+                } else {
+                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(235, 235, 235));
+                }
+                //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
+            }
+
+        }
+
+
         if (can_leave) {
             input.read_input();
-            if (input.waitScapeTime(10) == 1 || input.p1_input[BTN_START] == 1) {
+            if (input.waitScapeTime(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
                 update_screen();
                 return 1;
             }
         } else {
-            timer.delay(10);
+            update_screen();
+            timer.delay(STARS_DELAY);
         }
-        posY++;
+        posY--;
         scrolled++;
         // need to copy next line and reposition
-        if (posY >= 12) {
-            graphLib.copyArea(st_rectangle(0, 12, credits_surface.width, credits_surface.height-12), st_position(0, 0), &credits_surface, &credits_surface);
-            // scroll the lines
-            dest.x = 0;
-            dest.y = RES_H;
-            dest.w = RES_W;
-            dest.h = 12;
-            graphLib.clear_surface_area(dest.x, dest.y, dest.w, dest.h, 75, 125, 125, credits_surface);
-            draw_credit_line(credits_surface, line_n+21, credit_text);
-            posY = 0;
-            line_n++;
-        }
 
         bg1_pos += bg1_speed;
         bg2_pos += bg2_speed;
@@ -383,6 +398,9 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
 int draw::show_credits(bool can_leave)
 {
+    soundManager.stop_music();
+    soundManager.load_shared_music("sprnova.it");
+    soundManager.play_music();
     return show_credits_text(can_leave, create_engine_credits_text());
 }
 
@@ -785,26 +803,91 @@ graphicsLib_gSurface *draw::get_dynamic_foreground(string filename)
     return &maps_dynamic_background_list.find(filename)->second;
 }
 
-void draw::show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value)
+void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
-    char player_hp_bar_text[125];
-    std::string prefix_str = "";
-    if (hp < 10) {
-        prefix_str = "00";
-    } else if (hp < 100) {
-        prefix_str = "0";
-    } else {
-        prefix_str = "";
-    }
+    // lifes
+    /*
+    graphLib.copyArea(st_rectangle(game_save.selected_player*hud_player_1up.height, 0, hud_player_1up.height, hud_player_1up.height), st_position(6, 20), &hud_player_1up, &graphLib.gameScreen);
+    char lifes_text[125];
+    sprintf(lifes_text, "x0%d", game_save.items.lifes);
+    graphLib.draw_text(26, 24, std::string(lifes_text));
+    */
+
+
+    // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
-    sprintf(player_hp_bar_text, "HP: %s%d", prefix_str.c_str(), hp_percent);
-    graphLib.draw_text(20, 10, std::string(player_hp_bar_text), graphLib.gameScreen);
+    graphLib.draw_text(6, 10, "HP:");
+    for (int i=0; i<5; i++) {
+        int min = 20*i;
+        int max2 = min+20;
+        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
+
+        int img_origin_x = 0;
+        if (hp_percent < min) {
+            img_origin_x = hud_player_hp_ball.height*2;
+        } else if (hp_percent < max2) {
+            img_origin_x = hud_player_hp_ball.height;
+        }
+
+        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 10), &hud_player_hp_ball, &graphLib.gameScreen);
+    }
+
+
+    if (selected_weapon != WEAPON_DEFAULT) {
+        // draw weapon
+
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list[PLAYER_1].weapon_colors[selected_weapon].color1);
+        int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
+        //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
+        graphLib.draw_text(90, 10, "WPN:");
+        for (int i=0; i<5; i++) {
+            int min = 20*i;
+            int max2 = min+20;
+            //std::cout << "i[" << i << "], wpn_percent[" << wpn_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
+
+            int img_origin_x = 0;
+            if (wpn_percent <= min) {
+                img_origin_x = hud_player_wpn_ball.height*2;
+            } else if (wpn_percent < max2) {
+                img_origin_x = hud_player_wpn_ball.height;
+            }
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(122+10*i, 10), &hud_player_wpn_ball, &graphLib.gameScreen);
+        }
+    }
+
+    // boss HP
+
+    if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
+        int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        graphLib.draw_text(RES_W-95, 10, "BOSS:");
+        for (int i=0; i<5; i++) {
+            int min = 20*i;
+            int max2 = min+20;
+            //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
+
+            int img_origin_x = 0;
+            if (boss_hp_percent < min) {
+                img_origin_x = hud_boss_hp_ball.height*2;
+            } else if (boss_hp_percent < max2) {
+                img_origin_x = hud_boss_hp_ball.height;
+            }
+
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_boss_hp_ball.height, hud_boss_hp_ball.height), st_position(RES_W-55+10*i, 10), &hud_boss_hp_ball, &graphLib.gameScreen);
+        }
+
+    }
+
     /*
     graphLib.draw_hp_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
     if (selected_weapon != WEAPON_DEFAULT) {
         graphLib.draw_hp_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
     }
     */
+}
+
+void draw::set_boss_hp(int hp)
+{
+    _boss_current_hp = hp;
 }
 
 void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)

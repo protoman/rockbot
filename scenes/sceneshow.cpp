@@ -204,7 +204,7 @@ void sceneShow::show_text(int n)
         SDL_Quit();
         exit(-1);
     }
-    run_text(text_list.at(n));
+    run_text(n);
 }
 
 void sceneShow::clear_area(int n)
@@ -254,7 +254,7 @@ void sceneShow::play_music(int n)
 
 
 
-void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
+void sceneShow::run_text(int n)
 {
 
     int lines_n = 0;
@@ -262,15 +262,14 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
 
     // this part is used to calculate text/lines size for positioning
     /// @TODO: optimize using a vector
-    std::vector<int> string_id_list;
-    for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-        string_id_list.push_back(text.line_string_id[i]);
-    }
+
+
 
     std::vector<std::string> text_lines;
+    std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, LANGUAGE_ENGLISH);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
 
-        std::string line = fio_str.get_scenes_string(text.line_string_id[i]);
+        std::string line = scene_text_list[i];
 
         if (line.size() > 0) {
             text_lines.push_back(line);
@@ -289,27 +288,27 @@ void sceneShow::run_text(CURRENT_FILE_FORMAT::file_scene_show_text text)
     int pos_x = 0;
     int pos_y = 0;
 
-    if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogbottom) {
+    if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_dialogbottom) {
         pos_x = 10;
         pos_y = SCENES_TEXT_BOTTOM_POSY;
-    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_dialogtop) {
+    } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_dialogtop) {
         pos_x = 10;
         pos_y = 10;
-    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_centered) {
+    } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_centered) {
         pos_x = center_x;
         pos_y = center_y;
 
-    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_center_x) {
+    } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_center_x) {
         pos_x = center_x;
-        pos_y = text.y;
+        pos_y = text_list.at(n).y;
 
-    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_center_y) {
-        pos_x = text.x;
+    } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_center_y) {
+        pos_x = text_list.at(n).x;
         pos_y = center_y;
 
-    } else if (text.position_type == CURRENT_FILE_FORMAT::text_position_type_user_defined) {
-        pos_x = text.x;
-        pos_y = text.y;
+    } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_user_defined) {
+        pos_x = text_list.at(n).x;
+        pos_y = text_list.at(n).y;
     }
 
     std::vector<std::string> lines;

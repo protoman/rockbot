@@ -27,6 +27,7 @@ extern draw draw_lib;
 #include "graphic/option_picker.h"
 #include "file/version.h"
 #include "file/file_io.h"
+#include "file/fio_strings.h"
 
 #include "options/key_map.h"
 
@@ -361,7 +362,27 @@ void scenesLib::show_enemies_ending()
     std::string filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
     graphLib.surfaceFromFile(filename, &bg_surface);
 
+    soundManager.stop_music();
+    if (fio.file_exists(FILEPATH + "/music/ending_bosses.mod")) {
+        soundManager.load_music("ending_bosses.mod");
+    } else {
+        soundManager.load_shared_music("ending_bosses.mod");
+    }
+    soundManager.play_music();
+
+    // get all stage bosses
+    CURRENT_FILE_FORMAT::file_stages stage_data;
+    fio.read_all_stages(stage_data);
+    std::map<int, std::string> stage_boss_id_list;
+    for (int i=0; i<FS_MAX_STAGES; i++) {
+        std::pair<int, std::string> temp_data((int)stage_data.stages[i].boss.id_npc, std::string(stage_data.stages[i].boss.name));
+        stage_boss_id_list.insert(temp_data);
+    }
+
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
+        if (stage_boss_id_list.find(GameMediator::get_instance()->get_enemy(i)->id) != stage_boss_id_list.end()) {
+            continue;
+        }
         std::string name = GameMediator::get_instance()->get_enemy(i)->name;
         std::cout << "[enemy[" << i << "].name[" << name << "]" << std::endl;
         int w = GameMediator::get_instance()->get_enemy(i)->frame_size.width;
@@ -373,11 +394,38 @@ void scenesLib::show_enemies_ending()
 
 
         graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(0, 0, w, h), st_position(20, RES_H/2 - h/2), &npc_sprite_surface, &graphLib.gameScreen);
-        graphLib.draw_progressive_text(RES_W - 20 - name.length()*9, RES_H/2, name, false);
+        //graphLib.copyArea(st_rectangle(0, 0, w, h), st_position(20, RES_H/2 - h/2), &npc_sprite_surface, &graphLib.gameScreen);
+        draw_lib.show_boss_intro_sprites(i, false);
+        graphLib.draw_progressive_text(120, RES_H/2, name, false);
         timer.delay(3000);
     }
-    std::cout << "DONE" << std::endl;
+    show_bosses_ending(bg_surface, stage_data);
+
+    graphLib.blank_screen();
+    graphLib.updateScreen();
+    soundManager.stop_music();
+    timer.delay(2000);
+
+
+}
+
+void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface, CURRENT_FILE_FORMAT::file_stages& stage_data)
+{
+    graphLib.blank_screen();
+    // read bosses strings
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt", LANGUAGE_ENGLISH);
+
+    for (int i=0; i<CASTLE1_STAGE5; i++) {
+        graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+        graphLib.updateScreen();
+        draw_lib.show_boss_intro_sprites((int)stage_data.stages[i].boss.id_npc, false);
+        graphLib.draw_progressive_text(130, RES_H/2-14, boss_credits_data.at(i*3), false, 20);
+        graphLib.draw_progressive_text(130, RES_H/2-3, boss_credits_data.at(i*3+1), false, 20);
+        graphLib.draw_progressive_text(130, RES_H/2+8, boss_credits_data.at(i*3+2), false, 20);
+        timer.delay(2000);
+    }
+
 
 }
 

@@ -47,28 +47,28 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
         if (col == 0) {
             std::string name = std::string("NAME");
             if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
-                name = std::string(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name);
+                name = "[CLEAR-AREA] " + std::string(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
-                name = std::string(ScenesMediator::get_instance()->image_list.at(seek_n).name);
+                name = "[IMG-MOVE] " + std::string(ScenesMediator::get_instance()->image_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
                 int list_size = ScenesMediator::get_instance()->viewpoint_list.size();
                 if (list_size > seek_n) {
-                    name = std::string(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name);
+                    name = "[VIEWPOINT] " + std::string(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name);
                 }
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
-                name = std::string(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name);
+                name = "[MUSIC] " + std::string(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
-                name = std::string(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name);
+                name = "[SFX] " + std::string(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
-                name = std::string(ScenesMediator::get_instance()->animation_list.at(seek_n).name);
+                name = "[ANIMATION] " + std::string(ScenesMediator::get_instance()->animation_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
-                name = std::string(ScenesMediator::get_instance()->text_list.at(seek_n).name);
+                name = "[TEXT] " + std::string(ScenesMediator::get_instance()->text_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
-                name = std::string("STOP MUSIC");
+                name = "[STOP MUSIC] " + std::string("STOP MUSIC");
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
-                name = std::string(ScenesMediator::get_instance()->scenes_list.at(seek_n).name);
+                name = "[SUB-SCENE] " + std::string(ScenesMediator::get_instance()->scenes_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
-                name = std::string("CLEAR-SCREEN");
+                name = "[CLEAR-SCREEN] " + std::string("CLEAR-SCREEN");
             }
             return QString(name.c_str());
         } else if (col == 1) {
@@ -102,21 +102,20 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
 
 QVariant ObjectListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole)
-    {
+    if (role == Qt::DisplayRole) {
         if (orientation == Qt::Horizontal) {
             switch (section)
             {
             case 0:
-                return QString("Item Name");
+                return QString("Name");
             case 1:
-                return QString("After Delay");
+                return QString("Delay");
             case 2:
                 return QString("Repeat Type");
             case 3:
-                return QString("Repeat Value");
+                return QString("Repeat Val");
             case 4:
-                return QString("Run In Parallel");
+                return QString("Async");
             }
         }
     }
@@ -132,9 +131,11 @@ Qt::ItemFlags ObjectListModel::flags(const QModelIndex &index) const
 
     if (index.column() == 0) {
         int type = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[index.row()].type;
-        if (type != CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN)         {
+        /*
+        if (type != CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
             result |= Qt::ItemIsEditable;
         }
+        */
     } else {
         result |= Qt::ItemIsEditable;
     }

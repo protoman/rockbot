@@ -12,7 +12,6 @@ extern std::string GAMEPATH;
 
 #define STRINGS_INGAME_FILENAME "/strings_ingame.dat"
 #define STRINGS_COMMON_FILENAME "/common_strings.dat"
-#define STRINGS_SCENES_FILENAME "/scenes_strings.dat"
 
 fio_strings::fio_strings()
 {
@@ -122,14 +121,6 @@ namespace format_v4 {
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
-
-    std::string fio_strings::get_scenes_strings_filename()
-    {
-        std::string filename = FILEPATH + STRINGS_SCENES_FILENAME;
-        filename = StringUtils::clean_filename(filename);
-        return filename;
-    }
-
 
     bool format_v4::fio_strings::file_exists(std::string filename) const
     {
@@ -377,50 +368,7 @@ namespace format_v4 {
         return common_strings_list;
     }
 
-    std::vector<std::string> fio_strings::get_scenes_strings()
-    {
-        if (FILEPATH == "") {
-            std::cout << "FIO_STRINGS - NO FILEPATH count: " << scenes_strings_list.size() << std::endl;
-            return scenes_strings_list;
-        }
 
-        if (scenes_strings_list.size() == 0) {
-            std::cout << "FIO_STRINGS - LOAD count: " << scenes_strings_list.size() << std::endl;
-            scenes_strings_list = load_game_strings_from_file(get_scenes_strings_filename());
-        }
-        return scenes_strings_list;
-    }
-
-    std::string fio_strings::get_scenes_string(int id)
-    {
-        if (id == -1) {
-            return std::string("");
-        }
-        if (FILEPATH == "") {
-            return std::string("");
-        }
-
-        std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
-
-        if (scenes_strings_list.size() == 0) {
-            scenes_strings_list = load_game_strings_from_file(get_scenes_strings_filename());
-        }
-
-        if (id >= scenes_strings_list.size()) {
-            std::cout << "get_scenes_string[" << id << "] NULL" << std::endl;
-            return std::string("");
-        }
-
-        std::string res = scenes_strings_list.at(id);
-        std::cout << "get_scenes_string[" << id << "]:[" << res << "]" << std::endl;
-
-        return res;
-    }
-
-    void fio_strings::save_scenes_strings(std::vector<std::string> data)
-    {
-        save_game_strings(data, get_scenes_strings_filename());
-    }
 
     std::vector<std::string> fio_strings::get_string_list_from_file(std::string filename, int language)
     {
@@ -464,6 +412,43 @@ namespace format_v4 {
             fp << line.c_str();
         }
         fp.close();
+    }
+
+    std::vector<std::string> fio_strings::get_string_list_from_scene_text_file(int text_scene_n, int language)
+    {
+        std::vector<std::string> text_list;
+        char file_chr[255];
+
+        sprintf(file_chr, "%d.txt", text_scene_n);
+        std::string filename = FILEPATH + "scenes/text/" + std::string(file_chr);
+        if (file_exists(filename)) {
+            text_list = get_string_list_from_file(filename, LANGUAGE_ENGLISH);
+        }
+        // fill empty spaces
+        if (text_list.size() < SCENE_TEXT_LINES_N) {
+            for (int i=text_list.size(); i<SCENE_TEXT_LINES_N; i++) {
+                text_list.push_back(std::string(""));
+            }
+        }
+        return text_list;
+
+    }
+
+    void fio_strings::write_scene_text_file(int text_scene_n, std::vector<std::string> list, int language)
+    {
+        char file_chr[255];
+
+        sprintf(file_chr, "%d.txt", text_scene_n);
+        std::string filename = FILEPATH + "scenes/text/" + std::string(file_chr);
+        // fill empty spaces
+        if (list.size() < SCENE_TEXT_LINES_N) {
+            for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {
+                list.push_back(std::string(""));
+            }
+        }
+
+        write_string_list_to_file(list, filename, LANGUAGE_ENGLISH);
+
     }
 
     std::string fio_strings::get_common_string(int id)

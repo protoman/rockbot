@@ -650,8 +650,8 @@ void classPlayer::execute_projectiles()
         if ((*it).is_reflected == true) {
             continue;
         }
-        // check collision against enemies
 
+        // check collision against enemies
         for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
                 projectile_list.erase(it);
@@ -666,6 +666,7 @@ void classPlayer::execute_projectiles()
 
 
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
+            //std::cout << "enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
 
             //classnpc* enemy = (*enemy_it);
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
@@ -685,10 +686,10 @@ void classPlayer::execute_projectiles()
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
+                st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
 
                 if ((*it).check_collision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
-                    (*it).consume_projectile();
+                    (*it).reflect();
                     continue;
                 }
 

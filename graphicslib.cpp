@@ -2195,7 +2195,7 @@ void graphicsLib::change_surface_color(Sint8 colorkey_n, st_color new_color, gra
         return;
     }
 
-    //std::cout << "change_surface_color::colorkey_n: " << (int)colorkey_n << ", new_color.rgb: " << new_color.r << ", " << new_color.g << ", " << new_color.b << std::endl;
+    //std::cout << "change_surface_color::colorkey_n[" << (int)colorkey_n << "]" << std::endl;
     surface->change_colorkey_color(colorkey_n, new_color);
 }
 

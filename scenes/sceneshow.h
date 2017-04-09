@@ -24,7 +24,7 @@ public:
 
 private:
     void run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image);
-    void run_text(CURRENT_FILE_FORMAT::file_scene_show_text text);
+    void run_text(int n);
     void run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoint viewpoint);
 
 private:

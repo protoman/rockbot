@@ -212,14 +212,7 @@ public:
      * @return bool
      */
     bool must_show_boss_hp();
-    /**
-     * @brief
-     *
-     */
-    void fill_boss_hp_bar();
 
-
-    void fill_player_weapon(short weapon_n);
 
     /**
      * @brief

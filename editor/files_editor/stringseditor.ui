@@ -78,7 +78,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -96,7 +96,7 @@
             <x>0</x>
             <y>0</y>
             <width>653</width>
-            <height>397</height>
+            <height>417</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
@@ -151,7 +151,7 @@
             <x>0</x>
             <y>0</y>
             <width>653</width>
-            <height>397</height>
+            <height>417</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
@@ -166,53 +166,6 @@
              </item>
              <item row="1" column="0">
               <widget class="QTableView" name="commonStrings_tableView">
-               <property name="selectionMode">
-                <enum>QAbstractItemView::SingleSelection</enum>
-               </property>
-               <property name="selectionBehavior">
-                <enum>QAbstractItemView::SelectRows</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Scenes Text</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <widget class="QScrollArea" name="tabScenesDialog_scrollArea">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_3">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>653</width>
-            <height>397</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_8">
-           <item row="0" column="0">
-            <layout class="QGridLayout" name="tabDialog_gridLayout_3">
-             <item row="0" column="0">
-              <widget class="QPushButton" name="addScenesString_pushButton">
-               <property name="text">
-                <string>Add String</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QTableView" name="scenesStrings_tableView">
                <property name="selectionMode">
                 <enum>QAbstractItemView::SingleSelection</enum>
                </property>
@@ -245,7 +198,7 @@
             <x>0</x>
             <y>0</y>
             <width>653</width>
-            <height>397</height>
+            <height>417</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_10">

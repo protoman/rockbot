@@ -42,15 +42,14 @@ public:
 
     std::string get_language_prefix(int config);
 
-    // === COMMON STRINGS === //
-    std::string get_scenes_strings_filename();
-    std::vector<std::string> get_scenes_strings();
-    std::string get_scenes_string(int id);
-    void save_scenes_strings(std::vector<std::string> data);
-
     // === GENERIC FROM-FILE STRINGS === //
     std::vector<std::string> get_string_list_from_file(std::string filename, int language);
     void write_string_list_to_file(std::vector<std::string> list, std::string filename, int language);
+
+
+    // === scenes string files === //
+    std::vector<std::string> get_string_list_from_scene_text_file(int text_scene_n, int language);
+    void write_scene_text_file(int text_scene_n, std::vector<std::string> list, int language);
 
 
 private:

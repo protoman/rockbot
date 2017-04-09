@@ -57,7 +57,8 @@ public:
     void add_dynamic_background(std::string filename, int auto_scroll_mode, st_color bg_color);
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
-    void show_player_hp(int hp, int player_n, int selected_weapon, int selected_weapon_value);
+    void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
+    void set_boss_hp(int hp);
 
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
 
@@ -115,6 +116,13 @@ private:
     Uint8 screen_gfx;
     Uint8 screen_gfx_mode;
     bool flash_effect_enabled;
+
+    // used in HUD
+    graphicsLib_gSurface hud_player_hp_ball;
+    graphicsLib_gSurface hud_player_wpn_ball;
+    graphicsLib_gSurface hud_player_1up;
+    graphicsLib_gSurface hud_boss_hp_ball;
+    int _boss_current_hp;
 
     // WEAPON ICON TOOLTIP
     const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type

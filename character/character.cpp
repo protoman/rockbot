@@ -2371,6 +2371,7 @@ st_rectangle character::get_hitbox(int anim_type)
         y += GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.y;
         w = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.w - 4;
         h = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.h;
+        //std::cout << "#### CHAR::GET_HITBOX [" << x << "," << y << "," << w << "," << h << "]" << std::endl;
         if (w <= 0 || h <= 0) {
             std::cout << "#### CHAR::GET_HITBOX animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
             std::cout << "A" << std::endl;

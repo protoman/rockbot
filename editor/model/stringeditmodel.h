@@ -10,7 +10,6 @@
 enum e_PICK_MODES {
     pick_mode_edit,
     pick_mode_common,
-    pick_mode_scenes,
     pick_mode_count
 };
 

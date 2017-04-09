@@ -249,6 +249,21 @@ void soundLib::load_music(std::string music_file) {
     }
 }
 
+void soundLib::load_shared_music(string music_file)
+{
+    string filename;
+
+    unload_music();
+    filename = GAMEPATH + "/shared/music/" + music_file;
+    music = Mix_LoadMUS(filename.c_str());
+    if (!music) {
+        std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SOUNDLIB::load_music - not found[%s] ###", music_file.c_str());
+#endif
+    }
+}
+
 void soundLib::load_boss_music(string music_file) {
 	string filename;
 

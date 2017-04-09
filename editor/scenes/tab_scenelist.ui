@@ -14,6 +14,20 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Scene Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="name_lineEdit"/>
+     </item>
+    </layout>
+   </item>
    <item row="6" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="rightMargin">
@@ -91,18 +105,14 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="2">
-    <widget class="QListView" name="object_listView">
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QComboBox" name="sceneSelector"/>
-   </item>
    <item row="0" column="0">
     <widget class="QPushButton" name="addScene_button">
+     <property name="maximumSize">
+      <size>
+       <width>120</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="text">
       <string>Add New Scene</string>
      </property>
@@ -121,6 +131,22 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="pushButton">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Play Scene</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QComboBox" name="sceneSelector"/>
+   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
@@ -128,31 +154,29 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Scene Name:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="name_lineEdit"/>
-     </item>
-    </layout>
+   <item row="6" column="2">
+    <widget class="QListView" name="object_listView">
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+    </widget>
    </item>
-   <item row="4" column="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Available Objects:</string>
-       </property>
-      </widget>
-     </item>
+   <item row="3" column="2">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QComboBox" name="sceneTypeSelector">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <item>
         <property name="text">
          <string>Clear Screen</string>
@@ -205,14 +229,20 @@
        </item>
       </widget>
      </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="maximumSize">
+        <size>
+         <width>120</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Available Objects:</string>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Play Scene</string>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

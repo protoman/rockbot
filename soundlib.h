@@ -29,6 +29,7 @@ public:
     void play_timed_sfx(Uint8 sfx, int time);
     void load_all_sfx();
     void load_music(string music_file);
+    void load_shared_music(std::string music_file);
     void load_boss_music(string music_file);
     void unload_music();
     void play_music();

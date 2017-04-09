@@ -86,6 +86,8 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
+- vulnerable area not working
+
 - game's credits
     # editor (text-file)
 

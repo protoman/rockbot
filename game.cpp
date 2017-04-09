@@ -159,7 +159,7 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     }
 
     // draw HUD
-    draw_lib.show_player_hp(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon());
+    draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 
 }
 
@@ -809,8 +809,6 @@ void game::map_present_boss(bool show_dialog)
 	show_stage(8, false);
 
 
-	fill_boss_hp_bar();
-
     soundManager.play_boss_music();
 
     timer.delay(100);
@@ -838,29 +836,6 @@ bool game::must_show_boss_hp()
 {
 	return _show_boss_hp;
 }
-
-void game::fill_boss_hp_bar()
-{
-    soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*BOSS_INITIAL_HP+100);
-    for (int i=0; i<BOSS_INITIAL_HP; i++) {
-        graphLib.draw_hp_bar(i, -1, -1, BOSS_INITIAL_HP);
-        draw_lib.update_screen();
-		timer.delay(60);
-	}
-    timer.delay(200);
-}
-
-void game::fill_player_weapon(short weapon_n)
-{
-    soundManager.play_timed_sfx(SFX_GOT_ENERGY, 60*PLAYER_INITIAL_HP+100);
-    for (int i=0; i<PLAYER_INITIAL_HP; i++) {
-        graphLib.draw_hp_bar(i, player1.get_number(), weapon_n, fio.get_heart_pieces_number(game_save));
-        draw_lib.update_screen();
-        timer.delay(60);
-    }
-    timer.delay(200);
-}
-
 
 
 void game::reset_stage_maps()
@@ -1133,7 +1108,6 @@ void game::got_weapon()
         draw_lib.update_screen();
 
         player1.set_weapon(currentStage, false);
-        fill_player_weapon(player1.get_selected_weapon());
         player1.fall();
 		soundManager.play_sfx(SFX_GOT_WEAPON);
         timer.delay(5000);
@@ -1343,7 +1317,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = INTRO_STAGE;
+    currentStage = CASTLE1_STAGE2;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_1;
 
@@ -1372,12 +1346,12 @@ void game::quick_load_game()
 
     initGame();
 
-    //draw_lib.show_credits(true);
+    // DEBUG //
+    show_ending();
 
     // TEST //
     //scenes.pick_stage(0);
 
-    scenes.boss_intro(currentStage);
     start_stage();
 }
 

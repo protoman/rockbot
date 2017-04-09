@@ -57,15 +57,7 @@ StringsEditor::StringsEditor(QWidget *parent, int mode) : QDialog(parent), ui(ne
 
     // ==================== SCENES STRINGS ==================== //
 
-    std::vector<std::string> scenes_string_list = fio_str.get_scenes_strings();
-    scenes_string_edit_model.set_data(scenes_string_list);
     scenes_string_edit_model.set_pick_mode(pick_mode);
-    ui->scenesStrings_tableView->setModel(&scenes_string_edit_model);
-#if QT_VERSION >= 0x050000
-    ui->scenesStrings_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // Qt5
-#else
-    ui->scenesStrings_tableView->horizontalHeader()->setStretchLastSection(true); // Qt4
-#endif
 
     data_loading = false;
 
@@ -75,14 +67,9 @@ StringsEditor::StringsEditor(QWidget *parent, int mode) : QDialog(parent), ui(ne
         ui->languageName_lineEdit->setVisible(false);
         ui->addCommonString_pushButton->setEnabled(false);
         ui->addCommonString_pushButton->setVisible(false);
-        ui->addScenesString_pushButton->setEnabled(false);
-        ui->addScenesString_pushButton->setVisible(false);
         if (pick_mode == pick_mode_common) {
             ui->tabWidget->setCurrentIndex(1);
             ui->tabWidget->setTabEnabled(2, false);
-        } else if (pick_mode == pick_mode_scenes) {
-            ui->tabWidget->setCurrentIndex(2);
-            ui->tabWidget->setTabEnabled(1, false);
         }
 
     }
@@ -92,7 +79,6 @@ StringsEditor::StringsEditor(QWidget *parent, int mode) : QDialog(parent), ui(ne
 void StringsEditor::save()
 {
     fio_str.save_common_strings(string_edit_model.get_data());
-    fio_str.save_scenes_strings(scenes_string_edit_model.get_data());
     ui->gameCredits_widget->save_data();
 }
 
@@ -189,8 +175,6 @@ void StringsEditor::on_buttonBox_accepted()
     QModelIndexList selectedList;
     if (pick_mode == pick_mode_common) {
         selectedList = ui->commonStrings_tableView->selectionModel()->selectedRows();
-    } else if (pick_mode == pick_mode_scenes) {
-        selectedList = ui->scenesStrings_tableView->selectionModel()->selectedRows();
     }
     for (int i=0; i<selectedList.count(); i++) {
         emit on_accepted(selectedList.at(i).row());
