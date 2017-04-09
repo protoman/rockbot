@@ -1,7 +1,5 @@
-#include <cstdlib>
 #include "stage_select.h"
 
-#include <string>
 
 #include "file/format.h"
 #include "file/file_io.h"
@@ -173,11 +171,21 @@ int stage_select::pick_stage(int start_stage)
 
     CURRENT_FILE_FORMAT::file_io fio;
     CURRENT_FILE_FORMAT::file_stage_select map_data;
-    fio.read_stage_select_data(map_data);
+    fio.read_stage_select_data(map_data, true);
 
     // put stages icons
     for (int i=0; i<RES_W/TILESIZE; i++) {
         for (int j=0; j<RES_H/TILESIZE; j++) {
+
+
+#ifdef ANDROID
+            char debug_line[512];
+            sprintf(debug_line, "### STAGE_SELECT::MAP[%d][%d]:[%d] ###", i, j, map_data.points[i][j]);
+            std::string debug_line_str(debug_line);
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", debug_line_str.c_str());
+#endif
+
+
             if (map_data.points[i][j] > 10) {
                 int stage_n = map_data.points[i][j]-10;
                 if (stage_n >=1 && stage_n <= 8) {
@@ -336,8 +344,16 @@ int stage_select::pick_stage(int start_stage)
         } else if (map_data.points[pos.x][pos.y] == STAGE_SELECT_EDIT_MODE_CASTLE) {
             if (fio.can_access_castle(game_save) == true) {
                 if (moved == true) {
-                    fio.read_stage(temp_stage_data, CASTLE1_STAGE1);
-                    face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[CASTLE1_STAGE1];
+                    int castle_n = CASTLE1_STAGE1;
+                    for (int i=CASTLE1_STAGE2; i<=CASTLE1_STAGE5; i++) {
+                        if (game_save.stages[i] == 0) {
+                            castle_n = i;
+                            break;
+                        }
+                    }
+
+                    fio.read_stage(temp_stage_data, castle_n);
+                    face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[castle_n];
                     boss_name = temp_stage_data.boss.name;
                     graphLib.surfaceFromFile(face_filename, &face_surface);
                 }

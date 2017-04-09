@@ -18,6 +18,7 @@ typedef struct {
 #endif
 
 #ifdef ANDROID
+#include <android/log.h>
 #include "ports/android/cloud_save.h"
 #endif
 
@@ -119,7 +120,7 @@ namespace format_v4 {
 
 
 // -------------------------------------- GAME -------------------------------------- //
-        filename = std::string(FILEPATH) + "game_properties" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -152,7 +153,7 @@ namespace format_v4 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -164,7 +165,7 @@ namespace format_v4 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_trophies" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -176,7 +177,7 @@ namespace format_v4 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_armorPieces" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -188,7 +189,7 @@ namespace format_v4 {
 
 // -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
         // st_color weapon_menu_colors[MAX_WEAPON_N];
-        filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_weaponMenuColors" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -205,7 +206,7 @@ namespace format_v4 {
     void file_io::write_all_stages(format_v4::file_stages &stages_data_in) const
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -226,7 +227,7 @@ namespace format_v4 {
 
         bool USE_NEW_READ = true;
         if (USE_NEW_READ == false) {
-            filename = std::string(FILEPATH) + "game" + sufix + ".dat";
+            filename = std::string(FILEPATH) + "/game" + sufix + ".dat";
             fp = fopen(filename.c_str(), "rb");
             if (!fp) {
                 std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -248,7 +249,7 @@ namespace format_v4 {
         // Sint8 semi_charged_projectile_id;
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
-        filename = std::string(FILEPATH) + "game_properties" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
@@ -340,7 +341,7 @@ namespace format_v4 {
 
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
-        filename = std::string(FILEPATH) + "game_weapons" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -357,7 +358,7 @@ namespace format_v4 {
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
-        filename = std::string(FILEPATH) + "game_trophies" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_trophies" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -374,7 +375,7 @@ namespace format_v4 {
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
-        filename = std::string(FILEPATH) + "game_armorPieces" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_armorPieces" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -392,7 +393,7 @@ namespace format_v4 {
 
 // -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
         // st_color weapon_menu_colors[MAX_WEAPON_N];
-        filename = std::string(FILEPATH) + "game_weaponMenuColors" + sufix + ".dat";
+        filename = std::string(FILEPATH) + "/game_weaponMenuColors" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
         fp = fopen(filename.c_str(), "rb");
@@ -412,7 +413,7 @@ namespace format_v4 {
     void file_io::read_all_stages(format_v4::file_stages& stages_data_out)
     {
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
@@ -427,7 +428,7 @@ namespace format_v4 {
     void file_io::read_stage(format_v4::file_stage &stages_data_out, short stage_n)
     {
         FILE *fp;
-        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
@@ -810,23 +811,21 @@ namespace format_v4 {
         }
 
 
-
-
         // ------- DEBUG ------- //
-        data_out.stages[INTRO_STAGE] = 0;
-        for (int i=1; i<CASTLE1_STAGE1; i++) {
+        /*
+        data_out.stages[INTRO_STAGE] = 1;
+        for (int i=STAGE1; i<CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 0;
         }
-        //data_out.stages[INTRO_STAGE] = 1;
-        data_out.stages[STAGE1] = 1;
-        data_out.stages[STAGE4] = 1;
-        data_out.stages[STAGE8] = 1;
-        //data_out.selected_player = PLAYER_3;
+        */
         /*
-        //data_out.stages[MUMMYBOT] = 1;
-        //data_out.items.lifes = 0;
+        //data_out.stages[INTRO_STAGE] = 1;
+        data_out.stages[CASTLE1_STAGE1] = 1;
+        data_out.stages[CASTLE1_STAGE2] = 1;
+        data_out.stages[CASTLE1_STAGE3] = 1;
+        data_out.stages[CASTLE1_STAGE4] = 1;
+        data_out.stages[CASTLE1_STAGE5] = 1;
 
-        data_out.stages[DYNAMITEBOT] = 1;
         data_out.armor_pieces[ARMOR_ARMS] = true;
         data_out.armor_pieces[ARMOR_BODY] = true;
         data_out.armor_pieces[ARMOR_LEGS] = true;
@@ -872,7 +871,7 @@ namespace format_v4 {
         /// Então estou sobrescrevendo o próprio stage_data, passado como referência
         FILE *fp;
 
-        std::string filename = std::string(FILEPATH) + "stages" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
         fp = fopen(filename.c_str(), "rb");
@@ -921,7 +920,7 @@ namespace format_v4 {
     void file_io::read_castle_data(file_castle &data_out)
     {
         std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "castle_data" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/castle_data" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
         fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         if (!fp.is_open()) {
@@ -935,7 +934,7 @@ namespace format_v4 {
     void file_io::write_castle_data(file_castle &data_in)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "castle_data" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/castle_data" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -947,23 +946,32 @@ namespace format_v4 {
         fp.close();
     }
 
-    void file_io::read_stage_select_data(file_stage_select &data_out)
+    void file_io::read_stage_select_data(CURRENT_FILE_FORMAT::file_stage_select &data_out, bool check_error)
     {
-        std::ifstream fp;
-        std::string filename = std::string(FILEPATH) + "stage_select_data" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stage_select_data" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+        FILE *fp = fopen(filename.c_str(), "rb");
+        if (!fp) {
+            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
+            fflush(stdout);
             return;
         }
-        fp.read(reinterpret_cast<char *>(&data_out), sizeof(struct format_v4::file_stage_select));
-        fp.close();    }
+        int read_result = fread(&data_out, sizeof(struct CURRENT_FILE_FORMAT::file_stage_select), 1, fp);
 
-    void file_io::write_stage_select_data(file_stage_select &data_in)
+
+#ifdef ANDROID
+        std::string debug_line_filename = "filename[" + filename + "]";
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", debug_line_filename.c_str());
+#endif
+
+        fclose(fp);
+
+    }
+
+    void file_io::write_stage_select_data(CURRENT_FILE_FORMAT::file_stage_select &data_in)
     {
         std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "stage_select_data" + sufix + ".dat";
+        std::string filename = std::string(FILEPATH) + "/stage_select_data" + sufix + ".dat";
         fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
         if (!fp.is_open()) {
             std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
@@ -971,7 +979,7 @@ namespace format_v4 {
         } else {
             std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
         }
-        fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct format_v4::file_stage_select));
+        fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct CURRENT_FILE_FORMAT::file_stage_select));
         fp.close();
     }
 

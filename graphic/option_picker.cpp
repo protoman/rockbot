@@ -89,7 +89,7 @@ void option_picker::change_option_label(int n, string label)
 Sint8 option_picker::pick(int initial_pick_pos)
 {
     bool finished = false;
-    input.clean();
+    input.clean_all();
     timer.delay(100);
     _pick_pos = initial_pick_pos;
 

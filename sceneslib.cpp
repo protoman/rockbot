@@ -126,6 +126,9 @@ if (gameControl.is_free_version() == true) {
 void scenesLib::main_screen()
 {
 
+    leave_game = false;
+    input.clean();
+    timer.delay(100);
     soundManager.stop_music();
     soundManager.load_music(game_data.game_start_screen_music_filename);
     soundManager.play_music();
@@ -350,6 +353,83 @@ void scenesLib::show_player_ending()
         default:
             break;
     }
+    show_player_walking_ending();
+}
+
+void scenesLib::show_player_walking_ending()
+{
+    float bg1_speed = 1.1;
+    float bg2_speed = 0.5;
+    float bg3_speed = 0.1;
+    float bg1_pos = 0;
+    float bg2_pos = 0;
+    float bg3_pos = 0;
+    float player_speed = -0.2;
+    float player_pos = RES_W + TILESIZE;
+
+    graphLib.blank_screen();
+    std::string filename = FILEPATH + "images/ending/player_walking_layer1.png";
+    graphicsLib_gSurface bg1;
+    graphLib.surfaceFromFile(filename, &bg1);
+
+    filename = FILEPATH + "images/ending/player_walking_layer2.png";
+    graphicsLib_gSurface bg2;
+    graphLib.surfaceFromFile(filename, &bg2);
+
+    filename = FILEPATH + "images/ending/player_walking_layer3.png";
+    graphicsLib_gSurface bg3;
+    graphLib.surfaceFromFile(filename, &bg3);
+
+    int bg3_y_pos = 10;
+    int bg1_y_pos = bg3.height + bg3_y_pos - bg1.height;
+    int bg2_y_pos = bg1_y_pos - bg2.height;
+
+    gameControl.set_player_direction(ANIM_DIRECTION_LEFT);
+    gameControl.set_player_anim_type(ANIM_TYPE_WALK);
+    int player_y_pos = bg1_y_pos - gameControl.get_player_size().height;
+
+
+    while (player_pos > -TILESIZE*3) {
+
+
+        bg1_pos += bg1_speed;
+        bg2_pos += bg2_speed;
+        bg3_pos += bg3_speed;
+        player_pos += player_speed;
+        if (bg1_pos >= RES_W) {
+            bg1_pos = 0;
+        }
+        if (bg2_pos >= RES_W) {
+            bg2_pos = 0;
+        }
+        if (bg3_pos >= RES_W) {
+            bg3_pos = 0;
+        }
+
+        // draw part1
+        graphLib.showSurfaceAt(&bg3, st_position(bg3_pos, bg3_y_pos), false);
+        graphLib.showSurfaceRegionAt(&bg3, st_rectangle(RES_W-bg3_pos, 0, bg3_pos, bg3.height), st_position(0, bg3_y_pos));
+        graphLib.showSurfaceAt(&bg2, st_position(bg2_pos, bg2_y_pos), false);
+        graphLib.showSurfaceRegionAt(&bg2, st_rectangle(RES_W-bg2_pos, 0, bg2_pos, bg2.height), st_position(0, bg2_y_pos));
+        graphLib.showSurfaceAt(&bg1, st_position(bg1_pos, bg1_y_pos), false);
+        graphLib.showSurfaceRegionAt(&bg1, st_rectangle(bg1.width-bg1_pos, 0, bg1_pos, bg1.height), st_position(0, bg1_y_pos));
+        // draw second part (left)
+
+
+
+        // show player
+        gameControl.show_player_at(player_pos,player_y_pos);
+
+
+        //std::cout << "bg1_pos[" << bg1_pos << "], bg1.left[" << bg1.width-bg1_pos << "]" << std::endl;
+
+        graphLib.updateScreen();
+        timer.delay(10);
+    }
+    graphLib.blank_screen();
+    graphLib.updateScreen();
+    timer.delay(1000);
+
 }
 
 // show all enemies from the game //

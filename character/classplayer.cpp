@@ -688,6 +688,8 @@ void classPlayer::execute_projectiles()
                 // check if have hit area, and if hit it
                 st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
 
+                int temp_x = Sint16(enemy_hit_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
+
                 if ((*it).check_collision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
                     (*it).reflect();
                     continue;

@@ -63,6 +63,9 @@ public:
      */
     void quick_load_game();
 
+    void set_player_direction(ANIM_DIRECTION dir);
+    void show_player_at(int x, int y);
+
 
     void update_stage_scrolling();
     void showGame(bool can_characters_move, bool can_scroll_stage);
@@ -104,6 +107,8 @@ public:
      *
      */
     void leave_stage();
+
+    void return_to_intro_screen();
 
     void game_pause();
     void game_unpause();

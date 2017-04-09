@@ -95,20 +95,23 @@ void TabClearArea::on_select_comboBox_currentIndexChanged(int index)
 void TabClearArea::on_color_pushButton_clicked()
 {
 
+    //QColorDialog *colorDialog = new QColorDialog(this);
+    //QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_color_slot(QColor)));
+
     QColorDialog *colorDialog = new QColorDialog(this);
     QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_color_slot(QColor)));
     colorDialog->show();
+
 }
 
 void TabClearArea::pick_color_slot(QColor color)
 {
     if (data_loading == true) { return; }
-    if (Mediator::get_instance()->picked_color_n != -1) {
-        ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-        ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-        ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
-        reload_button_color(ui->select_comboBox->currentIndex());
-    }
+
+    ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).r = color.red();
+    ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).g = color.green();
+    ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).b = color.blue();
+    reload_button_color(ui->select_comboBox->currentIndex());
 }
 
 void TabClearArea::on_name_lineEdit_textChanged(const QString &arg1)

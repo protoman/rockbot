@@ -496,3 +496,15 @@ FILE-FORMAT-V4:
 - after a screen-transition, games become to fast. missing puase call
 - objects falling should stop on spikes
 - enemy dropping items rate is bad, big weapon pill drops a lot
+
+
+- hit area do destrin só funciona quando ele está virado para a esquerda
+- vulnerable area not working
+- game's credits
+    # editor (text-file)
+- boss credits
+    # editor (3 lines for each stage)
+- EDITOR: set final boss in the game's properties instead of in the map
+- no ending at all
+- npc replace-itself reaction not continuing the boss fight
+- ending: show each enemy with its name, not only bosses

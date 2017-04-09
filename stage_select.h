@@ -1,6 +1,13 @@
 #ifndef STAGE_SELECT_H
 #define STAGE_SELECT_H
 
+#include <cstdlib>
+#include <string>
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
+
 #include "graphicslib.h"
 #include "inputlib.h"
 #include "timerlib.h"

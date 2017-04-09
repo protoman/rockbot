@@ -1205,6 +1205,42 @@ void game::leave_stage()
     start_stage();
 }
 
+void game::return_to_intro_screen()
+{
+    if (fio.write_save(game_save) == false) {
+        show_savegame_error();
+    }
+
+    draw_lib.set_flash_enabled(false);
+    freeze_weapon_effect = FREEZE_EFFECT_NONE;
+    GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
+
+    input.clean();
+    timer.delay(200);
+
+    // return to stage selection
+    player1.reset_charging_shot();
+    player1.set_weapon(WEAPON_DEFAULT, false);
+
+    scenes.main_screen();
+    currentStage = INTRO_STAGE;
+    leave_game = false;
+
+    if (game_save.stages[INTRO_STAGE] == 0) {
+        input.clean();
+        start_stage();
+    } else {
+        currentStage = scenes.pick_stage(INTRO_STAGE);
+        loaded_stage = stage(currentStage, &player1);
+        // show boss intro with stars, if needed
+        soundManager.stop_music();
+        if (game_save.stages[currentStage] == 0 || currentStage >= CASTLE1_STAGE1) {
+            scenes.boss_intro(currentStage);
+        }
+        start_stage();
+    }
+}
+
 void game::game_pause()
 {
     timer.pause();
@@ -1286,14 +1322,13 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    scenes.show_player_ending();
-    scenes.show_enemies_ending();
+    //scenes.show_player_ending();
+    //scenes.show_enemies_ending();
 
-    scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
-    draw_lib.show_credits(false);
+    //scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
+    //draw_lib.show_credits(false);
 
-    /// @TODO add scene ending
-    leave_game = true;
+    return_to_intro_screen();
 }
 
 void game::show_demo_ending()
@@ -1317,9 +1352,9 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE2;
+    currentStage = CASTLE1_STAGE5;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_2;
 
     /*
     // DEBUG //
@@ -1347,12 +1382,17 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     // TEST //
-    //scenes.pick_stage(0);
+    scenes.pick_stage(0);
 
     start_stage();
+}
+
+void game::set_player_direction(ANIM_DIRECTION dir)
+{
+    player1.set_direction(dir);
 }
 
 void game::update_stage_scrolling()
@@ -1476,6 +1516,12 @@ void game::change_player_position(short xinc, short yinc)
 void game::set_player_anim_type(ANIM_TYPE anim_type)
 {
     player1.set_animation_type(anim_type);
+}
+
+void game::show_player_at(int x, int y)
+{
+    player1.set_position(st_position(x, y));
+    player1.show();
 }
 
 st_position game::get_player_position()

@@ -317,11 +317,18 @@ st_rectangle classnpc::get_hitarea()
     int temp_w = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w;
     int temp_h = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h;
 
+    // q q eu fiz aqui???
     if (state.direction == ANIM_DIRECTION_LEFT) {
-        temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
+        //temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
+    } else {
+        if (frameSize.width > GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w) {
+            temp_x += abs(GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w - frameSize.width);
+        }
     }
 
-    return st_rectangle(temp_x, temp_y, temp_w, temp_h);
+    st_rectangle hitarea(temp_x, temp_y, temp_w, temp_h);
+
+    return hitarea;
 }
 
 void classnpc::show()

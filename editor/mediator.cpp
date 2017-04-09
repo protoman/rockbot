@@ -532,7 +532,7 @@ void Mediator::temp_fix_player_colors_order()
 
 void Mediator::load_stage_select_data()
 {
-    fio.read_stage_select_data(stage_select_data);
+    fio.read_stage_select_data(stage_select_data, false);
 }
 
 void Mediator::save_stage_select_data()

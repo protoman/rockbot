@@ -75,7 +75,7 @@ namespace format_v4 {
         void read_castle_data(file_castle& data_out);
         void write_castle_data(file_castle& data_in);
 
-        void read_stage_select_data(file_stage_select& data_out);
+        void read_stage_select_data(file_stage_select& data_out, bool check_error);
         void write_stage_select_data(file_stage_select& data_in);
 
 

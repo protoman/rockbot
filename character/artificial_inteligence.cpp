@@ -1878,22 +1878,19 @@ void artificial_inteligence::execute_ai_replace_itself()
 
     std::cout << "execute_ai_replace_itself[" << name << "]: _ai_state.sub_status: " << _ai_state.sub_status << ", _reaction_state: " << _reaction_state << ", _dead_state: " << _dead_state << ", hitPoints.current: " << hitPoints.current << std::endl;
 
-    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-        // kills/remove itself
-        _dead_state = 2;
-        hitPoints.current = 0;
-        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-        // spawn new npc
-        classnpc* npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
-        // is executing reaction and is dying and is map-boss -> set child as new map-boss
-        if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
-            std::cout << "########################## SET NEW BOSS (REPLACE)" << std::endl;
-            _is_stage_boss = false;
-            npc_ref->set_stage_boss(true);
-        // just a regular spwn-npc, add it to the list
-        }
+    std::cout << "execute_ai_replace_itself::EXEC" << std::endl;
+    // kills/remove itself
+    _dead_state = 2;
+    hitPoints.current = 0;
+    _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    // spawn new npc
+    classnpc* npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
+    // is executing reaction and is dying and is map-boss -> set child as new map-boss
+    if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
+        std::cout << "########################## SET NEW BOSS (REPLACE)" << std::endl;
+        _is_stage_boss = false;
+        npc_ref->set_stage_boss(true);
+    // just a regular spwn-npc, add it to the list
     }
 }
 

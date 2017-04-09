@@ -401,7 +401,19 @@ int draw::show_credits(bool can_leave)
     soundManager.stop_music();
     soundManager.load_shared_music("sprnova.it");
     soundManager.play_music();
-    return show_credits_text(can_leave, create_engine_credits_text());
+    int res = show_credits_text(can_leave, create_engine_credits_text());
+    //graphLib.blank_screen();// should leave presented by on the screen
+    graphLib.updateScreen();
+    timer.delay(1000);
+    graphLib.draw_centered_text(RES_H/2-12, "YOU UNLOCKED A SECRET.", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+2, "START A NEW GAME TO PICK", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+16, "A NEW AVAILABLE CHARACTER.", st_color(220, 220, 220));
+
+    graphLib.draw_centered_text(RES_H/2+48, "PRESS A BUTTON TO CONTINUE.", st_color(220, 220, 220));
+    graphLib.updateScreen();
+    input.clean();
+    timer.delay(100);
+    input.wait_keypress();
 }
 
 std::vector<string> draw::create_engine_credits_text()
