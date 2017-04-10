@@ -85,6 +85,11 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
+- recriar intro
+
+- disable language selection
+
+- ao passar por porta, antiga barra de energia do player aparece
 
 - sub-boss not dropping item (must drop energy big always)
 
@@ -123,10 +128,9 @@ Tirar de projectile tb.
 - add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=85147
     (got weapon)
 
-- candy afundando no chão (castle5)
+- daisie afundando no chão (castle5)
 
 - lower SFX volume and change shot SFX
-
 
 - efeitos e 3rd level estão por cima do HUB (barras de energia)
 
