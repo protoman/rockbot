@@ -58,15 +58,15 @@ void sceneShow::show_scene(int n)
             int scene_type = scene.objects[i].type;
             //std::cout << "### scene_type[" << scene_type << "]" << std::endl;
             if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
-                show_text(scene_seek_n);
+                //show_text(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
                 clear_area(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
                 graphLib.clear_area(0 ,0, RES_W, RES_H, 0, 0, 0);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
-                show_image(scene_seek_n);
+                //show_image(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
-                show_viewpoint(scene_seek_n);
+                //show_viewpoint(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
                 play_music(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {

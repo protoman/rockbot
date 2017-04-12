@@ -7,8 +7,16 @@ Makefile
 
 # Game artifiacts
 rockbot
-data
 editor/moc_*.cpp
 build/*.cpp
 build/*.h
 build/editor
+*.apk
+*.zip
+*.elf
+*.dge
+*.PBP
+*.SFO
+*.so
+*.tar.gz
+*.dol

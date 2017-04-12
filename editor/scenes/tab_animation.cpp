@@ -66,6 +66,7 @@ void TabAnimation::fill_data()
 void TabAnimation::set_fields(int index)
 {
     ui->name_lineEdit->setText(ScenesMediator::get_instance()->animation_list.at(index).name);
+    std::cout << "READ::frame_w[" << ui->select_comboBox->currentIndex() << "][" << ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_w << "]" << std::endl;
     ui->width_spinBox->setValue(ScenesMediator::get_instance()->animation_list.at(index).frame_w);
     ui->height_spinBox->setValue(ScenesMediator::get_instance()->animation_list.at(index).frame_h);
     ui->duration_spinBox->setValue(ScenesMediator::get_instance()->animation_list.at(index).frame_delay);
@@ -111,7 +112,9 @@ void TabAnimation::on_add_pushButton_clicked()
 void TabAnimation::on_select_comboBox_currentIndexChanged(int index)
 {
     if (data_loading == true) { return; }
+    data_loading = true;
     set_fields(index);
+    data_loading = false;
     ScenesMediator::get_instance()->selected_scene = index;
 }
 
@@ -135,6 +138,7 @@ void TabAnimation::on_width_spinBox_valueChanged(int arg1)
 {
     if (data_loading == true) { return; }
     ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_w = arg1;
+    std::cout << "WRITE::frame_w[" << ui->select_comboBox->currentIndex() << "][" << ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_w << "]" << std::endl;
     ui->widget->set_w(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).frame_w);
 }
 
