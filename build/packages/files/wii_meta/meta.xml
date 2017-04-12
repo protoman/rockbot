@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>Rockbot2</name>
+  <coder>Iuri Fiedoruk</coder>
+  <version>2.0.0</version>
+  <short_description>Rockbot game Wii port</short_description> 
+  <long_description>Rockbot is a game made in the spirit of classic Capcom Megaman (Rockman in Japan) game series (1-6 and 9-10), that have original storyline and graphics, besides an editor where the user can edit their own stage and enemies, allowing other people to distribute their own versions of the game.</long_description> 
+</app>
+

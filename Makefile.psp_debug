@@ -1,0 +1,41 @@
+PSPSDK=/opt/pspsdk/psp/
+
+PSP_LARGE_MEMORY = 1 
+PSP_ONLY = 1
+
+# Define to build this as a prx (instead of a static elf) 
+#BUILD_PRX = 1 
+# Define the name of our custom exports (minus the .exp extension) 
+PRX_EXPORTS = exports.exp 
+
+USE_KERNEL_LIBC = 1 
+USE_KERNEL_LIBS = 1 
+
+TARGET = rockbot
+OBJS   = ports/psp/psp_ram.o main.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o \
+collision_detection.o graphicslib.o \
+sceneslib.o stage_select.o graphic/option_picker.o classmap.o objects/object.o character/character.o projectilelib.o \
+graphic/animation.o stage.o stage_select.o class_config.o scenes/dialogs.o game.o character/classplayer.o \
+character/classnpc.o character/artificial_inteligence.o aux_tools/trajectory_parabola.o file/convert.o \
+graphic/draw.o graphic/gfx_sin_wave.o character/movement/jump.o character/movement/inertia.o scenes/sceneshow.o \
+scenes/password_generator.o game_mediator.o strings_map.o file/fio_strings.o file/fio_common.o \
+file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o docs/game_manual.o
+ 
+INCDIR   = /opt/pspsdk/psp/sdk/include
+CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g
+ASFLAGS  = $(CFLAGS)
+ 
+LIBDIR  =
+LDFLAGS =
+LIBS    = -lm -lc -lstdc++ -lc -lSDL_mixer -lvorbisidec -logg -lmikmod -lmmio -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz `$(PSPSDK)/bin/sdl-config --libs` -lpspirkeyb -lpsppower -L$(PSPSDK)/sdk/lib -lpspge_driver -lpspgu
+ 
+
+ 
+EXTRA_TARGETS   = EBOOT.PBP
+PSP_EBOOT_TITLE = Rockbot 1.0
+PSP_EBOOT_ICON= ./build/packages/files/psp_icon.png
+PSP_EBOOT_PIC1= ./build/packages/files/psp_background.png
+
+include /opt/pspsdk/psp/sdk/lib/build.mak
+include /opt/pspsdk/psp/sdk/lib/build_prx.mak 
