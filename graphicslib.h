@@ -193,7 +193,6 @@ public:
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
     void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
-    void draw_hp_bar(short int hp, short player_n, short weapon_n, short int max_hp);
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
 
     void clear_area_alpha(short int x, short int y, short int w, short int h, short int r, short int g, short int b, int alpha);
@@ -235,7 +234,6 @@ private:
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
-    void draw_vertical_hp_bar(short int player_n, short int weapon_n);
     void draw_star(short int x, short int y, int size);
     void erase_star(short int x, short int y, int size);
     void preload_faces() const;

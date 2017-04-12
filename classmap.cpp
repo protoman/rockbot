@@ -1805,7 +1805,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 			}
 		}
         _player_ref->show();
-        graphLib.draw_hp_bar(_player_ref->get_current_hp(), player_number, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+        draw_lib.show_hud(_player_ref->get_current_hp(), 1, _player_ref->get_selected_weapon(), _player_ref->get_selected_weapon_value());
         showAbove();
         draw_lib.update_screen();
         timer.delay(100);

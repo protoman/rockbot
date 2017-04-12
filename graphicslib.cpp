@@ -1404,47 +1404,6 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 }
 
 
-
-
-void graphicsLib::draw_hp_bar(short int hp, short int player_n, short int weapon_n, short int max_hp)
-{
-	short int y, i;
-    int hp_percent = (100 * hp) / max_hp;
-    int graph_lenght = (int)(hp_percent/2);
-
-
-    //std::cout << "GRAPH::DRAW_HP_BAR::graph_lenght: " << graph_lenght << std::endl;
-
-    st_color color1(10, 10, 10); // black
-    if (player_n != -1) {
-        st_color menu_color = GameMediator::get_instance()->player_list[player_n].weapon_colors[weapon_n].color1;
-        color1 = st_color(menu_color.r, menu_color.g, menu_color.b);    // player color or weapon color
-    }
-    st_color color2(188, 188, 188); // dark grey
-    st_color color3(235, 235, 235); // light grey
-
-	st_position bar_pos(1, 2);
-	if (player_n == -1) {
-		bar_pos.x = RES_W-15;
-	} else if (weapon_n != WEAPON_DEFAULT) {
-		bar_pos.x = 10;
-	}
-
-    clear_area(bar_pos.x, bar_pos.y, 8, 52, color1.r, color1.g, color1.b);
-
-	if (weapon_n != -1) {
-        showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 54));
-	} else {
-        showSurfaceRegionAt(&small_weapon_icons.at(WEAPON_COUNT), st_rectangle(0, 0, 8, 8), st_position(bar_pos.x, 54));
-	}
-
-    y = bar_pos.y + 1 + (50 - graph_lenght);
-    clear_area(bar_pos.x+1, y, 2, graph_lenght, color2.r, color2.g, color2.b);
-    clear_area(bar_pos.x+3, y, 2, graph_lenght, color3.r, color3.g, color3.b);
-    clear_area(bar_pos.x+5, y, 2, graph_lenght, color2.r, color2.g, color2.b);
-
-}
-
 void graphicsLib::clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b) {
     if (game_screen == NULL || game_screen->format == NULL) {
         return;

@@ -85,6 +85,9 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
+- criar um sistema para dropar frames caso FPS fique abaixo de 60
+    # dropar o número que está abaixo, mas distribuir eles uniformemente
+
 - recriar intro
 
 - disable language selection

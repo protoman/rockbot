@@ -766,37 +766,6 @@ void draw::show_weapon_tooltip()
     }
 }
 
-/*
-void draw::create_dynamic_background_surface(graphicsLib_gSurface &dest_surface, graphicsLib_gSurface &image_surface, int auto_scroll_mode)
-{
-    // initialize dest_surface
-    int n = 0;
-
-    //map_data[number].backgrounds[0].
-    graphicsLib_gSurface temp_surface;
-    if (auto_scroll_mode == BG_SCROLL_MODE_UP || auto_scroll_mode == BG_SCROLL_MODE_DOWN) {
-        graphLib.initSurface(st_size(image_surface.width, RES_H*2), &temp_surface);
-        int total_h = 0;
-        while (total_h <= RES_H*2) {
-            graphLib.copyArea(st_position(0, total_h), &image_surface, &temp_surface);
-            total_h += image_surface.height;
-            n++;
-        }
-    } else {
-        graphLib.initSurface(st_size(image_surface.width+RES_W, image_surface.height), &temp_surface);
-        int total_w = 0;
-        while (total_w <= image_surface.width+RES_W) {
-            graphLib.copyArea(st_position(total_w, 0), &image_surface, &temp_surface);
-            total_w += image_surface.width;
-            n++;
-        }
-    }
-    // convert temp_surface to screen-format then release it
-    graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &dest_surface);
-    graphLib.convert_surface_to_screen_format(temp_surface, dest_surface);
-    temp_surface.freeGraphic();
-}
-*/
 
 graphicsLib_gSurface *draw::get_dynamic_background(string filename)
 {
@@ -889,12 +858,6 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     }
 
-    /*
-    graphLib.draw_hp_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
-    if (selected_weapon != WEAPON_DEFAULT) {
-        graphLib.draw_hp_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
-    }
-    */
 }
 
 void draw::set_boss_hp(int hp)
