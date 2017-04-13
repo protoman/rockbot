@@ -8,11 +8,15 @@
 #include "timerlib.h"
 extern timerLib timer;
 
+#include "graphicslib.h"
+extern graphicsLib graphLib;
 
-fps_control::fps_control()
+
+fps_control::fps_control() : fps_timer(0)
 {
     fps_max = DEFAULT_FPS_MAX;
     fps_speed_multiplier = 1.0;
+    fps_counter = 0;
 }
 
 
@@ -92,3 +96,45 @@ float fps_control::get_fps_speed_multiplier()
     //std::cout << "FPS_CONTROL::get_fps_speed_multiplier[" << fps_speed_multiplier << "]" << std::endl;
     return fps_speed_multiplier;
 }
+
+
+
+// ********************************************************************************************** //
+//                                                                                                //
+// ********************************************************************************************** //
+void fps_control::fps_count()
+{
+    if (timer.is_paused()) {
+        return;
+    }
+    fps_counter++;
+    if (fps_timer <= timer.getTimer()) {
+        sprintf(_fps_buffer, "FPS: %d", fps_counter);
+        if (fps_counter <= 158) {
+            frame_drop_period = 160/(160-fps_counter);
+            std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
+        } else {
+            frame_drop_period = 0;
+        }
+        fps_counter = 0;
+        fps_timer = timer.getTimer()+1000;
+    }
+    if (fps_counter > 1) {
+        std::string temp_str(_fps_buffer);
+        graphLib.draw_text(12, 2, temp_str);
+    }
+}
+
+int fps_control::get_current_frame_n()
+{
+    return fps_counter;
+}
+
+int fps_control::get_frame_drop_n()
+{
+    if (frame_drop_period < 2) {
+        return 2;
+    }
+    return frame_drop_period;
+}
+

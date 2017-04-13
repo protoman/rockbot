@@ -22,6 +22,10 @@ public:
     bool limit();
     void set_max_fps(unsigned short max);
     float get_fps_speed_multiplier();
+    void fps_count();
+    int get_current_frame_n();
+    int get_frame_drop_n();
+
 
 
 private:
@@ -40,6 +44,13 @@ private:
 
     unsigned short fps_max;
     float fps_speed_multiplier;
+
+    unsigned int fps_timer;
+    int fps_counter;
+    // if we are getting less than 60 fps, this will tell main loop how many times it will run full until drop one
+    unsigned short frame_drop_period;
+    char _fps_buffer[128];
+
 };
 
 #endif // FPS_CONTROL_H

@@ -61,13 +61,15 @@ extern std::map<Uint8, Uint8> game_scenes_map;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
+#define DEBUG_SHOW_FPS 1
+
+
 // ********************************************************************************************** //
 // class constructor                                                                              //
 // ********************************************************************************************** //
-game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), fps_timer(0), player1(0)
+game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
 {
 	currentStage = 1;
-	fps_counter = 0;
 	_frame_duration = 1000/80; // each frame must use this share of time
     invencible_old_value = false;
     _dark_mode = false;
@@ -96,6 +98,14 @@ void game::initGame()
 
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
 
+    fps_manager.initialize();
+
+    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
+        fps_manager.set_max_fps(30);
+    }
+
+
+
 }
 
 
@@ -104,6 +114,9 @@ void game::initGame()
 // ********************************************************************************************** //
 void game::showGame(bool can_characters_move, bool can_scroll_stage)
 {
+
+
+
     if (leave_game == true) {
         exit_game();
     }
@@ -113,6 +126,19 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 
     if (config_manager.execute_ingame_menu()) { // game is paused
         return;
+    }
+
+    // must jump a frame
+    if (fps_manager.get_frame_drop_n() > 0 && fps_manager.get_current_frame_n() > 0) {
+        int modulus = fps_manager.get_frame_drop_n() % fps_manager.get_current_frame_n();
+        std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
+        if (modulus == 0) {
+            std::cout << "JUMP FRAME[" << fps_manager.get_current_frame_n() << "]" << std::endl;
+#ifdef DEBUG_SHOW_FPS
+            fps_manager.fps_count();
+#endif
+            return;
+        }
     }
 
     /// @TODO - move this to the player, so we don't need to check every single loop
@@ -160,6 +186,12 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 
     // draw HUD
     draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
+
+#ifdef DEBUG_SHOW_FPS
+        fps_manager.fps_count();
+#endif
+    fps_manager.limit();
+
 
 }
 
@@ -476,26 +508,6 @@ void game::show_notice()
 
     timer.delay(3000);
 
-}
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-void game::fps_count()
-{
-    if (timer.is_paused()) {
-        return;
-    }
-    fps_counter++;
-	if (fps_timer <= timer.getTimer()) {
-        sprintf(_fps_buffer, "FPS: %d", fps_counter);
-		fps_counter = 0;
-		fps_timer = timer.getTimer()+1000;
-	}
-    if (fps_counter > 1) {
-        std::string temp_str(_fps_buffer);
-        graphLib.draw_text(12, 2, temp_str);
-    }
 }
 
 
@@ -1352,7 +1364,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE5;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_2;
 
@@ -1385,7 +1397,7 @@ void game::quick_load_game()
     //show_ending();
 
     // TEST //
-    scenes.pick_stage(0);
+    //scenes.pick_stage(0);
 
     start_stage();
 }
@@ -1713,6 +1725,11 @@ bool game::subboss_alive_on_left(short tileX)
 classMap *game::get_current_map_obj()
 {
     return loaded_stage.get_current_map();
+}
+
+void game::set_max_fps(unsigned short max)
+{
+    fps_manager.set_max_fps(max);
 }
 
 void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)

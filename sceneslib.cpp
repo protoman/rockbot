@@ -790,9 +790,9 @@ void scenesLib::show_config_performance()
     game_config.graphics_performance_mode = selected_option;
 
     if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
-        fps_manager.set_max_fps(30);
+        gameControl.set_max_fps(30);
     } else {
-        fps_manager.set_max_fps(60);
+        gameControl.set_max_fps(60);
     }
 
     fio.save_config(game_config);

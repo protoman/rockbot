@@ -30,7 +30,6 @@
 #include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
-//#define DEBUG_SHOW_FPS 1
 //#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 //#define PS2LINK 1
@@ -49,7 +48,6 @@ jobject activity_ref;
 #endif
 
 #include "defines.h"
-#include "aux_tools/fps_control.h"
 #include "aux_tools/stringutils.h"
 
 #include "graphicslib.h"
@@ -96,7 +94,6 @@ inputLib input;
 soundLib soundManager;
 graphicsLib graphLib;
 draw draw_lib;
-fps_control fps_manager;
 game gameControl;
 CURRENT_FILE_FORMAT::st_save game_save;
 struct CURRENT_FILE_FORMAT::st_game_config game_config;
@@ -546,10 +543,6 @@ int main(int argc, char *argv[])
 
 
 
-    fps_manager.initialize();
-    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
-        fps_manager.set_max_fps(30);
-    }
 
     fflush(stdout);
 
@@ -564,15 +557,11 @@ int main(int argc, char *argv[])
         #endif
 
         gameControl.showGame(true, true);
-#ifdef DEBUG_SHOW_FPS
-        gameControl.fps_count();
-#endif
         draw_lib.update_screen();
         if (input.p1_input[BTN_QUIT] == 1) {
             std::fflush(stdout);
             leave_game = true;
         }
-        fps_manager.limit();
 
     }
 

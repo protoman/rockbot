@@ -17,6 +17,8 @@ class classnpc;
 #include "objects/object.h"
 #include "class_config.h"
 #include "scenes/dialogs.h"
+#include "aux_tools/fps_control.h"
+
 
 #ifdef PSP
 #include "ports/psp/psp_ram.h"
@@ -83,19 +85,6 @@ public:
      * @return st_position
      */
     st_float_position checkScrolling();
-    /**
-     * @brief
-     *
-     */
-    void fps_count();
-    /**
-     * @brief
-     *
-     * @param direction
-     * @param is_door
-     * @param tileX
-     * @param tileY
-     */
     void horizontal_screen_move(short direction, bool is_door, short tileX, short tileY);
     /**
      * @brief
@@ -279,6 +268,8 @@ public:
 
     classMap* get_current_map_obj();
 
+    void set_max_fps(unsigned short max);
+
 private:
     void exit_game();
 
@@ -364,10 +355,7 @@ private:
     stage loaded_stage;
     classPlayer player1;
     scenesLib scenes;
-    unsigned int fps_timer;
-    int fps_counter;
     std::stringstream fps_msg;
-    char _fps_buffer[128];
     struct CURRENT_FILE_FORMAT::st_game_config config;
     st_position selected_stage;
     class_config config_manager;
@@ -383,6 +371,9 @@ private:
     bool _dark_mode;                    // on dark mode we only show animation and projectiles
 
     std::string _selected_game;
+
+    fps_control fps_manager;
+
 
 #ifdef PSP
     psp_ram _ram_counter;
