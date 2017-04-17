@@ -86,10 +86,20 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
-- daisie kitty: jump leaving rainbow behind
-- rockbot2: bats makes player dizzy (invert X and Y axis movement)
-- spike ground attack of spikes (appear under player, raisis after an instant)
-- daisie: entangle
+- add "kitty" shot that apperars in select screen for kitty charged shot (or armor)
+
+- add double-tap for dash
+
+- add SDL Gfx to project
+
+- make missile rotate to a given angle using SDL Gfx
+
+IMPROVEMENTS/IDEAS:
+    - daisie kitty: jump leaving rainbow behind.
+    - rockbot2: bats makes player dizzy (invert X and Y axis movement).
+    - spike ground attack of spikes (appear under player, raisis after an instant).
+    - daisie: entangle, locks player in place for a few seconds if he steps on it.
+    - create missile that, when near player, goes around him a few times, then explodes or leaves.
 
 - redraw breackable box (use free art)
 
