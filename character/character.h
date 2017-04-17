@@ -215,6 +215,8 @@ public:
     virtual int get_armor_arms_attack_id();
     void remove_freeze_effect();
     void push_back(short direction);
+    st_rectangle get_hitarea();
+
 
 private:
     ATTACK_TYPES check_must_attack();
@@ -365,6 +367,7 @@ protected:
     bool _player_must_reset_colors;                         // inform the player class that he must get back into default-weapon colors
     int _stairs_falling_timer;                              // controls time when player can again grab the staircase
     bool is_ghost;										// if can shoot or not /**< TODO */
+    st_rectangle hitarea_box;                             // hitarea, set by classnpc
 
 };
 

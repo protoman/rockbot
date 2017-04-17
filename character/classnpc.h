@@ -52,7 +52,6 @@ public:
     void reset_position();
     st_position get_start_position();
     st_rectangle get_hitbox();
-    st_rectangle get_hitarea();
     void show();
 
 

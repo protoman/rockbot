@@ -110,9 +110,9 @@ void fps_control::fps_count()
     fps_counter++;
     if (fps_timer <= timer.getTimer()) {
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
-        if (fps_counter <= 158) {
-            frame_drop_period = 160/(160-fps_counter);
-            std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
+        if (fps_counter <= DEFAULT_FPS_MAX-4) {
+            frame_drop_period = DEFAULT_FPS_MAX/(DEFAULT_FPS_MAX-fps_counter);
+            //std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
         } else {
             frame_drop_period = 0;
         }

@@ -86,57 +86,54 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
+- daisie kitty: jump leaving rainbow behind
+- rockbot2: bats makes player dizzy (invert X and Y axis movement)
+- spike ground attack of spikes (appear under player, raisis after an instant)
+- daisie: entangle
 
-- trocar caveira por player-face no mapa
+- redraw breackable box (use free art)
 
-- criar um sistema para dropar frames caso FPS fique abaixo de 60
+- redraw entirely destrin tank
+
+- mage bot not leaving invulnerability even without stars shield
+
+- AI: add "backtrack" movement, keep sprite in the inverse direction it is moving
+
+- add up until castle2 stage5 into the enum
+
+- change ending check to use flag (castelo 2 ou não)
+
+- change stage 5 to be a sequence of bosses, remove teleporters
+
+- add castle 1 stage 6 with only destrin boss.
+
+- not setting finished-game for selecting 4 player?
+
+- EDITOR: sometimes objects won't appear on editarea (check techno's 002)
+
+TESTAR - criar um sistema para dropar frames caso FPS fique abaixo de 60
     # dropar o número que está abaixo, mas distribuir eles uniformemente
 
-- recriar intro
-
 - sub-boss not dropping item (must drop energy big always)
-
-
-- animação de hit do npc deve ser no meio da hitarea
-
-- liberar p3 ao terminar com p1 e p4 ao terminar com p2 ao invés de os dois juntos
 
 - tileset stage select map (add credits):
     # http://opengameart.org/content/js-saga-style-tileset-2-ascent
     # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
 
+IDEIAS:
 - http://opengameart.org/content/opp2017-sprites-characters-objects-effects
+- https://opengameart.org/content/opp2017-village-and-room
 
-- Trocar sistema de seleção de estágio:
-    # adicionar crédito: http://funky93.deviantart.com/art/Custom-Map-Tileset-86220256
-    # seleção esquerda/direita
-    # mini-mapa esquerda
-    # informação nome fase e inimigo na direita
+- ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
 
-- ENDING: adicionat thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) antes de avido unlock chars
+- castle 5 - parafusos somem quando entram no chão e não voltam
 
-- EDITOR: scenes clear-area color picker not getting RGB (gets a gray)
-
-- castle 5 - parafusos entram no chão e não voltam
-
-- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=76738
-    (sfx, stage select)
-
-- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=127339
-    (skull castle intro)
-
-- add to credits: http://modarchive.org/index.php?request=view_by_moduleid&query=85147
-    (got weapon)
+- add to credits:
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=76738 (sfx, stage select)
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=127339 (skull castle intro)
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=85147 (got weapon)
 
 - daisie afundando no chão (castle5)
-
-- lower SFX volume and change shot SFX
-
-- efeitos e 3rd level estão por cima do HUB (barras de energia)
-
-- things like teleport_out in player class must be moved to game class because it even uses showMap
-
-- review classmap public methods and decide witch ones should be turned private and "moved" to gameControl
 
 - fade teleport must change player to jump and set Y to the dest-point
 
@@ -145,10 +142,6 @@ Tirar de projectile tb.
 - door should activate transition only if py > link.y
 
 - usuário reportou crash no snowbot
-
-- enemies should not be killer by death-ray
-
-- do not show password in demo mode
 
 - red shield dropped from platform and died (gear bot stage)
 
@@ -163,7 +156,7 @@ Tirar de projectile tb.
 
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
 
-- ao trocar de mapa, deve limpar objetos temporários (dropped-items, for example)
+- ao trocar de mapa num estágio, deve limpar objetos temporários (dropped-items, for example)
 
 - Gear Bot pára de andar:
     # >> character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos
@@ -182,7 +175,6 @@ Tirar de projectile tb.
 >>>>>>>>>>>>>>>>>>>>>>>>>>
 ESTAGIOS:
 >>>>>>>>>>>>>>>>>>>>>>>>>>
-- remove password system
 - beast: refatorar, arrumar
 - gear: trocar tileset, refatorar
 - dragon: melhorar tileset
@@ -202,9 +194,10 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- disable language selection
-- ao passar por porta, antiga barra de energia do player aparece
-- projétil tipo corrente não pode ser refletida, apenas cencelado
+- new projectile types:
+    # fibonacci spiral
+    # ball bouncing
+
 
 
 
@@ -219,6 +212,15 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+- allow different maps using same image for foreground with different alpha
+    # use a map with filename+alpha
+
+- things like teleport_out in player class must be moved to game class because it even uses showMap
+
+- review classmap public methods and decide witch ones should be turned private and "moved" to gameControl
+
+- liberar p3 ao terminar com p1 e p4 ao terminar com p2 ao invés de os dois juntos
+
 - criar fade-in e fade-out para música
 
 - make show fps an option in config

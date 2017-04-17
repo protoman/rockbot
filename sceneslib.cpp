@@ -943,7 +943,7 @@ Uint8 scenesLib::select_player() {
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player), font_color);
-    graphLib.draw_centered_text(170, GameMediator::get_instance()->player_list[0].name, font_color);
+    graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list[0].name, font_color);
     graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select), font_color);
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
@@ -978,7 +978,7 @@ Uint8 scenesLib::select_player() {
                 graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
             graphLib.clear_area(60, 168, 204, 18, 0, 0, 0);
-            graphLib.draw_centered_text(170, GameMediator::get_instance()->player_list[selected-1].name, font_color);
+            graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list[selected-1].name, font_color);
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {

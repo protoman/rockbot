@@ -137,5 +137,8 @@ private:
     float _accel_x;                                       // used for arc
     float _speed_x;                                       // used for arc
 
+    float _dist_y;                                       // used for bouncing ball
+    float _gravity;                                       // used for bouncing ball
+
 };
 #endif // PROJECTILELIB_H

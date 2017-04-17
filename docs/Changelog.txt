@@ -476,18 +476,9 @@ FILE-FORMAT-V4:
     # coil item not working
     # firing weapon when using coild/jet crashes the game
     # weapon colors aren't set in editor
-
-
-
-
-
-
-
 - teto ape (castle 5)
 - gráficos spike (castle 5)
 - colocar umas cápsulas de recarga (castle 5)
-
-
 - horizontal screen transition (door) missing pause
 - spawn NPC crashes on android due to map not being set on new npc
     # use gameControl to handle loop-breaking instead of map
@@ -496,8 +487,6 @@ FILE-FORMAT-V4:
 - after a screen-transition, games become to fast. missing puase call
 - objects falling should stop on spikes
 - enemy dropping items rate is bad, big weapon pill drops a lot
-
-
 - hit area do destrin só funciona quando ele está virado para a esquerda
 - vulnerable area not working
 - game's credits
@@ -508,3 +497,24 @@ FILE-FORMAT-V4:
 - no ending at all
 - npc replace-itself reaction not continuing the boss fight
 - ending: show each enemy with its name, not only bosses
+
+
+
+
+- take more damage in hard difficulty mode, and less on easy
+- add easy blocks in Rockbot1
+- update player selection sprites
+- fix player selection name position
+- enemies should not be killed or damaged by death-ray
+- effects, foreground and 3rd layer above HUD
+- foreground stopped showing, use same alpha from first map if same image
+- hit animation in bosses must be added into the middle of its hitarea
+- use player face instead of skull in stage-select screen
+- add map animation in stage-select screen
+- add "press start" in stage-select screen
+- disable language selection
+- EDITOR: scenes clear-area color picker not getting RGB (gets a gray)
+- when passing through a door, old hp-bar shows up
+- chain projectile must not be reflected, must be interrupted instead
+- lower SFX volume and change shot SFX
+- add credits (stage-select): http://funky93.deviantart.com/art/Custom-Map-Tileset-86220256

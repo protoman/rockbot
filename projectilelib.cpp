@@ -111,6 +111,16 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         position.y = 0;
         std::cout << "Y: " << position.y << std::endl;
         _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+    } else if (_move_type == TRAJECTORY_SPIRAL) {
+        angle = 360;
+        position0.x = position.x;
+        position0.y = position.y;
+        _speed_x = 0;
+    } else if (_move_type == TRAJECTORY_BOUNCING) {
+        position0.x = position.x;
+        position0.y = position.y;
+        _gravity = -0.2;
+        _dist_y = 0;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -659,6 +669,47 @@ st_size projectile::move() {
                 finish();
             }
         }
+    } else if (_move_type == TRAJECTORY_SPIRAL) {
+        angle -= _speed;
+        if (angle <= 0) {
+            angle = 360;
+        }
+        _speed_x += _speed/3;
+        if (_speed_x <= 0) { // prevent zero-speed
+            _speed_x = 0.5;
+        }
+
+        //position.y += 0.5;
+        float rad_angle = (angle * 3.1459)/180;
+        position.x = _speed_x*cos(rad_angle) + position0.x;
+        position.y = _speed_x*sin(rad_angle) + position0.y;
+
+
+    } else if (_move_type == TRAJECTORY_BOUNCING) {
+        // @TODO: bounce condition is hitting ground
+        int moved_x = 0;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            moved_x -= _speed;
+        } else {
+            moved_x += _speed;
+        }
+        position.x += moved_x;
+        // check if hit ground
+
+        if (check_map_collision(st_position(moved_x, 0)) == false) { // hit ground, lets change to explosion
+            position.y -= _dist_y;
+            if (_dist_y < TILESIZE-2) {
+                _dist_y += _gravity;
+            }
+            //std::cout << "_dist_y[" << _dist_y << "]" << std::endl;
+        } else {
+            position.y -= abs(_dist_y);
+            _dist_y *= -0.9;
+
+            if (fabs(_dist_y) < 0.01) {
+                _dist_y = 0;
+            }
+        }
 
     } else {
         std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
@@ -765,6 +816,8 @@ void projectile::draw() {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/2;
         } else if (_move_type == TRAJECTORY_LIGHTING) {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/3;
+        } else if (_move_type == TRAJECTORY_SPIRAL) {
+            animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/4;
         } else {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME;
         }
@@ -833,8 +886,8 @@ bool projectile::check_map_collision(st_position pos_inc) const
 	}
     for (int i=0; i<3; i++) {
         int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(p_x/TILESIZE, p_y[i]/TILESIZE));// map->map_tiles.tiles[p_x/TILESIZE][p_y[i]/TILESIZE].locked;
-		if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
-            //std::cout << ">> projectile::check_map_collision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
+        //std::cout << ">> projectile::check_map_collision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
+        if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
 			return true;
 		}
 	}
@@ -850,7 +903,12 @@ Uint8 projectile::get_direction() const
 void projectile::reflect()
 {
     // if it is a bomb, don't reflect at all
-    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_CHAIN) {
+    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING) {
+        return;
+    }
+    if (get_trajectory() == TRAJECTORY_CHAIN) {
+        soundManager.play_sfx(SFX_SHOT_REFLECTED);
+        is_finished = true;
         return;
     }
 	if (direction == ANIM_DIRECTION_LEFT) {

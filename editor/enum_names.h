@@ -38,6 +38,8 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("ARC SMALL");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("RING");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("LIGHTING");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("SPIRAL");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("BOUNCING");
     // -------------------------------------------------------------- //
     AI_ACTION_NAMES.push_back("WALK");
     AI_ACTION_NAMES.push_back("FLY");

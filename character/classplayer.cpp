@@ -1155,6 +1155,12 @@ bool classPlayer::can_air_dash()
 
 void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
 {
+    if (damage_points > 0 && damage_points < 99 && game_save.difficulty == DIFFICULTY_HARD) {
+        damage_points++;
+    }
+    if (damage_points > 1 && game_save.difficulty == DIFFICULTY_EASY) {
+        damage_points--;
+    }
     int new_damage_points = damage_points;
     if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_HALFDAMAGE) {
         new_damage_points = damage_points/2;

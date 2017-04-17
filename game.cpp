@@ -131,9 +131,9 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     // must jump a frame
     if (fps_manager.get_frame_drop_n() > 0 && fps_manager.get_current_frame_n() > 0) {
         int modulus = fps_manager.get_frame_drop_n() % fps_manager.get_current_frame_n();
-        std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
+        //std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
         if (modulus == 0) {
-            std::cout << "JUMP FRAME[" << fps_manager.get_current_frame_n() << "]" << std::endl;
+            //std::cout << "JUMP FRAME[" << fps_manager.get_current_frame_n() << "]" << std::endl;
 #ifdef DEBUG_SHOW_FPS
             fps_manager.fps_count();
 #endif
@@ -499,9 +499,9 @@ void game::show_notice()
     graphLib.draw_centered_text(60, "THIS GAME RUNS WITH", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(120, "GAME'S SOURCE-CODE IS LICENSED UNDER", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(132, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(144, "GAME CONTENT IS UNDER DIFFERENT", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(156, "LICENCES BY ITS RESPECTIVE CREATORS", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(135, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(150, "GAME CONTENT IS UNDER DIFFERENT", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(165, "LICENCES BY ITS RESPECTIVE CREATORS", graphLib.gameScreen, st_color(255, 255, 255));
     graphLib.draw_centered_text(268, "AND USED WITH AUTHORIZATION.", graphLib.gameScreen, st_color(255, 255, 255));
 
     draw_lib.update_screen();
@@ -1334,11 +1334,11 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    //scenes.show_player_ending();
-    //scenes.show_enemies_ending();
+    scenes.show_player_ending();
+    scenes.show_enemies_ending();
 
-    //scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
-    //draw_lib.show_credits(false);
+    scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
+    draw_lib.show_credits(false);
 
     return_to_intro_screen();
 }
@@ -1366,7 +1366,7 @@ void game::quick_load_game()
 
     currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //

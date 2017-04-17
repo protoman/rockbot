@@ -470,6 +470,7 @@ std::vector<string> draw::create_engine_credits_text()
     credits_list.push_back("CAPT. CHRIS AND KB");
     credits_list.push_back("SURT.OPENGAMEART");
     credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
+    credits_list.push_back("FUNKY96.DEVIANTART");
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
@@ -781,8 +782,27 @@ graphicsLib_gSurface *draw::get_dynamic_background(string filename)
 
 graphicsLib_gSurface *draw::get_dynamic_foreground(string filename)
 {
+    std::map<std::string, graphicsLib_gSurface>::iterator it;
+
+    it = maps_dynamic_background_list.find(filename);
+    if (it == maps_dynamic_background_list.end()) {
+        return NULL;
+    }
+
     return &maps_dynamic_background_list.find(filename)->second;
 }
+
+void draw::set_dynamic_bg_alpha(string filename, int alpha)
+{
+    std::map<std::string, graphicsLib_gSurface>::iterator it;
+
+    it = maps_dynamic_background_list.find(filename);
+    if (it == maps_dynamic_background_list.end()) {
+        return;
+    }
+    graphLib.set_surface_alpha(alpha, &maps_dynamic_background_list.find(filename)->second);
+}
+
 
 void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
@@ -960,6 +980,10 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
 {
     // only add if not existing in map
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
+
+
+        std::cout << "DRAW::add_dynamic_background::ADD[" << filename << "]" << std::endl;
+
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
 
@@ -976,6 +1000,7 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
         //maps_dynamic_background_list.find(filename)->second
     }
 }
+
 
 
 void draw::generate_snow_particles()

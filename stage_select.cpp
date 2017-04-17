@@ -190,7 +190,9 @@ int stage_select::pick_stage(int start_stage)
                 int stage_n = map_data.points[i][j]-10;
                 if (stage_n >=1 && stage_n <= 8) {
                     if (game_save.stages[stage_n] == 1) {
-                        graphLib.copyArea(st_position(i*TILESIZE, j*TILESIZE), &stage_icon_beaten, &bg_surface);
+                        for (int k=0; k<bg_frames; k++) {
+                            graphLib.copyArea(st_position(i*TILESIZE+k*RES_W, j*TILESIZE), &stage_icon_beaten, &bg_surface);
+                        }
                     }
                 }
             }
@@ -226,13 +228,10 @@ int stage_select::pick_stage(int start_stage)
     previous_pos = pos;
 
 
-    std::string cursor_filename = FILEPATH + "/images/backgrounds/castle_skull_point.png";
+    std::string cursor_filename = FILEPATH + "/images/backgrounds/player_faces_front.png";
     graphicsLib_gSurface cursor_surface;
     graphLib.surfaceFromFile(cursor_filename, &cursor_surface);
-    graphLib.copyArea(st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
-
-
-
+    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
 
 
     soundManager.load_music(game_data.stage_select_music_filename);
@@ -301,7 +300,7 @@ int stage_select::pick_stage(int start_stage)
                         adjust+=2;
                     }
                     graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-                    graphLib.copyArea(st_position(previous_pos.x*TILESIZE+adjust, previous_pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(previous_pos.x*TILESIZE+adjust, previous_pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
                     graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
                     graphLib.updateScreen();
                     timer.delay(1);
@@ -314,7 +313,7 @@ int stage_select::pick_stage(int start_stage)
                         adjust+=2;
                     }
                     graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-                    graphLib.copyArea(st_position(previous_pos.x*TILESIZE, previous_pos.y*TILESIZE+adjust), &cursor_surface, &graphLib.gameScreen);
+                    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(previous_pos.x*TILESIZE, previous_pos.y*TILESIZE+adjust), &cursor_surface, &graphLib.gameScreen);
                     graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
                     graphLib.updateScreen();
                     timer.delay(1);
@@ -324,7 +323,7 @@ int stage_select::pick_stage(int start_stage)
         }
 
         graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-        graphLib.copyArea(st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
 
         // show stage and boss data, if is over a stage point //
         graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
@@ -339,6 +338,7 @@ int stage_select::pick_stage(int start_stage)
             graphLib.draw_text(10, 190, temp_stage_data.name);
             graphLib.draw_text(10, 205, "LAIR OF");
             graphLib.draw_text(72, 205, boss_name);
+            graphLib.draw_text(10, 220, "[PRESS START TO ENTER]");
             graphLib.copyArea(st_position(RES_W-52, 190), &face_surface, &graphLib.gameScreen);
         // show castle data
         } else if (map_data.points[pos.x][pos.y] == STAGE_SELECT_EDIT_MODE_CASTLE) {

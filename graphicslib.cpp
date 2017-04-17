@@ -1933,8 +1933,9 @@ void graphicsLib::preload_images()
     for (int i=0; i<GameMediator::get_instance()->get_projectile_list_size(); i++) {
         std::string filename(GameMediator::get_instance()->get_projectile(i).graphic_filename);
         filename = FILEPATH + "images/projectiles/" + filename;
-		if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
-            projectile_surface.push_back(graphicsLib_gSurface());
+        projectile_surface.push_back(graphicsLib_gSurface());
+        if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
+            std::cout << "GRAPHLIB::preload_images - i[" << i << "], list.size[" << projectile_surface.size() << "]" << std::endl;
             surfaceFromFile(filename, &projectile_surface.at(i));
 		}
 	}

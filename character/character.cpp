@@ -2783,7 +2783,13 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         if (gameControl.get_current_map_obj() != NULL) {
             int repeat_times = 4;
             int frame_duration = BOSS_HIT_DURATION / (repeat_times*2); // one time for show, one time for hide
-            gameControl.get_current_map_obj()->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(0, 5), frame_duration, repeat_times, state.direction, st_size(24, 24));
+            st_rectangle hitarea = get_hitarea();
+            st_float_position hit_anim_pos(hitarea.x + hitarea.w/2 - graphLib.hit.width/4, hitarea.y + hitarea.h/2 - graphLib.hit.height/2);
+
+            st_position adjust(hit_anim_pos.x - position.x, hit_anim_pos.y - position.y);
+            //std::cout << "pos.x[" << position.x << "], hit.x[" << (int)hit_anim_pos.x << "], pos.y[" << position.y << "], hit.y[" << (int)hit_anim_pos.y << "]" << std::endl;
+            gameControl.get_current_map_obj()->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, adjust, frame_duration, repeat_times, state.direction, st_size(24, 24));
+
         }
     }
 
@@ -3285,6 +3291,32 @@ int character::get_armor_arms_attack_id()
 {
     return -1;
 }
+
+
+st_rectangle character::get_hitarea()
+{
+    if (hitarea_box.w == 0 || hitarea_box.h == 0) {
+        return get_hitbox();
+    }
+    int temp_x = position.x + hitarea_box.x;
+    int temp_y = position.y + hitarea_box.y;
+    int temp_w = hitarea_box.w;
+    int temp_h = hitarea_box.h;
+
+    // q q eu fiz aqui???
+    if (state.direction == ANIM_DIRECTION_LEFT) {
+        //temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
+    } else {
+        if (frameSize.width > hitarea_box.w) {
+            temp_x += abs(hitarea_box.w - frameSize.width);
+        }
+    }
+
+    st_rectangle hitarea(temp_x, temp_y, temp_w, temp_h);
+
+    return hitarea;
+}
+
 
 
 

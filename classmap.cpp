@@ -627,10 +627,12 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 {
 
     if (strlen(map_data[number].backgrounds[1].filename) > 0) {
+        //std::cout << "draw_foreground_layer #1" << std::endl;
         float foreground_speed = (float)map_data[number].backgrounds[1].speed/10;
         int scroll_mode = map_data[number].backgrounds[1].auto_scroll;
         // dynamic background won't work in low-end graphics more
         if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
+            //std::cout << "draw_foreground_layer #2" << std::endl;
             if (scroll_mode == BG_SCROLL_MODE_LEFT) {
                 fg_layer_scroll.x -= ((float)1*foreground_speed);
                 adjust_foreground_position();
@@ -658,7 +660,7 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
         //std::cout << "## x1[" << x1 << "]" << std::endl;
 
 
-        if (get_dynamic_foreground()->width > 0) {
+        if (get_dynamic_foreground() != NULL && get_dynamic_foreground()->width > 0) {
             // draw leftmost part
             graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_foreground(), &graphLib.gameScreen);
 
@@ -671,38 +673,12 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
                 graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }  else if (get_dynamic_foreground()->width - abs(fg_layer_scroll.x) < RES_W) {
                 int foreground_pos_x = get_dynamic_foreground()->width - (int)abs(fg_layer_scroll.x);
-                //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT width[" << get_dynamic_foreground()->width << "], scroll.x[" << (int)abs(fg_layer_scroll.x) << "] ###" << std::endl;
+                std::cout << "### MUST DRAW SECOND BG-POS-RIGHT width[" << get_dynamic_foreground()->width << "], scroll.x[" << (int)abs(fg_layer_scroll.x) << "] ###" << std::endl;
                 // test if there isn't a overlap, so we need to add +1
                 graphLib.copyAreaWithAdjust(st_position(foreground_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }
 
         }
-    }
-
-
-    // water tiles
-    //std::cout << "draw_foreground_layer #2" << std::endl;
-    int tile_x_ini = scroll.x/TILESIZE-1;
-    if (tile_x_ini < 0) {
-        tile_x_ini = 0;
-    }
-    struct st_position pos_destiny;
-    int n = -1;
-
-    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+2; i++) {
-        int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
-        pos_destiny.x = n*TILESIZE - diff;
-        for (int j=0; j<MAP_H; j++) {
-            pos_destiny.y = j*TILESIZE + scroll_y;
-            // in high-end graphics mode, draw a blue transparent layer over water
-
-
-            if (game_config.graphics_performance_mode == PERFORMANCE_MODE_HIGH && map_data[number].tiles[i][j].locked == TERRAIN_WATER) {
-                //std::cout << "tile[" << i << "][" << j << "].locked[" << (int)map_data[number].tiles[i][j].locked << "], water[" << TERRAIN_WATER << "], perf-mode[" << (int)game_config.graphics_performance_mode << "]" << std::endl;
-                graphLib.place_water_tile(pos_destiny);
-            }
-        }
-        n++;
     }
 }
 
@@ -741,6 +717,10 @@ void classMap::adjust_dynamic_background_position()
 
 void classMap::adjust_foreground_position()
 {
+    // no need to adjust if no foreground
+    if (get_dynamic_foreground() == NULL || get_dynamic_foreground()->width == 0) {
+        return;
+    }
     //int bg_limit = get_dynamic_foreground()->width-RES_W;
     int foreground_limit = get_dynamic_foreground()->width;
 
@@ -1097,11 +1077,15 @@ void classMap::create_dynamic_background_surfaces()
     }
     // foreground image
     if (strlen(map_data[number].backgrounds[1].filename) > 0) {
-        draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[1].filename), map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        if (map_data[number].backgrounds[1].gfx != 100) {
-            int fg_alpha = (255 * map_data[number].backgrounds[1].gfx)/100;
-            //std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << fg_alpha << "]" << std::endl;
-            graphLib.set_surface_alpha(fg_alpha, get_dynamic_foreground());
+        // if image already exists, no need to add or set alpha
+        // @NOTE: alpha must be the same for three maps if using same image
+        if (draw_lib.get_dynamic_foreground(std::string(map_data[number].backgrounds[1].filename)) == NULL) {
+            draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[1].filename), map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
+            if (map_data[number].backgrounds[1].gfx != 100) {
+                int fg_alpha = (255 * map_data[number].backgrounds[1].gfx)/100;
+                std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << number << "][" << fg_alpha << "]" << std::endl;
+                draw_lib.set_dynamic_bg_alpha(map_data[number].backgrounds[1].filename, fg_alpha);
+            }
         }
     }
 }
@@ -1350,11 +1334,11 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     continue;
                 }
 
-                if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
+                if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
                     //std::cout << "############# RAY.DAMAGE #############" << std::endl;
                     charObj->damage(TOUCH_DAMAGE_BIG, false);
                     continue;
-                } else if (temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
+                } else if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
                     std::cout << "DEATHRAY(damage) - player.x: " << char_rect.x << ", map.scroll_x: " << scroll.x << ", pos.x: " << temp_obj.get_position().x << ", size.w: " << temp_obj.get_size().width << std::endl;
                     charObj->damage(999, false);
                     continue;
@@ -1821,7 +1805,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
 void classMap::add_animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize)
 {
-    //std::cout << ">>>>> classMap::add_animation - repeat_times: " << repeat_times << std::endl;
+    std::cout << ">>>>> classMap::add_animation - pos.x[" << pos.x << "], pos.y[" << pos.y << "]" << std::endl;
     animation_list.push_back(animation(pos_type, surface, pos, adjust_pos, frame_time, repeat_times, direction, framesize, &scroll));
 }
 
