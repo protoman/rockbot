@@ -1212,6 +1212,12 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
     if (obj_type == OBJ_FINAL_BOSS_TELEPORTER) {
         return true;
     }
+    if (obj_type == OBJ_BOSS_DOOR) {
+        return true;
+    }
+    if (obj_type == OBJ_CHECKPOINT) {
+        return true;
+    }
     return false;
 }
 

@@ -4,6 +4,8 @@
 
 #include "classplayer.h"
 #include "inputlib.h"
+#include "game_mediator.h"
+
 extern inputLib input;
 #include "class_config.h"
 
@@ -13,23 +15,17 @@ extern soundLib soundManager;
 #include "game.h"
 extern game gameControl;
 
-#include "game_mediator.h"
-
-extern std::string FILEPATH;
-
-extern CURRENT_FILE_FORMAT::file_game game_data;
-
-extern CURRENT_FILE_FORMAT::st_save game_save;
-
-extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 #define PLAYER_MOVE_SPEED 1.25 // higher is faster
-
 #include "file/file_io.h"
-
 #include "classmap.h"
 
+extern std::string FILEPATH;
+extern CURRENT_FILE_FORMAT::file_game game_data;
+extern CURRENT_FILE_FORMAT::st_save game_save;
+extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern CURRENT_FILE_FORMAT::file_io fio;
+extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -170,6 +166,7 @@ bool classPlayer::get_item(object_collision &obj_info)
             show();
             gameControl.showGotArmorDialog(ARMOR_ARMS);
             update_armor_properties();
+            res = true;
             break;
         case OBJ_ARMOR_BODY:
             obj_info._object->set_finished(true);
@@ -178,6 +175,7 @@ bool classPlayer::get_item(object_collision &obj_info)
             show();
             gameControl.showGotArmorDialog(ARMOR_BODY);
             update_armor_properties();
+            res = true;
             break;
         case OBJ_ARMOR_LEGS:
             obj_info._object->set_finished(true);
@@ -186,6 +184,13 @@ bool classPlayer::get_item(object_collision &obj_info)
             show();
             gameControl.showGotArmorDialog(ARMOR_LEGS);
             update_armor_properties();
+            res = true;
+            break;
+        case OBJ_CHECKPOINT:
+            checkpoint.x = position.x;
+            checkpoint.y = position.y/TILESIZE;
+            checkpoint.map = gameControl.get_current_map_obj()->get_number();
+            checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
             break;
         default:
 			//std::cout << "classPlayer::get_item - unknown item type: " << obj_info._object->get_type() << std::endl;

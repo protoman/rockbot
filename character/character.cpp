@@ -1892,12 +1892,6 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
         damage(SPIKES_DAMAGE, false);
         return true;
     }
-    if (map_lock == TERRAIN_CHECKPOINT) {
-		checkpoint.x = position.x;
-        checkpoint.y = position.y/TILESIZE;
-        checkpoint.map = gameControl.get_current_map_obj()->get_number();
-        checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-	}
 
     return false;
 }
