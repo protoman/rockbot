@@ -226,6 +226,132 @@ namespace format_v4 {
     };
 
 
+    struct file_player_v3_1 { // DONE -> Game
+        char name[FS_CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        char face_filename[FS_CHAR_NAME_SIZE];
+        Uint8 HP;
+        st_size_int8 sprite_size;                                       // size of sprite graphic
+        st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
+        Uint8 move_speed;                                               // how many sprites move each step
+        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+        file_weapon_colors weapon_colors[MAX_WEAPON_N];
+        // habilities part
+        bool have_shield;
+        Uint8 max_shots;                                                // number of maximum simultaneous projectiles
+        Uint8 simultaneous_shots;                                       // number of projectiles shot at one button press
+        bool can_double_jump;
+        bool can_slide;                                                 // if false, dashes instead of sliding
+        bool can_charge_shot;
+        Sint8 full_charged_projectile_id;
+        /// NEW IN FILE-FORMAT 3.0
+        bool can_air_dash;
+        Sint8 damage_modifier;
+        bool can_shot_diagonal;
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
+        bool double_shot;
+        Sint8 normal_shot_projectile_id;
+
+        file_player_v3_1(int n) {
+            sprintf(name, "PLAYER[%d]", n);
+            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
+            face_filename[0] = '\0';
+            HP = 0;
+            sprite_size.width = 29;
+            sprite_size.height = 29;
+            sprite_hit_area.x = 0;
+            sprite_hit_area.y = 0;
+            sprite_hit_area.w = 29;
+            sprite_hit_area.h = 29;
+            move_speed = 2.0;
+            max_shots = 3;
+            simultaneous_shots = 1;
+            can_double_jump = false;
+            have_shield = false;
+            can_slide = false;
+            can_charge_shot = false;
+            full_charged_projectile_id = -1;
+            can_air_dash = false;
+            damage_modifier = 0;
+            can_shot_diagonal = false;
+            attack_frame = 0;
+            normal_shot_projectile_id = -1;
+
+            /// === DEFAULT VALUES === //
+            // ROCK
+            if (n == 0) {
+                weapon_colors[0].color1 = st_color(143, 0, 119);
+                weapon_colors[0].color2 = st_color(0, 115, 239);
+                have_shield = true;
+                can_slide = true;
+                can_charge_shot = true;
+            } else if (n == 1) {
+                // CANDY
+                weapon_colors[0].color1 = st_color(191, 0, 191);
+                weapon_colors[0].color2 = st_color(131, 0, 243);
+                weapon_colors[0].color3 = st_color(166, 80, 239);
+                can_double_jump = true;
+                can_shot_diagonal = true;
+                damage_modifier = 1;
+            } else if (n == 2) {
+                // BETA
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                max_shots = 4;
+                damage_modifier = -1;
+                simultaneous_shots = 2;
+            } else {
+                // KITTY
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                have_shield = true;
+                can_charge_shot = true;
+                can_air_dash = true;
+            }
+        }
+
+        file_player_v3_1() {
+            file_player_v3_1(0);
+        }
+
+        file_player_v3_1(file_player obj) {
+            sprintf(name, "%s", obj.name);
+            sprintf(graphic_filename, "%s%", obj.graphic_filename);
+            sprintf(face_filename, "%s%", obj.face_filename);
+            HP = obj.HP;
+            sprite_size = obj.sprite_size;
+            sprite_hit_area = obj.sprite_hit_area;
+            move_speed = obj.move_speed;
+            max_shots = obj.max_shots;
+            simultaneous_shots = obj.simultaneous_shots;
+            can_double_jump = obj.can_double_jump;
+            have_shield = obj.have_shield;
+            can_slide = obj.can_slide;
+            can_charge_shot = obj.can_charge_shot;
+            full_charged_projectile_id = obj.full_charged_projectile_id;
+            can_air_dash = obj.can_air_dash;
+            damage_modifier = obj.damage_modifier;
+            can_shot_diagonal = obj.can_shot_diagonal;
+            attack_frame = obj.attack_frame;
+            normal_shot_projectile_id = -1;
+
+            for (int i=0; i<ANIM_TYPE_COUNT; i++) {
+                for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
+                    sprites[i][j] = obj.sprites[i][j];
+                }
+            }
+            for (int i=0; i<MAX_WEAPON_N; i++) {
+                weapon_colors[i] = obj.weapon_colors[i];
+            }
+            attack_arm_pos = obj.attack_arm_pos;
+            double_shot = obj.double_shot;
+
+        }
+    };
+
 
     struct file_weapon { // DONE - Game
         Uint8 id_projectile;

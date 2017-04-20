@@ -75,9 +75,9 @@ void player_preview_area::replace_colors()
         return;
     }
 
-    st_color color1 = Mediator::get_instance()->player_list[player_n].weapon_colors[weapon_n].color1;
-    st_color color2 = Mediator::get_instance()->player_list[player_n].weapon_colors[weapon_n].color2;
-    st_color color3 = Mediator::get_instance()->player_list[player_n].weapon_colors[weapon_n].color3;
+    st_color color1 = Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color1;
+    st_color color2 = Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color2;
+    st_color color3 = Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color3;
 
     QColor replace_color1((int)color1.r, (int)color1.g, (int)color1.b);
     QColor replace_color2((int)color2.r, (int)color2.g, (int)color2.b);

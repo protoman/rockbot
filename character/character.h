@@ -343,6 +343,7 @@ protected:
     st_position _frame_pos_adjust;
     short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input
     short _charged_shot_projectile_id;
+    short _normal_shot_projectile_id;
     short _hit_move_back_dist;
     bool _was_animation_reset;                               // inform that animation "looped" once
     bool _is_last_frame;                                     // inform that reached the end of that animation loop

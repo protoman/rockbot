@@ -210,7 +210,7 @@ GameMediator::GameMediator()
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat");
 
     anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
-    player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
+    player_list_v3_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat");
 
 #ifdef WII
     wii_convert_npc_list();
@@ -224,9 +224,9 @@ GameMediator::GameMediator()
     if (projectile_list.size() == 0) {
         projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     }
-    if (player_list.size() == 0) {
+    if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player(i));
         }
     }
 }

@@ -92,9 +92,9 @@ Mediator::Mediator() : stage_data() {
         scene_list.push_back(CURRENT_FILE_FORMAT::file_scene_list());
     }
 
-    if (player_list.size() == 0) {
+    if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player(i));
         }
     }
 
@@ -430,10 +430,10 @@ void Mediator::load_game() {
 
     anim_block_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
 
-    player_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat");
-    if (player_list.size() == 0) {
+    player_list_v3_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat");
+    if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            player_list.push_back(CURRENT_FILE_FORMAT::file_player(i));
+            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player(i));
         }
     }
 
@@ -463,7 +463,16 @@ void Mediator::save_game()
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
+
+    // convert player_v3.0 to player_v3.1
+    /*
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", player_list);
+    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1> player_list_v3_1;
+    for (int i=0; i<player_list.size(); i++) {
+        player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1(player_list.at(i)));
+    }
+    */
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat", player_list_v3_1);
 
     ScenesMediator::get_instance()->save_game_scenes();
 
@@ -512,21 +521,21 @@ void Mediator::clean_data()
 
 void Mediator::temp_fix_player_colors_order()
 {
-    for (int i=0; i<player_list.size(); i++) {
-        CURRENT_FILE_FORMAT::file_player temp_player = player_list.at(i);
+    for (int i=0; i<player_list_v3_1.size(); i++) {
+        CURRENT_FILE_FORMAT::file_player_v3_1 temp_player = player_list_v3_1.at(i);
         CURRENT_FILE_FORMAT::file_weapon_colors copy_weapon_colors[MAX_WEAPON_N];
         for (int j=0; j<MAX_WEAPON_N; j++) {
-            copy_weapon_colors[j] = player_list.at(i).weapon_colors[j];
+            copy_weapon_colors[j] = player_list_v3_1.at(i).weapon_colors[j];
         }
         // gear <-> beast
-        player_list.at(i).weapon_colors[1] = copy_weapon_colors[5];
-        player_list.at(i).weapon_colors[5] = copy_weapon_colors[1];
+        player_list_v3_1.at(i).weapon_colors[1] = copy_weapon_colors[5];
+        player_list_v3_1.at(i).weapon_colors[5] = copy_weapon_colors[1];
         // dragon (laranja) <-> snow
-        player_list.at(i).weapon_colors[2] = copy_weapon_colors[8];
-        player_list.at(i).weapon_colors[8] = copy_weapon_colors[2];
+        player_list_v3_1.at(i).weapon_colors[2] = copy_weapon_colors[8];
+        player_list_v3_1.at(i).weapon_colors[8] = copy_weapon_colors[2];
         // zodiac (yellow) <-> phantom (dark-blue+white)
-        player_list.at(i).weapon_colors[6] = copy_weapon_colors[7];
-        player_list.at(i).weapon_colors[7] = copy_weapon_colors[6];
+        player_list_v3_1.at(i).weapon_colors[6] = copy_weapon_colors[7];
+        player_list_v3_1.at(i).weapon_colors[7] = copy_weapon_colors[6];
     }
 }
 

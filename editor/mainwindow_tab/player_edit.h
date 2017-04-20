@@ -85,6 +85,8 @@ private slots:
 
     void on_simultaneousShots_spinBox_valueChanged(int arg1);
 
+    void on_normalShot_comboBox_currentIndexChanged(int index);
+
 private:
     void fill_players_data();
     

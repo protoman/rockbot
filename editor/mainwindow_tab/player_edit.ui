@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QToolBox" name="toolBox_2">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_properties">
       <property name="geometry">
@@ -281,6 +281,16 @@
             <string>Number of projectiles fired each time player hits the attack button</string>
            </property>
           </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Normal Shot:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="2">
+          <widget class="QComboBox" name="normalShot_comboBox"/>
          </item>
         </layout>
        </item>

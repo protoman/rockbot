@@ -86,13 +86,10 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
-- add "kitty" shot that apperars in select screen for kitty charged shot (or armor)
 
 - add double-tap for dash
 
-- add SDL Gfx to project
-
-- make missile rotate to a given angle using SDL Gfx
+- save point godess status like mana or tiny dd
 
 IMPROVEMENTS/IDEAS:
     - daisie kitty: jump leaving rainbow behind.
@@ -204,6 +201,8 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- set player default projectile
+- add "kitty" shot that apperars in select screen for kitty charged shot (or armor)
 - new projectile types:
     # fibonacci spiral
     # ball bouncing
@@ -222,6 +221,11 @@ ESTAGIOS:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
 =========================================================================================================================================
+
+- add SDL Gfx to project
+
+- make missile rotate to a given angle using SDL Gfx
+
 - allow different maps using same image for foreground with different alpha
     # use a map with filename+alpha
 

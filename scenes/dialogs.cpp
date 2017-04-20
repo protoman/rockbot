@@ -59,7 +59,7 @@ void dialogs::show_stage_dialog(int stage_n)
         lines[n] = stage_dialogs.at(i);
         n++;
 	}
-    show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
+    show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
 
     n = 0;
     if (stage_dialogs.at(3).length() > 0) {
@@ -76,7 +76,7 @@ void dialogs::show_stage_dialog(int stage_n)
             lines[n] = stage_dialogs.at(i);
             n++;
         }
-        show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
+        show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
     }
 }
 
@@ -112,7 +112,7 @@ void dialogs::show_boss_dialog(int stage_n)
         lines[n] = stage_dialogs.at(i);
         n++;
 	}
-    show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
+    show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
 
     // BOSS SPEAKING #2
     int init_pos2 = 33;
@@ -132,7 +132,7 @@ void dialogs::show_boss_dialog(int stage_n)
             lines[n] = stage_dialogs.at(i);
             n++;
         }
-        show_dialog(GameMediator::get_instance()->player_list[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
+        show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
     }
 }
 

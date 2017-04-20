@@ -1935,7 +1935,7 @@ void graphicsLib::preload_images()
         filename = FILEPATH + "images/projectiles/" + filename;
         projectile_surface.push_back(graphicsLib_gSurface());
         if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
-            std::cout << "GRAPHLIB::preload_images - i[" << i << "], list.size[" << projectile_surface.size() << "]" << std::endl;
+            //std::cout << "GRAPHLIB::preload_images - i[" << i << "], list.size[" << projectile_surface.size() << "]" << std::endl;
             surfaceFromFile(filename, &projectile_surface.at(i));
 		}
 	}

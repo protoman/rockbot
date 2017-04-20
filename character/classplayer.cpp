@@ -72,27 +72,29 @@ void classPlayer::initialize()
         _obj_jump.set_jump_limit(50);
     }
 
-    max_projectiles = GameMediator::get_instance()->player_list[_number].max_shots;
+    max_projectiles = GameMediator::get_instance()->player_list_v3_1[_number].max_shots;
     // it is a player, can't have zero projectiles!!
     if (max_projectiles < 1) {
         max_projectiles = 1;
     }
-    if (GameMediator::get_instance()->player_list[_number].can_slide == true) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_slide == true) {
         slide_type = 1;
     }
 
     //std::cout << "player.number[" << _number << "]" << std::endl;
-    _charged_shot_projectile_id = GameMediator::get_instance()->player_list[_number].full_charged_projectile_id;
-    //std::cout << "classjump::set_acceleration - player[" << _number << "][" << name << "], _charged_shot_projectile_id[" << _charged_shot_projectile_id << "]" << std::endl;
+    _charged_shot_projectile_id = GameMediator::get_instance()->player_list_v3_1[_number].full_charged_projectile_id;
+    _normal_shot_projectile_id = GameMediator::get_instance()->player_list_v3_1[_number].normal_shot_projectile_id;
 
-    _simultaneous_shots = GameMediator::get_instance()->player_list[_number].simultaneous_shots;
+    std::cout << "classPlayer::initialize - player[" << _number << "][" << name << "], _normal_shot_projectile_id[" << _normal_shot_projectile_id << "]" << std::endl;
+
+    _simultaneous_shots = GameMediator::get_instance()->player_list_v3_1[_number].simultaneous_shots;
     //std::cout << "classjump::set_acceleration - player[" << name << "], accel[" << GameMediator::get_instance()->player_list[_number].jump_gravity << "]" << std::endl;
     if (can_double_jump() == true) {
         _jumps_number = 2;
     } else {
         _jumps_number = 1;
     }
-    _damage_modifier = GameMediator::get_instance()->player_list[_number].damage_modifier;
+    _damage_modifier = GameMediator::get_instance()->player_list_v3_1[_number].damage_modifier;
     update_armor_properties();
 }
 
@@ -104,7 +106,7 @@ void classPlayer::init_weapon_colors()
     color_keys[2] = st_color(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
 
     for (int i=0; i<MAX_WEAPON_N; i++) {
-        weapon_colors[i] = GameMediator::get_instance()->player_list[_number].weapon_colors[i];
+        weapon_colors[i] = GameMediator::get_instance()->player_list_v3_1[_number].weapon_colors[i];
 	}
 }
 
@@ -858,7 +860,7 @@ void classPlayer::move()
 		}
 	}
 
-    if (GameMediator::get_instance()->player_list[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.attack == 0 && moveCommands.shield == 1) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.attack == 0 && moveCommands.shield == 1) {
 		if (state.animation_type != ANIM_TYPE_SHIELD) {
 			std::cout << "playerClass::initShield CHANGE anim_type: " << state.animation_type << " to " << ANIM_TYPE_SHIELD << std::endl;
             set_animation_type(ANIM_TYPE_SHIELD);
@@ -1120,7 +1122,7 @@ void classPlayer::clean_move_commands()
 
 bool classPlayer::can_shoot_diagonal()
 {
-    if (GameMediator::get_instance()->player_list[_number].can_shot_diagonal) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_shot_diagonal) {
         return true;
     }
     // armor-pieces checking
@@ -1131,7 +1133,7 @@ bool classPlayer::can_shoot_diagonal()
 
 bool classPlayer::can_double_jump()
 {
-    if (GameMediator::get_instance()->player_list[_number].can_double_jump) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_double_jump) {
         return true;
     }
     // -------------------- armor-pieces checking -------------------- //
@@ -1143,7 +1145,7 @@ bool classPlayer::can_double_jump()
 
 bool classPlayer::can_air_dash()
 {
-    if (GameMediator::get_instance()->player_list[_number].can_air_dash == true) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_air_dash == true) {
         return true;
     }
 

@@ -132,7 +132,7 @@ public:
 
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_block_list;
-    std::vector<CURRENT_FILE_FORMAT::file_player> player_list;
+    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1> player_list_v3_1;
 
 
 

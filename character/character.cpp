@@ -59,6 +59,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     _frame_pos_adjust.y = 0;
     _stairs_stopped_count = 0;
     _charged_shot_projectile_id = -1;
+    _normal_shot_projectile_id = 0;
     _is_last_frame = false;
     _simultaneous_shots = 1;
     _ignore_gravity = false;
@@ -709,13 +710,18 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
     int attack_id = -1;
 
+
     if (must_attack == ATTACK_TYPE_NOATTACK) {
         return;
     } else if (must_attack == ATTACK_TYPE_NORMAL) {
         if (auto_charged == true) {
             attack_id = game_data.semi_charged_projectile_id;
         } else {
-            attack_id = 0;
+            if (_normal_shot_projectile_id > 0) {
+                attack_id = _normal_shot_projectile_id;
+            } else {
+                attack_id = 0;
+            }
         }
     } else if (must_attack == ATTACK_TYPE_SEMICHARGED) {
         attack_id = game_data.semi_charged_projectile_id;
@@ -725,7 +731,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
 
     if (attack_id != -1) {
-        //std::cout << "character::attack - attack_id: " << attack_id << std::endl;
+        std::cout << "character::attack - attack_id: " << attack_id << std::endl;
 
         //if (!is_player()) { std::cout << "CHAR::attack::attack_id: " << attack_id << std::endl; }
         if (attack_id == _charged_shot_projectile_id || attack_id == 20 || attack_id == 10 || attack_id == game_data.semi_charged_projectile_id) {
@@ -753,12 +759,12 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
 
 
         // second projectile for player that fires multiple ones
-        if ((attack_id == 0 || (attack_id == game_data.semi_charged_projectile_id && auto_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
+        if ((attack_id == 0 || attack_id == _normal_shot_projectile_id || (attack_id == game_data.semi_charged_projectile_id && auto_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
             projectile_list.push_back(projectile(attack_id, state.direction, st_position(proj_pos.x-TILESIZE, proj_pos.y+5), is_player()));
             projectile &temp_proj2 = projectile_list.back();
             temp_proj2.set_is_permanent();
         }
-        if (attack_id == 0) { // handle normal attack differences depending on player
+        if (attack_id == 0 || attack_id == _normal_shot_projectile_id) { // handle normal attack differences depending on player
             if (updown_trajectory == 1) {
                 temp_proj.set_trajectory(TRAJECTORY_DIAGONAL_UP);
                 set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
@@ -1565,7 +1571,7 @@ bool character::slide(st_float_position mapScrolling)
 	}
 
     // player have double jump (without being armor) can't use slide
-    if (GameMediator::get_instance()->player_list[_number].can_double_jump) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_double_jump) {
         return false;
     }
 

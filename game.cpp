@@ -61,7 +61,7 @@ extern std::map<Uint8, Uint8> game_scenes_map;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
-#define DEBUG_SHOW_FPS 1
+//#define DEBUG_SHOW_FPS 1
 
 
 // ********************************************************************************************** //
@@ -1366,7 +1366,7 @@ void game::quick_load_game()
 
     currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_3;
 
     /*
     // DEBUG //
