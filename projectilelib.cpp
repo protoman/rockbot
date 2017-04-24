@@ -26,7 +26,7 @@ extern int freeze_weapon_id;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(-1), _is_temporary(true)
+projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(0), _is_temporary(true)
 {
     set_default_values();
 	_id = id; // -1 is default projectile

@@ -61,7 +61,7 @@ namespace format_v4 {
 
         bool write_save(st_save& data_in);
         void read_save(st_save& data_out) const;
-        bool save_exists() const;
+        bool save_exists();
         bool can_access_castle(st_save& data_in);
 
         void load_config(st_game_config &config);

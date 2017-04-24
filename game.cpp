@@ -170,8 +170,8 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 
     if (_dark_mode == false) {
         loaded_stage.show_npcs();
-        player1.show();
         loaded_stage.show_objects();
+        player1.show();
         loaded_stage.showAbove();
     } else {
         graphLib.blank_screen();
@@ -1364,9 +1364,9 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = INTRO_STAGE;
-    game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_3;
+    currentStage = STAGE1;
+    game_save.difficulty = DIFFICULTY_NORMAL;
+    game_save.selected_player = PLAYER_2;
 
     /*
     // DEBUG //

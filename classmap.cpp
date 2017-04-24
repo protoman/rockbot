@@ -35,14 +35,15 @@ extern soundLib soundManager;
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 
+
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
-
 extern CURRENT_FILE_FORMAT::st_save game_save;
-
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
+extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
+
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -1316,6 +1317,16 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             if (temp_blocked != 0 && temp_obj.is_platform()) {
 
 
+                if (temp_obj.get_type() == OBJ_CHECKPOINT) {
+                    if (temp_obj.is_started() == false) {
+                        temp_obj.start();
+                    }
+                    checkpoint.x = charObj->getPosition().x;
+                    checkpoint.y = charObj->getPosition().y/TILESIZE;
+                    checkpoint.map = gameControl.get_current_map_obj()->get_number();
+                    checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
+                    return;
+                }
 
                 std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2, temp_blocked[" << temp_blocked << "] ###" << std::endl;
 
@@ -1431,6 +1442,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                             return;
                         }
                     }
+
 
 
                 }
@@ -1811,7 +1823,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
 void classMap::add_animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize)
 {
-    std::cout << ">>>>> classMap::add_animation - pos.x[" << pos.x << "], pos.y[" << pos.y << "]" << std::endl;
+    //std::cout << ">>>>> classMap::add_animation - pos.x[" << pos.x << "], pos.y[" << pos.y << "]" << std::endl;
     animation_list.push_back(animation(pos_type, surface, pos, adjust_pos, frame_time, repeat_times, direction, framesize, &scroll));
 }
 

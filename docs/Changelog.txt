@@ -298,6 +298,12 @@ FILE-FORMAT-V4:
         512x448 - good but small
 
 
+- fix spike immunity by adding new method only for spike-damage
+- verificar se, ao sair de um estágio já completo, está salvando items (armor)
+- checkpoint sala do ape no lugar errado
+- esqueci de adicionar tiles de porta nas que aumentei altura
+- adicionar função para converter save antigo (v1) para novo (v2) em save_exists
+    # somente se em "Rockbot1"
 
 ###################### (release notes foi até aqui em cima) ######################
 
@@ -497,10 +503,6 @@ FILE-FORMAT-V4:
 - no ending at all
 - npc replace-itself reaction not continuing the boss fight
 - ending: show each enemy with its name, not only bosses
-
-
-
-
 - take more damage in hard difficulty mode, and less on easy
 - add easy blocks in Rockbot1
 - update player selection sprites
@@ -518,3 +520,22 @@ FILE-FORMAT-V4:
 - chain projectile must not be reflected, must be interrupted instead
 - lower SFX volume and change shot SFX
 - add credits (stage-select): http://funky93.deviantart.com/art/Custom-Map-Tileset-86220256
+
+
+- for player char that have simultaneous shots, armor special attack must become default, not charged
+- air dash not working for candy with armor
+- new sounds for hadouken, shouryuken and super shot
+- set weakness default to 0 instead of 1 to make it work again
+- add to credits:
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=76738 (sfx, stage select)
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=127339 (skull castle intro)
+    # http://modarchive.org/index.php?request=view_by_moduleid&query=85147 (got weapon)
+- remove increased damage taken by player in hard-mode difficulty as it makes impossible to play with candy
+- save point godess status like mana or tiny dd
+    # computer terminal (CHKPNT) that activates
+    # https://opengameart.org/content/communication-terminal-32x32
+- set player default projectile
+- add "kitty" shot that apperars in select screen for kitty charged shot (or armor)
+- new projectile types:
+    # fibonacci spiral
+    # ball bouncing

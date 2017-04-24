@@ -41,6 +41,8 @@ STAGES:
     # chefe-final
 
 
+- MUSICA BOA: http://modarchive.org/index.php?request=view_by_moduleid&query=159890
+
 ###################################################################################################################
 backtrace:
 #00 pc 00028a7c  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib14copySDLPortionE12st_rectangleS0_P11SDL_SurfaceS2_+111)
@@ -86,10 +88,14 @@ Tirar de projectile tb.
 
 ###################################################################################################################
 
+- EDITOR: texto da armadura deve ser texto (9 linhas por player)
 
-- add double-tap for dash
+- fazer mirror da imagem do projétil
 
-- save point godess status like mana or tiny dd
+- apresentação dos inimigos estilo cutscene, só com rosto (inspuração abertura de rooko chan)
+
+- copy credits from v1 to Rockbot1/game_credits.txt
+
 
 IMPROVEMENTS/IDEAS:
     - daisie kitty: jump leaving rainbow behind.
@@ -98,8 +104,6 @@ IMPROVEMENTS/IDEAS:
     - daisie: entangle, locks player in place for a few seconds if he steps on it.
     - create missile that, when near player, goes around him a few times, then explodes or leaves.
 
-- redraw breackable box (use free art)
-
 - redraw entirely destrin tank
 
 - mage bot not leaving invulnerability even without stars shield
@@ -107,8 +111,6 @@ IMPROVEMENTS/IDEAS:
 - AI: add "backtrack" movement, keep sprite in the inverse direction it is moving
 
 - add up until castle2 stage5 into the enum
-
-- change ending check to use flag (castelo 2 ou não)
 
 - change stage 5 to be a sequence of bosses, remove teleporters
 
@@ -123,7 +125,7 @@ TESTAR - criar um sistema para dropar frames caso FPS fique abaixo de 60
 
 - sub-boss not dropping item (must drop energy big always)
 
-- tileset stage select map (add credits):
+- tileset stage select map (add credits to ROCKBOT2):
     # http://opengameart.org/content/js-saga-style-tileset-2-ascent
     # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
 
@@ -134,11 +136,6 @@ IDEIAS:
 - ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
 
 - castle 5 - parafusos somem quando entram no chão e não voltam
-
-- add to credits:
-    # http://modarchive.org/index.php?request=view_by_moduleid&query=76738 (sfx, stage select)
-    # http://modarchive.org/index.php?request=view_by_moduleid&query=127339 (skull castle intro)
-    # http://modarchive.org/index.php?request=view_by_moduleid&query=85147 (got weapon)
 
 - daisie afundando no chão (castle5)
 
@@ -201,11 +198,9 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- set player default projectile
-- add "kitty" shot that apperars in select screen for kitty charged shot (or armor)
-- new projectile types:
-    # fibonacci spiral
-    # ball bouncing
+
+
+
 
 
 

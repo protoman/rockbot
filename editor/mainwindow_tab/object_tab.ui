@@ -229,6 +229,16 @@
             <string>Platform Active Damaging</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Checkpoint</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Boss Door</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

@@ -48,12 +48,6 @@ private:
     int held_button_count;
     long held_button_timer;
 
-    // used for double-tapping
-    long last_left_tap_timer;
-    long last_right_tap_timer;
-    // holds sequence of last 3 inputs (left/none/right) changes
-    // must be LEFT, ZERO, LEFT or RIGHT, ZERO, RIGHT, where LEFT is -1 and RIGHT is 1
-    short last_left_right_command[3];
 };
 
 #endif // INPUTLIB_H

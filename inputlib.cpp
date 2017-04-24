@@ -28,9 +28,6 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
         p1_save_input[i] = 0;
 	}
     _show_btn_debug = false;
-    for (int i=0; i<3; i++) {
-        last_left_right_command[i] = 0;
-    }
 }
 
 void inputLib::init_joystick()
@@ -343,21 +340,6 @@ void inputLib::read_input(bool check_input_reset)
 #endif
         }
     }
-
-    // double tapping check of input
-    if (last_left_right_command[2] == 1 && p1_input[BTN_RIGHT] != 1) {
-
-    } else if (last_left_right_command[2] == -1 && p1_input[BTN_LEFT] != 1) {
-
-    } else if (last_left_right_command[2] == 0) {
-        if (p1_input[BTN_LEFT] == 1) {
-
-        } else if (p1_input[BTN_RIGHT] == 1) {
-
-        }
-
-    }
-
 }
 
 bool inputLib::is_check_input_reset_command_activated()

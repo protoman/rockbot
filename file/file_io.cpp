@@ -588,7 +588,7 @@ namespace format_v4 {
         entries *FileEntry;
         iox_dirent_t buf;
 
-        // DEBUG because code crashed //
+        // force because code crashed //
         res.push_back("Rockbot2");
         return;
 
@@ -596,12 +596,12 @@ namespace format_v4 {
 
         int dd = fioDopen(filepath.c_str());
         if (dd < 0) {
-            printf(">>> file_io::ps2_listfiles::DEBUG #1 <<<\n");
+            printf(">>> file_io::ps2_listfiles::CHECK #1 <<<\n");
             std::cout << "ps2_listfiles - Could not read directory" << std::endl;
             return;
         } else {
             printf("Directory opened!\n");
-            printf(">>> file_io::ps2_listfiles::DEBUG #2 <<<\n");
+            printf(">>> file_io::ps2_listfiles::CHECK #2 <<<\n");
 
             /*
             //adds pseudo folder .. to every folder opened as mass: reported none but mc0: did
@@ -611,36 +611,36 @@ namespace format_v4 {
             n=1;
             */
 
-            printf(">>> file_io::ps2_listfiles::DEBUG #3 <<<\n");
+            printf(">>> file_io::ps2_listfiles::CHECK #3 <<<\n");
 
             while (fileXioDread(dd, &buf) > 0) {
-                printf(">>> file_io::ps2_listfiles::DEBUG #4 <<<\n");
+                printf(">>> file_io::ps2_listfiles::CHECK #4 <<<\n");
                 if (buf.stat.mode & FIO_S_IFDIR && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
-                    printf(">>> file_io::ps2_listfiles::DEBUG #5 <<<\n");
+                    printf(">>> file_io::ps2_listfiles::CHECK #5 <<<\n");
                     continue;
                 }
-                printf(">>> file_io::ps2_listfiles::DEBUG #6 <<<\n");
+                printf(">>> file_io::ps2_listfiles::CHECK #6 <<<\n");
                 if (buf.stat.mode & FIO_S_IFDIR) {
-                    printf(">>> file_io::ps2_listfiles::DEBUG #7 <<<\n");
+                    printf(">>> file_io::ps2_listfiles::CHECK #7 <<<\n");
                     FileEntry[n].dircheck = 1;
                     strcpy(FileEntry[n].filename, buf.name);
                     res.push_back(std::string(FileEntry[n].filename));
                     n++;
-                    printf(">>> file_io::ps2_listfiles::DEBUG #8 <<<\n");
+                    printf(">>> file_io::ps2_listfiles::CHECK #8 <<<\n");
                 }
 
-                printf(">>> file_io::ps2_listfiles::DEBUG #9 <<<\n");
+                printf(">>> file_io::ps2_listfiles::CHECK #9 <<<\n");
                 if(n > 2046) {
-                    printf(">>> file_io::ps2_listfiles::DEBUG #10 <<<\n");
+                    printf(">>> file_io::ps2_listfiles::CHECK #10 <<<\n");
                     break;
                 }
             }
             if (dd >= 0) {
-                printf(">>> file_io::ps2_listfiles::DEBUG #11 <<<\n");
+                printf(">>> file_io::ps2_listfiles::CHECK #11 <<<\n");
                 fioDclose(dd);
                 printf("Directory closed!\n");
             }
-            printf(">>> file_io::ps2_listfiles::DEBUG #12 <<<\n");
+            printf(">>> file_io::ps2_listfiles::CHECK #12 <<<\n");
         }
     }
 #endif
@@ -706,7 +706,7 @@ namespace format_v4 {
 
 
 
-    bool file_io::save_exists() const
+    bool file_io::save_exists()
     {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
@@ -719,6 +719,82 @@ namespace format_v4 {
         std::ifstream fp(filename.c_str());
         if (fp.good()) {
             return true;
+        }
+
+        if (GAMENAME == "Rockbot1") {
+            // check for an old v1 format-save file
+            std::string filename_v1 = std::string(SAVEPATH) + "/game_v301.sav";
+            filename_v1 = StringUtils::clean_filename(filename_v1);
+            FILE *v1_fp;
+            v1_fp = fopen(filename_v1.c_str(), "rb");
+            if (v1_fp) {
+                // convert v1 save to v2 save
+                CURRENT_FILE_FORMAT::st_save_v1 v1_save;
+                std::cout << "########## filename_v1[" << filename_v1 << "] ############" << std::endl;
+                int read_result = fread(&v1_save, sizeof(struct CURRENT_FILE_FORMAT::st_save_v1), 1, v1_fp);
+                if (read_result  == -1) { // could not read v1 save
+                    fclose(v1_fp);
+                    return false;
+                }
+                std::cout << "[WRN] Converting v1 save to v2 format." << std::endl;
+                if (v1_save.items.lifes > 9) {
+                    v1_save.items.lifes = 3;
+                }
+                CURRENT_FILE_FORMAT::st_save v2_save;
+
+
+                // ITEMS //
+                v2_save.items.balancer = v1_save.items.balancer;
+                v2_save.items.bolts = v1_save.items.bolts;
+                v2_save.items.energy_saver = v1_save.items.energy_saver;
+                v2_save.items.energy_tanks = v1_save.items.energy_tanks;
+                v2_save.items.exit = v1_save.items.exit;
+                if (v1_save.items.half_damage == 1) {
+                    v2_save.items.half_damage = true;
+                } else {
+                    v2_save.items.half_damage = false;
+                }
+                v2_save.items.hyper_jump = v1_save.items.hyper_jump;
+                v2_save.items.lifes = v1_save.items.lifes;
+                v2_save.items.power_shot = v1_save.items.power_shot;
+                if (v1_save.items.shock_guard == 1) {
+                    v2_save.items.shock_guard = true;
+                } else {
+                    v2_save.items.shock_guard = false;
+                }
+                v2_save.items.special_tanks = v1_save.items.special_tanks;
+                v2_save.items.speed_up = v1_save.items.speed_shot;
+                if (v1_save.items.spike_guard == 1) {
+                    v2_save.items.spike_guard = true;
+                } else {
+                    v2_save.items.spike_guard = false;
+                }
+                for (int i=0; i<WEAPON_COUNT; i++) {
+                    v2_save.items.weapons[i] = v1_save.items.weapons[i];
+                }
+                v2_save.items.weapon_tanks = v1_save.items.weapon_tanks;
+
+
+
+                v2_save.difficulty = v1_save.difficulty;
+                v2_save.finished_stages = v1_save.finished_stages;
+                v2_save.selected_player = v1_save.selected_player;
+                for (int i=0; i<MAX_STAGES; i++) {
+                    v2_save.stages[i] = v1_save.stages[i];
+                }
+                v2_save.used_countinue = v1_save.used_countinue;
+                for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX_V1; i++) {
+                    v2_save.armor_pieces[i] = v1_save.armor_pieces[i];
+                }
+                v2_save.defeated_enemies_count = v1_save.defeated_enemies_count;
+
+                fclose(v1_fp);
+
+                write_save(v2_save);
+
+
+                return true;
+            }
         }
         return false;
     }
@@ -757,8 +833,6 @@ namespace format_v4 {
         config.video_filter = VIDEO_FILTER_NOSCALE;
         std::cout << "IO::load_config - SET video_filter to " << VIDEO_FILTER_NOSCALE << ", value: " << config.video_filter << std::endl;
 #endif
-        // ### DEBUG ### //
-        //config.game_finished = true;
 
         if (config.volume_music == 0) {
             config.volume_music = 128;
@@ -818,14 +892,10 @@ namespace format_v4 {
             data_out.stages[i] = 0;
         }
         */
-        /*
         //data_out.stages[INTRO_STAGE] = 1;
-        data_out.stages[CASTLE1_STAGE1] = 1;
-        data_out.stages[CASTLE1_STAGE2] = 1;
-        data_out.stages[CASTLE1_STAGE3] = 1;
-        data_out.stages[CASTLE1_STAGE4] = 1;
-        data_out.stages[CASTLE1_STAGE5] = 1;
-
+        //data_out.stages[STAGE1] = 1;
+        //data_out.armor_pieces[ARMOR_BODY] = false;
+        /*
         data_out.armor_pieces[ARMOR_ARMS] = true;
         data_out.armor_pieces[ARMOR_BODY] = true;
         data_out.armor_pieces[ARMOR_LEGS] = true;
@@ -836,6 +906,15 @@ namespace format_v4 {
 
         if (data_out.items.lifes > 9) {
             data_out.items.lifes = 3;
+        }
+        if (data_out.items.weapon_tanks > 9) {
+            data_out.items.weapon_tanks = 9;
+        }
+        if (data_out.items.energy_tanks > 9) {
+            data_out.items.energy_tanks = 9;
+        }
+        if (data_out.items.special_tanks > 1) {
+            data_out.items.special_tanks = 1;
         }
 
 
@@ -960,8 +1039,8 @@ namespace format_v4 {
 
 
 #ifdef ANDROID
-        std::string debug_line_filename = "filename[" + filename + "]";
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", debug_line_filename.c_str());
+        std::string log_line_filename = "filename[" + filename + "]";
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", log_line_filename.c_str());
 #endif
 
         fclose(fp);

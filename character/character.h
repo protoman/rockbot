@@ -120,6 +120,7 @@ public:
     void clean_effect_projectiles();
     void char_update_real_position();
     virtual void damage(unsigned int damage_points, bool ignore_hit_timer);
+    virtual void damage_spikes(bool ignore_hit_timer);
     bool is_dead() const;
     st_hit_points get_hp() const;
     Uint8 get_current_hp() const;

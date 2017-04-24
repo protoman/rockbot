@@ -2,6 +2,10 @@
 #include <list>
 #include <math.h>
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include "classplayer.h"
 #include "inputlib.h"
 #include "game_mediator.h"
@@ -19,6 +23,7 @@ extern game gameControl;
 #define PLAYER_MOVE_SPEED 1.25 // higher is faster
 #include "file/file_io.h"
 #include "classmap.h"
+
 
 extern std::string FILEPATH;
 extern CURRENT_FILE_FORMAT::file_game game_data;
@@ -186,12 +191,6 @@ bool classPlayer::get_item(object_collision &obj_info)
             update_armor_properties();
             res = true;
             break;
-        case OBJ_CHECKPOINT:
-            checkpoint.x = position.x;
-            checkpoint.y = position.y/TILESIZE;
-            checkpoint.map = gameControl.get_current_map_obj()->get_number();
-            checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-            break;
         default:
 			//std::cout << "classPlayer::get_item - unknown item type: " << obj_info._object->get_type() << std::endl;
 			break;
@@ -304,7 +303,8 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     bool auto_charged = false;
-    if (game_save.armor_pieces[ARMOR_ARMS] == true && game_data.armor_pieces[ARMOR_ARMS].special_ability[_number] == ARMOR_ABILITY_ARMS_ALWAYSCHARGED) {
+    // player with double jump changes to auto-carged instead of charging shot
+    if (game_save.armor_pieces[ARMOR_ARMS] == true && _simultaneous_shots > 1) {
         auto_charged = true;
     }
 
@@ -724,6 +724,9 @@ void classPlayer::execute_projectiles()
                     if (multiplier <= 0) {
                         multiplier = 1;
                     }
+
+                    std::cout << ">>>>>> weapon multiplier[" << multiplier << "], damage[" << (int)(*it).get_damage() << "]" << std::endl;
+
                     gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
                 } else {
                     std::cout << "PLAYER::EXECUTE_PROJ - projectile damage is zero" << std::endl;
@@ -1162,11 +1165,9 @@ bool classPlayer::can_air_dash()
 
 void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
 {
-    if (damage_points > 0 && damage_points < 99 && game_save.difficulty == DIFFICULTY_HARD) {
-        damage_points++;
-    }
     if (damage_points > 1 && game_save.difficulty == DIFFICULTY_EASY) {
         damage_points--;
+        std::cout << "HARD-MODE, damage--[" << damage_points << "]" << std::endl;
     }
     int new_damage_points = damage_points;
     if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_HALFDAMAGE) {
@@ -1174,13 +1175,23 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
         if (damage_points > 0 && new_damage_points <= 0) {
             new_damage_points = 1;
         }
+        std::cout << "ARMOR-HALF-DAMAGE, damage[" << damage_points << "], new_damage_points[" << new_damage_points << "]" << std::endl;
         character::damage(new_damage_points, ignore_hit_timer);
         return;
     }
-    if (damage_points == SPIKES_DAMAGE && game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
+    character::damage(damage_points, ignore_hit_timer);
+}
+
+void classPlayer::damage_spikes(bool ignore_hit_timer)
+{
+    if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
+        std::cout << "################## SPIKES Immunity" << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "####### SPIKES Immunity #######");
+#endif
         return;
     }
-    character::damage(damage_points, ignore_hit_timer);
+    classPlayer::damage(SPIKES_DAMAGE, ignore_hit_timer);
 }
 
 float classPlayer::get_hit_push_back_n()

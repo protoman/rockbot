@@ -22,7 +22,6 @@ extern inputLib input;
 #define STAIR_ANIMATION_WAIT_FRAMES 10
 #define STAIRS_GRAB_TIMEOUT 200
 
-extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
 
@@ -644,7 +643,7 @@ void character::check_charging_colors()
 
     //std::cout << "_charged_shot_projectile_id[" << _charged_shot_projectile_id << "]" << std::endl;
 
-    if (_charged_shot_projectile_id > 0 && attack_diff_timer > CHARGED_SHOT_INITIAL_TIME && attack_diff_timer < CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1) {
+    if (_charged_shot_projectile_id > 0 && attack_diff_timer > CHARGED_SHOT_INITIAL_TIME && attack_diff_timer < CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1 && _simultaneous_shots < 2) {
         if (is_player() && soundManager.is_playing_repeated_sfx() == false) {
             soundManager.play_repeated_sfx(SFX_CHARGING1, 0);
         }
@@ -734,7 +733,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool au
         std::cout << "character::attack - attack_id: " << attack_id << std::endl;
 
         //if (!is_player()) { std::cout << "CHAR::attack::attack_id: " << attack_id << std::endl; }
-        if (attack_id == _charged_shot_projectile_id || attack_id == 20 || attack_id == 10 || attack_id == game_data.semi_charged_projectile_id) {
+        if (attack_id == _charged_shot_projectile_id || attack_id == game_data.semi_charged_projectile_id) {
 			if (is_player() && soundManager.is_playing_repeated_sfx() == true) {
 				soundManager.stop_repeated_sfx();
 			}
@@ -1570,11 +1569,8 @@ bool character::slide(st_float_position mapScrolling)
 		return false;
 	}
 
-    // player have double jump (without being armor) can't use slide
-    if (GameMediator::get_instance()->player_list_v3_1[_number].can_double_jump) {
-        return false;
-    }
 
+    bool did_hit_ground = hit_ground();
     int adjust = -1;
     if (slide_type == 1) { // if is slide-type, use greater adjust
         adjust = -TILESIZE;
@@ -1582,9 +1578,17 @@ bool character::slide(st_float_position mapScrolling)
     st_map_collision map_col = map_collision(0, adjust, gameControl.get_current_map_obj()->getMapScrolling(), ANIM_TYPE_SLIDE); // slide_adjust is used because of adjustments in slide collision
     int map_lock =  map_col.block;
 
+    // player have double jump (without being armor) can't use slide in ground
+    if (GameMediator::get_instance()->player_list_v3_1[_number].can_double_jump) {
+        if (did_hit_ground == true) {
+            return false;
+        }
+    }
+
+
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
-        if (hit_ground()) {
+        if (did_hit_ground) {
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.2" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
@@ -1595,7 +1599,7 @@ bool character::slide(st_float_position mapScrolling)
 
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
-        if (hit_ground() == true) {
+        if (did_hit_ground == true) {
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.3" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
@@ -1610,7 +1614,6 @@ bool character::slide(st_float_position mapScrolling)
     // start slide
     if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
         if (moveCommands.dash == 1) {
-            bool did_hit_ground = hit_ground();
             if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true)) {
                 _can_execute_airdash = false;
                 set_animation_type(ANIM_TYPE_SLIDE);
@@ -1851,7 +1854,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
             }
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_HARD) {
-                damage(999, true);
+                damage_spikes(true);
                 must_block = true;
             }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
@@ -1889,7 +1892,7 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
 		return true;
 	}
     if (state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
-        damage(SPIKES_DAMAGE, false);
+        damage_spikes(true);
         return true;
     }
 
@@ -2829,7 +2832,12 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 		//std::cout << "1. character::damage - DEATH" << std::endl;
 		hitPoints.current = 0;
 		death();
-	}
+    }
+}
+
+void character::damage_spikes(bool ignore_hit_timer)
+{
+    character::damage(SPIKES_DAMAGE);
 }
 
 bool character::is_dead() const
