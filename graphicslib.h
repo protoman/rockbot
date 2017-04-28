@@ -221,7 +221,7 @@ public:
     void draw_explosion(st_position pos);
     void show_debug_msg(std::string msg);
     void draw_path(st_position initial_point, st_position final_point, short duration);
-    graphicsLib_gSurface flip_image(graphicsLib_gSurface original, e_flip_type flip_mode);
+    void flip_image(graphicsLib_gSurface original, graphicsLib_gSurface &res, e_flip_type flip_mode);
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
     void place_water_tile(st_position dest);
 #ifdef PSP
@@ -257,7 +257,8 @@ public:
 
 	// graphics used in several places
     graphicsLib_gSurface small_explosion;
-    std::vector<graphicsLib_gSurface> projectile_surface;
+    std::vector<st_surface_with_direction> projectile_surface;
+    //std::vector<graphicsLib_gSurface> projectile_surface;
     graphicsLib_gSurface bomb_explosion_surface;
     graphicsLib_gSurface e_tank[2];
     graphicsLib_gSurface w_tank[2];

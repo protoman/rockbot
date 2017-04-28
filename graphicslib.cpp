@@ -295,7 +295,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         //std::cout << "surfaceFromFile - file: '" << filename << "'" << std::endl;
         res->width = res->get_surface()->w;
         res->height = res->get_surface()->h;
-	}
+    }
 }
 
 void graphicsLib::loadTileset(std::string file)
@@ -361,7 +361,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     //std::cout << "GRAPHLIB::copySDLPortion - surfaceOrigin.w[" << surfaceOrigin->w << "]" << std::endl;
 
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
-        printf(">> Invalid X portion[%d] w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        printf(">> Invalid X portion src.x[%d], src.w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion <<\n");
@@ -1933,10 +1933,11 @@ void graphicsLib::preload_images()
     for (int i=0; i<GameMediator::get_instance()->get_projectile_list_size(); i++) {
         std::string filename(GameMediator::get_instance()->get_projectile(i).graphic_filename);
         filename = FILEPATH + "images/projectiles/" + filename;
-        projectile_surface.push_back(graphicsLib_gSurface());
+        projectile_surface.push_back(st_surface_with_direction());
         if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
             //std::cout << "GRAPHLIB::preload_images - i[" << i << "], list.size[" << projectile_surface.size() << "]" << std::endl;
-            surfaceFromFile(filename, &projectile_surface.at(i));
+            surfaceFromFile(filename, &projectile_surface.at(i).surface[ANIM_DIRECTION_RIGHT]);
+            flip_image(projectile_surface.at(i).surface[ANIM_DIRECTION_RIGHT], projectile_surface.at(i).surface[ANIM_DIRECTION_LEFT], flip_type_horizontal);
 		}
 	}
 
@@ -2011,21 +2012,20 @@ void graphicsLib::preload_anim_tiles()
     }
 }
 
-graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_flip_type flip_mode)
+void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface& res, e_flip_type flip_mode)
 {
 
 
     //std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 
     //Pointer to the soon to be flipped surface
-    SDL_Surface *surface = original.get_surface();
-    graphicsLib_gSurface res = original;
+    res = original;
     //initSurface(st_size(original.width, original.height), &res);
 
     //If the surface must be locked
-    if (SDL_MUSTLOCK( surface )) {
+    if (SDL_MUSTLOCK( original.get_surface() )) {
         //Lock the surface
-        SDL_LockSurface( surface );
+        SDL_LockSurface( original.get_surface() );
     }
 
     //Go through columns
@@ -2049,7 +2049,6 @@ graphicsLib_gSurface graphicsLib::flip_image(graphicsLib_gSurface original, e_fl
             }
         }
     }
-    return res;
 }
 
 void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface)

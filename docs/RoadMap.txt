@@ -90,8 +90,6 @@ Tirar de projectile tb.
 
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
 
-- fazer mirror da imagem do projétil
-
 - apresentação dos inimigos estilo cutscene, só com rosto (inspuração abertura de rooko chan)
 
 - copy credits from v1 to Rockbot1/game_credits.txt
@@ -198,7 +196,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
+- projectile generate left/right flipping surface instead of have the image with both
 
 
 

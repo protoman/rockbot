@@ -353,16 +353,21 @@ void projectile::set_target_position(st_float_position *pos)
 
 graphicsLib_gSurface *projectile::get_surface()
 {
+    // only use left/right, ignore other directions
+    int temp_direction = 0;
+    if (direction != ANIM_DIRECTION_LEFT) {
+        temp_direction = 1;
+    }
 	if (_id == -1) {
-        if (graphLib.projectile_surface[0].get_surface() == NULL) {
+        if (graphLib.projectile_surface[0].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #1");
         }
-		return &graphLib.projectile_surface[0];
+        return &graphLib.projectile_surface[0].surface[temp_direction];
 	} else {
-        if (graphLib.projectile_surface[_id].get_surface() == NULL) {
+        if (graphLib.projectile_surface[_id].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #2");
         }
-        return &graphLib.projectile_surface[_id];
+        return &graphLib.projectile_surface[_id].surface[temp_direction];
     }
 }
 
@@ -778,21 +783,19 @@ void projectile::draw() {
 
 
     } else {
-        //printf(">> PROJECTILE::DRAW[%d] - show_width[%d], _size.height[%d] anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
-        if (direction == ANIM_DIRECTION_LEFT && get_surface()->height >= _size.height*2) {
+        //printf(">> PROJECTILE::DRAW[%d] - direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
+        if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*2) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*3) {
+        } else if (direction == ANIM_DIRECTION_DOWN && get_surface()->height >= _size.height*3) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*2, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_DOWN && get_surface()->height >= _size.height*4) {
+        } else if (direction == ANIM_DIRECTION_UP_LEFT && get_surface()->height >= _size.height*4) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*3, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_UP_LEFT && get_surface()->height >= _size.height*5) {
+        } else if (direction == ANIM_DIRECTION_UP_RIGHT && get_surface()->height >= _size.height*5) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*4, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_UP_RIGHT && get_surface()->height >= _size.height*6) {
+        } else if (direction == ANIM_DIRECTION_DOWN_LEFT && get_surface()->height >= _size.height*6) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*5, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_DOWN_LEFT && get_surface()->height >= _size.height*7) {
+        } else if (direction == ANIM_DIRECTION_DOWN_RIGHT && get_surface()->height >= _size.height*7) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*6, show_width, _size.height), realPosition);
-        } else if (direction == ANIM_DIRECTION_DOWN_LEFT && get_surface()->height >= _size.height*8) {
-            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height*7, show_width, _size.height), realPosition);
         } else { // right is the default frame
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, 0, show_width, _size.height), realPosition);
         }

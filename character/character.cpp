@@ -2240,7 +2240,8 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
                     graphLib.set_spriteframe_surface(sprite, gsurface);
                 // LEFT
                 } else {
-                    graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
+                    graphicsLib_gSurface gsurface_flip;
+                    graphLib.flip_image(gsurface, gsurface_flip, flip_type_horizontal);
                     graphLib.set_spriteframe_surface(sprite, gsurface_flip);
                 }
 
@@ -2251,7 +2252,8 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
                 if (anim_type == ANIM_TYPE_STAIRS_MOVE || anim_type == ANIM_TYPE_STAIRS_SEMI) {
                     st_spriteFrame *sprite = &(graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1];
                     if (anim_direction != 0) {
-                        graphicsLib_gSurface gsurface_flip = graphLib.flip_image(gsurface, flip_type_horizontal);
+                        graphicsLib_gSurface gsurface_flip;
+                        graphLib.flip_image(gsurface, gsurface_flip, flip_type_horizontal);
                         graphLib.set_spriteframe_surface(sprite, gsurface_flip);
                     } else {
                         graphLib.set_spriteframe_surface(sprite, gsurface);

@@ -730,5 +730,9 @@ struct st_input_button_config {
     }
 };
 
+struct st_surface_with_direction {
+    graphicsLib_gSurface surface[2];
+};
+
 
 #endif // ST_COMMON_H
