@@ -856,36 +856,37 @@ void classMap::drop_item(int i)
     int rand_n = rand() % 100;
     std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
     DROP_ITEMS_LIST obj_type;
-    if (rand_n <= 10) {
-        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_SMALL" << std::endl;
-        obj_type = DROP_ITEM_ENERGY_SMALL;
-    } else if (rand_n <= 20) {
-        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_SMALL" << std::endl;
-        obj_type = DROP_ITEM_WEAPON_SMALL;
-    } else if (rand_n <= 25) {
-        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_BIG" << std::endl;
-        obj_type = DROP_ITEM_ENERGY_BIG;
-    } else if (rand_n <= 30) {
-        //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
-        obj_type = DROP_ITEM_WEAPON_BIG;
-    } else {
-        return;
-    }
-
-    st_position obj_pos;
-    obj_pos.y = position.y/TILESIZE;
-    obj_pos.x = (position.x - TILESIZE)/TILESIZE;
 
     // sub-bosses always will drop energy big
     if (_npc_list.at(i).is_subboss()) {
         obj_type = DROP_ITEM_ENERGY_BIG;
+    } else {
+        if (rand_n <= 10) {
+            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_SMALL" << std::endl;
+            obj_type = DROP_ITEM_ENERGY_SMALL;
+        } else if (rand_n <= 20) {
+            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_SMALL" << std::endl;
+            obj_type = DROP_ITEM_WEAPON_SMALL;
+        } else if (rand_n <= 25) {
+            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_BIG" << std::endl;
+            obj_type = DROP_ITEM_ENERGY_BIG;
+        } else if (rand_n <= 30) {
+            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
+            obj_type = DROP_ITEM_WEAPON_BIG;
+        } else {
+            return;
+        }
     }
+    st_position obj_pos;
+    obj_pos.y = position.y/TILESIZE;
+    obj_pos.x = (position.x - TILESIZE)/TILESIZE;
 
     short obj_type_n = gameControl.get_drop_item_id(obj_type);
     if (obj_type_n == -1) {
         std::cout << ">>>>>>>>> obj_type_n(" << obj_type_n << ") invalid for obj_type(" << obj_type << ")" << std::endl;
         return;
     }
+
     object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
     temp_obj.set_position(position);
     temp_obj.set_duration(4500);
@@ -1550,6 +1551,17 @@ void classMap::reset_beam_objects()
         short obj_type = temp_obj.get_type();
         if (obj_type == OBJ_DEATHRAY_VERTICAL || obj_type == OBJ_DEATHRAY_HORIZONTAL || obj_type == OBJ_RAY_VERTICAL || obj_type == OBJ_RAY_HORIZONTAL) {
             temp_obj.reset();
+        }
+    }
+}
+
+void classMap::remove_temp_objects()
+{
+    // reset objects
+    for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
+        object& temp_obj = (*it);
+        if (temp_obj.get_is_dropped() == true) {
+            temp_obj.set_finished(true);
         }
     }
 }

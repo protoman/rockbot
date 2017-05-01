@@ -87,6 +87,9 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
+- para achar a linha de um crash:
+    # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
+
 
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
 
@@ -108,8 +111,6 @@ IMPROVEMENTS/IDEAS:
 
 - AI: add "backtrack" movement, keep sprite in the inverse direction it is moving
 
-- add up until castle2 stage5 into the enum
-
 - change stage 5 to be a sequence of bosses, remove teleporters
 
 - add castle 1 stage 6 with only destrin boss.
@@ -121,7 +122,6 @@ IMPROVEMENTS/IDEAS:
 TESTAR - criar um sistema para dropar frames caso FPS fique abaixo de 60
     # dropar o número que está abaixo, mas distribuir eles uniformemente
 
-- sub-boss not dropping item (must drop energy big always)
 
 - tileset stage select map (add credits to ROCKBOT2):
     # http://opengameart.org/content/js-saga-style-tileset-2-ascent
@@ -157,8 +157,6 @@ IDEIAS:
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 
 - Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
-
-- ao trocar de mapa num estágio, deve limpar objetos temporários (dropped-items, for example)
 
 - Gear Bot pára de andar:
     # >> character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos
@@ -196,7 +194,11 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- ao trocar de mapa num estágio, deve limpar objetos temporários (dropped-items, for example)
+- sub-boss not dropping item (must drop energy big always)
+- EDITOR: map showing full-size (multiple frames) instead of just 1
 - projectile generate left/right flipping surface instead of have the image with both
+- add up until castle2 stage5 into the enum
 
 
 

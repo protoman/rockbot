@@ -137,6 +137,8 @@ public:
 
     void reset_beam_objects();
 
+    void remove_temp_objects();
+
     void get_map_area_surface(graphicsLib_gSurface &mapSurface);
 
     void set_scrolling(st_float_position pos);

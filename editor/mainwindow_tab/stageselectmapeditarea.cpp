@@ -16,9 +16,11 @@ void StageSelectMapEditArea::paintEvent(QPaintEvent *) {
     QPixmap bg_image(filename.c_str());
 
     if (bg_image.isNull() == false && bg_image.width() > 0) {
-        painter.drawPixmap(0, 0, RES_W, RES_H, bg_image);
-    }
 
+        QRectF pos_source(QPoint(0, 0), QSize(RES_W, RES_H));
+        QRectF pos_dest(QPoint(0, 0), QSize(RES_W, RES_H));
+        painter.drawPixmap(pos_dest, bg_image, pos_source);
+    }
 
     // draw grid
     QPen pen(QColor(60, 60, 60), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);

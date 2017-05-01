@@ -221,6 +221,8 @@ public:
 
     void reset_beam_objects();
 
+    void remove_temp_objects();
+
 
     void remove_players_slide();
     /**

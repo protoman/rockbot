@@ -97,6 +97,7 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     // control animation for objects that expand/contract
     _expanding = true;
     _size = 0;
+    is_dropped = false;
     add_graphic();
 }
 
@@ -1344,5 +1345,15 @@ bool object::is_teleporting()
         return true;
     }
     return false;
+}
+
+void object::set_is_dropped(bool dropped)
+{
+    is_dropped = dropped;
+}
+
+bool object::get_is_dropped()
+{
+    return is_dropped;
 }
 

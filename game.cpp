@@ -596,6 +596,7 @@ bool game::test_teleport(classPlayer *test_player) {
 
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
+    remove_temp_objects();
 
 
     // must move the map, so that the dest position in screen is equal to player_real_pos_x
@@ -871,6 +872,11 @@ void game::remove_all_projectiles()
 void game::reset_beam_objects()
 {
     loaded_stage.get_current_map()->reset_beam_objects();
+}
+
+void game::remove_temp_objects()
+{
+    loaded_stage.get_current_map()->remove_temp_objects();
 }
 
 void game::remove_players_slide()

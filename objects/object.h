@@ -236,6 +236,10 @@ public:
 
     bool is_teleporting();
 
+    void set_is_dropped(bool dropped);
+
+    bool get_is_dropped();
+
 
 private:
     /**
@@ -307,6 +311,7 @@ private:
     bool _expanding;
     int _size;
     int max_frames;
+    bool is_dropped;
 };
 
 #endif // OBJECT_H
