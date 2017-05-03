@@ -89,6 +89,8 @@ Tirar de projectile tb.
 ###################################################################################################################
 - para achar a linha de um crash:
     # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
+    # ~/Programas/android-studio/sdk/android-ndk-r11c/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-addr2line -C -f -e /home/iuri/Desenvolvimento/rockbot/build/packages/libapplication.so 0003a587
+    # tem que copiar o libapplication.so antes de limpar os símbolos de debug
 
 
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
