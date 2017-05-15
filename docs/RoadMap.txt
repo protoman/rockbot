@@ -200,17 +200,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- player projectiles are being reflected in some enemies
-    # it is testing hitbox first then hitartea, it should be the other way around
-- add black border to hub ball points
-- copy credits from v1 to Rockbot1/game_credits.txt
-
-
-- ao trocar de mapa num estágio, deve limpar objetos temporários (dropped-items, for example)
-- sub-boss not dropping item (must drop energy big always)
-- EDITOR: map showing full-size (multiple frames) instead of just 1
-- projectile generate left/right flipping surface instead of have the image with both
-- add up until castle2 stage5 into the enum
 
 
 
