@@ -87,17 +87,21 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
+- efeito do trem está meio estranho e deve ser removido ao trocar de mapa
+
+- ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
+
 - para achar a linha de um crash:
     # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
     # ~/Programas/android-studio/sdk/android-ndk-r11c/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-addr2line -C -f -e /home/iuri/Desenvolvimento/rockbot/build/packages/libapplication.so 0003a587
     # tem que copiar o libapplication.so antes de limpar os símbolos de debug
 
+- fazer o make do android pegar o version lá do packages para setar no jogo, na tela intro
 
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
 
-- apresentação dos inimigos estilo cutscene, só com rosto (inspuração abertura de rooko chan)
+- apresentação dos inimigos estilo cutscene, só com rosto (inspiração abertura de rooko chan)
 
-- copy credits from v1 to Rockbot1/game_credits.txt
 
 
 IMPROVEMENTS/IDEAS:
@@ -196,6 +200,12 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- player projectiles are being reflected in some enemies
+    # it is testing hitbox first then hitartea, it should be the other way around
+- add black border to hub ball points
+- copy credits from v1 to Rockbot1/game_credits.txt
+
+
 - ao trocar de mapa num estágio, deve limpar objetos temporários (dropped-items, for example)
 - sub-boss not dropping item (must drop energy big always)
 - EDITOR: map showing full-size (multiple frames) instead of just 1

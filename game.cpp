@@ -10,6 +10,11 @@
 	#include <pspdebug.h>
 #endif
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
+
 #include "timerlib.h"
 extern timerLib timer;
 
@@ -39,11 +44,6 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 extern bool run_game;
-
-#ifdef ANDROID
-#include <android/log.h>
-#endif
-
 
 extern string FILEPATH;
 
@@ -1340,8 +1340,10 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    scenes.show_player_ending();
-    scenes.show_enemies_ending();
+    //scenes.show_player_ending();
+    //scenes.show_player_walking_ending();
+
+    //scenes.show_enemies_ending();
 
     scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
     draw_lib.show_credits(false);
@@ -1370,7 +1372,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = STAGE6;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_2;
 

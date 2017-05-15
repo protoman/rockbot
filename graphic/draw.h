@@ -38,7 +38,7 @@ public:
     void set_gfx(Uint8 gfx, short mode);
     Uint8 get_gfx();
     void set_flash_enabled(bool enabled);
-    void show_boss_intro_sprites(short boss_id, bool show_fall);
+    void show_boss_intro_sprites(int boss_id, bool show_fall);
     void show_ready();
     void show_bubble(int x, int y);
     void set_teleport_small_colors(st_color color1, st_color color2);

@@ -672,11 +672,11 @@ void classPlayer::execute_projectiles()
             }
 
 
-            st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
+            st_rectangle npc_hitarea = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
             //std::cout << "enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
 
             //classnpc* enemy = (*enemy_it);
-            if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
+            if ((*it).check_collision(npc_hitarea, st_position(moved.width, moved.height)) == true) {
                 // shielded NPC: reflects/finishes shot
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                     continue;
@@ -693,11 +693,17 @@ void classPlayer::execute_projectiles()
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+                st_rectangle enemy_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
 
-                int temp_x = Sint16(enemy_hit_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
+                int temp_x = Sint16(enemy_vulnerable_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
 
-                if ((*it).check_collision(enemy_hit_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+                if ((*it).check_collision(enemy_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+
+                    std::cout << "enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
+                    std::cout << ", enemy_hit_area x[" << enemy_vulnerable_area.x << "], y[" << enemy_vulnerable_area.y << "], w[" << enemy_vulnerable_area.w << "], h[" << enemy_vulnerable_area.h << "]" << std::endl;
+
+                    st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+
                     (*it).reflect();
                     continue;
                 }

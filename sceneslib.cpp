@@ -353,7 +353,6 @@ void scenesLib::show_player_ending()
         default:
             break;
     }
-    show_player_walking_ending();
 }
 
 void scenesLib::show_player_walking_ending()
@@ -451,12 +450,15 @@ void scenesLib::show_enemies_ending()
     soundManager.play_music();
 
     // get all stage bosses
-    CURRENT_FILE_FORMAT::file_stages stage_data;
-    fio.read_all_stages(stage_data);
     std::map<int, std::string> stage_boss_id_list;
     for (int i=0; i<FS_MAX_STAGES; i++) {
-        std::pair<int, std::string> temp_data((int)stage_data.stages[i].boss.id_npc, std::string(stage_data.stages[i].boss.name));
-        stage_boss_id_list.insert(temp_data);
+        CURRENT_FILE_FORMAT::file_stage stage_data_obj;
+        fio.read_stage(stage_data_obj, i);
+        int boss_id = stage_data_obj.boss.id_npc;
+        if (boss_id != -1) {
+            std::pair<int, std::string> temp_data(boss_id, std::string(stage_data_obj.boss.name));
+            stage_boss_id_list.insert(temp_data);
+        }
     }
 
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
@@ -479,7 +481,7 @@ void scenesLib::show_enemies_ending()
         graphLib.draw_progressive_text(120, RES_H/2, name, false);
         timer.delay(3000);
     }
-    show_bosses_ending(bg_surface, stage_data);
+    show_bosses_ending(bg_surface);
 
     graphLib.blank_screen();
     graphLib.updateScreen();
@@ -489,7 +491,7 @@ void scenesLib::show_enemies_ending()
 
 }
 
-void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface, CURRENT_FILE_FORMAT::file_stages& stage_data)
+void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
 {
     graphLib.blank_screen();
     // read bosses strings
@@ -497,9 +499,20 @@ void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface, CURRENT_FIL
     std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt", LANGUAGE_ENGLISH);
 
     for (int i=0; i<CASTLE1_STAGE5; i++) {
+
+        CURRENT_FILE_FORMAT::file_stage stage_data_obj;
+        fio.read_stage(stage_data_obj, i);
+
         graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
         graphLib.updateScreen();
-        draw_lib.show_boss_intro_sprites((int)stage_data.stages[i].boss.id_npc, false);
+        int boss_id = stage_data_obj.boss.id_npc;
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>>>>>>>>>> GAME::show_bosses_ending, id[%d], npc_n[%d], name[%s] <<<<<<<<<<<<<<<<<<<<<<<<<<<", i, boss_id, stage_data_obj.boss.name);
+#endif
+
+
+        draw_lib.show_boss_intro_sprites(boss_id, false);
         graphLib.draw_progressive_text(130, RES_H/2-14, boss_credits_data.at(i*3), false, 20);
         graphLib.draw_progressive_text(130, RES_H/2-3, boss_credits_data.at(i*3+1), false, 20);
         graphLib.draw_progressive_text(130, RES_H/2+8, boss_credits_data.at(i*3+2), false, 20);

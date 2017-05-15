@@ -217,6 +217,7 @@ public:
     void remove_freeze_effect();
     void push_back(short direction);
     st_rectangle get_hitarea();
+    st_rectangle get_vulnerable_area();
 
 
 private:

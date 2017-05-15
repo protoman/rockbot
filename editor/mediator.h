@@ -66,6 +66,7 @@ public:
     short stage_select_edit_mode;
     short stage_select_stage_number;
     CURRENT_FILE_FORMAT::file_stage_select stage_select_data;
+    bool show_grid;
 
 
 	int getPalleteX();

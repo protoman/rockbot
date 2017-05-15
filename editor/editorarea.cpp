@@ -182,12 +182,14 @@ void EditorArea::paintEvent(QPaintEvent *) {
                         QPen pen(QColor(0, 200, 0), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
                         painter.setPen(pen);
 
-                        int anim_tile_x = i * TILESIZE * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
-                        int anim_tile_y = j * TILESIZE *Mediator::get_instance()->zoom;
-                        painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y);
-                        painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
-                        painter.drawLine(anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
-                        painter.drawLine(anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                        if (Mediator::get_instance()->show_grid) {
+                            int anim_tile_x = i * TILESIZE * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
+                            int anim_tile_y = j * TILESIZE *Mediator::get_instance()->zoom;
+                            painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y);
+                            painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                            painter.drawLine(anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                            painter.drawLine(anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                        }
                     } else {
                         std::cout << ">>>>>>>> anim-file '" << anim_tile_filename.toStdString() << "' not found." << std::endl;
                     }
@@ -331,29 +333,31 @@ void EditorArea::paintEvent(QPaintEvent *) {
     //std::cout << "=============" << std::endl;
 
 
-    // DRAW GRID //
-    QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
-    QPen pen_red(QColor(180, 50, 50), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
-    painter.setPen(pen);
-    for (i=1; i<MAP_W; i++) {
-        pos = i*16*Mediator::get_instance()->zoom-1;
-        //QLineF line(0, 800, 16, 800);
-        // linhas horizontais
-        line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
-        if (i % 20 == 0) {
-            painter.setPen(pen_red);
-        } else {
-            painter.setPen(pen);
+    if (Mediator::get_instance()->show_grid) {
+        // DRAW GRID //
+        QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        QPen pen_red(QColor(180, 50, 50), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+        for (i=1; i<MAP_W; i++) {
+            pos = i*16*Mediator::get_instance()->zoom-1;
+            //QLineF line(0, 800, 16, 800);
+            // linhas horizontais
+            line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
+            if (i % 20 == 0) {
+                painter.setPen(pen_red);
+            } else {
+                painter.setPen(pen);
+            }
+            painter.drawLine(line);
         }
-        painter.drawLine(line);
-    }
-    painter.setPen(pen);
-    for (i=1; i<MAP_H; i++) {
-        pos = i*16*Mediator::get_instance()->zoom-1;
-        //QLineF line(0, 800, 16, 800);
-        // linhas verticais
-        line = QLineF(0, pos, MAP_W*16*Mediator::get_instance()->zoom-1, pos);
-        painter.drawLine(line);
+        painter.setPen(pen);
+        for (i=1; i<MAP_H; i++) {
+            pos = i*16*Mediator::get_instance()->zoom-1;
+            //QLineF line(0, 800, 16, 800);
+            // linhas verticais
+            line = QLineF(0, pos, MAP_W*16*Mediator::get_instance()->zoom-1, pos);
+            painter.drawLine(line);
+        }
     }
 
 

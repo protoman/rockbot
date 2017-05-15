@@ -3305,6 +3305,8 @@ int character::get_armor_arms_attack_id()
 
 st_rectangle character::get_hitarea()
 {
+    //[ANIM_TYPE_TELEPORT][0].collision_rect.x
+
     if (hitarea_box.w == 0 || hitarea_box.h == 0) {
         return get_hitbox();
     }
@@ -3325,6 +3327,14 @@ st_rectangle character::get_hitarea()
     st_rectangle hitarea(temp_x, temp_y, temp_w, temp_h);
 
     return hitarea;
+}
+
+st_rectangle character::get_vulnerable_area()
+{
+    int temp_x = position.x + hitarea_box.x;
+    int temp_y = position.y + hitarea_box.y;
+    int temp_w = hitarea_box.w;
+    int temp_h = hitarea_box.h;
 }
 
 

@@ -3,10 +3,7 @@ VERSIONNAME=`cat version_name_v1.txt`
 
 set -x
 
-# TODO: 
-# version number automatic (format from version_name string)
-# v2 must copy nly game/rockbot2
-# v2 must use icon
+read -r -p "Did you remember to update data version and data zip name in AndroidAppSettings.cfg? [y/N] " response
 
 read -r -p "Did you remember to update data version and data zip name in AndroidAppSettings.cfg? [y/N] " response
 case $response in
@@ -77,7 +74,12 @@ case $response in
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
+		# build debug and copy library so we can track
 		sh ./build.sh rockbot debug
+		cp ./project/jni/application/rockbot/libapplication-armeabi.so $ROCKBOTDIR/libapplication-armeabi_$VERSIONNAME.so
+		
+		# build release
+		sh ./build.sh rockbot release
 		rm $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
 		cp ./project/bin/MainActivity-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
@@ -85,6 +87,8 @@ case $response in
 		# assina e realinha o APK
 		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk alias_name
 		/home/iuri/Programas/android-studio/sdk/build-tools/23.0.3/zipalign -v 4 $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
+		# copy mappings.txt so we can use for later debugging
+		cp ./project/bin/proguard/mapping.txt $ROCKBOTDIR/Tmappings_$VERSIONNAME.txt
 		;;
 	*)
 		echo "Aborted."

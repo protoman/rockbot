@@ -84,7 +84,7 @@ android {
         QMAKE_CXXFLAGS += -fpic -ffunction-sections -funwind-tables -fstack-protector \
 	-DANDROID -DHANDHELD -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
 	-D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
-	-fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -g -finline-functions -Wa,--noexecstack \
+        -fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -finline-functions -Wa,--noexecstack \
         -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
         --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
         -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/include \
@@ -111,7 +111,7 @@ android {
         LIBS = 	-fpic -ffunction-sections -funwind-tables -fstack-protector \
 	-D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
 	-D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
-	-fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -g -finline-functions -Wa,--noexecstack \
+        -fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -finline-functions -Wa,--noexecstack \
         -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
         --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
         -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib \
@@ -147,7 +147,7 @@ android {
         -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
         -lsupc++  -lsdl-1.2
 
-        QMAKE_POST_LINK += $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip --strip-all libapplication-armeabi.so
+        #QMAKE_POST_LINK += $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip --strip-all libapplication-armeabi.so
 
 }
 
@@ -186,7 +186,7 @@ dingux {
 
 	INCLUDES = -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -I. -I../include -I.
 
-	QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
+        #QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
 }
 
 
@@ -243,7 +243,7 @@ playstation2 {
 	INCLUDES = -D_EE -O2 -G0 -Wall -O6 -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common I$(PS2SDK)/ee/include
         LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$(PS2SDK)/ports/lib -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc
         LIBS +=  -lstdc++  -Wl,--whole-archive $(PS2SDK)/ee/lib/libc.a -Wl,--no-whole-archive $(PS2DEV)/ee/ee/lib/libc.a -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
-	QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
+        #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
 }
 
 
@@ -259,7 +259,7 @@ open_pandora {
 
 	INCLUDES = -I. -I../include -I.
 
-	QMAKE_POST_LINK += $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-strip --strip-all rockbot_pandora
+        #QMAKE_POST_LINK += $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-strip --strip-all rockbot_pandora
 }
 
 

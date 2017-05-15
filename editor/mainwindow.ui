@@ -411,6 +411,7 @@
     </widget>
     <addaction name="menuLevel"/>
     <addaction name="menuZoom"/>
+    <addaction name="actionGRID"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
@@ -620,6 +621,17 @@
   <action name="actionZoomThree">
    <property name="text">
     <string>Three</string>
+   </property>
+  </action>
+  <action name="actionGRID">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>gRID</string>
    </property>
   </action>
  </widget>

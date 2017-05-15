@@ -385,6 +385,7 @@ int main(int argc, char *argv[])
 
     /// DEBUG ///
     //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_INVENCIBLE] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #ifdef LINUX

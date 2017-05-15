@@ -646,3 +646,9 @@ void MainWindow::on_scenes_editor_window_closed()
 {
     game_scenes_tab->reload();
 }
+
+void MainWindow::on_actionGRID_toggled(bool arg1)
+{
+    Mediator::get_instance()->show_grid = !Mediator::get_instance()->show_grid;
+    map_edit_tab->update_edit_area();
+}

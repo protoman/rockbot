@@ -29,7 +29,7 @@ public:
     void show_player_ending();
     void show_player_walking_ending();
     void show_enemies_ending();
-    void show_bosses_ending(graphicsLib_gSurface &bg_surface, format_v4::file_stages &stage_data);
+    void show_bosses_ending(graphicsLib_gSurface &bg_surface);
 
 private:
     // preload/unload

@@ -10,16 +10,16 @@
 #define SNOW_DELAY 40
 #define LIGHTINGBOLT_DELAY1 3000
 #define LIGHTINGBOLT_DELAY2 80
-
 #define TRAIN_DELAY 2000
 #define TRAIN_EFFECT_DELAY 180
 #define TRAIN_EFFECT_SCREEN_MOVE 1
-
 #define INFERNO_ALPHA_STEP 3
-
 #define CASTLE_PATH_DURATION 1000
-
 #define STARS_DELAY 50
+
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 
 extern graphicsLib graphLib;
 
@@ -204,7 +204,7 @@ void draw::show_flash()
     }
 }
 
-void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
+void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
 {
     unsigned int intro_frames_n = 0;
     //int intro_frames_rollback = 0;
@@ -213,6 +213,12 @@ void draw::show_boss_intro_sprites(short boss_id, bool show_fall)
     graphicsLib_gSurface bgCopy, boss_graphics;
 
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "DRAW::show_boss_intro_sprites, id[%d], filename[%s]", boss_id, graph_filename.c_str());
+#endif
+
+
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
@@ -356,8 +362,15 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
             int text_pos = posY+12*i;
 
             if (text_pos >= -12 && text_pos <= RES_H+12) {
-                std::size_t found = credit_text.at(i).find("- ");
-                if (found != std::string::npos) {
+                std::size_t found_title_blue = credit_text.at(i).find("- ");
+                std::size_t found_title_red = credit_text.at(i).find("# ");
+                if (credit_text.at(i)[0] == '@') { // section
+                    std::string text_out = credit_text.at(i);
+                    text_out = text_out.substr(1, text_out.length()-1);
+                    graphLib.draw_centered_text(text_pos, text_out, graphLib.gameScreen, st_color(102, 255, 181));
+                } else if (found_title_red != std::string::npos) { // main title
+                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(249, 98, 98));
+                } else if (found_title_blue != std::string::npos) { // sub-title
                     graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
                 } else {
                     graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(235, 235, 235));
@@ -405,11 +418,11 @@ int draw::show_credits(bool can_leave)
     //graphLib.blank_screen();// should leave presented by on the screen
     graphLib.updateScreen();
     timer.delay(1000);
-    graphLib.draw_centered_text(RES_H/2-12, "YOU UNLOCKED A SECRET.", st_color(220, 220, 220));
-    graphLib.draw_centered_text(RES_H/2+2, "START A NEW GAME TO PICK", st_color(220, 220, 220));
-    graphLib.draw_centered_text(RES_H/2+16, "A NEW AVAILABLE CHARACTER.", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+16, "YOU UNLOCKED A SECRET.", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+28, "START A NEW GAME TO PICK", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+40, "A NEW AVAILABLE CHARACTER.", st_color(220, 220, 220));
 
-    graphLib.draw_centered_text(RES_H/2+48, "PRESS A BUTTON TO CONTINUE.", st_color(220, 220, 220));
+    graphLib.draw_centered_text(RES_H/2+64, "PRESS A BUTTON TO CONTINUE.", st_color(220, 220, 220));
     graphLib.updateScreen();
     input.clean();
     timer.delay(100);
@@ -830,7 +843,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
             img_origin_x = hud_player_hp_ball.height;
         }
 
-        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 10), &hud_player_hp_ball, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 9), &hud_player_hp_ball, &graphLib.gameScreen);
     }
 
 
@@ -852,7 +865,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
             } else if (wpn_percent < max2) {
                 img_origin_x = hud_player_wpn_ball.height;
             }
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(122+10*i, 10), &hud_player_wpn_ball, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(122+10*i, 9), &hud_player_wpn_ball, &graphLib.gameScreen);
         }
     }
 
@@ -873,7 +886,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
                 img_origin_x = hud_boss_hp_ball.height;
             }
 
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_boss_hp_ball.height, hud_boss_hp_ball.height), st_position(RES_W-55+10*i, 10), &hud_boss_hp_ball, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_boss_hp_ball.height, hud_boss_hp_ball.height), st_position(RES_W-55+10*i, 9), &hud_boss_hp_ball, &graphLib.gameScreen);
         }
 
     }

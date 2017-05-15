@@ -64,6 +64,7 @@ Mediator::Mediator() : stage_data() {
     show_objects_flag = true;
     show_npcs_flag = true;
     show_teleporters_flag = true;
+    show_grid = true;
 
     combobox_select_string = "-Select-";
 
