@@ -1479,7 +1479,12 @@ bool character::is_on_visible_screen()
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
     // entre scroll.x e scroll.x+RES_W
 
+
+
     if (abs((float)position.x + frameSize.width) >= scroll.x && abs((float)position.x) < scroll.x+RES_W) {
+        if (!is_player()) {
+            std::cout << "pos.x[" << position.x << "], w[" << frameSize.width << "], scroll.x[" << scroll.x << "]" << std::endl;
+        }
         return true;
     }
     return false;

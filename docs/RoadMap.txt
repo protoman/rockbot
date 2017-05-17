@@ -87,6 +87,9 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
+- beast está ficando preso (castle 5)
+- beast está mostrando diálogo de chefe quando é sub (castle 5)
+
 - efeito do trem está meio estranho e deve ser removido ao trocar de mapa
 
 - ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos

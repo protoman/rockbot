@@ -376,7 +376,7 @@ void classnpc::boss_move()
 
     move_projectiles();
 
-    if (_initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
+    if (is_on_visible_screen() && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(_is_boss);
