@@ -87,8 +87,9 @@ Tirar de projectile tb.
     # http://opengameart.org/content/explosions-2
 
 ###################################################################################################################
-- beast está ficando preso (castle 5)
-- beast está mostrando diálogo de chefe quando é sub (castle 5)
+- show HUD when transitioning screens (both door/horizontal as vertical)
+
+- projectiles are still being reflected sometimes (beast walking on opposite direction)
 
 - efeito do trem está meio estranho e deve ser removido ao trocar de mapa
 
@@ -203,7 +204,8 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
+- beastbot AI was reset
+- don't show dialogs if not stage_boss
 
 
 

@@ -379,7 +379,7 @@ void classnpc::boss_move()
     if (is_on_visible_screen() && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
-        gameControl.map_present_boss(_is_boss);
+        gameControl.map_present_boss(is_stage_boss());
         return;
     } else if (_initialized == 1 && _is_boss == true) {
 #ifdef ANDROID
