@@ -1949,7 +1949,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     add_animation(ANIMATION_STATIC, &graphLib.explosion32, _npc_list.at(i).getPosition(), st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(32, 32));
                 }
                 // check if boss flag wasn't passed to a spawn on dying reaction AI
-                if (_npc_list.at(i).is_boss()) {
+                if (_npc_list.at(i).is_stage_boss()) {
                     gameControl.check_player_return_teleport();
                 }
                 // all kinds of bosses need to remove projectiles once dying

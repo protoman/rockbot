@@ -204,8 +204,10 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- player is teleporting out after beating boss, not stage-boss
 - beastbot AI was reset
 - don't show dialogs if not stage_boss
+
 
 
 
