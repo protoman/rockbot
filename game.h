@@ -272,6 +272,9 @@ public:
 
     void set_max_fps(unsigned short max);
 
+    bool is_player_on_teleporter();
+
+
 private:
     void exit_game();
 
@@ -335,7 +338,6 @@ private:
      */
     void set_player_teleporter(short set_teleport_n, st_position set_player_pos, bool is_object);
 
-    bool is_player_on_teleporter();
 
     void finish_player_teleporter();
 

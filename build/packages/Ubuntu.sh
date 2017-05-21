@@ -1,21 +1,33 @@
 #/usr/bin
-VERSIONNAME=`cat version_name.txt`
 
-rm -r -f ./ubuntu/debian/opt/rockbot
+read -r -p "What is the version number you are building? " version_number
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
+then
+    echo "Invalid version number"
+    exit
+fi
+
+VERSIONNAME=`cat version_name_v$version_number.txt`
+
+rm -r -f ./ubuntu/game/debian/opt/
+mkdir ./ubuntu/game/debian/opt/
 mkdir ./ubuntu
 mkdir ./ubuntu/game
 cd ./ubuntu/game
-rm -r -f ./debian/opt/rockbot
-mkdir -p ./debian/opt/rockbot
-rm -r -f ./debian/opt/rockbot/data
-rsync -r --exclude=.svn ../../../data ./debian/opt/rockbot
-rm ./debian/opt/rockbot/data/game*.sav
-rm ./debian/opt/rockbot/data/config*.sav
+rm -r -f ./debian/opt/game/rockbot$version_number
+mkdir -p ./debian/opt/game/rockbot$version_number/games
 
-cp ../../../rockbot ./debian/opt/rockbot/
-cp ../../../editor ./debian/opt/rockbot/
-cp ../../../conversor ./debian/opt/rockbot/
+rsync -r --exclude=.svn ../../../fonts ./debian/opt/game/rockbot$version_number
+rsync -r --exclude=.svn ../../../shared ./debian/opt/game/rockbot$version_number
+rsync -r --exclude=.svn ../../../games/Rockbot$version_number ./debian/opt/game/rockbot$version_number/games
+
+rm ./debian/opt/game/rockbot$version_number/game*.sav
+rm ./debian/opt/game/rockbot$version_number/config*.sav
+
+cp ../../../rockbot ./debian/opt/game/rockbot$version_number/
+cp ../../../editor ./debian/opt/game/rockbot$version_number/
 mkdir -p ./debian/DEBIAN
 cp ../../control ./debian/DEBIAN
 
-dpkg-deb --build debian/ ../../Rockbot_Ubuntu_$VERSIONNAME.deb
+spacer="_Ubuntu_"
+dpkg-deb --build debian/ ../../Rockbot$version_number$spacer$VERSIONNAME.deb

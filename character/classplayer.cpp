@@ -672,7 +672,7 @@ void classPlayer::execute_projectiles()
             }
 
 
-            st_rectangle npc_hitarea = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+            st_rectangle npc_hitarea = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
             //std::cout << "enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
 
             //classnpc* enemy = (*enemy_it);
@@ -684,7 +684,7 @@ void classPlayer::execute_projectiles()
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {
-                        (*it).reflect();
+                        (*it).reflect();    // SHIELD reflect
                     }
                     continue;
                 }
@@ -700,11 +700,13 @@ void classPlayer::execute_projectiles()
                 if ((*it).check_collision(enemy_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
 
                     std::cout << "enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
-                    std::cout << ", enemy_hit_area x[" << enemy_vulnerable_area.x << "], y[" << enemy_vulnerable_area.y << "], w[" << enemy_vulnerable_area.w << "], h[" << enemy_vulnerable_area.h << "]" << std::endl;
+                    std::cout << ", enemy_hitbox x[" << enemy_vulnerable_area.x << "], y[" << enemy_vulnerable_area.y << "], w[" << enemy_vulnerable_area.w << "], h[" << enemy_vulnerable_area.h << "]" << std::endl;
 
-                    st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+                    st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
 
-                    (*it).reflect();
+                    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>> REFLECT" << std::endl;
+
+                    (*it).reflect();        // HITAREA reflect
                     continue;
                 }
 
@@ -1079,7 +1081,7 @@ void classPlayer::add_coil_object()
             obj_pos.x = position.x + frameSize.width + 2;
 		}
 
-        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1); /// @TODO - remove hardcoded number
+        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
         temp_obj.set_precise_position(obj_pos, state.direction);
 		temp_obj.set_duration(2500);
         temp_obj.use_teleport_in_out();

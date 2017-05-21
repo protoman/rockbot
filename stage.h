@@ -45,6 +45,7 @@ public:
     void show_npcs();
     void move_objects(bool paused=false);
     void show_objects(int adjust=0);
+    void show_above_objects(int adjust=0);
     bool boss_hit_ground();
     void reset_stage_maps();
     void reset_stage_npcs();

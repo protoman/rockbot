@@ -233,16 +233,20 @@ void EditorArea::paintEvent(QPaintEvent *) {
                                 QRectF source(QPoint(0, 0), QSize(TILESIZE, TILESIZE));
 
                                 painter.drawPixmap(target, anim_image, source);
-                                // draw an green border border to indicate anim tile
-                                QPen pen(QColor(0, 200, 0), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
-                                painter.setPen(pen);
 
-                                int anim_tile_x = i * TILESIZE * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
-                                int anim_tile_y = j * TILESIZE *Mediator::get_instance()->zoom;
-                                painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y);
-                                painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
-                                painter.drawLine(anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
-                                painter.drawLine(anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+
+                                // draw an green border border to indicate anim tile
+                                if (Mediator::get_instance()->show_grid) {
+                                    QPen pen(QColor(0, 200, 0), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+                                    painter.setPen(pen);
+
+                                    int anim_tile_x = i * TILESIZE * Mediator::get_instance()->zoom; // minus tilesize is because width starts in 1, not zero
+                                    int anim_tile_y = j * TILESIZE *Mediator::get_instance()->zoom;
+                                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y);
+                                    painter.drawLine(anim_tile_x, anim_tile_y, anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                                    painter.drawLine(anim_tile_x, anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                                    painter.drawLine(anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y, anim_tile_x+(TILESIZE*Mediator::get_instance()->zoom), anim_tile_y+(TILESIZE*Mediator::get_instance()->zoom));
+                                }
                             } else {
                                 std::cout << ">>>>>>>> anim-file '" << anim_tile_filename.toStdString() << "' not found." << std::endl;
                             }
@@ -625,7 +629,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.drawEllipse(map_obj.link_dest.x*16*Mediator::get_instance()->zoom, map_obj.link_dest.y*16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom, 16*Mediator::get_instance()->zoom);
 
                     painter.setPen(QColor(0, 0, 0, 255));
-                    painter.drawText(map_obj.link_dest.x*16*Mediator::get_instance()->zoom + 3*Mediator::get_instance()->zoom, (map_obj.link_dest.y+1)*16*Mediator::get_instance()->zoom -2*Mediator::get_instance()->zoom, QString::number(i));
+                    painter.drawText(map_obj.link_dest.x*16*Mediator::get_instance()->zoom + 3*Mediator::get_instance()->zoom, (map_obj.link_dest.y+1)*16*Mediator::get_instance()->zoom -2*Mediator::get_instance()->zoom, QString::number(m));
                 }
             }
         }
@@ -987,6 +991,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
             Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.x = editor_selectedTileX;
             Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.y = editor_selectedTileY;
             Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].map_dest = Mediator::get_instance()->currentMap;
+            Mediator::get_instance()->editTool = EDITMODE_NORMAL;
             std::cout << "[TELEPORTER] SET map: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].map_dest << ", x: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.x << ", y: " << (int)Mediator::get_instance()->maps_data[Mediator::get_instance()->currentStage][editor_selected_object_pos_map].map_objects[editor_selected_object_pos].link_dest.y << std::endl;
             QApplication::setOverrideCursor(Qt::ArrowCursor);
         } else {

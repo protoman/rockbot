@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
 #include "file/file_io.h"
@@ -268,6 +269,11 @@ void stage::move_objects(bool paused)
 void stage::show_objects(int adjust)
 {
     get_current_map()->show_objects(adjust);
+}
+
+void stage::show_above_objects(int adjust)
+{
+    get_current_map()->show_above_objects(adjust);
 }
 
 bool stage::boss_hit_ground()

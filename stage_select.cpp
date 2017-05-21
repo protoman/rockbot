@@ -390,10 +390,16 @@ int stage_select::pick_stage(int start_stage)
     std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select_screen.png";
     graphicsLib_gSurface bg_surface;
     graphLib.surfaceFromFile(bg_filename, &bg_surface);
+
+    std::string beaten_filename = GAMEPATH + "/shared/images/stage_beaten_cross.png";
+    graphicsLib_gSurface beaten_surface;
+    graphLib.surfaceFromFile(beaten_filename, &beaten_surface);
+
     int stage_n = 0;
 
 
     graphLib.copyArea(st_rectangle(stage_n*RES_W, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
     draw_stage_select_text_info(stage_n);
     graphLib.updateScreen();
 
@@ -451,6 +457,9 @@ int stage_select::pick_stage(int start_stage)
             input.clean();
             timer.delay(100);
             graphLib.copyArea(st_rectangle(stage_n*RES_W, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+            if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
+                graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
+            }
             draw_stage_select_text_info(stage_n);
 
         }

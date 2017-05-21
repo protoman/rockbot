@@ -208,7 +208,7 @@ bool object::test_change_position(short xinc, short yinc)
         /// @TODO - consumable items should not stop if blocked by player
         ///
         if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false) {
-            std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
+            //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
             return false;
         }
     }
@@ -473,7 +473,7 @@ void object::show(int adjust_y, int adjust_x)
 		}
 
 	// remove item that is out of vision
-    } else if (_teleport_state == 2 && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
+    } else if (_teleport_state == e_object_teleport_state_waiting && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
 		_finished = true;
     }
 }

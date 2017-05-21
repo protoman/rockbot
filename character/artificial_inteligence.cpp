@@ -146,7 +146,7 @@ void artificial_inteligence::check_ai_reaction()
         // do not start a walk-reaction in middle air
         int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
         react_type--;
-        std::cout << "AI::check_ai_reaction[" << _reaction_type << "] - react_type: " << react_type << std::endl;
+        //std::cout << "AI::check_ai_reaction[" << _reaction_type << "] - react_type: " << react_type << std::endl;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
             return;
         }
@@ -1470,7 +1470,7 @@ void artificial_inteligence::execute_ai_step_dash()
         } else if (_parameter == AI_ACTION_DASH_OPTION_TO_PLAYER) {
             struct_player_dist dist_players = dist_npc_players();
 
-            std::cout << "AI::DASH::TO_PLAYER::dist: " << dist_players.dist << std::endl;
+            //std::cout << "AI::DASH::TO_PLAYER::dist: " << dist_players.dist << std::endl;
 
             if (dist_players.pObj->getPosition().x > (position.x  + frameSize.width/2)) {
                 state.direction = ANIM_DIRECTION_RIGHT;
@@ -1481,7 +1481,7 @@ void artificial_inteligence::execute_ai_step_dash()
             }
             //_dest_point.x = dist_players.pObj->getPosition().x;
             _dest_point.y = position.y;
-            std::cout << ">>>>>>>>> AI::DASH::INIT - dest_point.x: " << _dest_point.x << ", walk_range: " << walk_range << ", position.x: " << position.x << std::endl;
+            //std::cout << ">>>>>>>>> AI::DASH::INIT - dest_point.x: " << _dest_point.x << ", walk_range: " << walk_range << ", position.x: " << position.x << std::endl;
         } else if (_parameter == AI_ACTION_DASH_OPTION_OPPOSITE_DIRECTION) {
             if (realPosition.x > RES_W/2) {
                 state.direction = ANIM_DIRECTION_LEFT;
@@ -1500,13 +1500,13 @@ void artificial_inteligence::execute_ai_step_dash()
     } else {
         //std::cout << "###### AI::execute_ai_step_dash - execute - dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
         if (move_to_point(_dest_point, move_speed*2, 0, is_ghost) == true) {
-            std::cout << "AI::DASH::FINISH #1" << std::endl;
+            //std::cout << "AI::DASH::FINISH #1" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         }
         if (abs(_dest_point.x - position.x) < TILESIZE) {
-            std::cout << "AI::DASH::FINISH #2 - diff: " << abs(_dest_point.x - position.x) << ", _dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
+            //std::cout << "AI::DASH::FINISH #2 - diff: " << abs(_dest_point.x - position.x) << ", _dest_point.x: " << _dest_point.x << ", position.x: " << position.x << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #11" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);

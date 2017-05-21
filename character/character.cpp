@@ -2368,10 +2368,22 @@ st_rectangle character::get_hitbox(int anim_type)
     } else {
         int anim_n = state.animation_state;
         int anim_type = state.animation_type;
-        // prevent getting size from a frame that does not have information, use STAND instead
+        // prevent getting size from a frame that does not have information, use Vulnerable-area or hitbox from STAND instead
         if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][state.animation_state].collision_rect.w <= 0) {
-            anim_n = ANIM_TYPE_STAND;
-            anim_type = 0;
+            if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
+                if (state.direction == ANIM_DIRECTION_LEFT) {
+                    x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
+                } else {
+                    x += vulnerable_area_box.x - 2;
+                }
+                y += vulnerable_area_box.y;
+                w = vulnerable_area_box.w - 4;
+                h = vulnerable_area_box.h;
+                return st_rectangle(x, y, w, h);
+            } else { // use stand frame
+                anim_n = ANIM_TYPE_STAND;
+                anim_type = 0;
+            }
         }
         if (state.direction == ANIM_DIRECTION_LEFT) {
             x = position.x - (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.w) + GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.x + 2;
@@ -2793,7 +2805,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         if (gameControl.get_current_map_obj() != NULL) {
             int repeat_times = 4;
             int frame_duration = BOSS_HIT_DURATION / (repeat_times*2); // one time for show, one time for hide
-            st_rectangle hitarea = get_hitarea();
+            st_rectangle hitarea = get_hitbox();
             st_float_position hit_anim_pos(hitarea.x + hitarea.w/2 - graphLib.hit.width/4, hitarea.y + hitarea.h/2 - graphLib.hit.height/2);
 
             st_position adjust(hit_anim_pos.x - position.x, hit_anim_pos.y - position.y);
@@ -2985,8 +2997,9 @@ void character::teleport_out() {
 		char_update_real_position();
         gameControl.get_current_map_obj()->showMap();
         gameControl.get_current_map_obj()->show_npcs();
-		show();
         gameControl.get_current_map_obj()->show_objects();
+        show();
+        gameControl.get_current_map_obj()->show_above_objects();
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();
         timer.delay(10);
@@ -3308,39 +3321,6 @@ int character::get_armor_arms_attack_id()
 }
 
 
-st_rectangle character::get_hitarea()
-{
-    //[ANIM_TYPE_TELEPORT][0].collision_rect.x
-
-    if (hitarea_box.w == 0 || hitarea_box.h == 0) {
-        return get_hitbox();
-    }
-    int temp_x = position.x + hitarea_box.x;
-    int temp_y = position.y + hitarea_box.y;
-    int temp_w = hitarea_box.w;
-    int temp_h = hitarea_box.h;
-
-    // q q eu fiz aqui???
-    if (state.direction == ANIM_DIRECTION_LEFT) {
-        //temp_x = (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.x) - GameMediator::get_instance()->get_enemy(_number)->sprites[state.animation_type][state.animation_state].collision_rect.w + position.x;
-    } else {
-        if (frameSize.width > hitarea_box.w) {
-            temp_x += abs(hitarea_box.w - frameSize.width);
-        }
-    }
-
-    st_rectangle hitarea(temp_x, temp_y, temp_w, temp_h);
-
-    return hitarea;
-}
-
-st_rectangle character::get_vulnerable_area()
-{
-    int temp_x = position.x + hitarea_box.x;
-    int temp_y = position.y + hitarea_box.y;
-    int temp_w = hitarea_box.w;
-    int temp_h = hitarea_box.h;
-}
 
 
 

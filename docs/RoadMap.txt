@@ -43,29 +43,6 @@ STAGES:
 
 - MUSICA BOA: http://modarchive.org/index.php?request=view_by_moduleid&query=159890
 
-###################################################################################################################
-backtrace:
-#00 pc 00028a7c  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib14copySDLPortionE12st_rectangleS0_P11SDL_SurfaceS2_+111)
-#01 pc 00028c91  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib11copySDLAreaE12st_rectangle11st_positionP11SDL_SurfaceS3_b+64)
-#02 pc 00029695  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11graphicsLib19showSurfaceRegionAtEP20graphicsLib_gSurface12st_rectangle11st_position+40)
-#03 pc 00050a6f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN10projectile4drawEv+154)
-#04 pc 000427bb  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer19execute_projectilesEv+118)
-#05 pc 0004321f  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer4moveEv+238)
-#06 pc 00044023  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN11classPlayer7executeEv+18)
-#07 pc 0003586b  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (_ZN4game8showGameEbb+254)
-#08 pc 0001db4d  /data/app/net.upperland.rockbot2demo-1/lib/arm/libapplication.so (SDL_main+1676)
-###################################################################################################################
-#00  pc 000e0208  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so
-#01  pc 0001fd79  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::map_collision(float, short, st_float_position, int)+924)
-#02  pc 0002054f  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::test_change_position(short, short)+182)
-#03  pc 00021fb5  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (character::gravity(bool)+172)
-#04  pc 00053c81  /data/app-lib/net.upperland.rockbot2demo-1/libapplication.so (classnpc::boss_move()+184)
-
-Causa deve ser o mapa no próprio character. Tenho que me livrar disto e mover para o game_control
-que pega do currentLevel->currentMap.
-Tirar de projectile tb.
-###################################################################################################################
-
 - ROCKBOT 1 issues:
     # apebot stops moving after using quake
      @@@ i: 0, new_map_lock: 1
@@ -76,6 +53,11 @@ Tirar de projectile tb.
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- stage selector must not show skull castle if player still hasn't reached it
+    # must change to skull castle once player reaches it
+
+- stage selector must show only 3 stages in demo-mode
+
 - ending with minor enemies
 - set armor pieces abilities, text and projectiles
 - fix castle path algorithm
@@ -85,13 +67,6 @@ Tirar de projectile tb.
     # http://opengameart.org/content/pixel-explosion-12-frames
     # http://opengameart.org/content/bubble-explosion
     # http://opengameart.org/content/explosions-2
-
-###################################################################################################################
-- show HUD when transitioning screens (both door/horizontal as vertical)
-
-- projectiles are still being reflected sometimes (beast walking on opposite direction)
-
-- efeito do trem está meio estranho e deve ser removido ao trocar de mapa
 
 - ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
 
@@ -204,9 +179,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- player is teleporting out after beating boss, not stage-boss
-- beastbot AI was reset
-- don't show dialogs if not stage_boss
 
 
 

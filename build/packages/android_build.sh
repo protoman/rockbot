@@ -1,18 +1,40 @@
 #!/bin/sh
-VERSIONNAME=`cat version_name.txt`
 
-set -x
+#set -x
 
-read -r -p "Did you remember to update data version and data zip name in AndroidAppSettings.cfg? [y/N] " response
+read -r -p "What is the version number you are building? " version_number
+if ([ "$version_number" != "1" ] && [ "$version_number" != "2" ]) then
+    echo "Invalid version number"
+    return
+fi
+
+demoName = ""
+demoFullName = ""
+if ["$version_number" == "2"] then
+    read -r -p "Build demo version (y) or full(n)? " demo_mode
+    if [ "demo_mode" == "y" ] then
+        demoName = "Demo"
+        demoFullName = "demo"
+    fi
+fi
+
+VERSIONNAME=`cat version_name_v$version_number.txt`
+
+
+read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
 case $response in
 	[yY][eE][sS]|[yY]) 
 		ROCKBOTDIR=`pwd`
 		export ROCKBOTDIR
+		#copy icon
+		cp ../packages/files/android/icon_v$version_number.png ~/Programas/android-studio/sdk/rockbot_build/src/icon.png
+		#copy data
 		rm -r -f ./Android
 		mkdir ./Android
 		mkdir ./Android/data
+		mkdir ./Android/data/games
 		rsync -r --exclude=.svn ../fonts ./Android/data
-		rsync -r --exclude=.svn ../games ./Android/data
+		rsync -r --exclude=.svn ../games/Rockbot$version_number ./Android/data/games
 		rsync -r --exclude=.svn ../shared ./Android/data
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
@@ -31,6 +53,11 @@ case $response in
 		LINENUMBERVERSION=`grep -n "AppVersionName=" AndroidAppSettings.cfg | cut -f1 -d:`
 		LINENUMBERAPPNAME=`grep -n "AppName=" AndroidAppSettings.cfg | cut -f1 -d:`
 		LINENUMBERFULLNAME=`grep -n "AppFullName=" AndroidAppSettings.cfg | cut -f1 -d:`
+
+		LINEVERSIONNUMBER=`grep -n "AppVersionCode=" AndroidAppSettings.cfg | cut -f1 -d:`
+
+		LINEVERSIONSTRING=`echo "$VERSIONNAME" | sed -e 's/\.//g'`
+		echo "$LINEVERSIONSTRING"
 		
 		if [[ -z "$LINENUMBER" ]]
 		then
@@ -55,12 +82,24 @@ case $response in
 		
 		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
 		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
-		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot2Demo\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
-		sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot2demo" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.new
+		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot$version_number$demoName\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
+		if [ "$version_number" == "1" ]; then
+                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
+                else
+                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockbot$version_number$demoFullName" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
+                fi
+		
+		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
+		
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
+		# build debug and copy library so we can track
 		sh ./build.sh rockbot debug
+		cp ./project/jni/application/rockbot/libapplication-armeabi.so $ROCKBOTDIR/libapplication-armeabi_$VERSIONNAME.so
+		
+		# build release
+		sh ./build.sh rockbot release
 		rm $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
 		cp ./project/bin/MainActivity-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
@@ -68,6 +107,8 @@ case $response in
 		# assina e realinha o APK
 		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk alias_name
 		/home/iuri/Programas/android-studio/sdk/build-tools/23.0.3/zipalign -v 4 $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME.apk $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME.apk
+		# copy mappings.txt so we can use for later debugging
+		cp ./project/bin/proguard/mapping.txt $ROCKBOTDIR/Tmappings_$VERSIONNAME.txt
 		;;
 	*)
 		echo "Aborted."

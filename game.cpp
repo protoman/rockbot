@@ -172,6 +172,7 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
         loaded_stage.show_npcs();
         loaded_stage.show_objects();
         player1.show();
+        loaded_stage.show_above_objects();
         loaded_stage.showAbove();
     } else {
         graphLib.blank_screen();
@@ -594,6 +595,7 @@ bool game::test_teleport(classPlayer *test_player) {
     //std::cout << "START TELEPORT!!!!" << std::endl;
     game_pause();
 
+    graphLib.set_screen_adjust(st_position(0, 0));
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
     remove_temp_objects();
@@ -741,7 +743,6 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
             }
             link_type = stage_data.links[link_n].type;
             //std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
-            set_player_teleporter(teleport_count, st_position(player1.getPosition().x, player1.getPosition().y), false);
             return true;
         }
     // only clean teleport when player is out of the teleporter
@@ -788,9 +789,8 @@ void game::map_present_boss(bool show_dialog)
 	while (loop_run == true) {
         loaded_stage.showStage();
         player1.charMove();
-        bool hit_ground = player1.hit_ground();
         int anim_type = player1.get_anim_type();
-        if (hit_ground == true && anim_type == ANIM_TYPE_STAND) {
+        if (player1.hit_ground() == true && anim_type == ANIM_TYPE_STAND) {
 			loop_run = false;
 		}
         player1.show();
@@ -894,6 +894,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     classMap* temp_map = &loaded_stage.maps[map_n];
     temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
 
+
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
     // if map destiny and map origin are the same, adjust player's X position
@@ -959,23 +960,36 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y + TRANSITION_STEP - extra_y));
 				}
 			}
+
+
+            int temp_map_3rdlevel_pos = (RES_H+TILESIZE*0.5) - i*TRANSITION_STEP - 8;
+            if (type == TRANSITION_TOP_TO_BOTTOM) {
+                loaded_stage.get_current_map()->show_objects(-i*TRANSITION_STEP);
+                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+            } else {
+                temp_map_3rdlevel_pos = -(RES_H+TILESIZE*0.5) + i*TRANSITION_STEP + 8; // 8 is a adjust for some error I don't know the reason
+                loaded_stage.get_current_map()->show_objects(i*TRANSITION_STEP);
+                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+            }
+
 			pObj->char_update_real_position();
 			pObj->show();
 
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
                 loaded_stage.showAbove(-i*TRANSITION_STEP);
-                loaded_stage.get_current_map()->show_objects(-i*TRANSITION_STEP);
-                int temp_map_3rdlevel_pos = (RES_H+TILESIZE*0.5) - i*TRANSITION_STEP - 8;
-                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+                loaded_stage.get_current_map()->show_above_objects(-i*TRANSITION_STEP);
+                temp_map->show_above_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
 			} else {
                 loaded_stage.showAbove(i*TRANSITION_STEP);
-                loaded_stage.get_current_map()->show_objects(i*TRANSITION_STEP);
-                int temp_map_3rdlevel_pos = -(RES_H+TILESIZE*0.5) + i*TRANSITION_STEP + 8; // 8 is a adjust for some error I don't know the reason
-                temp_map->show_objects(temp_map_3rdlevel_pos, adjust_x);
+                loaded_stage.get_current_map()->show_above_objects(i*TRANSITION_STEP);
+                temp_map->show_above_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
 			}
+
+            // draw HUD
+            draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 
 
             draw_lib.update_screen();
@@ -1010,9 +1024,11 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     int i = 0;
     int upTile = 0;
     int downTile = 0;
-
-    classMap* temp_map = loaded_stage.get_current_map();
     st_float_position scroll_move;
+    classMap* temp_map = loaded_stage.get_current_map();
+
+    graphLib.set_screen_adjust(st_position(0, 0));
+
 	if (direction == ANIM_DIRECTION_LEFT) {
         scroll_move.x = -TRANSITION_STEP;
 	} else {
@@ -1064,6 +1080,8 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         loaded_stage.show_npcs();
         player1.show();
         loaded_stage.showAbove();
+        // draw HUD
+        draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 #if defined(PC)
         timer.delay(1);
 #endif
@@ -1372,7 +1390,7 @@ void game::quick_load_game()
         fio.read_save(game_save);
     }
 
-    currentStage = CASTLE1_STAGE5;
+    currentStage = STAGE5;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_2;
 
@@ -1601,6 +1619,9 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
 	_player_teleporter.teleporter_n = set_teleport_n;
 	_player_teleporter.old_player_pos.x = set_player_pos.x;
 	_player_teleporter.old_player_pos.y = set_player_pos.y;
+
+    std::cout << "################### SET PLAYER TELEPORTER ###################" << std::endl;
+
 	_player_teleporter.active = true;
 	_player_teleporter.finished = false;
     _player_teleporter.old_map_scroll = loaded_stage.getMapScrolling();
@@ -1609,6 +1630,7 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
 
 bool game::is_player_on_teleporter()
 {
+    std::cout << "######## is_player_on_teleporter[" << _player_teleporter.active << "] ########" << std::endl;
     return _player_teleporter.active;
 }
 
@@ -1682,6 +1704,7 @@ void game::finish_player_teleporter()
     player1.teleport_out();
     timer.delay(1000);
 
+    std::cout << "################### RESET PLAYER TELEPORTER ###################" << std::endl;
     _player_teleporter.active = false;
     _last_stage_used_teleporters.insert(pair<int,bool>(_player_teleporter.teleporter_n, true));
 	// teleport out

@@ -253,7 +253,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         is_ghost = false;
     }
 
-    hitarea_box = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect;
+    vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect;
 
     //std::cout << "end" << std::endl;
 }

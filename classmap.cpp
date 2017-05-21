@@ -1193,7 +1193,7 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
         return true;
     }
     if (obj_type == OBJ_ITEM_JUMP) {
-        std::cout << "IGNORE OBJ_ITEM_JUMP" << std::endl;
+        //std::cout << "IGNORE OBJ_ITEM_JUMP" << std::endl;
         return true;
     }
     if (obj_type == OBJ_ARMOR_ARMS) {
@@ -1949,9 +1949,10 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     add_animation(ANIMATION_STATIC, &graphLib.explosion32, _npc_list.at(i).getPosition(), st_position(-8, -8), 80, 2, _npc_list.at(i).get_direction(), st_size(32, 32));
                 }
                 // check if boss flag wasn't passed to a spawn on dying reaction AI
-                if (_npc_list.at(i).is_stage_boss()) {
+                if (_npc_list.at(i).is_boss()) {
                     gameControl.check_player_return_teleport();
                 }
+
                 // all kinds of bosses need to remove projectiles once dying
                 if (_npc_list.at(i).is_boss() || _npc_list.at(i).is_subboss() || _npc_list.at(i).is_stage_boss()) {
                     _npc_list.at(i).clean_projectiles();
@@ -2061,7 +2062,19 @@ void classMap::show_objects(int adjust_y, int adjust_x)
     /// @TODO - update timers
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
+        if ((*object_it).get_type() != OBJ_BOSS_TELEPORTER) {
+            (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
+        }
+    }
+}
+
+void classMap::show_above_objects(int adjust_y, int adjust_x)
+{
+    std::vector<object>::iterator object_it;
+    for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
+        if ((*object_it).get_type() == OBJ_BOSS_TELEPORTER) {
+            (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
+        }
     }
 }
 

@@ -171,6 +171,8 @@ public:
 
     void show_objects(int adjust_y=0, int adjust_x=0);
 
+    void show_above_objects(int adjust_y=0, int adjust_x=0);
+
     bool boss_hit_ground();
 
     void reset_map_npcs();

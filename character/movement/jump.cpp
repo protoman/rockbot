@@ -34,7 +34,7 @@ void classjump::start(bool bigjump_mode, int terrain_type)
         speed = -(JUMP_INITIAL_SPEED * 0.9);
     } else if (is_bigjump == true) {
         //acceleration = JUMP_ACCELERATION * 0.4;
-        speed = -(JUMP_INITIAL_SPEED * 1.25);
+        speed = -(JUMP_INITIAL_SPEED * 1.40);
     } else {
         speed = -JUMP_INITIAL_SPEED;
     }
