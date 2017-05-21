@@ -8,8 +8,8 @@
 
 QT += widgets
 
-    QMAKE_CCFLAGS += -fpermissive
-    QMAKE_CXXFLAGS += -fpermissive
+QMAKE_CCFLAGS += -fpermissive
+QMAKE_CXXFLAGS += -fpermissive
 
 
 macosx {
@@ -37,6 +37,7 @@ macosx {
 linux {
     QMAKE_CCFLAGS += -std=c++0x -g
     QMAKE_CXXFLAGS += -std=c++0x -g
+    CONFIG += console
 }
 
 win32 {
@@ -48,6 +49,7 @@ win32 {
     QMAKE_CCFLAGS += -DWIN32
     QMAKE_CXXFLAGS += -DWIN32
     CXXFLAGS += -DWIN32
+    CONFIG -= console
 }
 
 
@@ -236,7 +238,6 @@ FORMS += mainwindow.ui \
     files_editor/gametextcreditstab.ui
 
 RESOURCES += resources/icons/icons.qrc
-CONFIG += console
 INCLUDEPATH += ../common
 INCLUDEPATH += ..
 INCLUDEPATH += ./mainwindow_tab

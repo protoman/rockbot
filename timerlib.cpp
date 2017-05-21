@@ -2,6 +2,7 @@
 #include <iostream>
 #include "timerlib.h"
 #include <SDL/SDL.h>
+#include <unistd.h>
 
 timerLib::timerLib()
 {

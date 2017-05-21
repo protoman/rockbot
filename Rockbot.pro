@@ -11,9 +11,9 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += android
-#CONFIG += win32
+CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -31,8 +31,6 @@ DEFINES+= BETA_VERSION=1
 ### DEMO VERSION ###
 #DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
 #DEFINES+= DEMO_VERSION=1
-
-
 
 DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 

@@ -33,8 +33,6 @@ void soundLib::init_audio_system()
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SOUNDLIB[Couldn't open audio.] ###");
 #endif
-        SDL_Quit();
-        exit(-1);
     }
 	load_all_sfx();
 }
@@ -306,8 +304,6 @@ void soundLib::play_music() {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### Mix_PlayMusic Error[%s] ###", Mix_GetError());
 #endif
-            SDL_Quit();
-			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_music" << std::endl;
         Mix_VolumeMusic(game_config.volume_music);
@@ -330,8 +326,6 @@ void soundLib::play_boss_music() {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SOUNDLIB::play_boss_music Error[%s] ###", Mix_GetError());
 #endif
-            SDL_Quit();
-			exit(-1);
 		}
         //std::cout << "SOUNDLIB::play_boss_music" << std::endl;
         Mix_VolumeMusic(game_config.volume_music);
