@@ -402,7 +402,8 @@ OTHER_FILES += \
 
 DISTFILES += \
     docs/notes.txt \
-    docs/Releases.txt
+    docs/Releases.txt \
+    docs/crashes.txt
 
 
 
