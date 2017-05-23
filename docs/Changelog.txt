@@ -537,9 +537,6 @@ FILE-FORMAT-V4:
 - new projectile types:
     # fibonacci spiral
     # ball bouncing
-
-
-
 - player projectiles are being reflected in some enemies
     # it is testing hitbox first then hitartea, it should be the other way around
 - add black border to hub ball points
@@ -549,3 +546,21 @@ FILE-FORMAT-V4:
 - EDITOR: map showing full-size (multiple frames) instead of just 1
 - projectile generate left/right flipping surface instead of have the image with both
 - add up until castle2 stage5 into the enum
+
+- stage selector must show if stage was beaten
+- add new stage-selection style to Rockbot1
+- increase coil jump height back
+- make train effect faster
+- reset screen adjust when transitioning screens
+- projectiles are still being reflected sometimes (beast walking on opposite direction)
+- show HUD when transitioning screens (both door/horizontal as vertical)
+- teleport-objects must be draw after player
+- don't set player teleport when using link (not object) teleport link
+    # after killing boss in catle 5 (rockbot2) it won't return from teleporter
+    # this prevents player returning to the previous teleport-link after killing a boss
+    # as now only object teleporters are meant to have this functionality, it is uneeded in links
+- when placing a teleporter object, cursor does not leave destiny mode
+- fix object teleporter destiny point number on editorarea
+- player is teleporting out after beating boss, not stage-boss
+- beastbot AI was reset
+- don't show dialogs if not stage_boss

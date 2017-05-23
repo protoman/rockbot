@@ -53,6 +53,8 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- charged shot in rockbot2 is not showing
+
 - stage selector must not show skull castle if player still hasn't reached it
     # must change to skull castle once player reaches it
 
