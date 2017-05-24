@@ -187,7 +187,7 @@ public:
 
     int get_first_lock_on_bottom(int x_pos);
 
-    void drop_item(int i);
+    void drop_item(classnpc *npc_ref);
 
     void set_bg_scroll(int scrollx);
 

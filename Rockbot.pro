@@ -12,8 +12,8 @@ QT       -= gui
 
 
 #CONFIG += linux
-#CONFIG += android
-CONFIG += win32
+CONFIG += android
+#CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -26,8 +26,8 @@ CONFIG += win32
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
 ### FREE VERSION ###
-DEFINESLIST = -DBETA_VERSION
-DEFINES+= BETA_VERSION=1
+#DEFINESLIST = -DBETA_VERSION
+#DEFINES+= BETA_VERSION=1
 ### DEMO VERSION ###
 #DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
 #DEFINES+= DEMO_VERSION=1
