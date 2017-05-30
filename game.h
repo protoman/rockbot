@@ -274,6 +274,9 @@ public:
 
     bool is_player_on_teleporter();
 
+    short get_last_castle_stage();
+
+
 
 private:
     void exit_game();

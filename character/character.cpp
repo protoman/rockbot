@@ -878,12 +878,6 @@ void character::consume_projectile()
 //                                                                                                //
 // ********************************************************************************************** //
 void character::show() {
-    /*
-    if (timer.is_paused() == true) {
-        return;
-    }
-    */
-
     if (is_dead() == true) {
         return;
     }
@@ -894,7 +888,11 @@ void character::show() {
 		return;
 	}
 
+    show_at(realPosition);
+}
 
+void character::show_at(st_position pos)
+{
     // check attack frame
 
     if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state == _attack_frame_n) {
@@ -905,24 +903,24 @@ void character::show() {
 
     // show background, if any
     if (have_background_graphics() == true) {
-        graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), realPosition, false);
+        graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), pos, false);
     }
 
     // only advance if time for the current frame has finished
     advance_frameset();
 
-	// turn is a special case, if it does not exist, we must show stand instead
-	if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
+    // turn is a special case, if it does not exist, we must show stand instead
+    if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
         //std::cout << "show() - TURN graphic FINISHED" << std::endl;
-		if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
-            show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state);
-		} else {
-            show_sprite_graphic(state.direction, ANIM_TYPE_STAND, state.animation_state);
-		}
-	// npc teleport use shows stand for now (will have a common graphic to show in the future)
-	} else {
-        show_sprite_graphic(state.direction, state.animation_type, state.animation_state);
-	}
+        if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
+            show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state, pos);
+        } else {
+            show_sprite_graphic(state.direction, ANIM_TYPE_STAND, state.animation_state, pos);
+        }
+    // npc teleport use shows stand for now (will have a common graphic to show in the future)
+    } else {
+        show_sprite_graphic(state.direction, state.animation_type, state.animation_state, pos);
+    }
     st_rectangle hitbox = get_hitbox();
     if (gameControl.get_current_map_obj() != NULL) {
         hitbox.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
@@ -980,8 +978,8 @@ void character::show_sprite()
 			}
 			if (state.animation_inverse == false) {
 				if (state.animation_state > 0) {
-                                    //std::cout << "### RESET-FRAME-N #3 ###" << std::endl;
-                                    state.animation_state = 0;
+                    //std::cout << "### RESET-FRAME-N #3 ###" << std::endl;
+                    state.animation_state = 0;
 				}
 			} else {
 				advance_to_last_frame();
@@ -1003,11 +1001,12 @@ void character::show_sprite()
     }
 }
 
-void character::show_sprite_graphic(short direction, short type, short frame_n)
+void character::show_sprite_graphic(short direction, short type, short frame_n, st_position frame_pos)
 {
-    st_position frame_pos = realPosition;
     frame_pos.x += _frame_pos_adjust.x;
     frame_pos.y += _frame_pos_adjust.y;
+
+    //std::cout << "CHAR::show_sprite_graphic[" << frame_pos.x << ", " << frame_pos.y << "]" << std::endl;
 
     if (state.invisible == true) {
         return;
@@ -1019,14 +1018,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n)
     }
 
     //std::cout << ">>>> CHAR::show_sprite_graphic - direction: " << direction << ", type: " << type << ", frame_n: " << frame_n << ", x: " << frame_pos.x << ", y: " << frame_pos.y << ", _have_right_direction_graphics: " << _have_right_direction_graphics << std::endl;
-
-
-    // NPCs use stand as teleport
-    /*
-    if (is_player() == false && type == ANIM_TYPE_TELEPORT) {
-        type = ANIM_TYPE_STAND;
-    }
-    */
 
     std::map<std::string, st_char_sprite_data>::iterator it_graphic;
     it_graphic = graphLib.character_graphics_list.find(name);
@@ -2635,6 +2626,11 @@ void character::push_back(short direction)
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
     }
+}
+
+bool character::get_can_fly()
+{
+    return can_fly;
 }
 
 

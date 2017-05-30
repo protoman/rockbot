@@ -547,6 +547,8 @@ FILE-FORMAT-V4:
 - projectile generate left/right flipping surface instead of have the image with both
 - add up until castle2 stage5 into the enum
 
+
+
 - stage selector must show if stage was beaten
 - add new stage-selection style to Rockbot1
 - increase coil jump height back
@@ -564,3 +566,15 @@ FILE-FORMAT-V4:
 - player is teleporting out after beating boss, not stage-boss
 - beastbot AI was reset
 - don't show dialogs if not stage_boss
+
+
+- chain projectile is inverted in rockbot1
+- stage select shows all skull castle stages instead of just the first
+- in free-version, stage select now won't allow you to enter stages that are not free
+- new charged projectiles by kaithehedgefox10@deviantart
+- new hadouken Bongwater-bandit@deviantart
+
+
+
+- ending in android won't show player running
+- flying bosses should not stop only in the ground, but middle-screen

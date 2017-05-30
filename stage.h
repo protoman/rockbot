@@ -46,7 +46,8 @@ public:
     void move_objects(bool paused=false);
     void show_objects(int adjust=0);
     void show_above_objects(int adjust=0);
-    bool boss_hit_ground();
+    bool boss_hit_ground(classnpc *npc_ref);
+    classnpc* get_near_boss();
     void reset_stage_maps();
     void reset_stage_npcs();
     int get_first_lock_on_left(int x_pos);

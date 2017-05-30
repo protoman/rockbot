@@ -53,6 +53,12 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- castle point 5 is showing in position 0x0
+
+
+- ótimos projéteis:
+    # http://bongwater-bandit.deviantart.com/art/8-Bit-Fx-2-647815669
+
 - charged shot in rockbot2 is not showing
 
 - stage selector must not show skull castle if player still hasn't reached it
@@ -181,8 +187,6 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-
-
 
 
 

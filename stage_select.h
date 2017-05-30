@@ -28,12 +28,10 @@ public:
 
     int pick_stage(int start_stage);
     void draw_stage_select_text_info(int stage_n);
-    int get_current_castle_stage();
 
     bool walk_path(int incx, int incy, st_position &pos, CURRENT_FILE_FORMAT::file_stage_select map_data);
 
 private:
-    void load_graphics();
     void move_highlight(Sint8 x_inc, Sint8 y_inc);
     void show_highlight();
     void place_face(std::string face_file, std::string botname, st_position pos) const;

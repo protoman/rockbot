@@ -100,7 +100,7 @@ case $response in
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
 		sh ./build.sh rockbot debug
-		cp ./project/jni/application/rockbot/libapplication-armeabi.so $ROCKBOTDIR/libapplication-armeabi_$VERSIONNAME.so
+		cp ./project/jni/application/rockbot/libapplication-armeabi.so $ROCKBOTDIR/libapplication-armeabi_$VERSIONNAME$demoName.so
 		
 		# build release
 		sh ./build.sh rockbot release

@@ -37,7 +37,6 @@ stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
     for (i=0; i<STAGE_SELECT_COUNT; i++) {
         STAGE_SELECT_SURFACES[i] = &stage_ref[i];
 	}
-    load_graphics();
 }
 
 short stage_select::finished_stages() const
@@ -51,25 +50,6 @@ short stage_select::finished_stages() const
     //std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
     return total_stages;
 }
-
-void stage_select::load_graphics() {
-	std::string filename;
-    filename = FILEPATH + "images/backgrounds/stage_select_highlighted.png";
-	graphLib.surfaceFromFile(filename, &s_light);
-
-    filename = FILEPATH + "images/backgrounds/stage_select_darkned.png";
-	graphLib.surfaceFromFile(filename, &s_dark);
-
-    char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
-    sprintf(eyes_filename_char, "images/faces/p%d_eyes.png", (game_save.selected_player+1));
-    filename = FILEPATH + std::string(eyes_filename_char);
-
-	graphLib.surfaceFromFile(filename, &eyes_surface);
-
-    filename = FILEPATH + "images/backgrounds/stage_select.png";
-	graphLib.surfaceFromFile(filename, &background);
-}
-
 
 
 void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
@@ -384,7 +364,7 @@ int stage_select::pick_stage_map(int start_stage)
     }
 }
 
-int stage_select::pick_stage(int start_stage)
+int stage_select::pick_stage(int stage_n)
 {
     bool finished = false;
     std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select_screen.png";
@@ -394,12 +374,18 @@ int stage_select::pick_stage(int start_stage)
     std::string beaten_filename = GAMEPATH + "/shared/images/stage_beaten_cross.png";
     graphicsLib_gSurface beaten_surface;
     graphLib.surfaceFromFile(beaten_filename, &beaten_surface);
+    graphLib.set_surface_alpha(180, &beaten_surface);
 
-    int stage_n = 0;
+    // adjust to always show castle #1 images
+    int area_pos = stage_n*RES_W;
+    if (stage_n > CASTLE1_STAGE1) {
+        area_pos = CASTLE1_STAGE1*RES_W;
+    }
 
-
-    graphLib.copyArea(st_rectangle(stage_n*RES_W, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(area_pos, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
+        graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
+    }
     draw_stage_select_text_info(stage_n);
     graphLib.updateScreen();
 
@@ -411,6 +397,8 @@ int stage_select::pick_stage(int start_stage)
 
     CURRENT_FILE_FORMAT::file_io fio;
     bool can_access_castle = fio.can_access_castle(game_save);
+
+    int max_stage = gameControl.get_last_castle_stage();
 
     while (finished == false) {
         bool moved = false;
@@ -426,16 +414,12 @@ int stage_select::pick_stage(int start_stage)
             }
 #endif
         } else if (input.p1_input[BTN_START]) {
-            if (stage_n <= 8) {
-                soundManager.stop_music();
-                return stage_n;
+            if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE1) {
+                soundManager.play_sfx(SFX_PLAYER_HIT);
             } else {
-                if (can_access_castle == true) {
-                    soundManager.stop_music();
-                    return get_current_castle_stage();
-                } else {
-                    soundManager.play_sfx(SFX_PLAYER_HIT);
-                }
+                soundManager.stop_music();
+                std::cout << "stage_select::pick_stage[" << stage_n << "]" << std::endl;
+                return stage_n;
             }
         // @TODO: move all houses util not PATH //
         } else if (input.p1_input[BTN_LEFT]) {
@@ -448,15 +432,26 @@ int stage_select::pick_stage(int start_stage)
 
         if (moved) {
             soundManager.play_sfx(SFX_CURSOR);
+
+            std::cout << "stage_n[" << stage_n << "], max_stage[" << max_stage << "]" << std::endl;
+
             if (stage_n < 0) {
-                stage_n = 9;
+                stage_n = max_stage;
             }
-            if (stage_n > 9) {
+            if (stage_n > max_stage) {
                 stage_n = 0;
             }
+
+            // adjust to always show castle #1 images
+            area_pos = stage_n*RES_W;
+            if (stage_n > CASTLE1_STAGE1) {
+                area_pos = CASTLE1_STAGE1*RES_W;
+            }
+
+
             input.clean();
             timer.delay(100);
-            graphLib.copyArea(st_rectangle(stage_n*RES_W, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(area_pos, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
             if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
                 graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
             }
@@ -468,7 +463,6 @@ int stage_select::pick_stage(int start_stage)
         timer.delay(10);
 
     }
-
 }
 
 void stage_select::draw_stage_select_text_info(int stage_n)
@@ -482,19 +476,12 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+35, "LAIR OF:");
     graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+47, temp_stage_data.boss.name);
 
-    graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[PRESS START TO ENTER]", st_color(250, 250, 250));
-}
-
-int stage_select::get_current_castle_stage()
-{
-    int castle_n = CASTLE1_STAGE1;
-    for (int i=CASTLE1_STAGE2; i<=CASTLE1_STAGE5; i++) {
-        if (game_save.stages[i] == 0) {
-            castle_n = i;
-            break;
-        }
+    if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE1) {
+        graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[UNAVAILABE IN FREE]", st_color(250, 250, 250));
+    } else {
+        graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[PRESS START TO ENTER]", st_color(250, 250, 250));
     }
-    return castle_n;
+
 }
 
 bool stage_select::walk_path(int incx, int incy, st_position& pos, format_v4::file_stage_select map_data)

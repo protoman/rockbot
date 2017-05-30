@@ -1183,7 +1183,7 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
         if (damage_points > 0 && new_damage_points <= 0) {
             new_damage_points = 1;
         }
-        std::cout << "ARMOR-HALF-DAMAGE, damage[" << damage_points << "], new_damage_points[" << new_damage_points << "]" << std::endl;
+        //std::cout << "ARMOR-HALF-DAMAGE, damage[" << damage_points << "], new_damage_points[" << new_damage_points << "]" << std::endl;
         character::damage(new_damage_points, ignore_hit_timer);
         return;
     }

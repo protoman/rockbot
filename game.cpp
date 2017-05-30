@@ -803,13 +803,16 @@ void game::map_present_boss(bool show_dialog)
 	graphLib.blink_screen(255, 255, 255);
 
 	// 3. move boss from top to ground
-	loop_run = true;
-	while (loop_run == true) {
-        if (loaded_stage.boss_hit_ground() == true) {
-			loop_run = false;
-		}
-        show_stage(0, true);
-	}
+    classnpc* boss_ref = loaded_stage.get_near_boss();
+    if (boss_ref != NULL) {
+        loop_run = true;
+        while (loop_run == true) {
+            if (loaded_stage.boss_hit_ground(boss_ref) == true) {
+                loop_run = false;
+            }
+            show_stage(0, true);
+        }
+    }
 	show_stage(8, true);
 
 
@@ -1358,10 +1361,10 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    //scenes.show_player_ending();
-    //scenes.show_player_walking_ending();
+    scenes.show_player_ending();
+    scenes.show_player_walking_ending();
 
-    //scenes.show_enemies_ending();
+    scenes.show_enemies_ending();
 
     scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
     draw_lib.show_credits(false);
@@ -1392,7 +1395,7 @@ void game::quick_load_game()
 
     currentStage = STAGE5;
     game_save.difficulty = DIFFICULTY_NORMAL;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //
@@ -1414,6 +1417,9 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
 
+    // TEST //
+    currentStage = scenes.pick_stage(INTRO_STAGE);
+
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
 
@@ -1422,8 +1428,6 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-    // TEST //
-    //scenes.pick_stage(0);
 
     start_stage();
 }
@@ -1558,8 +1562,11 @@ void game::set_player_anim_type(ANIM_TYPE anim_type)
 
 void game::show_player_at(int x, int y)
 {
-    player1.set_position(st_position(x, y));
-    player1.show();
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### GAME::show_player_at[%d, %d] ###", x, y);
+#endif
+    std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
+    player1.show_at(st_position(x, y));
 }
 
 st_position game::get_player_position()
@@ -1634,6 +1641,26 @@ bool game::is_player_on_teleporter()
     return _player_teleporter.active;
 }
 
+short game::get_last_castle_stage()
+{
+    if (fio.can_access_castle(game_save) == false) {
+        return STAGE8;
+    }
+    int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
+    for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
+        std::cout << "CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        if (game_save.stages[i] == 0) {
+            break;
+        }
+        pos_n = i+1;
+    }
+    std::cout << "game::get_last_castle_stage[" << pos_n << "]" << std::endl;
+    if (pos_n > CASTLE1_STAGE5) {
+        pos_n = CASTLE1_STAGE5;
+    }
+    return pos_n;
+}
+
 void game::remove_current_teleporter_from_list()
 {
     if (_player_teleporter.teleporter_n != -1) {
@@ -1683,9 +1710,7 @@ string game::get_selected_game()
 bool game::is_free_version()
 {
 #ifdef DEMO_VERSION
-    if (_selected_game == "Rockbot2") {
-        return true;
-    }
+    return true;
 #endif
     return false;
 }

@@ -184,12 +184,12 @@ void stage::set_current_map(int new_map_n)
 {
 
     if (new_map_n < 0 || new_map_n >= PRELOAD_MAP_N) {
+        #ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid value for set_current_map[%d]", new_map_n);
+        #endif
+        std::cout << "Invalid value for set_current_map[" << new_map_n << "]" << std::endl;
         return;
     }
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid value for set_current_map[%d]", new_map_n);
-#endif
-    std::cout << "Invalid value for set_current_map[" << new_map_n << "]" << std::endl;
 
 	currentMap = new_map_n;
 
@@ -276,9 +276,14 @@ void stage::show_above_objects(int adjust)
     get_current_map()->show_above_objects(adjust);
 }
 
-bool stage::boss_hit_ground()
+bool stage::boss_hit_ground(classnpc* npc_ref)
 {
-    return get_current_map()->boss_hit_ground();
+    return get_current_map()->boss_hit_ground(npc_ref);
+}
+
+classnpc *stage::get_near_boss()
+{
+    return get_current_map()->get_near_boss();
 }
 
 void stage::reset_stage_maps()

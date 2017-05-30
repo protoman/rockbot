@@ -108,8 +108,9 @@ public:
     bool is_player() const;
     void advance_frameset(); // changes the state for the next (or previous) frame
     void show();
+    void show_at(st_position pos);
     void show_sprite();
-    void show_sprite_graphic(short direction, short type, short n);
+    void show_sprite_graphic(short direction, short type, short n, st_position pos);
     st_size get_size() const;
     st_rectangle get_hitbox(int anim_type=-1);
     void set_platform(object*);
@@ -216,6 +217,7 @@ public:
     virtual int get_armor_arms_attack_id();
     void remove_freeze_effect();
     void push_back(short direction);
+    bool get_can_fly();
 
 
 private:

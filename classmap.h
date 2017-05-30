@@ -173,7 +173,9 @@ public:
 
     void show_above_objects(int adjust_y=0, int adjust_x=0);
 
-    bool boss_hit_ground();
+    bool boss_hit_ground(classnpc *npc_ref);
+
+    classnpc* get_near_boss();
 
     void reset_map_npcs();
 

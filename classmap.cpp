@@ -2089,29 +2089,46 @@ void classMap::show_above_objects(int adjust_y, int adjust_x)
     }
 }
 
-bool classMap::boss_hit_ground()
+bool classMap::boss_hit_ground(classnpc* npc_ref)
+{
+    if (npc_ref->is_boss() == true && npc_ref->is_on_visible_screen() == true) {
+        //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << npc_ref->getPosition().y << std::endl;
+
+        int limit_y = npc_ref->get_start_position().y - TILESIZE;
+        //std::cout << "#### limit_y: " << limit_y << std::endl;
+        if (limit_y > RES_H/2) {
+            limit_y = RES_H/2;
+        }
+        if (npc_ref->get_can_fly()) {
+            //std::cout << "classMap::boss_hit_ground - limit_y[" << limit_y << "], boss.h/2[" << npc_ref->get_size().height/2 << "]" << std::endl;
+            limit_y = RES_H/2 - npc_ref->get_size().height/2;
+        }
+
+        if (npc_ref->getPosition().y >= limit_y) {
+            // flying boss can stop on middle of the screen
+            if (npc_ref->get_can_fly() == true) {
+                npc_ref->set_animation_type(ANIM_TYPE_STAND);
+                return true;
+            // non-flying bosses need to hit gound to stop
+            } else if (npc_ref->hit_ground() == true) {
+                npc_ref->set_animation_type(ANIM_TYPE_STAND);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+classnpc *classMap::get_near_boss()
 {
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         if (npc_ref->is_boss() == true && npc_ref->is_on_visible_screen() == true) {
-            //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << npc_ref->getPosition().y << std::endl;
-
-            int limit_y = npc_ref->get_start_position().y - TILESIZE;
-            //std::cout << "#### limit_y: " << limit_y << std::endl;
-            if (limit_y > RES_H/2) {
-                limit_y = RES_H/2;
-            }
-
-            if (npc_ref->getPosition().y >= limit_y && npc_ref->hit_ground()) {
-                npc_ref->set_animation_type(ANIM_TYPE_STAND);
-                //std::cout << "boss_hit_ground #2" << std::endl;
-                return true;
-            }
-			break;
-		}
+            return npc_ref;
+        }
     }
-	return false;
+    return NULL;
 }
 
 void classMap::reset_map_npcs()

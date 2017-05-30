@@ -214,19 +214,9 @@ short scenesLib::pick_stage(int last_stage) {
 
     int pos_n = selection.pick_stage(last_stage);
 
-    if (pos_n == CASTLE1_STAGE1) { // look for the actual stage in skullcastle
-        for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
-            if (game_save.stages[i] == 0) {
-                break;
-            }
-            pos_n = i+1;
-        }
-    }
     timer.delay(100);
     return pos_n;
 }
-
-
 
 
 short scenesLib::show_main_config(short stage_finished, bool called_from_game) // returns 1 if must leave stage, 0 if nothing
@@ -417,7 +407,7 @@ void scenesLib::show_player_walking_ending()
 
 
         // show player
-        gameControl.show_player_at(player_pos,player_y_pos);
+        gameControl.show_player_at(player_pos, player_y_pos);
 
 
         //std::cout << "bg1_pos[" << bg1_pos << "], bg1.left[" << bg1.width-bg1_pos << "]" << std::endl;
@@ -1011,75 +1001,6 @@ Uint8 scenesLib::select_player() {
     return (selected-1);
 }
 
-
-/*
-Uint8 scenesLib::select_player() {
-	int adjustX, adjustY;
-    int selected = 1;
-
-	graphLib.blank_screen();
-
-    if (game_config.game_finished == true) {
-        adjustX = (RES_W-256)*0.5;
-        adjustY = (RES_H-208)*0.5;
-    } else {
-        adjustX = (RES_W-256)*0.5;
-        adjustY = 74;
-    }
-
-
-    graphicsLib_gSurface bg_surface;
-    std::string filename = FILEPATH + "images/backgrounds/player_select.png";
-    if (game_config.game_finished == true) {
-        filename = FILEPATH + "images/backgrounds/player_select4.png";
-    }
-    graphLib.surfaceFromFile(filename, &bg_surface);
-    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-    int x = 0;
-    int y = 0;
-
-	input.clean();
-    timer.delay(100);
-
-
-    graphicsLib_gSurface lights_surface;
-    std::string filename_lights = FILEPATH + "images/backgrounds/lights.png";
-    graphLib.surfaceFromFile(filename_lights, &lights_surface);
-
-    while (true) {
-        input.readInput();
-        if (game_config.game_finished == true && (input.p1_input[BTN_DOWN] == 1 || input.p1_input[BTN_UP] == 1)) {
-            soundManager.play_sfx(SFX_CURSOR);
-            y = !y;
-        } else if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
-            soundManager.play_sfx(SFX_CURSOR);
-            x = !x;
-        } else if (input.p1_input[BTN_QUIT] == 1) {
-            dialogs dialogs_obj;
-            if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDL_Quit();
-                exit(0);
-            }
-        } else if (input.p1_input[BTN_START] == 1) {
-            input.clean();
-            draw_lib.update_screen();
-            timer.delay(80);
-            break;
-        }
-        // convert x/y into selected
-        selected = x + y*2;
-
-        draw_lights_select_player(lights_surface, selected, adjustX, adjustY);
-
-        input.clean();
-        timer.delay(10);
-        draw_lib.update_screen();
-    }
-    return selected;
-}
-*/
 
 Uint8 scenesLib::select_difficulty()
 {

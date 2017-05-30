@@ -767,7 +767,7 @@ void projectile::draw() {
             int show_x = _size.width - show_width;
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(show_x, 0, show_width, _size.height), st_position(realPosition.x + 15, realPosition.y));
         } else {
-            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height, show_width, _size.height), st_position(realPosition.x - _chain_width, realPosition.y));
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, 0, show_width, _size.height), st_position(realPosition.x - _chain_width, realPosition.y));
         }
         //std::cout << "CHAIN - x: " << anim_pos << ", show_width: " << show_width << std::endl;
 

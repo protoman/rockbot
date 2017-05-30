@@ -25,11 +25,13 @@ CONFIG += android
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
-### FREE VERSION ###
-#DEFINESLIST = -DBETA_VERSION
+
+### BETA VERSION ###
+#DEFINESLIST += -DBETA_VERSION
 #DEFINES+= BETA_VERSION=1
-### DEMO VERSION ###
-#DEFINESLIST = -DDEMO_VERSION -DBETA_VERSION
+
+### DEMO VERSION (LIMITED STAGES) ###
+#DEFINESLIST += -DDEMO_VERSION
 #DEFINES+= DEMO_VERSION=1
 
 DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
