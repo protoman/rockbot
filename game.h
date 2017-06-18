@@ -36,15 +36,8 @@ public:
  *
  */
     game();
-    /**
-     * @brief
-     *
-     */
     ~game();
-    /**
-     * @brief
-     *
-     */
+    void first_run_check();
     void initGame();
     /**
      * @brief
@@ -276,6 +269,14 @@ public:
 
     short get_last_castle_stage();
 
+    short get_current_save_slot();
+    void set_current_save_slot(short n);
+
+    void save_game();
+
+#ifdef ANDROID
+    bool load_save_data_from_cloud();
+#endif
 
 
 private:
@@ -380,6 +381,8 @@ private:
     std::string _selected_game;
 
     fps_control fps_manager;
+
+    short current_save_slot;
 
 
 #ifdef PSP

@@ -8,6 +8,7 @@ armor_edit::armor_edit(QWidget *parent) :
     ui->setupUi(this);
     _data_loading = true;
     fill_armor_abilities();
+    common::fill_languages_combo(ui->language_comboBox);
     _data_loading = false;
 }
 
@@ -19,55 +20,55 @@ armor_edit::~armor_edit()
 void armor_edit::reload()
 {
     // === ARMS === //
-    ui->arm_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0]).c_str()));
-    ui->arm_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][1]).c_str()));
-    ui->arm_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][2]).c_str()));
+    ui->arm_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[0][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->arm_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][0]).c_str()));
-    ui->arm_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][1]).c_str()));
-    ui->arm_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][2]).c_str()));
+    ui->arm_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[1][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->arm_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][0]).c_str()));
-    ui->arm_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][1]).c_str()));
-    ui->arm_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][2]).c_str()));
+    ui->arm_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[2][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->arm_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][0]).c_str()));
-    ui->arm_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][1]).c_str()));
-    ui->arm_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][2]).c_str()));
+    ui->arm_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->arm_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_ARMS].got_message[3][2], ui->language_comboBox->currentIndex()).c_str()));
 
     // === BODY === //
-    ui->body_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][0]).c_str()));
-    ui->body_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][1]).c_str()));
-    ui->body_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][2]).c_str()));
+    ui->body_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[0][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->body_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][0]).c_str()));
-    ui->body_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][1]).c_str()));
-    ui->body_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][2]).c_str()));
+    ui->body_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[1][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->body_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][0]).c_str()));
-    ui->body_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][1]).c_str()));
-    ui->body_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][2]).c_str()));
+    ui->body_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[2][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->body_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][0]).c_str()));
-    ui->body_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][1]).c_str()));
-    ui->body_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][2]).c_str()));
+    ui->body_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->body_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_BODY].got_message[3][2], ui->language_comboBox->currentIndex()).c_str()));
 
     // === LEGS === //
-    ui->legs_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][0]).c_str()));
-    ui->legs_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][1]).c_str()));
-    ui->legs_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][2]).c_str()));
+    ui->legs_player1_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player1_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player1_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[0][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->legs_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][0]).c_str()));
-    ui->legs_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][1]).c_str()));
-    ui->legs_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][2]).c_str()));
+    ui->legs_player2_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player2_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player2_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[1][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->legs_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][0]).c_str()));
-    ui->legs_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][1]).c_str()));
-    ui->legs_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][2]).c_str()));
+    ui->legs_player3_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player3_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player3_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[2][2], ui->language_comboBox->currentIndex()).c_str()));
 
-    ui->legs_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][0]).c_str()));
-    ui->legs_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][1]).c_str()));
-    ui->legs_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2]).c_str()));
+    ui->legs_player4_text1->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][0], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player4_text2->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][1], ui->language_comboBox->currentIndex()).c_str()));
+    ui->legs_player4_text3->setText(QString(fio_str.get_common_string(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2], ui->language_comboBox->currentIndex()).c_str()));
 
 
     _data_loading = true;
@@ -205,7 +206,7 @@ void armor_edit::on_string_selected(int string_id)
     int* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
-    qline->setText(QString(fio_str.get_common_string(string_id).c_str()));
+    qline->setText(QString(fio_str.get_common_string(string_id, ui->language_comboBox->currentIndex()).c_str()));
 }
 
 
@@ -396,4 +397,10 @@ void armor_edit::on_legs_player4_toolButton2_clicked()
 void armor_edit::on_legs_player4_toolButton3_clicked()
 {
     string_tooltip_click(&(Mediator::get_instance()->game_data.armor_pieces[ARMOR_LEGS].got_message[3][2]), ui->legs_player4_text3);
+}
+
+void armor_edit::on_language_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    reload();
 }

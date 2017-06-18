@@ -73,12 +73,14 @@ private slots:
 
     void on_stage_boss_weapon_combo_currentIndexChanged(int index);
 
+    void on_language_comboBox_currentIndexChanged(int index);
+
 public slots:
     void on_string_selected(int string_id);
 
 private:
-	void fill_stage_tab_data();
-    void update_stage_data();
+    void fill_stage_tab_data(int language_n);
+    void update_stage_data(int language_n);
     void string_tooltip_click(int *property, QLineEdit* qline);
 
 private:

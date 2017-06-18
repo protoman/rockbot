@@ -245,6 +245,8 @@ protected:
 
     bool uses_fly_fall(); // uses to respawn it inside holes
 
+    void invert_left_right_direction();
+
 
 
 protected:

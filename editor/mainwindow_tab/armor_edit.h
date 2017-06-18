@@ -75,6 +75,8 @@ private slots:
     void on_legs_player4_toolButton2_clicked();
     void on_legs_player4_toolButton3_clicked();
 
+    void on_language_comboBox_currentIndexChanged(int index);
+
 public slots:
     void on_string_selected(int string_id);
 

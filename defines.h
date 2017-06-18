@@ -932,6 +932,16 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_key_directional,
     strings_ingame_config_key_directional_analog,
     strings_ingame_config_key_directional_digital,
+
+    strings_ingame_config_android_cloud_save1,
+    strings_ingame_config_android_cloud_save2,
+    strings_ingame_config_android_cloud_save3,
+    strings_ingame_config_android_cloud_save4,
+
+    strings_ingame_config_android_hide_controls1,
+    strings_ingame_config_android_hide_controls2,
+    strings_ingame_config_android_hide_controls3,
+
     strings_ingame_passwordinvalid,
     strings_ingame_pressstart,
     strings_ingame_engineerror,
@@ -989,6 +999,7 @@ enum E_STRINGS_INGAME {
     strings_config_android_hidescreencontrols,
     strings_config_android_screencontrolssize,
     strings_config_android_useplayservices,
+    strings_config_android_usecloudsave,
     strings_config_wii_joysticktype,
 
     strings_config_android_screencontrolssize_SMALL,
@@ -1002,6 +1013,11 @@ enum E_STRINGS_INGAME {
 
     strings_config_keys_unet,
     strings_ingame_config_graphics_performance,
+
+
+    strings_ingame_enable_playservices_dialog,
+    strings_ingame_enable_cloudsave_dialog,
+    strings_ingame_requires_network,
 
     strings_ingame_COUNT
 };
@@ -1107,6 +1123,7 @@ enum STAGE_SELECT_EDIT_MODES {
     STAGE_SELECT_EDIT_MODE_COUNT
 };
 
+#define SAVE_MAX_SLOT_NUMBER 4
 
 
 #endif // DEFINES_H

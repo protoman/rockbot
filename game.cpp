@@ -12,6 +12,8 @@
 
 #ifdef ANDROID
 #include <android/log.h>
+#include "ports/android/android_game_services.h"
+extern android_game_services game_services;
 #endif
 
 
@@ -75,6 +77,7 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
     _dark_mode = false;
     is_showing_boss_intro = false;
     must_break_npc_loop = false;
+    current_save_slot = 0;
 }
 
 // ********************************************************************************************** //
@@ -82,6 +85,31 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
 // ********************************************************************************************** //
 game::~game()
 {
+}
+
+void game::first_run_check()
+{
+    if (game_config.first_run == true) {
+#ifdef ANDROID
+        string lines[3];
+        dialogs dialog_obj;
+        lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_playservices_dialog);
+        lines[1] = strings_map::get_instance()->get_ingame_string(strings_ingame_requires_network);
+        lines[2] = std::string("");
+
+        game_config.android_use_play_services = dialog_obj.show_yes_no_dialog(lines);
+        if (game_config.android_use_play_services == true) {
+            lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_cloudsave_dialog);
+            game_config.android_use_cloud_save = dialog_obj.show_yes_no_dialog(lines);
+            if (game_config.android_use_cloud_save == true) {
+                load_save_data_from_cloud();
+            }
+        }
+#endif
+        // save config
+        game_config.first_run = false;
+        fio.save_config(game_config);
+    }
 }
 
 // ********************************************************************************************** //
@@ -103,9 +131,6 @@ void game::initGame()
     if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
         fps_manager.set_max_fps(30);
     }
-
-
-
 }
 
 
@@ -809,11 +834,13 @@ void game::map_present_boss(bool show_dialog)
         while (loop_run == true) {
             if (loaded_stage.boss_hit_ground(boss_ref) == true) {
                 loop_run = false;
+                show_stage(0, false);
+            } else {
+                show_stage(0, true);
             }
-            show_stage(0, true);
         }
     }
-	show_stage(8, true);
+    show_stage(8, false);
 
 
 	if (show_dialog == true) {
@@ -822,7 +849,7 @@ void game::map_present_boss(bool show_dialog)
         boss_dialog.show_boss_dialog(loaded_stage.get_number());
 	}
 
-	show_stage(8, false);
+    show_stage(8, false);
 
 
     soundManager.play_boss_music();
@@ -1190,10 +1217,10 @@ void game::got_weapon()
 		std::string extra_name = "";
         if (currentStage == COIL_GOT_STAGE) {
             std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
-            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and, game_config.selected_language) + std::string(" ") + item_name;
         } else if (currentStage == JET_GOT_STAGE) {
             std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
-            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and, game_config.selected_language) + std::string(" ") + item_name;
         }
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
 
@@ -1217,10 +1244,7 @@ void game::got_weapon()
 
 void game::leave_stage()
 {
-    if (fio.write_save(game_save) == false) {
-        show_savegame_error();
-    }
-
+    save_game();
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
     GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
@@ -1246,9 +1270,7 @@ void game::leave_stage()
 
 void game::return_to_intro_screen()
 {
-    if (fio.write_save(game_save) == false) {
-        show_savegame_error();
-    }
+    save_game();
 
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
@@ -1309,9 +1331,7 @@ void game::exit_game()
 #endif
 
 
-    if (fio.write_save(game_save) == false) {
-        show_savegame_error();
-    }
+    save_game();
 
     run_game = false;
 
@@ -1337,7 +1357,7 @@ void game::game_over()
     graphLib.surfaceFromFile(filename, &dialog_img);
     graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
 
-    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover), graphLib.gameScreen, st_color(235, 235, 235));
+    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover, game_config.selected_language), graphLib.gameScreen, st_color(235, 235, 235));
 
     draw_lib.update_screen();
     timer.delay(400);
@@ -1389,11 +1409,11 @@ void game::show_demo_ending()
 
 void game::quick_load_game()
 {
-    if (fio.save_exists()) {
-        fio.read_save(game_save);
+    if (fio.save_exists(current_save_slot)) {
+        fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = STAGE5;
+    currentStage = STAGE7;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 
@@ -1418,7 +1438,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
@@ -1428,6 +1448,7 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
+    //scenes.boss_intro(currentStage);
 
     start_stage();
 }
@@ -1661,6 +1682,67 @@ short game::get_last_castle_stage()
     return pos_n;
 }
 
+short game::get_current_save_slot()
+{
+    return current_save_slot;
+}
+
+void game::set_current_save_slot(short n)
+{
+    current_save_slot = n;
+}
+
+void game::save_game()
+{
+    if (fio.write_save(game_save, current_save_slot) == false) {
+        show_savegame_error();
+        return;
+    }
+#ifdef ANDROID
+    // if config is set to use cloud
+    if (game_config.android_use_play_services == true && game_config.android_use_cloud_save) {
+        graphicsLib_gSurface bg_copy;
+        graphLib.initSurface(st_size(RES_W, RES_H), &bg_copy);
+        graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bg_copy);
+
+        graphLib.blank_screen();
+        graphLib.draw_text(10, 10, "WRITTING SAVE DATA TO GOOGLE DRIVE,");
+        graphLib.draw_text(10, 20, "PLEASE WAIT AND BE SURE TO HAVE");
+        graphLib.draw_text(10, 30, "AN AVAILABLE NETWORK CONNECTION.");
+        graphLib.updateScreen();
+        game_services.cloud_save_game(current_save_slot);
+        timer.delay(200);
+        graphLib.copyArea(st_position(0, 0), &bg_copy, &graphLib.gameScreen);
+        graphLib.updateScreen();
+    }
+#endif
+}
+
+
+#ifdef ANDROID
+bool game::load_save_data_from_cloud()
+{
+    graphicsLib_gSurface bg_copy;
+    graphLib.initSurface(st_size(RES_W, RES_H), &bg_copy);
+    graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bg_copy);
+
+    // show loading from network dialog
+    graphLib.blank_screen();
+    graphLib.draw_text(10, 10, "LOADING SAVE DATA FROM GOOGLE DRIVE,");
+    graphLib.draw_text(10, 20, "PLEASE WAIT AND BE SURE TO HAVE");
+    graphLib.draw_text(10, 30, "AN AVAILABLE NETWORK CONNECTION.");
+    graphLib.updateScreen();
+    for (int i=0; i<SAVE_MAX_SLOT_NUMBER; i++) {
+        game_services.cloud_load_game(i);
+    }
+    graphLib.copyArea(st_position(0, 0), &bg_copy, &graphLib.gameScreen);
+    graphLib.updateScreen();
+    return fio.have_one_save_file();
+}
+#endif
+
+
+
 void game::remove_current_teleporter_from_list()
 {
     if (_player_teleporter.teleporter_n != -1) {
@@ -1832,9 +1914,9 @@ bool game::show_config(short finished_stage)
 void game::show_savegame_error()
 {
     std::vector<std::string> msgs;
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror1));
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror2));
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror3));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror1, game_config.selected_language));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror2, game_config.selected_language));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror3, game_config.selected_language));
     draw_lib.show_ingame_warning(msgs);
 }
 

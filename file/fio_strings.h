@@ -24,21 +24,21 @@ public:
     fio_strings();
 
     // === GAME STRINGS === //
-    std::string get_ingame_string(int n);
-    std::vector<std::string> load_game_strings();
-    std::vector<std::string> load_game_strings_from_file(std::string filename);
+    std::string get_ingame_string(int n, int language);
+    std::vector<std::string> load_game_strings(int language);
+    std::vector<std::string> load_game_strings_from_file(std::string filename, int language);
     void save_game_strings(std::vector<std::string> list, std::string filename);
 
     // === COMMON STRINGS === //
-    std::string get_common_strings_filename();
-    std::string get_game_strings_filename();
-    std::vector<std::string> get_common_strings();
-    std::string get_common_string(int id);
+    std::string get_common_strings_filename(int language);
+    std::string get_game_strings_filename(int language);
+    std::vector<std::string> get_common_strings(int language);
+    std::string get_common_string(int id, int language);
     std::string get_stage_dialog(short stage_id, int id, int language);
     std::vector<std::string> get_stage_dialogs(short stage_id, int language);
-    void save_common_strings(std::vector<std::string> data);
+    void save_common_strings(std::vector<std::string> data, int language);
     void create_files();
-    void save_stage_dialogs(short stage_id, std::vector<std::string> data);
+    void save_stage_dialogs(short stage_id, int language, std::vector<std::string> data);
 
     std::string get_language_prefix(int config);
 
@@ -54,11 +54,13 @@ public:
 
 private:
     // === GAME STRINGS === //
-    bool file_exists(std::string filename) const;
-    std::vector<std::string> get_default_ingame_strings_list();
+    bool file_exists(std::string filename);
+    std::vector<std::string> get_default_ingame_strings_list(int language);
     void create_default_ingame_strings();
-    std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list);
+    std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list, int language);
     std::string get_stage_dialogs_filename(short stage_id, int language);
+    std::string get_language_filename_prefix(int language);
+
 
     // === COMMON STRINGS === //
     void create_default_common_strings();

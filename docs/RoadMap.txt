@@ -23,6 +23,7 @@ STAGES:
 - Zodiac:
     # terminar parte visual do mapa
     # inimigos
+    # boss: 56x56 x (6+4+10+6+4) [atrack1+walk+attack2+wings+fly] = 56x56x30 = 1680x56
 - Snow:
     # embelezar com mais detalhes e animações
 - Castle1:
@@ -53,6 +54,28 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- add a check to avoid a button out of the screen
+
+- add achievements to editor
+    # only set the IDs for each game, mechanics to get those will be hardcoded
+    # first run
+    # first victim
+    # beat a boss
+    # beat the game
+    # beat the game on hard
+    # defeat 1.000 enemies
+    # defeat all bosses with regular weapon
+    # beat the game without getting a game over
+    # beat the game without using e-tank
+    # beat the game without using w-tank
+    # finish the intro-stage
+    # fall into a pit
+    # (one for each boss defeated)
+
+- editor de estágios está resetando strings ao inicializar editor
+
+- se iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
+
 - castle point 5 is showing in position 0x0
 
 
@@ -187,7 +210,23 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- add a flag in config called first_run. If is default (true), ask if want to enable play services and cloud save
+- set android's touch buttons transparency to 40%
 
+- finish cloud save load/write
+    # separate option from play services
+    # create warning when enabling the service
+    # when loading/writting a save, show connectiong dialog
+    # check all 5 slots if no save is present
+    # when enabling the cloud save service, load data for all slots
+    # when checking if enable load in main screen, try to get cloud data, if none
+
+- add a check to avoid a button with zero size
+- add multiple save file selection
+- finish android's touch button size configuration
+    # apply right when changed option
+    # fix positions
+- implement android's hide touch buttons
 
 
 

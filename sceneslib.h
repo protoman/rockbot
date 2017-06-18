@@ -22,7 +22,9 @@ public:
     void draw_main();
     void main_screen();
     short pick_stage(int last_stage);
-    void boss_intro(Uint8 pos_n) const;
+    void boss_intro_old(Uint8 pos_n) const;
+    void boss_intro(Uint8 pos_n);
+    void show_castle_boss_intro(Uint8 pos_n);
     short show_main_config(short stage_finished, bool called_from_game);
     void game_scenes_show_unbeaten_intro();
     void show_game_scene(e_game_scenes_types n);
@@ -47,6 +49,8 @@ private:
     void show_config_audio();
     void show_config_language();
     void show_config_performance();
+    void show_config_warning_android_cloud_save();
+    void show_config_warning_android_hide_controls();
 
 
     void config_int_value(Uint8 &value_ref, int min, int max);
@@ -54,6 +58,10 @@ private:
     Uint8 select_difficulty();
     void draw_lights_select_player(graphicsLib_gSurface& lights, int mode, int adjustX, int adjustY);
     void draw_castle_path(bool vertical_first, st_position initial_point, st_position final_point, short total_duration) const;
+
+    short select_save(bool is_new_game);
+
+    void draw_save_details(int n, format_v4::st_save save);
 
 
 private:

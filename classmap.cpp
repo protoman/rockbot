@@ -2095,19 +2095,23 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
         //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << npc_ref->getPosition().y << std::endl;
 
         int limit_y = npc_ref->get_start_position().y - TILESIZE;
-        //std::cout << "#### limit_y: " << limit_y << std::endl;
+
+        //std::cout << "#### limit_y [" << limit_y << "]" << ", start.y[" << npc_ref->get_start_position().y << "]" << std::endl;
+
+
         if (limit_y > RES_H/2) {
             limit_y = RES_H/2;
         }
         if (npc_ref->get_can_fly()) {
-            //std::cout << "classMap::boss_hit_ground - limit_y[" << limit_y << "], boss.h/2[" << npc_ref->get_size().height/2 << "]" << std::endl;
             limit_y = RES_H/2 - npc_ref->get_size().height/2;
+            std::cout << "#### [FLY] y[" << npc_ref->getPosition().y << "], limit_y [" << limit_y << "]" << ", h/2[" << (npc_ref->get_size().height/2) << "]" << std::endl;
         }
 
         if (npc_ref->getPosition().y >= limit_y) {
             // flying boss can stop on middle of the screen
             if (npc_ref->get_can_fly() == true) {
-                npc_ref->set_animation_type(ANIM_TYPE_STAND);
+                std::cout << "BOSS-HIT-GROUND <<<<<<<<<<<<<<<<<<<<" << std::endl;
+                npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
                 return true;
             // non-flying bosses need to hit gound to stop
             } else if (npc_ref->hit_ground() == true) {

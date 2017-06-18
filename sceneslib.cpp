@@ -38,6 +38,13 @@ extern draw draw_lib;
 #include "game.h"
 extern game gameControl;
 
+#ifdef ANDROID
+#include <android/log.h>
+#include "ports/android/android_game_services.h"
+extern android_game_services game_services;
+#endif
+
+
 #include "scenes/sceneshow.h"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
@@ -114,7 +121,7 @@ if (gameControl.is_free_version() == true) {
 } else {
     graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
 }
-    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
+    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
     graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
 
 }
@@ -135,11 +142,15 @@ void scenesLib::main_screen()
 	draw_main();
 
     std::vector<st_menu_option> options;
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame, game_config.selected_language)));
+    if (fio.have_one_save_file() == true) {
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language)));
+    } else {
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language), true));
+    }
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
 
     option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
@@ -149,7 +160,19 @@ void scenesLib::main_screen()
 
     int picked_n = 1;
 
-    bool have_save = fio.save_exists();
+    bool have_save = fio.have_one_save_file();
+
+    // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
+#ifdef ANDROID
+        // if config player services is set, and no save is found, get it from cloud
+        if (have_save == false && game_config.android_use_play_services == true && game_config.android_use_cloud_save == true) {
+            gameControl.load_save_data_from_cloud();
+            have_save = fio.have_one_save_file();
+        }
+#endif
+
+
+
     int initial_pick_pos = 0;
 
     if (have_save) {
@@ -167,10 +190,12 @@ void scenesLib::main_screen()
             }
         } else if (picked_n == 0) { // NEW GAME
 			repeat_menu = false;
+            gameControl.set_current_save_slot(select_save(true));
             game_save.reset();
         } else if (picked_n == 1) { // LOAD GAME
+            gameControl.set_current_save_slot(select_save(false));
             if (have_save == true) {
-				fio.read_save(game_save);
+                fio.read_save(game_save, gameControl.get_current_save_slot());
 				repeat_menu = false;
 			}
         } else if (picked_n == 2) {
@@ -202,6 +227,7 @@ void scenesLib::main_screen()
         } else {
                 game_save.selected_player = PLAYER_1;
         }
+        gameControl.save_game();
     }
 }
 
@@ -230,8 +256,8 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 	input.clean();
     timer.delay(300);
 
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input, game_config.selected_language)));
 #if defined(PC)
     options.push_back(st_menu_option("PC"));
 #elif PSP
@@ -243,18 +269,18 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #else
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific), true));
 #endif
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language), true));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, game_config.selected_language)));
 
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance, game_config.selected_language)));
 
 
     if (called_from_game) {
         if (stage_finished) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, game_config.selected_language)));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage), true));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, game_config.selected_language), true));
         }
-        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame));
+        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame, game_config.selected_language));
     }
 
 
@@ -497,11 +523,6 @@ void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
         graphLib.updateScreen();
         int boss_id = stage_data_obj.boss.id_npc;
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>>>>>>>>>> GAME::show_bosses_ending, id[%d], npc_n[%d], name[%s] <<<<<<<<<<<<<<<<<<<<<<<<<<<", i, boss_id, stage_data_obj.boss.name);
-#endif
-
-
         draw_lib.show_boss_intro_sprites(boss_id, false);
         graphLib.draw_progressive_text(130, RES_H/2-14, boss_credits_data.at(i*3), false, 20);
         graphLib.draw_progressive_text(130, RES_H/2-3, boss_credits_data.at(i*3+1), false, 20);
@@ -517,6 +538,7 @@ void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
 
 void scenesLib::show_config_android()
 {
+#ifdef ANDROID
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
@@ -528,13 +550,14 @@ void scenesLib::show_config_android()
 
     while (selected_option != -1) {
         options.clear();
-        //graphLib.clear_area(menu_pos.x-14, menu_pos.y, 180,  180, 0, 0, 0);
 
+        // OPTION #0: SHOW/HIDE controls
         if (game_config.android_touch_controls_hide == false) {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled)));
         } else {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled)));
         }
+        // OPTION #1: controls size
         if (game_config.android_touch_controls_size == 0) {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL)));
         } else if (game_config.android_touch_controls_size == 2) {
@@ -542,27 +565,58 @@ void scenesLib::show_config_android()
         } else {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM)));
         }
+        // OPTION #2: use play services
         if (game_config.android_use_play_services == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled),true));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled)));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled), true));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled)));
+        }
+        // OPTION #3: use cloud save (only available if use play services is true)
+        if (game_config.android_use_cloud_save == false) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled), !game_config.android_use_play_services));
+        } else {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled), !game_config.android_use_play_services));
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick();
-
         if (selected_option == 0) {
             game_config.android_touch_controls_hide = !game_config.android_touch_controls_hide;
+            game_services.set_touch_controls_visible(!game_config.android_touch_controls_hide);
+            // @TODO: show warning about emergency reset
         } else if (selected_option == 1) {
             game_config.android_touch_controls_size++;
             if (game_config.android_touch_controls_size > 2) {
                 game_config.android_touch_controls_size = 0;
             }
+            game_services.set_android_default_buttons_size(game_config.android_touch_controls_size);
         } else if (selected_option == 2) {
             game_config.android_use_play_services = !game_config.android_use_play_services;
+            if (game_config.android_use_play_services == true) {
+                game_services.connect();
+            } else {
+                game_services.disconnect();
+            }
+            // disable cloud service always when changing play-services value
+            game_config.android_use_cloud_save = false;
+        } else if (selected_option == 3) {
+            if (game_config.android_use_play_services == false) {
+                game_config.android_use_cloud_save = false;
+            } else {
+                game_config.android_use_cloud_save = !game_config.android_use_cloud_save;
+                if (game_config.android_use_cloud_save == true) {
+                    show_config_warning_android_cloud_save();
+                    // load saves from cloud, leave conflits to the library do handle //
+                    gameControl.load_save_data_from_cloud();
+                }
+            }
+            // @TODO: show warning that cloud load/save requires network connection
         }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.updateScreen();
     }
     fio.save_config(game_config);
+#endif
 }
 
 
@@ -576,17 +630,17 @@ void scenesLib::show_config_video()
 	std::vector<std::string> options;
 
     if (game_config.video_fullscreen == false) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
 	} else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
 	}
 
     if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale, game_config.selected_language));
     } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x, game_config.selected_language));
     } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, game_config.selected_language));
     }
 
 	short selected_option = 0;
@@ -619,9 +673,9 @@ void scenesLib::show_config_video_PSP()
 
     std::vector<std::string> options;
     if (game_config.video_fullscreen == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
     } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
     }
     short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
@@ -644,9 +698,9 @@ void scenesLib::show_config_wii()
     timer.delay(300);
 
     std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE, game_config.selected_language));
     short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
@@ -687,10 +741,10 @@ void scenesLib::show_config_ask_restart()
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
-    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart));
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
     graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
@@ -707,12 +761,12 @@ void scenesLib::show_config_audio()
 
 	std::vector<std::string> options;
     if (game_config.sound_enabled == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language));
     } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language));
     }
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx, game_config.selected_language));
 
 
 	short selected_option = 0;
@@ -743,28 +797,45 @@ void scenesLib::show_config_language()
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
-
+/*
+    LANGUAGE_ENGLISH,
+    LANGUAGE_FRENCH,
+    LANGUAGE_SPANISH,
+    LANGUAGE_ITALIAN,
+    LANGUAGE_PORTUGUESE,
+    LANGUAGE_COUNT
+*/
     std::vector<std::string> options;
-    if (game_config.selected_language == 1) {           // FRENCH
+    if (game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
         options.push_back("ANGLAIS");
         options.push_back("FRANCAIS");
         options.push_back("ESPANOL");
         options.push_back("ITALIEN");
-    } else if (game_config.selected_language == 2) {    // SPANISH
+        options.push_back("PORTUGAIS");
+    } else if (game_config.selected_language == LANGUAGE_SPANISH) {    // SPANISH
         options.push_back("INGLES");
         options.push_back("FRANCES");
         options.push_back("ESPANOL");
         options.push_back("ITALIANO");
-    } else if (game_config.selected_language == 3) {    // ITALIAN
+        options.push_back("PORTUGUES");
+    } else if (game_config.selected_language == LANGUAGE_ITALIAN) {    // ITALIAN
         options.push_back("INGLESE");
         options.push_back("FRANCESE");
         options.push_back("SPAGNOLO");
         options.push_back("ITALIANO");
+        options.push_back("PORTOGHESE");
+    } else if (game_config.selected_language == LANGUAGE_PORTUGUESE) {    // ITALIAN
+        options.push_back("INGLES");
+        options.push_back("FRANCES");
+        options.push_back("ESPANHOL");
+        options.push_back("ITALIANO");
+        options.push_back("PORTUGUES");
     } else {                                            // ENGLISH
         options.push_back("ENGLISH");
         options.push_back("FRENCH");
         options.push_back("SPANISH");
         options.push_back("ITALIAN");
+        options.push_back("PORTUGUESE");
     }
 
     short selected_option = 0;
@@ -799,6 +870,39 @@ void scenesLib::show_config_performance()
     }
 
     fio.save_config(game_config);
+}
+
+void scenesLib::show_config_warning_android_cloud_save()
+{
+    input.clean();
+    timer.delay(300);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save1, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save2, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save3, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save4, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    draw_lib.update_screen();
+    input.wait_keypress();
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    draw_lib.update_screen();
+}
+
+void scenesLib::show_config_warning_android_hide_controls()
+{
+    input.clean();
+    timer.delay(300);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    draw_lib.update_screen();
+    input.wait_keypress();
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    draw_lib.update_screen();
 }
 
 void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
@@ -945,9 +1049,9 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player), font_color);
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language), font_color);
     graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name, font_color);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select), font_color);
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language), font_color);
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
@@ -1013,14 +1117,14 @@ Uint8 scenesLib::select_difficulty()
     input.clean();
     timer.delay(300);
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, game_config.selected_language));
 
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
 
-    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select).c_str());
+    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, game_config.selected_language).c_str());
 
     short selected_option = -2;
     while (selected_option == -2) {
@@ -1043,7 +1147,7 @@ Uint8 scenesLib::select_difficulty()
 }
 
 
-void scenesLib::boss_intro(Uint8 pos_n) const {
+void scenesLib::boss_intro_old(Uint8 pos_n) const {
 
     if (pos_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
         std::cout << "WARNING: Ignoring boss intro, as boss is not set." << std::endl;
@@ -1170,6 +1274,139 @@ void scenesLib::boss_intro(Uint8 pos_n) const {
 
 }
 
+void scenesLib::boss_intro(Uint8 pos_n)
+{
+    if (pos_n >= CASTLE1_STAGE1) {
+        show_castle_boss_intro(pos_n);
+        return;
+    }
+    if (pos_n == INTRO_STAGE) {
+        return;
+    }
+
+    std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
+
+
+    graphicsLib_gSurface bg_img;
+    std::string bg_filename = FILEPATH + "images/backgrounds/boss_intro/boss_intro_bg.png";
+    graphLib.surfaceFromFile(bg_filename, &bg_img);
+
+    graphicsLib_gSurface boss_img;
+    char boss_filename_chr[12];
+    sprintf(boss_filename_chr, "0%d.png", pos_n);
+    std::string boss_filename = FILEPATH + "images/backgrounds/boss_intro/" + std::string(boss_filename_chr);
+    graphLib.surfaceFromFile(boss_filename, &boss_img);
+
+    int init_pos = -boss_img.width;
+    int end_pos = RES_W-boss_img.width;
+    int pos_y = 165-boss_img.height;
+
+    soundManager.play_sfx(SFX_STAGE_SELECTED);
+    graphLib.blank_screen();
+
+    for (int i=init_pos; i<=end_pos; i++) {
+        graphLib.copyArea(st_position(0, 0), &bg_img, &graphLib.gameScreen);
+        graphLib.copyArea(st_position(i, pos_y), &boss_img, &graphLib.gameScreen);
+        draw_lib.update_screen();
+        timer.delay(1);
+    }
+
+    CURRENT_FILE_FORMAT::file_stage temp_stage_data;
+    fio.read_stage(temp_stage_data, pos_n);
+    std::string full_stage_str = botname + " [" + std::string(temp_stage_data.name) + "]";
+    // convert name to uppercase
+    std::locale settings;
+    std::string boss_name;
+    int text_x = RES_W-(full_stage_str.length()*8);
+    text_x = text_x/2;
+
+    std::cout << "full_stage_str.length()[" << full_stage_str.length() << "], calc.size[" << (full_stage_str.length()*8) << "], text_x[" << text_x << "]" << std::endl;
+
+    for(unsigned int i = 0; i < full_stage_str.size(); ++i) {
+        boss_name += (std::toupper(full_stage_str[i], settings));
+        graphLib.draw_text(text_x, 188, boss_name);
+        draw_lib.update_screen();
+        timer.delay(100);
+    }
+    graphLib.wait_and_update_screen(2500);
+
+}
+
+void scenesLib::show_castle_boss_intro(Uint8 pos_n)
+{
+    graphicsLib_gSurface spriteCopy;
+
+    // set skullcastole number accoring to the save
+    if (pos_n == CASTLE1_STAGE1) {
+        if (game_save.stages[CASTLE1_STAGE5] != 0 || game_save.stages[CASTLE1_STAGE4] != 0) {
+            pos_n = CASTLE1_STAGE5;
+        } else if (game_save.stages[CASTLE1_STAGE3] != 0) {
+            pos_n = CASTLE1_STAGE4;
+        } else if (game_save.stages[CASTLE1_STAGE2] != 0) {
+            pos_n = CASTLE1_STAGE3;
+        } else if (game_save.stages[CASTLE1_STAGE1] != 0) {
+            pos_n = CASTLE1_STAGE2;
+        }
+    }
+
+    if (pos_n == CASTLE1_STAGE1) {
+        graphLib.blank_screen();
+        /// @TODO - use scenes here
+        //show_destrin_ship_intro();
+    }
+
+
+    std::string filename = FILEPATH + "images/backgrounds/skull_castle.png";
+    graphLib.surfaceFromFile(filename, &spriteCopy);
+    graphLib.copyArea(st_position(0, 0), &spriteCopy, &graphLib.gameScreen);
+
+    soundManager.play_sfx_from_file("skull_castle_intro.wav", 1);
+    graphLib.wait_and_update_screen(6000);
+    graphLib.blink_surface_into_screen(spriteCopy);
+
+    CURRENT_FILE_FORMAT::file_castle castle_data;
+    fio.read_castle_data(castle_data);
+
+
+
+    if (pos_n == CASTLE1_STAGE2) {
+        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
+    } else if (pos_n == CASTLE1_STAGE3) {
+        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
+        draw_lib.draw_castle_path(true, castle_data.points[1], castle_data.points[2]);
+    } else if (pos_n == CASTLE1_STAGE4) {
+        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
+        draw_lib.draw_castle_path(true, castle_data.points[1], castle_data.points[2]);
+        draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
+    } else if (pos_n == CASTLE1_STAGE5) {
+        graphicsLib_gSurface castle_skull_point;
+        filename = FILEPATH + "images/backgrounds/castle_skull_point.png";
+        graphLib.surfaceFromFile(filename, &castle_skull_point);
+        graphLib.copyArea(castle_data.points[4], &castle_skull_point, &graphLib.gameScreen);
+        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
+        draw_lib.draw_castle_path(true, castle_data.points[1], castle_data.points[2]);
+        draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
+        draw_lib.draw_castle_path(false, castle_data.points[3], castle_data.points[4]);
+    }
+
+    draw_lib.update_screen();
+    timer.delay(1000);
+
+
+    /// @TODO - instant path for drawing previous ones (do not need a for-loop)
+    if (pos_n == CASTLE1_STAGE2) {
+        draw_lib.draw_castle_path(false, castle_data.points[0], castle_data.points[1]);
+    } else if (pos_n == CASTLE1_STAGE3) {
+        draw_lib.draw_castle_path(false, castle_data.points[1], castle_data.points[2]);
+    } else if (pos_n == CASTLE1_STAGE4) {
+        draw_lib.draw_castle_path(false, castle_data.points[2], castle_data.points[3]);
+    } else if (pos_n == CASTLE1_STAGE5) {
+        draw_lib.draw_castle_path(false, castle_data.points[3], castle_data.points[4]);
+    }
+    timer.delay(1500);
+
+}
+
 
 void scenesLib::draw_castle_path(bool vertical_first, st_position initial_point, st_position final_point, short total_duration) const
 {
@@ -1183,5 +1420,107 @@ void scenesLib::draw_castle_path(bool vertical_first, st_position initial_point,
     }
     graphLib.draw_path(initial_point, middle_point, total_duration/2);
     graphLib.draw_path(middle_point, final_point, total_duration/2);
+}
+
+short scenesLib::select_save(bool is_new_game)
+{
+    int selected = 0;
+    bool finished = false;
+
+
+    std::string filename_selector_enabled = FILEPATH + "images/backgrounds/save_selector_enabled.png";
+    graphicsLib_gSurface selector_enabled_bg;
+    graphLib.surfaceFromFile(filename_selector_enabled, &selector_enabled_bg);
+
+    std::string filename_selector_disabled = FILEPATH + "images/backgrounds/save_selector_disabled.png";
+    graphicsLib_gSurface selector_disabled_bg;
+    graphLib.surfaceFromFile(filename_selector_disabled, &selector_disabled_bg);
+
+    graphLib.blank_screen();
+    input.clean_all();
+    timer.delay(300);
+
+    CURRENT_FILE_FORMAT::st_save save_detail_array[5];
+    bool save_slot_exists[5];
+    for (int i=0; i<5; i++) {
+        if (fio.save_exists(i) == false) {
+            save_slot_exists[i] = false;
+        } else {
+            fio.read_save(save_detail_array[i], i);
+            save_slot_exists[i] = true;
+        }
+    }
+
+    if (is_new_game == true) {
+        graphLib.draw_text(10, 10, "CREATE NEW GAME");
+    } else {
+        graphLib.draw_text(10, 10, "LOAD GAME FILE");
+    }
+    graphLib.draw_text(10, RES_H-12, "PLEASE SELECT SAVE SLOT");
+
+    while (finished == false) {
+        // draw screen
+        for (int i=0; i<5; i++) {
+            graphicsLib_gSurface* surface_ref = &selector_disabled_bg;
+            if (i == selected) {
+                surface_ref = &selector_enabled_bg;
+            }
+            graphLib.copyArea(st_position(0, (i*surface_ref->height)+22), surface_ref, &graphLib.gameScreen);
+        }
+        for (int i=0; i<5; i++) {
+            if (save_slot_exists[i] == true) {
+                draw_save_details(i, save_detail_array[i]);
+            } else {
+                graphLib.draw_text(10, i*40+34, "- NO SAVE FILE -");
+            }
+        }
+
+        graphLib.updateScreen();
+        input.read_input();
+        if (input.p1_input[BTN_JUMP] == 1 || input.p1_input[BTN_START] == 1) {
+            if (is_new_game == false && save_slot_exists[selected] == false) {
+                soundManager.play_sfx(SFX_NPC_HIT);
+            } else {
+                break;
+            }
+        } else if (input.p1_input[BTN_UP] == 1) {
+            selected--;
+            soundManager.play_sfx(SFX_CURSOR);
+            if (selected < 0) {
+                selected = SAVE_MAX_SLOT_NUMBER;
+            }
+        } else if (input.p1_input[BTN_DOWN] == 1) {
+            selected++;
+            soundManager.play_sfx(SFX_CURSOR);
+            if (selected > SAVE_MAX_SLOT_NUMBER) {
+                selected = 0;
+            }
+        } else if (input.p1_input[BTN_QUIT] == 1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
+        }
+        input.clean();
+        timer.delay(10);
+    }
+
+    return selected;
+
+}
+
+void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
+{
+
+    for (int i=1; i<=8; i++) {
+        st_position pos(i*18, n*40+34);
+        if (save.stages[i] == 1) {
+            graphLib.draw_weapon_tooltip_icon(i, pos, true);
+        } else {
+            // @TODO: draw disabled version
+            graphLib.draw_weapon_tooltip_icon(i, pos, false);
+        }
+    }
 }
 

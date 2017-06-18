@@ -33,6 +33,7 @@ public:
     static void fill_npc_listwidget(QListWidget* listWidget);
     static void fill_object_listWidget(QListWidget* listWidget);
     static void fill_scenes_combo(QComboBox *combo);
+    static void fill_languages_combo(QComboBox *combo);
     static std::vector<std::string> get_npc_names_list();
     static std::vector<std::string> get_weapon_names_list();
     static st_size calc_image_size(std::string file);

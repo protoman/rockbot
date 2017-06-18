@@ -26,6 +26,7 @@ class StringsEditor : public QDialog
 public:
     explicit StringsEditor(QWidget *parent, int mode);
     ~StringsEditor();
+    void reload();
     void save_data();
     void set_target_qline(QLineEdit* line);
     QLineEdit* get_target_qline();
@@ -56,6 +57,8 @@ private slots:
     void on_addScenesString_pushButton_clicked();
 
     void on_addCommonString_pushButton_clicked();
+
+    void on_languageSelector_comboBox_currentIndexChanged(int index);
 
 signals:
     void on_accepted(int);                  // emits a signal indicating the selected line number

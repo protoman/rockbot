@@ -11,12 +11,11 @@
 #include <jni.h>
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>
-#include "ports/android/rockbot_android.h"
+#include "ports/android/android_game_services.h"
 #elif OSX
 #include <mach-o/dyld.h>
 #elif DREAMCAST
 #include <kos.h>
-#include <android/log.h>
 #endif
 
 #include <iostream>
@@ -98,6 +97,9 @@ game gameControl;
 CURRENT_FILE_FORMAT::st_save game_save;
 struct CURRENT_FILE_FORMAT::st_game_config game_config;
 bool GAME_FLAGS[FLAG_COUNT];
+#ifdef ANDROID
+android_game_services game_services;
+#endif
 
 
 int default_keys_codes[BTN_COUNT]; // number indicator for the keyboard-keys
@@ -283,7 +285,6 @@ int main(int argc, char *argv[])
 #endif
 {
 
-
 #ifdef PSP
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
@@ -421,7 +422,8 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
 #ifdef ANDROID
-    set_android_default_buttons_pos(game_config.android_touch_controls_size);
+    game_services.set_android_default_buttons_size(game_config.android_touch_controls_size);
+    game_services.set_touch_controls_visible(!game_config.android_touch_controls_hide);
 #endif
 
 
@@ -433,12 +435,18 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
+#ifdef ANDROID
+    if (game_config.android_use_play_services == true) {
+        game_services.connect();
+    }
+#endif
+
     // DEBUG PS2 //
     //GAMENAME = std::string("Rockbot2");
 
     if (GAMENAME == "") {
-        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
-        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
+        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, game_config.selected_language) + std::string(":"));
+        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames, game_config.selected_language));
 
         std::string filename = GAMEPATH + "/games/";
         filename = StringUtils::clean_filename(filename);
@@ -531,6 +539,7 @@ int main(int argc, char *argv[])
     input.clean();
 
 
+    gameControl.first_run_check();
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -542,10 +551,14 @@ int main(int argc, char *argv[])
         gameControl.quick_load_game();
     }
 
-
-
-
     fflush(stdout);
+
+
+#ifdef ANDROID
+    std::string achievement_id = "CgkIhcyFyuEEEAIQBw";
+    game_services.unclock_achievement(achievement_id);
+#endif
+
 
     while (run_game) {
         #if !defined(DINGUX)

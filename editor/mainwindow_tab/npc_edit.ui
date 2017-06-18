@@ -345,7 +345,7 @@
                   </item>
                   <item>
                    <property name="text">
-                    <string>WALK_AIR</string>
+                    <string>FLY/WALK-AIR</string>
                    </property>
                   </item>
                   <item>

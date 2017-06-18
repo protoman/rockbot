@@ -188,7 +188,7 @@ public:
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
     void load_icons();
     void draw_weapon_icon(short, st_position menu_pos, bool active);
-    void draw_weapon_tooltip_icon(short weapon_n, st_position position);
+    void draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled);
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);

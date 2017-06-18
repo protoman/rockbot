@@ -137,7 +137,7 @@ void init_enum_names() {
     ANIMATION_TYPE_LIST.push_back("THROW");
     ANIMATION_TYPE_LIST.push_back("TURN [HORIZONTAL]");
     ANIMATION_TYPE_LIST.push_back("MOVE SEMI");
-    ANIMATION_TYPE_LIST.push_back("WALK-AIR");
+    ANIMATION_TYPE_LIST.push_back("FLY/WALK-AIR");
     ANIMATION_TYPE_LIST.push_back("INTRO-PRESENTS");
     ANIMATION_TYPE_LIST.push_back("SPECIAL ATTACK");
     ANIMATION_TYPE_LIST.push_back("SLIDE/DASH");
@@ -151,6 +151,7 @@ void init_enum_names() {
     ANIMATION_TYPE_LIST.push_back("ATTACK [SPACIAL]");
     ANIMATION_TYPE_LIST.push_back("LOOK UP");
     ANIMATION_TYPE_LIST.push_back("GRAB WALL");
+    ANIMATION_TYPE_LIST.push_back("FLY");
 }
 
 

@@ -10,8 +10,6 @@
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
 
-#define STRINGS_INGAME_FILENAME "/strings_ingame.dat"
-#define STRINGS_COMMON_FILENAME "/common_strings.dat"
 
 fio_strings::fio_strings()
 {
@@ -25,10 +23,10 @@ namespace format_v4 {
         _dialogs_stage_id = -1;
     }
 
-    std::string fio_strings::get_ingame_string(int n)
+    std::string fio_strings::get_ingame_string(int n, int language)
     {
         if (string_list.size() == 0) {
-            string_list = load_game_strings();
+            string_list = load_game_strings(language);
         }
         if (n < 0 || n > string_list.size()) {
             return "";
@@ -40,12 +38,12 @@ namespace format_v4 {
     }
 
 
-    std::vector<std::string> fio_strings::load_game_strings()
+    std::vector<std::string> fio_strings::load_game_strings(int language)
     {
-        return load_game_strings_from_file(get_game_strings_filename());
+        return load_game_strings_from_file(get_game_strings_filename(language), language);
     }
 
-    std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename)
+    std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename, int language)
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
@@ -53,9 +51,9 @@ namespace format_v4 {
 
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
-            if (filename == get_game_strings_filename()) {
+            if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
-            } else if (filename == get_common_strings_filename()) {
+            } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
@@ -75,13 +73,13 @@ namespace format_v4 {
         fp.close();
 
         if (res.size() == 0) {
-            if (filename == get_game_strings_filename()) {
+            if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
-            } else if (filename == get_common_strings_filename()) {
+            } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
-        } else if (filename == get_game_strings_filename() && res.size() < strings_ingame_COUNT) {
-            res = add_missing_default_ingame_strings(res);
+        } else if (filename == get_game_strings_filename(language) && res.size() < strings_ingame_COUNT) {
+            res = add_missing_default_ingame_strings(res, language);
         }
 
         return res;
@@ -108,21 +106,21 @@ namespace format_v4 {
         fp.close();
     }
 
-    std::string fio_strings::get_common_strings_filename()
+    std::string fio_strings::get_common_strings_filename(int language)
     {
-        std::string filename = FILEPATH + STRINGS_COMMON_FILENAME;
+        std::string filename = FILEPATH + "/common_strings_" + get_language_filename_prefix(language) + ".dat";
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
 
-    std::string fio_strings::get_game_strings_filename()
+    std::string fio_strings::get_game_strings_filename(int language)
     {
-        std::string filename = std::string(GAMEPATH) + "/shared/" + STRINGS_INGAME_FILENAME;
+        std::string filename = std::string(GAMEPATH) + "/shared/strings_ingame_" + get_language_filename_prefix(language) + ".dat";
         filename = StringUtils::clean_filename(filename);
         return filename;
     }
 
-    bool format_v4::fio_strings::file_exists(std::string filename) const
+    bool format_v4::fio_strings::file_exists(std::string filename)
     {
         bool res = false;
         FILE *fp;
@@ -134,126 +132,239 @@ namespace format_v4 {
         return res;
     }
 
-    std::vector<std::string> fio_strings::get_default_ingame_strings_list()
+    std::vector<std::string> fio_strings::get_default_ingame_strings_list(int language)
     {
         char lines[strings_ingame_COUNT][STRINGS_LINE_SIZE];
 
-        sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
-        sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
-        sprintf(lines[strings_ingame_config], "%s", "CONFIG");
-        sprintf(lines[strings_ingame_about], "%s", "ABOUT");
-        sprintf(lines[strings_ingame_password], "%s", "PASSWORD");
-        sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
-        sprintf(lines[strings_ingame_and], "%s", "AND");
-        sprintf(lines[strings_ingame_selectgame], "%s", "SELECT GAME");
-        sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
-        sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
-        sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
-        sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2017 UPPERLAND STUDIOS");
-        sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
-        sprintf(lines[strings_ingame_input], "%s", "INPUT");
-        sprintf(lines[strings_ingame_video], "%s", "VIDEO");
-        sprintf(lines[strings_ingame_leavestage], "%s", "LEAVE STAGE");
-        sprintf(lines[strings_ingame_language], "%s", "LANGUAGE");
-        sprintf(lines[strings_ingame_video_windowed], "%s", "WINDOWED");
-        sprintf(lines[strings_ingame_video_fullscreen], "%s", "FULLSCREEN");
-        sprintf(lines[strings_ingame_video_noscale], "%s", "NO SCALE  ");
-        sprintf(lines[strings_ingame_video_size2x], "%s", "SIZE2X    ");
-        sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
-        sprintf(lines[strings_ingame_config_restart1], "%s", "PLEASE RESTART THE GAME");
-        sprintf(lines[strings_ingame_config_restart2], "%s", "FOR THE CONFIGURATION");
-        sprintf(lines[strings_ingame_config_restart3], "%s", "TO TAKE EFFECT");
-        sprintf(lines[strings_ingame_config_presstorestart], "%s", "PRESS A BUTTON TO RETURN");
-        sprintf(lines[strings_ingame_pressanykey], "%s", "PRESS ANY KEY OR BUTTON");
-        sprintf(lines[strings_ingame_config_set], "%s", "SET");
-        sprintf(lines[strings_ingame_config_key_up], "%s", "UP");
-        sprintf(lines[strings_ingame_config_key_down], "%s", "DOWN");
-        sprintf(lines[strings_ingame_config_key_left], "%s", "LEFT");
-        sprintf(lines[strings_ingame_config_key_right], "%s", "RIGHT");
-        sprintf(lines[strings_ingame_config_key_jump], "%s", "JUMP");
-        sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
-        sprintf(lines[strings_ingame_config_key_fire], "%s", "FIRE");
-        sprintf(lines[strings_ingame_config_key_start], "%s", "START");
-        sprintf(lines[strings_ingame_config_key_keyl], "%s", "BUTTON-L");
-        sprintf(lines[strings_ingame_config_key_keyr], "%s", "BUTTON-R");
-        sprintf(lines[strings_ingame_config_key_pressnew], "%s", "PRESS NEW KEY/BUTTON");
-        sprintf(lines[strings_ingame_config_key_reset], "%s", "RESET TO DEFAULT");
-        sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
-        sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOG");
-        sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
-        sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
-        sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
-        sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
-        sprintf(lines[strings_ingame_nogames], "%s", "NO GAMES AVAILABLE");
-        sprintf(lines[strings_ingame_quitgame], "%s", "QUIT GAME?");
-        sprintf(lines[strings_ingame_yes], "%s", "YES");
-        sprintf(lines[strings_ingame_no], "%s", "NO");
-        sprintf(lines[strings_ingame_life], "%s", "LIFE");
-        sprintf(lines[strings_ingame_item], "%s", "ITEM");
-        sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
-        sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
-        sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
-        sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "CHARGE A LASER BEAM");
-        sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "FIRE A SUPER-SHOT!");
-        sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "THROW A HADOUKEN");
-        sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "THOSE LIGHTER LEGS");
-        sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
-        sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");
-        sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (UP+DASH)");
-        sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
-        sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "THIS FORTIFIED BODY WILL");
-        sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "BE INTANGIBLE MORE TIME");
-        sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TAKE HALF DAMAGE");
-        sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "AVOID PUSH-BACK ON HIT");
-        sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESIST SPIKES");
-        sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECT DIFFICULTY:");
-        sprintf(lines[strings_ingame_difficulty_easy], "%s", "EASY");
-        sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
-        sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
-        sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
-        sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
-        sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "TURBO MODE");
-        sprintf(lines[strings_ingame_config_on], "%s", "ON");
-        sprintf(lines[strings_ingame_config_off], "%s", "OFF");
-        sprintf(lines[strings_ingame_config_quitgame], "%s", "QUIT GAME");
-        sprintf(lines[strings_ingame_armor], "%s", "ARMOR");
-        sprintf(lines[strings_ingame_config_audio_volume_music], "%s", "MUSIC VOLUME");
-        sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "SFX VOLUME");
-
-        sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
-        sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
-
-        sprintf(lines[strings_ingame_ready_message], "%s", "READY");
-
-        sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
-
-        sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
-
-        sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
-
-        sprintf(lines[strings_ingame_mode], "%s", "MODE");
-
-        sprintf(lines[strings_ingame_video_scale_mode], "%s", "SCALE MODE");
-
-        sprintf(lines[strings_config_android_hidescreencontrols], "%s", "HIDE CONTROLS");
-        sprintf(lines[strings_config_android_screencontrolssize], "%s", "CONTROLS SIZE");
-        sprintf(lines[strings_config_android_useplayservices], "%s", "PLAY SERVICES");
-        sprintf(lines[strings_config_wii_joysticktype], "%s", "JOYSTICK TYPE");
-
-        sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "SMALL");
-        sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIUM");
-        sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "BIG");
-        sprintf(lines[strings_config_wii_joysticktype_WIIMOTE], "%s", "WIIMOTE");
-        sprintf(lines[strings_config_wii_joysticktype_CLASSIC], "%s", "CLASSIC");
-        sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
-
-        sprintf(lines[strings_config_wii_platformspecific], "%s", "PLATFORM SPECIFIC");
-
-        sprintf(lines[strings_config_keys_unet], "%s", "PLEASE SET");
-
-        sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
-
-
+        if (language == LANGUAGE_PORTUGUESE) {
+            sprintf(lines[strings_ingame_newgame], "%s", "NOVO JOGO");
+            sprintf(lines[strings_ingame_loadgame], "%s", "CARREGAR JOGO");
+            sprintf(lines[strings_ingame_config], "%s", "CONFIGURACAO");
+            sprintf(lines[strings_ingame_about], "%s", "SOBRE");
+            sprintf(lines[strings_ingame_password], "%s", "SENHA");
+            sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
+            sprintf(lines[strings_ingame_and], "%s", "E");
+            sprintf(lines[strings_ingame_selectgame], "%s", "SELECIONE JOGO");
+            sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
+            sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
+            sprintf(lines[strings_ingame_savegameerror3], "%s", "ARQUIVO ESTÁ PROTEGIDO PARA GRAVACAO.");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2017 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
+            sprintf(lines[strings_ingame_input], "%s", "CONTROLE");
+            sprintf(lines[strings_ingame_video], "%s", "VIDEO");
+            sprintf(lines[strings_ingame_leavestage], "%s", "SAIR DA FASE");
+            sprintf(lines[strings_ingame_language], "%s", "IDIOMA");
+            sprintf(lines[strings_ingame_video_windowed], "%s", "JANELA");
+            sprintf(lines[strings_ingame_video_fullscreen], "%s", "TELA CHEIA");
+            sprintf(lines[strings_ingame_video_noscale], "%s", "SEM ESCALA  ");
+            sprintf(lines[strings_ingame_video_size2x], "%s", "TAMANHO X2    ");
+            sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
+            sprintf(lines[strings_ingame_config_restart1], "%s", "POR FAVOR REINICIE O JOGO");
+            sprintf(lines[strings_ingame_config_restart2], "%s", "PARA A NOVA CONFIGURACAO");
+            sprintf(lines[strings_ingame_config_restart3], "%s", "SER ATIVADA.");
+            sprintf(lines[strings_ingame_config_presstorestart], "%s", "APERTE UM BOTÃO PARA CONTINUAR");
+            sprintf(lines[strings_ingame_pressanykey], "%s", "APERTE QUALQUER BOTÃO");
+            sprintf(lines[strings_ingame_config_set], "%s", "SETAR");
+            sprintf(lines[strings_ingame_config_key_up], "%s", "CIMA");
+            sprintf(lines[strings_ingame_config_key_down], "%s", "BAIXO");
+            sprintf(lines[strings_ingame_config_key_left], "%s", "ESQUERDA");
+            sprintf(lines[strings_ingame_config_key_right], "%s", "DIREITA");
+            sprintf(lines[strings_ingame_config_key_jump], "%s", "PULO");
+            sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
+            sprintf(lines[strings_ingame_config_key_fire], "%s", "TIRO");
+            sprintf(lines[strings_ingame_config_key_start], "%s", "START");
+            sprintf(lines[strings_ingame_config_key_keyl], "%s", "BOTAO-L");
+            sprintf(lines[strings_ingame_config_key_keyr], "%s", "BOTAO-R");
+            sprintf(lines[strings_ingame_config_key_pressnew], "%s", "APERTE NOVO BOTÃO/TECLA");
+            sprintf(lines[strings_ingame_config_key_reset], "%s", "RESTAURAR PADRAO");
+            sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
+            sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOGICO");
+            sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
+            sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "SALVAR NA NUVEM REQUER");
+            sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "CONEXAO COM A REDE OU");
+            sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "O JOGO CONGELARA QUANDO");
+            sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "OBTER DADOS DO SERVIDOR.");
+            sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUER UM CONTROLE FÍSICO,");
+            sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "CASO CONTRÁRIO NAO CONSEGUIRA");
+            sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "RESTAURAR CONFIGURACOES.");
+            sprintf(lines[strings_ingame_passwordinvalid], "%s", "SENHA INVALIDA");
+            sprintf(lines[strings_ingame_pressstart], "%s", "APERTE START");
+            sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
+            sprintf(lines[strings_ingame_nogames], "%s", "NENHUM JOGO DISPONIVEL");
+            sprintf(lines[strings_ingame_quitgame], "%s", "SAIR DO JOGO?");
+            sprintf(lines[strings_ingame_yes], "%s", "SIM");
+            sprintf(lines[strings_ingame_no], "%s", "NAO");
+            sprintf(lines[strings_ingame_life], "%s", "VIDA");
+            sprintf(lines[strings_ingame_item], "%s", "ITEM");
+            sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "CHARGE A LASER BEAM");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "FIRE A SUPER-SHOT!");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "THROW A HADOUKEN");
+            sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "THOSE LIGHTER LEGS");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (UP+DASH)");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
+            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "THIS FORTIFIED BODY WILL");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "BE INTANGIBLE MORE TIME");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TAKE HALF DAMAGE");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "AVOID PUSH-BACK ON HIT");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESIST SPIKES");
+            sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECT DIFFICULTY:");
+            sprintf(lines[strings_ingame_difficulty_easy], "%s", "FACIL");
+            sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
+            sprintf(lines[strings_ingame_difficulty_hard], "%s", "DIFICIL");
+            sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "CONTROLE SELECIONADO");
+            sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIGURAR BOTOES");
+            sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "MODO TURBO");
+            sprintf(lines[strings_ingame_config_on], "%s", "SIM");
+            sprintf(lines[strings_ingame_config_off], "%s", "NAO");
+            sprintf(lines[strings_ingame_config_quitgame], "%s", "SAIR DO JOGO");
+            sprintf(lines[strings_ingame_armor], "%s", "ARMADURA");
+            sprintf(lines[strings_ingame_config_audio_volume_music], "%s", "VOLUME DE MUSICA");
+            sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "VOLUME EFEITOS");
+            sprintf(lines[strings_ingame_config_enabled], "%s", "HABILITADO");
+            sprintf(lines[strings_ingame_config_disabled], "%s", "DESABILITADO");
+            sprintf(lines[strings_ingame_ready_message], "%s", "READY");
+            sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECIONE PERSONAGEM >");
+            sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "APERTE START PARA INICIAR");
+            sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
+            sprintf(lines[strings_ingame_mode], "%s", "MODO");
+            sprintf(lines[strings_ingame_video_scale_mode], "%s", "MODO ESCALA DE TELA");
+            sprintf(lines[strings_config_android_hidescreencontrols], "%s", "ESCONDER CONTROLES");
+            sprintf(lines[strings_config_android_screencontrolssize], "%s", "TAMANHO CONTROLES");
+            sprintf(lines[strings_config_android_useplayservices], "%s", "PLAY SERVICES");
+            sprintf(lines[strings_config_android_usecloudsave], "%s", "SALVAR NA NUVEM");
+            sprintf(lines[strings_config_wii_joysticktype], "%s", "TYPO DE CONTROLE");
+            sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "PEQUENO");
+            sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIUM");
+            sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "GRANDE");
+            sprintf(lines[strings_config_wii_joysticktype_WIIMOTE], "%s", "WIIMOTE");
+            sprintf(lines[strings_config_wii_joysticktype_CLASSIC], "%s", "CLASSIC");
+            sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
+            sprintf(lines[strings_config_wii_platformspecific], "%s", "ESPECIFICO PLATAFORMA");
+            sprintf(lines[strings_config_keys_unet], "%s", "POR FAVOR DEFINA");
+            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
+            sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "ENABLE GOOGLE PLAY SERVICES?");
+            sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "ENABLE CLOUD SAVE FEATURE?");
+            sprintf(lines[strings_ingame_requires_network], "%s", "(REQUIRES AVAILABLE NETWORK)");
+        } else {
+            sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
+            sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
+            sprintf(lines[strings_ingame_config], "%s", "CONFIG");
+            sprintf(lines[strings_ingame_about], "%s", "ABOUT");
+            sprintf(lines[strings_ingame_password], "%s", "PASSWORD");
+            sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
+            sprintf(lines[strings_ingame_and], "%s", "AND");
+            sprintf(lines[strings_ingame_selectgame], "%s", "SELECT GAME");
+            sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
+            sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
+            sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2017 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
+            sprintf(lines[strings_ingame_input], "%s", "INPUT");
+            sprintf(lines[strings_ingame_video], "%s", "VIDEO");
+            sprintf(lines[strings_ingame_leavestage], "%s", "LEAVE STAGE");
+            sprintf(lines[strings_ingame_language], "%s", "LANGUAGE");
+            sprintf(lines[strings_ingame_video_windowed], "%s", "WINDOWED");
+            sprintf(lines[strings_ingame_video_fullscreen], "%s", "FULLSCREEN");
+            sprintf(lines[strings_ingame_video_noscale], "%s", "NO SCALE  ");
+            sprintf(lines[strings_ingame_video_size2x], "%s", "SIZE2X    ");
+            sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
+            sprintf(lines[strings_ingame_config_restart1], "%s", "PLEASE RESTART THE GAME");
+            sprintf(lines[strings_ingame_config_restart2], "%s", "FOR THE CONFIGURATION");
+            sprintf(lines[strings_ingame_config_restart3], "%s", "TO TAKE EFFECT");
+            sprintf(lines[strings_ingame_config_presstorestart], "%s", "PRESS A BUTTON TO RETURN");
+            sprintf(lines[strings_ingame_pressanykey], "%s", "PRESS ANY KEY OR BUTTON");
+            sprintf(lines[strings_ingame_config_set], "%s", "SET");
+            sprintf(lines[strings_ingame_config_key_up], "%s", "UP");
+            sprintf(lines[strings_ingame_config_key_down], "%s", "DOWN");
+            sprintf(lines[strings_ingame_config_key_left], "%s", "LEFT");
+            sprintf(lines[strings_ingame_config_key_right], "%s", "RIGHT");
+            sprintf(lines[strings_ingame_config_key_jump], "%s", "JUMP");
+            sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
+            sprintf(lines[strings_ingame_config_key_fire], "%s", "FIRE");
+            sprintf(lines[strings_ingame_config_key_start], "%s", "START");
+            sprintf(lines[strings_ingame_config_key_keyl], "%s", "BUTTON-L");
+            sprintf(lines[strings_ingame_config_key_keyr], "%s", "BUTTON-R");
+            sprintf(lines[strings_ingame_config_key_pressnew], "%s", "PRESS NEW KEY/BUTTON");
+            sprintf(lines[strings_ingame_config_key_reset], "%s", "RESET TO DEFAULT");
+            sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
+            sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOG");
+            sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
+            sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "CLOUD SAVE REQUIRES");
+            sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "A NETWORK CONNECTION");
+            sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "OR GAME WILL FREEZE WHEN");
+            sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "GETTING SERVER DATA.");
+            sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUIRES PHYSICAL CONTROLLER.");
+            sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "OTHERWISE YOU WON'T BE");
+            sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "ABLE TO RESTORE SETTING");
+            sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
+            sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
+            sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
+            sprintf(lines[strings_ingame_nogames], "%s", "NO GAMES AVAILABLE");
+            sprintf(lines[strings_ingame_quitgame], "%s", "QUIT GAME?");
+            sprintf(lines[strings_ingame_yes], "%s", "YES");
+            sprintf(lines[strings_ingame_no], "%s", "NO");
+            sprintf(lines[strings_ingame_life], "%s", "LIFE");
+            sprintf(lines[strings_ingame_item], "%s", "ITEM");
+            sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "CHARGE A LASER BEAM");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "FIRE A SUPER-SHOT!");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "THROW A HADOUKEN");
+            sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "THOSE LIGHTER LEGS");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (UP+DASH)");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
+            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "THIS FORTIFIED BODY WILL");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "BE INTANGIBLE MORE TIME");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TAKE HALF DAMAGE");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "AVOID PUSH-BACK ON HIT");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESIST SPIKES");
+            sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECT DIFFICULTY:");
+            sprintf(lines[strings_ingame_difficulty_easy], "%s", "EASY");
+            sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
+            sprintf(lines[strings_ingame_difficulty_hard], "%s", "HARD");
+            sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
+            sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
+            sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "TURBO MODE");
+            sprintf(lines[strings_ingame_config_on], "%s", "ON");
+            sprintf(lines[strings_ingame_config_off], "%s", "OFF");
+            sprintf(lines[strings_ingame_config_quitgame], "%s", "QUIT GAME");
+            sprintf(lines[strings_ingame_armor], "%s", "ARMOR");
+            sprintf(lines[strings_ingame_config_audio_volume_music], "%s", "MUSIC VOLUME");
+            sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "SFX VOLUME");
+            sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
+            sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
+            sprintf(lines[strings_ingame_ready_message], "%s", "READY");
+            sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
+            sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
+            sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
+            sprintf(lines[strings_ingame_mode], "%s", "MODE");
+            sprintf(lines[strings_ingame_video_scale_mode], "%s", "SCALE MODE");
+            sprintf(lines[strings_config_android_hidescreencontrols], "%s", "HIDE CONTROLS");
+            sprintf(lines[strings_config_android_screencontrolssize], "%s", "CONTROLS SIZE");
+            sprintf(lines[strings_config_android_useplayservices], "%s", "PLAY SERVICES");
+            sprintf(lines[strings_config_android_usecloudsave], "%s", "CLOUD SAVE");
+            sprintf(lines[strings_config_wii_joysticktype], "%s", "JOYSTICK TYPE");
+            sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "SMALL");
+            sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIUM");
+            sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "BIG");
+            sprintf(lines[strings_config_wii_joysticktype_WIIMOTE], "%s", "WIIMOTE");
+            sprintf(lines[strings_config_wii_joysticktype_CLASSIC], "%s", "CLASSIC");
+            sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
+            sprintf(lines[strings_config_wii_platformspecific], "%s", "PLATFORM SPECIFIC");
+            sprintf(lines[strings_config_keys_unet], "%s", "PLEASE SET");
+            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
+            sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "ENABLE GOOGLE PLAY SERVICES?");
+            sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "ENABLE CLOUD SAVE FEATURE?");
+            sprintf(lines[strings_ingame_requires_network], "%s", "(REQUIRES AVAILABLE NETWORK)");
+        }
 
 
         /// @TODO: add assert to check that we set all the values from the enum
@@ -269,15 +380,17 @@ namespace format_v4 {
 
     void fio_strings::create_default_ingame_strings()
     {
-
-        std::vector<std::string> res = get_default_ingame_strings_list();
-        save_game_strings(res, get_game_strings_filename());
+        for (int i=0; i<LANGUAGE_COUNT; i++) {
+            std::vector<std::string> res = get_default_ingame_strings_list(i);
+            save_game_strings(res, get_game_strings_filename(i));
+        }
         
     }
 
-    std::vector<std::string> fio_strings::add_missing_default_ingame_strings(std::vector<std::string> list)
+    std::vector<std::string> fio_strings::add_missing_default_ingame_strings(std::vector<std::string> list, int language)
     {
-        std::vector<std::string> res = get_default_ingame_strings_list();
+
+        std::vector<std::string> res = get_default_ingame_strings_list(language);
         // add \n to the list that were removed when loaded from file
         for (int i=0; i<list.size(); i++) {
             list.at(i) = list.at(i) + std::string("\n");
@@ -286,7 +399,7 @@ namespace format_v4 {
             std::cout << "ADD MISSING LINE: '" << res.at(i) << "'" << std::endl;
             list.push_back(res.at(i));
         }
-        save_game_strings(list, get_game_strings_filename());
+        save_game_strings(list, get_game_strings_filename(language));
         return list;
     }
 
@@ -299,11 +412,27 @@ namespace format_v4 {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d_es.dat", stage_id);
         } else if (language == LANGUAGE_ITALIAN) {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d_it.dat", stage_id);
+        } else if (language == LANGUAGE_PORTUGUESE) {
+            sprintf(char_filename, "/dialogs/stage_dialogs_%d_pt.dat", stage_id);
         } else {
             sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);
         }
         std::string filename = FILEPATH + std::string(char_filename);
         return filename;
+    }
+
+    std::string fio_strings::get_language_filename_prefix(int language)
+    {
+        if (language == LANGUAGE_FRENCH) {
+            return std::string("fr");
+        } else if (language == LANGUAGE_SPANISH) {
+            return std::string("es");
+        } else if (language == LANGUAGE_ITALIAN) {
+            return std::string("it");
+        } else if (language == LANGUAGE_PORTUGUESE) {
+            return std::string("pt");
+        }
+        return "en";
     }
 
     void fio_strings::create_default_common_strings()
@@ -354,7 +483,7 @@ namespace format_v4 {
 
 
 
-    std::vector<std::string> fio_strings::get_common_strings()
+    std::vector<std::string> fio_strings::get_common_strings(int language)
     {
         if (FILEPATH == "") {
             std::cout << "FIO_STRINGS - NO FILEPATH count: " << common_strings_list.size() << std::endl;
@@ -363,7 +492,7 @@ namespace format_v4 {
 
         if (common_strings_list.size() == 0) {
             std::cout << "FIO_STRINGS - LOAD count: " << common_strings_list.size() << std::endl;
-            common_strings_list = load_game_strings_from_file(get_common_strings_filename());
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language);
         }
         return common_strings_list;
     }
@@ -451,7 +580,7 @@ namespace format_v4 {
 
     }
 
-    std::string fio_strings::get_common_string(int id)
+    std::string fio_strings::get_common_string(int id, int language)
     {
 
         if (id == -1) {
@@ -464,7 +593,7 @@ namespace format_v4 {
         std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
 
         if (common_strings_list.size() == 0) {
-            common_strings_list = load_game_strings_from_file(get_common_strings_filename());
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language);
         }
 
         if (id >= common_strings_list.size()) {
@@ -478,10 +607,10 @@ namespace format_v4 {
     {
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
-            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language), language);
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings();
-                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language),language);
             }
         }
         if (id < 0 || id >= dialogs_strings_list.size()) {
@@ -492,12 +621,14 @@ namespace format_v4 {
 
     std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id, int language)
     {
+        std::string filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
+        dialogs_strings_list.clear();
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
-            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
+            dialogs_strings_list = load_game_strings_from_file(filename, language);
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings();
-                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language));
+                dialogs_strings_list = load_game_strings_from_file(filename, language);
             }
         }
         // generate dialogs, if needed
@@ -505,7 +636,7 @@ namespace format_v4 {
             std::cout << "Generating default stage dialogs..." << std::endl;
             create_default_dialog_strings();
             std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
-            dialogs_strings_list = load_game_strings_from_file(dialogs_filename);
+            dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language);
         }
         if (dialogs_strings_list.size() < STAGE_DIALOG_NUMBER) {
             std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << "." << std::endl;
@@ -515,9 +646,9 @@ namespace format_v4 {
     }
 
 
-    void fio_strings::save_common_strings(std::vector<std::string> data)
+    void fio_strings::save_common_strings(std::vector<std::string> data, int language)
     {
-        save_game_strings(data, get_common_strings_filename());
+        save_game_strings(data, get_common_strings_filename(language));
     }
 
     void fio_strings::create_files()
@@ -526,10 +657,10 @@ namespace format_v4 {
         create_default_common_strings();
     }
 
-    void fio_strings::save_stage_dialogs(short stage_id, std::vector<std::string> data)
+    void fio_strings::save_stage_dialogs(short stage_id, int language, std::vector<std::string> data)
     {
         // @TODO: add support for multiple languages
-        save_game_strings(data, get_stage_dialogs_filename(stage_id, 0));
+        save_game_strings(data, get_stage_dialogs_filename(stage_id, language));
     }
 
     std::string fio_strings::get_language_prefix(int config)

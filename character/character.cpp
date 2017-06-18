@@ -1100,11 +1100,6 @@ bool character::gravity(bool boss_demo_mode=false)
 {
 
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #0, id[%d]", _number);
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #0.1, name[%s]", get_name().c_str());
-#endif
-
     /// @TODO: gravity speed is starting at 1.25, it should start at 0.25
 
     if (_progressive_appear_pos != 0) {
@@ -1113,23 +1108,11 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #1");
-#endif
-
-
     if (!gameControl.get_current_map_obj()) {
         std::cout << "ERROR: can't execute gravity without a map" << std::endl;
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity NULL map error.");
-#endif
         reset_gravity_speed();
         return false; // error - can't execute this action without an associated map
 	}
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #2");
-#endif
 
 
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
@@ -1141,10 +1124,6 @@ bool character::gravity(bool boss_demo_mode=false)
             return true;
         }
     }
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #3");
-#endif
 
 
     bool can_use_air_dash = false;
@@ -1158,11 +1137,6 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #4");
-#endif
-
-
     int gravity_max_speed = GRAVITY_MAX_SPEED;
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED;
@@ -1170,25 +1144,13 @@ bool character::gravity(bool boss_demo_mode=false)
         gravity_max_speed = 2;
     }
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5");
-#endif
-
-
 	// ------------- NPC gravity ------------------ //
 	if (!is_player()) {
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.1");
-#endif
 
         if (_ignore_gravity == true) {
             return false;
         }
         if (can_fly == false || gameControl.is_showing_boss_intro == true) {
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.2");
-#endif
             bool is_moved = false;
             short int limit_speed = move_speed * gameControl.get_fps_speed_multiplier();
 			if (boss_demo_mode == true) {
@@ -1198,54 +1160,23 @@ bool character::gravity(bool boss_demo_mode=false)
                 limit_speed = 1;
             }
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.3 limit_speed[%d]", (int)limit_speed);
-#endif
 
 
 			for (int i=limit_speed; i>0; i--) {
 
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.4 i[%d]", (int)i);
-#endif
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.5 name.len[%d]", name.length());
-#endif
-
-#ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR[%s]::GRAVITY::test_change_position-call, i[%d]", name.c_str(), i);
-#endif
                 bool res_test_move = test_change_position(0, i);
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
                     position.y += i;
 					is_moved = true;
-
-#ifdef ANDROID
-                    if (is_player() == false) {
-                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::GRAVITY::move[%d], res_test_move[%d], boss_demo_mode[%d], pos.y[%d]", i, res_test_move, boss_demo_mode, position.y);
-                    }
-#endif
 					break;
 				}
             }
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #5.9");
-#endif
-
 			return is_moved;
         }
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #6");
-#endif
         reset_gravity_speed();
         return false; // not moved because of IA type
 	}
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #7");
-#endif
 
 
 	// ------------ PLAYER gravity --------------------- //
@@ -1366,12 +1297,6 @@ bool character::gravity(bool boss_demo_mode=false)
 		// teleport finished
         //std::cout << "NOT FALLING, RESET ACCEL_SPEED_Y" << std::endl;
     }
-
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "character::gravity #99");
-#endif
-
 
     return false;
 }
@@ -2386,8 +2311,8 @@ st_rectangle character::get_hitbox(int anim_type)
         h = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.h;
         //std::cout << "#### CHAR::GET_HITBOX [" << x << "," << y << "," << w << "," << h << "]" << std::endl;
         if (w <= 0 || h <= 0) {
-            std::cout << "#### CHAR::GET_HITBOX animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
-            std::cout << "A" << std::endl;
+            std::cout << "#### CHAR::GET_HITBOX name[" << name << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
+            //std::cout << "A" << std::endl;
         }
     }
 
@@ -3104,9 +3029,6 @@ bool character::test_change_position(short xinc, short yinc)
     }
 
     if (is_ghost == false) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::test_change_position - name[%s]", name.c_str());
-#endif
         st_map_collision map_col = map_collision(xinc, yinc, gameControl.get_current_map_obj()->getMapScrolling());
         short int mapLock = map_col.block;
 

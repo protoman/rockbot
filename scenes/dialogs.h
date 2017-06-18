@@ -42,7 +42,9 @@ public:
      */
     void show_dialog(std::string face_file, bool is_left, std::string lines[3], bool show_btn);
 
-    bool show_leave_game_dialog() const;
+    bool show_leave_game_dialog();
+
+    bool show_yes_no_dialog(std::string lines[3]);
 
     /**
      * @brief

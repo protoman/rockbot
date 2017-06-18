@@ -60,6 +60,7 @@ public:
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
     void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
+    void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
     void set_boss_hp(int hp);
 
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);

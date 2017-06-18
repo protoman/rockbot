@@ -67,7 +67,7 @@ void artificial_inteligence::execute_ai()
     if (timer.getTimer() < _ai_timer) {
         return;
     }
-    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << std::endl;
+    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << ", parameter[" << (int)_parameter << "], direction[" << (int)state.direction << "]" << std::endl;
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
@@ -370,14 +370,14 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
     }
 
     if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_INITIAL) {
-        std::cout << "AI::ia_action_jump_to_point - START. position.x: " << position.x << ", point.x: " << point.x << std::endl;
+        //std::cout << "AI::ia_action_jump_to_point - START. position.x: " << position.x << ", point.x: " << point.x << std::endl;
         int jump_dist = abs(position.x - point.x);
         if (jump_dist < TILESIZE/2) { // avoid too short jumps
-            std::cout << "AI::ia_action_jump_to_point - jump is too short (" << jump_dist << ")" << std::endl;
+            //std::cout << "AI::ia_action_jump_to_point - jump is too short (" << jump_dist << ")" << std::endl;
             _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
             return;
-        } else {
-            std::cout << "AI::ia_action_jump_to_point - jump_dist: " << jump_dist << std::endl;
+        //} else {
+            //std::cout << "AI::ia_action_jump_to_point - jump_dist: " << jump_dist << std::endl;
         }
         if (position.x < point.x) {
             state.direction = ANIM_DIRECTION_RIGHT;
@@ -442,14 +442,14 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                 for (int i=yinc*-1; i>0; i--) {
                     can_move_y = test_change_position(0, i);
                     if (can_move_y == true) {
-                        std::cout << ">>>> AI::ia_action_jump_to_point - hit head, can-move-y with i[" << i << "] at pos.y[" << position.y << "]" << std::endl;
+                        //std::cout << ">>>> AI::ia_action_jump_to_point - hit head, can-move-y with i[" << i << "] at pos.y[" << position.y << "]" << std::endl;
                         yinc = i;
                         found_point = true;
                         break;
                     }
                 }
             }
-            std::cout << ">>>> AI::ia_action_jump_to_point - hit head, found_point: " << found_point << std::endl;
+            //std::cout << ">>>> AI::ia_action_jump_to_point - hit head, found_point: " << found_point << std::endl;
             // ignore Y movement if can't move in this axis
             /// @TODO: increase X virtual position until the point the NPC starts falling
             if (found_point == false) {
@@ -505,25 +505,25 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                     if (can_move_y == true) {
                         yinc = i;
                         found_point = true;
-                        std::cout << "AI::ia_action_jump_to_point - Ffound move-point, yinc: " << yinc << std::endl;
+                        //std::cout << "AI::ia_action_jump_to_point - Ffound move-point, yinc: " << yinc << std::endl;
                         break;
                     }
                 }
             }
             if (found_point == false) {
-                std::cout << "AI::ia_action_jump_to_point - FINISHED #3 (hit-ground). xinc: " << xinc << std::endl;
+                //std::cout << "AI::ia_action_jump_to_point - FINISHED #3 (hit-ground). xinc: " << xinc << std::endl;
                 if (_trajectory_parabola != NULL) {
                     delete _trajectory_parabola;
                 }
                 _ignore_gravity = false; // enable gravity
                 _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
-                if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #1" << std::endl;
+                //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 moveCommands.right = 0;
                 moveCommands.left = 0;
                 _ai_timer = timer.getTimer() + 500;
                 if (xinc == 0) { // if didn't moved x, then must change AI to other action
-                    std::cout << "AI::ia_action_jump_to_point - FINISHED #4 (hit-ground)" << std::endl;
+                    //std::cout << "AI::ia_action_jump_to_point - FINISHED #4 (hit-ground)" << std::endl;
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 }
                 return;
@@ -594,7 +594,7 @@ void artificial_inteligence::ia_action_jump_ahead()
 void artificial_inteligence::ia_action_jump_once()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        std::cout << "AI::ia_action_jump_once::INIT" << std::endl;
+        //std::cout << "AI::ia_action_jump_once::INIT" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             _origin_point.x = position.x - frameSize.width/2 - walk_range;
             _dest_point.x = position.x - TILESIZE*4;
@@ -608,7 +608,7 @@ void artificial_inteligence::ia_action_jump_once()
     } else {
         ia_action_jump_to_point(st_position(_dest_point.x, _dest_point.y));
         if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_FINISHED) {
-            std::cout << "AI::ia_action_jump_once::FINISHED" << std::endl;
+            //std::cout << "AI::ia_action_jump_once::FINISHED" << std::endl;
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
     }
@@ -1160,9 +1160,15 @@ void artificial_inteligence::execute_ai_step_fly()
         if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
             _dest_point = position;
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
-            int rand_x = rand() % RES_W;
+            int rand_x = rand() % RES_W*2;
+            int dest_x = position.x + rand_x;
+            if (realPosition.x > RES_W/2) {
+                dest_x = position.x - rand_x;
+            }
+
             int rand_y = rand() % RES_H;
-            _dest_point = st_position(rand_x, rand_y);
+            std::cout << ">>>>>> FLY.RANDOM - pos.x[" << position.x << "], real.x[" << realPosition.x << "], x[" << dest_x << "], y[" << rand_y << "]" << std::endl;
+            _dest_point = st_position(dest_x, rand_y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
             int rand_x = rand() % RES_W;
             std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
@@ -1251,7 +1257,8 @@ void artificial_inteligence::execute_ai_step_fly()
             _ai_state.initial_position.y = position.y;
         }
 
-        set_animation_type(ANIM_TYPE_WALK);
+        set_animation_type(ANIM_TYPE_WALK_AIR);
+        //set_animation_type(ANIM_TYPE_WALK);
 		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
 
     // EXECUTION
@@ -1359,6 +1366,8 @@ void artificial_inteligence::execute_ai_step_fly()
 
         } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_WALL) {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
+                // invert direction so the character won't be facing the wall
+                invert_left_right_direction();
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1) {
@@ -2122,4 +2131,13 @@ bool artificial_inteligence::uses_fly_fall()
         }
     }
     return false;
+}
+
+void artificial_inteligence::invert_left_right_direction()
+{
+    if (state.direction == ANIM_DIRECTION_LEFT) {
+        state.direction = ANIM_DIRECTION_RIGHT;
+    } else if (state.direction == ANIM_DIRECTION_RIGHT) {
+        state.direction = ANIM_DIRECTION_LEFT;
+    }
 }

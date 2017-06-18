@@ -179,7 +179,14 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
 }
 
-bool dialogs::show_leave_game_dialog() const
+bool dialogs::show_leave_game_dialog()
+{
+    string lines[3];
+    lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_quitgame, game_config.selected_language);
+    return show_yes_no_dialog(lines);
+}
+
+bool dialogs::show_yes_no_dialog(string lines[3])
 {
     bool res = false;
     bool repeat_menu = true;
@@ -195,7 +202,11 @@ bool dialogs::show_leave_game_dialog() const
 
     graphLib.show_dialog(0);
     st_position dialog_pos = graphLib.get_dialog_pos();
-    graphLib.draw_text(dialog_pos.x+30, dialog_pos.y+16, strings_map::get_instance()->get_ingame_string(strings_ingame_quitgame));
+
+    for (int i=0; i<3; i++) {
+        graphLib.draw_text(dialog_pos.x+30, dialog_pos.y+16+15*i, lines[i]);
+    }
+
     std::vector<std::string> item_list;
     item_list.push_back("YES");
     item_list.push_back("NO");
@@ -278,38 +289,38 @@ void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)
 
     int type = game_data.armor_pieces[armor_type].special_ability[game_save.selected_player];
     if (armor_type == ARMOR_ARMS) {
-        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms);
+        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms, game_config.selected_language);
         if (type == ARMOR_ABILITY_ARMS_ALWAYSCHARGED) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg1);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg1, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_ARMS_LASERBEAM) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg2);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg2, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_ARMS_SUPERSHOT) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg3);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg3, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_ARMS_MISSILE) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg4);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg4, game_config.selected_language);
         }
     } else if (armor_type == ARMOR_LEGS) {
         if (type == ARMOR_ABILITY_LEGS_AIRDASH) {
-            type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs);
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg1);
+            type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs, game_config.selected_language);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg1, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_LEGS_DOUBLEJUMP) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg2);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg2, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_LEGS_SHORYUKEN) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg3);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg3, game_config.selected_language);
         }
     } else {
-        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body);
+        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body, game_config.selected_language);
         if (type == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg1);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg1, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_BODY_HALFDAMAGE) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg2);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg2, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_BODY_NOPUSHBACK) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg3);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg3, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg4);
+            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_body_msg4, game_config.selected_language);
         }
     }
 
-    std::string lines[] = {type_str, strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_ability), ability_str};
+    std::string lines[] = {type_str, strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_ability, game_config.selected_language), ability_str};
     show_dialog("canotus_face.png", true, lines, true);
 }

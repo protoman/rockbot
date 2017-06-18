@@ -1079,10 +1079,14 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
     }
 }
 
-void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position)
+void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled)
 {
     int icon_size = weapon_icons.at(weapon_n).width;
-    showSurfaceRegionAt(&weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), position);
+    if (disabled == true) {
+        showSurfaceRegionAt(&weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), position);
+    } else {
+        showSurfaceRegionAt(&weapon_icons.at(weapon_n), st_rectangle(0, icon_size, icon_size, icon_size), position);
+    }
 }
 
 void graphicsLib::draw_menu_item(int x_pos)
@@ -1207,10 +1211,10 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
         copyArea(st_position(175, 200), &armor_icon_legs, &gameScreen);
     }
 
-    draw_text(212, 23, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" (R)"));
-    draw_text(41, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_life));
-    draw_text(111, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_item));
-    draw_text(187, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_armor));
+    draw_text(212, 23, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
+    draw_text(41, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_life, game_config.selected_language));
+    draw_text(111, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_item, game_config.selected_language));
+    draw_text(187, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_armor,game_config.selected_language));
 
 	updateScreen();
 }

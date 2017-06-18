@@ -37,8 +37,11 @@ stage_edit::stage_edit(QWidget *parent) : QWidget(parent), ui(new Ui::stage_edit
     ui->boss_dialog_answer2_line2->setMaxLength(EDITOR_DIALOG_LINE_LIMIT);
     ui->boss_dialog_answer2_line3->setMaxLength(EDITOR_DIALOG_LINE_LIMIT);
 
+    common::fill_languages_combo(ui->language_comboBox);
+
+
     Mediator::get_instance()->currentStage = INTRO_STAGE;
-	fill_stage_tab_data();
+    fill_stage_tab_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
 }
 
@@ -50,10 +53,10 @@ stage_edit::~stage_edit()
 void stage_edit::reload()
 {
     Mediator::get_instance()->currentStage = INTRO_STAGE;
-    fill_stage_tab_data();
+    fill_stage_tab_data(ui->language_comboBox->currentIndex());
 }
 
-void stage_edit::fill_stage_tab_data()
+void stage_edit::fill_stage_tab_data(int language_n)
 {
     if (FILEPATH.length() == 0) {
         return;
@@ -88,12 +91,12 @@ void stage_edit::fill_stage_tab_data()
 
     common::fill_scenes_combo(ui->cutscenePos_comboBox);
 
-	update_stage_data();
+    update_stage_data(language_n);
     _data_loading = false;
 }
 
 
-void stage_edit::update_stage_data()
+void stage_edit::update_stage_data(int language_n)
 {
     if (Mediator::get_instance()->currentStage < 0) {
         return;
@@ -119,9 +122,17 @@ void stage_edit::update_stage_data()
     ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
 
     int stage_id = Mediator::get_instance()->currentStage;
+    /*
     if (Mediator::get_instance()->stage_dialog_list.find(Mediator::get_instance()->currentStage) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, LANGUAGE_ENGLISH)));
+        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, ui->language_comboBox)));
     }
+    */
+
+    if (language_n < 0 || language_n >= LANGUAGE_COUNT) {
+        language_n = LANGUAGE_ENGLISH;
+    }
+    Mediator::get_instance()->stage_dialog_list.clear();
+    Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, language_n)));
 
     ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(0).c_str()));
     ui->dialogs_line1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(1).c_str()));
@@ -172,7 +183,7 @@ void stage_edit::on_stages_tab_stage_combo_currentIndexChanged(int index)
     if (_data_loading == true) return;
     Mediator::get_instance()->currentStage = index;
     _data_loading = true;
-	update_stage_data();
+    update_stage_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
 }
 
@@ -182,7 +193,7 @@ void stage_edit::on_dialogs_answer1_player_currentIndexChanged(int index)
     if (_data_loading == true) return;
     Mediator::get_instance()->current_player = index;
     _data_loading = true;
-    update_stage_data();
+    update_stage_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
 }
 
@@ -216,7 +227,7 @@ void stage_edit::on_string_selected(int string_id)
     int* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
-    qline->setText(QString(fio_str.get_common_string(string_id).c_str()));
+    qline->setText(QString(fio_str.get_common_string(string_id, ui->language_comboBox->currentIndex()).c_str()));
 }
 
 void stage_edit::string_tooltip_click(int *property, QLineEdit *qline)
@@ -412,4 +423,10 @@ void stage_edit::on_boss_dialog_answer2_line3_textChanged(const QString &arg1)
 void stage_edit::on_stage_boss_weapon_combo_currentIndexChanged(int index)
 {
     Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon = index;
+}
+
+void stage_edit::on_language_comboBox_currentIndexChanged(int index)
+{
+    if (_data_loading) { return; }
+    update_stage_data(index);
 }

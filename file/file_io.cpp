@@ -19,7 +19,8 @@ typedef struct {
 
 #ifdef ANDROID
 #include <android/log.h>
-#include "ports/android/cloud_save.h"
+#include "ports/android/android_game_services.h"
+extern android_game_services game_services;
 #endif
 
 extern std::string FILEPATH;
@@ -29,7 +30,7 @@ extern std::string GAMENAME;
 extern bool GAME_FLAGS[FLAG_COUNT];
 
 // versioned file for config, so we can force resetting it
-#define CONFIG_FILENAME "/config_v201.sav"
+#define CONFIG_FILENAME "/config_v203.sav"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
@@ -705,100 +706,6 @@ namespace format_v4 {
 
 
 
-
-    bool file_io::save_exists()
-    {
-        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = StringUtils::clean_filename(filename);
-#ifdef ANDROID
-        // if config player services is set, and no save is found, get it from cloud
-        if (game_config.android_use_play_services == true) {
-            cloud_load_game(filename);
-        }
-#endif
-        std::ifstream fp(filename.c_str());
-        if (fp.good()) {
-            return true;
-        }
-
-        if (GAMENAME == "Rockbot1") {
-            // check for an old v1 format-save file
-            std::string filename_v1 = std::string(SAVEPATH) + "/game_v301.sav";
-            filename_v1 = StringUtils::clean_filename(filename_v1);
-            FILE *v1_fp;
-            v1_fp = fopen(filename_v1.c_str(), "rb");
-            if (v1_fp) {
-                // convert v1 save to v2 save
-                CURRENT_FILE_FORMAT::st_save_v1 v1_save;
-                std::cout << "########## filename_v1[" << filename_v1 << "] ############" << std::endl;
-                int read_result = fread(&v1_save, sizeof(struct CURRENT_FILE_FORMAT::st_save_v1), 1, v1_fp);
-                if (read_result  == -1) { // could not read v1 save
-                    fclose(v1_fp);
-                    return false;
-                }
-                std::cout << "[WRN] Converting v1 save to v2 format." << std::endl;
-                if (v1_save.items.lifes > 9) {
-                    v1_save.items.lifes = 3;
-                }
-                CURRENT_FILE_FORMAT::st_save v2_save;
-
-
-                // ITEMS //
-                v2_save.items.balancer = v1_save.items.balancer;
-                v2_save.items.bolts = v1_save.items.bolts;
-                v2_save.items.energy_saver = v1_save.items.energy_saver;
-                v2_save.items.energy_tanks = v1_save.items.energy_tanks;
-                v2_save.items.exit = v1_save.items.exit;
-                if (v1_save.items.half_damage == 1) {
-                    v2_save.items.half_damage = true;
-                } else {
-                    v2_save.items.half_damage = false;
-                }
-                v2_save.items.hyper_jump = v1_save.items.hyper_jump;
-                v2_save.items.lifes = v1_save.items.lifes;
-                v2_save.items.power_shot = v1_save.items.power_shot;
-                if (v1_save.items.shock_guard == 1) {
-                    v2_save.items.shock_guard = true;
-                } else {
-                    v2_save.items.shock_guard = false;
-                }
-                v2_save.items.special_tanks = v1_save.items.special_tanks;
-                v2_save.items.speed_up = v1_save.items.speed_shot;
-                if (v1_save.items.spike_guard == 1) {
-                    v2_save.items.spike_guard = true;
-                } else {
-                    v2_save.items.spike_guard = false;
-                }
-                for (int i=0; i<WEAPON_COUNT; i++) {
-                    v2_save.items.weapons[i] = v1_save.items.weapons[i];
-                }
-                v2_save.items.weapon_tanks = v1_save.items.weapon_tanks;
-
-
-
-                v2_save.difficulty = v1_save.difficulty;
-                v2_save.finished_stages = v1_save.finished_stages;
-                v2_save.selected_player = v1_save.selected_player;
-                for (int i=0; i<MAX_STAGES; i++) {
-                    v2_save.stages[i] = v1_save.stages[i];
-                }
-                v2_save.used_countinue = v1_save.used_countinue;
-                for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX_V1; i++) {
-                    v2_save.armor_pieces[i] = v1_save.armor_pieces[i];
-                }
-                v2_save.defeated_enemies_count = v1_save.defeated_enemies_count;
-
-                fclose(v1_fp);
-
-                write_save(v2_save);
-
-
-                return true;
-            }
-        }
-        return false;
-    }
-
     bool file_io::can_access_castle(st_save &data_in)
     {
         for (int i=0; i<CASTLE1_STAGE1; i++) {
@@ -856,32 +763,34 @@ namespace format_v4 {
         fclose(fp);
     }
 
-    void file_io::read_save(format_v4::st_save& data_out) const
+
+    std::string file_io::get_save_filename(short save_n)
+    {
+        char numbered_file[50];
+
+        sprintf(numbered_file, "_0%d", save_n);
+        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(numbered_file) + std::string(".sav");
+        filename = StringUtils::clean_filename(filename);
+
+        return filename;
+    }
+
+    bool file_io::read_save(format_v4::st_save& data_out, short save_n)
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = StringUtils::clean_filename(filename);
+
+        std::string filename = get_save_filename(save_n);
+
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
-            exit(-1);
+            return false;
         }
         int read_result = fread(&data_out, sizeof(struct format_v4::st_save), 1, fp);
         if (read_result  == -1) {
             printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
             fflush(stdout);
-            exit(-1);
-        }
-
-
-        if (GAME_FLAGS[FLAG_PLAYER1]) {
-            data_out.selected_player = PLAYER_1;
-        } else if (GAME_FLAGS[FLAG_PLAYER2]) {
-            data_out.selected_player = PLAYER_2;
-        } else if (GAME_FLAGS[FLAG_PLAYER3]) {
-            data_out.selected_player = PLAYER_3;
-        } else if (GAME_FLAGS[FLAG_PLAYER4]) {
-            data_out.selected_player = PLAYER_4;
+            return false;
         }
 
 
@@ -889,7 +798,7 @@ namespace format_v4 {
         /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=STAGE1; i<=CASTLE1_STAGE5; i++) {
-            data_out.stages[i] = 1;
+            data_out.stages[i] = 0;
         }
         //data_out.stages[INTRO_STAGE] = 1;
         //data_out.stages[STAGE5] = 1;
@@ -917,27 +826,51 @@ namespace format_v4 {
 
 
         fclose(fp);
+
+        return true;
     }
 
-    bool file_io::write_save(format_v4::st_save& data_in)
+
+
+    bool file_io::write_save(format_v4::st_save& data_in, short save_n)
     {
         FILE *fp;
-        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
-        filename = StringUtils::clean_filename(filename);
-#ifdef ANDROID
-        // if config is set to use cloud
-        if (game_config.android_use_play_services == true) {
-            cloud_save_game(filename);
-        }
-#endif
+
+        std::string filename = get_save_filename(save_n);
+
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
             std::cout << "Error: Could not open save-file '" << filename << "'." << std::endl;
             return false;
         }
+
+        std::cout << "file_io::write_save[" << filename << "]" << std::endl;
+
         fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp);
         fclose(fp);
         return true;
+    }
+
+    bool file_io::save_exists(short save_n)
+    {
+        FILE *fp;
+        std::string filename = get_save_filename(save_n);
+
+        fp = fopen(filename.c_str(), "rb");
+        if (fp) {
+            return true;
+        }
+        return false;
+    }
+
+    bool file_io::have_one_save_file()
+    {
+        for (int i=0; i<5; i++) {
+            if (save_exists(i) == true) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -100,7 +100,6 @@ Mediator::Mediator() : stage_data() {
     }
 
     stage_dialog_list.clear();
-    stage_dialog_list.clear();
 
     /*
     CURRENT_FILE_FORMAT::file_stage temp_stage;
@@ -337,7 +336,7 @@ void Mediator::save_dialogs()
         for (int i=0; i<list_copy.size(); i++) {
             list_copy.at(i) = list_copy.at(i) + "\n";
         }
-        fio_str.save_stage_dialogs(it->first, list_copy);
+        fio_str.save_stage_dialogs(it->first, LANGUAGE_ENGLISH, list_copy);
     }
 }
 

@@ -389,6 +389,17 @@ void common::fill_scenes_combo(QComboBox *combo)
     }
 }
 
+void common::fill_languages_combo(QComboBox *combo)
+{
+    combo->clear();
+    // add empty item to be used to unset scene
+    combo->addItem(QString("English"));
+    combo->addItem(QString("French"));
+    combo->addItem(QString("Spanish"));
+    combo->addItem(QString("Italian"));
+    combo->addItem(QString("Portuguese"));
+}
+
 std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;

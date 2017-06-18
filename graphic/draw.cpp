@@ -17,6 +17,9 @@
 #define CASTLE_PATH_DURATION 1000
 #define STARS_DELAY 50
 
+#define ENERGY_BALL_IMG_SIZE 10
+#define ENERGY_BALL_PERCENT_SLICE 5
+
 #ifdef ANDROID
 #include <android/log.h>
 #endif
@@ -45,6 +48,7 @@ extern soundLib soundManager;
 #include "file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -278,7 +282,7 @@ void draw::show_ready()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
 
     for (int i=0; i<6; i++) {
-        graphLib.draw_text(dest_pos.x, dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message), st_color(240, 240, 240));
+        graphLib.draw_text(dest_pos.x, dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, game_config.selected_language), st_color(240, 240, 240));
         update_screen();
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
@@ -776,7 +780,7 @@ void draw::show_weapon_tooltip()
         if (direction_value == ANIM_DIRECTION_LEFT) {
             adjust_x = 10;
         }
-        graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y));
+        graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y), true);
     }
 }
 
@@ -831,6 +835,8 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
     graphLib.draw_text(6, 10, "HP:");
+    draw_enery_ball(hp_percent, 30, hud_player_hp_ball);
+    /*
     for (int i=0; i<5; i++) {
         int min = 20*i;
         int max2 = min+20;
@@ -845,6 +851,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
         graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 9), &hud_player_hp_ball, &graphLib.gameScreen);
     }
+    */
 
 
     if (selected_weapon != WEAPON_DEFAULT) {
@@ -854,19 +861,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
         //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
         graphLib.draw_text(90, 10, "WPN:");
-        for (int i=0; i<5; i++) {
-            int min = 20*i;
-            int max2 = min+20;
-            //std::cout << "i[" << i << "], wpn_percent[" << wpn_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
-
-            int img_origin_x = 0;
-            if (wpn_percent <= min) {
-                img_origin_x = hud_player_wpn_ball.height*2;
-            } else if (wpn_percent < max2) {
-                img_origin_x = hud_player_wpn_ball.height;
-            }
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(122+10*i, 9), &hud_player_wpn_ball, &graphLib.gameScreen);
-        }
+        draw_enery_ball(wpn_percent, 122, hud_player_wpn_ball);
     }
 
     // boss HP
@@ -874,23 +869,39 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
     if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
         int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
         graphLib.draw_text(RES_W-95, 10, "BOSS:");
-        for (int i=0; i<5; i++) {
-            int min = 20*i;
-            int max2 = min+20;
-            //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
-
-            int img_origin_x = 0;
-            if (boss_hp_percent < min) {
-                img_origin_x = hud_boss_hp_ball.height*2;
-            } else if (boss_hp_percent < max2) {
-                img_origin_x = hud_boss_hp_ball.height;
-            }
-
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_boss_hp_ball.height, hud_boss_hp_ball.height), st_position(RES_W-55+10*i, 9), &hud_boss_hp_ball, &graphLib.gameScreen);
-        }
-
+        draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
     }
 
+}
+
+void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surface)
+{
+    // 5 balls, each have 4 possible stages
+    // so each slice of energy is 100 / (5*4) = 5%
+    for (int i=0; i<5; i++) {
+        // less than min1 means black ball
+        int min1 = ENERGY_BALL_PERCENT_SLICE*4*i + 5;     // 1/4
+        int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
+        int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
+        int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
+        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
+
+        int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
+
+        //std::cout << "value[" << value << "], min1[" << min1 << "], min2[" << min2 << "], min3[" << min3 << "], min4[" << min4 << "]" << std::endl;
+
+        if (value >= min4) {
+            img_origin_x = 0;
+        } else if (value >= min3) {
+            img_origin_x = ENERGY_BALL_IMG_SIZE;
+        } else if (value >= min2) {
+            img_origin_x = ENERGY_BALL_IMG_SIZE*2;
+        } else if (value >= min1) {
+            img_origin_x = ENERGY_BALL_IMG_SIZE*3;
+        }
+
+        graphLib.copyArea(st_rectangle(img_origin_x, 0, ball_surface.height, ball_surface.height), st_position(x_pos+(10*i), 9), &ball_surface, &graphLib.gameScreen);
+    }
 }
 
 void draw::set_boss_hp(int hp)

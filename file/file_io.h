@@ -59,9 +59,11 @@ namespace format_v4 {
         std::vector<std::string> read_directory_list(std::string filename, bool dir_only);
         std::vector<std::string> read_file_list(std::string filename);
 
-        bool write_save(st_save& data_in);
-        void read_save(st_save& data_out) const;
-        bool save_exists();
+        std::string get_save_filename(short save_n);
+        bool write_save(st_save& data_in, short save_n);
+        bool read_save(st_save& data_out, short save_n);
+        bool save_exists(short save_n);
+        bool have_one_save_file();
         bool can_access_castle(st_save& data_in);
 
         void load_config(st_game_config &config);

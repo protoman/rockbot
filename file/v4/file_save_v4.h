@@ -142,27 +142,20 @@ namespace format_v4 {
         st_items items;
         int selected_player;
         int difficulty;                                              // 0 - easy, 1 - normal, 2 - hard
-        int defeated_enemies_count;                                  // number of defeated enemies
         bool used_countinue;
         bool armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX];
         st_collect_items collect_items[FS_COMMON_ITEMS_MAX];
         int xp_points;
         int level;
+        int defeated_enemies_count;                                  // number of defeated enemies
+        int defeated_bosses_count;                                   // number of defeated bosses
+        int continues_used;
+        bool damaged_boss_with_only_normal;
+        int used_e_tanks;
+        int used_w_tanks;
 
         st_save() {
-            finished_stages = 0;
-            for (int i=0; i<MAX_STAGES; i++) {
-                stages[i] = 0;
-            }
-            selected_player = 0;
-            difficulty = DIFFICULTY_NORMAL;
-            defeated_enemies_count = 0;
-            used_countinue = false;
-            for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX; i++) {
-                armor_pieces[i] = false;
-            }
-            xp_points = 0;
-            level = 0;
+            reset();
         }
 
         void reset() {
@@ -179,6 +172,11 @@ namespace format_v4 {
             }
             xp_points = 0;
             level = 0;
+            defeated_bosses_count = 0;
+            continues_used = 0;
+            damaged_boss_with_only_normal = true;
+            used_e_tanks = 0;
+            used_w_tanks = 0;
         }
     };
 
