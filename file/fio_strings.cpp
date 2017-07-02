@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <algorithm>
 
 #include "defines.h"
 #include "aux_tools/stringutils.h"
@@ -21,6 +23,32 @@ namespace format_v4 {
     fio_strings::fio_strings()
     {
         _dialogs_stage_id = -1;
+
+
+        code_map.insert(std::pair<char,std::string>(0xc9, "É"));
+        code_map.insert(std::pair<char,std::string>(0xca, "Ê"));
+
+        code_map.insert(std::pair<char,std::string>(0xc0, "A")); // todo: not working
+        code_map.insert(std::pair<char,std::string>(0xc1, "A")); // todo: not working
+        code_map.insert(std::pair<char,std::string>(0xc3, "Ã"));
+        code_map.insert(std::pair<char,std::string>(0xc2, "Â"));
+
+        code_map.insert(std::pair<char,std::string>(0xcd, "Í"));
+
+        code_map.insert(std::pair<char,std::string>(0xd3, "Ó"));
+        code_map.insert(std::pair<char,std::string>(0xd5, "Õ"));
+        code_map.insert(std::pair<char,std::string>(0xd4, "Ô"));
+
+        code_map.insert(std::pair<char,std::string>(0xda, "Ú"));
+        code_map.insert(std::pair<char,std::string>(0xdc, "Ü"));
+
+        code_map.insert(std::pair<char,std::string>(0xc7, "Ç"));
+        /*
+        code_map.insert(std::pair<char,std::string>(0xc0, "À"));
+        code_map.insert(std::pair<char,std::string>(0xc0, "À"));
+        code_map.insert(std::pair<char,std::string>(0xc0, "À"));
+        code_map.insert(std::pair<char,std::string>(0xc0, "À"));
+        */
     }
 
     std::string fio_strings::get_ingame_string(int n, int language)
@@ -67,9 +95,16 @@ namespace format_v4 {
             if (str.length() > 0) {
                 StringUtils::replace_all(str, "\n", "");
                 StringUtils::replace_all(str, "\r", "");
+                std::string str2 = "\\xC9";
+                if (str.find(str2) != -1) {
+                    str.replace(str.find(str2), str2.length(),"é");
+                }
+                StringUtils::replace_all(str, "\\xC9", "é");
             }
             res.push_back(str);
         }
+
+
         fp.close();
 
         if (res.size() == 0) {
@@ -80,6 +115,10 @@ namespace format_v4 {
             }
         } else if (filename == get_game_strings_filename(language) && res.size() < strings_ingame_COUNT) {
             res = add_missing_default_ingame_strings(res, language);
+        }
+
+        for (unsigned int i=0; i<res.size(); i++) {
+            res[i] = convert_text_symbols(res[i]);
         }
 
         return res;
@@ -139,7 +178,7 @@ namespace format_v4 {
         if (language == LANGUAGE_PORTUGUESE) {
             sprintf(lines[strings_ingame_newgame], "%s", "NOVO JOGO");
             sprintf(lines[strings_ingame_loadgame], "%s", "CARREGAR JOGO");
-            sprintf(lines[strings_ingame_config], "%s", "CONFIGURACAO");
+            sprintf(lines[strings_ingame_config], "%s", "CONFIG");
             sprintf(lines[strings_ingame_about], "%s", "SOBRE");
             sprintf(lines[strings_ingame_password], "%s", "SENHA");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
@@ -160,7 +199,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_video_size2x], "%s", "TAMANHO X2    ");
             sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
             sprintf(lines[strings_ingame_config_restart1], "%s", "POR FAVOR REINICIE O JOGO");
-            sprintf(lines[strings_ingame_config_restart2], "%s", "PARA A NOVA CONFIGURACAO");
+            sprintf(lines[strings_ingame_config_restart2], "%s", "PARA NOVA CONFIGURACAO");
             sprintf(lines[strings_ingame_config_restart3], "%s", "SER ATIVADA.");
             sprintf(lines[strings_ingame_config_presstorestart], "%s", "APERTE UM BOTÃO PARA CONTINUAR");
             sprintf(lines[strings_ingame_pressanykey], "%s", "APERTE QUALQUER BOTÃO");
@@ -194,8 +233,8 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_quitgame], "%s", "SAIR DO JOGO?");
             sprintf(lines[strings_ingame_yes], "%s", "SIM");
             sprintf(lines[strings_ingame_no], "%s", "NAO");
-            sprintf(lines[strings_ingame_life], "%s", "VIDA");
-            sprintf(lines[strings_ingame_item], "%s", "ITEM");
+            sprintf(lines[strings_ingame_life], "%s", "VIDAS");
+            sprintf(lines[strings_ingame_item], "%s", "ITEMS");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
             sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
             sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
@@ -435,6 +474,25 @@ namespace format_v4 {
         return "en";
     }
 
+    std::string fio_strings::convert_text_symbols(std::string text)
+    {
+
+
+
+        for (std::map<int,std::string>::iterator it=code_map.begin(); it!=code_map.end(); ++it) {
+
+            char replace1 = (char)(it->first);
+            std::size_t found = text.find(replace1);
+            if (found!=std::string::npos) {
+                std::stringstream ss;
+                ss << replace1;
+                std::string replace1_str = ss.str();
+                StringUtils::replace_all(text, replace1_str, std::string(it->second));
+            }
+        }
+        return text;
+    }
+
     void fio_strings::create_default_common_strings()
     {
 
@@ -442,7 +500,7 @@ namespace format_v4 {
 
     }
 
-    void fio_strings::create_default_dialog_strings()
+    void fio_strings::create_default_dialog_strings(int language)
     {
         std::vector<std::string> res;
         for (int i=0; i<FS_MAX_STAGES; i++) {
@@ -473,9 +531,7 @@ namespace format_v4 {
                     res.push_back(player_line_value);
                 }
             }
-            for (int lang=0; lang<4; lang++) {
-                save_game_strings(res, get_stage_dialogs_filename(i, lang));
-            }
+            save_game_strings(res, get_stage_dialogs_filename(i, language));
             res.clear();
         }
     }
@@ -609,7 +665,7 @@ namespace format_v4 {
             _dialogs_stage_id = stage_id;
             dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language), language);
             if (dialogs_strings_list.size() == 0) {
-                create_default_dialog_strings();
+                create_default_dialog_strings(language);
                 dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language),language);
             }
         }
@@ -621,20 +677,24 @@ namespace format_v4 {
 
     std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id, int language)
     {
-        std::string filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
+        std::string filename;
+        if (_dialogs_stage_id != -1) {
+            filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
+        }
         dialogs_strings_list.clear();
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
+            filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
             dialogs_strings_list = load_game_strings_from_file(filename, language);
             if (dialogs_strings_list.size() == 0) {
-                create_default_dialog_strings();
+                create_default_dialog_strings(language);
                 dialogs_strings_list = load_game_strings_from_file(filename, language);
             }
         }
         // generate dialogs, if needed
         if (dialogs_strings_list.size() == 0) {
             std::cout << "Generating default stage dialogs..." << std::endl;
-            create_default_dialog_strings();
+            create_default_dialog_strings(language);
             std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
             dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language);
         }

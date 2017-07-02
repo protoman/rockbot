@@ -565,11 +565,32 @@ FILE-FORMAT-V4:
 - new hadouken Bongwater-bandit@deviantart
 - ending in android won't show player running
 - flying bosses should not stop only in the ground, but middle-screen
-
-
-
 - fix fly-to-random-point changing direction and always goind left
 - set move-type to air-walk if boss presenting ends without reaching ground
 - new boss-intro style rokko chan's opening or X boss presentation
 - improved HUD with 4 slices for each energy dot
 - change to air-walk when flying
+- add a check to avoid a button with zero size
+- add multiple save file selection
+- finish android's touch button size configuration
+    # apply right when changed option
+    # fix positions
+- implement android's hide touch buttons
+- add a flag in config called first_run. If is default (true), ask if want to enable play services and cloud save
+- set android's touch buttons transparency to 40%
+- finish cloud save load/write
+    # separate option from play services
+    # create warning when enabling the service
+    # when loading/writting a save, show connectiong dialog
+    # check all 5 slots if no save is present
+    # when enabling the cloud save service, load data for all slots
+    # when checking if enable load in main screen, try to get cloud data, if none
+
+
+- fix teleport left/right/ahead leaving boss room
+- add two more stages to the demo:
+    # snowbot not showing as enabled
+    # add Phantom and Gear stages
+        * must add phantom boss
+- remove 30 fps mode, it won't work well anyway
+    # find other ways to improve speed

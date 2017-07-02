@@ -63,7 +63,7 @@ extern std::map<Uint8, Uint8> game_scenes_map;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
-//#define DEBUG_SHOW_FPS 1
+#define DEBUG_SHOW_FPS 1
 
 
 // ********************************************************************************************** //
@@ -128,9 +128,6 @@ void game::initGame()
 
     fps_manager.initialize();
 
-    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
-        fps_manager.set_max_fps(30);
-    }
 }
 
 
@@ -218,7 +215,14 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
 #endif
     fps_manager.limit();
 
-
+    if (fps_manager.get_failed_min_fps() == true) {
+        if (game_config.graphics_performance_mode == PERFORMANCE_MODE_HIGH) {
+            game_config.graphics_performance_mode = PERFORMANCE_MODE_NORMAL;
+        } else if (game_config.graphics_performance_mode == PERFORMANCE_MODE_NORMAL) {
+            game_config.graphics_performance_mode = PERFORMANCE_MODE_LOW;
+        }
+        fps_manager.reset_failed_min_fps();
+    }
 }
 
 // ********************************************************************************************** //
@@ -1413,7 +1417,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = STAGE7;
+    currentStage = STAGE6;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 
@@ -1797,11 +1801,6 @@ bool game::is_free_version()
     return false;
 }
 
-float game::get_fps_speed_multiplier()
-{
-    float speed = fps_manager.get_fps_speed_multiplier();
-    return speed;
-}
 
 void game::finish_player_teleporter()
 {
@@ -1863,11 +1862,6 @@ bool game::subboss_alive_on_left(short tileX)
 classMap *game::get_current_map_obj()
 {
     return loaded_stage.get_current_map();
-}
-
-void game::set_max_fps(unsigned short max)
-{
-    fps_manager.set_max_fps(max);
 }
 
 void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)

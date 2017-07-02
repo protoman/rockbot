@@ -54,7 +54,15 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
-- add a check to avoid a button out of the screen
+
+(TEST) - make buttons small size as medium
+
+(TEST) - if stage runs too slow, automatically change to medium performance mode
+    (TODO) # show warning to the user
+
+- update screenshots in the app-store for rockbot 2 free
+
+- add a check to avoid a button positioned out of the screen
 
 - add achievements to editor
     # only set the IDs for each game, mechanics to get those will be hardcoded
@@ -210,23 +218,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- add a flag in config called first_run. If is default (true), ask if want to enable play services and cloud save
-- set android's touch buttons transparency to 40%
 
-- finish cloud save load/write
-    # separate option from play services
-    # create warning when enabling the service
-    # when loading/writting a save, show connectiong dialog
-    # check all 5 slots if no save is present
-    # when enabling the cloud save service, load data for all slots
-    # when checking if enable load in main screen, try to get cloud data, if none
-
-- add a check to avoid a button with zero size
-- add multiple save file selection
-- finish android's touch button size configuration
-    # apply right when changed option
-    # fix positions
-- implement android's hide touch buttons
 
 
 

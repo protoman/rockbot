@@ -50,7 +50,7 @@ void dialogs::show_stage_dialog(int stage_n)
     for (int i=0; i<FS_DIALOG_LINES; i++) {
         lines[n] = stage_dialogs.at(i);
         n++;
-	}
+    }
     show_dialog(stage_data.dialog_face_graphics_filename, stage_data.dialog_top_side, lines, true);
 
     int ini = 6 + game_save.selected_player*6;
@@ -140,7 +140,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 {
     UNUSED(top_side);
 	std::string temp_text;
-	char temp_char;
+    std::string temp_char;
 
     if (lines[0].size() < 1) {
         return;
@@ -156,16 +156,13 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
 	/// @TODO: usar show_config_bg e hide_config_bg da graphLib - modificar para aceitar centered (que é o atual) ou top ou bottom
     for (int i=0; i<FS_DIALOG_LINES; i++) {
-		for (unsigned int j=0; j<lines[i].size(); j++) {
-			temp_char = lines[i].at(j);
-			temp_text = "";
-			temp_text += temp_char;
+        std::string line = lines[i];
+        graphLib.draw_text(dialog_pos.x+52, i*11+(dialog_pos.y+16), line);
 
-			graphLib.draw_text(j*9+(dialog_pos.x+52), i*11+(dialog_pos.y+16), temp_text);
-            draw_lib.update_screen();
-            timer.delay(5);
-		}
-	}
+
+        draw_lib.update_screen();
+        timer.delay(50);
+    }
 
     if (show_btn == true) {
         graphLib.show_dialog_button(1);
@@ -208,8 +205,9 @@ bool dialogs::show_yes_no_dialog(string lines[3])
     }
 
     std::vector<std::string> item_list;
-    item_list.push_back("YES");
-    item_list.push_back("NO");
+
+    item_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_yes, game_config.selected_language));
+    item_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_no, game_config.selected_language));
     option_picker main_picker(false, st_position(dialog_pos.x+40, dialog_pos.y+16+11), item_list, false);
     draw_lib.update_screen();
     while (repeat_menu == true) {

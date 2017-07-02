@@ -259,11 +259,7 @@ public:
 
     bool is_free_version();
 
-    float get_fps_speed_multiplier();
-
     classMap* get_current_map_obj();
-
-    void set_max_fps(unsigned short max);
 
     bool is_player_on_teleporter();
 

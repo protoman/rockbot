@@ -1,4 +1,4 @@
-]# QtCreator arfifact
+# QtCreator arfifact
 *.user
 
 # qmake artifiacts
@@ -11,6 +11,23 @@ editor/moc_*.cpp
 build/*.cpp
 build/*.h
 build/editor
+build/packages/*.deb
+build/packages/*.zip
+build/packages/*.txt
+build/packages/source
+build/packages/ubuntu
+build/packages/win32
+build/scenesviewer
+build/packages/Android/
+build/packages/Dingux/
+build/packages/PS2/
+build/packages/PSP/
+stages_v301.dat
+cpp_rockbot.pro.user.3.3-pre1
+editor/Rockbot_Editor.pro.user.3.3-pre1
+editor/build-conversor-Desktop-Debug/
+scenes/ScenesViewer/ScenesViewer.pro.user.3.3-pre1
+cov-int
 *.apk
 *.zip
 *.elf

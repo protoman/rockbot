@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-#define DEFULT_PLAYER_SPEED 1.2
-#define DEFAULT_FPS_MAX 60
+
 
 #include "timerlib.h"
 extern timerLib timer;
@@ -15,8 +14,9 @@ extern graphicsLib graphLib;
 fps_control::fps_control() : fps_timer(0)
 {
     fps_max = DEFAULT_FPS_MAX;
-    fps_speed_multiplier = 1.0;
     fps_counter = 0;
+    fps_min_fail_count = 0;
+    failed_min_fps = false;
 }
 
 
@@ -25,6 +25,12 @@ void fps_control::initialize()
     max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
     frame_count = 0;
     last_second_ticks = timer.getTimer();
+    /*
+    fps_max = max;
+    float percent = (100 * fps_max) / DEFAULT_FPS_MAX;
+    std::cout << "FPS_CONTROL.set_max_fps[" << max << "], percent[" << percent << "]" << std::endl;
+    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
+    */
 }
 
 bool fps_control::limit()
@@ -74,29 +80,6 @@ bool fps_control::limit()
     return false;
 }
 
-void fps_control::set_max_fps(unsigned short max)
-{
-    fps_max = max;
-    float percent = (100 * fps_max) / DEFAULT_FPS_MAX;
-
-    std::cout << "FPS_CONTROL.set_max_fps[" << max << "], percent[" << percent << "]" << std::endl;
-
-    if (fps_max < DEFAULT_FPS_MAX) {
-        fps_speed_multiplier = 1.0 + (percent / 100);
-    } else if (fps_max == DEFAULT_FPS_MAX) {
-        fps_speed_multiplier = 1.0;
-    } else {
-        fps_speed_multiplier = 1.0 - (percent / 100);
-    }
-    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
-}
-
-float fps_control::get_fps_speed_multiplier()
-{
-    //std::cout << "FPS_CONTROL::get_fps_speed_multiplier[" << fps_speed_multiplier << "]" << std::endl;
-    return fps_speed_multiplier;
-}
-
 
 
 // ********************************************************************************************** //
@@ -120,6 +103,14 @@ void fps_control::fps_count()
         fps_timer = timer.getTimer()+1000;
     }
     if (fps_counter > 1) {
+        if (fps_counter <= FPS_MINIMAL_LIMIT) {
+            fps_min_fail_count++;
+        } else {
+            fps_min_fail_count = 0;
+        }
+        if (fps_min_fail_count >= FPS_MINIMAL_MAX_FAIL) {
+            failed_min_fps = true;
+        }
         std::string temp_str(_fps_buffer);
         graphLib.draw_text(12, 2, temp_str);
     }
@@ -136,5 +127,15 @@ int fps_control::get_frame_drop_n()
         return 2;
     }
     return frame_drop_period;
+}
+
+bool fps_control::get_failed_min_fps()
+{
+    return failed_min_fps;
+}
+
+void fps_control::reset_failed_min_fps()
+{
+    failed_min_fps = false;
 }
 

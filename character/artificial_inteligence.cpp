@@ -2035,24 +2035,47 @@ void artificial_inteligence::ia_action_teleport()
 {
     // go teleporting
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        if (state.animation_type != ANIM_TYPE_SPECIAL_ATTACK) { /// @TODO - must use teleport
+        if (state.animation_type != ANIM_TYPE_TELEPORT) { /// @TODO - must use teleport
             //std::cout << ">> AI::ia_action_teleport(INIT) - ANIM_TYPE_SPECIAL_ATTACK <<" << std::endl;
-            set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
+            set_animation_type(ANIM_TYPE_TELEPORT);
         } else {
             if (_was_animation_reset == true) { // finished special_attack animation
                 //std::cout << ">> AI::ia_action_teleport(INIT) - CHANGE TO EXEC - animation_state: " << state.animation_state << ", animation_type: " << state.animation_type << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
                 state.invisible = true;
-                if (_parameter == AI_ACTION_TELEPORT_OPTION_LEFT) {
-                    position.x -= walk_range;
-                } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT) {
-                    position.x += walk_range;
-                } else if (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD) {
-                    if (state.direction == ANIM_DIRECTION_LEFT) {
-                        position.x -= walk_range;
-                    } else {
-                        position.x += walk_range;
+
+
+                // find wall to the left
+                if (_parameter == AI_ACTION_TELEPORT_OPTION_LEFT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_LEFT)) {
+                    int min_pos_x = position.x - walk_range;
+                    //std::cout << "LEFT - position.x[" << position.x << "], min_pos_x[" << min_pos_x << "]" << std::endl;
+                    int teleport_limit_x = min_pos_x;
+                    for (int pos_i=position.x; pos_i>min_pos_x; pos_i--) {
+                        int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, position.y/TILESIZE));
+
+                        std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+
+                        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                            std::cout << "LEFT - pos_i[" << pos_i << "]" << std::endl;
+                            teleport_limit_x = pos_i+1;
+                            break;
+                        }
                     }
+                    position.x = teleport_limit_x;
+                // find wall to the right
+                } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_RIGHT)) {
+                    int max_pos_x = position.x + walk_range + frameSize.width;
+                    //std::cout << "RIGHT - position.x[" << position.x << "], max_pos_x[" << max_pos_x << "]" << std::endl;
+                    int teleport_limit_x = max_pos_x;
+                    for (int pos_i=position.x; pos_i<max_pos_x; pos_i++) {
+                        int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, position.y/TILESIZE));
+                        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                            teleport_limit_x = pos_i-1;
+                            std::cout << "RIGHT - pos_i[" << pos_i << "]" << std::endl;
+                            break;
+                        }
+                    }
+                    position.x = teleport_limit_x;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_TO_PLAYER) {
                     struct_player_dist dist_npc_player = dist_npc_players();
                     position.x = dist_npc_player.pObj->getPosition().x;
@@ -2088,8 +2111,8 @@ void artificial_inteligence::ia_action_teleport()
             std::cout << ">> AI::ia_action_teleport.EXEC.SET-LAST-FRAME, state.animation_state: " << state.animation_state  << std::endl;
         }
         if (_was_animation_reset == true) {
-            std::cout << ">> AI::ia_action_teleport - FINISH, state.animation_state: " << state.animation_state << " <<" << std::endl;
-            if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #12" << std::endl;
+            std::cout << ">> AI::ia_action_teleport - FINISH, x[" << position.x << "], state.animation_state: " << state.animation_state << " <<" << std::endl;
+            //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #12" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _ignore_gravity = false;

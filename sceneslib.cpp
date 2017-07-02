@@ -863,12 +863,6 @@ void scenesLib::show_config_performance()
     selected_option = main_config_picker.pick(game_config.graphics_performance_mode+1);
     game_config.graphics_performance_mode = selected_option;
 
-    if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
-        gameControl.set_max_fps(30);
-    } else {
-        gameControl.set_max_fps(60);
-    }
-
     fio.save_config(game_config);
 }
 

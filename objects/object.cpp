@@ -164,7 +164,7 @@ void object::gravity()
     if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
 		return;
 	}
-    for (int i=GRAVITY_SPEED * gameControl.get_fps_speed_multiplier(); i>0; i--) {
+    for (int i=GRAVITY_SPEED; i>0; i--) {
         bool can_fall = test_change_position(0, i);
         //std::cout << "OBJECT::gravity[" << name << "], i[" << i << "], y[" << position.y << "], can_fall[" << can_fall << "]" << std::endl;
         if (can_fall == true) {
@@ -690,7 +690,7 @@ void object::move(bool paused)
             return;
         // teleporting IN
         } else if (_teleport_state == e_object_teleport_state_teleport_in) {
-            int yinc = GRAVITY_SPEED*3 * gameControl.get_fps_speed_multiplier();
+            int yinc = GRAVITY_SPEED*3;
             std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
             if (position.y+yinc > start_point.y) {
                 position.y = start_point.y;
@@ -712,7 +712,7 @@ void object::move(bool paused)
         // teleporting out
         } else if (_teleport_state == e_object_teleport_state_teleport_out) {
             //std::cout << "OBJECT::move - teleport OUT" << std::endl;
-            int yinc = GRAVITY_SPEED*3 * gameControl.get_fps_speed_multiplier();
+            int yinc = GRAVITY_SPEED*3;
             position.y -= yinc;
             if (position.y + framesize_h < 0) {
                 _finished = true;
@@ -739,9 +739,9 @@ void object::move(bool paused)
 		}
 		int xinc=0;
 		if (direction == ANIM_DIRECTION_LEFT) {
-            xinc = -speed * gameControl.get_fps_speed_multiplier();
+            xinc = -speed;
 		} else {
-            xinc = speed * gameControl.get_fps_speed_multiplier();
+            xinc = speed;
 		}
 		bool can_move = test_change_position(xinc, 0);
 		//std::cout << "object::move::OBJ_MOVING_PLATFORM_LEFTRIGHT - xinc: " << xinc << ", can_move: " << can_move << ", distance: " << distance << ", limit: " << limit << std::endl;
@@ -762,9 +762,9 @@ void object::move(bool paused)
 		}
         int yinc = 0;
 		if (direction == ANIM_DIRECTION_UP) {
-            yinc = -speed * gameControl.get_fps_speed_multiplier();
+            yinc = -speed;
 		} else {
-            yinc = speed * gameControl.get_fps_speed_multiplier();
+            yinc = speed;
 		}
 		bool can_move = test_change_position(0, yinc);
 		//std::cout << "object::move::OBJ_MOVING_PLATFORM_LEFTRIGHT - xinc: " << xinc << ", can_move: " << can_move << ", distance: " << distance << ", limit: " << limit << std::endl;
@@ -782,7 +782,7 @@ void object::move(bool paused)
             return;
         }
 		if (_state == OBJ_STATE_MOVE) { // falling state
-            int yinc = speed * gameControl.get_fps_speed_multiplier();
+            int yinc = speed;
 			bool can_move = test_change_position(0, yinc);
 			if (can_move) {
                 //std::cout << "OBJ_FALL_PLATFORM - yinc: " << yinc << ", pos.y: " << position.y << std::endl;
@@ -798,7 +798,7 @@ void object::move(bool paused)
                 if (distance == 0) { // added because of initial delay
                     stop();
                 } else {
-                    int yinc = -((speed * gameControl.get_fps_speed_multiplier())/2);
+                    int yinc = -((speed)/2);
                     if (yinc == 0) {
                         yinc = -1;
                     }
@@ -820,7 +820,7 @@ void object::move(bool paused)
             return;
         }
         if (_state == OBJ_STATE_MOVE) { // flying state
-            int yinc = -speed * gameControl.get_fps_speed_multiplier();
+            int yinc = -speed;
             bool can_move = test_change_position(0, yinc);
             if (can_move) {
                 check_player_move(0, yinc);
@@ -840,7 +840,7 @@ void object::move(bool paused)
                 //std::cout << "FLY_PLATFORM::RETURN::STOP#1" << std::endl;
                 stop();
             } else {
-                int yinc = (speed * gameControl.get_fps_speed_multiplier())/2;
+                int yinc = (speed)/2;
                 if (yinc == 0) {
                     yinc = -1;
                 }
@@ -858,16 +858,16 @@ void object::move(bool paused)
         if (speed < 1) {
             speed = 3;
 		}
-        int xinc = speed * gameControl.get_fps_speed_multiplier();
+        int xinc = speed;
 		int yinc = 0;
 		if (direction == ANIM_DIRECTION_LEFT) {
-            xinc = -speed * gameControl.get_fps_speed_multiplier();
+            xinc = -speed;
 		}
 		if (_command_up == true) {
-            yinc = -speed * gameControl.get_fps_speed_multiplier();
+            yinc = -speed;
 		}
 		if (_command_down == true) {
-            yinc = speed * gameControl.get_fps_speed_multiplier();
+            yinc = speed;
 		}
 		position.x += xinc;
 		position.y += yinc;
@@ -1037,13 +1037,13 @@ void object::move(bool paused)
 
         p1 = map->get_map_point_tile1(st_position((start_point.x+1)/TILESIZE, (start_point.y+1)/TILESIZE));
         if (direction == ANIM_DIRECTION_LEFT) {
-            position.x -= speed * gameControl.get_fps_speed_multiplier();
-            xinc = -speed * gameControl.get_fps_speed_multiplier();
+            position.x -= speed;
+            xinc = -speed;
             p2 = map->get_map_point_tile1(st_position((position.x)/TILESIZE, (position.y+1)/TILESIZE));
             p3 = map->get_map_point_tile1(st_position(((position.x)/TILESIZE)-1, (position.y+1)/TILESIZE));
         } else {
-            position.x += speed * gameControl.get_fps_speed_multiplier();
-            xinc = speed * gameControl.get_fps_speed_multiplier();
+            position.x += speed;
+            xinc = speed;
             p2 = map->get_map_point_tile1(st_position((position.x+TILESIZE/3)/TILESIZE, (position.y+1)/TILESIZE));
             p3 = map->get_map_point_tile1(st_position(((position.x+TILESIZE/3)/TILESIZE)+1, (position.y+1)/TILESIZE));
         }

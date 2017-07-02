@@ -818,7 +818,9 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
         exit(-1);
     }
 
+    draw_text(x, y, text);
 
+    /*
     for (i=0; i<text.size(); i++) {
         input.read_input();
         temp_char = text.at(i);
@@ -838,6 +840,7 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
         }
         timer.delay(delay);
     }
+    */
     return 0;
 }
 
@@ -867,7 +870,13 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
         exit(-1);
         // handle error
     }
-    SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
+
+    //std::cout << "RENDER #1[" << text << "]" << std::endl;
+    if (text.length() == 1) {
+        std::cout << "DEBUG #9" << std::endl;
+    }
+    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
+
     if (!textSF) {
         return;
     }
@@ -888,17 +897,18 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
 	font_color.r = 255;
 	font_color.g = 255;
 	font_color.b = 255;
-	SDL_Rect text_pos={x, y, 0, 0};
+    SDL_Rect text_pos={x, y, 0, 0};
 	if (!font) {
 		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #11");
         SDL_Quit();
 		exit(-1);
 		// handle error
-	}
+    }
     text_pos.x += _screen_resolution_adjust.x;
     text_pos.y += _screen_resolution_adjust.y;
-    SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
+    std::cout << "RENDER #2[" << text << "]" << std::endl;
+    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
     SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
@@ -924,7 +934,8 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 		exit(-1);
 		// handle error
 	}
-	SDL_Surface* textSF = TTF_RenderText_Solid(font, text.c_str(), font_color);
+    std::cout << "RENDER #3[" << text << "]" << std::endl;
+    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
 	if (textSF == NULL) {
 		return;
 	}

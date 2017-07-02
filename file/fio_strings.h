@@ -60,11 +60,12 @@ private:
     std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list, int language);
     std::string get_stage_dialogs_filename(short stage_id, int language);
     std::string get_language_filename_prefix(int language);
+    std::string convert_text_symbols(std::string text);
 
 
     // === COMMON STRINGS === //
     void create_default_common_strings();
-    void create_default_dialog_strings();
+    void create_default_dialog_strings(int language);
 
 private:
     std::vector<std::string> string_list;
@@ -72,6 +73,7 @@ private:
     std::vector<std::string> scenes_strings_list;
     short _dialogs_stage_id;    // sotres the loaded stage dialogs id, if this changes, we get the dialogs form the new id
     std::vector<std::string> dialogs_strings_list;
+    std::map<int,std::string> code_map;
 
 };
 } // namespace

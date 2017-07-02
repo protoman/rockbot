@@ -57,6 +57,7 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     sprintf(temp_name, "PLAYER_%d", _number);
     name = std::string(temp_name);
     move_speed = PLAYER_MOVE_SPEED;
+
     reset_charging_shot();
 }
 
@@ -624,6 +625,7 @@ void classPlayer::execute()
     if (have_shoryuken() == true && shoryuken() == true) { // while doing shoryuken won't move
         return;
     }
+
     charMove();
     attack();
 

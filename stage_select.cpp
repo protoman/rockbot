@@ -414,7 +414,7 @@ int stage_select::pick_stage(int stage_n)
             }
 #endif
         } else if (input.p1_input[BTN_START]) {
-            if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE1) {
+            if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
                 soundManager.play_sfx(SFX_PLAYER_HIT);
             } else {
                 soundManager.stop_music();
