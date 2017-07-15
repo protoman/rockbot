@@ -476,7 +476,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+35, "LAIR OF:");
     graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+47, temp_stage_data.boss.name);
 
-    if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE1) {
+    if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
         graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[UNAVAILABE IN FREE]", st_color(250, 250, 250));
     } else {
         graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[PRESS START TO ENTER]", st_color(250, 250, 250));

@@ -794,6 +794,97 @@ void classMap::add_object(object obj)
     object_list.push_back(obj);
 }
 
+st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_dist, int direction)
+{
+    st_position res;
+    st_position x_limit_pos;
+
+    switch (direction) {
+
+    case ANIM_DIRECTION_LEFT:
+        res.y = pos.y;
+        res.x = pos.x - max_dist.width;
+        for (int pos_i=pos.x; pos_i>(pos.x-max_dist.width); pos_i--) {
+            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
+            //std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                std::cout << "LEFT - pos_i[" << pos_i << "]" << std::endl;
+                res.x = pos_i+1;
+                break;
+            }
+        }
+        break;
+
+    case ANIM_DIRECTION_RIGHT:
+        res.y = pos.y;
+        res.x = pos.x + max_dist.width;
+        for (int pos_i=pos.x; pos_i<(pos.x+max_dist.width); pos_i++) {
+            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
+            //std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                std::cout << "TELEPORT::RIGHT #2 - pos_i[" << pos_i << "]" << std::endl;
+                res.x = pos_i-1;
+                break;
+            }
+        }
+        break;
+
+    case ANIM_DIRECTION_UP:
+        res.y = pos.y - max_dist.height;
+        res.x = pos.x;
+        for (int pos_i=pos.y; pos_i>(pos.y-max_dist.height); pos_i--) {
+            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos.x/TILESIZE, pos_i/TILESIZE));
+            //std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                std::cout << "UP - pos_i[" << pos_i << "]" << std::endl;
+                res.y = pos_i+1;
+                break;
+            }
+        }
+        break;
+
+
+    case ANIM_DIRECTION_DOWN:
+        res.y = pos.y + max_dist.height;
+        res.x = pos.x;
+        for (int pos_i=pos.y; pos_i<(pos.y+max_dist.height); pos_i++) {
+            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos.x/TILESIZE, pos_i/TILESIZE));
+            //std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                std::cout << "TELEPORT::DOWN #2 - pos_i[" << pos_i << "]" << std::endl;
+                res.y = pos_i-1;
+                break;
+            }
+        }
+        break;
+
+    case ANIM_DIRECTION_UP_LEFT:
+        x_limit_pos = get_first_lock_in_direction(pos, max_dist, ANIM_DIRECTION_LEFT);
+        res = get_first_lock_in_direction(x_limit_pos, max_dist, ANIM_DIRECTION_UP);
+        break;
+
+    case ANIM_DIRECTION_UP_RIGHT:
+        x_limit_pos = get_first_lock_in_direction(pos, max_dist, ANIM_DIRECTION_RIGHT);
+        res = get_first_lock_in_direction(x_limit_pos, max_dist, ANIM_DIRECTION_UP);
+        break;
+
+    case ANIM_DIRECTION_DOWN_LEFT:
+        x_limit_pos = get_first_lock_in_direction(pos, max_dist, ANIM_DIRECTION_LEFT);
+        res = get_first_lock_in_direction(x_limit_pos, max_dist, ANIM_DIRECTION_DOWN);
+        break;
+
+    case ANIM_DIRECTION_DOWN_RIGHT:
+        x_limit_pos = get_first_lock_in_direction(pos, max_dist, ANIM_DIRECTION_RIGHT);
+        res = get_first_lock_in_direction(x_limit_pos, max_dist, ANIM_DIRECTION_DOWN);
+        break;
+
+    default:
+        break;
+    }
+
+    return res;
+}
+
 int classMap::get_first_lock_on_left(int x_pos) const
 {
     for (int i=x_pos; i>= 0; i--) {

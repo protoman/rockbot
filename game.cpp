@@ -36,7 +36,6 @@ extern inputLib input;
 #include "defines.h"
 #include "file/file_io.h"
 #include "file/fio_strings.h"
-
 #include "strings_map.h"
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
@@ -91,20 +90,22 @@ void game::first_run_check()
 {
     if (game_config.first_run == true) {
 #ifdef ANDROID
+        /*
         string lines[3];
         dialogs dialog_obj;
-        lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_playservices_dialog);
-        lines[1] = strings_map::get_instance()->get_ingame_string(strings_ingame_requires_network);
+        lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_playservices_dialog, game_config.selected_language);
+        lines[1] = strings_map::get_instance()->get_ingame_string(strings_ingame_requires_network, game_config.selected_language);
         lines[2] = std::string("");
 
         game_config.android_use_play_services = dialog_obj.show_yes_no_dialog(lines);
         if (game_config.android_use_play_services == true) {
-            lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_cloudsave_dialog);
+            lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_cloudsave_dialog, game_config.selected_language);
             game_config.android_use_cloud_save = dialog_obj.show_yes_no_dialog(lines);
             if (game_config.android_use_cloud_save == true) {
                 load_save_data_from_cloud();
             }
         }
+        */
 #endif
         // save config
         game_config.first_run = false;

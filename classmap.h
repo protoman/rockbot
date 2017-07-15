@@ -183,6 +183,8 @@ public:
 
     void add_object(object obj);
 
+    st_position get_first_lock_in_direction(st_position pos, st_size max_dist, int direction);
+
     int get_first_lock_on_left(int x_pos) const;
 
     int get_first_lock_on_right(int x_pos) const;

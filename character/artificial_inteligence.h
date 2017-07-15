@@ -75,6 +75,8 @@ public:
 
     void hit_player();
 
+    bool is_teleporting();
+
 
 protected:
     /**
@@ -166,24 +168,12 @@ protected:
 
     void ia_action_teleport();
 
-
-
-
     void check_ai_reaction();
 
-    /**
-     * @brief
-     */
     void define_ai_next_step();
 
-    /**
-     * @brief
-     */
     void execute_ai_step();
 
-    /**
-     * @brief
-     */
     void execute_ai_step_walk();
 
     /**
@@ -246,6 +236,7 @@ protected:
     bool uses_fly_fall(); // uses to respawn it inside holes
 
     void invert_left_right_direction();
+
 
 
 

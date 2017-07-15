@@ -693,6 +693,9 @@ void classPlayer::execute_projectiles()
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
                     continue;
                 }
+                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_teleporting() == true) { // executing AI-action TELEPORT
+                    continue;
+                }
 
                 // check if have hit area, and if hit it
                 st_rectangle enemy_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();

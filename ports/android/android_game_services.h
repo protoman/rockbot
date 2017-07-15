@@ -27,12 +27,20 @@ public:
     void connect();
     void disconnect();
     void unclock_achievement(std::string achievement_id);
+    // stores original size before setting a different size
+    void init_android_button_size();
     void set_android_default_buttons_size(int size);
     void set_touch_controls_visible(bool show);
 
 private:
     std::string get_save_id(int save_n);
     void check_button_size(SDL_Rect &dest_size, SDL_Rect &default_size);
+
+
+private:
+     SDL_Rect dpad_pos;
+     SDL_Rect original_pos_a;
+
 #endif
 };
 

@@ -872,9 +872,11 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
     }
 
     //std::cout << "RENDER #1[" << text << "]" << std::endl;
+    /*
     if (text.length() == 1) {
         std::cout << "DEBUG #9" << std::endl;
     }
+    */
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
 
     if (!textSF) {

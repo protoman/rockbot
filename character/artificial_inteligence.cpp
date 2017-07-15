@@ -1828,7 +1828,11 @@ int artificial_inteligence::find_wall(float initial_x, int direction)
     int pos_x = -1;
     if (direction == ANIM_DIRECTION_LEFT) {
         pos_x = gameControl.get_current_map_obj()->get_first_lock_on_left(ini_x);
-    } else {
+    } else if (direction == ANIM_DIRECTION_RIGHT) {
+        pos_x = gameControl.get_current_map_obj()->get_first_lock_on_right(ini_x);
+    } else if (direction == ANIM_DIRECTION_UP) {
+        pos_x = gameControl.get_current_map_obj()->get_first_lock_on_bottom(ini_x);
+    } else if (direction == ANIM_DIRECTION_DOWN) {
         pos_x = gameControl.get_current_map_obj()->get_first_lock_on_right(ini_x);
     }
     std::cout << "AI::find_wall - pos_x: " << pos_x << std::endl;
@@ -2047,49 +2051,71 @@ void artificial_inteligence::ia_action_teleport()
 
                 // find wall to the left
                 if (_parameter == AI_ACTION_TELEPORT_OPTION_LEFT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_LEFT)) {
-                    int min_pos_x = position.x - walk_range;
-                    //std::cout << "LEFT - position.x[" << position.x << "], min_pos_x[" << min_pos_x << "]" << std::endl;
-                    int teleport_limit_x = min_pos_x;
-                    for (int pos_i=position.x; pos_i>min_pos_x; pos_i--) {
-                        int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, position.y/TILESIZE));
-
-                        std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
-
-                        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                            std::cout << "LEFT - pos_i[" << pos_i << "]" << std::endl;
-                            teleport_limit_x = pos_i+1;
-                            break;
-                        }
-                    }
-                    position.x = teleport_limit_x;
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_LEFT/AHEAD - x: " << position.x << std::endl;
+                    st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_LEFT);
+                    position.x = dest_pos.x;
                 // find wall to the right
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_RIGHT)) {
-                    int max_pos_x = position.x + walk_range + frameSize.width;
-                    //std::cout << "RIGHT - position.x[" << position.x << "], max_pos_x[" << max_pos_x << "]" << std::endl;
-                    int teleport_limit_x = max_pos_x;
-                    for (int pos_i=position.x; pos_i<max_pos_x; pos_i++) {
-                        int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, position.y/TILESIZE));
-                        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                            teleport_limit_x = pos_i-1;
-                            std::cout << "RIGHT - pos_i[" << pos_i << "]" << std::endl;
-                            break;
-                        }
-                    }
-                    position.x = teleport_limit_x;
+                    st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x+frameSize.width, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_RIGHT);
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_RIGHT/AHEAD - x: " << position.x << ", walk_range[" << walk_range << "], dest.x[" << dest_pos.x << "]" << std::endl;
+                    position.x = dest_pos.x-frameSize.width;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_TO_PLAYER) {
                     struct_player_dist dist_npc_player = dist_npc_players();
                     position.x = dist_npc_player.pObj->getPosition().x;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RANDOM_X) {
-                    //std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_X - x: " << position.x << std::endl;
-                    position.x = create_rand_x_point(walk_range);
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_X - x: " << position.x << std::endl;
+                    int rand_x = create_rand_x_point(walk_range);
+                    st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x, position.y+frameSize.height/2), st_size(abs(position.x-rand_x), 0), (rand_x > position.x));
+                    position.x = dest_pos.x;
                     //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_X - x: " << position.x << std::endl;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RANDOM_Y) {
-                    //std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
-                    position.y = create_rand_y_point(walk_range);
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
+                    int rand_y = create_rand_y_point(walk_range);
+                    int direction = ANIM_DIRECTION_UP;
+                    st_position pos(position.x+frameSize.width/2, position.y);
+                    if (rand_y > position.y) {
+                        pos = st_position(position.x+frameSize.width/2, position.y+frameSize.height);
+                        direction = ANIM_DIRECTION_DOWN;
+                    }
+                    st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(pos, st_size(0, abs(position.y-rand_y)), direction);
+                    if (direction == ANIM_DIRECTION_DOWN) {
+                        position.y = dest_pos.y - frameSize.height;
+                    } else {
+                        position.y = dest_pos.y;
+                    }
                     //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RANDOM_POINT) {
-                    //std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT- x: " << position.x << ", y: " << position.y << std::endl;
-                    position = create_rand_point(walk_range);
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT- x: " << position.x << ", y: " << position.y << std::endl;
+                    st_position rand_pos = create_rand_point(walk_range);
+
+                    int direction = ANIM_DIRECTION_LEFT;
+                    st_position pos(position.x, position.y+frameSize.height/2);
+                    if (rand_pos.y > position.y) {
+                        if (rand_pos.x > position.x) {
+                            direction = ANIM_DIRECTION_DOWN_RIGHT;
+                            pos = st_position(position.x+frameSize.width, position.y+frameSize.height);
+                        } else {
+                            direction = ANIM_DIRECTION_DOWN_LEFT;
+                            pos = st_position(position.x, position.y+frameSize.height);
+                        }
+                    } else {
+                        if (rand_pos.x > position.x) {
+                            direction = ANIM_DIRECTION_UP_RIGHT;
+                            pos = st_position(position.x+frameSize.width, position.y);
+                        } else {
+                            direction = ANIM_DIRECTION_UP_LEFT;
+                            pos = st_position(position.x, position.y);
+                        }
+                    }
+                    position = gameControl.get_current_map_obj()->get_first_lock_in_direction(pos, st_size(abs(position.x-rand_pos.x), abs(position.y-rand_pos.y)), direction);
+                    if (direction == ANIM_DIRECTION_UP_RIGHT || direction == ANIM_DIRECTION_DOWN_RIGHT) {
+                        position.x -= frameSize.width;
+                    }
+                    if (direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_DOWN_RIGHT) {
+                        position.y -= frameSize.height;
+                    }
+
+                    //teleport_find_limit_x((position.x + walk_range + frameSize.width), (rand_x > position.x));
                     //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT - x: " << position.x << ", y: " << position.y << std::endl;
                 } else {
                     std::cout << "AI::TELEPORT  unknown parameter #" << _parameter << std::endl;
@@ -2106,6 +2132,7 @@ void artificial_inteligence::ia_action_teleport()
             std::cout << ">> AI::ia_action_teleport - EXEC - MAKE VISIBLE  - animation_type: " << state.animation_type << " <<" << std::endl;
             state.invisible = false;
             state.animation_inverse = true;
+            /// @TODO: to avoid this problem,c reate method to start inverse animation ///
             advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
             _was_animation_reset = false;
             std::cout << ">> AI::ia_action_teleport.EXEC.SET-LAST-FRAME, state.animation_state: " << state.animation_state  << std::endl;
@@ -2163,4 +2190,12 @@ void artificial_inteligence::invert_left_right_direction()
     } else if (state.direction == ANIM_DIRECTION_RIGHT) {
         state.direction = ANIM_DIRECTION_LEFT;
     }
+}
+
+bool artificial_inteligence::is_teleporting()
+{
+    if (_current_ai_type == AI_ACTION_TELEPORT) {
+        return true;
+    }
+    return false;
 }

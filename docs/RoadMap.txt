@@ -54,11 +54,9 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- restore stage dialogs
 
-(TEST) - make buttons small size as medium
-
-(TEST) - if stage runs too slow, automatically change to medium performance mode
-    (TODO) # show warning to the user
+- EDITOR: when selecting cancel on leave dialog, must stay in app
 
 - update screenshots in the app-store for rockbot 2 free
 
@@ -218,6 +216,13 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- when enemy is teleporting, should not get hit while teleport animation isn't finished yet
+- refactory teleport to avoid boss leaving room or teleporting inside walls
+- android's touch controls always increasing when changing size
+    # backup original_size when initializing
+- make buttons small size as medium
+ if stage runs too slow, automatically change to medium performance mode
+
 
 
 
