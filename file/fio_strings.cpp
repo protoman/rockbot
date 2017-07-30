@@ -198,6 +198,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_video_noscale], "%s", "SEM ESCALA  ");
             sprintf(lines[strings_ingame_video_size2x], "%s", "TAMANHO X2    ");
             sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
+            sprintf(lines[strings_ingame_video_show_fps], "%s", "MOSTRAR FPS");
             sprintf(lines[strings_ingame_config_restart1], "%s", "POR FAVOR REINICIE O JOGO");
             sprintf(lines[strings_ingame_config_restart2], "%s", "PARA NOVA CONFIGURACAO");
             sprintf(lines[strings_ingame_config_restart3], "%s", "SER ATIVADA.");
@@ -219,10 +220,17 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
             sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOGICO");
             sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
+
             sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "SALVAR NA NUVEM REQUER");
             sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "CONEXAO COM A REDE OU");
             sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "O JOGO CONGELARA QUANDO");
             sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "OBTER DADOS DO SERVIDOR.");
+
+            sprintf(lines[strings_ingame_config_android_play_services1], "%s", "HABILITAR ESTA OPÇÃO REQUER");
+            sprintf(lines[strings_ingame_config_android_play_services2], "%s", "CONEXAO DE DADOS.");
+            sprintf(lines[strings_ingame_config_android_play_services3], "%s", "AVISO: O JOGO PODE CONGELAR");
+            sprintf(lines[strings_ingame_config_android_play_services4], "%s", "COM ESTA OPCAO HABILITADA.");
+
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUER UM CONTROLE FÍSICO,");
             sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "CASO CONTRÁRIO NAO CONSEGUIRA");
             sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "RESTAURAR CONFIGURACOES.");
@@ -235,23 +243,23 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_no], "%s", "NAO");
             sprintf(lines[strings_ingame_life], "%s", "VIDAS");
             sprintf(lines[strings_ingame_item], "%s", "ITEMS");
-            sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
-            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "CHARGE A LASER BEAM");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "FIRE A SUPER-SHOT!");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "THROW A HADOUKEN");
-            sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "THOSE LIGHTER LEGS");
-            sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
-            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");
-            sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (UP+DASH)");
+            sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "CONCEDEM A HABILIDADE PARA");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS IRAO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "DISPARAR SEMRPE CARREGADO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "DISPARAR UM RAIO-LASER");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "DISPARAR UM SUPER TIRO!");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "LANCAR UM HADOUKEN");
+            sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "ESTAS PERNAS MELHORADAS");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH NO AR.");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTAR UMN PULO DUPLO");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (CIMA+DASH)");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
-            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "THIS FORTIFIED BODY WILL");
-            sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "BE INTANGIBLE MORE TIME");
-            sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TAKE HALF DAMAGE");
-            sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "AVOID PUSH-BACK ON HIT");
-            sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESIST SPIKES");
-            sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECT DIFFICULTY:");
+            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "O CORPO FORTIFICADO PERMITE");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "FICAR INTANGIVEL MAIS TEMPO");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TOMAR APENAS METADE DO DANO");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "NAO SER JOGADO PARA TRAS");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESISTIR ESPINHOS");
+            sprintf(lines[strings_ingame_difficulty_select], "%s", "ESCOLHA DIFICULDADE:");
             sprintf(lines[strings_ingame_difficulty_easy], "%s", "FACIL");
             sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
             sprintf(lines[strings_ingame_difficulty_hard], "%s", "DIFICIL");
@@ -285,10 +293,14 @@ namespace format_v4 {
             sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
             sprintf(lines[strings_config_wii_platformspecific], "%s", "ESPECIFICO PLATAFORMA");
             sprintf(lines[strings_config_keys_unet], "%s", "POR FAVOR DEFINA");
-            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
-            sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "ENABLE GOOGLE PLAY SERVICES?");
-            sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "ENABLE CLOUD SAVE FEATURE?");
-            sprintf(lines[strings_ingame_requires_network], "%s", "(REQUIRES AVAILABLE NETWORK)");
+            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE");
+            sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "HABILITAR GOOGLE PLAY SERVICES?");
+            sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "HAVILITAR SAVE NA NUVEM?");
+            sprintf(lines[strings_ingame_requires_network], "%s", "(REQUER REDE DE DADOS ATIVA)");
+            sprintf(lines[strings_config_low], "%s", "BAIXO");
+            sprintf(lines[strings_config_medium], "%s", "MEDIO");
+            sprintf(lines[strings_config_high], "%s", "ALTO");
+
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -312,6 +324,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_video_noscale], "%s", "NO SCALE  ");
             sprintf(lines[strings_ingame_video_size2x], "%s", "SIZE2X    ");
             sprintf(lines[strings_ingame_video_scale2x], "%s", "SCALE2X   ");
+            sprintf(lines[strings_ingame_video_show_fps], "%s", "SHOW FPS");
             sprintf(lines[strings_ingame_config_restart1], "%s", "PLEASE RESTART THE GAME");
             sprintf(lines[strings_ingame_config_restart2], "%s", "FOR THE CONFIGURATION");
             sprintf(lines[strings_ingame_config_restart3], "%s", "TO TAKE EFFECT");
@@ -333,10 +346,19 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
             sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOG");
             sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
+
+
             sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "CLOUD SAVE REQUIRES");
             sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "A NETWORK CONNECTION");
             sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "OR GAME WILL FREEZE WHEN");
             sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "GETTING SERVER DATA.");
+
+            sprintf(lines[strings_ingame_config_android_play_services1], "%s", "ENABLING THIS OPTION REQUIRES");
+            sprintf(lines[strings_ingame_config_android_play_services2], "%s", "A DATA CONNECTION.");
+            sprintf(lines[strings_ingame_config_android_play_services3], "%s", "WARNING: THE GAME MAY FREEZE");
+            sprintf(lines[strings_ingame_config_android_play_services4], "%s", "WITH THIS OPTION ENABLED.");
+
+
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUIRES PHYSICAL CONTROLLER.");
             sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "OTHERWISE YOU WON'T BE");
             sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "ABLE TO RESTORE SETTING");
@@ -399,10 +421,15 @@ namespace format_v4 {
             sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
             sprintf(lines[strings_config_wii_platformspecific], "%s", "PLATFORM SPECIFIC");
             sprintf(lines[strings_config_keys_unet], "%s", "PLEASE SET");
-            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE MODE");
+            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "PERFORMANCE");
             sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "ENABLE GOOGLE PLAY SERVICES?");
             sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "ENABLE CLOUD SAVE FEATURE?");
             sprintf(lines[strings_ingame_requires_network], "%s", "(REQUIRES AVAILABLE NETWORK)");
+            sprintf(lines[strings_config_low], "%s", "LOW");
+            sprintf(lines[strings_config_medium], "%s", "MEDIUM");
+            sprintf(lines[strings_config_high], "%s", "HIGH");
+
+
         }
 
 
@@ -681,8 +708,8 @@ namespace format_v4 {
         if (_dialogs_stage_id != -1) {
             filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
         }
-        dialogs_strings_list.clear();
-        if (_dialogs_stage_id != stage_id) {
+        //if (_dialogs_stage_id != stage_id) {
+            dialogs_strings_list.clear();
             _dialogs_stage_id = stage_id;
             filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
             dialogs_strings_list = load_game_strings_from_file(filename, language);
@@ -690,7 +717,7 @@ namespace format_v4 {
                 create_default_dialog_strings(language);
                 dialogs_strings_list = load_game_strings_from_file(filename, language);
             }
-        }
+        //}
         // generate dialogs, if needed
         if (dialogs_strings_list.size() == 0) {
             std::cout << "Generating default stage dialogs..." << std::endl;
@@ -699,8 +726,10 @@ namespace format_v4 {
             dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language);
         }
         if (dialogs_strings_list.size() < STAGE_DIALOG_NUMBER) {
-            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << "." << std::endl;
-            exit(-1);
+            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << ". Will add missing lines." << std::endl;
+            for (int line_n=dialogs_strings_list.size(); line_n<STAGE_DIALOG_NUMBER; line_n++) {
+                dialogs_strings_list.push_back("");
+            }
         }
         return dialogs_strings_list;
     }

@@ -37,7 +37,6 @@ public:
  */
     game();
     ~game();
-    void first_run_check();
     void initGame();
     /**
      * @brief
@@ -244,31 +243,21 @@ public:
     short get_drop_item_id(short type);
     void get_drop_item_ids();
     bool show_config(short finished_stage);
-
     void show_savegame_error();
-
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
-
     void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id);
-
     void remove_current_teleporter_from_list(); // used when player dies
-
     void select_game_screen();
-
     std::string get_selected_game();
-
     bool is_free_version();
-
     classMap* get_current_map_obj();
-
     bool is_player_on_teleporter();
-
     short get_last_castle_stage();
-
     short get_current_save_slot();
     void set_current_save_slot(short n);
-
     void save_game();
+    void set_show_fps_enabled(bool enabled);
+    bool get_show_fps_enabled();
 
 #ifdef ANDROID
     bool load_save_data_from_cloud();
@@ -277,25 +266,9 @@ public:
 
 private:
     void exit_game();
-
-
-
-    /**
-     * @brief
-     *
-     * @param test_player
-     * @return bool
-     */
     bool test_teleport(classPlayer *test_player);
-
     bool check_player_is_on_teleport(classPlayer *test_player, int currentMap, int temp_x, int temp_y, int link_n, int transition_type, int &teleport_count, int &teleporter_dist, int &player_x, int &link_type);
-
     bool is_link_teleporter(int type);
-
-    /**
-     * @brief
-     *
-     */
     void start_stage();
 
 
@@ -352,7 +325,6 @@ private:
 public:
     Uint8 currentStage;
     bool is_showing_boss_intro;
-    bool must_break_npc_loop;
 
 
 private:
@@ -379,6 +351,8 @@ private:
     fps_control fps_manager;
 
     short current_save_slot;
+
+    bool show_fps_enabled;
 
 
 #ifdef PSP

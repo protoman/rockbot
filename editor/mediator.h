@@ -89,6 +89,9 @@ public:
 
     void reload_game_scenes();
 
+    void save_dialogs();
+
+
 	// auxiliary functions for map_links
 
 
@@ -152,7 +155,6 @@ private:
     Mediator(Mediator const&){};             // copy constructor is private
     Mediator& operator=(Mediator const&){};  // assignment operator is private
 
-    void save_dialogs();
     void load_dialogs();
 
 

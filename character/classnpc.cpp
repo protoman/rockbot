@@ -349,9 +349,7 @@ void classnpc::execute()
         } else {
             move();
         }
-        if (gameControl.must_break_npc_loop == false) {
-            charMove();
-        }
+        charMove();
     }
 }
 
@@ -399,16 +397,8 @@ void classnpc::boss_move()
         return;
     }
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::EXECUTE_AI");
-#endif
     execute_ai();
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::GRAVITY #2, must_break_loop[%d]", gameControl.must_break_npc_loop?1:0);
-#endif
-    if (gameControl.must_break_npc_loop == false) {
-        gravity(false);
-    }
+    gravity(false);
 }
 
 

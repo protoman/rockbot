@@ -540,8 +540,6 @@ int main(int argc, char *argv[])
     input.clean();
 
 
-    gameControl.first_run_check();
-
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
 		if (gameControl.showIntro() == false) {

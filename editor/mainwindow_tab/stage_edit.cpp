@@ -135,6 +135,7 @@ void stage_edit::update_stage_data(int language_n)
     Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, language_n)));
 
     ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(0).c_str()));
+    std::cout << "SET ===> stage[" << stage_id << "], IN[" << Mediator::get_instance()->stage_dialog_list.at(stage_id).at(1) << "]" << std::endl;
     ui->dialogs_line1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(1).c_str()));
     ui->dialogs_line1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(2).c_str()));
 
@@ -182,6 +183,7 @@ void stage_edit::on_stages_tab_stage_combo_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
     Mediator::get_instance()->currentStage = index;
+    Mediator::get_instance()->save_dialogs();
     _data_loading = true;
     update_stage_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
@@ -192,6 +194,7 @@ void stage_edit::on_dialogs_answer1_player_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
     Mediator::get_instance()->current_player = index;
+    Mediator::get_instance()->save_dialogs();
     _data_loading = true;
     update_stage_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
@@ -267,7 +270,10 @@ void stage_edit::on_dialogs_line1_text1_textChanged(const QString &arg1)
 void stage_edit::on_dialogs_line1_text2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(1) = arg1.toStdString();
+    int stage_n = ui->stages_tab_stage_combo->currentIndex();
+    std::cout << "stage[" << stage_n << "], IN[" << arg1.toStdString() << "]" << std::endl;
+    Mediator::get_instance()->stage_dialog_list.at(stage_n).at(1) = arg1.toStdString();
+    std::cout << "OUT[" <<  Mediator::get_instance()->stage_dialog_list.at(stage_n).at(1) << "]" << std::endl;
 }
 
 void stage_edit::on_dialogs_line1_text3_textChanged(const QString &arg1)

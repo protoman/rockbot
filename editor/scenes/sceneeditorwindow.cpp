@@ -46,6 +46,9 @@ void SceneEditorWindow::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor :: Movie Editor", tr("Save data before leaving?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
     if (resBtn == QMessageBox::Yes) {
         save();
+    } else if (resBtn == QMessageBox::Cancel) {
+        event->ignore();
+        return;
     }
     emit scenes_editor_window_closed();
     event->accept();

@@ -602,6 +602,9 @@ void scenesLib::show_config_android()
         } else if (selected_option == 3) {
             if (game_config.android_use_play_services == false) {
                 game_config.android_use_cloud_save = false;
+                if (game_config.android_use_cloud_save == true) {
+                    show_config_warning_android_play_services();
+                }
             } else {
                 game_config.android_use_cloud_save = !game_config.android_use_cloud_save;
                 if (game_config.android_use_cloud_save == true) {
@@ -643,7 +646,7 @@ void scenesLib::show_config_video()
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, game_config.selected_language));
     }
 
-	short selected_option = 0;
+    short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
 	selected_option = main_config_picker.pick();
 	if (selected_option == 0) {
@@ -847,6 +850,7 @@ void scenesLib::show_config_language()
 
 void scenesLib::show_config_performance()
 {
+    /*
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
@@ -862,8 +866,65 @@ void scenesLib::show_config_performance()
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick(game_config.graphics_performance_mode+1);
     game_config.graphics_performance_mode = selected_option;
+    */
+
+    short selected_option = 0;
+    while (selected_option != -1) {
+        st_position config_text_pos;
+        config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+        config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+        input.clean();
+        timer.delay(300);
+        std::vector<std::string> options;
+
+        if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_low, game_config.selected_language));
+        } else if (game_config.graphics_performance_mode == PERFORMANCE_MODE_NORMAL) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_medium, game_config.selected_language));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_high, game_config.selected_language));
+        }
+
+        if (gameControl.get_show_fps_enabled()) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language));
+        }
+
+
+
+        option_picker main_config_picker(false, config_text_pos, options, true);
+
+        selected_option = main_config_picker.pick();
+        if (selected_option == 0) {
+            game_config.graphics_performance_mode++;
+            if (game_config.graphics_performance_mode > PERFORMANCE_MODE_HIGH) {
+                game_config.graphics_performance_mode = PERFORMANCE_MODE_LOW;
+            }
+        } else if (selected_option == 1) {
+            gameControl.set_show_fps_enabled(!gameControl.get_show_fps_enabled());
+        }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+    }
 
     fio.save_config(game_config);
+}
+
+void scenesLib::show_config_warning_android_play_services()
+{
+    input.clean();
+    timer.delay(300);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services1, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services2, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services3, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services4, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    draw_lib.update_screen();
+    input.wait_keypress();
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    draw_lib.update_screen();
 }
 
 void scenesLib::show_config_warning_android_cloud_save()
@@ -1506,9 +1567,10 @@ short scenesLib::select_save(bool is_new_game)
 
 void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
 {
-
-    for (int i=1; i<=8; i++) {
-        st_position pos(i*18, n*40+34);
+    // intro stage is rock buster icon, other are weapons icons
+    int y_pos = n*40+34;
+    for (int i=0; i<=8; i++) {
+        st_position pos((i+1)*18, y_pos);
         if (save.stages[i] == 1) {
             graphLib.draw_weapon_tooltip_icon(i, pos, true);
         } else {
@@ -1516,5 +1578,29 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
             graphLib.draw_weapon_tooltip_icon(i, pos, false);
         }
     }
+    // lifes
+    st_position pos_lifes(9*18, y_pos);
+    graphLib.draw_weapon_tooltip_icon(11+save.selected_player, pos_lifes, true);
+    char buffer[3];
+    sprintf(buffer, "x%d", save.items.lifes);
+    graphLib.draw_text(10*18, y_pos+5, std::string(buffer));
+
+    // e-tank
+    st_position pos_etank(11*18, y_pos);
+    graphLib.draw_weapon_tooltip_icon(15, pos_etank, true);
+    sprintf(buffer, "x%d", save.items.energy_tanks);
+    graphLib.draw_text(12*18, y_pos+5, std::string(buffer));
+
+    // w-tank
+    st_position pos_wtank(13*18, y_pos);
+    graphLib.draw_weapon_tooltip_icon(16, pos_wtank, true);
+    sprintf(buffer, "x%d", save.items.weapon_tanks);
+    graphLib.draw_text(14*18, y_pos+5, std::string(buffer));
+
+    // s-tank
+    st_position pos_stank(15*18, y_pos);
+    graphLib.draw_weapon_tooltip_icon(17, pos_stank, true);
+    sprintf(buffer, "x%d", save.items.special_tanks);
+    graphLib.draw_text(16*18, y_pos+5, std::string(buffer));
 }
 

@@ -7,7 +7,7 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 android_game_services::android_game_services()
 {
-    dpad_pos = {0, 0, 0, 0};
+    original_dpad_pos = {0, 0, 0, 0};
     original_pos_a = {0, 0, 0, 0};
 }
 void android_game_services::cloud_load_game(int save_n)
@@ -51,7 +51,7 @@ void android_game_services::init_android_button_size()
 {
     // get button 0 (A) as base to calc distance between buttons
     SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &original_pos_a);
-    SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &dpad_pos);
+    SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &original_dpad_pos);
 }
 
 void android_game_services::set_android_default_buttons_size(int size)
@@ -104,8 +104,9 @@ void android_game_services::set_android_default_buttons_size(int size)
 
 
        // D-PAD //
-       dpad_pos.w = dpad_pos.w * BUTTON_SIZE_MULTI;
-       dpad_pos.h = dpad_pos.h * BUTTON_SIZE_MULTI;
+       SDL_Rect dpad_pos = {0, 0, 0, 0};
+       dpad_pos.w = original_dpad_pos.w * BUTTON_SIZE_MULTI;
+       dpad_pos.h = original_dpad_pos.h * BUTTON_SIZE_MULTI;
        dpad_pos.x = -(dpad_pos.w/MARGIN_DIVISOR);
        dpad_pos.y = screen_height-dpad_pos.h+(dpad_pos.h/MARGIN_DIVISOR);
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &dpad_pos);

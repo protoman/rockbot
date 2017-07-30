@@ -1928,13 +1928,14 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             return;
         }
 
+        // is executing reaction and is dying and is map-boss -> set child as new map-boss
+        if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
+
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, must_break_loop[%d]", gameControl.must_break_npc_loop?1:0);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, SET NEW BOSS");
 #endif
 
 
-        // is executing reaction and is dying and is map-boss -> set child as new map-boss
-        if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
             std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
@@ -1943,6 +1944,12 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
     } else {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     }
+
+
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, DONE");
+#endif
+
 }
 
 void artificial_inteligence::execute_ai_circle_player()

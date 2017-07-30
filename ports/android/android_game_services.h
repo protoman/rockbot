@@ -38,7 +38,7 @@ private:
 
 
 private:
-     SDL_Rect dpad_pos;
+     SDL_Rect original_dpad_pos;
      SDL_Rect original_pos_a;
 
 #endif

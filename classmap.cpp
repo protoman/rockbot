@@ -1959,8 +1959,6 @@ void classMap::set_player(classPlayer *player_ref)
 classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int direction, bool player_friend, bool progressive_span)
 {
 
-    gameControl.must_break_npc_loop = true;
-
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
@@ -1970,19 +1968,12 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
     if (progressive_span == true) {
         new_npc.set_progressive_appear_pos(new_npc.get_size().height);
     }
-    _npc_list.push_back(new_npc); // insert new npc at the list-end
+    _npc_span_list.push_back(new_npc); // insert new npc at the list-end
 
-    classnpc* npc_ref = &(_npc_list.back());
+    classnpc* npc_ref = &(_npc_span_list.back());
 
     int id = npc_ref->get_number();
     std::string npc_name = npc_ref->get_name();
-
-    gameControl.must_break_npc_loop = true;
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAP::spawn_map_npc, name[%s], must_break_loop[%d]", npc_name.c_str(), gameControl.must_break_npc_loop?1:0);
-#endif
-
 
     return npc_ref;
 }
@@ -1994,15 +1985,8 @@ void classMap::move_npcs() /// @TODO - check out of screen
 
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
-        classnpc* npc_ref = &(*npc_it);
 
-        if (gameControl.must_break_npc_loop == true) {
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>>>> MAP::move_npcs - interrupt #1");
-#endif
-            gameControl.must_break_npc_loop = false;
-            return;
-        }
+        classnpc* npc_ref = &(*npc_it);
         // check if NPC is outside the visible area
         st_position npc_pos = npc_ref->get_real_position();
         short dead_state = npc_ref->get_dead_state();
@@ -2099,15 +2083,14 @@ void classMap::move_npcs() /// @TODO - check out of screen
 			}
 			return;
 		}
+    }
 
-        if (gameControl.must_break_npc_loop == true) {
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>> MAP::move_npcs - interrupt #2");
-#endif
-            gameControl.must_break_npc_loop = false;
-            return;
+    if (_npc_span_list.size() > 0) {
+        std::vector<classnpc>::iterator npc_it;
+        for (npc_it = _npc_span_list.begin(); npc_it != _npc_span_list.end(); npc_it++) {
+            _npc_list.push_back(*npc_it);
         }
-
+        _npc_span_list.clear();
     }
 }
 

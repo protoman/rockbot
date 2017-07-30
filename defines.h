@@ -912,6 +912,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_video_noscale,
     strings_ingame_video_size2x,
     strings_ingame_video_scale2x,
+    strings_ingame_video_show_fps,
     strings_ingame_config_restart1,
     strings_ingame_config_restart2,
     strings_ingame_config_restart3,
@@ -938,6 +939,11 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_android_cloud_save2,
     strings_ingame_config_android_cloud_save3,
     strings_ingame_config_android_cloud_save4,
+
+    strings_ingame_config_android_play_services1,
+    strings_ingame_config_android_play_services2,
+    strings_ingame_config_android_play_services3,
+    strings_ingame_config_android_play_services4,
 
     strings_ingame_config_android_hide_controls1,
     strings_ingame_config_android_hide_controls2,
@@ -1013,6 +1019,11 @@ enum E_STRINGS_INGAME {
     strings_config_wii_platformspecific,
 
     strings_config_keys_unet,
+
+    strings_config_low,
+    strings_config_medium,
+    strings_config_high,
+
     strings_ingame_config_graphics_performance,
 
 

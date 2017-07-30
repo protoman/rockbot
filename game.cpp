@@ -62,8 +62,6 @@ extern std::map<Uint8, Uint8> game_scenes_map;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
-#define DEBUG_SHOW_FPS 1
-
 
 // ********************************************************************************************** //
 // class constructor                                                                              //
@@ -75,8 +73,8 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
     invencible_old_value = false;
     _dark_mode = false;
     is_showing_boss_intro = false;
-    must_break_npc_loop = false;
     current_save_slot = 0;
+    show_fps_enabled = false;
 }
 
 // ********************************************************************************************** //
@@ -86,32 +84,6 @@ game::~game()
 {
 }
 
-void game::first_run_check()
-{
-    if (game_config.first_run == true) {
-#ifdef ANDROID
-        /*
-        string lines[3];
-        dialogs dialog_obj;
-        lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_playservices_dialog, game_config.selected_language);
-        lines[1] = strings_map::get_instance()->get_ingame_string(strings_ingame_requires_network, game_config.selected_language);
-        lines[2] = std::string("");
-
-        game_config.android_use_play_services = dialog_obj.show_yes_no_dialog(lines);
-        if (game_config.android_use_play_services == true) {
-            lines[0] = strings_map::get_instance()->get_ingame_string(strings_ingame_enable_cloudsave_dialog, game_config.selected_language);
-            game_config.android_use_cloud_save = dialog_obj.show_yes_no_dialog(lines);
-            if (game_config.android_use_cloud_save == true) {
-                load_save_data_from_cloud();
-            }
-        }
-        */
-#endif
-        // save config
-        game_config.first_run = false;
-        fio.save_config(game_config);
-    }
-}
 
 // ********************************************************************************************** //
 // initializar game, can't be on constructor because it needs other objects (circular)            //
@@ -155,11 +127,9 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     if (fps_manager.get_frame_drop_n() > 0 && fps_manager.get_current_frame_n() > 0) {
         int modulus = fps_manager.get_frame_drop_n() % fps_manager.get_current_frame_n();
         //std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
-        if (modulus == 0) {
+        if (modulus == 0 && show_fps_enabled == true) {
             //std::cout << "JUMP FRAME[" << fps_manager.get_current_frame_n() << "]" << std::endl;
-#ifdef DEBUG_SHOW_FPS
             fps_manager.fps_count();
-#endif
             return;
         }
     }
@@ -211,9 +181,9 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     // draw HUD
     draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 
-#ifdef DEBUG_SHOW_FPS
+    if (show_fps_enabled == true) {
         fps_manager.fps_count();
-#endif
+    }
     fps_manager.limit();
 
     if (fps_manager.get_failed_min_fps() == true) {
@@ -1418,7 +1388,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = STAGE6;
+    currentStage = STAGE1;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 
@@ -1723,6 +1693,16 @@ void game::save_game()
 #endif
 }
 
+void game::set_show_fps_enabled(bool enabled)
+{
+    show_fps_enabled = enabled;
+}
+
+bool game::get_show_fps_enabled()
+{
+    return show_fps_enabled;
+}
+
 
 #ifdef ANDROID
 bool game::load_save_data_from_cloud()
@@ -1798,8 +1778,9 @@ bool game::is_free_version()
 {
 #ifdef DEMO_VERSION
     return true;
-#endif
+#else
     return false;
+#endif
 }
 
 

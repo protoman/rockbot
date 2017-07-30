@@ -54,9 +54,15 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
-- restore stage dialogs
+- KURUPIRA: ANTES DE ANDAR/ATRAVESSAR-TELA, ele joga o javali, que funciona como o coil item
+se pular em cima, ou dá dano se atingit player de lado. Kurpira vira, dispara e javali se teleporta
+de volta nele. Mesma coisa quando ele for pular.
+    # AI: throw item
+    # teleport-in item
 
-- EDITOR: when selecting cancel on leave dialog, must stay in app
+- the confirmation dialog must be generic, with any number of text rows
+
+- restore/create stage dialogs
 
 - update screenshots in the app-store for rockbot 2 free
 
@@ -78,9 +84,7 @@ STAGES:
     # fall into a pit
     # (one for each boss defeated)
 
-- editor de estágios está resetando strings ao inicializar editor
-
-- se iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
+- ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 
 - castle point 5 is showing in position 0x0
 
@@ -216,12 +220,10 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- when enemy is teleporting, should not get hit while teleport animation isn't finished yet
-- refactory teleport to avoid boss leaving room or teleporting inside walls
-- android's touch controls always increasing when changing size
-    # backup original_size when initializing
-- make buttons small size as medium
- if stage runs too slow, automatically change to medium performance mode
+- finish file selection bar (show icons for all stages, e-tanks, lifes)
+- add a warning that play services can crash the game in some devices when enabling it
+- add show fps option (useful for players complaining about speed)
+- remove the play services configuration from first boot
 
 
 

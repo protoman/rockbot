@@ -49,6 +49,7 @@ private:
     void show_config_audio();
     void show_config_language();
     void show_config_performance();
+    void show_config_warning_android_play_services();
     void show_config_warning_android_cloud_save();
     void show_config_warning_android_hide_controls();
 

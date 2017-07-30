@@ -563,6 +563,7 @@ FILE-FORMAT-V4:
 - in free-version, stage select now won't allow you to enter stages that are not free
 - new charged projectiles by kaithehedgefox10@deviantart
 - new hadouken Bongwater-bandit@deviantart
+
 - ending in android won't show player running
 - flying bosses should not stop only in the ground, but middle-screen
 - fix fly-to-random-point changing direction and always goind left
@@ -594,3 +595,15 @@ FILE-FORMAT-V4:
         * must add phantom boss
 - remove 30 fps mode, it won't work well anyway
     # find other ways to improve speed
+
+
+- fix spawn npc by adding to a temp list and only adding new enemies into npc_list at the end of loop
+- flying enemies are missing shots: need to add walk/fly frames
+- when enemy is teleporting, should not get hit while teleport animation isn't finished yet
+- refactory teleport to avoid boss leaving room or teleporting inside walls
+- android's touch controls always increasing when changing size
+    # backup original_size when initializing
+- make buttons small size as medium
+ if stage runs too slow, automatically change to medium performance mode
+- EDITOR: dialogs are being reset on editor
+- EDITOR: when selecting cancel on leave dialog, must stay in app

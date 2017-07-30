@@ -244,6 +244,9 @@ private:
 
 public:
     std::vector<classnpc> _npc_list; // vector npcs
+    std::vector<classnpc> _npc_span_list; // list of enemyes to be spawned, after added into _npc_list
+
+
     classPlayer* _player_ref; // vector players
     std::vector<animation> animation_list;
 	// vector teleporters

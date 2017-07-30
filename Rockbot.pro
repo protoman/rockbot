@@ -22,19 +22,19 @@ CONFIG += android
 #CONFIG += dingoo_native
 #CONFIG += macosx
 
+# -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
 
 
 ### BETA VERSION ###
 DEFINESLIST += -DBETA_VERSION
-DEFINES+= BETA_VERSION=1
+DEFINES += BETA_VERSION=1
 
 ### DEMO VERSION (LIMITED STAGES) ###
-DEFINESLIST += -DDEMO_VERSION
-DEFINES+= DEMO_VERSION=1
+#DEFINESLIST += -DDEMO_VERSION
+#DEFINES += DEMO_VERSION=1
 
-DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
 
@@ -182,6 +182,8 @@ win32 {
 
 dingux {
 	TARGET = rockbot.dge
+        DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
+
 
 	QMAKE_CC = mipsel-linux-gcc
 	QMAKE_CXX = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
@@ -198,22 +200,7 @@ dingux {
 }
 
 
-dingoo_native {
-        QMAKE_CC = $(MIPSTOOLS)/bin/mipsel-linux-gcc
-        QMAKE_CXX = $(MIPSTOOLS)/bin/mipsel-linux-g++
-        QMAKE_LINK = $(MIPSTOOLS)/bin/mipsel-linux-ld
-        QMAKE_LFLAGS = -nodefaultlibs --script $(DINGOO_SDK)/lib/dingoo.xn -L$(LIB_PATH) $(LIBS) -o $(APP_NAME).elf
 
-        #INCLUDES = -I$(DINGOO_SDK)/include -I$(DINGOO_SDK)/include/SDL -I../lib -I$(MIPSTOOLS)/mipsel-linux/include -I$
-
-#        QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
-        QMAKE_CXXFLAGS += -Wall -Wextra -finline-functions -fomit-frame-pointer -msoft-float -fno-builtin -fno-exceptions -G0 -O3 -mips32 -mno-abicalls -fno-pic $(W_OPTS) -D_DEBUG -DMPU_JZ4740 -c -lSDL -lsml -lc -ljz4740 -lgcc -I$(DINGOO_SDK)/include -I$(DINGOO_SDK)/include/SDL -I../lib -I$(MIPSTOOLS)/mipsel-linux/include -I$
-
-        #LIBS = $(SUBLIBS) -L$(DINGOO_SDK)/lib -lSDL -ltremor -lmikmod -lfreetype -lpng -lz -lm -lsml -lc -ljz4740 -lgcc -lstdc++
-
-
-        #QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
-}
 
 
 playstation2 {
