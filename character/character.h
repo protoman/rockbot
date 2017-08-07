@@ -227,7 +227,7 @@ private:
 protected:
     // updown_trajectory: updown -1 is down, 0 is none, 1 is up
     // auto_charged: true will use charged (if have) or semi-charged as default projetile
-    virtual void attack(bool dont_update_colors, short updown_trajectory, bool auto_charged);
+    virtual void attack(bool dont_update_colors, short updown_trajectory, bool always_charged);
     void change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change);
     bool slide(st_float_position mapScrolling);
     bool jump(int, st_float_position);

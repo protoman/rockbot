@@ -476,10 +476,6 @@ namespace format_v4 {
         int go_to_delay;                                            // delay before going to the next action
         int extra_parameter;										// left, right, etc
 
-    /**
-     * @brief
-     *
-     */
         file_ai_action()
         {
             chance = 0;
@@ -514,9 +510,67 @@ namespace format_v4 {
     };
 
 
+    // *** NEW AI format *** //
+    struct file_ai_action_v3 {
+        int chance;                                                 // percentage over 100, used to randomize next action
+        int action;                                                 // what will be executed
+        int go_to;                                                  // action number to be executed once this one is finished, -1 indicates that must return to CHANCES (random)
+        int go_to_delay;                                            // delay before going to the next action
+        int param1;                         						// left, right, etc
+        st_rectangle param2;                                        // coordinate or more values
 
+        file_ai_action_v3()
+        {
+            chance = 0;
+            action = 0;
+            go_to = 0;
+            go_to_delay = 500;
+            param1 = 0;
+        }
+    };
 
+    struct file_ai_reaction_v3 {
+        int action;
+        int go_to;                                                  // action number to be executed once this one is finished, -1 indicates that must return to CHANCES (random)
+        int go_to_delay;                                            // delay before going to the next action
+        int param1;                         						// left, right, etc
+        st_rectangle param2;                                        // coordinate or more values
+        file_ai_reaction_v3() {
+            action = -1;
+            go_to = 0;
+            go_to_delay = 500;
+            param1 = 0;
+        }
+    };
 
+    struct file_artificial_inteligence_v3 {
+        char name[CHAR_NAME_SIZE];
+        struct file_ai_action_v3 states[AI_MAX_STATES];
+        struct file_ai_reaction_v3 reactions[MAX_AI_REACTIONS];                    // reactions near, hit and dead
+
+        file_artificial_inteligence_v3() {
+            sprintf(name, "%s", "A.I.");
+        }
+
+        file_artificial_inteligence_v3(file_artificial_inteligence origin) {
+            sprintf(name, "%s", origin.name);
+            for (int i=0; i<AI_MAX_STATES; i++) {
+                states[i].chance = origin.states[i].chance;
+                states[i].action = origin.states[i].action;
+                states[i].go_to = origin.states[i].go_to;
+                states[i].go_to_delay = origin.states[i].go_to_delay;
+                states[i].param1 = origin.states[i].extra_parameter;
+            }
+            for (int i=0; i<MAX_AI_REACTIONS; i++) {
+                reactions[i].action = origin.reactions[i].action;
+                reactions[i].go_to = origin.reactions[i].go_to;
+                reactions[i].go_to_delay = origin.reactions[i].go_to_delay;
+                reactions[i].param1 = origin.reactions[i].extra_parameter;
+            }
+        }
+
+    };
+    // *** NEW AI format *** //
 
 
     struct st_checkpoint {

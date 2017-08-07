@@ -20,6 +20,7 @@ namespace format_v4 {
         Uint8 selected_input_device;
         Uint8 selected_language;
         bool turbo_mode;
+        bool auto_charge_mode;
         Uint8 volume_sfx;
         Uint8 volume_music;
         bool android_use_play_services;                     // for android to use cloud save, trophies, etc
@@ -299,6 +300,7 @@ namespace format_v4 {
             selected_input_device = 0;
             selected_language = 0;
             turbo_mode = false;
+            auto_charge_mode = false;
             volume_sfx = 90;
             volume_music = 128;
 

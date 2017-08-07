@@ -150,12 +150,18 @@ Sint8 key_map::draw_config_input() const
 
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick, game_config.selected_language) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
 
+    // turbo mode //
     std::string turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language);
     if (game_config.turbo_mode == true) {
         turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language);
     }
-
     options.push_back(turbo_mode_string);
+    // auto-charge mode //
+    std::string autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language);
+    if (game_config.auto_charge_mode == true) {
+        autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language);
+    }
+    options.push_back(autocharge_mode_string);
 
 
     Sint8 selected_option = 0;
@@ -278,6 +284,14 @@ void key_map::config_input()
             }
         } else if (selected_option == 3) {
             game_config.turbo_mode = !game_config.turbo_mode;
+            if (game_config.auto_charge_mode && game_config.turbo_mode) {
+                game_config.auto_charge_mode = false;
+            }
+        } else if (selected_option == 4) {
+            game_config.auto_charge_mode = !game_config.auto_charge_mode;
+            if (game_config.auto_charge_mode && game_config.turbo_mode) {
+                game_config.turbo_mode = false;
+            }
         }
     }
 }

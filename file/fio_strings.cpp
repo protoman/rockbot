@@ -266,6 +266,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "CONTROLE SELECIONADO");
             sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIGURAR BOTOES");
             sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "MODO TURBO");
+            sprintf(lines[strings_ingame_config_input_autocharge_mode], "%s", "AUTO-CARREGA");
             sprintf(lines[strings_ingame_config_on], "%s", "SIM");
             sprintf(lines[strings_ingame_config_off], "%s", "NAO");
             sprintf(lines[strings_ingame_config_quitgame], "%s", "SAIR DO JOGO");
@@ -394,6 +395,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "SELECTED JOYSTICK");
             sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIG BUTTONS");
             sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "TURBO MODE");
+            sprintf(lines[strings_ingame_config_input_autocharge_mode], "%s", "AUTO-CHARGED");
             sprintf(lines[strings_ingame_config_on], "%s", "ON");
             sprintf(lines[strings_ingame_config_off], "%s", "OFF");
             sprintf(lines[strings_ingame_config_quitgame], "%s", "QUIT GAME");

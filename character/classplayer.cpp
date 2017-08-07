@@ -31,6 +31,7 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -303,21 +304,33 @@ void classPlayer::attack(bool dont_update_colors)
         return;
     }
 
-    bool auto_charged = false;
-    // player with double jump changes to auto-carged instead of charging shot
+    bool always_charged = false;
+    // player with armor-special-type changes to auto-carged instead of charging shot
     if (game_save.armor_pieces[ARMOR_ARMS] == true && _simultaneous_shots > 1) {
-        auto_charged = true;
+        always_charged = true;
     }
 
     if (selected_weapon == WEAPON_DEFAULT) {
         /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
+
+        if (game_config.auto_charge_mode) {
+            if (moveCommands.attack == 1) {
+                std::cout << "auto-charge-attack" << std::endl;
+                moveCommands.attack = 0;
+                attack_button_released = true;
+            } else {
+                moveCommands.attack = 1;
+                attack_button_released = false;
+            }
+        }
+
         bool is_on_ground = hit_ground();
         if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
-            character::attack(false, 1, auto_charged);
+            character::attack(false, 1, always_charged);
         } else if (can_shoot_diagonal() == true && moveCommands.down != 0 && is_on_ground == true) {
-            character::attack(false, -1, auto_charged);
+            character::attack(false, -1, always_charged);
         } else {
-            character::attack(false, 0, auto_charged);
+            character::attack(false, 0, always_charged);
         }
         if (_player_must_reset_colors == true) {
             _player_must_reset_colors = false;
@@ -329,6 +342,7 @@ void classPlayer::attack(bool dont_update_colors)
         return;
     }
 
+
     if (moveCommands.attack == 0 && attack_button_released == false) {
         //std::cout << ">>>>>>>>> attack_button_released[TRUE] #2 <<<<<<<<<<<<<" << std::endl;
         attack_button_released = true;
@@ -339,7 +353,7 @@ void classPlayer::attack(bool dont_update_colors)
     int used_weapon = selected_weapon;
     if (effect_type == TRAJECTORY_FREEZE) { // freeze can shoot normal projectiles
         if (max_projectiles > get_projectile_count()) {
-            character::attack(true, 0, auto_charged);
+            character::attack(true, 0, always_charged);
         }
         return;
     } else if (effect_type != -1) {

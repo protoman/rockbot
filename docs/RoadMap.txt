@@ -54,6 +54,27 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- corrigir daisie ficando presa
+    # deve ser o frame-not-found, tem que usar colisão padrão nesse caso
+
+- segundo parâmetro para AI
+    # tipo st_rectangle (int) é flexível para botar posição e mais outras infos
+    # spawn npc, throw projectile e object podem determinar posição de origem
+
+Castle Bosses:
+    #1: brick
+    #2: miner (?)
+    #3: playmobil
+    #4: robot-drone (technodrone, TMNT)
+        # partes móveis viram paltaformas, como as diseppearing, tem que escalar e atingir olho no topo
+        # tudo é fundo, menos plataformas e olho
+        # https://vignette1.wikia.nocookie.net/evil/images/3/3e/The_Technodrome.jpg/revision/latest?cb=20150720174222
+
+
+
+    #5: darkbot
+
+
 - KURUPIRA: ANTES DE ANDAR/ATRAVESSAR-TELA, ele joga o javali, que funciona como o coil item
 se pular em cima, ou dá dano se atingit player de lado. Kurpira vira, dispara e javali se teleporta
 de volta nele. Mesma coisa quando ele for pular.
@@ -220,10 +241,9 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- finish file selection bar (show icons for all stages, e-tanks, lifes)
-- add a warning that play services can crash the game in some devices when enabling it
-- add show fps option (useful for players complaining about speed)
-- remove the play services configuration from first boot
+- add auto-charge option in input config
+
+
 
 
 

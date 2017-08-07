@@ -983,6 +983,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_input_selected_joystick,
     strings_ingame_config_input_buttons,
     strings_ingame_config_input_turbo_mode,
+    strings_ingame_config_input_autocharge_mode,
 
     strings_ingame_config_on,
     strings_ingame_config_off,

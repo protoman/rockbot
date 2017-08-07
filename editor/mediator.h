@@ -78,6 +78,10 @@ public:
 	void setPallete(char *value);
     void load_game();
     void save_game();
+
+    void convert_ai_list_to_v3();
+
+
     void clean_data();                                      // any sanity data cleaning goest here
     void temp_fix_player_colors_order();
     void load_stage_select_data();
@@ -128,7 +132,8 @@ public:
 
     std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
-    std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
+    std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list_v2;
+    std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3> ai_list;
 
 
     //std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
