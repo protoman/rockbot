@@ -54,8 +54,8 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
-- corrigir daisie ficando presa
-    # deve ser o frame-not-found, tem que usar colisão padrão nesse caso
+- vulnerable area stopped working with the fix for daisie/unused-frames
+
 
 - segundo parâmetro para AI
     # tipo st_rectangle (int) é flexível para botar posição e mais outras infos
@@ -241,7 +241,7 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
-- add auto-charge option in input config
+
 
 
 

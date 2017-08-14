@@ -2092,8 +2092,15 @@ void artificial_inteligence::ia_action_teleport()
                     }
                     //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RANDOM_POINT) {
-                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT- x: " << position.x << ", y: " << position.y << std::endl;
                     st_position rand_pos = create_rand_point(walk_range);
+
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT- current.x: " << position.x << ", current.y: " << position.y << std::endl;
+                    std::cout << "#1 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT- rand_pos.x: " << rand_pos.x << ", rand_pos.y: " << rand_pos.y << std::endl;
+
+                    // if y is -TILESIZE or less, use half screen-height, as it can be a boss out of screen due to initial pos
+                    if (position.y < -TILESIZE) {
+                        position.y = RES_H/2;
+                    }
 
                     int direction = ANIM_DIRECTION_LEFT;
                     st_position pos(position.x, position.y+frameSize.height/2);
@@ -2114,7 +2121,8 @@ void artificial_inteligence::ia_action_teleport()
                             pos = st_position(position.x, position.y);
                         }
                     }
-                    position = gameControl.get_current_map_obj()->get_first_lock_in_direction(pos, st_size(abs(position.x-rand_pos.x), abs(position.y-rand_pos.y)), direction);
+                    int calc_y = abs(position.y-rand_pos.y);
+                    position = gameControl.get_current_map_obj()->get_first_lock_in_direction(pos, st_size(abs(position.x-rand_pos.x), calc_y), direction);
                     if (direction == ANIM_DIRECTION_UP_RIGHT || direction == ANIM_DIRECTION_DOWN_RIGHT) {
                         position.x -= frameSize.width;
                     }
@@ -2123,7 +2131,7 @@ void artificial_inteligence::ia_action_teleport()
                     }
 
                     //teleport_find_limit_x((position.x + walk_range + frameSize.width), (rand_x > position.x));
-                    //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT - x: " << position.x << ", y: " << position.y << std::endl;
+                    std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_POINT - x: " << position.x << ", y: " << position.y << std::endl;
                 } else {
                     std::cout << "AI::TELEPORT  unknown parameter #" << _parameter << std::endl;
                 }

@@ -909,7 +909,7 @@ void character::show_at(st_position pos)
 
     // turn is a special case, if it does not exist, we must show stand instead
     if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
-        //std::cout << "show() - TURN graphic FINISHED" << std::endl;
+        if (is_player() == false) std::cout << "show() - TURN graphic FINISHED, y[" << position.y << "]" << std::endl;
         if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
             show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state, pos);
         } else {
@@ -2282,31 +2282,27 @@ st_rectangle character::get_hitbox(int anim_type)
     } else {
         int anim_n = state.animation_state;
         int anim_type = state.animation_type;
+
         // prevent getting size from a frame that does not have information, use Vulnerable-area or hitbox from STAND instead
-        if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][state.animation_state].collision_rect.w <= 0) {
-            if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
-                if (state.direction == ANIM_DIRECTION_LEFT) {
-                    x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
-                } else {
-                    x += vulnerable_area_box.x - 2;
-                }
-                y += vulnerable_area_box.y;
-                w = vulnerable_area_box.w - 4;
-                h = vulnerable_area_box.h;
-                return st_rectangle(x, y, w, h);
-            } else { // use stand frame
-                anim_n = ANIM_TYPE_STAND;
-                anim_type = 0;
-            }
-        }
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            x = position.x - (frameSize.width - GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.w) + GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.x + 2;
+        st_rectangle col_rect;
+        if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].used == true) {
+            col_rect = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect;
         } else {
-            x += GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.x - 2;
+
+            col_rect = st_rectangle(GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x,
+                                    GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y,
+                                    GameMediator::get_instance()->get_enemy(_number)->frame_size.width,
+                                    GameMediator::get_instance()->get_enemy(_number)->frame_size.height);
         }
-        y += GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.y;
-        w = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.w - 4;
-        h = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect.h;
+
+        if (state.direction == ANIM_DIRECTION_LEFT) {
+            x = position.x - (frameSize.width - col_rect.w) + col_rect.x + 2;
+        } else {
+            x += col_rect.x - 2;
+        }
+        y += col_rect.y;
+        w = col_rect.w - 4;
+        h = col_rect.h;
         //std::cout << "#### CHAR::GET_HITBOX [" << x << "," << y << "," << w << "," << h << "]" << std::endl;
         if (w <= 0 || h <= 0) {
             std::cout << "#### CHAR::GET_HITBOX name[" << name << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
@@ -2317,6 +2313,30 @@ st_rectangle character::get_hitbox(int anim_type)
 
 
     return st_rectangle(x, y, w, h);
+}
+
+st_rectangle character::get_hitarea(int anim_type)
+{
+    float x = position.x;
+    float y = position.y;
+    float w = frameSize.width;
+    float h = frameSize.height;
+
+    if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
+        if (state.direction == ANIM_DIRECTION_LEFT) {
+            x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
+        } else {
+            x += vulnerable_area_box.x - 2;
+        }
+        y += vulnerable_area_box.y;
+        w = vulnerable_area_box.w - 4;
+        h = vulnerable_area_box.h;
+        return st_rectangle(x, y, w, h);
+    } else {
+        return get_hitbox();
+    }
+
+
 }
 
 
@@ -2720,12 +2740,13 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         _dropped_from_stairs = true;
     }
 
+    // boss hit animation
     if (_is_boss == true && hit_animation_timer < now_timer) {
         if (gameControl.get_current_map_obj() != NULL) {
             int repeat_times = 4;
             int frame_duration = BOSS_HIT_DURATION / (repeat_times*2); // one time for show, one time for hide
-            st_rectangle hitarea = get_hitbox();
-            st_float_position hit_anim_pos(hitarea.x + hitarea.w/2 - graphLib.hit.width/4, hitarea.y + hitarea.h/2 - graphLib.hit.height/2);
+            st_rectangle hitbox = get_hitbox();
+            st_float_position hit_anim_pos(hitbox.x + hitbox.w/2 - graphLib.hit.width/4, hitbox.y + hitbox.h/2 - graphLib.hit.height/2);
 
             st_position adjust(hit_anim_pos.x - position.x, hit_anim_pos.y - position.y);
             //std::cout << "pos.x[" << position.x << "], hit.x[" << (int)hit_anim_pos.x << "], pos.y[" << position.y << "], hit.y[" << (int)hit_anim_pos.y << "]" << std::endl;

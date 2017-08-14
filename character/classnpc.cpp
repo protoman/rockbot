@@ -484,7 +484,7 @@ void classnpc::move_projectiles()
         } else { // NPC attacking other NPCs
 
             for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
-                st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
+                st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
 				//classnpc* enemy = (*enemy_it);
                 if ((*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;

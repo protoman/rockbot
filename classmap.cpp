@@ -670,11 +670,11 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
             if (abs(fg_layer_scroll.x) > RES_W) {
                 //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
                 int bg_pos_x = RES_W - (abs(x1)-RES_W);
-                std::cout << "Need to draw second part of surface, bg_pos_x[" << bg_pos_x << "]" << std::endl;
+                //std::cout << "Need to draw second part of surface, bg_pos_x[" << bg_pos_x << "]" << std::endl;
                 graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }  else if (get_dynamic_foreground()->width - abs(fg_layer_scroll.x) < RES_W) {
                 int foreground_pos_x = get_dynamic_foreground()->width - (int)abs(fg_layer_scroll.x);
-                std::cout << "### MUST DRAW SECOND BG-POS-RIGHT width[" << get_dynamic_foreground()->width << "], scroll.x[" << (int)abs(fg_layer_scroll.x) << "] ###" << std::endl;
+                //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT width[" << get_dynamic_foreground()->width << "], scroll.x[" << (int)abs(fg_layer_scroll.x) << "] ###" << std::endl;
                 // test if there isn't a overlap, so we need to add +1
                 graphLib.copyAreaWithAdjust(st_position(foreground_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }
@@ -798,6 +798,8 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
 {
     st_position res;
     st_position x_limit_pos;
+
+    std::cout << "########### get_first_lock_in_direction pos[" << pos.x << "][" << pos.y << "]" << std::endl;
 
     switch (direction) {
 
@@ -1962,6 +1964,8 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
+
+    std::cout << "SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;
 
     classnpc new_npc(stage_number, number, npc_id, npc_pos, direction, player_friend);
 
