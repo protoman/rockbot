@@ -54,6 +54,15 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- dash + shield makes player move backwards and enter inside walls
+
+- add password back (use number/letters instead, to make it easier, find a generator, use each property in save to generate it automatically)
+    # use masks and then convert to hex the OR of all them:
+        - https://www.libsdl.org/release/SDL-1.2.15/include/SDL.h
+        - https://stackoverflow.com/questions/11279759/encode-data-into-user-typed-code-like-an-old-games-password-save-system
+        - https://stackoverflow.com/questions/22746429/c-decimal-to-binary-converting
+        - https://gamedev.stackexchange.com/questions/104562/how-do-i-implement-a-retro-style-password-based-savegame-system
+
 - vulnerable area stopped working with the fix for daisie/unused-frames
 
 
