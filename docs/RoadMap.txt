@@ -54,6 +54,11 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- AI: morph into - becomes another NPC without changing HP and some other flags
+    # must respect the is_boss, stage_boss and final_game_boss flags somehow,
+      maybe changing this flag in map/stage/game, then resetting it if player dies
+    # this can be used for a boss that exchange between two forms like Kurupira
+
 - dash + shield makes player move backwards and enter inside walls
 
 - add password back (use number/letters instead, to make it easier, find a generator, use each property in save to generate it automatically)

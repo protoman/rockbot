@@ -609,3 +609,9 @@ FILE-FORMAT-V4:
 - add a warning that play services can crash the game in some devices when enabling it
 - add show fps option (useful for players complaining about speed)
 - remove the play services configuration from first boot
+
+
+
+- fix AI teleport for bosses that are out of screen due to initial position Y
+- fix enemies collision for unused frames, use sprite_pos and frame_size instead
+- add auto-charge option in input config

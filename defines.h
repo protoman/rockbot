@@ -615,6 +615,7 @@ enum AI_ACTION_LIST {
     AI_ACTION_JUMP_ATTACK_UP,
     AI_ACTION_JUMP_ATTACK_AHEAD_ONCE,
     AI_ACTION_WAIT_RANDOM_TIME,
+    AI_ACTION_MORPH_INTO_NPC,                       // instead of a new enemy with full hp and such, just morph into a new one
 	AI_ACTION_LIST_SIZE
 };
 
