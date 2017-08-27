@@ -165,7 +165,7 @@ void artificial_inteligence::define_ai_next_step()
         _initialized = true;
         int rand_n = rand() % 100;
 
-        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -173,7 +173,7 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
@@ -185,10 +185,10 @@ void artificial_inteligence::define_ai_next_step()
         }
     } else {
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
-        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+        std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
-    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -244,7 +244,10 @@ void artificial_inteligence::execute_ai_step()
         execute_ai_step_change_animation_type();
     } else if (_current_ai_type == AI_ACTION_REPLACE_NPC) {
         //std::cout << ">> AI:exec[" << name << "] REPLACE-ITSELF <<" << std::endl;
-        execute_ai_replace_itself();
+        execute_ai_replace_itself(false);
+    } else if (_current_ai_type == AI_ACTION_MORPH_INTO_NPC) {
+        std::cout << ">> AI:exec[" << name << "] MORPH-ITSELF <<" << std::endl;
+        execute_ai_replace_itself(true);
     } else if (_current_ai_type == AI_ACTION_CIRCLE_PLAYER) {
         //std::cout << ">> AI:exec[" << name << "] CIRCLE-PLAYER <<" << std::endl;
         execute_ai_circle_player();
@@ -1642,7 +1645,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         yinc = -speed_y;
     }
 
-    if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
+    //if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
 
     // checking
     bool can_move_x = true;
@@ -1650,7 +1653,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
 
-    if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
+    //if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
         return true;
@@ -1693,7 +1696,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         if (name == "KURUPIRA BOT") std::cout << "pos.x/TILESIZE: " << (position.x/TILESIZE) << ", map_point_ahead.x: " << map_point_ahead.x << ", map_point_ahead.y: " << map_point_ahead.y << ", map_lock_ahead: " << map_lock_ahead << ", map_lock_top: " << map_lock_top << std::endl;
         if (hit_ground() == true && speed_y == 0 && speed_x != 0) { // check if is trying to move on X axis only
             if ((map_lock_ahead != TERRAIN_WATER && map_lock_ahead != TERRAIN_UNBLOCKED) && (map_lock_top == TERRAIN_WATER || map_lock_top == TERRAIN_UNBLOCKED)) { // check that the terrain over the block is free
-                std::cout << ">> AI::move_to_point - TRY TO JUMP <<" << std::endl;
+                //std::cout << ">> AI::move_to_point - TRY TO JUMP <<" << std::endl;
                 /// @TODO - implement have a way to change AI type only for a short period then return to the current one
                 _current_ai_type = AI_ACTION_JUMP;
                 _parameter = AI_ACTION_JUMP_OPTION_ONCE;
@@ -1886,7 +1889,7 @@ void artificial_inteligence::execute_ai_step_jump_to_wall()
     }
 }
 
-void artificial_inteligence::execute_ai_replace_itself()
+void artificial_inteligence::execute_ai_replace_itself(bool morph)
 {
 
     std::cout << "execute_ai_replace_itself[" << name << "]: _ai_state.sub_status: " << _ai_state.sub_status << ", _reaction_state: " << _reaction_state << ", _dead_state: " << _dead_state << ", hitPoints.current: " << hitPoints.current << std::endl;
@@ -1894,6 +1897,7 @@ void artificial_inteligence::execute_ai_replace_itself()
     std::cout << "execute_ai_replace_itself::EXEC" << std::endl;
     // kills/remove itself
     _dead_state = 2;
+    st_hit_points hp_copy = hitPoints;
     hitPoints.current = 0;
     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     // spawn new npc
@@ -1903,7 +1907,22 @@ void artificial_inteligence::execute_ai_replace_itself()
         std::cout << "########################## SET NEW BOSS (REPLACE)" << std::endl;
         _is_stage_boss = false;
         npc_ref->set_stage_boss(true);
-    // just a regular spwn-npc, add it to the list
+    // is morphing into the new NPC, copy some properties
+    } else if (morph == true) {
+        std::cout << "############# MORPH #############" << std::endl;
+        if (_is_stage_boss) {
+            _is_stage_boss = false;
+            npc_ref->set_stage_boss(true);
+        }
+        // @TODO: the boss HP HUD gets lost with morph //
+        _dead_state = DEAD_STATE_IGNORE;
+        npc_ref->npc_set_hp(hp_copy);
+        // adjust Y post because of heigth difference //
+        st_float_position new_pos = position;
+        new_pos.y += frameSize.height - npc_ref->get_size().height;
+        npc_ref->npc_set_position(new_pos);
+        npc_ref->npc_set_direction(state.direction);
+        npc_ref->npc_set_initialized(3);
     }
 }
 

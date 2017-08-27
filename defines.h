@@ -635,6 +635,14 @@ enum AI_ACTION_GOTO_LIST {
 };
 
 
+enum DEAD_STATE_LIST {
+    DEAD_STATE_ALIVE,
+    DEAD_STATE_DYING,
+    DEAD_STATE_DEAD,
+    DEAD_STATE_IGNORE,
+    DEAD_STATE_COUNT
+};
+
 /**
  * @brief
  *

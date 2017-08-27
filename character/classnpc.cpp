@@ -319,6 +319,26 @@ void classnpc::show()
     character::show();
 }
 
+void classnpc::npc_set_position(st_float_position pos)
+{
+    position = pos;
+}
+
+void classnpc::npc_set_direction(short dir)
+{
+    state.direction = dir;
+}
+
+void classnpc::npc_set_initialized(short init)
+{
+    _initialized = init;
+}
+
+void classnpc::npc_set_hp(st_hit_points new_hp)
+{
+    hitPoints = new_hp;
+}
+
 
 
 

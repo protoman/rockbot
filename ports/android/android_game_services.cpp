@@ -4,11 +4,15 @@
 #ifdef ANDROID
 
 extern CURRENT_FILE_FORMAT::file_io fio;
+extern jobject activity_ref;
 
 android_game_services::android_game_services()
 {
     original_dpad_pos = {0, 0, 0, 0};
     original_pos_a = {0, 0, 0, 0};
+
+    //gpg::AndroidPlatformConfiguration platform_configuration;
+    //platform_configuration.SetActivity(activity_ref);
 }
 void android_game_services::cloud_load_game(int save_n)
 {
@@ -179,6 +183,13 @@ void android_game_services::set_touch_controls_visible(bool show)
         SDL_ANDROID_SetScreenKeyboardTransparency(SDL_ALPHA_TRANSPARENT);
     }
 }
+
+/*
+void android_game_services::ndk_connect()
+{
+
+}
+*/
 
 std::string android_game_services::get_save_id(int save_n)
 {

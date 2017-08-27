@@ -75,9 +75,9 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[0].action, ui->near_extra_parameter);
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[1].action, ui->hit_extra_parameter);
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).reactions[2].action, ui->dead_extra_parameter);
-    int param1 = Mediator::get_instance()->ai_list.at(index).reactions[0].param1;
-    int param2 = Mediator::get_instance()->ai_list.at(index).reactions[1].param1;
-    int param3 = Mediator::get_instance()->ai_list.at(index).reactions[2].param1;
+    int param1 = Mediator::get_instance()->ai_list.at(index).reactions[0].extra_parameter;
+    int param2 = Mediator::get_instance()->ai_list.at(index).reactions[1].extra_parameter;
+    int param3 = Mediator::get_instance()->ai_list.at(index).reactions[2].extra_parameter;
 
     ui->near_extra_parameter->setCurrentIndex(param1);
     ui->hit_extra_parameter->setCurrentIndex(param2);
@@ -93,15 +93,15 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[6].action, ui->parameter7);
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[7].action, ui->parameter8);
 
-    ui->parameter1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].param1);
-    //std::cout << "#0 - AI[" << index << "].states[1].param1: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].param1 << std::endl;
-    ui->parameter2->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[1].param1);
-    ui->parameter3->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[2].param1);
-    ui->parameter4->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[3].param1);
-    ui->parameter5->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[4].param1);
-    ui->parameter6->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[5].param1);
-    ui->parameter7->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[6].param1);
-    ui->parameter8->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[7].param1);
+    ui->parameter1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].extra_parameter);
+    //std::cout << "#0 - AI[" << index << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
+    ui->parameter2->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[1].extra_parameter);
+    ui->parameter3->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[2].extra_parameter);
+    ui->parameter4->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[3].extra_parameter);
+    ui->parameter5->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[4].extra_parameter);
+    ui->parameter6->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[5].extra_parameter);
+    ui->parameter7->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[6].extra_parameter);
+    ui->parameter8->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[7].extra_parameter);
 
 	// go-tos
     ui->next1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].go_to);
@@ -157,7 +157,7 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
 
     if (index >= 0) {
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].action = action_n;
-        Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].param1 = 0;
+        Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].extra_parameter = 0;
     // -1: near-player, -2: hit, -3: dead
     } else if (index == -1) {
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).reactions[0].action = action_n;
@@ -334,7 +334,7 @@ void artificial_inteligence_tab::on_parameter1_currentIndexChanged(int index)
 	if (_filling_data == true) {
 		return;
 	}
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[0].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[0].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_parameter2_currentIndexChanged(int index)
@@ -343,9 +343,9 @@ void artificial_inteligence_tab::on_parameter2_currentIndexChanged(int index)
 	if (_filling_data == true) {
 		return;
 	}
-    //std::cout << "#1 - AI[" << Mediator::get_instance()->current_ai << "].states[1].param1: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].param1 << std::endl;
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].param1 = index;
-    //std::cout << "#2 - AI[" << Mediator::get_instance()->current_ai << "].states[1].param1: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].param1 << std::endl;
+    //std::cout << "#1 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter = index;
+    //std::cout << "#2 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
 
 }
 
@@ -354,7 +354,7 @@ void artificial_inteligence_tab::on_parameter3_currentIndexChanged(int index)
 	if (_filling_data == true) {
 		return;
 	}
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[2].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[2].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_parameter4_currentIndexChanged(int index)
@@ -362,7 +362,7 @@ void artificial_inteligence_tab::on_parameter4_currentIndexChanged(int index)
 	if (_filling_data == true) {
 		return;
 	}
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[3].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[3].extra_parameter = index;
 }
 
 
@@ -371,7 +371,7 @@ void artificial_inteligence_tab::on_parameter5_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[4].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[4].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_parameter6_currentIndexChanged(int index)
@@ -379,7 +379,7 @@ void artificial_inteligence_tab::on_parameter6_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[5].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[5].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_parameter7_currentIndexChanged(int index)
@@ -387,7 +387,7 @@ void artificial_inteligence_tab::on_parameter7_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[6].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[6].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_parameter8_currentIndexChanged(int index)
@@ -395,7 +395,7 @@ void artificial_inteligence_tab::on_parameter8_currentIndexChanged(int index)
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[7].param1 = index;
+    Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[7].extra_parameter = index;
 }
 
 
@@ -606,7 +606,7 @@ void artificial_inteligence_tab::on_near_extra_parameter_currentIndexChanged(int
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[0].param1 = index;
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[0].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_hit_extra_parameter_currentIndexChanged(int index)
@@ -614,7 +614,7 @@ void artificial_inteligence_tab::on_hit_extra_parameter_currentIndexChanged(int 
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[1].param1 = index;
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[1].extra_parameter = index;
 }
 
 void artificial_inteligence_tab::on_dead_extra_parameter_currentIndexChanged(int index)
@@ -622,6 +622,6 @@ void artificial_inteligence_tab::on_dead_extra_parameter_currentIndexChanged(int
     if (_filling_data == true) {
         return;
     }
-    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[2].param1 = index;
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[2].extra_parameter = index;
 }
 

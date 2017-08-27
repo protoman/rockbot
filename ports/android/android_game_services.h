@@ -11,6 +11,12 @@
 #include "defines.h"
 #include "file/file_io.h"
 
+//### NDK ###//
+/*
+#include <gpg/android_initialization.h>
+#include <gpg/android_platform_configuration.h>
+#include <gpg/android_support.h>
+*/
 #define TOUCH_KEYBOARD_MARGIN 30
 #define BUTTON_DISTANCE 1.3
 #define MARGIN_DIVISOR 6
@@ -31,6 +37,9 @@ public:
     void init_android_button_size();
     void set_android_default_buttons_size(int size);
     void set_touch_controls_visible(bool show);
+
+    //### NDK GAME SERVICES ###//
+    //void ndk_connect();
 
 private:
     std::string get_save_id(int save_n);

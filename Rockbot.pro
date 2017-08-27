@@ -146,16 +146,19 @@ android {
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_image.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_mixer.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_ttf.so \
-    -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/platforms/android-14/arch-arm/usr/lib \
+    -L$${ANDROIDSDK}/android-ndk-r11c/platforms/android-14/arch-arm/usr/lib \
     -lc -lm -lGLESv1_CM -ldl -llog -lz \
     -L/usr/lib \
-    -L$${ANDROIDSDK}/rockbot_build/android-ndk-r8e/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
+    -L$${ANDROIDSDK}/android-ndk-r11c/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
     -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
     -lsupc++  -lsdl-1.2 \
-    -llog -landroid -lEGL -lGLESv1_CM
+    -llog -landroid -lEGL -lGLESv1_CM \
+    -L$${ANDROIDSDK}/rockbot_build/ \
+    #$${ANDROIDSDK}/android-ndk-r11c/platforms/android-14/arch-arm/usr/lib/c++/armeabi/libgpg.a # play services static library #
 
-    SOURCES +=
-    HEADERS +=
+
+    #SOURCES +=
+    #HEADERS +=
 
 }
 

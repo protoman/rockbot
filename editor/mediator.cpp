@@ -77,7 +77,7 @@ Mediator::Mediator() : stage_data() {
         object_list.push_back(CURRENT_FILE_FORMAT::file_object());
     }
     if (ai_list.size() == 0) { // add one first item to avoid errors
-        ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence_v3());
+        ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     }
     /*
     if (projectile_list.size() == 0) {
@@ -400,21 +400,23 @@ void Mediator::load_game() {
         object_list.push_back(CURRENT_FILE_FORMAT::file_object());
     }
 
-    ai_list_v2 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
+    ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
     //std::cout << "MEDIATOR::load_game::ai_list.size(): " << ai_list.size() << std::endl;
-    if (ai_list_v2.size() == 0) { // add one first item to avoid errors
+    if (ai_list.size() == 0) { // add one first item to avoid errors
         for (int i=0; i<enemy_list.size(); i++) {
-            ai_list_v2.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
+            ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
         }
     }
 
     // *** AI V3 *** //
+    /*
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3>("game_ai_list_v3.dat");
     if (ai_list.size() == 0) { // add one first item to avoid errors
         for (int i=0; i<enemy_list.size(); i++) {
             ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence_v3());
         }
     }
+    */
     // *** AI V3 *** //
 
     /*
@@ -464,11 +466,11 @@ void Mediator::save_game()
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list_v2);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
 
 
     //convert_ai_list_to_v3();
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3>("game_ai_list_v3.dat", ai_list);
+    //fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3>("game_ai_list_v3.dat", ai_list);
 
     //convertProjectileListToV2();
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat", projectile_list_v2);
@@ -496,10 +498,12 @@ void Mediator::save_game()
 
 void Mediator::convert_ai_list_to_v3()
 {
+    /*
     ai_list.clear();
     for (int i=0; i<ai_list_v2.size(); i++) {
         ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence_v3(ai_list_v2.at(i)));
     }
+    */
 }
 
 void Mediator::clean_data()
