@@ -31,7 +31,7 @@ Mix_Chunk* GameMediator::get_sfx(std::string filename)
     }
 }
 
-CURRENT_FILE_FORMAT::file_projectilev2 GameMediator::get_projectile(int n)
+CURRENT_FILE_FORMAT::file_projectilev3 GameMediator::get_projectile(int n)
 {
     if (n < 0 || n >= projectile_list.size()) {
         return projectile_list.at(0);
@@ -207,7 +207,7 @@ GameMediator::GameMediator()
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
-    projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev2>("data/game_projectile_list_v2.dat");
+    projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev3>("data/game_projectile_list_v3.dat");
 
     anim_tile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
     player_list_v3_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat");
@@ -222,7 +222,7 @@ GameMediator::GameMediator()
 #endif
     // add some dummy data for game not to crash
     if (projectile_list.size() == 0) {
-        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
+        projectile_list.push_back(CURRENT_FILE_FORMAT::file_projectilev3());
     }
     if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {

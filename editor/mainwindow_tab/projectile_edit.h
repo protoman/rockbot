@@ -45,6 +45,8 @@ private slots:
 
     void on_explosive_checkBox_toggled(bool checked);
 
+    void on_vanishOnHit_checkBox_toggled(bool checked);
+
 private:
     void fill_data();
     void set_edit_data(int index);

@@ -60,6 +60,7 @@ public:
     Uint8 get_speed() const;
     Uint8 get_damage() const;
     Uint8 get_trajectory() const;
+    Uint8 get_vanishes_on_hit() const;
     void set_trajectory(short new_trajectory);
     void set_target_position(st_float_position *pos);
     graphicsLib_gSurface* get_surface();

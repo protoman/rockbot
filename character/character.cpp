@@ -2315,7 +2315,7 @@ st_rectangle character::get_hitbox(int anim_type)
     return st_rectangle(x, y, w, h);
 }
 
-st_rectangle character::get_hitarea(int anim_type)
+st_rectangle character::get_vulnerable_area(int anim_type)
 {
     float x = position.x;
     float y = position.y;
@@ -2323,6 +2323,7 @@ st_rectangle character::get_hitarea(int anim_type)
     float h = frameSize.height;
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
+        std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
         } else {
@@ -2333,7 +2334,8 @@ st_rectangle character::get_hitarea(int anim_type)
         h = vulnerable_area_box.h;
         return st_rectangle(x, y, w, h);
     } else {
-        return get_hitbox();
+        std::cout << "CHAR::get_vulnerable_area[" << name << "] - DO NOT EXISTS" << std::endl;
+        return st_rectangle(0, 0, 0, 0);
     }
 
 

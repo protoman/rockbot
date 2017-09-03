@@ -108,6 +108,67 @@ namespace format_v4 {
     };
 
 
+
+
+    struct file_projectilev3 {
+        char name[CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        st_size size;
+        bool is_destructible;                                   // indicates if the projectile can be shot down, if true, uses HP
+        Uint8 hp;                                               // how much danage needs to be taken to destruct the projectile
+        Uint8 trajectory;                                       // RENAMED from projectile_type in 2.1
+        Uint8 max_shots;                                        // number of maximum simultaneous projectiles, if 0, is infinite
+        Uint8 speed;                                            // now many pixels are moved into a step
+        Uint8 damage;                                           // how many hitpoints will be reduced from target
+        // new in 3.0.1
+        char sfx_filename[FS_CHAR_NAME_SIZE];                  // allows to use different projectile shot sound
+        bool can_be_reflected;                                  // if false, like in a charged-shot, can't be reflected by shield
+        Uint8 spawn_npc_id;                                     // will spawn NPCs (like bird egg in mm2)
+        Uint8 spawn_npc_n;
+        bool is_explosive;
+        bool vanishes_on_hit;                                   // if false, projectile won't be removed once hitting an enemy
+        // number of NPCs that will be spawned
+        file_projectilev3() {
+            sprintf(name, "%s", "Projectile");
+            sprintf(graphic_filename, "%s", "projectile_normal.png");
+            is_destructible = false;
+            hp = 1;
+            size.width = 6;
+            size.height = 6;
+            trajectory = TRAJECTORY_LINEAR;
+            max_shots = 3;
+            speed = PROJECTILE_DEFAULT_SPEED;
+            damage = PROJECTILE_DEFAULT_DAMAGE;
+            sfx_filename[0] = '\0';
+            can_be_reflected = true;
+            spawn_npc_id = -1;
+            spawn_npc_n = 0;
+            is_explosive = false;
+            vanishes_on_hit = true;
+        }
+
+        file_projectilev3(file_projectilev2 v2) {
+            sprintf(name, "%s", v2.name);
+            sprintf(graphic_filename, "%s", v2.graphic_filename);
+            size.width = v2.size.width;
+            size.height = v2.size.height;
+            is_destructible = v2.is_destructible;
+            hp = v2.hp;
+            trajectory = v2.trajectory;
+            max_shots = v2.max_shots;
+            speed = v2.speed;
+            damage = v2.damage;
+            sprintf(sfx_filename, "%s", v2.sfx_filename);
+            can_be_reflected = v2.can_be_reflected;
+            spawn_npc_id = v2.spawn_npc_id;
+            spawn_npc_n = v2.spawn_npc_n;
+            is_explosive = v2.is_explosive;
+            vanishes_on_hit = true;
+        }
+    };
+
+
+
     struct st_sprite_data {
         bool used;                                                  // if true, the sprite exists
         Uint16 duration;

@@ -690,14 +690,19 @@ void classPlayer::execute_projectiles()
 
             // collision against whole body
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
-            //std::cout << "enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
+            std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
 
             //classnpc* enemy = (*enemy_it);
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
+
+                std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hit[TRUE]" << std::endl;
+
                 // shielded NPC: reflects/finishes shot
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
+                    std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].intangible[TRUE]" << std::endl;
                     continue;
-                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING && (*it).get_vanishes_on_hit() == true) {
+                    std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].shielded[TRUE]" << std::endl;
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {
@@ -706,28 +711,32 @@ void classPlayer::execute_projectiles()
                     continue;
                 }
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
+                    std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].invisible[TRUE]" << std::endl;
                     continue;
                 }
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_teleporting() == true) { // executing AI-action TELEPORT
+                    std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].teleporting[TRUE]" << std::endl;
                     continue;
                 }
 
                 // check if have hit area, and if hit it
-                st_rectangle npc_hitarea = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+                st_rectangle npc_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 
-                int temp_x = Sint16(npc_hitarea.x-gameControl.get_current_map_obj()->getMapScrolling().x);
+                std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].vulnerable_area[" << npc_vulnerable_area.x << "," << npc_vulnerable_area.y << "," << npc_vulnerable_area.w << "," << npc_vulnerable_area.h << "]" << std::endl;
 
-                if ((*it).check_collision(npc_hitarea, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+                int temp_x = Sint16(npc_vulnerable_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
 
-                    std::cout << "enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
-                    std::cout << ", enemy_hitbox x[" << npc_hitarea.x << "], y[" << npc_hitarea.y << "], w[" << npc_hitarea.w << "], h[" << npc_hitarea.h << "]" << std::endl;
+                if (npc_vulnerable_area.is_empty() == false && (*it).check_collision(npc_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
 
-                    st_rectangle enemy_hit_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+                    std::cout << "### MISS-ENEMY VULNERABLE-AREA - enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
+                    std::cout << ", enemy_hitbox x[" << npc_vulnerable_area.x << "], y[" << npc_vulnerable_area.y << "], w[" << npc_vulnerable_area.w << "], h[" << npc_vulnerable_area.h << "]" << std::endl;
 
                     std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>> REFLECT" << std::endl;
 
                     (*it).reflect();        // HITAREA reflect
                     continue;
+                } else {
+                    std::cout << "### HIT-ENEMY VULNERABLE-AREA - enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
                 }
 
                 short wpn_id = (*it).get_weapon_id();
@@ -760,7 +769,9 @@ void classPlayer::execute_projectiles()
                     std::cout << "PLAYER::EXECUTE_PROJ - projectile damage is zero" << std::endl;
                 }
                 if ((*it).get_damage() > 0) {
-                    (*it).consume_projectile();
+                    if ((*it).get_vanishes_on_hit() == true) {
+                        (*it).consume_projectile();
+                    }
                     soundManager.play_sfx(SFX_NPC_HIT);
                 }
             }

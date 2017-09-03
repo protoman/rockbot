@@ -54,12 +54,12 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 COPYLEFT EDITION ###
 ###################################################################################################################
+- colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
 
+- quando estiver fazendo ajuste de scroll pós transição, não deixar jogador se mover até terminar
 
-- remove jump and other moves FROM kutupira bot that uses frames without the boar
-- AI: attack/shot must wait the projectile to be gone before executing any new action
-- boar projectile should not vanish when hitting player
-- new projectile trajectory: out of screen to the npc/player
+- (rockbot1) na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário
+    # https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
 
 
 - dash + shield makes player move backwards and enter inside walls
@@ -71,7 +71,6 @@ STAGES:
         - https://stackoverflow.com/questions/22746429/c-decimal-to-binary-converting
         - https://gamedev.stackexchange.com/questions/104562/how-do-i-implement-a-retro-style-password-based-savegame-system
 
-- vulnerable area stopped working with the fix for daisie/unused-frames
 
 
 - segundo parâmetro para AI
@@ -258,6 +257,12 @@ ESTAGIOS:
 ##################################
              DONE
 ##################################
+- fix vulnerable area once again after fix for unused frames, return empty when not used
+- [Rockbot1] fix missile direction graphics
+- new projectile trajectory: out of screen to the npc/player
+- remove jump and other moves FROM kurupira bot that uses frames without the boar
+- add option to projectile to make possible for it not to disappear after hitting an NPC
+
 - AI: morph into - becomes another NPC without changing HP and some other flags
     # must respect the is_boss, stage_boss and final_game_boss flags somehow,
       maybe changing this flag in map/stage/game, then resetting it if player dies

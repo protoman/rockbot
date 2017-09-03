@@ -121,6 +121,24 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         position0.y = position.y;
         _gravity = -0.2;
         _dist_y = 0;
+    } else if (_move_type == TRAJECTORY_INVERSE_LINEAR) {
+        int map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
+        int abs_pos_x = position.x - map_scroll_x;
+        std::cout << ">>>> abs_pos_x[" << abs_pos_x << "], pos.x[" << position.x << "], map.scroll.x[" << map_scroll_x << "]" << std::endl;
+
+        if (direction == ANIM_DIRECTION_LEFT) {
+            int scroll_diff_x = abs_pos_x - RES_W;
+            direction = ANIM_DIRECTION_RIGHT;
+            position.x -= abs_pos_x;
+
+
+            std::cout << ">>>> new_pos.x[" << position.x << "]" << std::endl;
+        } else {
+            int scroll_diff_x = RES_W - abs_pos_x;
+            direction = ANIM_DIRECTION_LEFT;
+            position.x += scroll_diff_x;
+        }
+        _move_type = TRAJECTORY_LINEAR;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -306,6 +324,11 @@ Uint8 projectile::get_trajectory() const
         return TRAJECTORY_LINEAR;
     }
     return GameMediator::get_instance()->get_projectile(_id).trajectory;
+}
+
+Uint8 projectile::get_vanishes_on_hit() const
+{
+    return GameMediator::get_instance()->get_projectile(_id).vanishes_on_hit;
 }
 
 void projectile::set_trajectory(short new_trajectory)

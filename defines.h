@@ -407,6 +407,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_LIGHTING,                // appears sequentially in some parts of the screen
     TRAJECTORY_SPIRAL,
     TRAJECTORY_BOUNCING,
+    TRAJECTORY_INVERSE_LINEAR,
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 

@@ -180,6 +180,13 @@ struct st_rectangle {
 		w = setW;
 		h = setH;
 	}
+
+    bool is_empty() {
+        if (x == 0 && y == 0 && w == 0 && h == 0) {
+            return true;
+        }
+        return false;
+    }
 };
 
 struct st_color {

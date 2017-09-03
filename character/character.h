@@ -113,7 +113,7 @@ public:
     void show_sprite_graphic(short direction, short type, short n, st_position pos);
     st_size get_size() const;
     st_rectangle get_hitbox(int anim_type=-1);          // used for collision with map/objects
-    st_rectangle get_hitarea(int anim_type=-1);         // used for collision agains projectiles, takes vulnerable_area into account
+    st_rectangle get_vulnerable_area(int anim_type=-1);         // used for collision agains projectiles, takes vulnerable_area into account
     void set_platform(object*);
     object* get_platform();
     int get_direction() const;

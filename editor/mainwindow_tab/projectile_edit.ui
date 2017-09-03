@@ -45,13 +45,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="explosive_checkBox">
-         <property name="text">
-          <string>Explosive</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="label_33">
          <property name="text">
           <string>Hit Points (HP):</string>
@@ -62,6 +55,20 @@
         <widget class="QSpinBox" name="projectileHitPointsSpinBox">
          <property name="minimum">
           <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="explosive_checkBox">
+         <property name="text">
+          <string>Explosive</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="vanishOnHit_checkBox">
+         <property name="text">
+          <string>Vanishes on Hit</string>
          </property>
         </widget>
        </item>

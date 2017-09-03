@@ -1388,7 +1388,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = STAGE4;
+    currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 

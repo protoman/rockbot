@@ -254,6 +254,13 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     }
 
     vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect;
+    // if vulnerable-area is equal to sprites size, elave it empty
+    if (vulnerable_area_box.x == _frame_pos_adjust.x && vulnerable_area_box.y == _frame_pos_adjust.y && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
+        std::cout << ">>> NPC[" << name << "] has no vulnerable area set <<<" << std::endl;
+        vulnerable_area_box = st_rectangle(0, 0, 0, 0);
+    } else {
+        std::cout << ">>> NPC[" << name << "] HAS vulnerable area <<<" << std::endl;
+    }
 
     //std::cout << "end" << std::endl;
 }
@@ -489,7 +496,7 @@ void classnpc::move_projectiles()
                 if (gameControl.get_current_map_obj()->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
                     (*it).reflect();
                 } else if (gameControl.get_current_map_obj()->_player_ref->is_using_circle_weapon() == true) {
-                    std::cout << "NPC projectile hit player centered-weapon" << std::endl;
+                    //std::cout << "consume_projectile #0" << std::endl;
                     (*it).consume_projectile();
                     gameControl.get_current_map_obj()->_player_ref->consume_projectile();
                 } else {
@@ -498,15 +505,18 @@ void classnpc::move_projectiles()
                         damage_pts = 2;
                     }
                     gameControl.get_current_map_obj()->_player_ref->damage(damage_pts, false);
-                    (*it).consume_projectile();
+                    if ((*it).get_vanishes_on_hit() == true) {
+                        //std::cout << "consume_projectile #1" << std::endl;
+                        (*it).consume_projectile();
+                    }
                 }
             }
         } else { // NPC attacking other NPCs
 
             for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
-                st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitarea();
+                st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 				//classnpc* enemy = (*enemy_it);
-                if ((*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
+                if (other_npc_hitbox.is_empty() == false && (*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {
 					//std::cout << "is_shielded::CALL 2" << std::endl;
                     if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                         continue;
@@ -515,6 +525,7 @@ void classnpc::move_projectiles()
 					} else {
                         gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage(), false);
                         if ((*it).get_move_type() != TRAJECTORY_CHAIN) { /// @TODO non-destructable types
+                            //std::cout << "consume_projectile #2" << std::endl;
                             (*it).consume_projectile();
 						}
 					}
