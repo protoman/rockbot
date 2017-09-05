@@ -1,19 +1,10 @@
 ﻿=========================================================================================================================================
 VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
-- ROCKBOT1:
-    # em modo demo, não entra em estágios já finalizados
-    # Daisiebot afunda no chão ao mudar direção (turn)
-        # talvez seja hitarea do turn
-    # implementar final com editor de cenas
-    # adicionar limpar a tela quando inicia uma sequência de cenas (a primeira cena da sequẽncia apenas, no caso)
-
-- Fases Castle:
-    # dungeon medieval
-    # mina de carvão e diamantes
-    # feira de brinquedos (little nemo, chip & dale)
-    # ruas da cidade (streets of rage, mighty final fight)
-    # space, the final frontier (moon stage de duck tales)
+- para achar a linha de um crash:
+    # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
+    # ~/Programas/android-studio/sdk/android-ndk-r11c/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-addr2line -C -f -e /home/iuri/Desenvolvimento/rockbot/build/packages/libapplication.so 0003a587
+    # tem que copiar o libapplication.so antes de limpar os símbolos de debug
 
 ###################################################################################################################
 STAGES:
@@ -51,31 +42,99 @@ STAGES:
      @@@ i: 2, new_map_lock: 1
 
 
-###################################################################################################################
-### ROCKBOT 1 COPYLEFT EDITION ###
-###################################################################################################################
-- colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
+- tileset stage select map (add credits to ROCKBOT2):
+    # http://opengameart.org/content/js-saga-style-tileset-2-ascent
+    # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
 
-- quando estiver fazendo ajuste de scroll pós transição, não deixar jogador se mover até terminar
+- idéias:
+    # http://opengameart.org/content/opp2017-sprites-characters-objects-effects
+    # https://opengameart.org/content/opp2017-village-and-room
 
-- (rockbot1) na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário
+- ótimos projéteis:
+    # http://bongwater-bandit.deviantart.com/art/8-Bit-Fx-2-647815669
+
+- explosions, add to credits:
+    # http://opengameart.org/content/pixel-explosion-12-frames
+    # http://opengameart.org/content/bubble-explosion
+    # http://opengameart.org/content/explosions-2
+
+
+
+###################################################################################################################
+### ROCKBOT 1 ###
+###################################################################################################################
+- convert save to new format
+- add screens for bosses intros
+- mage bot not leaving invulnerability even without stars shield
+- na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário
     # https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
+- castle 5 - parafusos somem quando entram no chão e não voltam
+- daisie afundando no chão (castle5)
+- remove castle path
 
 
+###################################################################################################################
+### ROCKBOT 2 DEMO BETA ###
+###################################################################################################################
+CRITICAL:
+
+
+- super-fast after passing through a boss door
+- door should activate transition only if py > link.y
+- usuário reportou crash no snowbot
+- fix semi-charged (left board by mistake)
+
+SERIOUS:
+- new stage selection screen that shows all available stages (https://tcrf.net/images/9/9d/RMX6StageSelectBeta.png)
+    # fazer mapa quadrado com bordas arredondadas
+    # inimigos em círculos, 4 em cima, 4 em baixo
+    # nas laterais, aparece informação do estágio e chefe
+    # seleção é esquerda/direita apenas
+    # castelo aparece como item extra na linha de baixo, "empurrando" 2 cículos para os lados
+- after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
+- limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
+- air dash won't stop if head is colliding with above terrain
+- won't reset from walk-attack to stand-attack if keep firing even if not moving
+- Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
+- EDITOR: sometimes objects won't appear on editarea (check techno's 002)
+- not setting finished-game for selecting 4 player? (finished the game, but didn't opened 4 player selection)
+
+
+MEDIUM:
+- mudar gráficos de energia e weapon (fazer quadrados)
 - dash + shield makes player move backwards and enter inside walls
+- ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
+- retestar configuração de controles, parece que não está dando para retornar direito (parece ler uma teclabotão novamente)
+- faltando config para botão de escudo
+- recalibrar random do drop_item; tentar descobrir as chances usadas no megaman
+- ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
+- set armor pieces abilities, text and projectiles
+- EDITOR: texto da armadura deve ser texto (9 linhas por player)
+- redraw entirely destrin tank
 
-- add password back (use number/letters instead, to make it easier, find a generator, use each property in save to generate it automatically)
-    # use masks and then convert to hex the OR of all them:
-        - https://www.libsdl.org/release/SDL-1.2.15/include/SDL.h
-        - https://stackoverflow.com/questions/11279759/encode-data-into-user-typed-code-like-an-old-games-password-save-system
-        - https://stackoverflow.com/questions/22746429/c-decimal-to-binary-converting
-        - https://gamedev.stackexchange.com/questions/104562/how-do-i-implement-a-retro-style-password-based-savegame-system
+LOW:
+- ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
+- update screenshots in the app-store for rockbot 2 free
+- colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
+- red shield dropped from platform and died (gear bot stage)
+- Gear Bot pára de andar (character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos)
+- implementar abertura usando edição de cenas
+- update build script files to copy font to GAMEDIR (remove non-used fonts and graphics)
 
 
+}
 
-- segundo parâmetro para AI
-    # tipo st_rectangle (int) é flexível para botar posição e mais outras infos
-    # spawn npc, throw projectile e object podem determinar posição de origem
+=========================================================================================================================================
+VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
+=========================================================================================================================================
+- change stage 5 to be a sequence of bosses, remove teleporters
+- add castle 1 stage 6 with only destrin boss.
+- revisar e finalizar diálogos
+- finalizar intro
+- criar opção export/import dentro da própria tele de save
+    # colocar aviso que pode congelar e precisa de internet
+    # independente de cloudServices
+    # tentar implementar via JNI diretamente no jogo ao invés de na SDL, sem usar native
 
 Castle Bosses:
     #1: brick
@@ -85,25 +144,28 @@ Castle Bosses:
         # partes móveis viram paltaformas, como as diseppearing, tem que escalar e atingir olho no topo
         # tudo é fundo, menos plataformas e olho
         # https://vignette1.wikia.nocookie.net/evil/images/3/3e/The_Technodrome.jpg/revision/latest?cb=20150720174222
-
-
-
     #5: darkbot
 
 
-- KURUPIRA: ANTES DE ANDAR/ATRAVESSAR-TELA, ele joga o javali, que funciona como o coil item
-se pular em cima, ou dá dano se atingit player de lado. Kurpira vira, dispara e javali se teleporta
-de volta nele. Mesma coisa quando ele for pular.
-    # AI: throw item
-    # teleport-in item
+=========================================================================================================================================
+VERSION 2.0.0 RELEASE #2
+=========================================================================================================================================
+- quando estiver fazendo ajuste de scroll pós transição, consegue sair da tela
+- ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
+- AI: add "backtrack" movement, keep sprite in the inverse direction it is moving (???) qual a razão?
+- add SDL Gfx to project
+- make missile rotate to a given angle using SDL Gfx
 
-- the confirmation dialog must be generic, with any number of text rows
 
-- restore/create stage dialogs
-
-- update screenshots in the app-store for rockbot 2 free
-
-- add a check to avoid a button positioned out of the screen
+=========================================================================================================================================
+VERSION 2.0.0 RELEASE #3
+=========================================================================================================================================
+IMPROVEMENTS/IDEAS:
+    - daisie kitty: jump leaving rainbow behind.
+    - rockbot2: bats makes player dizzy (invert X and Y axis movement).
+    - spike ground attack of spikes (appear under player, raisis after an instant).
+    - daisie: entangle, locks player in place for a few seconds if he steps on it.
+    - create missile that, when near player, goes around him a few times, then explodes or leaves.
 
 - add achievements to editor
     # only set the IDs for each game, mechanics to get those will be hardcoded
@@ -121,330 +183,89 @@ de volta nele. Mesma coisa quando ele for pular.
     # fall into a pit
     # (one for each boss defeated)
 
-- ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
-
-- castle point 5 is showing in position 0x0
-
-
-- ótimos projéteis:
-    # http://bongwater-bandit.deviantart.com/art/8-Bit-Fx-2-647815669
-
-- charged shot in rockbot2 is not showing
-
-- stage selector must not show skull castle if player still hasn't reached it
-    # must change to skull castle once player reaches it
-
-- stage selector must show only 3 stages in demo-mode
-
-- ending with minor enemies
-- set armor pieces abilities, text and projectiles
-- fix castle path algorithm
-
-
-- explosions, add to credits:
-    # http://opengameart.org/content/pixel-explosion-12-frames
-    # http://opengameart.org/content/bubble-explosion
-    # http://opengameart.org/content/explosions-2
-
-- ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
-
-- para achar a linha de um crash:
-    # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
-    # ~/Programas/android-studio/sdk/android-ndk-r11c/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-addr2line -C -f -e /home/iuri/Desenvolvimento/rockbot/build/packages/libapplication.so 0003a587
-    # tem que copiar o libapplication.so antes de limpar os símbolos de debug
-
-- fazer o make do android pegar o version lá do packages para setar no jogo, na tela intro
-
-- EDITOR: texto da armadura deve ser texto (9 linhas por player)
-
-- apresentação dos inimigos estilo cutscene, só com rosto (inspiração abertura de rooko chan)
-
-
-
-IMPROVEMENTS/IDEAS:
-    - daisie kitty: jump leaving rainbow behind.
-    - rockbot2: bats makes player dizzy (invert X and Y axis movement).
-    - spike ground attack of spikes (appear under player, raisis after an instant).
-    - daisie: entangle, locks player in place for a few seconds if he steps on it.
-    - create missile that, when near player, goes around him a few times, then explodes or leaves.
-
-- redraw entirely destrin tank
-
-- mage bot not leaving invulnerability even without stars shield
-
-- AI: add "backtrack" movement, keep sprite in the inverse direction it is moving
-
-- change stage 5 to be a sequence of bosses, remove teleporters
-
-- add castle 1 stage 6 with only destrin boss.
-
-- not setting finished-game for selecting 4 player?
-
-- EDITOR: sometimes objects won't appear on editarea (check techno's 002)
-
-TESTAR - criar um sistema para dropar frames caso FPS fique abaixo de 60
-    # dropar o número que está abaixo, mas distribuir eles uniformemente
-
-
-- tileset stage select map (add credits to ROCKBOT2):
-    # http://opengameart.org/content/js-saga-style-tileset-2-ascent
-    # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
-
-IDEIAS:
-- http://opengameart.org/content/opp2017-sprites-characters-objects-effects
-- https://opengameart.org/content/opp2017-village-and-room
-
-- ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
-
-- castle 5 - parafusos somem quando entram no chão e não voltam
-
-- daisie afundando no chão (castle5)
-
-- fade teleport must change player to jump and set Y to the dest-point
-
-- after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
-
-- door should activate transition only if py > link.y
-
-- usuário reportou crash no snowbot
-
-- red shield dropped from platform and died (gear bot stage)
-
-- limit spawn npc in AI somehow
-
-- air dash won't stop if head is colliding with above terrain
-
-- as vezes, projétil atravessa inimigos, principalmente mola-puladeira
-    # >> character::show_sprite_graphic([Gear] Shooting Joe) #1 - no graphic for type (1):frame_n(0), set to STAND
-
-- won't reset from walk-attack to stand-attack if keep firing even if not moving
-
-- Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
-
-- Gear Bot pára de andar:
-    # >> character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos
-
-- implementar abertura usando edição de cenas
-
-- update build script files to copy font to GAMEDIR
-    # remove non-used fonts
-    # remove non-used graphics
-
-
-}
-
-
-
->>>>>>>>>>>>>>>>>>>>>>>>>>
-ESTAGIOS:
->>>>>>>>>>>>>>>>>>>>>>>>>>
-- beast: refatorar, arrumar
-- gear: trocar tileset, refatorar
-- dragon: melhorar tileset
-    # http://vgmaps.com/Atlas/NES/DoubleDragonIII-SacredStones-Mission3-Japan.png
-- ideia do castelo é ter uma "viagem no tempo"
-    - skull 1: definir estilo (castelo medieval) e tilesets, criar design
-        # http://opengameart.org/content/dark-forest-town-tile-set-0
-    - skull 2: definir estilo (fábrica vitoriana) e tilesets, criar design
-    - skull 3: definir estilo (toy fair 1910) e tilesets (city blocks, brincando de engenheiro), criar design
-    - skull 4: definir estilo (streets of rage (master system)) e tilesets, criar design
-        # http://opengameart.org/content/8-bit-city-tile-set
-        # http://vgmaps.com/Atlas/NES/DoubleDragon-ModeA-Mission1.png
-        # avisar autor
-    - skull 5: definir estilo (estação espacial) e tilesets, criar design
-
-
-##################################
-             DONE
-##################################
-- fix vulnerable area once again after fix for unused frames, return empty when not used
-- [Rockbot1] fix missile direction graphics
-- new projectile trajectory: out of screen to the npc/player
-- remove jump and other moves FROM kurupira bot that uses frames without the boar
-- add option to projectile to make possible for it not to disappear after hitting an NPC
-
-- AI: morph into - becomes another NPC without changing HP and some other flags
-    # must respect the is_boss, stage_boss and final_game_boss flags somehow,
-      maybe changing this flag in map/stage/game, then resetting it if player dies
-    # this can be used for a boss that exchange between two forms like Kurupira
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=========================================================================================================================================
-VERSION 2.0.0 RELEASE #3
-=========================================================================================================================================
-
-- add SDL Gfx to project
-
-- make missile rotate to a given angle using SDL Gfx
-
+- fade teleport must change player to jump and set Y to the dest-point (it not in ground)
+- the confirmation dialog (yes/no) must be generic, with any number of text rows
+- add a check to avoid a button positioned out of the screen
 - allow different maps using same image for foreground with different alpha
     # use a map with filename+alpha
-
 - things like teleport_out in player class must be moved to game class because it even uses showMap
-
 - review classmap public methods and decide witch ones should be turned private and "moved" to gameControl
-
-- liberar p3 ao terminar com p1 e p4 ao terminar com p2 ao invés de os dois juntos
-
 - criar fade-in e fade-out para música
-
-- make show fps an option in config
-
 - create floating platform that starts returning to the origin once player leaves it
-
-- platform tht rotates around an axis-point
-
-- jump must change acceleration when entering or leaving water terrain
-
+- platform that rotates around an axis-point
 - ice terrain must have initial inertia when stopped
-
 - adicionar efeito "wave" a estágio
-
 - em modo de performance low, os fundos devem ser fixos, desenhados junto com os tiles
-
-- adjustar melhor a velocidade do modo 30fps
-
 - novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
     # vai reto e depois quebra em 4 pedaços que voam nas diagonais
     # quebra em paredes
-
 - criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
-
-- testar rockbot1 inteiro. jogo deve ser finalizável do início ao fim
-
-- adicionar créditos ao terminar jogo
-
 - criar final com editor de cenas
-
-- optimização:
-    # deve rodar a 60 fps no PSP, PS2 e Dingoo
-    # deve rodar a 30 fps bem no PSP com a opção low-end
-    # criar lista de npcs e objetos "on-screen"
-    # rodar optimização no qtcreator (clang)
-    # input deve ter um único loop para comandos ao invés de vários para cada tipo de evento
-    # procurar memory leaks
-
-- ver porque android tem mais de um joystick para selecionar
-
-
 - mover funções de configuração de sceneslib para class_config
-
 - PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
-
 - adicionar suporte à configuração de resolução do playstation 2
-
-- test and find a way to get directory files in PS2, PSP, Dingux, etc (stat)
-    # PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c
-
-- remover da memória SFX usados apenas uma única vez
-    # estes devem usar play from file
-    # onde for necessário, guardar na própria classe e depois descarregar o SFX
-
+- test and find a way to get directory files in PS2, PSP, Dingux, etc (stat) (PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c)
+- remover da memória SFX usados apenas uma única vez, devem usar play from file e, onde for necessário, guardar na própria classe e depois descarregar o SFX
 - descobrir como usar mkspaces de android para build, ou criar um próprio
-
 - AI: criar nova action WALK DISTANCE(dist)
 - AI: criar nova action WALK RANDOM DISTANCE(max)
 - AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
 - AI: action SHIELD, fica em escudo até a animação de shield acabar
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
-
-- ANDROID: opçao, na config do jogo, para tamanho do controle
-- ANDROID: opçao no jogo, para esconder joystick
-    # ou ver se tem como decetar se esta usando um que nao seja a tela de toque
-    # só esconde, deve confinuar funcionando para caso dê problema
-
-
 - tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
-
 - melhorar explosões de morte (refazer gráfico, usar mais posições usando ângulo)
-
 - melhorar implosão de ghost weapon (espiral)
-
 - jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
-
-- usar mirror em projéteis assim como players (remover duplicata das imagems)
-    # proj.position_to_ground deve ser ajustada
-
 - objeto que se move para esquerda/direita deve empurrar jogador.
     # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
-
-- EDITOR: gerar UI das actions da AI via código
-
 - melhorar animação das portas (piscam)
-
 - se pulo/teleporte tiver mais de um frame  de animação, os últimos deve ser usados como "aterrisagem" quando encostar no chão
-
-- GAME::PROJECTILE: projétil deve usar flip assim como character
-
 - incorporar efeitos sonoros do Aurelien
 
 
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #4
 =========================================================================================================================================
+- adicionar vozes do Nelson aos chefes
+- optimização:
+    # deve rodar a 60 fps no PSP, PS2 e Dingoo
+    # criar lista de npcs e objetos "on-screen"
+    # rodar optimização no qtcreator (clang)
+    # input deve ter um único loop para comandos ao invés de vários para cada tipo de evento
+    # procurar memory leaks
 - melhorar script de build incluindo ABI (x86/ARM)
-
 - gfx de mapa fixos como shadow-top e inferno devem aparecer na transição de tela (por cima dela)
-
 - substituir tiro carregado e voz por original (está girl hadouken)
     # gravar vozes
     # usar vozes do Nelson
-
 - ANDROID: new icon
-
 - criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
-
-
 - modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
 - GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
 - EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
-
 - revisar código da main.cpp
 - separar código de plataformas em arquivos especificos dentro do diretório "ports"
-
 - EDITOR::SCENES: add scenes selector in editor
 - EDITOR::SCENES: use selected scenes for intro/ending
 - EDITOR::SCENES: implementar movie editor
     # permitir cenas async
-
-- ANDROID: implementar troféus
-
 - check how to create apps in Android that add stages or complete games that user can install and select
-- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
 - OPTIMIZAÇÃO: load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
-
-- ver se tem como portar para WUP: https://msdn.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide
-
 - OPTIMIZAÇÃO:
     # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
     # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente
-
 - substituir todos os efeitos sonoros por versões free
-
 - tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
-
 - ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
 
 
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #5
 =========================================================================================================================================
-
+- jump must change acceleration when entering or leaving water terrain
+- ver porque android tem mais de um joystick para selecionar
 - fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
     - usar mais disseppearing blocks
     - usar mais plataformas move-left/right
@@ -455,9 +276,7 @@ VERSION 2.0.0 PRE-RELEASE #5
 - MANUAL:
     - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
     - colocar comandos
-
 - fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
-
 - revisar arquivos do template
     * setar por padrão algumas coisas comuns do template:
         # cores dos jogadores
@@ -469,24 +288,11 @@ VERSION 2.0.0 PRE-RELEASE #5
 VERSION 2.0.0 PRE-RELEASE #6
 =========================================================================================================================================
 - atualizar template de novo jogo
-
 - tirar teleporte de debug das fases
-
-- tentar optimizar PSP para rodar a 60 fps
-
-- port to GCW:
-    * http://www.gcw-zero.com/news.php?id=13
-
-- OSX port
-    * corrigir problema das transparências
-
-Inspirations:
-http://www23.atwiki.jp/rockmanforte/pages/21.html
-
+- inspirations: http://www23.atwiki.jp/rockmanforte/pages/21.html
 - se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
 - adicionar suporte à configuração de controle do wii
     # The Wii controllers are mapped as SDL joysticks 0-3. The gamecube controller ports are mapped as SDL joysticks 4-7
-
 - WII: cores dos personagens não estão sendo setadas
 - WII: fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
 
@@ -501,6 +307,8 @@ VERSION 2.0.0 RELEASE
 VERSION 2.0.1 RELEASE
 =========================================================================================================================================
 - substituir exit() por saída graciosa em todos os lugares possíveis
+- EDITOR: gerar UI das actions da AI via código
+
 
 - separar GFX em sua própria classe que a draw usará
     # rain
@@ -536,6 +344,8 @@ VERSION 2.0.2
     - dark room that is iluminated if a fire-NPC is on visible_screen (heat)
         * a área pode ser definida por um objeto na tela ou não, mesmo que objeto fique escondido
     - napalm projectile (heat man)
+
+- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
 
 
 =========================================================================================================================================
@@ -597,16 +407,23 @@ VERSION 2.0.7
 - PS2: add ISO/CD version
 - remove build warnings in PS2, PSP and Dingux
 - fix PSP build to use qmake
+- all Megaman 4 features (TBD)
+- all Megaman 5 features (TBD)
 
-- all Megaman 4 features:
-    - stage with auto-scrolling
-	- background-image with auto-scrolling
+=========================================================================================================================================
+VERSION 2.0.8
+=========================================================================================================================================
+- all Megaman 6 features (TBD)
+- all megaman 7 features (TBD)
 
-- all Megaman 5 features:
-    -
+=========================================================================================================================================
+VERSION 2.0.9
+=========================================================================================================================================
+- megaman 9 features (TBD)
 
-- all Megaman 6 features:
-    -
-
+=========================================================================================================================================
+VERSION 2.0.10
+=========================================================================================================================================
+- megaman 10 features (TBD)
 
 
