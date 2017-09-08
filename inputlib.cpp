@@ -353,6 +353,13 @@ bool inputLib::is_check_input_reset_command_activated()
     return false;
 }
 
+void inputLib::clean_event_queue()
+{
+    while (SDL_PollEvent(&event)) {
+        SDL_PumpEvents();
+    }
+}
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //

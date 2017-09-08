@@ -870,6 +870,77 @@ namespace format_v4 {
                 return true;
             }
         }
+        // check if we can convert an old-format save to new one
+        return check_convert_old_format_save();
+    }
+
+    bool file_io::check_convert_old_format_save()
+    {
+        std::string filename_v301 = std::string(SAVEPATH) + "/game_v301.sav";
+        filename_v301 = StringUtils::clean_filename(filename_v301);
+         FILE* v301_fp;
+         v301_fp = fopen(filename_v301.c_str(), "rb");
+         if (v301_fp) {
+             // convert v301 save to CURRENT_FORMAT save
+             CURRENT_FILE_FORMAT::st_save_v1 v1_save;
+             std::cout << "########## filename_v1[" << filename_v301 << "] ############" << std::endl;
+             int read_result = fread(&v1_save, sizeof(struct CURRENT_FILE_FORMAT::st_save_v1), 1, v301_fp);
+             if (read_result  == -1) { // could not read v1 save
+                 fclose(v301_fp);
+                 return false;
+             }
+             std::cout << "[WRN] Converting v1 save to v2 format." << std::endl;
+             if (v1_save.items.lifes > 9) {
+                 v1_save.items.lifes = 3;
+             }
+             CURRENT_FILE_FORMAT::st_save current_format_save;
+             // ITEMS //
+             current_format_save.items.balancer = v1_save.items.balancer;
+             current_format_save.items.bolts = v1_save.items.bolts;
+             current_format_save.items.energy_saver = v1_save.items.energy_saver;
+             current_format_save.items.energy_tanks = v1_save.items.energy_tanks;
+             current_format_save.items.exit = v1_save.items.exit;
+             if (v1_save.items.half_damage == 1) {
+                 current_format_save.items.half_damage = true;
+             } else {
+                 current_format_save.items.half_damage = false;
+             }
+             current_format_save.items.hyper_jump = v1_save.items.hyper_jump;
+             current_format_save.items.lifes = v1_save.items.lifes;
+             current_format_save.items.power_shot = v1_save.items.power_shot;
+             if (v1_save.items.shock_guard == 1) {
+                 current_format_save.items.shock_guard = true;
+             } else {
+                 current_format_save.items.shock_guard = false;
+             }
+             current_format_save.items.special_tanks = v1_save.items.special_tanks;
+             current_format_save.items.speed_up = v1_save.items.speed_shot;
+             if (v1_save.items.spike_guard == 1) {
+                 current_format_save.items.spike_guard = true;
+             } else {
+                 current_format_save.items.spike_guard = false;
+             }
+             for (int i=0; i<WEAPON_COUNT; i++) {
+                 current_format_save.items.weapons[i] = v1_save.items.weapons[i];
+             }
+             current_format_save.items.weapon_tanks = v1_save.items.weapon_tanks;
+             current_format_save.difficulty = v1_save.difficulty;
+             current_format_save.finished_stages = v1_save.finished_stages;
+             current_format_save.selected_player = v1_save.selected_player;
+             for (int i=0; i<MAX_STAGES; i++) {
+                 current_format_save.stages[i] = v1_save.stages[i];
+             }
+             current_format_save.used_countinue = v1_save.used_countinue;
+             for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX_V1; i++) {
+                 current_format_save.armor_pieces[i] = v1_save.armor_pieces[i];
+             }
+             current_format_save.defeated_enemies_count = v1_save.defeated_enemies_count;
+             fclose(v301_fp);
+             write_save(current_format_save, 0);
+
+             return true;
+         }
+
         return false;
     }
 

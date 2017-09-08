@@ -64,6 +64,7 @@ namespace format_v4 {
         bool read_save(st_save& data_out, short save_n);
         bool save_exists(short save_n);
         bool have_one_save_file();
+        bool check_convert_old_format_save();
         bool can_access_castle(st_save& data_in);
 
         void load_config(st_game_config &config);

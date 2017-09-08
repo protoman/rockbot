@@ -41,7 +41,7 @@ bool fps_control::limit()
     ++frame_count;
     target_ticks = last_second_ticks + static_cast<unsigned int>(frame_count * max_frame_ticks);
     current_ticks = timer.getTimer();
-    //std::cout << "timer.ticks[" << timer.getTimer() << "], sdl.ticks[" << current_ticks << "]" << std::endl;
+    std::cout << "fps_control::limit::timer.ticks[" << timer.getTimer() << "], sdl.ticks[" << current_ticks << "]" << std::endl;
 
     average_ticks += current_ticks - last_frame_ticks;
     if (current_ticks - last_frame_ticks <= min_ticks)

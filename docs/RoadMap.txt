@@ -63,11 +63,10 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 ###
 ###################################################################################################################
-- convert save to new format
-- add screens for bosses intros
+TEST - convert save to new format
+OK - add screens for bosses intros
 - mage bot not leaving invulnerability even without stars shield
-- na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário
-    # https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
+- na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário: https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
 - castle 5 - parafusos somem quando entram no chão e não voltam
 - daisie afundando no chão (castle5)
 - remove castle path
@@ -77,7 +76,7 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-- super-fast after passing through a boss door
+OK - super-fast after passing through a boss door
 - door should activate transition only if py > link.y
 - usuário reportou crash no snowbot
 

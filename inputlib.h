@@ -31,6 +31,7 @@ public:
     void read_input();
     void read_input(bool check_input_reset);
     bool is_check_input_reset_command_activated();
+    void clean_event_queue();
 
 protected:
 

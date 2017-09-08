@@ -1030,6 +1030,9 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     int upTile = 0;
     int downTile = 0;
     st_float_position scroll_move;
+
+    game_pause();
+
     classMap* temp_map = loaded_stage.get_current_map();
 
     graphLib.set_screen_adjust(st_position(0, 0));
@@ -1045,6 +1048,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         // if there is a subboss alive, near left, you can't open
         if (subboss_alive_on_left(tileX) == true) {
             std::cout << "[ERROR]: Oh no! Door can't be open because there is an alive sub-boss on its left side." << std::endl;
+            game_unpause();
             return;
         }
 
@@ -1069,7 +1073,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         loaded_stage.redraw_boss_door(false, (downTile-upTile+1), tileX, tileY, player1.get_number());//bool is_close, int nTiles, int tileX
 	}
 
-    game_pause();
 
 
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
@@ -1388,7 +1391,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = INTRO_STAGE;
+    currentStage = STAGE4;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 
@@ -1413,7 +1416,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
