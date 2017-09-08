@@ -3,6 +3,7 @@
 
 #include "file/format.h"
 #include "file/file_io.h"
+#include "aux_tools/stringutils.h"
 
 // INTERNAL GLOBALS
 extern timerLib timer;
@@ -26,8 +27,11 @@ extern game gameControl;
 
 CURRENT_FILE_FORMAT::file_stage temp_stage_data;
 
-#define STAGE_SELECT_TEXT_X 20
-#define STAGE_SELECT_TEXT_Y 140
+#define STAGE_SELECT_STAGE_TEXT_X 9
+#define STAGE_SELECT_STAGE_TEXT_Y 99
+
+#define STAGE_SELECT_LAIR_TEXT_X 227
+#define STAGE_SELECT_LAIR_TEXT_Y 99
 
 
 stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
@@ -130,244 +134,16 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 
 
 
-int stage_select::pick_stage_map(int start_stage)
-{
-    bool finished = false;
-    std::string boss_name;
-    std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select_map.png";
-    std::string face_filename;
 
-    graphicsLib_gSurface bg_surface;
-    graphicsLib_gSurface face_surface;
-    graphicsLib_gSurface stage_icon_beaten;
-    std::string stage_icon_filename = FILEPATH + "/images/backgrounds/map_icon_beaten.png";
-    graphLib.surfaceFromFile(stage_icon_filename, &stage_icon_beaten);
-
-    graphLib.surfaceFromFile(bg_filename, &bg_surface);
-    int bg_frames = 1;
-    long bg_frame_timer = timer.getTimer()+100;
-    if (bg_surface.width >= RES_W*2) {
-        bg_frames = bg_surface.width/RES_W;
-    }
-    int current_bg_frame = 0;
-
-
-    CURRENT_FILE_FORMAT::file_io fio;
-    CURRENT_FILE_FORMAT::file_stage_select map_data;
-    fio.read_stage_select_data(map_data, true);
-
-    // put stages icons
-    for (int i=0; i<RES_W/TILESIZE; i++) {
-        for (int j=0; j<RES_H/TILESIZE; j++) {
-
-
-#ifdef ANDROID
-            char debug_line[512];
-            sprintf(debug_line, "### STAGE_SELECT::MAP[%d][%d]:[%d] ###", i, j, map_data.points[i][j]);
-            std::string debug_line_str(debug_line);
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", debug_line_str.c_str());
-#endif
-
-
-            if (map_data.points[i][j] > 10) {
-                int stage_n = map_data.points[i][j]-10;
-                if (stage_n >=1 && stage_n <= 8) {
-                    if (game_save.stages[stage_n] == 1) {
-                        for (int k=0; k<bg_frames; k++) {
-                            graphLib.copyArea(st_position(i*TILESIZE+k*RES_W, j*TILESIZE), &stage_icon_beaten, &bg_surface);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
-
-    graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-
-
-    st_position pos;
-    st_position previous_pos;
-    if (start_stage <= 0) {
-        pos.x = 1;
-        pos.y = 3;
-    // search in map array for the start point
-    } else {
-        for (int i=0; i<RES_W/TILESIZE; i++) {
-            for (int j=0; j<RES_H/TILESIZE; j++) {
-                if ((start_stage >= CASTLE1_STAGE1 && map_data.points[i][j] == STAGE_SELECT_EDIT_MODE_CASTLE) || map_data.points[i][j]-10 == start_stage) {
-                    pos.x = i;
-                    pos.y = j;
-                    fio.read_stage(temp_stage_data, start_stage);
-                    face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[start_stage];
-                    boss_name = temp_stage_data.boss.name;
-                    graphLib.surfaceFromFile(face_filename, &face_surface);
-                    break;
-                }
-            }
-        }
-    }
-    previous_pos = pos;
-
-
-    std::string cursor_filename = FILEPATH + "/images/backgrounds/player_faces_front.png";
-    graphicsLib_gSurface cursor_surface;
-    graphLib.surfaceFromFile(cursor_filename, &cursor_surface);
-    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
-
-
-    soundManager.load_music(game_data.stage_select_music_filename);
-    soundManager.play_music();
-
-
-    graphLib.updateScreen();
-
-    timer.delay(200);
-    input.clean();
-    while (finished == false) {
-        bool moved = false;
-        input.read_input();
-        if (input.p1_input[BTN_QUIT]) {
-            // show leave dialog
-#if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            dialogs dialogs_obj;
-            if (dialogs_obj.show_leave_game_dialog() == true) {
-                soundManager.stop_music();
-                SDL_Quit();
-                exit(0);
-            }
-#endif
-        } else if (input.p1_input[BTN_START]) {
-            if (map_data.points[pos.x][pos.y] > 10) {
-                int stage_n = map_data.points[pos.x][pos.y]-10;
-                soundManager.stop_music();
-                return stage_n;
-            } else if (map_data.points[pos.x][pos.y] == STAGE_SELECT_EDIT_MODE_CASTLE && fio.can_access_castle(game_save) == true) {
-                soundManager.stop_music();
-                return CASTLE1_STAGE1;
-            } else {
-                soundManager.play_sfx(SFX_PLAYER_HIT);
-            }
-        // @TODO: move all houses util not PATH //
-        } else if (input.p1_input[BTN_LEFT]) {
-            moved = walk_path(-1, 0, pos, map_data);
-            input.clean();
-            timer.delay(100);
-        } else if (input.p1_input[BTN_RIGHT]) {
-            moved = walk_path(1, 0, pos, map_data);
-            input.clean();
-            timer.delay(100);
-        } else if (input.p1_input[BTN_UP]) {
-            moved = walk_path(0, -1, pos, map_data);
-            input.clean();
-            timer.delay(100);
-        } else if (input.p1_input[BTN_DOWN]) {
-            moved = walk_path(0, 1, pos, map_data);
-            input.clean();
-            timer.delay(100);
-        }
-
-        if (moved == true) {
-            soundManager.play_sfx(SFX_CURSOR);
-            // show move animation
-            if (previous_pos.x != pos.x || previous_pos.y != pos.y) {
-                int diffx = previous_pos.x - pos.x;
-                int diffy = previous_pos.y - pos.y;
-
-                int adjust = 0;
-                for (int i=0; i<abs(diffx*TILESIZE); i+=2) {
-                    if (diffx > 0) {
-                        adjust-=2;
-                    } else {
-                        adjust+=2;
-                    }
-                    graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-                    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(previous_pos.x*TILESIZE+adjust, previous_pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
-                    graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
-                    graphLib.updateScreen();
-                    timer.delay(1);
-                }
-                adjust = 0;
-                for (int i=0; i<abs(diffy*TILESIZE); i+=2) {
-                    if (diffy > 0) {
-                        adjust-=2;
-                    } else {
-                        adjust+=2;
-                    }
-                    graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-                    graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(previous_pos.x*TILESIZE, previous_pos.y*TILESIZE+adjust), &cursor_surface, &graphLib.gameScreen);
-                    graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
-                    graphLib.updateScreen();
-                    timer.delay(1);
-                }
-            }
-            previous_pos = pos;
-        }
-
-        graphLib.copyArea(st_rectangle(RES_W*current_bg_frame, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(cursor_surface.height*game_save.selected_player, 0, cursor_surface.height, cursor_surface.height), st_position(pos.x*TILESIZE, pos.y*TILESIZE), &cursor_surface, &graphLib.gameScreen);
-
-        // show stage and boss data, if is over a stage point //
-        graphLib.clear_area(0, 180, RES_W, 60, 0, 0, 0);
-        if (map_data.points[pos.x][pos.y] > 10) {
-            int stage_n = map_data.points[pos.x][pos.y]-10;
-            if (moved == true) {
-                fio.read_stage(temp_stage_data, map_data.points[pos.x][pos.y]-10);
-                face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[stage_n];
-                boss_name = temp_stage_data.boss.name;
-                graphLib.surfaceFromFile(face_filename, &face_surface);
-            }
-            graphLib.draw_text(10, 190, temp_stage_data.name);
-            graphLib.draw_text(10, 205, "LAIR OF");
-            graphLib.draw_text(72, 205, boss_name);
-            graphLib.draw_text(10, 220, "[PRESS START TO ENTER]");
-            graphLib.copyArea(st_position(RES_W-52, 190), &face_surface, &graphLib.gameScreen);
-        // show castle data
-        } else if (map_data.points[pos.x][pos.y] == STAGE_SELECT_EDIT_MODE_CASTLE) {
-            if (fio.can_access_castle(game_save) == true) {
-                if (moved == true) {
-                    int castle_n = CASTLE1_STAGE1;
-                    for (int i=CASTLE1_STAGE2; i<=CASTLE1_STAGE5; i++) {
-                        if (game_save.stages[i] == 0) {
-                            castle_n = i;
-                            break;
-                        }
-                    }
-
-                    fio.read_stage(temp_stage_data, castle_n);
-                    face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[castle_n];
-                    boss_name = temp_stage_data.boss.name;
-                    graphLib.surfaceFromFile(face_filename, &face_surface);
-                }
-                graphLib.draw_text(10, 190, temp_stage_data.name);
-                graphLib.draw_text(10, 205, "LAIR OF");
-                graphLib.draw_text(72, 205, boss_name);
-                graphLib.copyArea(st_position(RES_W-52, 190), &face_surface, &graphLib.gameScreen);
-            } else {
-                graphLib.draw_text(10, 190, "LOCKED");
-            }
-        }
-
-        if (timer.getTimer() > bg_frame_timer) {
-            bg_frame_timer = timer.getTimer()+200;
-            current_bg_frame++;
-            //std::cout << "inc current_bg_frame[" << current_bg_frame << "]" << std::endl;
-            if (current_bg_frame >= bg_frames) {
-                //std::cout << "reset current_bg_frame" << std::endl;
-                current_bg_frame = 0;
-            }
-        }
-
-        graphLib.updateScreen();
-        timer.delay(10);
-    }
-}
 
 int stage_select::pick_stage(int stage_n)
 {
     bool finished = false;
-    std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select_screen.png";
+    CURRENT_FILE_FORMAT::file_io fio;
+    bool can_access_castle = fio.can_access_castle(game_save);
+    int max_stage = gameControl.get_last_castle_stage();
+
+    std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select.png";
     graphicsLib_gSurface bg_surface;
     graphLib.surfaceFromFile(bg_filename, &bg_surface);
 
@@ -386,6 +162,42 @@ int stage_select::pick_stage(int stage_n)
     if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
         graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
     }
+
+
+    graphicsLib_gSurface background_face_surface;
+    graphLib.surfaceFromFile(FILEPATH + "/images/faces/background.png", &background_face_surface);
+
+    graphicsLib_gSurface light_face_surface;
+    graphLib.surfaceFromFile(FILEPATH + "/images/faces/background_light.png", &light_face_surface);
+    graphicsLib_gSurface dark_face_surface;
+    graphLib.surfaceFromFile(FILEPATH + "/images/faces/background_dark.png", &dark_face_surface);
+
+    st_position face_pos = st_position(30, 60+60);
+    // draw faces
+    for (int i=0; i<=8; i++) {
+        face_pos = calc_face_pos(i);
+        std::string face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[i];
+        graphicsLib_gSurface face_surface;
+        graphLib.surfaceFromFile(face_filename, &face_surface);
+        graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &background_face_surface, &graphLib.gameScreen);
+        graphLib.copyArea(st_position(face_pos.x, face_pos.y), &face_surface, &graphLib.gameScreen);
+        if (i <= 8 && game_save.stages[i] != 0) {
+            graphLib.copyArea(st_position(face_pos.x, face_pos.y), &beaten_surface, &graphLib.gameScreen);
+        }
+    }
+    // skull castle
+    face_pos = calc_face_pos(9);
+    graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &background_face_surface, &graphLib.gameScreen);
+    if (can_access_castle) {
+        std::string face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[9];
+        graphicsLib_gSurface face_surface;
+        graphLib.surfaceFromFile(face_filename, &face_surface);
+        graphLib.copyArea(st_position(face_pos.x, face_pos.y), &face_surface, &graphLib.gameScreen);
+    }
+
+    face_pos = calc_face_pos(stage_n);
+    graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &light_face_surface, &graphLib.gameScreen);
+
     draw_stage_select_text_info(stage_n);
     graphLib.updateScreen();
 
@@ -395,10 +207,6 @@ int stage_select::pick_stage(int stage_n)
     timer.delay(200);
     input.clean();
 
-    CURRENT_FILE_FORMAT::file_io fio;
-    bool can_access_castle = fio.can_access_castle(game_save);
-
-    int max_stage = gameControl.get_last_castle_stage();
 
     while (finished == false) {
         bool moved = false;
@@ -423,14 +231,18 @@ int stage_select::pick_stage(int stage_n)
             }
         // @TODO: move all houses util not PATH //
         } else if (input.p1_input[BTN_LEFT]) {
+            graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &dark_face_surface, &graphLib.gameScreen);
             stage_n--;
             moved = true;
         } else if (input.p1_input[BTN_RIGHT]) {
+            graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &dark_face_surface, &graphLib.gameScreen);
             stage_n++;
             moved = true;
         }
 
         if (moved) {
+
+
             soundManager.play_sfx(SFX_CURSOR);
 
             std::cout << "stage_n[" << stage_n << "], max_stage[" << max_stage << "]" << std::endl;
@@ -442,6 +254,9 @@ int stage_select::pick_stage(int stage_n)
                 stage_n = 0;
             }
 
+            face_pos = calc_face_pos(stage_n);
+            graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &light_face_surface, &graphLib.gameScreen);
+
             // adjust to always show castle #1 images
             area_pos = stage_n*RES_W;
             if (stage_n > CASTLE1_STAGE1) {
@@ -451,10 +266,7 @@ int stage_select::pick_stage(int stage_n)
 
             input.clean();
             timer.delay(100);
-            graphLib.copyArea(st_rectangle(area_pos, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-            if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
-                graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
-            }
+            //graphLib.copyArea(st_rectangle(area_pos, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
             draw_stage_select_text_info(stage_n);
 
         }
@@ -463,23 +275,87 @@ int stage_select::pick_stage(int stage_n)
         timer.delay(10);
 
     }
+
 }
+
+st_position stage_select::calc_face_pos(int stage_n)
+{
+    st_position face_pos;
+    if (stage_n >= 5) {
+        if (stage_n > 9) {
+            face_pos.x = 60*(9-5)+30;
+        } else {
+            face_pos.x = 60*(stage_n-5)+30;
+        }
+    } else {
+        face_pos.x = 60*(stage_n-1)+90;
+    }
+    if (stage_n == 1 || stage_n == 3) {
+        face_pos.y = 40;
+    } else if (stage_n == 2) {
+        face_pos.y = 32;
+    } else if (stage_n == 6 || stage_n == 8) {
+        face_pos.y = RES_H - 30-40;
+    } else if (stage_n == 5 || stage_n >= 9) {
+        face_pos.y = RES_H - 30-48;
+    } else if (stage_n == 7) {
+        face_pos.y = RES_H - 30-32;
+    } else {
+        face_pos.y = 48;
+    }
+    return face_pos;
+}
+
+
 
 void stage_select::draw_stage_select_text_info(int stage_n)
 {
+    // @TODO - if text is more than 11 characters, and have space, break it
     CURRENT_FILE_FORMAT::file_io fio;
     fio.read_stage(temp_stage_data, stage_n);
 
-    graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y, "STAGE:");
-    graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+12, temp_stage_data.name);
+    // clear panel
+    graphLib.clear_area(6, 96, 91, 48, 71, 69, 68);
+    graphLib.clear_area(224, 96, 91, 48, 71, 69, 68);
 
-    graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+35, "LAIR OF:");
-    graphLib.draw_text(STAGE_SELECT_TEXT_X, STAGE_SELECT_TEXT_Y+47, temp_stage_data.boss.name);
+
+
+    std::vector<std::string> stage_name_list;
+    std::string stage_name(temp_stage_data.name);
+    if (stage_name.length() <= 11) {
+        stage_name_list.push_back(stage_name);
+    } else if (stage_name.find(" ") != std::string::npos) {
+        stage_name_list = StringUtils::split(stage_name, " ");
+    } else {
+        stage_name_list.push_back(stage_name.substr(0, 11));
+    }
+
+
+
+    graphLib.draw_text(STAGE_SELECT_STAGE_TEXT_X, STAGE_SELECT_STAGE_TEXT_Y, "STAGE:");
+    for (int i=0; i<stage_name_list.size(); i++) {
+        graphLib.draw_text(STAGE_SELECT_STAGE_TEXT_X, STAGE_SELECT_STAGE_TEXT_Y+12*(i+1), stage_name_list.at(i));
+    }
+
+    std::string boss_name(temp_stage_data.boss.name);
+    std::vector<std::string> boss_name_list;
+    if (boss_name.length() <= 11) {
+        boss_name_list.push_back(boss_name);
+    } else if (boss_name.find(" ") != std::string::npos) {
+        boss_name_list = StringUtils::split(boss_name, " ");
+    } else {
+        boss_name_list.push_back(boss_name.substr(0, 11));
+    }
+
+    graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y, "LAIR OF:");
+    for (int i=0; i<boss_name_list.size(); i++) {
+        graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y+12*(i+1), boss_name_list.at(i));
+    }
 
     if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
-        graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[UNAVAILABE IN FREE]", st_color(250, 250, 250));
+        graphLib.draw_centered_text(RES_H-10, "[UNAVAILABE IN DEMO VERSION]", st_color(250, 250, 250));
     } else {
-        graphLib.draw_centered_text(STAGE_SELECT_TEXT_Y+80, "[PRESS START TO ENTER]", st_color(250, 250, 250));
+        graphLib.draw_centered_text(RES_H-10, "[PRESS START TO ENTER STAGE]", st_color(250, 250, 250));
     }
 
 }

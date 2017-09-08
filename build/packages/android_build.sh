@@ -32,6 +32,7 @@ case $response in
 		export ROCKBOTDIR
 		#copy icon
 		cp ../packages/files/android/icon_v$version_number.png ~/Programas/android-studio/sdk/rockbot_build/src/icon.png
+		#read -p "Press any key to continue..." -n1 -s
 		#copy data
 		rm -r -f ./Android
 		mkdir ./Android

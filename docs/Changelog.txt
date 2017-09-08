@@ -604,14 +604,21 @@ FILE-FORMAT-V4:
 - EDITOR: dialogs are being reset on editor
 - EDITOR: when selecting cancel on leave dialog, must stay in app
 
-
+(2.0.0.87)
 - finish file selection bar (show icons for all stages, e-tanks, lifes)
 - add a warning that play services can crash the game in some devices when enabling it
 - add show fps option (useful for players complaining about speed)
 - remove the play services configuration from first boot
-
-
-
 - fix AI teleport for bosses that are out of screen due to initial position Y
 - fix enemies collision for unused frames, use sprite_pos and frame_size instead
 - add auto-charge option in input config
+- fix vulnerable area once again after fix for unused frames, return empty when not used
+- [Rockbot1] fix missile direction graphics
+- new projectile trajectory: out of screen to the npc/player
+- remove jump and other moves FROM kurupira bot that uses frames without the boar
+- add option to projectile to make possible for it not to disappear after hitting an NPC
+- AI: morph into - becomes another NPC without changing HP and some other flags
+
+
+#######
+- new stage select screen based fighting games

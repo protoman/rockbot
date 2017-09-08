@@ -77,20 +77,11 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-
-
 - super-fast after passing through a boss door
 - door should activate transition only if py > link.y
 - usuário reportou crash no snowbot
-- fix semi-charged (left board by mistake)
 
 SERIOUS:
-- new stage selection screen that shows all available stages (https://tcrf.net/images/9/9d/RMX6StageSelectBeta.png)
-    # fazer mapa quadrado com bordas arredondadas
-    # inimigos em círculos, 4 em cima, 4 em baixo
-    # nas laterais, aparece informação do estágio e chefe
-    # seleção é esquerda/direita apenas
-    # castelo aparece como item extra na linha de baixo, "empurrando" 2 cículos para os lados
 - after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
 - limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
 - air dash won't stop if head is colliding with above terrain

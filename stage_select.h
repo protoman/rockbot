@@ -24,9 +24,11 @@ class stage_select
 public:
 	stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]);
     short finished_stages() const;
-    int pick_stage_map(int start_stage);
 
-    int pick_stage(int start_stage);
+    int pick_stage(int stage_n);
+
+    st_position calc_face_pos(int stage_n);
+
     void draw_stage_select_text_info(int stage_n);
 
     bool walk_path(int incx, int incy, st_position &pos, CURRENT_FILE_FORMAT::file_stage_select map_data);
