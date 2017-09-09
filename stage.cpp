@@ -367,6 +367,11 @@ short stage::get_current_map_gfx_mode()
     return get_current_map()->get_map_gfx_mode();
 }
 
+void stage::add_autoscroll_delay()
+{
+    autoscroll_timer = timer.getTimer()+800;
+}
+
 void stage::check_map_effect()
 {
     if (number == -1 || stage_is_loaded == false) {

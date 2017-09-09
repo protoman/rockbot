@@ -57,6 +57,7 @@ public:
     bool subboss_alive_on_left(short tileX);
     void activate_final_boss_teleporter();
     short get_current_map_gfx_mode();
+    void add_autoscroll_delay();
 
 private:
     void check_map_effect();

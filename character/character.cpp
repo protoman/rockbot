@@ -1470,7 +1470,7 @@ bool character::slide(st_float_position mapScrolling)
     // deal with cases player should not slide
     /// @TODO: share common code between jump and slide
 
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (state.animation_type == ANIM_TYPE_TELEPORT || state.animation_type == ANIM_TYPE_SHIELD) {
         return false;
     }
 
@@ -1802,7 +1802,12 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     if (incx > 0) {
         direction = ANIM_DIRECTION_RIGHT;
     }
+    int check_y = get_hitbox().y;
     if (incx > 0 && map_lock == TERRAIN_DOOR) {
+        std::cout << "#1 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
+    }
+    if (incx > 0 && map_lock == TERRAIN_DOOR && check_y > map_pos.y*TILESIZE) {
+        std::cout << "#2 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
         gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
 		return true;
 	}

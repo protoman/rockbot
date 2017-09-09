@@ -622,3 +622,8 @@ FILE-FORMAT-V4:
 
 #######
 - new stage select screen based fighting games
+- new sprites for energy/weapon
+- super-fast after passing through a boss door
+- door should activate transition only if py > link.y
+- after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
+- dash + shield makes player move backwards and enter inside walls

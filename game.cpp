@@ -280,6 +280,7 @@ void game::start_stage()
         draw_lib.update_screen();
         timer.delay(20);
     }
+    loaded_stage.add_autoscroll_delay();
 
 	/// @TODO: do not show twice
     //if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
@@ -1110,6 +1111,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     }
     timer.delay(6);
     game_unpause();
+    loaded_stage.add_autoscroll_delay();
     loaded_stage.showStage();
 }
 
@@ -1391,7 +1393,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = STAGE4;
+    currentStage = STAGE5;
     game_save.difficulty = DIFFICULTY_NORMAL;
     game_save.selected_player = PLAYER_1;
 

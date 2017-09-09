@@ -76,25 +76,15 @@ OK - add screens for bosses intros
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-OK - super-fast after passing through a boss door
-- door should activate transition only if py > link.y
-- usuário reportou crash no snowbot
 
 SERIOUS:
-- after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
 - limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
-- air dash won't stop if head is colliding with above terrain
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
-- Mm en el Man del fuego hay un bug cuando te tiras por un borde y hagas más rápido al jefe y el jefe traspasa la puerta xd
-- EDITOR: sometimes objects won't appear on editarea (check techno's 002)
 - not setting finished-game for selecting 4 player? (finished the game, but didn't opened 4 player selection)
 
 
 MEDIUM:
-- mudar gráficos de energia e weapon (fazer quadrados)
-- dash + shield makes player move backwards and enter inside walls
-- ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
-- retestar configuração de controles, parece que não está dando para retornar direito (parece ler uma teclabotão novamente)
+- retestar configuração de controles, parece que não está dando para retornar direito (lê uma tecla/botão novamente)
 - faltando config para botão de escudo
 - recalibrar random do drop_item; tentar descobrir as chances usadas no megaman
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
@@ -103,6 +93,8 @@ MEDIUM:
 - redraw entirely destrin tank
 
 LOW:
+- ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
+- air dash won't stop if head is colliding with above terrain
 - ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
 - update screenshots in the app-store for rockbot 2 free
 - colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
@@ -111,8 +103,6 @@ LOW:
 - implementar abertura usando edição de cenas
 - update build script files to copy font to GAMEDIR (remove non-used fonts and graphics)
 
-
-}
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
