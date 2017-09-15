@@ -78,43 +78,36 @@ OK - add screens for bosses intros
 CRITICAL:
 
 SERIOUS:
-- limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
+TESTAR - limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 - not setting finished-game for selecting 4 player? (finished the game, but didn't opened 4 player selection)
 
 
 MEDIUM:
-- retestar configuração de controles, parece que não está dando para retornar direito (lê uma tecla/botão novamente)
-- faltando config para botão de escudo
+OK - retestar configuração de controles, parece que não está dando para retornar direito (lê uma tecla/botão novamente)
+OK- faltando config para botão de escudo
 - recalibrar random do drop_item; tentar descobrir as chances usadas no megaman
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 - set armor pieces abilities, text and projectiles
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
-- redraw entirely destrin tank
 
 LOW:
-- ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
-- air dash won't stop if head is colliding with above terrain
-- ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
+OK - ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
 - update screenshots in the app-store for rockbot 2 free
 - colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
 - red shield dropped from platform and died (gear bot stage)
 - Gear Bot pára de andar (character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos)
-- implementar abertura usando edição de cenas
 - update build script files to copy font to GAMEDIR (remove non-used fonts and graphics)
 
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
+- redraw entirely destrin tank
 - change stage 5 to be a sequence of bosses, remove teleporters
 - add castle 1 stage 6 with only destrin boss.
 - revisar e finalizar diálogos
 - finalizar intro
-- criar opção export/import dentro da própria tele de save
-    # colocar aviso que pode congelar e precisa de internet
-    # independente de cloudServices
-    # tentar implementar via JNI diretamente no jogo ao invés de na SDL, sem usar native
 
 Castle Bosses:
     #1: brick
@@ -135,7 +128,12 @@ VERSION 2.0.0 RELEASE #2
 - AI: add "backtrack" movement, keep sprite in the inverse direction it is moving (???) qual a razão?
 - add SDL Gfx to project
 - make missile rotate to a given angle using SDL Gfx
-
+- ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
+- air dash won't stop if head is colliding with above terrain
+- criar opção export/import dentro da própria tela de save
+    # colocar aviso que pode congelar e precisa de internet
+    # independente de cloudServices
+    # tentar implementar via JNI diretamente no jogo ao invés de na SDL, sem usar native
 
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #3
@@ -227,13 +225,9 @@ VERSION 2.0.0 PRE-RELEASE #4
 - as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
 - revisar código da main.cpp
 - separar código de plataformas em arquivos especificos dentro do diretório "ports"
-- EDITOR::SCENES: add scenes selector in editor
-- EDITOR::SCENES: use selected scenes for intro/ending
-- EDITOR::SCENES: implementar movie editor
-    # permitir cenas async
 - check how to create apps in Android that add stages or complete games that user can install and select
-- OPTIMIZAÇÃO: load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
 - OPTIMIZAÇÃO:
+    # load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
     # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
     # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente
 - substituir todos os efeitos sonoros por versões free

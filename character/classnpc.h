@@ -58,6 +58,7 @@ public:
     void npc_set_position(st_float_position pos);
     void npc_set_direction(short dir);
     void npc_set_initialized(short init);
+    void set_parent_id(int parent_id);
 
 
 
@@ -97,6 +98,7 @@ protected:
     // boss member variables
     short _initialized; /**< TODO */
     bool _screen_blinked; /**< TODO */
+    int _parent_id;
 
 
 };

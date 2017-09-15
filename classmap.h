@@ -161,6 +161,8 @@ public:
 
     classnpc *spawn_map_npc(short int npc_id, st_position npc_pos, short direction, bool player_friend, bool progressive_span);
 
+    int child_npc_count(int parent_id);
+
     void move_npcs();
 
     void show_npcs();

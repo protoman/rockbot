@@ -30,6 +30,7 @@ key_map::key_map()
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump, game_config.selected_language) + std::string(": "));
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire, game_config.selected_language) + std::string(": "));
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash, game_config.selected_language) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield, game_config.selected_language) + std::string(": "));
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl, game_config.selected_language) + std::string(": "));
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr, game_config.selected_language) + std::string(": "));
     _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start, game_config.selected_language) + std::string(": "));
@@ -164,7 +165,7 @@ Sint8 key_map::draw_config_input() const
     options.push_back(autocharge_mode_string);
 
 
-    Sint8 selected_option = 0;
+    Sint8 selected_option = -1;
     option_picker main_config_picker(false, config_text_pos, options, true);
     selected_option = main_config_picker.pick();
     return selected_option;
@@ -202,6 +203,7 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     sprintf(btn_codes[BTN_JUMP], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str());
     sprintf(btn_codes[BTN_ATTACK], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str());
     sprintf(btn_codes[BTN_DASH], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str());
+    sprintf(btn_codes[BTN_SHIELD], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_SHIELD]).c_str());
     sprintf(btn_codes[BTN_L], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_L]).c_str());
     sprintf(btn_codes[BTN_R], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_R]).c_str());
     sprintf(btn_codes[BTN_START], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_START]).c_str());
@@ -213,6 +215,7 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     sprintf(btn_codes[BTN_JUMP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str(), game_config_copy.button_codes[BTN_JUMP]);
     sprintf(btn_codes[BTN_ATTACK], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str(), game_config_copy.button_codes[BTN_ATTACK]);
     sprintf(btn_codes[BTN_DASH], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str(), game_config_copy.button_codes[BTN_DASH]);
+    sprintf(btn_codes[BTN_SHIELD], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_SHIELD]).c_str(), game_config_copy.button_codes[BTN_SHIELD]);
     sprintf(btn_codes[BTN_L], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_L]).c_str(), game_config_copy.button_codes[BTN_L]);
     sprintf(btn_codes[BTN_R], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_R]).c_str(), game_config_copy.button_codes[BTN_R]);
     sprintf(btn_codes[BTN_START], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_START]).c_str(), game_config_copy.button_codes[BTN_START]);
@@ -224,6 +227,7 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     sprintf(btn_codes[BTN_JUMP], "[%d]", game_config_copy.button_codes[BTN_JUMP]);
     sprintf(btn_codes[BTN_ATTACK], "[%d]", game_config_copy.button_codes[BTN_ATTACK]);
     sprintf(btn_codes[BTN_DASH], "[%d]", game_config_copy.button_codes[BTN_DASH]);
+    sprintf(btn_codes[BTN_SHIELD], "[%d]", game_config_copy.button_codes[BTN_SHIELD]);
     sprintf(btn_codes[BTN_L], "[%d]", game_config_copy.button_codes[BTN_L]);
     sprintf(btn_codes[BTN_R], "[%d]", game_config_copy.button_codes[BTN_R]);
     sprintf(btn_codes[BTN_START], "[%d]", game_config_copy.button_codes[BTN_START]);
@@ -236,6 +240,7 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump, game_config.selected_language), std::string(btn_codes[BTN_JUMP])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire, game_config.selected_language), std::string(btn_codes[BTN_ATTACK])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash, game_config.selected_language), std::string(btn_codes[BTN_DASH])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield, game_config.selected_language), std::string(btn_codes[BTN_SHIELD])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl, game_config.selected_language), std::string(btn_codes[BTN_L])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr, game_config.selected_language), std::string(btn_codes[BTN_R])));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start, game_config.selected_language), std::string(btn_codes[BTN_START])));

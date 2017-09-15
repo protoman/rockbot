@@ -116,11 +116,11 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-if (gameControl.is_free_version() == true) {
-    graphLib.draw_text(RES_W-12*9, 8, "FREE VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-} else {
-    graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-}
+    if (gameControl.is_free_version() == true) {
+        graphLib.draw_text(RES_W-12*9, 8, "FREE VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
+    } else {
+        graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
+    }
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
     graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
 
@@ -288,10 +288,16 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 
-	short selected_option = 0;
+    short selected_option = 0;
+    bool picked_once = false;
 	while (selected_option != -1) {
         option_picker main_config_picker(false, config_text_pos, options, true);
-		selected_option = main_config_picker.pick();
+        if (picked_once == false) {
+            selected_option = main_config_picker.pick();
+            picked_once = true;
+        } else {
+            selected_option = main_config_picker.pick(selected_option+1);
+        }
 		if (selected_option == -1) {
 			break;
 		}

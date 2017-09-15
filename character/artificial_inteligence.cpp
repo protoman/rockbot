@@ -23,6 +23,8 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 #define JUMP_ROOF_MIN_SPEED 3
+#define MAX_NPC_SPAWN 3
+
 
 std::vector<character*> *artificial_inteligence::player_list=NULL;
 
@@ -1929,6 +1931,11 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
 
 void artificial_inteligence::execute_ai_step_spawn_npc()
 {
+    // limit for spawed npcs
+    if (gameControl.get_current_map_obj()->child_npc_count(get_number()) >= MAX_NPC_SPAWN) {
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        return;
+    }
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
@@ -1947,14 +1954,13 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             return;
         }
 
+        npc_ref->set_parent_id(get_number());
+
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, SET NEW BOSS");
-#endif
-
-
+            #ifdef ANDROID
+                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, SET NEW BOSS");
+            #endif
             std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);

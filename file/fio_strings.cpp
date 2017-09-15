@@ -211,6 +211,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_key_right], "%s", "DIREITA");
             sprintf(lines[strings_ingame_config_key_jump], "%s", "PULO");
             sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
+            sprintf(lines[strings_ingame_config_key_shield], "%s", "ESCUDO");
             sprintf(lines[strings_ingame_config_key_fire], "%s", "TIRO");
             sprintf(lines[strings_ingame_config_key_start], "%s", "START");
             sprintf(lines[strings_ingame_config_key_keyl], "%s", "BOTAO-L");
@@ -338,6 +339,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_key_right], "%s", "RIGHT");
             sprintf(lines[strings_ingame_config_key_jump], "%s", "JUMP");
             sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
+            sprintf(lines[strings_ingame_config_key_shield], "%s", "SHIELD");
             sprintf(lines[strings_ingame_config_key_fire], "%s", "FIRE");
             sprintf(lines[strings_ingame_config_key_start], "%s", "START");
             sprintf(lines[strings_ingame_config_key_keyl], "%s", "BUTTON-L");

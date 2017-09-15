@@ -935,6 +935,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_key_right,
     strings_ingame_config_key_jump,
     strings_ingame_config_key_dash,
+    strings_ingame_config_key_shield,
     strings_ingame_config_key_fire,
     strings_ingame_config_key_start,
     strings_ingame_config_key_keyl,

@@ -1982,6 +1982,16 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
     return npc_ref;
 }
 
+int classMap::child_npc_count(int parent_id)
+{
+    int count = 0;
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+    }
+    return count;
+}
+
 
 void classMap::move_npcs() /// @TODO - check out of screen
 {

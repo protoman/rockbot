@@ -221,7 +221,7 @@ int stage_select::pick_stage(int stage_n)
                 exit(0);
             }
 #endif
-        } else if (input.p1_input[BTN_START]) {
+        } else if (input.p1_input[BTN_JUMP]) {
             if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
                 soundManager.play_sfx(SFX_PLAYER_HIT);
             } else {
@@ -352,10 +352,12 @@ void stage_select::draw_stage_select_text_info(int stage_n)
         graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y+12*(i+1), boss_name_list.at(i));
     }
 
+    int text_pos_y = 227;
+    graphLib.draw_text(21, text_pos_y, "[SELECT STAGE]", st_color(250, 250, 250));
     if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
-        graphLib.draw_centered_text(RES_H-10, "[UNAVAILABE IN DEMO VERSION]", st_color(250, 250, 250));
+        graphLib.draw_text(188, text_pos_y, "[UNAVAILABE IN DEMO]", st_color(250, 250, 250));
     } else {
-        graphLib.draw_centered_text(RES_H-10, "[PRESS START TO ENTER STAGE]", st_color(250, 250, 250));
+        graphLib.draw_text(188, text_pos_y, "[ENTER STAGE]", st_color(250, 250, 250));
     }
 
 }
