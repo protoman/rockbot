@@ -1214,13 +1214,13 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
 	}
     */
 
-    if (game_save.armor_pieces[ARMOR_ARMS] == true) {
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
         copyArea(st_position(198, 200), &armor_icon_arms, &gameScreen);
     }
-    if (game_save.armor_pieces[ARMOR_BODY] == true) {
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
         copyArea(st_position(221, 200), &armor_icon_body, &gameScreen);
     }
-    if (game_save.armor_pieces[ARMOR_LEGS] == true) {
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true) {
         copyArea(st_position(175, 200), &armor_icon_legs, &gameScreen);
     }
 

@@ -43,13 +43,15 @@ public:
     std::string get_language_prefix(int config);
 
     // === GENERIC FROM-FILE STRINGS === //
-    std::vector<std::string> get_string_list_from_file(std::string filename, int language);
-    void write_string_list_to_file(std::vector<std::string> list, std::string filename, int language);
+    std::vector<std::string> get_string_list_from_file(std::string filename);
+    void write_string_list_to_file(std::vector<std::string> list, std::string filename);
 
 
     // === scenes string files === //
     std::vector<std::string> get_string_list_from_scene_text_file(int text_scene_n, int language);
     void write_scene_text_file(int text_scene_n, std::vector<std::string> list, int language);
+
+    std::string get_language_filename_prefix(int language);
 
 
 private:
@@ -59,7 +61,6 @@ private:
     void create_default_ingame_strings();
     std::vector<std::string> add_missing_default_ingame_strings(std::vector<std::string> list, int language);
     std::string get_stage_dialogs_filename(short stage_id, int language);
-    std::string get_language_filename_prefix(int language);
     std::string convert_text_symbols(std::string text);
 
 

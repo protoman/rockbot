@@ -10,6 +10,7 @@
 #include "files_editor/stringseditor.h"
 #include "file/fio_strings.h"
 
+
 namespace Ui {
 class armor_edit;
 }
@@ -25,57 +26,10 @@ public:
 
 
 private slots:
-    void on_p1_arm_comboBox_currentIndexChanged(int index);
-    void on_p1_body_comboBox_currentIndexChanged(int index);
-    void on_p1_legs_comboBox_currentIndexChanged(int index);
-    void on_p2_arm_comboBox_currentIndexChanged(int index);
-    void on_p2_body_comboBox_currentIndexChanged(int index);
-    void on_p2_legs_comboBox_currentIndexChanged(int index);
-    void on_p3_arm_comboBox_currentIndexChanged(int index);
-    void on_p3_body_comboBox_currentIndexChanged(int index);
-    void on_p3_legs_comboBox_currentIndexChanged(int index);
-    void on_p4_arm_comboBox_currentIndexChanged(int index);
-    void on_p4_body_comboBox_currentIndexChanged(int index);
-    void on_p4_legs_comboBox_currentIndexChanged(int index);
-
-    void on_arm_player1_toolButton1_clicked();
-    void on_arm_player1_toolButton2_clicked();
-    void on_arm_player1_toolButton3_clicked();
-    void on_arm_player2_toolButton1_clicked();
-    void on_arm_player2_toolButton2_clicked();
-    void on_arm_player2_toolButton3_clicked();
-    void on_arm_player3_toolButton1_clicked();
-    void on_arm_player3_toolButton2_clicked();
-    void on_arm_player3_toolButton3_clicked();
-    void on_arm_player4_toolButton1_clicked();
-    void on_arm_player4_toolButton2_clicked();
-    void on_arm_player4_toolButton3_clicked();
-    void on_body_player1_toolButton1_clicked();
-    void on_body_player1_toolButton2_clicked();
-    void on_body_player1_toolButton3_clicked();
-    void on_body_player2_toolButton1_clicked();
-    void on_body_player2_toolButton2_clicked();
-    void on_body_player2_toolButton3_clicked();
-    void on_body_player3_toolButton1_clicked();
-    void on_body_player3_toolButton2_clicked();
-    void on_body_player3_toolButton3_clicked();
-    void on_body_player4_toolButton1_clicked();
-    void on_body_player4_toolButton2_clicked();
-    void on_body_player4_toolButton3_clicked();
-    void on_legs_player1_toolButton1_clicked();
-    void on_legs_player1_toolButton2_clicked();
-    void on_legs_player1_toolButton3_clicked();
-    void on_legs_player2_toolButton1_clicked();
-    void on_legs_player2_toolButton2_clicked();
-    void on_legs_player2_toolButton3_clicked();
-    void on_legs_player3_toolButton1_clicked();
-    void on_legs_player3_toolButton2_clicked();
-    void on_legs_player3_toolButton3_clicked();
-    void on_legs_player4_toolButton1_clicked();
-    void on_legs_player4_toolButton2_clicked();
-    void on_legs_player4_toolButton3_clicked();
-
-    void on_language_comboBox_currentIndexChanged(int index);
+    void on_arm_comboBox_currentIndexChanged(int index);
+    void on_body_comboBox_currentIndexChanged(int index);
+    void on_legs_comboBox_currentIndexChanged(int index);
+    void on_playerSelect_comboBox_currentIndexChanged(int index);
 
 public slots:
     void on_string_selected(int string_id);

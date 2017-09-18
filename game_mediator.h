@@ -9,6 +9,7 @@
 
 #include "file/format.h"
 #include "file/fio_common.h"
+#include "file/fio_strings.h"
 
 class GameMediator
 {

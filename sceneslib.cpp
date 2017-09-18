@@ -518,7 +518,7 @@ void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
     graphLib.blank_screen();
     // read bosses strings
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt", LANGUAGE_ENGLISH);
+    std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt");
 
     for (int i=0; i<CASTLE1_STAGE5; i++) {
 

@@ -437,7 +437,7 @@ std::vector<string> draw::create_engine_credits_text()
 {
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    std::vector<string> credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt", LANGUAGE_ENGLISH);
+    std::vector<string> credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {

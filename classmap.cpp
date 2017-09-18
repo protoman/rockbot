@@ -954,20 +954,20 @@ void classMap::drop_item(classnpc* npc_ref)
     if (npc_ref->is_subboss()) {
         obj_type = DROP_ITEM_ENERGY_BIG;
     } else {
-        if (rand_n <= 10) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_SMALL" << std::endl;
-            obj_type = DROP_ITEM_ENERGY_SMALL;
-        } else if (rand_n <= 20) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_SMALL" << std::endl;
-            obj_type = DROP_ITEM_WEAPON_SMALL;
-        } else if (rand_n <= 25) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_ENERGY_BIG" << std::endl;
+        // 1UP (1%), Big Energy (2%), Big Weapon (2%), Small Energy (15)%, Small Weapon (15%), Score Pearl (53%)
+        // .byt 99, 97, 95, 80, 65, 12 (http://tasvideos.org/RandomGenerators.html)
+        if (rand_n == 99) {
+            obj_type = DROP_ITEM_1UP;
+        } else if (rand_n >= 97) {
             obj_type = DROP_ITEM_ENERGY_BIG;
-        } else if (rand_n <= 30) {
-            //std::cout << ">>>>>>> classMap::drop_item - DROP_ITEM_WEAPON_BIG" << std::endl;
+        } else if (rand_n >= 95) {
             obj_type = DROP_ITEM_WEAPON_BIG;
-        } else {
-            return;
+        } else if (rand_n >= 80) {
+            obj_type = DROP_ITEM_ENERGY_SMALL;
+        } else if (rand_n >= 65) {
+            obj_type = DROP_ITEM_WEAPON_SMALL;
+        } else if (rand_n >= 50) {
+            obj_type = DROP_ITEM_COIN;
         }
     }
     st_position obj_pos;

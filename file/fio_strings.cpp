@@ -586,7 +586,7 @@ namespace format_v4 {
 
 
 
-    std::vector<std::string> fio_strings::get_string_list_from_file(std::string filename, int language)
+    std::vector<std::string> fio_strings::get_string_list_from_file(std::string filename)
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
@@ -609,7 +609,7 @@ namespace format_v4 {
         return res;
     }
 
-    void fio_strings::write_string_list_to_file(std::vector<std::string> list, std::string filename, int language)
+    void fio_strings::write_string_list_to_file(std::vector<std::string> list, std::string filename)
     {
         std::ofstream fp(filename.c_str());
         if (!fp.is_open()) {
@@ -638,7 +638,7 @@ namespace format_v4 {
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + std::string(file_chr);
         if (file_exists(filename)) {
-            text_list = get_string_list_from_file(filename, LANGUAGE_ENGLISH);
+            text_list = get_string_list_from_file(filename);
         }
         // fill empty spaces
         if (text_list.size() < SCENE_TEXT_LINES_N) {
@@ -663,7 +663,7 @@ namespace format_v4 {
             }
         }
 
-        write_string_list_to_file(list, filename, LANGUAGE_ENGLISH);
+        write_string_list_to_file(list, filename);
 
     }
 

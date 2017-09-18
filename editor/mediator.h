@@ -155,7 +155,6 @@ public:
     std::map<int, std::vector<std::string> > stage_dialog_list;
 
 
-
 private:
     Mediator();
     Mediator(Mediator const&){};             // copy constructor is private

@@ -84,9 +84,10 @@ TESTAR - limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number
 
 
 MEDIUM:
-OK - retestar configuração de controles, parece que não está dando para retornar direito (lê uma tecla/botão novamente)
-OK- faltando config para botão de escudo
-- recalibrar random do drop_item; tentar descobrir as chances usadas no megaman
+OK - input config is reading for a command when leaving
+OK - missing shield button in input config
+OK - adjust chances of item dropping (http://tasvideos.org/RandomGenerators.html)
+OK - EDITOR: remove text from armor-edit, as if comes from game strings
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 - set armor pieces abilities, text and projectiles
 - EDITOR: texto da armadura deve ser texto (9 linhas por player)
@@ -103,6 +104,7 @@ OK - ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesm
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
+- revisar chamadas a write_string_list_to_file e get_string_list_from_file para adicionar prefixo de linguagem
 - redraw entirely destrin tank
 - change stage 5 to be a sequence of bosses, remove teleporters
 - add castle 1 stage 6 with only destrin boss.

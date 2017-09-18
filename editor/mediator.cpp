@@ -449,6 +449,8 @@ void Mediator::load_game() {
 
     load_stage_select_data();
 
+    load_armor_dialogs();
+
     ScenesMediator::get_instance()->load_game_scenes();
 
 }
@@ -490,6 +492,8 @@ void Mediator::save_game()
     ScenesMediator::get_instance()->save_game_scenes();
 
     save_dialogs();
+
+    save_armor_dialogs();
 
     save_stage_select_data();
 
@@ -571,6 +575,8 @@ void Mediator::save_stage_select_data()
 {
     fio.write_stage_select_data(stage_select_data);
 }
+
+
 
 
 void Mediator::centNumberFormat(int n) {

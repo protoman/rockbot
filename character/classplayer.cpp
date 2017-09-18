@@ -169,27 +169,27 @@ bool classPlayer::get_item(object_collision &obj_info)
         case OBJ_ARMOR_ARMS:
             obj_info._object->set_finished(true);
             soundManager.play_sfx(SFX_GOT_ITEM);
-            game_save.armor_pieces[ARMOR_ARMS] = true;
+            game_save.armor_pieces[ARMOR_TYPE_ARMS] = true;
             show();
-            gameControl.showGotArmorDialog(ARMOR_ARMS);
+            gameControl.showGotArmorDialog(ARMOR_TYPE_ARMS);
             update_armor_properties();
             res = true;
             break;
         case OBJ_ARMOR_BODY:
             obj_info._object->set_finished(true);
             soundManager.play_sfx(SFX_GOT_ITEM);
-            game_save.armor_pieces[ARMOR_BODY] = true;
+            game_save.armor_pieces[ARMOR_TYPE_BODY] = true;
             show();
-            gameControl.showGotArmorDialog(ARMOR_BODY);
+            gameControl.showGotArmorDialog(ARMOR_TYPE_BODY);
             update_armor_properties();
             res = true;
             break;
         case OBJ_ARMOR_LEGS:
             obj_info._object->set_finished(true);
             soundManager.play_sfx(SFX_GOT_ITEM);
-            game_save.armor_pieces[ARMOR_LEGS] = true;
+            game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
             show();
-            gameControl.showGotArmorDialog(ARMOR_LEGS);
+            gameControl.showGotArmorDialog(ARMOR_TYPE_LEGS);
             update_armor_properties();
             res = true;
             break;
@@ -306,7 +306,7 @@ void classPlayer::attack(bool dont_update_colors)
 
     bool always_charged = false;
     // player with armor-special-type changes to auto-carged instead of charging shot
-    if (game_save.armor_pieces[ARMOR_ARMS] == true && _simultaneous_shots > 1) {
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true && _simultaneous_shots > 1) {
         always_charged = true;
     }
 
@@ -1184,7 +1184,7 @@ bool classPlayer::can_double_jump()
         return true;
     }
     // -------------------- armor-pieces checking -------------------- //
-    if (game_save.armor_pieces[ARMOR_LEGS] == true && game_data.armor_pieces[ARMOR_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_DOUBLEJUMP) {
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true && game_data.armor_pieces[ARMOR_TYPE_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_DOUBLEJUMP) {
         return true;
     }
     return false;
@@ -1196,7 +1196,7 @@ bool classPlayer::can_air_dash()
         return true;
     }
 
-    if (game_save.armor_pieces[ARMOR_LEGS] == true && game_data.armor_pieces[ARMOR_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_AIRDASH) {
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true && game_data.armor_pieces[ARMOR_TYPE_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_AIRDASH) {
         return true;
     }
     return false;
@@ -1209,7 +1209,7 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
         std::cout << "HARD-MODE, damage--[" << damage_points << "]" << std::endl;
     }
     int new_damage_points = damage_points;
-    if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_HALFDAMAGE) {
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_HALFDAMAGE) {
         new_damage_points = damage_points/2;
         if (damage_points > 0 && new_damage_points <= 0) {
             new_damage_points = 1;
@@ -1223,7 +1223,7 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
 
 void classPlayer::damage_spikes(bool ignore_hit_timer)
 {
-    if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
         std::cout << "################## SPIKES Immunity" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "####### SPIKES Immunity #######");
@@ -1235,7 +1235,7 @@ void classPlayer::damage_spikes(bool ignore_hit_timer)
 
 float classPlayer::get_hit_push_back_n()
 {
-    if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_NOPUSHBACK) {
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_NOPUSHBACK) {
         return 0;
     } else {
         return character::get_hit_push_back_n();
@@ -1244,8 +1244,8 @@ float classPlayer::get_hit_push_back_n()
 
 int classPlayer::get_armor_arms_attack_id()
 {
-    if (game_save.armor_pieces[ARMOR_ARMS] == true) {
-         return game_data.armor_pieces[ARMOR_ARMS].special_ability[_number];
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
+         return game_data.armor_pieces[ARMOR_TYPE_ARMS].special_ability[_number];
     }
     return -1;
 }
@@ -1253,7 +1253,7 @@ int classPlayer::get_armor_arms_attack_id()
 
 bool classPlayer::have_shoryuken()
 {
-    if (game_save.armor_pieces[ARMOR_LEGS] == true && game_data.armor_pieces[ARMOR_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_SHORYUKEN) {
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true && game_data.armor_pieces[ARMOR_TYPE_LEGS].special_ability[_number] == ARMOR_ABILITY_LEGS_SHORYUKEN) {
         return true;
     }
     return false;
@@ -1264,7 +1264,7 @@ void classPlayer::update_armor_properties()
     if (can_double_jump() == true && _jumps_number == 1) {
         _jumps_number = 2;
     }
-    if (game_save.armor_pieces[ARMOR_BODY] == true && game_data.armor_pieces[ARMOR_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
         hit_duration = 4000;
     }
     int armor_attack_id = get_armor_arms_attack_id();
