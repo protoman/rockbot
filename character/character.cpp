@@ -909,7 +909,7 @@ void character::show_at(st_position pos)
 
     // turn is a special case, if it does not exist, we must show stand instead
     if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
-        if (is_player() == false) std::cout << "show() - TURN graphic FINISHED, y[" << position.y << "]" << std::endl;
+        //if (is_player() == false) std::cout << "show() - TURN graphic FINISHED, y[" << position.y << "]" << std::endl;
         if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
             show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state, pos);
         } else {
@@ -1027,14 +1027,14 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
 
 
         if (frame_n == 0) {
-            std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
+            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
             if (type == ANIM_TYPE_TELEPORT) {
                 type = ANIM_TYPE_JUMP;
             } else {
                 type = ANIM_TYPE_STAND;
             }
         } else {
-            std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
+            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
             frame_n = 0;
         }
         state.animation_state = 0;
@@ -1804,10 +1804,10 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     }
     int check_y = get_hitbox().y;
     if (incx > 0 && map_lock == TERRAIN_DOOR) {
-        std::cout << "#1 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
+        //std::cout << "#1 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
     }
     if (incx > 0 && map_lock == TERRAIN_DOOR && check_y > map_pos.y*TILESIZE) {
-        std::cout << "#2 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
+        //std::cout << "#2 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
         gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
 		return true;
 	}
@@ -2330,12 +2330,14 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
         std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
-        } else {
             x += vulnerable_area_box.x - 2;
+        } else {
+            std::cout << "%%%%%%% RIGHT - pos.x[" << position.x << "], vulnerable_area_box.x[" << vulnerable_area_box.x << "], hitbox.x[" << x << "]" << std::endl;
+            //x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
+            x = position.x + frameSize.width - vulnerable_area_box.w + 2;
         }
         y += vulnerable_area_box.y;
-        w = vulnerable_area_box.w - 4;
+        w = vulnerable_area_box.w - 2;
         h = vulnerable_area_box.h;
         return st_rectangle(x, y, w, h);
     } else {

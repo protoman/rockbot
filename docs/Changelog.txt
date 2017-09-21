@@ -604,7 +604,7 @@ FILE-FORMAT-V4:
 - EDITOR: dialogs are being reset on editor
 - EDITOR: when selecting cancel on leave dialog, must stay in app
 
-(2.0.0.87)
+########################################## 2.00.087 ##########################################
 - finish file selection bar (show icons for all stages, e-tanks, lifes)
 - add a warning that play services can crash the game in some devices when enabling it
 - add show fps option (useful for players complaining about speed)
@@ -620,10 +620,22 @@ FILE-FORMAT-V4:
 - AI: morph into - becomes another NPC without changing HP and some other flags
 
 
-#######
+########################################## 2.00.089 ##########################################
 - new stage select screen based fighting games
 - new sprites for energy/weapon
 - super-fast after passing through a boss door
 - door should activate transition only if py > link.y
 - after passing through a scroll-lock, autoscroll needs a bit of delay before restarting
 - dash + shield makes player move backwards and enter inside walls
+- input config is reading for a command when leaving
+- missing shield button in input config
+- when returning from a config item in menu, place cursor on it
+- adjust chances of item dropping (http://tasvideos.org/RandomGenerators.html)
+- EDITOR: remove text from armor-edit, as if comes from game strings
+- EDITOR: remove castle points
+- fix spawn-npc executing twice in AI
+- limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
+- 1-up dropping ratio is too high, use timer as seed for random generator
+- problem with collision when w is smaller than max
+
+

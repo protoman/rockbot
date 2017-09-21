@@ -428,6 +428,11 @@ void projectile::play_sfx(bool called_from_npc)
     }
 }
 
+st_float_position projectile::get_position()
+{
+    return position;
+}
+
 st_size projectile::move() {
 	st_size moved;
 

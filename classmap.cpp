@@ -556,6 +556,7 @@ void classMap::load_map_npcs()
             }
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
+            //std::cout << "(A) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
 
         }
 
@@ -946,7 +947,9 @@ void classMap::drop_item(classnpc* npc_ref)
     if (position.y > RES_H) {
         return;
     }
-    int rand_n = rand() % 100;
+    srand(timer.getTimer());
+    //int rand_n = rand() % 100;
+    int rand_n = (int) (100.0 * (rand() / (RAND_MAX + 1.0)));
     std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
     DROP_ITEMS_LIST obj_type;
 
@@ -968,6 +971,8 @@ void classMap::drop_item(classnpc* npc_ref)
             obj_type = DROP_ITEM_WEAPON_SMALL;
         } else if (rand_n >= 50) {
             obj_type = DROP_ITEM_COIN;
+        } else {
+            return;
         }
     }
     st_position obj_pos;
@@ -1965,16 +1970,16 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
 
-    std::cout << "SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;
+    //std::cout << "$$$ MAP::SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;
 
     classnpc new_npc(stage_number, number, npc_id, npc_pos, direction, player_friend);
 
     if (progressive_span == true) {
         new_npc.set_progressive_appear_pos(new_npc.get_size().height);
     }
-    _npc_span_list.push_back(new_npc); // insert new npc at the list-end
+    _npc_spawn_list.push_back(new_npc); // insert new npc at the list-end
 
-    classnpc* npc_ref = &(_npc_span_list.back());
+    classnpc* npc_ref = &(_npc_spawn_list.back());
 
     int id = npc_ref->get_number();
     std::string npc_name = npc_ref->get_name();
@@ -1986,8 +1991,22 @@ int classMap::child_npc_count(int parent_id)
 {
     int count = 0;
     std::vector<classnpc>::iterator npc_it;
+    int n = 0;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
+        //std::cout << "NPC[" << n << "][" << npc_ref->get_name() << "].parent[" << npc_ref->get_parent_id() << ", parent_id[" << parent_id << "]" << std::endl;
+        if (npc_ref->is_dead() == false && npc_ref->get_parent_id() == parent_id) {
+            count++;
+        }
+        n++;
+    }
+    for (npc_it = _npc_spawn_list.begin(); npc_it != _npc_spawn_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        //std::cout << "NPC.SPANWLIST[" << n << "][" << npc_ref->get_name() << "].parent[" << npc_ref->get_parent_id() << ", parent_id[" << parent_id << "]" << std::endl;
+        if (npc_ref->is_dead() == false && npc_ref->get_parent_id() == parent_id) {
+            count++;
+        }
+        n++;
     }
     return count;
 }
@@ -2099,12 +2118,13 @@ void classMap::move_npcs() /// @TODO - check out of screen
 		}
     }
 
-    if (_npc_span_list.size() > 0) {
+    if (_npc_spawn_list.size() > 0) {
         std::vector<classnpc>::iterator npc_it;
-        for (npc_it = _npc_span_list.begin(); npc_it != _npc_span_list.end(); npc_it++) {
+        for (npc_it = _npc_spawn_list.begin(); npc_it != _npc_spawn_list.end(); npc_it++) {
+            //std::cout << "(B) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
             _npc_list.push_back(*npc_it);
         }
-        _npc_span_list.clear();
+        _npc_spawn_list.clear();
     }
 }
 
@@ -2192,13 +2212,13 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
         }
         if (npc_ref->get_can_fly()) {
             limit_y = RES_H/2 - npc_ref->get_size().height/2;
-            std::cout << "#### [FLY] y[" << npc_ref->getPosition().y << "], limit_y [" << limit_y << "]" << ", h/2[" << (npc_ref->get_size().height/2) << "]" << std::endl;
+            //std::cout << "#### [FLY] y[" << npc_ref->getPosition().y << "], limit_y [" << limit_y << "]" << ", h/2[" << (npc_ref->get_size().height/2) << "]" << std::endl;
         }
 
         if (npc_ref->getPosition().y >= limit_y) {
             // flying boss can stop on middle of the screen
             if (npc_ref->get_can_fly() == true) {
-                std::cout << "BOSS-HIT-GROUND <<<<<<<<<<<<<<<<<<<<" << std::endl;
+                //std::cout << "BOSS-HIT-GROUND <<<<<<<<<<<<<<<<<<<<" << std::endl;
                 npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
                 return true;
             // non-flying bosses need to hit gound to stop

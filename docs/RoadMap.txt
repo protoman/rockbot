@@ -9,14 +9,8 @@ VERSION 2.0.0 RELEASE #2
 ###################################################################################################################
 STAGES:
 ###################################################################################################################
-- Beast:
-    # melhorar tileset
 - Zodiac:
-    # terminar parte visual do mapa
     # inimigos
-    # boss: 56x56 x (6+4+10+6+4) [atrack1+walk+attack2+wings+fly] = 56x56x30 = 1680x56
-- Snow:
-    # embelezar com mais detalhes e animações
 - Castle1:
     #importar minecart rockbot1
     # adicionar animações (máquinas, parafusos, etc)
@@ -29,18 +23,10 @@ STAGES:
 - Castle5:
     # editar mapa
     # inimigos
-    # teleportadores
     # chefe-final
 
 
 - MUSICA BOA: http://modarchive.org/index.php?request=view_by_moduleid&query=159890
-
-- ROCKBOT 1 issues:
-    # apebot stops moving after using quake
-     @@@ i: 0, new_map_lock: 1
-     @@@ i: 1, new_map_lock: 1
-     @@@ i: 2, new_map_lock: 1
-
 
 - tileset stage select map (add credits to ROCKBOT2):
     # http://opengameart.org/content/js-saga-style-tileset-2-ascent
@@ -65,6 +51,9 @@ STAGES:
 ###################################################################################################################
 TEST - convert save to new format
 OK - add screens for bosses intros
+OK - add fly sprites to enemies
+OK - add teleport sprites to enemies that use teleport AI
+- apebot stops moving after using quake
 - mage bot not leaving invulnerability even without stars shield
 - na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário: https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
 - castle 5 - parafusos somem quando entram no chão e não voltam
@@ -78,22 +67,15 @@ OK - add screens for bosses intros
 CRITICAL:
 
 SERIOUS:
-TESTAR - limit spawn npc in AI to avoid tons of spawned npcs (3 is a good number)
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 - not setting finished-game for selecting 4 player? (finished the game, but didn't opened 4 player selection)
 
 
 MEDIUM:
-OK - input config is reading for a command when leaving
-OK - missing shield button in input config
-OK - adjust chances of item dropping (http://tasvideos.org/RandomGenerators.html)
-OK - EDITOR: remove text from armor-edit, as if comes from game strings
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
-- set armor pieces abilities, text and projectiles
-- EDITOR: texto da armadura deve ser texto (9 linhas por player)
+- set armor pieces abilities and properties/projectiles
 
 LOW:
-OK - ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesmo
 - update screenshots in the app-store for rockbot 2 free
 - colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
 - red shield dropped from platform and died (gear bot stage)
@@ -104,9 +86,9 @@ OK - ao voltar de um menu de configuraçao, colocar o cursor na posiçao do mesm
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
+- AI: teleport won't work if char does not have teleport sprites
 - revisar chamadas a write_string_list_to_file e get_string_list_from_file para adicionar prefixo de linguagem
 - redraw entirely destrin tank
-- change stage 5 to be a sequence of bosses, remove teleporters
 - add castle 1 stage 6 with only destrin boss.
 - revisar e finalizar diálogos
 - finalizar intro
@@ -125,6 +107,7 @@ Castle Bosses:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
+- remove dead npcs from list (make a copy of the list with only non-dead do be safe)
 - quando estiver fazendo ajuste de scroll pós transição, consegue sair da tela
 - ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
 - AI: add "backtrack" movement, keep sprite in the inverse direction it is moving (???) qual a razão?
@@ -207,6 +190,7 @@ IMPROVEMENTS/IDEAS:
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #4
 =========================================================================================================================================
+- refactor castle stage #5 and #6 to contain 4 bosses without teleporters
 - adicionar vozes do Nelson aos chefes
 - optimização:
     # deve rodar a 60 fps no PSP, PS2 e Dingoo

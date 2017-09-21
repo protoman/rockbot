@@ -51,26 +51,6 @@ private slots:
 
     void on_gameStartMusic_comboBox_currentIndexChanged(const QString &arg1);
 
-    void on_castlePoint_1_x_valueChanged(int arg1);
-
-    void on_castlePoint_1_y_valueChanged(int arg1);
-
-    void on_castlePoint_2_x_valueChanged(int arg1);
-
-    void on_castlePoint_2_y_valueChanged(int arg1);
-
-    void on_castlePoint_3_x_valueChanged(int arg1);
-
-    void on_castlePoint_3_y_valueChanged(int arg1);
-
-    void on_castlePoint_4_x_valueChanged(int arg1);
-
-    void on_castlePoint_4_y_valueChanged(int arg1);
-
-    void on_castlePoint_5_x_valueChanged(int arg1);
-
-    void on_castlePoint_5_y_valueChanged(int arg1);
-
     void on_finalBoss_comboBox_currentIndexChanged(int index);
 
     void on_editMap_pushButton_clicked();

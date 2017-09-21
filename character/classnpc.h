@@ -59,6 +59,7 @@ public:
     void npc_set_direction(short dir);
     void npc_set_initialized(short init);
     void set_parent_id(int parent_id);
+    int get_parent_id();
 
 
 

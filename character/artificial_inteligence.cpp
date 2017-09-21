@@ -167,7 +167,7 @@ void artificial_inteligence::define_ai_next_step()
         _initialized = true;
         int rand_n = rand() % 100;
 
-        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -175,7 +175,7 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
@@ -187,10 +187,10 @@ void artificial_inteligence::define_ai_next_step()
         }
     } else {
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
-        std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
     }
     _current_ai_type = get_ai_type();
-    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -1172,15 +1172,15 @@ void artificial_inteligence::execute_ai_step_fly()
             }
 
             int rand_y = rand() % RES_H;
-            std::cout << ">>>>>> FLY.RANDOM - pos.x[" << position.x << "], real.x[" << realPosition.x << "], x[" << dest_x << "], y[" << rand_y << "]" << std::endl;
+            //std::cout << ">>>>>> FLY.RANDOM - pos.x[" << position.x << "], real.x[" << realPosition.x << "], x[" << dest_x << "], y[" << rand_y << "]" << std::endl;
             _dest_point = st_position(dest_x, rand_y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
             int rand_x = rand() % RES_W;
-            std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            //std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
             _dest_point = st_position(rand_x, position.x);
         } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
             int rand_y = rand() % RES_H;
-            std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-Y[" << rand_y << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            //std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-Y[" << rand_y << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
             _dest_point = st_position(position.y, rand_y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -1932,10 +1932,24 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
 void artificial_inteligence::execute_ai_step_spawn_npc()
 {
     // limit for spawed npcs
-    if (gameControl.get_current_map_obj()->child_npc_count(get_number()) >= MAX_NPC_SPAWN) {
+
+    //std::cout << "%%%%%%%%%%%%%%%% EXECUTE-SPAWN-NPC %%%%%%%%%%%%%%%%%%%%" << std::endl;
+    // still spawning an NPC, leave
+    if (gameControl.get_current_map_obj()->_npc_spawn_list.size() > 0) {
+        //std::cout << ">>>>>>> still executing a previous spawn, leave" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
+
+    int child_count = gameControl.get_current_map_obj()->child_npc_count(get_number());
+    if (child_count >= MAX_NPC_SPAWN) {
+        //std::cout << ">> CAN'T SPAWN - child-count[" << child_count << "], max[" << MAX_NPC_SPAWN << "]" << std::endl;
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        return;
+    }
+
+    //std::cout << ">> SPAWNNPC - child-count[" << child_count << "], max[" << MAX_NPC_SPAWN << "]" << std::endl;
+
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
@@ -1951,6 +1965,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
         if (npc_ref == NULL) {
             std::cout << "ERROR: Could not create child NPC, leaving" << std::endl;
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             return;
         }
 
@@ -1965,10 +1980,8 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
         }
-        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-    } else {
-        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     }
+    _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 
 
 #ifdef ANDROID

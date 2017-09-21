@@ -158,7 +158,7 @@ int stage_select::pick_stage(int stage_n)
         area_pos = CASTLE1_STAGE1*RES_W;
     }
 
-    graphLib.copyArea(st_rectangle(area_pos, 0, RES_W, RES_H), st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
     if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
         graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
     }
@@ -221,7 +221,7 @@ int stage_select::pick_stage(int stage_n)
                 exit(0);
             }
 #endif
-        } else if (input.p1_input[BTN_JUMP]) {
+        } else if (input.p1_input[BTN_JUMP] || input.p1_input[BTN_START]) {
             if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
                 soundManager.play_sfx(SFX_PLAYER_HIT);
             } else {

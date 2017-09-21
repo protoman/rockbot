@@ -350,6 +350,11 @@ void classnpc::set_parent_id(int parent_id)
     _parent_id = parent_id;
 }
 
+int classnpc::get_parent_id()
+{
+    return _parent_id;
+}
+
 void classnpc::npc_set_hp(st_hit_points new_hp)
 {
     hitPoints = new_hp;

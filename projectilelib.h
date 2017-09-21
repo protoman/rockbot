@@ -69,6 +69,7 @@ public:
     short get_max_shots();
     short get_id();
     void play_sfx(bool called_from_npc);
+    st_float_position get_position();
 
 private:
     // methods that return properties taking in account id -1 (default projectile)
