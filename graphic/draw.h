@@ -63,8 +63,6 @@ public:
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
     void set_boss_hp(int hp);
 
-    void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
-
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
     void show_rain();

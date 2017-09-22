@@ -58,10 +58,7 @@ private:
     Uint8 select_player();
     Uint8 select_difficulty();
     void draw_lights_select_player(graphicsLib_gSurface& lights, int mode, int adjustX, int adjustY);
-    void draw_castle_path(bool vertical_first, st_position initial_point, st_position final_point, short total_duration) const;
-
     short select_save(bool is_new_game);
-
     void draw_save_details(int n, format_v4::st_save save);
 
 

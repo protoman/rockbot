@@ -86,6 +86,7 @@ LOW:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
+- after beating castle stage, increase position of the cursor in pick_stage
 - AI: teleport won't work if char does not have teleport sprites
 - revisar chamadas a write_string_list_to_file e get_string_list_from_file para adicionar prefixo de linguagem
 - redraw entirely destrin tank
