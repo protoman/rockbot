@@ -38,13 +38,13 @@ void stage_swap_dialog::on_buttonBox_accepted()
     Mediator::get_instance()->stage_data.stages[origin_n] =  temp_stage;
 
     // ### SWAP MAPS ### //
-    CURRENT_FILE_FORMAT::file_map temp_map[FS_STAGE_MAX_MAPS];
+    CURRENT_FILE_FORMAT::file_map_v2 temp_map[FS_STAGE_MAX_MAPS];
     for (int i=0; i<FS_STAGE_MAX_MAPS; i++) {
-        temp_map[i] = Mediator::get_instance()->maps_data[dest_n][i];
+        temp_map[i] = Mediator::get_instance()->maps_data_v2[dest_n][i];
     }
     for (int i=0; i<FS_STAGE_MAX_MAPS; i++) {
-         Mediator::get_instance()->maps_data[dest_n][i] =  Mediator::get_instance()->maps_data[origin_n][i];
-         Mediator::get_instance()->maps_data[origin_n][i] = temp_map[i];
+         Mediator::get_instance()->maps_data_v2[dest_n][i] =  Mediator::get_instance()->maps_data_v2[origin_n][i];
+         Mediator::get_instance()->maps_data_v2[origin_n][i] = temp_map[i];
     }
 
     // ### SWAP DIALOGS ### //

@@ -39,7 +39,6 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::st_save game_save;
-extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
@@ -138,7 +137,7 @@ void classMap::loadMap()
 	for (int i=0; i<MAP_W; i++) {
 		column_locked = true;
 		for (int j=0; j<MAP_H; j++) {
-            if (map_data[number].tiles[i][j].locked != TERRAIN_SOLID && map_data[number].tiles[i][j].locked != TERRAIN_DOOR && map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK && map_data[number].tiles[i][j].locked != TERRAIN_ICE && map_data[number].tiles[i][j].locked != TERRAIN_SPIKE) {
+            if (GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SOLID && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_DOOR && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_ICE && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SPIKE) {
 				column_locked = false;
 				break;
 			}
@@ -151,8 +150,8 @@ void classMap::loadMap()
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
-            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
-            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
+            int lvl3_x = GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x;
+            int lvl3_y = GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y;
             if (lvl3_x != -1 && lvl3_y != -1) {
                 //std::cout << "tile_lvl3[" << lvl3_x << "][" << lvl3_y << "]" << std::endl;
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
@@ -161,27 +160,7 @@ void classMap::loadMap()
         }
     }
 
-/*
-    for (int i=0; i<MAP_W; i++) {
-        for (int j=0; j<MAP_H; j++) {
-            int lvl3_x = map_data[number].tiles[i][j].tile3.x;
-            int lvl3_y = map_data[number].tiles[i][j].tile3.y;
 
-            if (lvl3_x != -1 || lvl3_y != -1) {
-                std::cout << "tile_lvl3[" << lvl3_x << "][" << lvl3_y << "]" << std::endl;
-            }
-
-            if (lvl3_x > -1 && lvl3_y != -1) {
-                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
-                _level3_tiles.push_back(temp_tile);
-            } else if (lvl3_x < -1 && lvl3_y == 0) { // anim tiles
-                lvl3_y = j*TILESIZE;
-                struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
-                _level3_tiles.push_back(temp_tile);
-            }
-        }
-    }
-*/
 
 	load_map_npcs();
 
@@ -193,7 +172,7 @@ void classMap::loadMap()
 
 
 #ifdef HANDLELD // portable consoles aren't strong enought for two dynamic backgrounds
-map_data[number].backgrounds[0].speed = 0;
+GameMediator::get_instance()->map_data[number].backgrounds[0].speed = 0;
 #endif
 
 }
@@ -234,7 +213,7 @@ void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
         exit(-1);
     }
 
-    graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, mapSurface);
+    graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, mapSurface);
 
     draw_dynamic_backgrounds_into_surface(mapSurface);
 
@@ -274,15 +253,15 @@ void classMap::draw_map_tiles()
 
             // don't draw easy-mode blocks if game difficulty not set to easy
 
-            if (map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+            if (GameMediator::get_instance()->map_data[number].tiles[i][j].locked == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_easymode_block_tile(pos_destiny, map_screen);
-            } else if (map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+            } else if (GameMediator::get_instance()->map_data[number].tiles[i][j].locked == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
                 pos_destiny.y = j*TILESIZE;
                 graphLib.place_hardmode_block_tile(pos_destiny, map_screen);
             } else {
-                pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-                pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+                pos_origin.x = GameMediator::get_instance()->map_data[number].tiles[i][j].tile1.x;
+                pos_origin.y = GameMediator::get_instance()->map_data[number].tiles[i][j].tile1.y;
 
                 if (pos_origin.x >= 0 && pos_origin.y >= 0) {
                     pos_destiny.y = j*TILESIZE;
@@ -319,8 +298,8 @@ void classMap::init_animated_tiles()
     for (int i=0; i<MAP_W; i++) {
         pos_destiny.x = i*TILESIZE;
         for (int j=0; j<MAP_H; j++) {
-            pos_origin.x = map_data[number].tiles[i][j].tile1.x;
-            pos_origin.y = map_data[number].tiles[i][j].tile1.y;
+            pos_origin.x = GameMediator::get_instance()->map_data[number].tiles[i][j].tile1.x;
+            pos_origin.y = GameMediator::get_instance()->map_data[number].tiles[i][j].tile1.y;
 
             if (pos_origin.x < -1 && pos_origin.y == 0) {
                 int anim_tile_id = (pos_origin.x * -1) - 2;
@@ -421,7 +400,7 @@ int classMap::getMapPointLock(st_position pos) const
     if (pos.x < 0 || pos.y < 0 || pos.y >= MAP_H || pos.x >= MAP_W) {
 		return TERRAIN_UNBLOCKED;
 	}
-    return map_data[number].tiles[pos.x][pos.y].locked;
+    return GameMediator::get_instance()->map_data[number].tiles[pos.x][pos.y].locked;
 }
 
 st_position_int8 classMap::get_map_point_tile1(st_position pos)
@@ -429,7 +408,7 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
     if (pos.x < 0 || pos.y < 0 || pos.y > RES_H/TILESIZE || pos.x > MAP_W) {
         return st_position_int8(-1, -1);
     }
-    return map_data[number].tiles[pos.x][pos.y].tile1;
+    return GameMediator::get_instance()->map_data[number].tiles[pos.x][pos.y].tile1;
 }
 
 // ********************************************************************************************** //
@@ -445,8 +424,8 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 
     //std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
 
-    float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
-    float foreground_layer_speed = (float)map_data[number].backgrounds[1].speed/10;
+    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10;
+    float foreground_layer_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10;
 
     //std::cout << "MAP::changeScrolling - foreground_layer_speed[" << foreground_layer_speed << "]" << std::endl;
 
@@ -459,7 +438,7 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 		int tile_x = (scroll.x+RES_W-TILESIZE+2)/TILESIZE;
 		if (check_lock == false || wall_scroll_lock[tile_x] == false) {
             scroll.x += x_change;
-            if (map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
+            if (GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll == BG_SCROLL_MODE_NONE) {
                 bg_scroll.x -= ((float)x_change*bg1_speed);
             }
             fg_layer_scroll.x -= ((float)x_change*foreground_layer_speed);
@@ -541,14 +520,21 @@ void classMap::load_map_npcs()
         _npc_list.pop_back();
     }
 
-	for (int i=0; i<MAX_MAP_NPC_N; i++) {
-        if (map_data[number].map_npcs[i].id_npc != -1) {
-            classnpc new_npc = classnpc(stage_number, number, map_data[number].map_npcs[i].id_npc, i);
+
+    for (int i=0; i<GameMediator::get_instance()->map_npc_data.size(); i++) {
+        if (GameMediator::get_instance()->map_npc_data[i].difficulty_mode == DIFFICULTY_MODE_GREATER && GameMediator::get_instance()->map_npc_data[i].difficulty_level > game_save.difficulty) {
+            continue;
+        } else if (GameMediator::get_instance()->map_npc_data[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && GameMediator::get_instance()->map_npc_data[i].difficulty_level != game_save.difficulty) {
+            continue;
+        }
+
+        if (GameMediator::get_instance()->map_npc_data[i].id_npc != -1 && GameMediator::get_instance()->map_npc_data[i].stage_id == stage_number && GameMediator::get_instance()->map_npc_data[i].map_id == number) {
+            classnpc new_npc = classnpc(stage_number, number, GameMediator::get_instance()->map_npc_data[i].id_npc, i);
 
 
-            if (stage_data.boss.id_npc == map_data[number].map_npcs[i].id_npc) {
+            if (stage_data.boss.id_npc == GameMediator::get_instance()->map_npc_data[i].id_npc) {
                 new_npc.set_stage_boss(true);
-            } else if (GameMediator::get_instance()->get_enemy(map_data[number].map_npcs[i].id_npc)->is_boss == true) {
+            } else if (GameMediator::get_instance()->get_enemy(GameMediator::get_instance()->map_npc_data[i].id_npc)->is_boss == true) {
                 new_npc.set_is_boss(true);
             // adjust NPC position to ground, if needed
             } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
@@ -568,18 +554,18 @@ void classMap::load_map_npcs()
 void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
-    //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
+    //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
     graphicsLib_gSurface* surface_bg = get_dynamic_bg();
     if (surface_bg == NULL || surface_bg->width <= 0) {
-        graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
+        graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
         return;
     }
-    if (surface_bg->width <= 0 || surface_bg->height < RES_H || map_data[number].backgrounds[0].adjust_y != 0) {
-        graphLib.clear_surface_area(0, 0, RES_W, RES_H, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, graphLib.gameScreen);
+    if (surface_bg->width <= 0 || surface_bg->height < RES_H || GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y != 0) {
+        graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
     }
 
-    float bg1_speed = (float)map_data[number].backgrounds[0].speed/10;
-    int bg1_scroll_mode = map_data[number].backgrounds[0].auto_scroll;
+    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10;
+    int bg1_scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll;
     // dynamic background won't work in low-end graphics more
     if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
         if (bg1_scroll_mode == BG_SCROLL_MODE_LEFT) {
@@ -604,7 +590,7 @@ void classMap::draw_dynamic_backgrounds()
         x1 = (RES_W - x1) * -1;
     }
 
-    int y1 = bg_scroll.y + map_data[number].backgrounds[0].adjust_y;
+    int y1 = bg_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y;
 
     //std::cout << "## x1[" << x1 << "]" << std::endl;
 
@@ -628,10 +614,10 @@ void classMap::draw_dynamic_backgrounds()
 void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 {
 
-    if (strlen(map_data[number].backgrounds[1].filename) > 0) {
+    if (strlen(GameMediator::get_instance()->map_data[number].backgrounds[1].filename) > 0) {
         //std::cout << "draw_foreground_layer #1" << std::endl;
-        float foreground_speed = (float)map_data[number].backgrounds[1].speed/10;
-        int scroll_mode = map_data[number].backgrounds[1].auto_scroll;
+        float foreground_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10;
+        int scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll;
         // dynamic background won't work in low-end graphics more
         if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
             //std::cout << "draw_foreground_layer #2" << std::endl;
@@ -657,7 +643,7 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
             x1 = (RES_W - x1) * -1;
         }
 
-        int y1 = fg_layer_scroll.y + map_data[number].backgrounds[1].adjust_y;
+        int y1 = fg_layer_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[1].adjust_y;
 
         //std::cout << "## x1[" << x1 << "]" << std::endl;
 
@@ -754,8 +740,8 @@ void classMap::adjust_foreground_position()
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
 
-    //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << map_data[number].background_color.r << ", " << map_data[number].background_color.g << ", " << map_data[number].background_color.b << ")" << std::endl;
-    graphLib.clear_surface_area(0, 0, surface.width, surface.height, map_data[number].background_color.r, map_data[number].background_color.g, map_data[number].background_color.b, surface);
+    //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << GameMediator::get_instance()->map_data[number].background_color.r << ", " << GameMediator::get_instance()->map_data[number].background_color.g << ", " << GameMediator::get_instance()->map_data[number].background_color.b << ")" << std::endl;
+    graphLib.clear_surface_area(0, 0, surface.width, surface.height, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, surface);
 
 
     if (get_dynamic_bg() == NULL) {
@@ -767,7 +753,7 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
         x1 = (RES_W - x1) * -1;
     }
 
-    int y1 = bg_scroll.y + map_data[number].backgrounds[0].adjust_y;
+    int y1 = bg_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y;
 
 
     if (get_dynamic_bg()->width > 0) {
@@ -1094,12 +1080,12 @@ void classMap::activate_final_boss_teleporter()
 Uint8 classMap::get_map_gfx()
 {
     //std::cout << ">> MAP::get_map_gfx[" << number << "]" << std::endl;
-    return map_data[number].backgrounds[0].gfx;
+    return GameMediator::get_instance()->map_data[number].backgrounds[0].gfx;
 }
 
 Uint8 classMap::get_map_gfx_mode()
 {
-    return map_data[number].backgrounds[1].auto_scroll;
+    return GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll;
 }
 
 st_float_position classMap::get_bg_scroll()
@@ -1136,12 +1122,17 @@ void classMap::load_map_objects() {
         animation_list.pop_back();
     }
 
-	for (int i=0; i<MAX_MAP_NPC_N; i++) {
-        if (map_data[number].map_objects[i].id_object != -1) {
-            //int temp_id = map_data[number].map_objects[i].id_object;
-            object temp_obj(map_data[number].map_objects[i].id_object, this, map_data[number].map_objects[i].start_point, map_data[number].map_objects[i].link_dest, map_data[number].map_objects[i].map_dest);
+    for (int i=0; i<GameMediator::get_instance()->map_object_data.size(); i++) {
+        if (GameMediator::get_instance()->map_object_data[i].difficulty_mode == DIFFICULTY_MODE_GREATER && GameMediator::get_instance()->map_object_data[i].difficulty_level > game_save.difficulty) {
+            continue;
+        } else if (GameMediator::get_instance()->map_object_data[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && GameMediator::get_instance()->map_object_data[i].difficulty_level != game_save.difficulty) {
+            continue;
+        }
+
+        if (GameMediator::get_instance()->map_object_data[i].id_object != -1 && GameMediator::get_instance()->map_object_data[i].stage_id == stage_number && GameMediator::get_instance()->map_object_data[i].map_id == number) {
+            object temp_obj(GameMediator::get_instance()->map_object_data[i].id_object, this, GameMediator::get_instance()->map_object_data[i].start_point, GameMediator::get_instance()->map_object_data[i].link_dest, GameMediator::get_instance()->map_object_data[i].map_dest);
             temp_obj.set_obj_map_id(i);
-            temp_obj.set_direction(map_data[number].map_objects[i].direction);
+            temp_obj.set_direction(GameMediator::get_instance()->map_object_data[i].direction);
 			object_list.push_back(temp_obj);
 		}
 	}
@@ -1172,21 +1163,21 @@ bool classMap::value_in_range(int value, int min, int max) const
 
 void classMap::create_dynamic_background_surfaces()
 {
-    std::string bg_filename = std::string(map_data[number].backgrounds[0].filename);
+    std::string bg_filename = std::string(GameMediator::get_instance()->map_data[number].backgrounds[0].filename);
     if (bg_filename.length() > 0) {
         //std::cout << "MAP[" << (int)number << "]::create_bg[" << bg_filename << "]" << std::endl;
-        draw_lib.add_dynamic_background(bg_filename, map_data[number].backgrounds[0].auto_scroll, map_data[number].background_color);
+        draw_lib.add_dynamic_background(bg_filename, GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll, GameMediator::get_instance()->map_data[number].background_color);
     }
     // foreground image
-    if (strlen(map_data[number].backgrounds[1].filename) > 0) {
+    if (strlen(GameMediator::get_instance()->map_data[number].backgrounds[1].filename) > 0) {
         // if image already exists, no need to add or set alpha
         // @NOTE: alpha must be the same for three maps if using same image
-        if (draw_lib.get_dynamic_foreground(std::string(map_data[number].backgrounds[1].filename)) == NULL) {
-            draw_lib.add_dynamic_background(std::string(map_data[number].backgrounds[1].filename), map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
-            if (map_data[number].backgrounds[1].gfx != 100) {
-                int fg_alpha = (255 * map_data[number].backgrounds[1].gfx)/100;
+        if (draw_lib.get_dynamic_foreground(std::string(GameMediator::get_instance()->map_data[number].backgrounds[1].filename)) == NULL) {
+            draw_lib.add_dynamic_background(std::string(GameMediator::get_instance()->map_data[number].backgrounds[1].filename), GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
+            if (GameMediator::get_instance()->map_data[number].backgrounds[1].gfx != 100) {
+                int fg_alpha = (255 * GameMediator::get_instance()->map_data[number].backgrounds[1].gfx)/100;
                 std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << number << "][" << fg_alpha << "]" << std::endl;
-                draw_lib.set_dynamic_bg_alpha(map_data[number].backgrounds[1].filename, fg_alpha);
+                draw_lib.set_dynamic_bg_alpha(GameMediator::get_instance()->map_data[number].backgrounds[1].filename, fg_alpha);
             }
         }
     }
@@ -1194,12 +1185,12 @@ void classMap::create_dynamic_background_surfaces()
 
 graphicsLib_gSurface *classMap::get_dynamic_bg()
 {
-    return draw_lib.get_dynamic_background(map_data[number].backgrounds[0].filename);
+    return draw_lib.get_dynamic_background(GameMediator::get_instance()->map_data[number].backgrounds[0].filename);
 }
 
 graphicsLib_gSurface *classMap::get_dynamic_foreground()
 {
-    return draw_lib.get_dynamic_foreground(map_data[number].backgrounds[1].filename);
+    return draw_lib.get_dynamic_foreground(GameMediator::get_instance()->map_data[number].backgrounds[1].filename);
 }
 
 
@@ -1881,8 +1872,8 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 		}
 		for (int i=0; i<MAP_W; i++) {
 			for (int j=0; j<MAP_H; j++) {
-                if (map_data[number].tiles[i][j].tile3.x != -1 && map_data[number].tiles[i][j].tile3.y != -1) {
-                        if (i == tileX && map_data[number].tiles[i][j].locked == TERRAIN_DOOR) {
+                if (GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x != -1 && GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y != -1) {
+                        if (i == tileX && GameMediator::get_instance()->map_data[number].tiles[i][j].locked == TERRAIN_DOOR) {
 							//std::cout << "****** redraw_boss_door - k: " << k << ", tiles_showed: " << tiles_showed << ", nTiles: " << nTiles << std::endl;
 							if (is_close == false) {
 								if (tiles_showed < nTiles) {
@@ -1894,7 +1885,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                                     }
 
 
-                                    graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                                    graphLib.placeTile(st_position(GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x, GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
                                     draw_lib.update_screen();
 									tiles_showed++;
 								}
@@ -1908,7 +1899,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                                     }
 
 
-                                    graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                                    graphLib.placeTile(st_position(GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x, GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
                                     draw_lib.update_screen();
 									tiles_showed++;
 								}
@@ -1922,7 +1913,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                             }
 
 
-                            graphLib.placeTile(st_position(map_data[number].tiles[i][j].tile3.x, map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)+scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
+                            graphLib.placeTile(st_position(GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x, GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)+scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
 						}
 				}
 			}

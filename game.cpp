@@ -397,12 +397,12 @@ bool game::showIntro()
 
 
 
-	currentStage = 0;
+    currentStage = INTRO_STAGE;
 
 	initGame();
 
 	if (game_save.stages[INTRO_STAGE] == 0) {
-		input.clean();
+        input.clean();
 		start_stage();
 	} else {
         currentStage = scenes.pick_stage(INTRO_STAGE);
@@ -1268,6 +1268,12 @@ void game::return_to_intro_screen()
     leave_game = false;
 
     if (game_save.stages[INTRO_STAGE] == 0) {
+        currentStage = INTRO_STAGE;
+        player1.initialize();
+        loaded_stage = stage(currentStage, &player1);
+        player1.initFrames();
+        player1.set_is_player(true);
+        player1.reset_hp();
         input.clean();
         start_stage();
     } else {
@@ -1946,6 +1952,11 @@ void game::show_map()
     loaded_stage.showStage();
     loaded_stage.showAbove();
     draw_lib.update_screen();
+}
+
+void game::set_current_stage(int stage)
+{
+    currentStage = stage;
 }
 
 

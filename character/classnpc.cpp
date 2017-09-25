@@ -25,7 +25,6 @@ extern std::string FILEPATH;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
-extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
@@ -59,13 +58,13 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_friend(false) // map-loaded npc
 {
     build_basic_npc(stage_id, map_id, main_id);
-    facing = map_data[map_id].map_npcs[id].direction;
+    facing = GameMediator::get_instance()->map_npc_data[id].direction;
     state.direction = facing;
 
     fflush(stdout);
 
-    start_point.x = map_data[map_id].map_npcs[id].start_point.x * TILESIZE;
-    start_point.y = map_data[map_id].map_npcs[id].start_point.y * TILESIZE;
+    start_point.x = GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE;
+    start_point.y = GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE;
     position.x = start_point.x;
     position.y = start_point.y;
     _is_spawn = false;

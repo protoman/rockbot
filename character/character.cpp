@@ -1756,9 +1756,9 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
         map_block = BLOCK_WATER;
     }
 
-    if (old_map_lock != new_map_lock) {
-        bool must_block = false;
+    bool must_block = false;
 
+    if (old_map_lock != new_map_lock) {
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
             must_block = true;
         } else if (is_player() == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // NPCs must not enter water
@@ -1779,20 +1779,24 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
             must_block = true;
         }
-        if (must_block == true) {
-            if (mode_xy == 0) {
-                if (map_block != BLOCK_XY) {
-                    map_block = BLOCK_X;
-                }
-            } else {
-                if (map_block == BLOCK_X) {
-                    map_block = BLOCK_XY;
-                } else if (map_block != BLOCK_XY) {
-                    map_block = BLOCK_Y;
-                }
+
+    } else if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_SOLID) {
+        must_block = true;
+    }
+
+    if (must_block == true) {
+        if (mode_xy == 0) {
+            if (map_block != BLOCK_XY) {
+                map_block = BLOCK_X;
+            }
+        } else {
+            if (map_block == BLOCK_X) {
+                map_block = BLOCK_XY;
+            } else if (map_block != BLOCK_XY) {
+                map_block = BLOCK_Y;
             }
         }
-	}
+    }
 }
 
 bool character::process_special_map_points(int map_lock, int incx, int incy, st_position map_pos)
@@ -1881,10 +1885,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     //std::cout << "CHAR::map_collision, y_inc[" << incy << "]" << std::endl;
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
-
-    if (is_player() == true) {
-        //std::cout << "CHAR::PLAYER::res_collision_object.block[" << res_collision_object._block << "]" << std::endl;
-    }
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
@@ -2051,7 +2051,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             map_point.x = map_x_points[i];
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
-            if (name == "Ape Bot") std::cout << "@@@ i: " << i << ", new_map_lock: " << new_map_lock << std::endl;
             check_map_collision_point(map_block, new_map_lock, 1, map_point);
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
@@ -2078,7 +2077,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 				}
             }
 		}
-
 	}
 
 	if (is_player()) {
@@ -2247,7 +2245,7 @@ st_position character::is_on_stairs(st_rectangle pos)
         return st_position(map_tile_x, map_tile_y);
     }
 
-    if (is_player()) std::cout << "is_on_stairs - FALSE 2" << std::endl;
+    //if (is_player()) std::cout << "is_on_stairs - FALSE 2" << std::endl;
 	return st_position(-1, -1);
 }
 
@@ -2356,7 +2354,6 @@ st_rectangle character::get_vulnerable_area(int anim_type)
 // ********************************************************************************************** //
 void character::add_graphic()
 {
-
     if (name == "") {
         return;
     }
@@ -2364,13 +2361,11 @@ void character::add_graphic()
     std::map<std::string, st_char_sprite_data>::iterator it;
     const std::string temp_name(name);
 
-
     it = graphLib.character_graphics_list.find(name);
     if (it == graphLib.character_graphics_list.end()) { // there is no graphic with this key yet, add it
         std::pair<std::string, st_char_sprite_data> temp_data(temp_name, st_char_sprite_data());
         graphLib.character_graphics_list.insert(temp_data);
     }
-
 }
 
 

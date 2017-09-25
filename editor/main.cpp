@@ -29,6 +29,7 @@ bool GAME_FLAGS[FLAG_COUNT];
 
 void remove_duplicated()
 {
+    /*
 	for (int i=0; i<MAX_STAGES; i++) {
 		for (int j=0; j<STAGE_MAX_MAPS; j++) {
 			// remove duplicated NPCS
@@ -58,6 +59,7 @@ void remove_duplicated()
 			}
 		}
 	}
+    */
 }
 
 void adjust_sprites_size() {

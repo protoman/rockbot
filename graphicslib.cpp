@@ -819,7 +819,9 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
     }
 
     draw_text(x, y, text);
+    updateScreen();
 
+    // TODO: find a way to show progressive text with input interruption //
     /*
     for (i=0; i<text.size(); i++) {
         input.read_input();
@@ -1094,6 +1096,9 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
 
 void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled)
 {
+    if (weapon_n >= weapon_icons.size()) {
+        return;
+    }
     int icon_size = weapon_icons.at(weapon_n).width;
     if (disabled == true) {
         showSurfaceRegionAt(&weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), position);

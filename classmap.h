@@ -245,11 +245,11 @@ private:
 
 
 public:
-    std::vector<classnpc> _npc_list; // vector npcs
-    std::vector<classnpc> _npc_spawn_list; // list of enemyes to be spawned, after added into _npc_list
+    std::vector<classnpc> _npc_list;                                        // vector npcs
+    std::vector<classnpc> _npc_spawn_list;                                  // list of enemyes to be spawned, after added into _npc_list
 
 
-    classPlayer* _player_ref; // vector players
+    classPlayer* _player_ref;                                               // vector players
     std::vector<animation> animation_list;
 	// vector teleporters
 	// vector objects
@@ -258,7 +258,7 @@ public:
 private:
     int stage_number;
     struct st_float_position scroll;
-    st_float_position scrolled;						// stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
+    st_float_position scrolled;                                             // stores the value the map scrolled in this cycle. used for character movement control (it should move taking the scroll in account)
     bool wall_scroll_lock[MAP_W];
     st_float_position bg_scroll;
     st_float_position fg_layer_scroll;
@@ -269,9 +269,9 @@ private:
     std::vector<st_level3_tile> _level3_tiles;
     std::vector<object> object_list;
     // DRAW MEMBERS //
-    int _show_map_pos_x;                            // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
-    graphicsLib_gSurface map_screen;                // use to avoid having to draw the tilesets each time we update screen
-    std::vector<anim_tile_desc> anim_tile_list;     // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
+    int _show_map_pos_x;                                                    // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
+    graphicsLib_gSurface map_screen;                                        // use to avoid having to draw the tilesets each time we update screen
+    std::vector<anim_tile_desc> anim_tile_list;                             // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
 };
 
 

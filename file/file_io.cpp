@@ -466,6 +466,7 @@ namespace format_v4 {
         fp.close();
     }
 
+    /*
     void file_io::write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS])
     {
         std::string filename = std::string(FILEPATH) + "/maps.dat";
@@ -509,6 +510,94 @@ namespace format_v4 {
 
 
         fp.close();
+    }
+    */
+
+    void file_io::read_all_maps_v2(file_map_v2 (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS])
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+                fp.read(reinterpret_cast<char *>(&data_out[i][j]), sizeof(file_map_v2));
+            }
+        }
+        fp.close();
+    }
+
+    void file_io::write_all_maps_v2(file_map_v2 (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS])
+    {
+        std::string filename = std::string(FILEPATH) + "/maps_v2.dat";
+        std::ofstream fp;
+        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::write_all_maps - could not write to file '" << filename << "'. Will create new one." << std::endl;
+            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
+        } else {
+            std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
+        }
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+                fp.write(reinterpret_cast<char *>(&data_in[i][j]), sizeof(file_map_v2));
+            }
+        }
+        fp.close();
+    }
+
+    void file_io::read_stage_maps_v2(int stage_id, file_map_v2 (&data_out)[FS_STAGE_MAX_MAPS])
+    {
+        std::ifstream fp;
+        std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
+        filename = StringUtils::clean_filename(filename);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        if (!fp.is_open()) {
+            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+            return;
+        }
+
+        int fpos = stage_id * FS_STAGE_MAX_MAPS * sizeof(file_map_v2);
+        fp.seekg(fpos, std::ios::beg);
+
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
+        }
+
+        #ifdef WII
+        wii_convert_map_data(data_out);
+        #endif
+        fp.close();
+    }
+
+    // TODO: optimize to read only the data we need //
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> file_io::read_map_enemy_list(int stage_id)
+    {
+        std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> res;
+        std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
+        for (int i=0; i<temp.size(); i++) {
+            if (temp[i].stage_id == stage_id) {
+                res.push_back(temp[i]);
+            }
+        }
+        return res;
+    }
+
+    // TODO: optimize to read only the data we need //
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> file_io::read_map_object_list(int stage_id)
+    {
+        std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> res;
+        std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
+        for (int i=0; i<temp.size(); i++) {
+            if (temp[i].stage_id == stage_id) {
+                res.push_back(temp[i]);
+            }
+        }
+        return res;
     }
 
     bool file_io::file_exists(std::string filename) const
@@ -876,67 +965,25 @@ namespace format_v4 {
 
     bool file_io::check_convert_old_format_save()
     {
-        std::string filename_v301 = std::string(SAVEPATH) + "/game_v301.sav";
-        filename_v301 = StringUtils::clean_filename(filename_v301);
-         FILE* v301_fp;
-         v301_fp = fopen(filename_v301.c_str(), "rb");
-         if (v301_fp) {
+        std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
+        filename = StringUtils::clean_filename(filename);
+        FILE* old_format_fp;
+        old_format_fp = fopen(filename.c_str(), "rb");
+        if (old_format_fp) {
              // convert v301 save to CURRENT_FORMAT save
-             CURRENT_FILE_FORMAT::st_save_v1 v1_save;
-             std::cout << "########## filename_v1[" << filename_v301 << "] ############" << std::endl;
-             int read_result = fread(&v1_save, sizeof(struct CURRENT_FILE_FORMAT::st_save_v1), 1, v301_fp);
+             CURRENT_FILE_FORMAT::st_save old_format_save;
+             std::cout << "########## filename_v2[" << filename << "] ############" << std::endl;
+             int read_result = fread(&old_format_save, sizeof(struct CURRENT_FILE_FORMAT::st_save), 1, old_format_fp);
              if (read_result  == -1) { // could not read v1 save
-                 fclose(v301_fp);
+                 fclose(old_format_fp);
                  return false;
              }
-             std::cout << "[WRN] Converting v1 save to v2 format." << std::endl;
-             if (v1_save.items.lifes > 9) {
-                 v1_save.items.lifes = 3;
+             std::cout << "[WRN] Converting v2 save to v2 format (rename)." << std::endl;
+             if (old_format_save.items.lifes > 9) {
+                 old_format_save.items.lifes = 3;
              }
-             CURRENT_FILE_FORMAT::st_save current_format_save;
-             // ITEMS //
-             current_format_save.items.balancer = v1_save.items.balancer;
-             current_format_save.items.bolts = v1_save.items.bolts;
-             current_format_save.items.energy_saver = v1_save.items.energy_saver;
-             current_format_save.items.energy_tanks = v1_save.items.energy_tanks;
-             current_format_save.items.exit = v1_save.items.exit;
-             if (v1_save.items.half_damage == 1) {
-                 current_format_save.items.half_damage = true;
-             } else {
-                 current_format_save.items.half_damage = false;
-             }
-             current_format_save.items.hyper_jump = v1_save.items.hyper_jump;
-             current_format_save.items.lifes = v1_save.items.lifes;
-             current_format_save.items.power_shot = v1_save.items.power_shot;
-             if (v1_save.items.shock_guard == 1) {
-                 current_format_save.items.shock_guard = true;
-             } else {
-                 current_format_save.items.shock_guard = false;
-             }
-             current_format_save.items.special_tanks = v1_save.items.special_tanks;
-             current_format_save.items.speed_up = v1_save.items.speed_shot;
-             if (v1_save.items.spike_guard == 1) {
-                 current_format_save.items.spike_guard = true;
-             } else {
-                 current_format_save.items.spike_guard = false;
-             }
-             for (int i=0; i<WEAPON_COUNT; i++) {
-                 current_format_save.items.weapons[i] = v1_save.items.weapons[i];
-             }
-             current_format_save.items.weapon_tanks = v1_save.items.weapon_tanks;
-             current_format_save.difficulty = v1_save.difficulty;
-             current_format_save.finished_stages = v1_save.finished_stages;
-             current_format_save.selected_player = v1_save.selected_player;
-             for (int i=0; i<MAX_STAGES; i++) {
-                 current_format_save.stages[i] = v1_save.stages[i];
-             }
-             current_format_save.used_countinue = v1_save.used_countinue;
-             for (int i=0; i<FS_PLAYER_ARMOR_PIECES_MAX_V1; i++) {
-                 current_format_save.armor_pieces[i] = v1_save.armor_pieces[i];
-             }
-             current_format_save.defeated_enemies_count = v1_save.defeated_enemies_count;
-             fclose(v301_fp);
-             write_save(current_format_save, 0);
+             fclose(old_format_fp);
+             write_save(old_format_save, 0);
 
              return true;
          }
@@ -983,8 +1030,8 @@ namespace format_v4 {
         CURRENT_FILE_FORMAT::file_stages stages_data_in;
         write_all_stages(stages_data_in);
 
-        CURRENT_FILE_FORMAT::file_map maps_data_in[FS_MAX_STAGES][FS_STAGE_MAX_MAPS];
-        write_all_maps(maps_data_in);
+        CURRENT_FILE_FORMAT::file_map_v2 maps_data_in[FS_MAX_STAGES][FS_STAGE_MAX_MAPS];
+        write_all_maps_v2(maps_data_in);
     }
 
     int file_io::get_heart_pieces_number(CURRENT_FILE_FORMAT::st_save game_save)

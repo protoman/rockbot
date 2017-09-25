@@ -190,6 +190,7 @@ void scenesLib::main_screen()
             }
         } else if (picked_n == 0) { // NEW GAME
 			repeat_menu = false;
+            gameControl.set_current_stage(INTRO_STAGE);
             gameControl.set_current_save_slot(select_save(true));
             game_save.reset();
         } else if (picked_n == 1) { // LOAD GAME
@@ -218,7 +219,7 @@ void scenesLib::main_screen()
 	}
     draw_lib.update_screen();
 
-    if (picked_n == 0) {
+    if (picked_n == 0) { // NEW GAME //
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
@@ -458,6 +459,7 @@ void scenesLib::show_enemies_ending()
 {
     graphicsLib_gSurface bg_surface;
     st_color font_color(250, 250, 250);
+    std::pair<int, std::string> final_boss_data;
 
     graphLib.blank_screen();
     std::string filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
@@ -484,26 +486,25 @@ void scenesLib::show_enemies_ending()
     }
 
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
+        if (GameMediator::get_instance()->get_enemy(i)->id == -1) {
+            continue;
+        }
+
         if (stage_boss_id_list.find(GameMediator::get_instance()->get_enemy(i)->id) != stage_boss_id_list.end()) {
             continue;
         }
-        std::string name = GameMediator::get_instance()->get_enemy(i)->name;
-        std::cout << "[enemy[" << i << "].name[" << name << "]" << std::endl;
-        int w = GameMediator::get_instance()->get_enemy(i)->frame_size.width;
-        int h = GameMediator::get_instance()->get_enemy(i)->frame_size.height;
+        // final boss
+        std::string name = std::string(GameMediator::get_instance()->get_enemy(i)->name);
 
-        std::string temp_filename = FILEPATH + "images/sprites/enemies/" + GameMediator::get_instance()->get_enemy(i)->graphic_filename;
-        graphicsLib_gSurface npc_sprite_surface;
-        graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
+        if (GameMediator::get_instance()->get_enemy(i)->id == game_data.final_boss_id) {
+            final_boss_data = std::pair<int, std::string>(GameMediator::get_instance()->get_enemy(i)->id, name);
+        } else {
+            ending_show_single_enemy(GameMediator::get_instance()->get_enemy(i)->id, name, bg_surface);
+        }
 
-
-        graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-        //graphLib.copyArea(st_rectangle(0, 0, w, h), st_position(20, RES_H/2 - h/2), &npc_sprite_surface, &graphLib.gameScreen);
-        draw_lib.show_boss_intro_sprites(i, false);
-        graphLib.draw_progressive_text(120, RES_H/2, name, false);
-        timer.delay(3000);
     }
     show_bosses_ending(bg_surface);
+    ending_show_single_enemy(final_boss_data.first, final_boss_data.second, bg_surface);
 
     graphLib.blank_screen();
     graphLib.updateScreen();
@@ -511,6 +512,27 @@ void scenesLib::show_enemies_ending()
     timer.delay(2000);
 
 
+}
+
+void scenesLib::ending_show_single_enemy(int id, std::string name, graphicsLib_gSurface& bg_surface)
+{
+
+    std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
+#endif
+
+    int w = GameMediator::get_instance()->get_enemy(id)->frame_size.width;
+    int h = GameMediator::get_instance()->get_enemy(id)->frame_size.height;
+
+    std::string temp_filename = FILEPATH + "images/sprites/enemies/" + GameMediator::get_instance()->get_enemy(id)->graphic_filename;
+    graphicsLib_gSurface npc_sprite_surface;
+    graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
+
+    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    draw_lib.show_boss_intro_sprites(id, false);
+    graphLib.draw_progressive_text(120, RES_H/2, name, false);
+    timer.delay(3000);
 }
 
 void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)

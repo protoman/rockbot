@@ -4,6 +4,8 @@
 #include "file/format/st_common.h"
 #include "defines.h"
 
+#define MAP_BACKGROUND_COUNT 2
+
 namespace format_v4 {
 
 
@@ -83,6 +85,95 @@ struct file_map {
         for (int i=0; i<MAP_W; i++) {
             tiles[i][MAP_H-2].locked = TERRAIN_SOLID;
             tiles[i][MAP_H-1].locked = TERRAIN_SOLID;
+        }
+    }
+};
+
+
+// ======================= V2 ========================= //
+struct file_map_npc_v2 {
+    Sint8 id_npc;
+    struct st_position start_point;
+    Uint8 direction;
+    Uint8 stage_id;
+    Uint8 map_id;
+    Uint8 difficulty_level;
+    Uint8 difficulty_mode;
+    file_map_npc_v2() {
+        id_npc = -1;
+        direction = 0;
+        stage_id = INTRO_STAGE;
+        map_id = 0;
+        difficulty_level = DIFFICULTY_EASY;
+        difficulty_mode = DIFFICULTY_MODE_GREATER;
+    }
+    file_map_npc_v2(file_map_npc origin, int stage, int map) {
+        id_npc = origin.id_npc;
+        start_point = origin.start_point;
+        direction = origin.direction;
+        stage_id = stage;
+        map_id = map;
+        difficulty_level = DIFFICULTY_EASY;
+        difficulty_mode = DIFFICULTY_MODE_GREATER;
+    }
+};
+
+struct file_map_object_v2 {
+    Sint8 id_object;
+    struct st_position start_point;
+    Uint8 direction;
+    st_position link_dest;                          // used for teleporter
+    Sint8 map_dest;
+    Uint8 stage_id;
+    Uint8 map_id;
+    Uint8 difficulty_level;
+    Uint8 difficulty_mode;
+
+    file_map_object_v2() {
+        id_object = -1;
+        direction = 0;
+        map_dest = -1;
+        link_dest.x = -1;
+        link_dest.y = -1;
+        stage_id = INTRO_STAGE;
+        map_id = 0;
+        difficulty_level = DIFFICULTY_EASY;
+        difficulty_mode = DIFFICULTY_MODE_GREATER;
+    }
+
+    file_map_object_v2(file_map_object origin, int stage, int map) {
+        id_object = origin.id_object;
+        start_point = origin.start_point;
+        direction = origin.direction;
+        link_dest = origin.link_dest;
+        map_dest = origin.map_dest;
+        stage_id = stage;
+        map_id = map;
+        difficulty_level = DIFFICULTY_EASY;
+        difficulty_mode = DIFFICULTY_MODE_GREATER;
+    }
+};
+
+struct file_map_v2 {
+    st_map_background backgrounds[MAP_BACKGROUND_COUNT];
+    st_color background_color;
+    map_tile tiles[MAP_W][MAP_H];		// map tiles
+    file_map_v2() {
+        // add ground to new map
+        for (int i=0; i<MAP_W; i++) {
+            tiles[i][MAP_H-2].locked = TERRAIN_SOLID;
+            tiles[i][MAP_H-1].locked = TERRAIN_SOLID;
+        }
+    }
+    file_map_v2(file_map original) {
+        for (int i=0; i<MAP_BACKGROUND_COUNT; i++) {
+            backgrounds[i] = original.backgrounds[i];
+        }
+        background_color = original.background_color;
+        for (int i=0; i<MAP_W; i++) {
+            for (int j=0; j<MAP_H; j++) {
+                tiles[i][j] = original.tiles[i][j];
+            }
         }
     }
 };

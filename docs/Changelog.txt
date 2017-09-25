@@ -564,10 +564,15 @@ FILE-FORMAT-V4:
 - new charged projectiles by kaithehedgefox10@deviantart
 - new hadouken Bongwater-bandit@deviantart
 
+##########################################################################################
+
 - ending in android won't show player running
 - flying bosses should not stop only in the ground, but middle-screen
 - fix fly-to-random-point changing direction and always goind left
 - set move-type to air-walk if boss presenting ends without reaching ground
+
+########################################## 2.00.083 ##########################################
+
 - new boss-intro style rokko chan's opening or X boss presentation
 - improved HUD with 4 slices for each energy dot
 - change to air-walk when flying
@@ -638,4 +643,18 @@ FILE-FORMAT-V4:
 - 1-up dropping ratio is too high, use timer as seed for random generator
 - problem with collision when w is smaller than max
 
+########################################## 1.20.038 ##########################################
+- convert save to new name
+- add screens for bosses intros
+- add fly sprites to enemies
+- add teleport sprites to enemies that use teleport AI
+- remove castle/path presentation
+- not showing bosses names on credits
+- returning to castle5 on new-game after beating the game
+- na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário: https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
+- castle 5 - parafusos somem quando entram no chão e não voltam
 
+
+########################################## XXX ##########################################
+- change map objects and enemies to a self-contained list
+- add difficulty to object and enemies placing,s o you can add enemies that will appear only in hard-mode

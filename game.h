@@ -200,15 +200,7 @@ public:
     bool must_show_boss_hp();
 
 
-    /**
-     * @brief
-     *
-     */
     void reset_stage_maps();
-    /**
-     * @brief
-     *
-     */
     void remove_all_projectiles();
 
     void reset_beam_objects();
@@ -217,23 +209,9 @@ public:
 
 
     void remove_players_slide();
-    /**
-     * @brief
-     *
-     */
     void show_map();
-    /**
-     * @brief
-     *
-     * @param int
-     */
+    void set_current_stage(int stage);
     void set_current_map(int);
-
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     st_float_position get_current_stage_scroll();
     /**
      * @brief
@@ -325,6 +303,7 @@ private:
 public:
     Uint8 currentStage;
     bool is_showing_boss_intro;
+
 
 
 private:

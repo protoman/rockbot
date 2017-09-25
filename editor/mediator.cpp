@@ -43,6 +43,8 @@ Mediator::Mediator() : stage_data() {
 
 	zoom = 1;
 	currentStage = 1;
+    currentDifficulty = DIFFICULTY_EASY;
+    currentDifficultyMode = DIFFICULTY_MODE_GREATER;
 	sprintf(addNpcFilename, "%c", '\0');
     sprintf(addProjectileFilename, "%c", '\0');
 
@@ -381,7 +383,7 @@ void Mediator::setPallete(char *value) {
 void Mediator::load_game() {
     Mediator::get_instance()->fio.read_game(game_data);
     Mediator::get_instance()->fio.read_all_stages(stage_data);
-    Mediator::get_instance()->fio.read_all_maps(maps_data);
+    load_game_data();
     Mediator::get_instance()->fio.read_castle_data(castle_data);
 
     enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
@@ -453,6 +455,20 @@ void Mediator::load_game() {
 
 }
 
+void Mediator::load_game_data()
+{
+    bool convert_old_map_data = false;
+
+    if (convert_old_map_data) {
+        Mediator::get_instance()->fio.read_all_maps(maps_data);
+        convert_map_data_to_v2();
+    } else {
+        Mediator::get_instance()->fio.read_all_maps_v2(maps_data_v2);
+        maps_data_npc_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
+        maps_data_object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
+    }
+}
+
 void Mediator::save_game()
 {
     clean_data();
@@ -460,7 +476,8 @@ void Mediator::save_game()
 
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
-    Mediator::get_instance()->fio.write_all_maps(maps_data);
+
+    save_map_data();
     Mediator::get_instance()->fio.write_castle_data(castle_data);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
@@ -493,6 +510,37 @@ void Mediator::save_game()
 
     save_stage_select_data();
 
+}
+
+void Mediator::save_map_data()
+{
+    //Mediator::get_instance()->fio.write_all_maps(maps_data);
+    Mediator::get_instance()->fio.write_all_maps_v2(maps_data_v2);
+    // TODO save v2
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>("/map_npc_data.dat", maps_data_npc_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_object_v2>("/map_object_data.dat", maps_data_object_list);
+}
+
+void Mediator::convert_map_data_to_v2()
+{
+    //maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]
+    maps_data_npc_list.clear();
+    maps_data_object_list.clear();
+    for (int i=0; i<FS_MAX_STAGES; i++) {
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            maps_data_v2[i][j] = CURRENT_FILE_FORMAT::file_map_v2(maps_data[i][j]);
+            for (int k=0; k<FS_MAX_MAP_NPCS; k++) {
+                if (maps_data[i][j].map_npcs[k].id_npc != -1) {
+                    maps_data_npc_list.push_back(CURRENT_FILE_FORMAT::file_map_npc_v2(maps_data[i][j].map_npcs[k], i, j));
+                }
+            }
+            for (int k=0; k<FS_MAX_MAP_OBJECTS; k++) {
+                if (maps_data[i][j].map_objects[k].id_object != -1) {
+                    maps_data_object_list.push_back(CURRENT_FILE_FORMAT::file_map_object_v2(maps_data[i][j].map_objects[k], i, j));
+                }
+            }
+        }
+    }
 }
 
 void Mediator::convert_ai_list_to_v3()
@@ -529,10 +577,10 @@ void Mediator::clean_data()
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             for (int x=0; x<MAP_W; x++) {
                 for (int y=0; y<MAP_H; y++) {
-                    if (maps_data[i][j].tiles[x][y].tile3.x*TILESIZE >= tileset_w || maps_data[i][j].tiles[x][y].tile3.y*TILESIZE >= tileset_h) {
-                        std::cout << "ERASE LV3 TILE stage[" << i << "], map[" << j << "], tile[" << x << "][" << y << "], values[" << (int)maps_data[i][j].tiles[x][y].tile3.x << "][" << (int)maps_data[i][j].tiles[x][y].tile3.y << "]" << std::endl;
-                        maps_data[i][j].tiles[x][y].tile3.x = -1;
-                        maps_data[i][j].tiles[x][y].tile3.y = -1;
+                    if (maps_data_v2[i][j].tiles[x][y].tile3.x*TILESIZE >= tileset_w || maps_data_v2[i][j].tiles[x][y].tile3.y*TILESIZE >= tileset_h) {
+                        std::cout << "ERASE LV3 TILE stage[" << i << "], map[" << j << "], tile[" << x << "][" << y << "], values[" << (int)maps_data_v2[i][j].tiles[x][y].tile3.x << "][" << (int)maps_data_v2[i][j].tiles[x][y].tile3.y << "]" << std::endl;
+                        maps_data_v2[i][j].tiles[x][y].tile3.x = -1;
+                        maps_data_v2[i][j].tiles[x][y].tile3.y = -1;
                     }
                 }
             }

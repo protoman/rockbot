@@ -49,16 +49,8 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 1 ###
 ###################################################################################################################
-TEST - convert save to new format
-OK - add screens for bosses intros
-OK - add fly sprites to enemies
-OK - add teleport sprites to enemies that use teleport AI
-- apebot stops moving after using quake
-- mage bot not leaving invulnerability even without stars shield
-- na fase do mage, uma cartola faz span de coelhos que caem para dentro do cenário: https://drive.google.com/open?id=0B7z1XNbjQajDbFJaVXVGYndTNlRWbzdJMGU1eVEtTGIxLWxJ
-- castle 5 - parafusos somem quando entram no chão e não voltam
-- daisie afundando no chão (castle5)
-- remove castle path
+
+
 
 
 ###################################################################################################################
@@ -69,7 +61,8 @@ CRITICAL:
 SERIOUS:
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 - not setting finished-game for selecting 4 player? (finished the game, but didn't opened 4 player selection)
-
+- EDITOR: simplify loop through npcs and objects that happens several times in the code
+- EDITOR: change swap maps to replace npcs and objects with the new format
 
 MEDIUM:
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK

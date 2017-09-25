@@ -4,12 +4,11 @@ using namespace std;
 
 #include "file/file_io.h"
 #include "stage.h"
+#include "game_mediator.h"
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
-extern CURRENT_FILE_FORMAT::file_map map_data[FS_STAGE_MAX_MAPS];
 extern CURRENT_FILE_FORMAT::file_io fio;
-
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
@@ -26,7 +25,12 @@ stage::stage(int setStageN, classPlayer* set_player_ref) : stage_is_loaded(false
     set_current_map(0);
     setNumber(setStageN);
     fio.read_stage(stage_data, setStageN);
-    fio.read_stage_maps(setStageN, map_data);
+    fio.read_stage_maps_v2(setStageN, GameMediator::get_instance()->map_data);
+
+    // TODO: read only data from current stage //
+    GameMediator::get_instance()->map_npc_data = fio.read_map_enemy_list(setStageN);
+    GameMediator::get_instance()->map_object_data = fio.read_map_object_list(setStageN);
+
 
     std::string tileset_name(stage_data.tileset_filename);
     if (tileset_name.length() == 0) {

@@ -1312,10 +1312,11 @@ void artificial_inteligence::execute_ai_step_fly()
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
             bool res_move = move_to_point(_dest_point, 0, move_speed, true);
-            if (res_move == true || position.y >= RES_H+TILESIZE) {
+            //if (res_move == true || position.y >= RES_H+TILESIZE) {
+            if (position.y >= RES_H+TILESIZE) {
                 position.y = -TILESIZE*2;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                //std::cout << "**** DRILL.FINISHED - move to initial position" << std::endl;
+                std::cout << "**** DRILL.FINISHED - move to initial position, position.y[" << position.y << "]" << std::endl;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
             //std::cout << "artificial_inteligence::execute_ai_step_fly - DOWN - dest_point.y: " << _dest_point.y << std::endl;
@@ -1608,8 +1609,11 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
             }
         }
         if (_ghost_move_speed_reducer > 0 && speed_y != 0) {
-            block_speed_y = speed_y/_ghost_move_speed_reducer;
-            if ((int)block_speed_y == 0) {
+            block_speed_y = (int)(speed_y/_ghost_move_speed_reducer);
+
+            std::cout << "AI::move_to_point - _ghost_move_speed_reducer[" << _ghost_move_speed_reducer << "], speed_y[" << speed_y << "], block_speed_y[" << block_speed_y << "]" << std::endl;
+
+            if (block_speed_y == 0) {
                 if (speed_y > 0) {
                     block_speed_y = 1;
                 } else {
@@ -1620,16 +1624,17 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     }
 
     if (_ghost_move_speed_reducer > 0) {
+
         bool test_x_move = test_change_position(block_speed_x, 0);
         bool test_y_move = test_change_position(0, block_speed_y);
 
-        //if (name == "KURUPIRA BOT") std::cout << "AI::move_to_point - test_x_move: " << test_x_move << ", block_speed_x: " << block_speed_x << std::endl;
+        std::cout << "AI::move_to_point - GHOST.test_x_move[" << test_x_move << "], test_y_move[" << test_y_move << "]" << std::endl;
 
-
-        if (test_x_move == false) {
+        if (!test_x_move) {
             speed_x = block_speed_x;
         }
-        if (test_y_move == false) {
+        if (!test_y_move) {
+            std::cout << "AI::move_to_point - GHOST, REDUCE::Y" << std::endl;
             speed_y = block_speed_y;
         }
     }
@@ -1710,7 +1715,11 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         }
     }
 
-    if ((can_move_x == false && can_move_y == false) || (can_move_x == false && yinc == 0) || (can_move_y == false && xinc == 0)) {
+    if (can_pass_walls) {
+        position.x += xinc;
+        position.y += yinc;
+        return false;
+    } else if ((can_move_x == false && can_move_y == false) || (can_move_x == false && yinc == 0) || (can_move_y == false && xinc == 0)) {
         return true;
     } else {
         if (can_move_x == true) {
@@ -1726,7 +1735,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
 void artificial_inteligence::randomize_x_point(int max_adjust)
 {
     int rand_x = rand() % max_adjust*2;
-    //std::cout << ">>artificial_inteligence::randomize_x_point - max_adjust: " << max_adjust << ", start_point.x: " << start_point.x << ", rand_x: " << rand_x << std::endl;
+    std::cout << ">>artificial_inteligence::randomize_x_point - max_adjust: " << max_adjust << ", start_point.x: " << start_point.x << ", rand_x: " << rand_x << std::endl;
     position.x = position.x + rand_x - max_adjust;
 }
 
@@ -1957,7 +1966,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         classnpc* npc_ref;
-        if (name == "Top Hat") {
+        if (name == "TOP HAT") {
             npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y), state.direction, false, true);
         } else {
             npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);

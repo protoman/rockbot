@@ -51,8 +51,15 @@ namespace format_v4 {
         void read_stage(file_stage& stages_data_out, short stage_n);
         // maps
         void read_all_maps(file_map (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
-        void write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
-        void read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS]);
+        //void write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
+        //void read_stage_maps(int stage_id, file_map (&data_out)[FS_STAGE_MAX_MAPS]);
+        // maps v2
+        void read_all_maps_v2(file_map_v2 (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
+        void write_all_maps_v2(file_map_v2 (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
+        void read_stage_maps_v2(int stage_id, file_map_v2 (&data_out)[FS_STAGE_MAX_MAPS]);
+        std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> read_map_enemy_list(int stage_id);
+        std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> read_map_object_list(int stage_id);
+
 
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list();

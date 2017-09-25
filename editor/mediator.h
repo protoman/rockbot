@@ -37,6 +37,8 @@ public:
 	int currentGame;
 	int currentMap;
 	int currentStage;
+    int currentDifficulty;
+    int currentDifficultyMode;
 	//QString *NpcPreviewFile;
 	char addNpcFilename[512];
 	int NpcAddNumber;
@@ -77,7 +79,10 @@ public:
     void setPallete(std::string filename);
 	void setPallete(char *value);
     void load_game();
+    void load_game_data();
     void save_game();
+    void save_map_data();
+    void convert_map_data_to_v2();
 
     void convert_ai_list_to_v3();
 
@@ -127,8 +132,14 @@ public:
     // old globals
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
-    CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
     CURRENT_FILE_FORMAT::file_castle castle_data;
+
+    // maps data
+    CURRENT_FILE_FORMAT::file_map maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
+    CURRENT_FILE_FORMAT::file_map_v2 maps_data_v2[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]; // stage, map_n
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> maps_data_npc_list;
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> maps_data_object_list;
+
 
     std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
@@ -153,6 +164,7 @@ public:
 
     // stage dialogs
     std::map<int, std::vector<std::string> > stage_dialog_list;
+
 
 
 private:

@@ -47,6 +47,9 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_tile_list;
     std::vector<CURRENT_FILE_FORMAT::file_player_v3_1> player_list_v3_1;
+    CURRENT_FILE_FORMAT::file_map_v2 map_data[FS_STAGE_MAX_MAPS];           // map data
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> map_npc_data;         // map enemy list
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> map_object_data;   // map object list
 
 private:
     static GameMediator* _instance;

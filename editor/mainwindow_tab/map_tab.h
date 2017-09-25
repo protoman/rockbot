@@ -76,6 +76,11 @@ private slots:
 
     void on_mapGFXMode_comboBox_currentIndexChanged(int index);
 
+    void on_difficulty_comboBox_currentIndexChanged(int index);
+
+
+    void on_difficultyMode_pushButton_clicked();
+
 private:
     void fill_data();
     void fill_background_list();

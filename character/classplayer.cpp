@@ -54,9 +54,6 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
     selected_weapon = 0;
-    char temp_name[30];
-    sprintf(temp_name, "PLAYER_%d", _number);
-    name = std::string(temp_name);
     move_speed = PLAYER_MOVE_SPEED;
 
     reset_charging_shot();
@@ -70,6 +67,9 @@ void classPlayer::set_player_name(std::string set_name)
 void classPlayer::initialize()
 {
     _number = game_save.selected_player;
+    char temp_name[30];
+    sprintf(temp_name, "PLAYER_%d", _number);
+    name = std::string(temp_name);
     if (_number == 3 || _number == 0) {
         //_obj_jump.set_jump_acceleration(0.95);
         _obj_jump.set_jump_limit(50);
