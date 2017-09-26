@@ -276,7 +276,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "VOLUME EFEITOS");
             sprintf(lines[strings_ingame_config_enabled], "%s", "HABILITADO");
             sprintf(lines[strings_ingame_config_disabled], "%s", "DESABILITADO");
-            sprintf(lines[strings_ingame_ready_message], "%s", "READY");
+            sprintf(lines[strings_ingame_ready_message], "%s", "PREPARE-SE!!");
             sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECIONE PERSONAGEM >");
             sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "APERTE START PARA INICIAR");
             sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
@@ -406,7 +406,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "SFX VOLUME");
             sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
             sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
-            sprintf(lines[strings_ingame_ready_message], "%s", "READY");
+            sprintf(lines[strings_ingame_ready_message], "%s", "GET READY!!");
             sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
             sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
             sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
