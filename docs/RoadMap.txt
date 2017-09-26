@@ -57,6 +57,12 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
+- disable totally the cloud-services
+    # remove the calls from the code
+    # disable options in config
+- must clear text on the stage-select screen, when changing stages
+    # 19, 2, 36 (rgb)
+    # 146x18, 136x18 (areas to clear)
 
 SERIOUS:
 - won't reset from walk-attack to stand-attack if keep firing even if not moving

@@ -164,11 +164,13 @@ void scenesLib::main_screen()
 
     // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
 #ifdef ANDROID
-        // if config player services is set, and no save is found, get it from cloud
-        if (have_save == false && game_config.android_use_play_services == true && game_config.android_use_cloud_save == true) {
-            gameControl.load_save_data_from_cloud();
-            have_save = fio.have_one_save_file();
-        }
+    // if config player services is set, and no save is found, get it from cloud
+    /*
+    if (have_save == false && game_config.android_use_play_services == true && game_config.android_use_cloud_save == true) {
+        gameControl.load_save_data_from_cloud();
+        have_save = fio.have_one_save_file();
+    }
+    */
 #endif
 
 
@@ -595,15 +597,15 @@ void scenesLib::show_config_android()
         }
         // OPTION #2: use play services
         if (game_config.android_use_play_services == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language), true));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled,game_config.selected_language)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled,game_config.selected_language), true));
         }
         // OPTION #3: use cloud save (only available if use play services is true)
         if (game_config.android_use_cloud_save == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language), !game_config.android_use_play_services));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language), , true));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language), !game_config.android_use_play_services));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language), , true));
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);

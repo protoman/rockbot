@@ -32,6 +32,19 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
 
 void inputLib::init_joystick()
 {
+#ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - %i joysticks were found.", SDL_NumJoysticks() );
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - The names of the joysticks are:");
+        for(int i=0; i < SDL_NumJoysticks(); i++ ) {
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - joy[%d][%s]", i, SDL_JoystickName(i));
+        }
+#else
+    printf("%i joysticks were found.\n\n", SDL_NumJoysticks());
+    printf("The names of the joysticks are:\n");
+    for(int i=0; i < SDL_NumJoysticks(); i++ ) {
+        printf("[%d][%s]\n", i, SDL_JoystickName(i));
+    }
+#endif
     SDL_JoystickEventState(SDL_ENABLE);
     joystick1 = SDL_JoystickOpen(game_config.selected_input_device);
 }
@@ -407,16 +420,32 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
     clean();
     timer.delay(50);
 
+    #ifdef ANDROID
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button game_config.input_type[%d]", (int)game_config.input_type);
+    #else
+    std::cout << "### INPUT::pick_key_or_button game_config.input_type[" << (int)game_config.input_type << "]" << std::endl;
+    #endif
+
+
     while (true) { // keep reading until a key is found
         while (SDL_PollEvent(&event)) {
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
                 if (event.type == SDL_KEYDOWN) {
                     // do not allow user to reassign ESCAPE key
                     if (event.key.keysym.sym == SDLK_ESCAPE) {
+                        #ifdef ANDROID
+                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR: Can't reassign ESCAPE key ###");
+                        #else
                         std::cout << "ERROR: Can't reassign ESCAPE key." << std::endl;
+                        #endif
                         return false;
                     }
-                    game_config_copy.keys_codes[key] = event.key.keysym.sym;
+                    game_config_copy.keys_codes[key] = (int)event.key.keysym.sym;
+                    #ifdef ANDROID
+                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button[SDL_KEYDOWN][%d] ###", (int)event.key.keysym.sym);
+                    #else
+                    std::cout << "### INPUT::pick_key_or_button[SDL_KEYDOWN][" << (int)event.key.keysym.sym << "]" << std::endl;
+                    #endif
                     return false;
                 }
                 SDL_PumpEvents();
@@ -425,25 +454,55 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                 if (event.type == SDL_JOYBUTTONDOWN) {
                     //std::cout << "INPUT::pick_key_or_button - key[" << (int)key << "], current.BTN[" << (int)game_config_copy.button_codes[key] << "], SET JOYBTN TO[" << (int)event.jbutton.button << "]" << std::endl;
                     game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_BUTTON;
-                    game_config_copy.button_codes[key].value = event.jbutton.button;
+                    game_config_copy.button_codes[key].value = (int)event.jbutton.button;
+                    #ifdef ANDROID
+                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button[SDL_JOYBUTTONDOWN][%d] ###", (int)event.jbutton.button);
+                    #else
+                    std::cout << "### INPUT::pick_key_or_button[SDL_JOYBUTTONDOWN][" << (int)event.jbutton.button << "]" << std::endl;
+                    #endif
                     return true;
                 } else if (event.type == SDL_JOYHATMOTION) { //joy-hat events
                     game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_HAT;
                     game_config_copy.button_codes[key].value = event.jhat.value;
+                    #ifdef ANDROID
+                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button[JOYSTICK_INPUT_TYPE_HAT][%d] ###", event.jhat.value);
+                    #endif
                     return true;
                 } else if (event.type == SDL_JOYAXISMOTION) { // joy-axis event
                     if (event.jaxis.value < -JOYVAL) {
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
-                        game_config_copy.button_codes[key].value = event.jaxis.axis;
+                        game_config_copy.button_codes[key].value = (int)event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = -1;
+                        #ifdef ANDROID
+                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button[SDL_JOYAXISMOTION-][%d] ###", (int)event.jaxis.axis);
+                        #else
+                        std::cout << "### INPUT::pick_key_or_button[SDL_JOYAXISMOTION-][" << (int)event.jaxis.axis << "]" << std::endl;
+                        #endif
                         return true;
                     } else if (event.jaxis.value > JOYVAL) {
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
-                        game_config_copy.button_codes[key].value = event.jaxis.axis;
+                        game_config_copy.button_codes[key].value = (int)event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = 1;
+                        #ifdef ANDROID
+                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button[JOYSTICK_INPUT_TYPE_AXIS+][%d] ###", event.jhat.value);
+                        #else
+                        std::cout << "### INPUT::pick_key_or_button[SDL_JOYAXISMOTION+][" << (int)event.jaxis.axis << "]" << std::endl;
+                        #endif
                         return true;
+                    } else {
+                        #ifdef ANDROID
+                        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button unknown event_type[%d] ###", (int)event.type);
+                        #else
+                        std::cout << "### INPUT::pick_key_or_button unknown event_type[[" << (int)event.type << "]" << std::endl;
+                        #endif
                     }
                 }
+            } else {
+                #ifdef ANDROID
+                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button ignoring event_type[%d] ###", (int)event.type);
+                #else
+                std::cout << "### INPUT::pick_key_or_button ignoring event_type[[" << (int)event.type << "]" << std::endl;
+                #endif
             }
 
 

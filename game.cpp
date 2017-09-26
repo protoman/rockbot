@@ -1686,6 +1686,7 @@ void game::save_game()
     }
 #ifdef ANDROID
     // if config is set to use cloud
+    /*
     if (game_config.android_use_play_services == true && game_config.android_use_cloud_save) {
         graphicsLib_gSurface bg_copy;
         graphLib.initSurface(st_size(RES_W, RES_H), &bg_copy);
@@ -1701,6 +1702,7 @@ void game::save_game()
         graphLib.copyArea(st_position(0, 0), &bg_copy, &graphLib.gameScreen);
         graphLib.updateScreen();
     }
+    */
 #endif
 }
 
