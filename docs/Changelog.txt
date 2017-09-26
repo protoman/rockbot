@@ -658,3 +658,4 @@ FILE-FORMAT-V4:
 ########################################## XXX ##########################################
 - change map objects and enemies to a self-contained list
 - add difficulty to object and enemies placing,s o you can add enemies that will appear only in hard-mode
+- missing d-pad and A buttons on rockbot1 stage select screen
