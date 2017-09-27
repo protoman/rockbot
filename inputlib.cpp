@@ -205,7 +205,32 @@ void inputLib::read_input(bool check_input_reset)
 
         // check AXIS buttons //
         if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE || game_config.input_mode == INPUT_MODE_DIGITAL)) {
+
+            std::cout << "INPUT::read_input - event.SDL_JOYAXISMOTION, axis[" << (int)event.jaxis.axis << "], j.value[" << event.jaxis.value << "]" << std::endl;
+
+
+            // value is the axis (0 is X, 1 is Y)
+            // axis_type is positive or negative (left/right or up/down)
+
             for (int i=0; i<BTN_COUNT; i++) {
+
+                if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS) {
+                    std::cout << "AXIS input config[" << i << "], value[" << game_config.button_codes[i].value << "]" << std::endl;
+                    if (game_config.button_codes[i].value == event.jaxis.axis) {
+                        std::cout << "FOUND AXIS CONFIG, CONFIG.AXIS_TYPE[" << game_config.button_codes[i].axis_type << "]" << std::endl;
+
+
+
+                        if (event.jaxis.value > JOYVAL) {
+                            std::cout << "GREATER THAN JOYVAL" << std::endl;
+                        } else if (event.jaxis.value < -JOYVAL) {
+                            std::cout << "SMALLER THAN JOYVAL" << std::endl;
+                        } else {
+                            std::cout << "NOT REACHED JOYVAL" << std::endl;
+                        }
+                    }
+                }
+
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
                     if (game_config.button_codes[i].axis_type > 0) {
                         if (event.jaxis.value > JOYVAL) {

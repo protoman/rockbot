@@ -32,8 +32,7 @@ namespace format_v4 {
         bool android_use_cloud_save;
         bool first_run;
 
-
-        void get_default_keys(int keys_codes_copy[BTN_COUNT]) {
+        void get_default_keys(int (&keys_codes_copy)[BTN_COUNT]) {
 #ifdef PLAYSTATION2
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
@@ -81,7 +80,7 @@ namespace format_v4 {
 #endif
         }
 
-        void get_default_buttons(st_input_button_config button_codes_copy[BTN_COUNT]) {
+        void get_default_buttons(st_input_button_config (&button_codes_copy)[BTN_COUNT]) {
             // reset values
             for (int i=0; i<BTN_COUNT; i++) {
                 button_codes_copy[i].type = JOYSTICK_INPUT_TYPE_BUTTON;
@@ -89,25 +88,27 @@ namespace format_v4 {
                 button_codes_copy[i].axis_type = 0;
             }
 
-
             // COMMON INPUT FOR JOYSTICK AXIS //
+
+            std::cout << "#1 BTN_DOWN[" << BTN_DOWN << "].axis_type[" << button_codes_copy[BTN_DOWN].axis_type << "].value[" << button_codes_copy[BTN_DOWN].value << "]" << std::endl;
+
             button_codes_copy[BTN_DOWN].axis_type = 1;
             button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_AXIS;
             button_codes_copy[BTN_DOWN].value = 1;
 
+            std::cout << "#2 BTN_DOWN[" << BTN_DOWN << "].axis_type[" << button_codes_copy[BTN_DOWN].axis_type << "].value[" << button_codes_copy[BTN_DOWN].value << "]" << std::endl;
+
             button_codes_copy[BTN_UP].axis_type = -1;
             button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_AXIS;
-            button_codes_copy[BTN_DOWN].value = 1;
+            button_codes_copy[BTN_UP].value = 1;
 
             button_codes_copy[BTN_RIGHT].axis_type = 1;
             button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_AXIS;
-            button_codes_copy[BTN_DOWN].value = 0;
+            button_codes_copy[BTN_RIGHT].value = 0;
 
             button_codes_copy[BTN_LEFT].axis_type = -1;
             button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_AXIS;
-            button_codes_copy[BTN_DOWN].value = 0;
-
-
+            button_codes_copy[BTN_LEFT].value = 0;
 
 #ifdef PLAYSTATION2
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
@@ -185,6 +186,7 @@ namespace format_v4 {
                 button_codes_copy[i].value = -1;
                 button_codes_copy[i].axis_type = 0;
             }
+            set_axis_default(button_codes_copy);
 #elif DREAMCAST
             // down //
             button_codes_copy[BTN_DOWN].axis_type = 0;
