@@ -186,7 +186,6 @@ namespace format_v4 {
                 button_codes_copy[i].value = -1;
                 button_codes_copy[i].axis_type = 0;
             }
-            set_axis_default(button_codes_copy);
 #elif DREAMCAST
             // down //
             button_codes_copy[BTN_DOWN].axis_type = 0;
