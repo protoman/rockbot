@@ -57,6 +57,7 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
+- double jump is making the player jump once falling to ground
 - disable totally the cloud-services
     # remove the calls from the code
     # disable options in config
