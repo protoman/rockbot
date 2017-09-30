@@ -114,7 +114,6 @@ SOURCES += main.cpp \
     framespreviewarea.cpp \
     widgets/animtilepalette.cpp \
     mainwindow_tab/anim/animpackimport.cpp \
-    mainwindow_tab/castlepointspreviewarea.cpp \
     dialog_pick_color.cpp \
     mainwindow_tab/stageselectmapdialog.cpp \
     mainwindow_tab/stageselectmapeditarea.cpp \
@@ -195,7 +194,6 @@ HEADERS += mainwindow.h \
     framespreviewarea.h \
     widgets/animtilepalette.h \
     mainwindow_tab/anim/animpackimport.h \
-    mainwindow_tab/castlepointspreviewarea.h \
     dialog_pick_color.h \
     mainwindow_tab/stageselectmapdialog.h \
     mainwindow_tab/stageselectmapeditarea.h \

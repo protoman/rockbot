@@ -31,8 +31,8 @@ public:
     void show_player_ending();
     void show_player_walking_ending();
     void show_enemies_ending();
-    void ending_show_single_enemy(int id, std::string name, graphicsLib_gSurface &bg_surface);
-    void show_bosses_ending(graphicsLib_gSurface &bg_surface);
+    void ending_show_single_enemy(int id, std::string name);
+    void show_bosses_ending();
 
 private:
     // preload/unload

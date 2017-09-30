@@ -1174,9 +1174,8 @@ void game::got_weapon()
 		graphLib.blink_screen(255, 255, 255);
 		graphLib.blank_screen();
         soundManager.play_music();
-		graphicsLib_gSurface temp_bg;
-        graphLib.surfaceFromFile(FILEPATH+"images/backgrounds/stage_boss_intro.png", &temp_bg);
-		graphLib.showSurface(&temp_bg);
+
+        graphLib.show_config_bg();
 
         player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
         player1.set_animation_type(ANIM_TYPE_ATTACK);
@@ -1333,13 +1332,11 @@ void game::game_over()
     soundManager.play_music();
     graphLib.blank_screen();
 
-    graphicsLib_gSurface config_bg;
-    std::string filename = FILEPATH + "images/backgrounds/config.png";
-    graphLib.surfaceFromFile(filename, &config_bg);
-    graphLib.copyArea(st_rectangle(0, 0, config_bg.get_surface()->w, config_bg.get_surface()->h), st_position(0, 0), &config_bg, &graphLib.gameScreen);
+
+    graphLib.show_config_bg();
 
     graphicsLib_gSurface dialog_img;
-    filename = FILEPATH + "images/backgrounds/dialog.png";
+    std::string filename = FILEPATH + "images/backgrounds/dialog.png";
     graphLib.surfaceFromFile(filename, &dialog_img);
     graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
 
@@ -1434,7 +1431,7 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-    //scenes.boss_intro(currentStage);
+    scenes.boss_intro(currentStage);
 
     start_stage();
 }
@@ -1572,7 +1569,7 @@ void game::show_player_at(int x, int y)
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### GAME::show_player_at[%d, %d] ###", x, y);
 #endif
-    std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
+    //std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
     player1.show_at(st_position(x, y));
 }
 
@@ -1759,10 +1756,10 @@ void game::select_game_screen()
         _selected_game = game_list.at(0);
         return;
     }
-    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.draw_text(10, 10, "SELECT GAME:");
+    graphLib.show_config_bg();
+    graphLib.draw_text(10, 20, "SELECT GAME:");
 
-    option_picker main_picker(false, st_position(40, 50), game_list, false);
+    option_picker main_picker(false, st_position(30, 40), game_list, false);
     main_picker.enable_check_input_reset_command();
     draw_lib.update_screen();
     bool repeat_menu = true;

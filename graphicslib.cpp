@@ -181,8 +181,19 @@ bool graphicsLib::initGraphics()
     printf(">> WII.DEBUG.INIT_GRAPHICS.END <<\n");
     fflush(stdout);
 
+    load_shared_graphics();
 
     return true;
+}
+
+void graphicsLib::load_shared_graphics()
+{
+    std::string filename = GAMEPATH + "shared/images/config_bg.png";
+    surfaceFromFile(filename, &config_menu);
+
+    water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
+    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+    _config_menu_pos.x = 0;
 }
 
 void graphicsLib::preload()
@@ -192,8 +203,6 @@ void graphicsLib::preload()
     preload_faces();
     preload_images();
     preload_anim_tiles();
-    water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
-    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
 }
 
 
@@ -759,11 +768,16 @@ struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle r
 
 
 void graphicsLib::blank_screen() {
+    blank_screen(0, 0, 0);
+}
+
+void graphicsLib::blank_screen(int r, int g, int b)
+{
     if (game_screen == NULL || game_screen->format == NULL) {
         return;
     }
 
-    SDL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
+    SDL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
 void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
@@ -973,7 +987,7 @@ void graphicsLib::drawCursor(st_position pos) {
 }
 
 void graphicsLib::eraseCursor(st_position pos) {
-	blank_area(pos.x, pos.y, CURSOR_SPACING, CURSOR_SPACING);
+    clear_area(pos.x, pos.y, CURSOR_SPACING, CURSOR_SPACING, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 }
 
 void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
@@ -983,7 +997,6 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
     if (game_screen == NULL || game_screen->format == NULL) {
         return;
     }
-
 
 	initSurface(st_size(gameScreen.width, gameScreen.height), &screen_copy);
 	copyArea(st_position(0, 0), &gameScreen, &screen_copy);
@@ -1044,17 +1057,11 @@ void graphicsLib::load_icons()
 	}
 
 
-
-    filename = FILEPATH + "images/backgrounds/config_fg.png";
-	surfaceFromFile(filename, &config_menu);
-
-	_config_menu_pos.x = (RES_W-config_menu.width)*0.5;
-
     filename = FILEPATH + "images/backgrounds/dialog.png";
-	surfaceFromFile(filename, &dialog_surface);
+    surfaceFromFile(filename, &dialog_surface);
 
     filename = FILEPATH + "images/backgrounds/weapon_menu.png";
-	surfaceFromFile(filename, &ingame_menu);
+    surfaceFromFile(filename, &ingame_menu);
 
     filename = FILEPATH + "images/backgrounds/btn_a.png";
     surfaceFromFile(filename, &_btn_a_surface);
@@ -1185,18 +1192,16 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     }
 
 
-
-    copyArea(st_position(26, 195), player_frame, &gameScreen);
-
-	std::stringstream ss;
-	int item_text_pos = 217;
-
+    // player life
+    copyArea(st_position(16, 195), player_frame, &gameScreen);
+    int item_text_pos = 217;
+    std::stringstream ss;
 	ss.str(std::string());
     ss << "0" << (short)game_save.items.lifes;
-    draw_text(58, item_text_pos, ss.str());
+    draw_text(48, item_text_pos, ss.str());
 
 
-	ss.str(std::string());
+    ss.str(std::string());
     ss << "0" << (short)game_save.items.energy_tanks;
     draw_text(93, item_text_pos, ss.str());
 
@@ -1211,7 +1216,7 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
 
 	ss.str(std::string());
     ss << "0" << (int)game_save.items.bolts;
-    draw_text(273, item_text_pos, ss.str());
+    draw_text(278, item_text_pos, ss.str());
 
     /*
     if (item_ref->balancer > 0) {
@@ -1229,11 +1234,12 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
         copyArea(st_position(175, 200), &armor_icon_legs, &gameScreen);
     }
 
-    draw_text(212, 23, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
-    draw_text(41, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_life, game_config.selected_language));
-    draw_text(111, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_item, game_config.selected_language));
-    draw_text(187, 191, strings_map::get_instance()->get_ingame_string(strings_ingame_armor,game_config.selected_language));
-
+    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language).length()+4)*8;
+    draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
+    draw_text(10, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_life, game_config.selected_language));
+    draw_text(111, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_item, game_config.selected_language));
+    draw_text(187, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_armor,game_config.selected_language));
+    draw_text(268, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_coin,game_config.selected_language));
 	updateScreen();
 }
 
@@ -1502,19 +1508,30 @@ void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short 
 }
 
 
-void graphicsLib::show_config_bg(Uint8 position) // 0 - centered, 1 - top, 2 - bottom
+void graphicsLib::show_config_bg()
 {
-	if (position == 0) {
-		_config_menu_pos.y = (RES_H-config_menu.height)*0.5;
-	} else if (position == 1) {
-		_config_menu_pos.y = 3;
-	} else {
-		_config_menu_pos.y = RES_H - config_menu.height - 25;
-	}
+    showSurface(&config_menu);
+}
 
-	st_position bg_pos(_config_menu_pos.x, _config_menu_pos.y);
+void graphicsLib::show_config_bg_animation()
+{
+    int total = RES_H/2-15+1;
+    for (int i=0; i<total; i+=2) {
+        // top part
+        int y = RES_H/2-i-15;
+        int h = 15+i;
+        int w = config_menu.width;
+        copyArea(st_rectangle(0, 0, w, h), st_position(0, y), &config_menu, &gameScreen);
 
-	copyArea(bg_pos, &config_menu, &gameScreen);
+        // bottom_part
+        y = config_menu.height-15-i;
+        copyArea(st_rectangle(0, y, w, h), st_position(0, RES_H/2), &config_menu, &gameScreen);
+
+
+        //std::cout << "y[" << y << "], h[" << h << "]" << std::endl;
+        updateScreen();
+        timer.delay(3);
+    }
 }
 
 
@@ -2193,12 +2210,12 @@ void graphicsLib::wait_and_update_screen(int period)
 
 st_position graphicsLib::get_config_menu_pos() const
 {
-	return _config_menu_pos;
+    return _config_menu_pos;
 }
 
 st_size graphicsLib::get_config_menu_size()
 {
-	return st_size(config_menu.width, config_menu.height);
+    return st_size(config_menu.width, config_menu.height);
 }
 
 

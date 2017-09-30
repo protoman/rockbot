@@ -34,7 +34,7 @@ void gfx_sin_wave::show(int x, int y)
     float angle_step = angle_max / surface->width;
     float angle = 0;
     for (int j=0; j<max_amplitude; j++) {
-        graphLib.clear_area(x, y, surface->width, surface->height, 0, 0, 0);
+        graphLib.clear_area(x, y, surface->width, surface->height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         for (int i=0; i<surface->height; i++) {
             float pos_x = (sin(angle) + x)*amplitude;
             int pos_y = i + y;

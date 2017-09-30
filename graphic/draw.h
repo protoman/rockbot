@@ -62,6 +62,7 @@ public:
     void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
     void set_boss_hp(int hp);
+    void show_boss_intro_bg();
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
@@ -80,6 +81,7 @@ private:
 
 
 private:
+    graphicsLib_gSurface boss_intro_bg;
     graphicsLib_gSurface rain_obj;
     unsigned int _effect_timer;
     short int _rain_pos;

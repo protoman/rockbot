@@ -25,6 +25,7 @@ public:
     bool pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key);
 
     int get_joysticks_number();
+    std::string get_joystick_name(int n);
 
     std::string get_key_name(int key);
 

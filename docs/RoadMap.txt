@@ -57,6 +57,8 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
+- move file sthat have specific sizes and is common to games to shared folder:
+    # backgrounds: btn_a, config, dialog, menu, player_selection, save_selector_disabled, save_selector_enabled
 - double jump is making the player jump once falling to ground
 - disable totally the cloud-services
     # remove the calls from the code

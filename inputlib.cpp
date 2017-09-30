@@ -111,6 +111,9 @@ void inputLib::read_input(bool check_input_reset)
 
     while (SDL_PollEvent(&event)) {
 
+
+        //std::cout << ">>> INPUT::read_input[EVENT] <<<" << std::endl;
+
         if (_show_btn_debug == false) {
             _show_btn_debug = true;
         }
@@ -191,7 +194,7 @@ void inputLib::read_input(bool check_input_reset)
                 //std::cout << "#2 INPUT::readInput - joystick button[" << event.jbutton.button << "] released" << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jbutton.button) {
-                        if (i == BTN_ATTACK) std::cout << "INPUT::readInput::BUTTONUP::ATTACK" << std::endl;
+                        //if (i == BTN_ATTACK) std::cout << "INPUT::readInput::BUTTONUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = 0;
@@ -206,7 +209,7 @@ void inputLib::read_input(bool check_input_reset)
         // check AXIS buttons //
         if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE || game_config.input_mode == INPUT_MODE_DIGITAL)) {
 
-            std::cout << "INPUT::read_input - event.SDL_JOYAXISMOTION, axis[" << (int)event.jaxis.axis << "], j.value[" << event.jaxis.value << "]" << std::endl;
+            //std::cout << "INPUT::read_input - event.SDL_JOYAXISMOTION, axis[" << (int)event.jaxis.axis << "], j.value[" << event.jaxis.value << "]" << std::endl;
 
 
             // value is the axis (0 is X, 1 is Y)
@@ -215,18 +218,18 @@ void inputLib::read_input(bool check_input_reset)
             for (int i=0; i<BTN_COUNT; i++) {
 
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS) {
-                    std::cout << "AXIS input config[" << i << "], value[" << game_config.button_codes[i].value << "]" << std::endl;
+                    //std::cout << "AXIS input config[" << i << "], value[" << game_config.button_codes[i].value << "]" << std::endl;
                     if (game_config.button_codes[i].value == event.jaxis.axis) {
-                        std::cout << "FOUND AXIS CONFIG, CONFIG.AXIS_TYPE[" << game_config.button_codes[i].axis_type << "]" << std::endl;
+                        //std::cout << "FOUND AXIS CONFIG, CONFIG.AXIS_TYPE[" << game_config.button_codes[i].axis_type << "]" << std::endl;
 
 
 
                         if (event.jaxis.value > JOYVAL) {
-                            std::cout << "GREATER THAN JOYVAL" << std::endl;
+                            //std::cout << "GREATER THAN JOYVAL" << std::endl;
                         } else if (event.jaxis.value < -JOYVAL) {
-                            std::cout << "SMALLER THAN JOYVAL" << std::endl;
+                            //std::cout << "SMALLER THAN JOYVAL" << std::endl;
                         } else {
-                            std::cout << "NOT REACHED JOYVAL" << std::endl;
+                            //std::cout << "NOT REACHED JOYVAL" << std::endl;
                         }
                     }
                 }
@@ -234,14 +237,14 @@ void inputLib::read_input(bool check_input_reset)
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
                     if (game_config.button_codes[i].axis_type > 0) {
                         if (event.jaxis.value > JOYVAL) {
-                            std::cout << "AXIS[" << i << "].POSITIVE" << std::endl;
+                            //std::cout << "AXIS[" << i << "].POSITIVE" << std::endl;
                             p1_input[i] = 1;
                         } else {
                             p1_input[i] = 0;
                         }
                     } else if (game_config.button_codes[i].axis_type < 0) {
                         if (event.jaxis.value < -JOYVAL) {
-                            std::cout << "AXIS[" << i << "].NEGATIVE[" << event.jaxis.value << "][" << JOYVAL << "]" << std::endl;
+                            //std::cout << "AXIS[" << i << "].NEGATIVE[" << event.jaxis.value << "][" << JOYVAL << "]" << std::endl;
                             p1_input[i] = 1;
                         } else {
                             p1_input[i] = 0;
@@ -495,7 +498,10 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                     #endif
                     return true;
                 } else if (event.type == SDL_JOYAXISMOTION) { // joy-axis event
+                    // axis_type: indicate axis positive or negative
+                    // value: indicate what is the axis (1 vertical, 0 horizontal)
                     if (event.jaxis.value < -JOYVAL) {
+                        std::cout << "KEY[" << (int)key << "]" << std::endl;
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
                         game_config_copy.button_codes[key].value = (int)event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = -1;
@@ -506,6 +512,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                         #endif
                         return true;
                     } else if (event.jaxis.value > JOYVAL) {
+                        std::cout << "KEY[" << (int)key << "]" << std::endl;
                         game_config_copy.button_codes[key].type = JOYSTICK_INPUT_TYPE_AXIS;
                         game_config_copy.button_codes[key].value = (int)event.jaxis.axis;
                         game_config_copy.button_codes[key].axis_type = 1;
@@ -520,7 +527,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                     #ifdef ANDROID
                     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button unknown event_type[%d] ###", (int)event.type);
                     #else
-                    std::cout << "### INPUT::pick_key_or_button unknown event_type[[" << (int)event.type << "]" << std::endl;
+                    //std::cout << "### INPUT::pick_key_or_button unknown event_type[[" << (int)event.type << "]" << std::endl;
                     #endif
                 }
             } else {
@@ -543,6 +550,14 @@ int inputLib::get_joysticks_number()
     return SDL_NumJoysticks();
 }
 
+string inputLib::get_joystick_name(int n)
+{
+    if (n >= SDL_NumJoysticks()) {
+        return std::string("NONE");
+    }
+    return std::string(SDL_JoystickName(n));
+}
+
 std::string inputLib::get_key_name(int key)
 {
     SDLKey keysym = (SDLKey)key;
@@ -563,7 +578,7 @@ std::string inputLib::get_key_name(int key)
         *p = toupper(*p);
     }
 
-    std::cout << "get_key_name[" << (int)key << "][" << keysym << "][" << res << "]" << std::endl;
+    //std::cout << "get_key_name[" << (int)key << "][" << keysym << "][" << res << "]" << std::endl;
 
     return res;
 }

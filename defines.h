@@ -973,6 +973,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_no,
     strings_ingame_life,
     strings_ingame_item,
+    strings_ingame_coin,
     strings_ingame_gotarmor_type_ability,
     strings_ingame_gotarmor_type_arms,
     strings_ingame_gotarmor_type_arms_msg1,
@@ -1163,6 +1164,15 @@ enum e_DIFFICULTY_MODES {
 
 #define SAVE_MAX_SLOT_NUMBER 4
 
+#define CONFIG_BGCOLOR_R 8
+#define CONFIG_BGCOLOR_G 25
+#define CONFIG_BGCOLOR_B 42
+
+#define CONFIG_MENU_LEFT_SPACING 24
+#define CONFIG_MENU_TOP_SPACING 40
+
+#define BOSS_INTRO_BG_TEXT_Y 184
+#define BOSS_INTRO_BG_POS_Y 96
 
 #endif // DEFINES_H
 

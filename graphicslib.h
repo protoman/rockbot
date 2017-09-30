@@ -145,6 +145,7 @@ public:
     graphicsLib();
     ~graphicsLib();
     bool initGraphics();
+    void load_shared_graphics();
     void preload();
     void updateScreen();
     void loadTileset(std::string file);
@@ -173,6 +174,7 @@ public:
     void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
     void blank_screen();
+    void blank_screen(int r, int g, int b);
     void blank_surface(struct graphicsLib_gSurface& surface);
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt);
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt, int delay);
@@ -203,7 +205,8 @@ public:
     void draw_rectangle(st_rectangle area, int r, int g, int b, int alpha);
     void clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
     void clear_surface_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
-    void show_config_bg(Uint8 position);
+    void show_config_bg();
+    void show_config_bg_animation();
     void draw_weapon_cursor(st_position old_pos, short hp, short player_n, short max_hp);
     void show_dialog(Uint8 position);
     void show_dialog_button(Uint8 position);

@@ -244,6 +244,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_no], "%s", "NAO");
             sprintf(lines[strings_ingame_life], "%s", "VIDAS");
             sprintf(lines[strings_ingame_item], "%s", "ITEMS");
+            sprintf(lines[strings_ingame_coin], "%s", "MOEDAS");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "CONCEDEM A HABILIDADE PARA");
             sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS IRAO");
             sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "DISPARAR SEMRPE CARREGADO");
@@ -374,6 +375,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_no], "%s", "NO");
             sprintf(lines[strings_ingame_life], "%s", "LIFE");
             sprintf(lines[strings_ingame_item], "%s", "ITEM");
+            sprintf(lines[strings_ingame_coin], "%s", "COIN");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
             sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
             sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");

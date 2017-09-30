@@ -86,6 +86,10 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/black_line.png";
     graphLib.surfaceFromFile(filename, &shadow_line);
 
+    filename = GAMEPATH + "shared/images/boss_intro_bg.png";
+    graphLib.surfaceFromFile(filename, &boss_intro_bg);
+
+
     // DROPABLE OBJECT GRAPHICS
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         for (int j=0; j<DROP_ITEM_COUNT; j++) {
@@ -211,7 +215,6 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
 {
     unsigned int intro_frames_n = 0;
     //int intro_frames_rollback = 0;
-    st_position boss_pos(20, -37);
     st_position sprite_size;
     graphicsLib_gSurface bgCopy, boss_graphics;
 
@@ -224,17 +227,17 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
 
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
-    graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
 
-    graphLib.initSurface(st_size(RES_W, RES_H), &bgCopy);
-    graph_filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
-    graphLib.surfaceFromFile(graph_filename.c_str(), &bgCopy);
-    st_position bg_pos(0, (RES_H/2)-(bgCopy.height/2));
-    graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
+    //std::cout << ">>> sprite_size.x[" << sprite_size.x << "], sprite_size.y[" << sprite_size.y << "]" << std::endl;
+
+    graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
+    int sprite_pos_y = BOSS_INTRO_BG_POS_Y-sprite_size.y/2;
+    st_position boss_pos(RES_W/2-sprite_size.x/2, sprite_pos_y);
+
+    show_boss_intro_bg();
 
     update_screen();
 
-    int sprite_pos_y = RES_H/2 - sprite_size.y/2;
 
     for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
         if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
@@ -246,7 +249,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     if (show_fall == true) {
         while (boss_pos.y < sprite_pos_y) {
             boss_pos.y += 4;
-            graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
+            show_boss_intro_bg();
             graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
             graphLib.wait_and_update_screen(5);
         }
@@ -261,13 +264,16 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
                 //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
-                graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
+                show_boss_intro_bg();
                 graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
-                graphLib.wait_and_update_screen(GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].duration);
+                // only wait if not last frame
+                if (i<ANIM_FRAMES_COUNT-1 && GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i+1].used) {
+                    graphLib.wait_and_update_screen(GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].duration);
+                }
             }
         }
     } else { // just frow first sprite
-        graphLib.copyArea(bg_pos, &bgCopy, &graphLib.gameScreen);
+        show_boss_intro_bg();
         graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
         graphLib.wait_and_update_screen(200);
     }
@@ -906,6 +912,12 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
 void draw::set_boss_hp(int hp)
 {
     _boss_current_hp = hp;
+}
+
+void draw::show_boss_intro_bg()
+{
+    graphLib.showSurface(&boss_intro_bg);
+    graphLib.updateScreen();
 }
 
 void draw::clear_maps_dynamic_background_list()

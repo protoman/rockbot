@@ -44,11 +44,11 @@ void key_map::draw_screen()
     st_position cursor_pos;
     short _pick_pos = 0;
 
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     cursor_pos = config_text_pos;
 
-    graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+    graphLib.show_config_bg();
     input.clean();
     timer.delay(300);
 
@@ -70,7 +70,7 @@ void key_map::draw_screen()
             } else {
                 graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_pressnew, game_config.selected_language)); //input code (number)
                 draw_lib.update_screen();
-                graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, 0, 0, 0);
+                graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
                 ///@TODO - key_config[_pick_pos].key_type = new_key.key_type;
                 ///@TODO - key_config[_pick_pos].key_number = new_key.key_number;
                 redraw_line(_pick_pos);
@@ -108,9 +108,9 @@ void key_map::redraw_line(short line) const
 {
     std::cout << "******* key_map::redraw_line - line: " << line << std::endl;
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
-    graphLib.clear_area(config_text_pos.x+70-1, config_text_pos.y-1 + line*CURSOR_SPACING, 110,  CURSOR_SPACING+1, 0, 0, 0);
+    graphLib.clear_area(config_text_pos.x+70-1, config_text_pos.y-1 + line*CURSOR_SPACING, 110,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 
     std::stringstream key_n_ss;
     ///@TODO - key_n_ss << key_config[line].key_number;
@@ -123,15 +123,12 @@ void key_map::redraw_line(short line) const
 
 Sint8 key_map::draw_config_input() const
 {
-    st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
-    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(100);
     input.clean();
     timer.delay(100);
 
-    graphLib.clear_area(config_text_pos.x, config_text_pos.y, 195,  180, 0, 0, 0);
+    graphLib.show_config_bg();
     std::vector<std::string> options;
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons, game_config.selected_language));
     if (game_config.input_mode == INPUT_MODE_DIGITAL) {
@@ -148,9 +145,6 @@ Sint8 key_map::draw_config_input() const
     sprintf(temp_char, "%d", input.get_joysticks_number());
     std::string max_joystick_str(temp_char);
 
-
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick, game_config.selected_language) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
-
     // turbo mode //
     std::string turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language);
     if (game_config.turbo_mode == true) {
@@ -164,9 +158,31 @@ Sint8 key_map::draw_config_input() const
     }
     options.push_back(autocharge_mode_string);
 
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick, game_config.selected_language) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
 
     Sint8 selected_option = -1;
-    option_picker main_config_picker(false, config_text_pos, options, true);
+    option_picker main_config_picker(false, st_position(CONFIG_MENU_LEFT_SPACING, CONFIG_MENU_TOP_SPACING), options, true);
+    selected_option = main_config_picker.pick();
+    return selected_option;
+}
+
+Sint8 key_map::pick_joystick()
+{
+    graphLib.show_config_bg();
+    std::vector<std::string> options;
+
+    for (int i=0; i<input.get_joysticks_number(); i++) {
+        char joynumber[4];
+        std::string prefix = "";
+        if (i < 10) {
+            prefix = "0";
+        }
+        sprintf(joynumber, "%s%d", prefix.c_str(), i+1);
+        options.push_back(std::string(joynumber) + std::string(": ") + input.get_joystick_name(i).substr(0, 32));
+    }
+
+    Sint8 selected_option = -1;
+    option_picker main_config_picker(false, st_position(CONFIG_MENU_LEFT_SPACING, CONFIG_MENU_TOP_SPACING), options, true);
     selected_option = main_config_picker.pick();
     return selected_option;
 }
@@ -187,14 +203,14 @@ string key_map::build_button_config_line(string prefix, string sufix)
 Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_config_copy)
 {
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(100);
     input.clean();
     timer.delay(100);
 
-    graphLib.clear_area(config_text_pos.x, config_text_pos.y, 180,  180, 0, 0, 0);
+    graphLib.show_config_bg();
     std::vector<std::string> options;
 
     char btn_codes[BTN_COUNT][30];
@@ -212,29 +228,29 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     sprintf(btn_codes[BTN_LEFT], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_LEFT]).c_str());
     sprintf(btn_codes[BTN_RIGHT], "[%s]", input.get_key_name(game_config_copy.keys_codes[BTN_RIGHT]).c_str());
 #elif PC
-    sprintf(btn_codes[BTN_JUMP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str(), game_config_copy.button_codes[BTN_JUMP]);
-    sprintf(btn_codes[BTN_ATTACK], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str(), game_config_copy.button_codes[BTN_ATTACK]);
-    sprintf(btn_codes[BTN_DASH], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str(), game_config_copy.button_codes[BTN_DASH]);
-    sprintf(btn_codes[BTN_SHIELD], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_SHIELD]).c_str(), game_config_copy.button_codes[BTN_SHIELD]);
-    sprintf(btn_codes[BTN_L], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_L]).c_str(), game_config_copy.button_codes[BTN_L]);
-    sprintf(btn_codes[BTN_R], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_R]).c_str(), game_config_copy.button_codes[BTN_R]);
-    sprintf(btn_codes[BTN_START], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_START]).c_str(), game_config_copy.button_codes[BTN_START]);
-    sprintf(btn_codes[BTN_UP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_UP]).c_str(), game_config_copy.button_codes[BTN_UP]);
-    sprintf(btn_codes[BTN_DOWN], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DOWN]).c_str(), game_config_copy.button_codes[BTN_DOWN]);
-    sprintf(btn_codes[BTN_LEFT], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_LEFT]).c_str(), game_config_copy.button_codes[BTN_LEFT]);
-    sprintf(btn_codes[BTN_RIGHT], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_RIGHT]).c_str(), game_config_copy.button_codes[BTN_RIGHT]);
+    sprintf(btn_codes[BTN_JUMP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_JUMP]).c_str(), game_config_copy.button_codes[BTN_JUMP].value);
+    sprintf(btn_codes[BTN_ATTACK], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_ATTACK]).c_str(), game_config_copy.button_codes[BTN_ATTACK].value);
+    sprintf(btn_codes[BTN_DASH], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DASH]).c_str(), game_config_copy.button_codes[BTN_DASH].value);
+    sprintf(btn_codes[BTN_SHIELD], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_SHIELD]).c_str(), game_config_copy.button_codes[BTN_SHIELD].value);
+    sprintf(btn_codes[BTN_L], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_L]).c_str(), game_config_copy.button_codes[BTN_L].value);
+    sprintf(btn_codes[BTN_R], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_R]).c_str(), game_config_copy.button_codes[BTN_R].value);
+    sprintf(btn_codes[BTN_START], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_START]).c_str(), game_config_copy.button_codes[BTN_START].value);
+    sprintf(btn_codes[BTN_UP], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_UP]).c_str(), game_config_copy.button_codes[BTN_UP].value);
+    sprintf(btn_codes[BTN_DOWN], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_DOWN]).c_str(), game_config_copy.button_codes[BTN_DOWN].value);
+    sprintf(btn_codes[BTN_LEFT], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_LEFT]).c_str(), game_config_copy.button_codes[BTN_LEFT].value);
+    sprintf(btn_codes[BTN_RIGHT], "[%s/%d]", input.get_key_name(game_config_copy.keys_codes[BTN_RIGHT]).c_str(), game_config_copy.button_codes[BTN_RIGHT].value);
 #else
-    sprintf(btn_codes[BTN_JUMP], "[%d]", game_config_copy.button_codes[BTN_JUMP]);
-    sprintf(btn_codes[BTN_ATTACK], "[%d]", game_config_copy.button_codes[BTN_ATTACK]);
-    sprintf(btn_codes[BTN_DASH], "[%d]", game_config_copy.button_codes[BTN_DASH]);
-    sprintf(btn_codes[BTN_SHIELD], "[%d]", game_config_copy.button_codes[BTN_SHIELD]);
-    sprintf(btn_codes[BTN_L], "[%d]", game_config_copy.button_codes[BTN_L]);
-    sprintf(btn_codes[BTN_R], "[%d]", game_config_copy.button_codes[BTN_R]);
-    sprintf(btn_codes[BTN_START], "[%d]", game_config_copy.button_codes[BTN_START]);
-    sprintf(btn_codes[BTN_UP], "[%d]", game_config_copy.button_codes[BTN_UP]);
-    sprintf(btn_codes[BTN_DOWN], "[%d]", game_config_copy.button_codes[BTN_DOWN]);
-    sprintf(btn_codes[BTN_LEFT], "[%d]", game_config_copy.button_codes[BTN_LEFT]);
-    sprintf(btn_codes[BTN_RIGHT], "[%d]", game_config_copy.button_codes[BTN_RIGHT]);
+    sprintf(btn_codes[BTN_JUMP], "[%d]", game_config_copy.button_codes[BTN_JUMP].value);
+    sprintf(btn_codes[BTN_ATTACK], "[%d]", game_config_copy.button_codes[BTN_ATTACK].value);
+    sprintf(btn_codes[BTN_DASH], "[%d]", game_config_copy.button_codes[BTN_DASH].value);
+    sprintf(btn_codes[BTN_SHIELD], "[%d]", game_config_copy.button_codes[BTN_SHIELD].value);
+    sprintf(btn_codes[BTN_L], "[%d]", game_config_copy.button_codes[BTN_L].value);
+    sprintf(btn_codes[BTN_R], "[%d]", game_config_copy.button_codes[BTN_R].value);
+    sprintf(btn_codes[BTN_START], "[%d]", game_config_copy.button_codes[BTN_START].value);
+    sprintf(btn_codes[BTN_UP], "[%d]", game_config_copy.button_codes[BTN_UP].value);
+    sprintf(btn_codes[BTN_DOWN], "[%d]", game_config_copy.button_codes[BTN_DOWN].value);
+    sprintf(btn_codes[BTN_LEFT], "[%d]", game_config_copy.button_codes[BTN_LEFT].value);
+    sprintf(btn_codes[BTN_RIGHT], "[%d]", game_config_copy.button_codes[BTN_RIGHT].value);
 #endif
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset, game_config.selected_language));
     options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump, game_config.selected_language), std::string(btn_codes[BTN_JUMP])));
@@ -275,27 +291,19 @@ void key_map::config_input()
                 game_config.input_mode = INPUT_MODE_DIGITAL;
             }
         } else if (selected_option == 2) {
-            int sel_joy = int(game_config.selected_input_device);
-            std::stringstream key_n_ss;
-            key_n_ss << "SELECT JOYSTICK. Number: " << (input.get_joysticks_number()) << ", selected: " + sel_joy << std::endl;
-            std::cout << key_n_ss.str() << std::endl;
-
-            // increases joystick number until reaches max-1, then returns to zero
-            if (input.get_joysticks_number() > sel_joy+1) {
-                game_config.selected_input_device++;
-                input.change_joystick();
-            } else {
-                game_config.selected_input_device = 0;
-            }
-        } else if (selected_option == 3) {
             game_config.turbo_mode = !game_config.turbo_mode;
             if (game_config.auto_charge_mode && game_config.turbo_mode) {
                 game_config.auto_charge_mode = false;
             }
-        } else if (selected_option == 4) {
+        } else if (selected_option == 3) {
             game_config.auto_charge_mode = !game_config.auto_charge_mode;
             if (game_config.auto_charge_mode && game_config.turbo_mode) {
                 game_config.turbo_mode = false;
+            }
+        } else if (selected_option == 4) {
+            int res_pick = pick_joystick();
+            if (res_pick != -1) {
+                game_config.selected_input_device = res_pick;
             }
         }
     }
@@ -305,7 +313,7 @@ void key_map::config_buttons()
 {
     CURRENT_FILE_FORMAT::st_game_config game_config_copy = game_config;
     int selected_option = 0;
-    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
 
     while (selected_option != -1) {
         selected_option = draw_config_buttons(game_config_copy);
@@ -322,22 +330,24 @@ void key_map::config_buttons()
             } else if (selected_option == 3) {
                 selected_key = BTN_DASH;
             } else if (selected_option == 4) {
-                selected_key = BTN_L;
+                selected_key = BTN_SHIELD;
             } else if (selected_option == 5) {
-                selected_key = BTN_R;
+                selected_key = BTN_L;
             } else if (selected_option == 6) {
-                selected_key = BTN_START;
+                selected_key = BTN_R;
             } else if (selected_option == 7) {
-                selected_key = BTN_UP;
+                selected_key = BTN_START;
             } else if (selected_option == 8) {
-                selected_key = BTN_DOWN;
+                selected_key = BTN_UP;
             } else if (selected_option == 9) {
-                selected_key = BTN_LEFT;
+                selected_key = BTN_DOWN;
             } else if (selected_option == 10) {
+                selected_key = BTN_LEFT;
+            } else if (selected_option == 11) {
                 selected_key = BTN_RIGHT;
             }
 
-            graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, 0, 0, 0);
+            graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey, game_config.selected_language));
             draw_lib.update_screen();
             input.clean();
@@ -399,7 +409,7 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
     int default_keys_codes[BTN_COUNT];
     st_input_button_config default_button_codes[BTN_COUNT];
 
-    std::cout << "KEYMAP::CHECK_DUPLICATES - is_joystick: " << is_joystick << ", set_key: " << (int)set_key << std::endl;
+    //std::cout << "KEYMAP::CHECK_DUPLICATES - is_joystick: " << is_joystick << ", set_key: " << (int)set_key << std::endl;
 
     game_config_copy.get_default_keys(default_keys_codes);
     game_config_copy.get_default_buttons(default_button_codes);
@@ -419,7 +429,7 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
                 #ifdef ANDROID
                 __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::check_key_duplicates RESET[#2]BUTTON[%d] ###", i);
                 #else
-                std::cout << "### INPUT::check_key_duplicates RESET[JOY-BUTTON][" << i << "]" << std::endl;
+                //std::cout << "### INPUT::check_key_duplicates RESET[JOY-BUTTON][" << i << "]" << std::endl;
                 #endif
                 game_config_copy.button_codes[i].value = -1; // disable key
                 game_config_copy.button_codes[i].type = JOYSTICK_INPUT_TYPE_NONE;
@@ -434,27 +444,27 @@ void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_c
     #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
     #else
-    std::cout << "######################## OLD #########################" << std::endl;
+    //std::cout << "######################## OLD #########################" << std::endl;
     #endif
     for (int i=0; i<BTN_COUNT; i++) {
         #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, game_config.button_codes[i].value, game_config.button_codes[i].type, game_config.button_codes[i].axis_type);
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, game_config.keys_codes[i]);
         #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[" << i << "].value[" << game_config.button_codes[i].value << "].type[" << game_config.button_codes[i].type << "].axis_type[" << game_config.button_codes[i].axis_type << "] ###" << std::endl;
+        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[old][" << i << "].value[" << game_config.button_codes[i].value << "].type[" << game_config.button_codes[i].type << "].axis_type[" << game_config.button_codes[i].axis_type << "] ###" << std::endl;
         #endif
     }
     #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
     #else
-    std::cout << "######################## NEW #########################" << std::endl;
+    //std::cout << "######################## NEW #########################" << std::endl;
     #endif
     for (int i=0; i<BTN_COUNT; i++) {
         #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, game_config_copy.button_codes[i].value, game_config_copy.button_codes[i].type, game_config_copy.button_codes[i].axis_type);
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, game_config.keys_codes[i]);
         #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[" << i << "].value[" << game_config_copy.button_codes[i].value << "].type[" << game_config_copy.button_codes[i].type << "].axis_type[" << game_config_copy.button_codes[i].axis_type << "] ###" << std::endl;
+        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[new][" << i << "].value[" << game_config_copy.button_codes[i].value << "].type[" << game_config_copy.button_codes[i].type << "].axis_type[" << game_config_copy.button_codes[i].axis_type << "] ###" << std::endl;
         #endif
     }
 
@@ -464,7 +474,7 @@ void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_c
         #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes old_config.btn[%d][%d], new_config_btn[%d]", i, game_config.button_codes[i].value, game_config_copy.button_codes[i].value);
         #else
-        std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i].value << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i].value << "]" << std::endl;
+        //std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i].value << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i].value << "]" << std::endl;
         #endif
         game_config.button_codes[i].value = game_config_copy.button_codes[i].value;
         game_config.button_codes[i].type = game_config_copy.button_codes[i].type;

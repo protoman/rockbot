@@ -55,6 +55,8 @@ private:
 
     Sint8 draw_config_input() const;
 
+    Sint8 pick_joystick();
+
     std::string build_button_config_line(std::string prefix, std::string sufix);
 
     Sint8 draw_config_buttons(format_v4::st_game_config &game_config_copy);

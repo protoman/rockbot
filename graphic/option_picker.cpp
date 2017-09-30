@@ -222,7 +222,7 @@ void option_picker::draw()
 
     //std::cout << "OPTION_PICKER::text_max_len: " << text_max_len << std::endl;
 
-    graphLib.clear_area(_position.x, _position.y, text_max_len*8, _items.size()*12, 0, 0, 0);
+    graphLib.clear_area(_position.x, _position.y, text_max_len*8, _items.size()*12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 	for (unsigned int i=0; i<_items.size(); i++) {
         st_menu_option menu_item = _items.at(i);
 

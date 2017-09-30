@@ -102,7 +102,7 @@ void scenesLib::unload_stage_select() {
 
 void scenesLib::draw_main()
 {
-	graphLib.blank_screen();
+    graphLib.blank_screen(CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 
 	// PARTE 1 - TITLE SCREEN
@@ -254,7 +254,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
     st_position config_text_pos;
     std::vector<st_menu_option> options;
 
-	graphLib.show_config_bg(0);
+    graphLib.show_config_bg();
     draw_lib.update_screen();
 	input.clean();
     timer.delay(300);
@@ -288,7 +288,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 
 
 
-	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 20;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 
     short selected_option = 0;
@@ -304,7 +304,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 		if (selected_option == -1) {
 			break;
 		}
-		graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
         if (selected_option == 0) { // CONFIG AUDIO
 			show_config_audio();
@@ -341,7 +341,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
         }
         fio.save_config(game_config);
 
-		graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
 	}
     return res;
@@ -459,13 +459,11 @@ void scenesLib::show_player_walking_ending()
 // show all enemies from the game //
 void scenesLib::show_enemies_ending()
 {
-    graphicsLib_gSurface bg_surface;
     st_color font_color(250, 250, 250);
-    std::pair<int, std::string> final_boss_data;
+    std::pair<int, std::string> final_boss_data = std::pair<int, std::string>(-1, "");
 
     graphLib.blank_screen();
-    std::string filename = FILEPATH + "images/backgrounds/stage_boss_intro.png";
-    graphLib.surfaceFromFile(filename, &bg_surface);
+    draw_lib.show_boss_intro_bg();
 
     soundManager.stop_music();
     if (fio.file_exists(FILEPATH + "/music/ending_bosses.mod")) {
@@ -501,12 +499,14 @@ void scenesLib::show_enemies_ending()
         if (GameMediator::get_instance()->get_enemy(i)->id == game_data.final_boss_id) {
             final_boss_data = std::pair<int, std::string>(GameMediator::get_instance()->get_enemy(i)->id, name);
         } else {
-            ending_show_single_enemy(GameMediator::get_instance()->get_enemy(i)->id, name, bg_surface);
+            ending_show_single_enemy(GameMediator::get_instance()->get_enemy(i)->id, name);
         }
 
     }
-    show_bosses_ending(bg_surface);
-    ending_show_single_enemy(final_boss_data.first, final_boss_data.second, bg_surface);
+    show_bosses_ending();
+    if (final_boss_data.first != -1) {
+        ending_show_single_enemy(final_boss_data.first, final_boss_data.second);
+    }
 
     graphLib.blank_screen();
     graphLib.updateScreen();
@@ -516,7 +516,7 @@ void scenesLib::show_enemies_ending()
 
 }
 
-void scenesLib::ending_show_single_enemy(int id, std::string name, graphicsLib_gSurface& bg_surface)
+void scenesLib::ending_show_single_enemy(int id, std::string name)
 {
 
     std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
@@ -531,13 +531,15 @@ void scenesLib::ending_show_single_enemy(int id, std::string name, graphicsLib_g
     graphicsLib_gSurface npc_sprite_surface;
     graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
 
-    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    draw_lib.show_boss_intro_bg();
     draw_lib.show_boss_intro_sprites(id, false);
-    graphLib.draw_progressive_text(120, RES_H/2, name, false);
+    //graphLib.draw_progressive_text(120, RES_H/2, name, false);
+    graphLib.draw_centered_text(BOSS_INTRO_BG_TEXT_Y, name, st_color(240, 240, 240));
+    draw_lib.update_screen();
     timer.delay(3000);
 }
 
-void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
+void scenesLib::show_bosses_ending()
 {
     graphLib.blank_screen();
     // read bosses strings
@@ -549,14 +551,21 @@ void scenesLib::show_bosses_ending(graphicsLib_gSurface& bg_surface)
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
         fio.read_stage(stage_data_obj, i);
 
-        graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+        draw_lib.show_boss_intro_bg();
         graphLib.updateScreen();
         int boss_id = stage_data_obj.boss.id_npc;
 
+        // 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
-        graphLib.draw_progressive_text(130, RES_H/2-14, boss_credits_data.at(i*3), false, 20);
-        graphLib.draw_progressive_text(130, RES_H/2-3, boss_credits_data.at(i*3+1), false, 20);
-        graphLib.draw_progressive_text(130, RES_H/2+8, boss_credits_data.at(i*3+2), false, 20);
+        graphLib.draw_centered_text(170, boss_credits_data.at(i*3), st_color(240, 240, 240));
+        draw_lib.update_screen();
+        graphLib.draw_centered_text(185, boss_credits_data.at(i*3+1), st_color(240, 240, 240));
+        draw_lib.update_screen();
+        graphLib.draw_centered_text(201, boss_credits_data.at(i*3+2), st_color(240, 240, 240));
+        draw_lib.update_screen();
+        //graphLib.draw_progressive_text(130, 164, boss_credits_data.at(i*3), false, 20);
+        //graphLib.draw_progressive_text(130, 175, boss_credits_data.at(i*3+1), false, 20);
+        //graphLib.draw_progressive_text(130, 186, boss_credits_data.at(i*3+2), false, 20);
         timer.delay(2000);
     }
 
@@ -570,7 +579,7 @@ void scenesLib::show_config_android()
 {
 #ifdef ANDROID
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
@@ -645,7 +654,7 @@ void scenesLib::show_config_android()
             }
             // @TODO: show warning that cloud load/save requires network connection
         }
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.updateScreen();
     }
     fio.save_config(game_config);
@@ -656,7 +665,7 @@ void scenesLib::show_config_android()
 void scenesLib::show_config_video()
 {
 	st_position config_text_pos;
-	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
     timer.delay(300);
@@ -690,8 +699,8 @@ void scenesLib::show_config_video()
     if (selected_option != -1) {
         fio.save_config(game_config);
         show_config_ask_restart();
-        st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 195, 100, 0, 0, 0);
+        st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 195, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         show_config_video();
     }
 }
@@ -699,7 +708,7 @@ void scenesLib::show_config_video()
 void scenesLib::show_config_video_PSP()
 {
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
@@ -725,7 +734,7 @@ void scenesLib::show_config_video_PSP()
 void scenesLib::show_config_wii()
 {
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
@@ -745,7 +754,7 @@ void scenesLib::show_config_wii()
 void scenesLib::show_config_PS2()
 {
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
@@ -772,22 +781,22 @@ void scenesLib::show_config_ask_restart()
 {
     input.clean();
     timer.delay(300);
-    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
 void scenesLib::show_config_audio()
 {
 	st_position config_text_pos;
-	config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
     timer.delay(300);
@@ -826,18 +835,10 @@ void scenesLib::show_config_audio()
 void scenesLib::show_config_language()
 {
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
-/*
-    LANGUAGE_ENGLISH,
-    LANGUAGE_FRENCH,
-    LANGUAGE_SPANISH,
-    LANGUAGE_ITALIAN,
-    LANGUAGE_PORTUGUESE,
-    LANGUAGE_COUNT
-*/
     std::vector<std::string> options;
     if (game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
         options.push_back("ANGLAIS");
@@ -882,7 +883,7 @@ void scenesLib::show_config_performance()
 {
     /*
     st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
@@ -901,7 +902,7 @@ void scenesLib::show_config_performance()
     short selected_option = 0;
     while (selected_option != -1) {
         st_position config_text_pos;
-        config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+        config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
         config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
         input.clean();
         timer.delay(300);
@@ -934,7 +935,7 @@ void scenesLib::show_config_performance()
         } else if (selected_option == 1) {
             gameControl.set_show_fps_enabled(!gameControl.get_show_fps_enabled());
         }
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 
     fio.save_config(game_config);
@@ -944,8 +945,8 @@ void scenesLib::show_config_warning_android_play_services()
 {
     input.clean();
     timer.delay(300);
-    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services3, game_config.selected_language));
@@ -953,7 +954,7 @@ void scenesLib::show_config_warning_android_play_services()
     graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -961,8 +962,8 @@ void scenesLib::show_config_warning_android_cloud_save()
 {
     input.clean();
     timer.delay(300);
-    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save3, game_config.selected_language));
@@ -970,7 +971,7 @@ void scenesLib::show_config_warning_android_cloud_save()
     graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -978,23 +979,23 @@ void scenesLib::show_config_warning_android_hide_controls()
 {
     input.clean();
     timer.delay(300);
-    st_position menu_pos(graphLib.get_config_menu_pos().x + 74, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, 0, 0, 0);
+    st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, 0, 0, 0);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
 void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
 {
-    int config_text_pos_x = graphLib.get_config_menu_pos().x + 74;
+    int config_text_pos_x = graphLib.get_config_menu_pos().x + 24;
     int config_text_pos_y = graphLib.get_config_menu_pos().y + 40;
-    graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 100, 100, 0, 0, 0);
+    graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 100, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     input.clean();
     timer.delay(10);
     char value[3]; // for now, we handle only 0-999
@@ -1012,7 +1013,7 @@ void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
         } else {
             sprintf(value, "%d", value_ref);
         }
-        graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, 0, 0, 0);
+        graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
         if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
             break;
@@ -1159,7 +1160,7 @@ Uint8 scenesLib::select_player() {
             } else if (selected > max_loop) {
                 selected = 1;
             }
-            graphLib.clear_area(0, 49, 320, 96, 27, 63, 95);
+            graphLib.clear_area(0, 49, 320, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             if (selected == 1) {
                 graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
             } else if (selected == 2) {
@@ -1169,7 +1170,7 @@ Uint8 scenesLib::select_player() {
             } else if (selected == 4) {
                 graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
-            graphLib.clear_area(60, 168, 204, 18, 0, 0, 0);
+            graphLib.clear_area(60, 168, 204, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name, font_color);
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
@@ -1197,7 +1198,7 @@ Uint8 scenesLib::select_difficulty()
     st_position config_text_pos;
     std::vector<std::string> options;
 
-    graphLib.show_config_bg(0);
+    graphLib.show_config_bg();
     draw_lib.update_screen();
     input.clean();
     timer.delay(300);
@@ -1206,7 +1207,7 @@ Uint8 scenesLib::select_difficulty()
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, game_config.selected_language));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, game_config.selected_language));
 
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 74;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
 
     graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, game_config.selected_language).c_str());
@@ -1225,7 +1226,7 @@ Uint8 scenesLib::select_difficulty()
             res = selected_option;
         }
         std::cout << "############ select_difficulty.selected_option[" << selected_option << "]" << std::endl;
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, 0, 0, 0);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
     }
     return res;
@@ -1319,10 +1320,6 @@ void scenesLib::boss_intro(Uint8 pos_n)
     std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
 
 
-    graphicsLib_gSurface bg_img;
-    std::string bg_filename = FILEPATH + "images/backgrounds/boss_intro/boss_intro_bg.png";
-    graphLib.surfaceFromFile(bg_filename, &bg_img);
-
     graphicsLib_gSurface boss_img;
     char boss_filename_chr[12];
     sprintf(boss_filename_chr, "0%d.png", pos_n);
@@ -1331,16 +1328,19 @@ void scenesLib::boss_intro(Uint8 pos_n)
 
     int init_pos = -boss_img.width;
     int end_pos = RES_W-boss_img.width;
-    int pos_y = 165-boss_img.height;
+    int pos_y = 151-boss_img.height;
 
     soundManager.play_sfx(SFX_STAGE_SELECTED);
     graphLib.blank_screen();
+    draw_lib.show_boss_intro_bg();
+    draw_lib.update_screen();
 
     for (int i=init_pos; i<=end_pos; i++) {
-        graphLib.copyArea(st_position(0, 0), &bg_img, &graphLib.gameScreen);
+        graphLib.clear_area(0, 34, RES_W, 117, 13, 15, 97);
         graphLib.copyArea(st_position(i, pos_y), &boss_img, &graphLib.gameScreen);
         draw_lib.update_screen();
-        timer.delay(1);
+        timer.delay(5);
+
     }
 
     CURRENT_FILE_FORMAT::file_stage temp_stage_data;
@@ -1356,7 +1356,7 @@ void scenesLib::boss_intro(Uint8 pos_n)
 
     for(unsigned int i = 0; i < full_stage_str.size(); ++i) {
         boss_name += (std::toupper(full_stage_str[i], settings));
-        graphLib.draw_text(text_x, 188, boss_name);
+        graphLib.draw_text(text_x, BOSS_INTRO_BG_TEXT_Y, boss_name);
         draw_lib.update_screen();
         timer.delay(100);
     }
