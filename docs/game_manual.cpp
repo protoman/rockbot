@@ -80,7 +80,6 @@ void game_manual::draw_page(int page_n)
 
     int initial_y = 8;
     st_color title_color(95, 151, 255);
-    st_color text_color(235, 235, 235);
 
     for (int i=0; i<PAGE_LINES; i++) {
         int y = initial_y + i*10;
@@ -91,7 +90,7 @@ void game_manual::draw_page(int page_n)
             graphLib.draw_centered_text(y, temp.line[i], title_color);
         } else {
             int y = initial_y + 10 + i*10;
-            graphLib.draw_text(12, y, temp.line[i], text_color);
+            graphLib.draw_text(12, y, temp.line[i]);
         }
     }
 
@@ -99,7 +98,7 @@ void game_manual::draw_page(int page_n)
     sprintf(page_number, "%d/%d", (page_n+1), page_list.size());
     std::string page_line = std::string("< PAGE ") + std::string(page_number) + std::string(" >");
 
-    graphLib.draw_centered_text(RES_H-12, page_line, text_color);
+    graphLib.draw_centered_text(RES_H-12, page_line);
 
     graphLib.updateScreen();
 

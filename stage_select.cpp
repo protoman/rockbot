@@ -318,8 +318,6 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.clear_area(6, 96, 91, 48, 71, 69, 68);
     graphLib.clear_area(224, 96, 91, 48, 71, 69, 68);
 
-
-
     std::vector<std::string> stage_name_list;
     std::string stage_name(temp_stage_data.name);
     if (stage_name.length() <= 11) {
@@ -352,12 +350,15 @@ void stage_select::draw_stage_select_text_info(int stage_n)
         graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y+12*(i+1), boss_name_list.at(i));
     }
 
+    // clear selection text
     int text_pos_y = 227;
-    graphLib.draw_text(21, text_pos_y, "[SELECT STAGE]", st_color(250, 250, 250));
+    graphLib.clear_area(21, text_pos_y, 76, 16, 19, 2, 36);
+    graphLib.clear_area(114, text_pos_y, 206, 16, 19, 2, 36);
+    graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
     if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
-        graphLib.draw_text(188, text_pos_y, "[UNAVAILABE IN DEMO]", st_color(250, 250, 250));
+        graphLib.draw_text(114, text_pos_y, "[UNAVAILABE IN DEMO]", st_color(250, 250, 250));
     } else {
-        graphLib.draw_text(188, text_pos_y, "[ENTER STAGE]", st_color(250, 250, 250));
+        graphLib.draw_text(114, text_pos_y, "[ENTER STAGE]", st_color(250, 250, 250));
     }
 
 }

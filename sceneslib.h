@@ -22,7 +22,6 @@ public:
     void draw_main();
     void main_screen();
     short pick_stage(int last_stage);
-    void boss_intro_old(Uint8 pos_n) const;
     void boss_intro(Uint8 pos_n);
     void show_castle_boss_intro(Uint8 pos_n);
     short show_main_config(short stage_finished, bool called_from_game);

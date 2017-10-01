@@ -222,8 +222,8 @@ public:
 
 
 private:
-    ATTACK_TYPES check_must_attack();
-    void check_charging_colors();
+    ATTACK_TYPES check_must_attack(bool always_charged);
+    void check_charging_colors(bool always_charged);
 
 protected:
     // updown_trajectory: updown -1 is down, 0 is none, 1 is up
@@ -254,7 +254,7 @@ protected:
     void check_reset_stand();
     bool is_weak_to_freeze();                           // checks that this NPC is weak against the freeze weapon
     virtual bool can_air_dash();
-    Uint8 get_projectile_max_shots();
+    Uint8 get_projectile_max_shots(bool always_charged);
 
 
 

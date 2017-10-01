@@ -287,7 +287,7 @@ void draw::show_ready()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
 
     for (int i=0; i<6; i++) {
-        graphLib.draw_text(dest_pos.x, dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, game_config.selected_language), st_color(240, 240, 240));
+        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, game_config.selected_language));
         update_screen();
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
@@ -337,7 +337,6 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
     std::cout << "draw::show_credits_text::START" << std::endl;
 
-
     // add the initial lines to screen
     create_engine_credits_text();
 
@@ -382,22 +381,19 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
                 } else if (found_title_blue != std::string::npos) { // sub-title
                     graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
                 } else {
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(235, 235, 235));
+                    graphLib.draw_centered_text(text_pos, credit_text.at(i));
                 }
                 //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
             }
-
         }
 
 
         if (can_leave) {
             input.read_input();
             if (input.waitScapeTime(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
-                update_screen();
                 return 1;
             }
         } else {
-            update_screen();
             timer.delay(STARS_DELAY);
         }
         posY--;
@@ -413,6 +409,7 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
         if (bg2_pos >= RES_H) {
             bg2_pos = 0;
         }
+        update_screen();
     }
     update_screen();
     return 0;
@@ -424,18 +421,31 @@ int draw::show_credits(bool can_leave)
     soundManager.load_shared_music("sprnova.it");
     soundManager.play_music();
     int res = show_credits_text(can_leave, create_engine_credits_text());
+    if (res == 1) {
+        soundManager.stop_music();
+        soundManager.load_music(game_data.game_start_screen_music_filename);
+        soundManager.play_music();
+        return 1;
+    }
     //graphLib.blank_screen();// should leave presented by on the screen
     graphLib.updateScreen();
     timer.delay(1000);
-    graphLib.draw_centered_text(RES_H/2+16, "YOU UNLOCKED A SECRET.", st_color(220, 220, 220));
-    graphLib.draw_centered_text(RES_H/2+28, "START A NEW GAME TO PICK", st_color(220, 220, 220));
-    graphLib.draw_centered_text(RES_H/2+40, "A NEW AVAILABLE CHARACTER.", st_color(220, 220, 220));
+    if (can_leave == false) {
+        graphLib.draw_centered_text(RES_H/2+16, "YOU HAVE UNLOCKED A SECRET.");
+        graphLib.draw_centered_text(RES_H/2+28, "SELECT NEW GAME TO PICK");
+        graphLib.draw_centered_text(RES_H/2+40, "A NEW AVAILABLE CHARACTER.");
 
-    graphLib.draw_centered_text(RES_H/2+64, "PRESS A BUTTON TO CONTINUE.", st_color(220, 220, 220));
-    graphLib.updateScreen();
+        graphLib.draw_centered_text(RES_H/2+64, "PRESS A BUTTON TO CONTINUE.");
+        graphLib.updateScreen();
+    }
     input.clean();
     timer.delay(100);
     input.wait_keypress();
+}
+
+void draw::show_unlocked_charsMsg()
+{
+
 }
 
 std::vector<string> draw::create_engine_credits_text()
@@ -563,7 +573,7 @@ std::vector<string> draw::create_engine_credits_text()
     credits_list.push_back("- REVIEW & TESTING -");
     credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
     credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
+    credits_list.push_back("ANDREW PRZELUCKI");
     credits_list.push_back("");
     credits_list.push_back("");
 
@@ -611,7 +621,7 @@ void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,st
         if (found != std::string::npos) {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(95, 151, 255));
         } else {
-            graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(235, 235, 235));
+            graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
         }
     } else {
         std::cout << "ERROR draw_credit_line, initial_line[" << initial_line << "], credit_text.size()[" << credit_text.size() << "]" << std::endl;

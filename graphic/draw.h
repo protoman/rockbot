@@ -45,6 +45,7 @@ public:
     void show_teleport_small(int x, int y);
     int show_credits_text(bool can_leave, std::vector<string> credit_text);
     int show_credits(bool can_leave);
+    void show_unlocked_charsMsg();
     std::vector<string> create_engine_credits_text();
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);

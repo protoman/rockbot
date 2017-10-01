@@ -24,7 +24,11 @@ void TabText::save_data()
 {
     fio_scenes.save_scenes_show_text(ScenesMediator::get_instance()->text_list);
 
+    save_data(currentIndex);
+}
 
+void TabText::save_data(int n)
+{
     std::vector<std::string> text_list;
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         text_list.push_back(scene_text_list[i]);
@@ -143,9 +147,9 @@ void TabText::on_positionType_currentIndexChanged(int index)
 
 void TabText::on_select_comboBox_currentIndexChanged(int index)
 {
-
+    // save previous entry
     if (data_loading == false && currentIndex != -1) {
-        save_data();
+        save_data(currentIndex);
         std::cout << "SAVING..." << std::endl;
     }
 

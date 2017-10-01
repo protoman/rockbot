@@ -655,7 +655,25 @@ FILE-FORMAT-V4:
 - castle 5 - parafusos somem quando entram no chão e não voltam
 
 
-########################################## XXX ##########################################
+###################################### 1.20.039/2.00.091 ######################################
 - change map objects and enemies to a self-contained list
 - add difficulty to object and enemies placing,s o you can add enemies that will appear only in hard-mode
 - missing d-pad and A buttons on rockbot1 stage select screen
+- fix controller button configuration
+- intro text leaving a bit uncleared on the right side
+- create draw_centered_text function that uses white font -> put colors into defines.h
+- must clear text on the stage-select screen, when changing stages
+- add Andrew Przelucki to credits
+- disable the cloud-services in Android
+
+###################################### 1.20.XXX/2.00.XXX ######################################
+- text about unlocked char appearing on credits on main menu
+- credits on main mainu not working (not showing text)
+- remove stars as it does not match the new visual identity
+- save cursor position in main menu
+- restore progressive text (use inputLib::waitScapeTime)
+- EDITOR: fix problem with scenes text edit
+- EDITOR: error changing weapon in armor edit
+- if player has double-shot, special weapon (armor) must respect the number of projectiles as normal ones
+- ready message is not centered
+- in got armor dialogs, must use the weapon name, as we changed this from the old ability-type

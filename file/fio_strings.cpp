@@ -247,10 +247,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_coin], "%s", "MOEDAS");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "CONCEDEM A HABILIDADE PARA");
             sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS IRAO");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "DISPARAR SEMRPE CARREGADO");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "DISPARAR UM RAIO-LASER");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "DISPARAR UM SUPER TIRO!");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "LANCAR UM HADOUKEN");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg], "%s", "DISPARAR");
             sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "ESTAS PERNAS MELHORADAS");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH NO AR.");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTAR UMN PULO DUPLO");
@@ -377,11 +374,8 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_item], "%s", "ITEM");
             sprintf(lines[strings_ingame_coin], "%s", "COIN");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "GIVE YOU THE ABILITY TO");
-            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "THIS IMPROVED ARMS WILL");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg1], "%s", "FIRE ALWAYS CHARGED");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg2], "%s", "CHARGE A LASER BEAM");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg3], "%s", "FIRE A SUPER-SHOT!");
-            sprintf(lines[strings_ingame_gotarmor_type_arms_msg4], "%s", "THROW A HADOUKEN");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "IMPROVED ARMS ALLOWS YOU TO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg], "%s", "SHOOT");
             sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "THOSE LIGHTER LEGS");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH IN MIDDLE-AIR.");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTE DOUBLE JUMP");

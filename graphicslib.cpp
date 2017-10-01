@@ -832,11 +832,6 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
         exit(-1);
     }
 
-    draw_text(x, y, text);
-    updateScreen();
-
-    // TODO: find a way to show progressive text with input interruption //
-    /*
     for (i=0; i<text.size(); i++) {
         input.read_input();
         temp_char = text.at(i);
@@ -851,12 +846,11 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
                 text_y++;
         }
         updateScreen();
-        if (input.p1_input[BTN_START] == 1) {
+        if (input.waitScapeTime(delay) ==1) {
             return 1;
         }
-        timer.delay(delay);
+        //timer.delay(delay);
     }
-    */
     return 0;
 }
 
@@ -936,6 +930,11 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
 void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
 {
     draw_centered_text(y, text, gameScreen, font_color);
+}
+
+void graphicsLib::draw_centered_text(short y, string text)
+{
+    draw_centered_text(y, text, gameScreen, st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
 }
 
 void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface &surface, st_color temp_font_color)

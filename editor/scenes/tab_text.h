@@ -22,6 +22,7 @@ public:
     explicit TabText(QWidget *parent = 0);
     ~TabText();
     void save_data();
+    void save_data(int n);
     void reload();
 
 

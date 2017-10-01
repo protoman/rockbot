@@ -976,10 +976,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_coin,
     strings_ingame_gotarmor_type_ability,
     strings_ingame_gotarmor_type_arms,
-    strings_ingame_gotarmor_type_arms_msg1,
-    strings_ingame_gotarmor_type_arms_msg2,
-    strings_ingame_gotarmor_type_arms_msg3,
-    strings_ingame_gotarmor_type_arms_msg4,
+    strings_ingame_gotarmor_type_arms_msg,
     strings_ingame_gotarmor_type_legs,
     strings_ingame_gotarmor_type_legs_msg1,
     strings_ingame_gotarmor_type_legs_msg2,
@@ -1173,6 +1170,8 @@ enum e_DIFFICULTY_MODES {
 
 #define BOSS_INTRO_BG_TEXT_Y 184
 #define BOSS_INTRO_BG_POS_Y 96
+
+#define TEXT_DEFAUL_COLOR_VALUE 240
 
 #endif // DEFINES_H
 

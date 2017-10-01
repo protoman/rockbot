@@ -426,17 +426,17 @@ void game::show_beta_version_warning()
     timer.delay(100);
 
     graphLib.draw_centered_text(30, "-- BETA VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,");
+    graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT");
+    graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.");
 
-    graphLib.draw_centered_text(120, "SOFTWARE IS PROVIDED \"AS IS\"", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(135, "WITHOUT WARRANTY OF ANY KIND,", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(150, "EXPRESS OR IMPLIED FROM AUTHOR.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(120, "SOFTWARE IS PROVIDED \"AS IS\"");
+    graphLib.draw_centered_text(135, "WITHOUT WARRANTY OF ANY KIND,");
+    graphLib.draw_centered_text(150, "EXPRESS OR IMPLIED FROM AUTHOR.");
 
-    graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES TO", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(185, "protoman@upperland.net", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES TO");
+    graphLib.draw_centered_text(185, "protoman@upperland.net");
+    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.");
     draw_lib.update_screen();
     input.wait_keypress();
 }
@@ -449,16 +449,16 @@ void game::show_free_version_warning()
     timer.delay(100);
 
     graphLib.draw_centered_text(30, "-- FREE VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(60, "THIS IS ROCKBOT 2'S FREE VERSION.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(75, "IT CONTAINS THREE STAGES", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(90, "AND LACKS SUPPORT FOR", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(105, "A FEW FEATURES.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(60, "THIS IS ROCKBOT 2'S FREE VERSION.");
+    graphLib.draw_centered_text(75, "IT CONTAINS THREE STAGES");
+    graphLib.draw_centered_text(90, "AND LACKS SUPPORT FOR");
+    graphLib.draw_centered_text(105, "A FEW FEATURES.");
 
-    graphLib.draw_centered_text(130, "FULL VERSION WILL BE RELEASED", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(145, "LATER DURING THE YEAR 2017.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(130, "FULL VERSION WILL BE RELEASED");
+    graphLib.draw_centered_text(145, "LATER DURING THE YEAR 2017.");
 
-    graphLib.draw_centered_text(185, "ENJOY!", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(185, "ENJOY!");
+    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.");
     draw_lib.update_screen();
     input.wait_keypress();
 }
@@ -480,7 +480,7 @@ void game::show_notice()
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
+    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET");
     draw_lib.update_screen();
     input.waitScapeTime(400);
     for (int i=1; i<6; i++) {
@@ -498,13 +498,13 @@ void game::show_notice()
     graphLib.blank_screen();
 
     graphLib.draw_centered_text(30, "ROCKBOT ENGINE", graphLib.gameScreen, st_color(199, 215, 255));
-    graphLib.draw_centered_text(60, "THIS GAME RUNS WITH", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(120, "GAME'S SOURCE-CODE IS LICENSED UNDER", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(135, "THE GPL AND IS FREELY DISTRIBUTABLE.", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(150, "GAME CONTENT IS UNDER DIFFERENT", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(165, "LICENCES BY ITS RESPECTIVE CREATORS", graphLib.gameScreen, st_color(255, 255, 255));
-    graphLib.draw_centered_text(268, "AND USED WITH AUTHORIZATION.", graphLib.gameScreen, st_color(255, 255, 255));
+    graphLib.draw_centered_text(60, "THIS GAME RUNS WITH");
+    graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.");
+    graphLib.draw_centered_text(120, "GAME'S SOURCE-CODE IS LICENSED UNDER");
+    graphLib.draw_centered_text(135, "THE GPL AND IS FREELY DISTRIBUTABLE.");
+    graphLib.draw_centered_text(150, "GAME CONTENT IS UNDER DIFFERENT");
+    graphLib.draw_centered_text(165, "LICENCES BY ITS RESPECTIVE CREATORS");
+    graphLib.draw_centered_text(268, "AND USED WITH AUTHORIZATION.");
 
     draw_lib.update_screen();
 
@@ -1183,8 +1183,6 @@ void game::got_weapon()
         player1.char_update_real_position();
         player1.show();
 
-        graphLib.start_stars_animation();
-
         std::string weapon_name(game_data.weapons[currentStage].name);
 		for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
 			*p = toupper(*p);
@@ -1206,7 +1204,6 @@ void game::got_weapon()
         player1.show();
 
         graphLib.wait_and_update_screen(5000);
-        graphLib.stop_stars_animation();
     } else {
         player1.teleport_out();
 	}
@@ -1340,7 +1337,7 @@ void game::game_over()
     graphLib.surfaceFromFile(filename, &dialog_img);
     graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
 
-    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover, game_config.selected_language), graphLib.gameScreen, st_color(235, 235, 235));
+    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover, game_config.selected_language));
 
     draw_lib.update_screen();
     timer.delay(400);
@@ -1381,11 +1378,12 @@ void game::show_demo_ending()
     timer.delay(200);
     graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
     graphLib.draw_centered_text(10, "-THANKS FOR PLAYING-", st_color(255, 130, 0));
-    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S FREE VERSION.", st_color(240, 240, 240));
-    graphLib.draw_centered_text(45, "THE COMPLETE GAME WILL BE AVAILABLE", st_color(240, 240, 240));
-    graphLib.draw_centered_text(60, "FOR PURSHASE LATER DURING IN 2017.", st_color(240, 240, 240));
-    graphLib.draw_centered_text(RES_H-40, "PRESENTED BY UPPERLAND.", st_color(240, 240, 240));
-    graphLib.draw_centered_text(RES_H-20, "PRESS A BUTTON TO CONTINUE PLAYING.", st_color(240, 240, 240));
+    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S FREE VERSION.");
+    graphLib.draw_centered_text(45, "THE COMPLETE GAME WILL BE AVAILABLE");
+    graphLib.draw_centered_text(60, "AS AN OPEN BETA VERSION FOR");
+    graphLib.draw_centered_text(60, "PURSHASE BY 2017'S ENDING.");
+    graphLib.draw_centered_text(RES_H-40, "PRESENTED BY UPPERLAND STUDIOS.");
+    graphLib.draw_centered_text(RES_H-20, "PRESS A BUTTON TO CONTINUE PLAYING.");
     draw_lib.update_screen();
     input.wait_keypress();
 }
@@ -1398,7 +1396,7 @@ void game::quick_load_game()
 
     currentStage = STAGE3;
     game_save.difficulty = DIFFICULTY_NORMAL;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_3;
 
     /*
     // DEBUG //
@@ -1432,6 +1430,8 @@ void game::quick_load_game()
     //show_ending();
 
     scenes.boss_intro(currentStage);
+
+    game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
     start_stage();
 }

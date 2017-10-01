@@ -264,7 +264,6 @@ void sceneShow::run_text(int n)
     /// @TODO: optimize using a vector
 
 
-
     std::vector<std::string> text_lines;
     std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, LANGUAGE_ENGLISH);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
@@ -320,7 +319,7 @@ void sceneShow::run_text(int n)
         }
         lines.push_back(line);
         if (line.length() * FONT_SIZE > max_w) {
-            max_w = line.length() * (FONT_SIZE+5);
+            max_w = line.length() * (FONT_SIZE+5)+10;
         }
     }
     // clear text area

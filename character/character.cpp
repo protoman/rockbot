@@ -556,7 +556,7 @@ void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool ful
 }
 
 // return 0 if must not attack, 1 for normal attack, 2 for semi-charged and 3 for fully charged
-ATTACK_TYPES character::check_must_attack()
+ATTACK_TYPES character::check_must_attack(bool always_charged)
 {
 
     // capture button timer even if can't shoot, so we avoid always charging
@@ -585,7 +585,7 @@ ATTACK_TYPES character::check_must_attack()
         return ATTACK_TYPE_NOATTACK;
     }
 
-    if (is_player() == true && get_projectile_max_shots() <= projectile_list.size()) {
+    if (is_player() == true && get_projectile_max_shots(always_charged) <= projectile_list.size()) {
         return ATTACK_TYPE_NOATTACK;
     }
 
@@ -617,7 +617,7 @@ ATTACK_TYPES character::check_must_attack()
     return ATTACK_TYPE_NOATTACK;
 }
 
-void character::check_charging_colors()
+void character::check_charging_colors(bool always_charged)
 {
     // change player colors if charging attack
     int now_timer = timer.getTimer();
@@ -633,7 +633,7 @@ void character::check_charging_colors()
         return;
     }
 
-    if (is_player() == true && get_projectile_max_shots() <= projectile_list.size()) {
+    if (is_player() == true && get_projectile_max_shots(always_charged) <= projectile_list.size()) {
         // reset time, so we start counting only when all projectiles are gone
         return;
     }
@@ -700,8 +700,8 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 		attack_state = ATTACK_NOT;
 	}
 
-    ATTACK_TYPES must_attack = check_must_attack();
-    check_charging_colors();
+    ATTACK_TYPES must_attack = check_must_attack(always_charged);
+    check_charging_colors(always_charged);
     attack_button_last_state = moveCommands.attack;
 
 
@@ -2540,14 +2540,18 @@ int character::is_executing_effect_weapon()
 
 // is all projectiles are normal (-1 or 0) return the character's max_shots,
 // otherwise, find the lowest between all fired projectiles
-Uint8 character::get_projectile_max_shots()
+Uint8 character::get_projectile_max_shots(bool always_charged)
 {
     bool all_projectiles_normal = true;
     vector<projectile>::iterator it;
     short max_proj = 9;
     for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         short id = (*it).get_id();
+        // if always charged, and projectile is semi-charged, count as normal
         if (id != -1 && id != 0) {
+            if (always_charged == true && id == game_data.semi_charged_projectile_id) {
+                continue;
+            }
             all_projectiles_normal = false;
             short proj_max = (*it).get_max_shots();
             if (max_proj > 0 && proj_max < max_proj) {

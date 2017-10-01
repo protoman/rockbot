@@ -413,10 +413,13 @@ int inputLib::waitScapeTime(int wait_period) {
 	while (now_time < wait_period) {
         if (p1_input[BTN_START] == 1) {
 			return 1;
-        } else if (p1_input[BTN_QUIT] == 1) {
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            std::cout << "LEAVE #2" << std::endl;
-            leave_game = true;
+        } else if (p1_input[BTN_QUIT] == 1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
 #endif
 		}
 		now_time = timer.getTimer();

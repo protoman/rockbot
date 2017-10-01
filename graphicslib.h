@@ -182,6 +182,7 @@ public:
     void draw_text(short int x, short int y, std::string text, st_color color);
     void draw_text(short int x, short int y, std::string text, struct graphicsLib_gSurface& surface);
     void draw_centered_text(short int y, std::string text, st_color font_color);
+    void draw_centered_text(short int y, std::string text);
     void draw_centered_text(short int y, std::string text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
     Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
     void drawCursor(st_position);

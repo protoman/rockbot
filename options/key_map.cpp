@@ -1,5 +1,9 @@
 #include "key_map.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
 #include "graphicslib.h"
 extern graphicsLib graphLib;
 

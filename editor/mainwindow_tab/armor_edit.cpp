@@ -80,7 +80,7 @@ void armor_edit::string_tooltip_click(int *property, QLineEdit *qline)
 void armor_edit::on_arm_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->game_data.armor_pieces[ARMOR_TYPE_ARMS].special_ability[ui->playerSelect_comboBox->currentIndex()] = index;
+    Mediator::get_instance()->game_data.armor_pieces[ARMOR_TYPE_ARMS].special_ability[ui->playerSelect_comboBox->currentIndex()] = index-1;
 }
 
 void armor_edit::on_body_comboBox_currentIndexChanged(int index)

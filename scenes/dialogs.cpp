@@ -288,15 +288,8 @@ void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)
     int type = game_data.armor_pieces[armor_type].special_ability[game_save.selected_player];
     if (armor_type == ARMOR_TYPE_ARMS) {
         type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms, game_config.selected_language);
-        if (type == ARMOR_ABILITY_ARMS_ALWAYSCHARGED) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg1, game_config.selected_language);
-        } else if (type == ARMOR_ABILITY_ARMS_LASERBEAM) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg2, game_config.selected_language);
-        } else if (type == ARMOR_ABILITY_ARMS_SUPERSHOT) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg3, game_config.selected_language);
-        } else if (type == ARMOR_ABILITY_ARMS_MISSILE) {
-            ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg4, game_config.selected_language);
-        }
+        std::string weapon_name(GameMediator::get_instance()->projectile_list.at(type).name);
+        ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg, game_config.selected_language) + " " + weapon_name + ".";
     } else if (armor_type == ARMOR_TYPE_LEGS) {
         if (type == ARMOR_ABILITY_LEGS_AIRDASH) {
             type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs, game_config.selected_language);

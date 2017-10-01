@@ -122,7 +122,7 @@ void scenesLib::draw_main()
         graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
     }
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
-    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET", st_color(240, 240, 240));
+    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET");
 
 }
 
@@ -158,8 +158,6 @@ void scenesLib::main_screen()
     main_picker.enable_check_input_reset_command();
 
 
-    int picked_n = 1;
-
     bool have_save = fio.have_one_save_file();
 
     // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
@@ -175,15 +173,15 @@ void scenesLib::main_screen()
 
 
 
-    int initial_pick_pos = 0;
+    int picked_n = 0;
 
     if (have_save) {
-        initial_pick_pos = 1;
+        picked_n = 1;
     }
 	bool repeat_menu = true;
 	while (repeat_menu == true) {
 
-        picked_n = main_picker.pick(initial_pick_pos);
+        picked_n = main_picker.pick(picked_n);
 		if (picked_n == -1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
@@ -270,7 +268,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 #elif ANDROID
     options.push_back(st_menu_option("ANDROID"));
 #else
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific), true));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific, game_config.selected_language), true));
 #endif
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, game_config.selected_language)));
 
@@ -534,7 +532,7 @@ void scenesLib::ending_show_single_enemy(int id, std::string name)
     draw_lib.show_boss_intro_bg();
     draw_lib.show_boss_intro_sprites(id, false);
     //graphLib.draw_progressive_text(120, RES_H/2, name, false);
-    graphLib.draw_centered_text(BOSS_INTRO_BG_TEXT_Y, name, st_color(240, 240, 240));
+    graphLib.draw_centered_text(BOSS_INTRO_BG_TEXT_Y, name);
     draw_lib.update_screen();
     timer.delay(3000);
 }
@@ -557,11 +555,11 @@ void scenesLib::show_bosses_ending()
 
         // 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
-        graphLib.draw_centered_text(170, boss_credits_data.at(i*3), st_color(240, 240, 240));
+        graphLib.draw_centered_text(170, boss_credits_data.at(i*3));
         draw_lib.update_screen();
-        graphLib.draw_centered_text(185, boss_credits_data.at(i*3+1), st_color(240, 240, 240));
+        graphLib.draw_centered_text(185, boss_credits_data.at(i*3+1));
         draw_lib.update_screen();
-        graphLib.draw_centered_text(201, boss_credits_data.at(i*3+2), st_color(240, 240, 240));
+        graphLib.draw_centered_text(201, boss_credits_data.at(i*3+2));
         draw_lib.update_screen();
         //graphLib.draw_progressive_text(130, 164, boss_credits_data.at(i*3), false, 20);
         //graphLib.draw_progressive_text(130, 175, boss_credits_data.at(i*3+1), false, 20);
@@ -1105,7 +1103,6 @@ void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int sele
 
 Uint8 scenesLib::select_player() {
     int selected = 1;
-    st_color font_color(250, 250, 250);
     graphicsLib_gSurface bg_surface;
 
     int max_loop = 2;
@@ -1135,9 +1132,9 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language), font_color);
-    graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name, font_color);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language), font_color);
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language));
+    graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language));
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
@@ -1171,7 +1168,7 @@ Uint8 scenesLib::select_player() {
                 graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
             graphLib.clear_area(60, 168, 204, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-            graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name, font_color);
+            graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name);
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
@@ -1233,79 +1230,6 @@ Uint8 scenesLib::select_difficulty()
 }
 
 
-void scenesLib::boss_intro_old(Uint8 pos_n) const {
-
-    if (pos_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
-        std::cout << "WARNING: Ignoring boss intro, as boss is not set." << std::endl;
-        return;
-    }
-
-    std::cout << "scenesLib::boss_intro[" << (int)pos_n << "]" << std::endl;
-
-    graphicsLib_gSurface spriteCopy;
-    unsigned int intro_frames_n = 1;
-    int text_x = RES_W*0.5 - 60;
-    unsigned int i;
-    std::string filename;
-    std::string botname;
-
-    // set skullcastole number accoring to the save
-    if (pos_n == CASTLE1_STAGE1) {
-        if (game_save.stages[CASTLE1_STAGE5] != 0 || game_save.stages[CASTLE1_STAGE4] != 0) {
-            pos_n = CASTLE1_STAGE5;
-        } else if (game_save.stages[CASTLE1_STAGE3] != 0) {
-            pos_n = CASTLE1_STAGE4;
-        } else if (game_save.stages[CASTLE1_STAGE2] != 0) {
-            pos_n = CASTLE1_STAGE3;
-        } else if (game_save.stages[CASTLE1_STAGE1] != 0) {
-            pos_n = CASTLE1_STAGE2;
-        }
-    }
-
-    if (pos_n == CASTLE1_STAGE1) {
-        graphLib.blank_screen();
-        /// @TODO - use scenes here
-        //show_destrin_ship_intro();
-    }
-
-    botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
-
-    intro_frames_n = 0;
-    for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if (GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->sprites[ANIM_TYPE_INTRO][i].used == true) {
-            intro_frames_n++;
-        }
-    }
-
-    soundManager.play_sfx(SFX_STAGE_SELECTED);
-    graphLib.blank_screen();
-
-    if (pos_n >= CASTLE1_STAGE2) {
-        return;
-    }
-
-
-    graphLib.start_stars_animation();
-
-    draw_lib.show_boss_intro_sprites(stage_data.boss.id_npc, true);
-
-    for (i=0; i<botname.size(); i++) {
-        graphLib.wait_and_update_screen(100);
-        // convert name to uppercase
-        std::string str = &botname.at(i);
-        std::locale settings;
-        std::string boss_name;
-        for(unsigned int i = 0; i < str.size(); ++i) {
-            boss_name += (std::toupper(str[i], settings));
-        }
-
-        graphLib.draw_text(text_x, 118, boss_name);
-        text_x += 8;
-    }
-    graphLib.wait_and_update_screen(2500);
-    graphLib.stop_stars_animation();
-
-}
 
 void scenesLib::boss_intro(Uint8 pos_n)
 {
