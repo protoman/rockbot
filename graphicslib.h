@@ -12,6 +12,7 @@
 #include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
 #include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
 #include <SDL/SDL_endian.h>
+#include <SDL/SDL_rotozoom.h>
 
 #include "defines.h"
 #include "file/format/st_common.h"
@@ -231,6 +232,8 @@ public:
 #ifdef PSP
     void psp_show_available_ram(int n);
 #endif
+
+    void zoom_image(graphicsLib_gSurface picture, int smooth);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);

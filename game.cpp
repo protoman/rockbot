@@ -392,7 +392,7 @@ bool game::showIntro()
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
-    scenes.game_scenes_show_unbeaten_intro();
+    //scenes.game_scenes_show_unbeaten_intro();
 	scenes.main_screen();
 
 
