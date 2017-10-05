@@ -162,18 +162,14 @@ public:
     bool GAME_FLAGS[FLAG_COUNT]; // compability for fio
     std::string combobox_select_string;
 
-    // stage dialogs
-    std::map<int, std::vector<std::string> > stage_dialog_list;
-
+    // stage dialogs, key is stage_n, vector represent the list for each text line
+    std::vector<std::map<int, std::vector<std::string> > > stage_dialog_list;
 
 
 private:
     Mediator();
     Mediator(Mediator const&){};             // copy constructor is private
     Mediator& operator=(Mediator const&){};  // assignment operator is private
-
-    void load_dialogs();
-
 
 private:
     static Mediator* _instance;

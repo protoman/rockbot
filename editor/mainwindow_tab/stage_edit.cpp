@@ -6,8 +6,17 @@
 #include "../mediator.h"
 
 
-stage_edit::stage_edit(QWidget *parent) : QWidget(parent), ui(new Ui::stage_edit), _data_loading(true)
+stage_edit::stage_edit(QWidget *parent) : QWidget(parent), ui(new Ui::stage_edit), _data_loading(true), initialized(false)
 {
+
+    Mediator::get_instance()->stage_dialog_list.clear();
+    for (int i=0; i<LANGUAGE_COUNT; i++) {
+        std::map<int, std::vector<std::string> > entry;
+        Mediator::get_instance()->stage_dialog_list.push_back(entry);
+    }
+    Mediator::get_instance()->currentStage = INTRO_STAGE;
+
+
 	ui->setupUi(this);
     ui->dialogs_line1_text1->setMaxLength(EDITOR_DIALOG_LINE_LIMIT);
     ui->dialogs_line1_text2->setMaxLength(EDITOR_DIALOG_LINE_LIMIT);
@@ -40,7 +49,6 @@ stage_edit::stage_edit(QWidget *parent) : QWidget(parent), ui(new Ui::stage_edit
     common::fill_languages_combo(ui->language_comboBox);
 
 
-    Mediator::get_instance()->currentStage = INTRO_STAGE;
     fill_stage_tab_data(ui->language_comboBox->currentIndex());
     _data_loading = false;
 }
@@ -92,6 +100,7 @@ void stage_edit::fill_stage_tab_data(int language_n)
     common::fill_scenes_combo(ui->cutscenePos_comboBox);
 
     update_stage_data(language_n);
+
     _data_loading = false;
 }
 
@@ -122,55 +131,68 @@ void stage_edit::update_stage_data(int language_n)
     ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
 
     int stage_id = Mediator::get_instance()->currentStage;
-    /*
-    if (Mediator::get_instance()->stage_dialog_list.find(Mediator::get_instance()->currentStage) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, ui->language_comboBox)));
-    }
-    */
-
     if (language_n < 0 || language_n >= LANGUAGE_COUNT) {
         language_n = LANGUAGE_ENGLISH;
     }
-    Mediator::get_instance()->stage_dialog_list.clear();
-    Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, language_n)));
+    Mediator::get_instance()->stage_dialog_list[language_n].clear();
+    // default language (english) is used as placeholder
+    stage_dialog_default_language_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, LANGUAGE_ENGLISH, false)));
+    Mediator::get_instance()->stage_dialog_list[language_n].insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, language_n, false)));
 
-    ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(0).c_str()));
-    std::cout << "SET ===> stage[" << stage_id << "], IN[" << Mediator::get_instance()->stage_dialog_list.at(stage_id).at(1) << "]" << std::endl;
-    ui->dialogs_line1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(1).c_str()));
-    ui->dialogs_line1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(2).c_str()));
+    ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(0).c_str()));
+    std::cout << "SET ===> stage[" << stage_id << "], IN[" << Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(1) << "]" << std::endl;
+    ui->dialogs_line1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(1).c_str()));
+    ui->dialogs_line1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(2).c_str()));
+    ui->dialogs_line1_text1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(0).c_str()));
+    ui->dialogs_line1_text2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(1).c_str()));
+    ui->dialogs_line1_text3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(2).c_str()));
 
-    ui->dialogs_line2_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(3).c_str()));
-    ui->dialogs_line2_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(4).c_str()));
-    ui->dialogs_line2_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(5).c_str()));
-
+    ui->dialogs_line2_text1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(3).c_str()));
+    ui->dialogs_line2_text2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(4).c_str()));
+    ui->dialogs_line2_text3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(5).c_str()));
+    ui->dialogs_line2_text1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(3).c_str()));
+    ui->dialogs_line2_text2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(4).c_str()));
+    ui->dialogs_line2_text3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(5).c_str()));
 
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6;
-    ui->dialogs_answer1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(6+player_adjust).c_str()));
-    ui->dialogs_answer1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(7+player_adjust).c_str()));
-    ui->dialogs_answer1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(8+player_adjust).c_str()));
+    ui->dialogs_answer1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(6+player_adjust).c_str()));
+    ui->dialogs_answer1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(7+player_adjust).c_str()));
+    ui->dialogs_answer1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(8+player_adjust).c_str()));
+    ui->dialogs_answer1_text1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(6+player_adjust).c_str()));
+    ui->dialogs_answer1_text2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(7+player_adjust).c_str()));
+    ui->dialogs_answer1_text3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(8+player_adjust).c_str()));
 
-    ui->dialogs_answer2_text1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(9+player_adjust).c_str()));
-    ui->dialogs_answer2_text2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(10+player_adjust).c_str()));
-    ui->dialogs_answer2_text3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(11+player_adjust).c_str()));
+    ui->dialogs_answer2_text1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(9+player_adjust).c_str()));
+    ui->dialogs_answer2_text2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(10+player_adjust).c_str()));
+    ui->dialogs_answer2_text3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(11+player_adjust).c_str()));
+    ui->dialogs_answer2_text1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(9+player_adjust).c_str()));
+    ui->dialogs_answer2_text2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(10+player_adjust).c_str()));
+    ui->dialogs_answer2_text3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(11+player_adjust).c_str()));
 
     // *********** BOSS DIALOGS *************** //
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    ui->boss_dialog_text1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+1).c_str()));
-    ui->boss_dialog_text1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+2).c_str()));
-    ui->boss_dialog_text1_line3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+3).c_str()));
+    ui->boss_dialog_text1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+1).c_str()));
+    ui->boss_dialog_text1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+2).c_str()));
+    ui->boss_dialog_text1_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+3).c_str()));
+    ui->boss_dialog_text1_line1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+1).c_str()));
+    ui->boss_dialog_text1_line2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+2).c_str()));
+    ui->boss_dialog_text1_line3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+3).c_str()));
 
-    ui->boss_dialog_text2_line1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+4).c_str()));
-    ui->boss_dialog_text2_line2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+5).c_str()));
-    ui->boss_dialog_text2_line3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_1+6).c_str()));
+    ui->boss_dialog_text2_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+4).c_str()));
+    ui->boss_dialog_text2_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+5).c_str()));
+    ui->boss_dialog_text2_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_1+6).c_str()));
+    ui->boss_dialog_text2_line1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+4).c_str()));
+    ui->boss_dialog_text2_line2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+5).c_str()));
+    ui->boss_dialog_text2_line3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_1+6).c_str()));
 
     int adjust_boss_player = adjust_1+7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    ui->boss_dialog_answer1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player).c_str()));
-    ui->boss_dialog_answer1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player+1).c_str()));
-    ui->boss_dialog_answer1_line3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player+2).c_str()));
+    ui->boss_dialog_answer1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player).c_str()));
+    ui->boss_dialog_answer1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+1).c_str()));
+    ui->boss_dialog_answer1_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+2).c_str()));
 
-    ui->boss_dialog_answer2_line1->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player+3).c_str()));
-    ui->boss_dialog_answer2_line2->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player+4).c_str()));
-    ui->boss_dialog_answer2_line3->setText(QString(Mediator::get_instance()->stage_dialog_list.at(stage_id).at(adjust_boss_player+5).c_str()));
+    ui->boss_dialog_answer2_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+3).c_str()));
+    ui->boss_dialog_answer2_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+4).c_str()));
+    ui->boss_dialog_answer2_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+5).c_str()));
 
     ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
@@ -230,7 +252,7 @@ void stage_edit::on_string_selected(int string_id)
     int* value_property = strings_editor_window->get_target_property();
     *value_property = string_id;
     QLineEdit* qline = strings_editor_window->get_target_qline();
-    qline->setText(QString(fio_str.get_common_string(string_id, ui->language_comboBox->currentIndex()).c_str()));
+    qline->setText(QString(fio_str.get_common_string(string_id, ui->language_comboBox->currentIndex(), false).c_str()));
 }
 
 void stage_edit::string_tooltip_click(int *property, QLineEdit *qline)
@@ -264,7 +286,7 @@ void stage_edit::on_stages_tab_bossname_lineedit_textChanged(const QString &arg1
 void stage_edit::on_dialogs_line1_text1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(0) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(0) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_line1_text2_textChanged(const QString &arg1)
@@ -272,158 +294,158 @@ void stage_edit::on_dialogs_line1_text2_textChanged(const QString &arg1)
     if (_data_loading) { return; }
     int stage_n = ui->stages_tab_stage_combo->currentIndex();
     std::cout << "stage[" << stage_n << "], IN[" << arg1.toStdString() << "]" << std::endl;
-    Mediator::get_instance()->stage_dialog_list.at(stage_n).at(1) = arg1.toStdString();
-    std::cout << "OUT[" <<  Mediator::get_instance()->stage_dialog_list.at(stage_n).at(1) << "]" << std::endl;
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(stage_n).at(1) = arg1.toStdString();
+    std::cout << "OUT[" <<  Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(stage_n).at(1) << "]" << std::endl;
 }
 
 void stage_edit::on_dialogs_line1_text3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(2) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(2) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_line2_text1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(3) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(3) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_line2_text2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(4) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(4) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_line2_text3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(5) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(5) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer1_text1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer1_text2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+1) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+1) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer1_text3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+2) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+2) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer2_text1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+3) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+3) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer2_text2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+4) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+4) = arg1.toStdString();
 }
 
 void stage_edit::on_dialogs_answer2_text3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int player_adjust = ui->dialogs_answer1_player->currentIndex() * 6 + 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+5) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(player_adjust+5) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text1_line1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+1) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+1) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text1_line2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+2) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+2) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text1_line3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+3) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+3) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text2_line1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+4) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+4) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text2_line2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+5) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+5) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_text2_line3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_1 = 5+ 4*6; // 4 players, 6 lines each
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+6) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_1+6) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer1_line1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer1_line2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+1) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+1) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer1_line3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+2) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+2) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer2_line1_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+3) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+3) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer2_line2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+4) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+4) = arg1.toStdString();
 }
 
 void stage_edit::on_boss_dialog_answer2_line3_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
-    Mediator::get_instance()->stage_dialog_list.at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+5) = arg1.toStdString();
+    Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+5) = arg1.toStdString();
 }
 
 void stage_edit::on_stage_boss_weapon_combo_currentIndexChanged(int index)
@@ -434,5 +456,6 @@ void stage_edit::on_stage_boss_weapon_combo_currentIndexChanged(int index)
 void stage_edit::on_language_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading) { return; }
+    Mediator::get_instance()->save_dialogs();
     update_stage_data(index);
 }

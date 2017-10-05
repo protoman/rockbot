@@ -24,18 +24,18 @@ public:
     fio_strings();
 
     // === GAME STRINGS === //
-    std::string get_ingame_string(int n, int language);
-    std::vector<std::string> load_game_strings(int language);
-    std::vector<std::string> load_game_strings_from_file(std::string filename, int language);
+    std::string get_ingame_string(int n, int language, bool convert_symbols);
+    std::vector<std::string> load_game_strings(int language, bool convert_symbols);
+    std::vector<std::string> load_game_strings_from_file(std::string filename, int language, bool convert_symbols);
     void save_game_strings(std::vector<std::string> list, std::string filename);
 
     // === COMMON STRINGS === //
     std::string get_common_strings_filename(int language);
     std::string get_game_strings_filename(int language);
-    std::vector<std::string> get_common_strings(int language);
-    std::string get_common_string(int id, int language);
-    std::string get_stage_dialog(short stage_id, int id, int language);
-    std::vector<std::string> get_stage_dialogs(short stage_id, int language);
+    std::vector<std::string> get_common_strings(int language, bool convert_symbols);
+    std::string get_common_string(int id, int language, bool convert_symbols);
+    std::string get_stage_dialog(short stage_id, int id, int language, bool convert_symbols);
+    std::vector<std::string> get_stage_dialogs(short stage_id, int language, bool convert_symbols);
     void save_common_strings(std::vector<std::string> data, int language);
     void create_files();
     void save_stage_dialogs(short stage_id, int language, std::vector<std::string> data);

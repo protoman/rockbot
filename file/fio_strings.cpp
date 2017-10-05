@@ -51,10 +51,10 @@ namespace format_v4 {
         */
     }
 
-    std::string fio_strings::get_ingame_string(int n, int language)
+    std::string fio_strings::get_ingame_string(int n, int language, bool convert_symbols)
     {
         if (string_list.size() == 0) {
-            string_list = load_game_strings(language);
+            string_list = load_game_strings(language, convert_symbols);
         }
         if (n < 0 || n > string_list.size()) {
             return "";
@@ -66,12 +66,12 @@ namespace format_v4 {
     }
 
 
-    std::vector<std::string> fio_strings::load_game_strings(int language)
+    std::vector<std::string> fio_strings::load_game_strings(int language, bool convert_symbols)
     {
-        return load_game_strings_from_file(get_game_strings_filename(language), language);
+        return load_game_strings_from_file(get_game_strings_filename(language), language, convert_symbols);
     }
 
-    std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename, int language)
+    std::vector<std::string> fio_strings::load_game_strings_from_file(std::string filename, int language, bool convert_symbols)
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
@@ -117,8 +117,10 @@ namespace format_v4 {
             res = add_missing_default_ingame_strings(res, language);
         }
 
-        for (unsigned int i=0; i<res.size(); i++) {
-            res[i] = convert_text_symbols(res[i]);
+        if (convert_symbols == true) {
+            for (unsigned int i=0; i<res.size(); i++) {
+                res[i] = convert_text_symbols(res[i]);
+            }
         }
 
         return res;
@@ -503,9 +505,6 @@ namespace format_v4 {
 
     std::string fio_strings::convert_text_symbols(std::string text)
     {
-
-
-
         for (std::map<int,std::string>::iterator it=code_map.begin(); it!=code_map.end(); ++it) {
 
             char replace1 = (char)(it->first);
@@ -566,7 +565,7 @@ namespace format_v4 {
 
 
 
-    std::vector<std::string> fio_strings::get_common_strings(int language)
+    std::vector<std::string> fio_strings::get_common_strings(int language, bool convert_symbols)
     {
         if (FILEPATH == "") {
             std::cout << "FIO_STRINGS - NO FILEPATH count: " << common_strings_list.size() << std::endl;
@@ -575,7 +574,7 @@ namespace format_v4 {
 
         if (common_strings_list.size() == 0) {
             std::cout << "FIO_STRINGS - LOAD count: " << common_strings_list.size() << std::endl;
-            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language);
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language, convert_symbols);
         }
         return common_strings_list;
     }
@@ -663,7 +662,7 @@ namespace format_v4 {
 
     }
 
-    std::string fio_strings::get_common_string(int id, int language)
+    std::string fio_strings::get_common_string(int id, int language, bool convert_symbols)
     {
 
         if (id == -1) {
@@ -676,7 +675,7 @@ namespace format_v4 {
         std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
 
         if (common_strings_list.size() == 0) {
-            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language);
+            common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language,convert_symbols);
         }
 
         if (id >= common_strings_list.size()) {
@@ -686,14 +685,14 @@ namespace format_v4 {
         return common_strings_list.at(id);
     }
 
-    std::string fio_strings::get_stage_dialog(short stage_id, int id, int language)
+    std::string fio_strings::get_stage_dialog(short stage_id, int id, int language, bool convert_symbols)
     {
         if (_dialogs_stage_id != stage_id) {
             _dialogs_stage_id = stage_id;
-            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language), language);
+            dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language), language, convert_symbols);
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings(language);
-                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language),language);
+                dialogs_strings_list = load_game_strings_from_file(get_stage_dialogs_filename(_dialogs_stage_id, language),language, convert_symbols);
             }
         }
         if (id < 0 || id >= dialogs_strings_list.size()) {
@@ -702,7 +701,7 @@ namespace format_v4 {
         return dialogs_strings_list.at(id);
     }
 
-    std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id, int language)
+    std::vector<std::string> fio_strings::get_stage_dialogs(short stage_id, int language, bool convert_symbols)
     {
         std::string filename;
         if (_dialogs_stage_id != -1) {
@@ -712,10 +711,10 @@ namespace format_v4 {
             dialogs_strings_list.clear();
             _dialogs_stage_id = stage_id;
             filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
-            dialogs_strings_list = load_game_strings_from_file(filename, language);
+            dialogs_strings_list = load_game_strings_from_file(filename, language, convert_symbols);
             if (dialogs_strings_list.size() == 0) {
                 create_default_dialog_strings(language);
-                dialogs_strings_list = load_game_strings_from_file(filename, language);
+                dialogs_strings_list = load_game_strings_from_file(filename, language, convert_symbols);
             }
         //}
         // generate dialogs, if needed
@@ -723,7 +722,7 @@ namespace format_v4 {
             std::cout << "Generating default stage dialogs..." << std::endl;
             create_default_dialog_strings(language);
             std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
-            dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language);
+            dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language, convert_symbols);
         }
         if (dialogs_strings_list.size() < STAGE_DIALOG_NUMBER) {
             std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << ". Will add missing lines." << std::endl;

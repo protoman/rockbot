@@ -12,7 +12,7 @@ extern std::string FILEPATH;
 StringsEditor::StringsEditor(QWidget *parent, int mode) : QDialog(parent), ui(new Ui::StringsEditor), string_edit_model(this), scenes_string_edit_model(this), target_qline(NULL), target_property(NULL)
 {
     pick_mode = mode;
-    string_list = fio_str.load_game_strings(LANGUAGE_ENGLISH);
+    string_list = fio_str.load_game_strings(LANGUAGE_ENGLISH, false);
     ui->setupUi(this);
     common::fill_languages_combo(ui->languageSelector_comboBox);
     reload();
@@ -61,7 +61,7 @@ void StringsEditor::reload()
 
     // ==================== COMMON STRINGS ==================== //
 
-    std::vector<std::string> common_string_list = fio_str.get_common_strings(ui->languageSelector_comboBox->currentIndex());
+    std::vector<std::string> common_string_list = fio_str.get_common_strings(ui->languageSelector_comboBox->currentIndex(), false);
     string_edit_model.set_data(common_string_list);
     string_edit_model.set_pick_mode(pick_mode);
     ui->commonStrings_tableView->setModel(&string_edit_model);
@@ -203,9 +203,8 @@ void StringsEditor::on_buttonBox_rejected()
 
 void StringsEditor::load_language(std::string filename)
 {
-    translation_string_list = fio_str.load_game_strings_from_file(filename, ui->languageSelector_comboBox->currentIndex());
+    translation_string_list = fio_str.load_game_strings_from_file(filename, ui->languageSelector_comboBox->currentIndex(), false);
     fill_translation();
-
 }
 
 

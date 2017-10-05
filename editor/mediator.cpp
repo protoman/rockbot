@@ -316,28 +316,25 @@ Mediator::Mediator() : stage_data() {
 
 void Mediator::save_dialogs()
 {
-    std::cout << "stage_dialog_list.size[" << stage_dialog_list.size() << "]" << std::endl;
 
     std::map<int, std::vector<std::string> >::iterator it;
-    for (it = stage_dialog_list.begin(); it != stage_dialog_list.end(); it++) {
-        std::vector<std::string> list_copy = it->second;
+    for (int i=0; i<LANGUAGE_COUNT; i++) {
+        std::cout << "stage_dialog_list.size[" << stage_dialog_list[i].size() << "]" << std::endl;
+        for (it = stage_dialog_list[i].begin(); it != stage_dialog_list[i].end(); it++) {
+            std::vector<std::string> list_copy = it->second;
 
-        if (list_copy.size() > STAGE_DIALOG_NUMBER) {
-            std::cout << "ERROR: Invalid dialogs size" << std::endl;
-            return;
-        }
-        std::cout << "list_copy.size[" << list_copy.size() << "]" << std::endl;
+            if (list_copy.size() > STAGE_DIALOG_NUMBER) {
+                std::cout << "ERROR: Invalid dialogs size" << std::endl;
+                return;
+            }
+            std::cout << "list_copy.size[" << list_copy.size() << "]" << std::endl;
 
-        for (int i=0; i<list_copy.size(); i++) {
-            list_copy.at(i) = list_copy.at(i) + "\n";
+            for (int i=0; i<list_copy.size(); i++) {
+                list_copy.at(i) = list_copy.at(i) + "\n";
+            }
+            fio_str.save_stage_dialogs(it->first, i, list_copy);
         }
-        fio_str.save_stage_dialogs(it->first, LANGUAGE_ENGLISH, list_copy);
     }
-}
-
-void Mediator::load_dialogs()
-{
-    //Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, LANGUAGE_ENGLISH)));
 }
 
 

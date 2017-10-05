@@ -50,33 +50,33 @@ void stage_swap_dialog::on_buttonBox_accepted()
     // ### SWAP DIALOGS ### //
 
     // load data, if needed
-    CURRENT_FILE_FORMAT::fio_strings fio_str;
-    if (Mediator::get_instance()->stage_dialog_list.find(dest_n) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(dest_n, fio_str.get_stage_dialogs(dest_n, LANGUAGE_ENGLISH)));
-    }
-    if (Mediator::get_instance()->stage_dialog_list.find(origin_n) == Mediator::get_instance()->stage_dialog_list.end()) {
-        Mediator::get_instance()->stage_dialog_list.insert(std::pair<int, std::vector<std::string> >(origin_n, fio_str.get_stage_dialogs(origin_n, LANGUAGE_ENGLISH)));
-    }
+    for (int i=0; i<LANGUAGE_COUNT; i++) {
+        CURRENT_FILE_FORMAT::fio_strings fio_str;
+        if (Mediator::get_instance()->stage_dialog_list[i].find(dest_n) == Mediator::get_instance()->stage_dialog_list[i].end()) {
+            Mediator::get_instance()->stage_dialog_list[i].insert(std::pair<int, std::vector<std::string> >(dest_n, fio_str.get_stage_dialogs(dest_n, LANGUAGE_ENGLISH, false)));
+        }
+        if (Mediator::get_instance()->stage_dialog_list[i].find(origin_n) == Mediator::get_instance()->stage_dialog_list[i].end()) {
+            Mediator::get_instance()->stage_dialog_list[i].insert(std::pair<int, std::vector<std::string> >(origin_n, fio_str.get_stage_dialogs(origin_n, LANGUAGE_ENGLISH, false)));
+        }
+        //std::map<int, std::vector<std::string> > stage_dialog_list;
+        std::vector<std::string> temp_dialogs;
+        // ==> dest to temp
+        int dest_size = Mediator::get_instance()->stage_dialog_list[i].at(dest_n).size();
+        for (int j=0; j<dest_size; j++) {
+            temp_dialogs.push_back(Mediator::get_instance()->stage_dialog_list[i].at(dest_n)[j]);
+        }
 
+        // origin to dest
+        Mediator::get_instance()->stage_dialog_list[i].at(dest_n).clear();
+        for (int j=0; j<Mediator::get_instance()->stage_dialog_list[i].at(origin_n).size(); j++) {
+            Mediator::get_instance()->stage_dialog_list[i].at(dest_n).push_back(Mediator::get_instance()->stage_dialog_list[i].at(ui->origin_combo->currentIndex())[j]);
+        }
 
-    //std::map<int, std::vector<std::string> > stage_dialog_list;
-    std::vector<std::string> temp_dialogs;
-    // ==> dest to temp
-    int dest_size = Mediator::get_instance()->stage_dialog_list.at(dest_n).size();
-    for (int i=0; i<dest_size; i++) {
-        temp_dialogs.push_back(Mediator::get_instance()->stage_dialog_list.at(dest_n)[i]);
-    }
-
-    // origin to dest
-    Mediator::get_instance()->stage_dialog_list.at(dest_n).clear();
-    for (int i=0; i<Mediator::get_instance()->stage_dialog_list.at(origin_n).size(); i++) {
-        Mediator::get_instance()->stage_dialog_list.at(dest_n).push_back(Mediator::get_instance()->stage_dialog_list.at(ui->origin_combo->currentIndex())[i]);
-    }
-
-    // temp to origin
-    Mediator::get_instance()->stage_dialog_list.at(origin_n).clear();
-    for (int i=0; i<temp_dialogs.size(); i++) {
-        Mediator::get_instance()->stage_dialog_list.at(origin_n).push_back(temp_dialogs[i]);
+        // temp to origin
+        Mediator::get_instance()->stage_dialog_list[i].at(origin_n).clear();
+        for (int j=0; j<temp_dialogs.size(); j++) {
+            Mediator::get_instance()->stage_dialog_list[i].at(origin_n).push_back(temp_dialogs[j]);
+        }
     }
 
     // ### SWAP FACES ### //

@@ -87,6 +87,8 @@ private:
 	Ui::stage_edit *ui;
     bool _data_loading;
     CURRENT_FILE_FORMAT::fio_strings fio_str;
+    std::map<int, std::vector<std::string> > stage_dialog_default_language_list;
+    bool initialized;
 };
 
 #endif // STAGE_EDIT_H
