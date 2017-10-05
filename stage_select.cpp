@@ -4,6 +4,7 @@
 #include "file/format.h"
 #include "file/file_io.h"
 #include "aux_tools/stringutils.h"
+#include "strings_map.h"
 
 // INTERNAL GLOBALS
 extern timerLib timer;
@@ -328,9 +329,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
         stage_name_list.push_back(stage_name.substr(0, 11));
     }
 
-
-
-    graphLib.draw_text(STAGE_SELECT_STAGE_TEXT_X, STAGE_SELECT_STAGE_TEXT_Y, "STAGE:");
+    graphLib.draw_text(STAGE_SELECT_STAGE_TEXT_X, STAGE_SELECT_STAGE_TEXT_Y, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, game_config.selected_language));
     for (int i=0; i<stage_name_list.size(); i++) {
         graphLib.draw_text(STAGE_SELECT_STAGE_TEXT_X, STAGE_SELECT_STAGE_TEXT_Y+12*(i+1), stage_name_list.at(i));
     }
@@ -345,7 +344,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
         boss_name_list.push_back(boss_name.substr(0, 11));
     }
 
-    graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y, "LAIR OF:");
+    graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language));
     for (int i=0; i<boss_name_list.size(); i++) {
         graphLib.draw_text(STAGE_SELECT_LAIR_TEXT_X, STAGE_SELECT_LAIR_TEXT_Y+12*(i+1), boss_name_list.at(i));
     }
@@ -356,9 +355,9 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.clear_area(114, text_pos_y, 206, 16, 19, 2, 36);
     graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
     if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
-        graphLib.draw_text(114, text_pos_y, "[UNAVAILABE IN DEMO]", st_color(250, 250, 250));
+        graphLib.draw_text(114, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_unavailable, game_config.selected_language), st_color(250, 250, 250));
     } else {
-        graphLib.draw_text(114, text_pos_y, "[ENTER STAGE]", st_color(250, 250, 250));
+        graphLib.draw_text(114, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, game_config.selected_language), st_color(250, 250, 250));
     }
 
 }

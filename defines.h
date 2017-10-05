@@ -1045,6 +1045,11 @@ enum E_STRINGS_INGAME {
     strings_ingame_enable_cloudsave_dialog,
     strings_ingame_requires_network,
 
+    string_stage_select_stage,
+    string_stage_select_lair_of,
+    string_stage_select_enter_stage,
+    string_stage_select_unavailable,
+
     strings_ingame_COUNT
 };
 

@@ -302,6 +302,10 @@ namespace format_v4 {
             sprintf(lines[strings_config_low], "%s", "BAIXO");
             sprintf(lines[strings_config_medium], "%s", "MEDIO");
             sprintf(lines[strings_config_high], "%s", "ALTO");
+            sprintf(lines[string_stage_select_stage], "%s", "FASE:");
+            sprintf(lines[string_stage_select_lair_of], "%s", "LAR DE:");
+            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTRAR FASE]");
+            sprintf(lines[string_stage_select_unavailable], "%s", "[INDISPONÍVEL NA DEMO]");
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -431,6 +435,10 @@ namespace format_v4 {
             sprintf(lines[strings_config_medium], "%s", "MEDIUM");
             sprintf(lines[strings_config_high], "%s", "HIGH");
 
+            sprintf(lines[string_stage_select_stage], "%s", "STAGE:");
+            sprintf(lines[string_stage_select_lair_of], "%s", "LAIR OF:");
+            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTER STAGE]");
+            sprintf(lines[string_stage_select_unavailable], "%s", "[UNAVAILABLE IN DEMO]");
 
         }
 
