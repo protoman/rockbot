@@ -39,7 +39,7 @@ dialogs::dialogs() : is_showing_dialog_bg(false)
 void dialogs::show_stage_dialog(int stage_n)
 {
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    std::vector<std::string> stage_dialogs = fio_str.get_stage_dialogs(stage_n, game_config.selected_language, true);
+    std::vector<std::string> stage_dialogs = fio_str.get_stage_dialogs(stage_n, game_config.selected_language, false);
     int n = 0;
 
     if (stage_dialogs.at(0).length() <= 0) {
