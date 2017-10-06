@@ -550,6 +550,7 @@ void classPlayer::initFrames()
 	frameSize.width = 29;
     frameSize.height = 29;
 
+
     add_graphic();
     init_weapon_colors();
 
@@ -563,6 +564,9 @@ void classPlayer::initFrames()
 		std::cout << "initFrames - Error loading player surface from file\n";
 		return;
 	}
+
+    //animation_obj.init(name, filename, frameSize, GameMediator::get_instance()->player_list_v3_1.at(0).sprites);
+
 
     // @TODO - automatically add inverse direction (right) sprites
 

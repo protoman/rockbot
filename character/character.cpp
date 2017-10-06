@@ -886,7 +886,11 @@ void character::show() {
 		return;
 	}
 
-    show_at(realPosition);
+    if (is_player() == false) {
+        animation_obj.show_sprite(realPosition);
+    } else {
+        show_at(realPosition);
+    }
 }
 
 void character::show_at(st_position pos)
@@ -3196,6 +3200,7 @@ void character::set_animation_type(ANIM_TYPE type)
         }
     }
     state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
+    animation_obj.set_type(state.animation_type);
 }
 
 

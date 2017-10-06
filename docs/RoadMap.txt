@@ -57,10 +57,12 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
+EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
 
 SERIOUS:
-- change projectiles names to uppercase (because of armor)
-- red-shield on 2 are sometimes falling in holes
+- ROCKBOT1: adjust damage from weapons, make spike damage ape and lower damage ape takes from normal
+- ROCKBOT1/2: change projectiles, weapons and enemies names to uppercase
+- red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 - after finishing the game and selecting new game, the read and dialogs appear twice
 - EDITOR: change swap maps to replace npcs and objects with the new format

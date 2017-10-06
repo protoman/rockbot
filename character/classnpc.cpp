@@ -266,6 +266,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     }
 
     //std::cout << "end" << std::endl;
+
 }
 
 
@@ -391,6 +392,11 @@ void classnpc::execute()
         }
         charMove();
     }
+}
+
+void classnpc::init_animation()
+{
+    animation_obj.init(name, FILEPATH + "images/sprites/enemies/" + graphic_filename, frameSize,  GameMediator::get_instance()->get_enemy(_number)->sprites);
 }
 
 void classnpc::boss_move()

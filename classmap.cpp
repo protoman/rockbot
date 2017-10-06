@@ -540,6 +540,7 @@ void classMap::load_map_npcs()
             } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
                 new_npc.initialize_position_to_ground();
             }
+            new_npc.init_animation();
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
             //std::cout << "(A) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;

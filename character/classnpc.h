@@ -36,6 +36,7 @@ public:
     classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend); // spawned npc
     void initFrames();
     void execute();
+    void init_animation();
     void boss_move();
     void copy(classnpc *from);
     void move();
@@ -100,8 +101,6 @@ protected:
     short _initialized; /**< TODO */
     bool _screen_blinked; /**< TODO */
     int _parent_id;
-
-
 };
 
 #endif // CLASSNPC_H

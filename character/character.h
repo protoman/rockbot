@@ -15,6 +15,8 @@
 #include "projectilelib.h"
 #include "character/movement/jump.h"
 #include "character/movement/inertia.h"
+#include "character/character_animation.h"
+
 
 
 extern graphicsLib graphLib;
@@ -372,6 +374,8 @@ protected:
     int _stairs_falling_timer;                              // controls time when player can again grab the staircase
     bool is_ghost;                                          // if can shoot or not /**< TODO */
     st_rectangle vulnerable_area_box;                       // hitarea, set by classnpc
+    character_animation animation_obj;
+
 
 };
 
