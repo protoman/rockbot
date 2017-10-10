@@ -51,6 +51,7 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> map_npc_data;         // map enemy list
     std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> map_object_data;   // map object list
     std::vector<CURRENT_FILE_FORMAT::file_projectilev3> projectile_list;
+    std::map<std::string, graphicsLib_gSurface> character_graphic_map;      // character graphics
 
 private:
     static GameMediator* _instance;

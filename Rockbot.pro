@@ -333,7 +333,8 @@ SOURCES += main.cpp \
     docs/game_manual.cpp \
     collision_detection.cpp \
     graphic/gfx_sin_wave.cpp \
-    ports/android/android_game_services.cpp
+    ports/android/android_game_services.cpp \
+    character/character_animation.cpp
 
 
 HEADERS += \
@@ -393,7 +394,8 @@ HEADERS += \
     docs/game_manual.h \
     collision_detection.h \
     graphic/gfx_sin_wave.h \
-    ports/android/android_game_services.h
+    ports/android/android_game_services.h \
+    character/character_animation.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \
