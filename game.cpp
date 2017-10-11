@@ -227,9 +227,6 @@ st_float_position game::checkScrolling()
 // ********************************************************************************************** //
 void game::start_stage()
 {
-
-
-
 	_show_boss_hp = false;
     input.clean();
 
@@ -376,7 +373,7 @@ void game::restart_stage()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-bool game::showIntro()
+bool game::show_game_intro()
 {
 
     show_notice();
@@ -392,7 +389,7 @@ bool game::showIntro()
     scenes.preloadScenes();
 
     /// @TODO - add scene intro here
-    //scenes.game_scenes_show_unbeaten_intro();
+    scenes.game_scenes_show_unbeaten_intro();
 	scenes.main_screen();
 
 

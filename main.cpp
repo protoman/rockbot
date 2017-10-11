@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
 
 	// INIT GAME
 	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
-		if (gameControl.showIntro() == false) {
+        if (gameControl.show_game_intro() == false) {
             std::cout << "ERROR SHOWING INTRO" << std::endl;
 			return 0;
 		}

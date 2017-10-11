@@ -886,11 +886,14 @@ void character::show() {
 		return;
 	}
 
+    /*
     if (is_player() == false) {
         animation_obj.show_sprite(realPosition);
     } else {
         show_at(realPosition);
     }
+    */
+    show_at(realPosition);
 }
 
 void character::show_at(st_position pos)

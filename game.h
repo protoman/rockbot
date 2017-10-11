@@ -43,7 +43,7 @@ public:
      *
      * @return bool
      */
-    bool showIntro();
+    bool show_game_intro();
 
     void show_beta_version_warning();
 

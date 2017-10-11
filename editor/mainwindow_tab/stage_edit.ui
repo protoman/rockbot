@@ -567,6 +567,8 @@
   <tabstop>cutscenePre_comboBox</tabstop>
   <tabstop>stages_tab_bgmusic_combo</tabstop>
   <tabstop>cutscenePos_comboBox</tabstop>
+  <tabstop>language_comboBox</tabstop>
+  <tabstop>dialogs_answer1_player</tabstop>
   <tabstop>stages_tab_bossname_lineedit</tabstop>
   <tabstop>dialogs_line1_face_combo</tabstop>
   <tabstop>dialogs_line1_text1</tabstop>
@@ -575,19 +577,18 @@
   <tabstop>dialogs_line2_text1</tabstop>
   <tabstop>dialogs_line2_text2</tabstop>
   <tabstop>dialogs_line2_text3</tabstop>
-  <tabstop>dialogs_answer1_player</tabstop>
-  <tabstop>dialogs_answer1_text1</tabstop>
-  <tabstop>dialogs_answer1_text2</tabstop>
-  <tabstop>dialogs_answer1_text3</tabstop>
-  <tabstop>dialogs_answer2_text1</tabstop>
-  <tabstop>dialogs_answer2_text2</tabstop>
-  <tabstop>dialogs_answer2_text3</tabstop>
   <tabstop>boss_dialog_text1_line1</tabstop>
   <tabstop>boss_dialog_text1_line2</tabstop>
   <tabstop>boss_dialog_text1_line3</tabstop>
   <tabstop>boss_dialog_text2_line1</tabstop>
   <tabstop>boss_dialog_text2_line2</tabstop>
   <tabstop>boss_dialog_text2_line3</tabstop>
+  <tabstop>dialogs_answer1_text1</tabstop>
+  <tabstop>dialogs_answer1_text2</tabstop>
+  <tabstop>dialogs_answer1_text3</tabstop>
+  <tabstop>dialogs_answer2_text1</tabstop>
+  <tabstop>dialogs_answer2_text2</tabstop>
+  <tabstop>dialogs_answer2_text3</tabstop>
   <tabstop>boss_dialog_answer1_line1</tabstop>
   <tabstop>boss_dialog_answer1_line2</tabstop>
   <tabstop>boss_dialog_answer1_line3</tabstop>
