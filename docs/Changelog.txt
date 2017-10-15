@@ -694,3 +694,4 @@ FILE-FORMAT-V4:
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
 - EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
 - AI: add fly-sin-y
+===
