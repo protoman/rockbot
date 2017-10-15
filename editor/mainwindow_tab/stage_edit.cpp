@@ -189,10 +189,18 @@ void stage_edit::update_stage_data(int language_n)
     ui->boss_dialog_answer1_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player).c_str()));
     ui->boss_dialog_answer1_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+1).c_str()));
     ui->boss_dialog_answer1_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+2).c_str()));
+    ui->boss_dialog_answer1_line1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player).c_str()));
+    ui->boss_dialog_answer1_line2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player+1).c_str()));
+    ui->boss_dialog_answer1_line3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player+2).c_str()));
+
 
     ui->boss_dialog_answer2_line1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+3).c_str()));
     ui->boss_dialog_answer2_line2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+4).c_str()));
     ui->boss_dialog_answer2_line3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(adjust_boss_player+5).c_str()));
+    ui->boss_dialog_answer2_line1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player+3).c_str()));
+    ui->boss_dialog_answer2_line2->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player+4).c_str()));
+    ui->boss_dialog_answer2_line3->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(adjust_boss_player+5).c_str()));
+
 
     ui->cutscenePre_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pre);
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);

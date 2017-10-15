@@ -462,6 +462,23 @@ void Mediator::load_game_data()
     } else {
         Mediator::get_instance()->fio.read_all_maps_v2(maps_data_v2);
         maps_data_npc_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
+
+        for (int i=0; i<maps_data_npc_list.size(); i++) {
+            // adjust for rockbot 1
+            /*
+            if (maps_data_npc_list.at(i).id_npc == 0 || maps_data_npc_list.at(i).id_npc == 15 || maps_data_npc_list.at(i).id_npc == 16 || maps_data_npc_list.at(i).id_npc == 19) {
+                maps_data_npc_list.at(i).start_point.y -= 1;
+            }
+            */
+            // adjust for rockbot 2
+            /*
+            if (maps_data_npc_list.at(i).id_npc == 8 || maps_data_npc_list.at(i).id_npc == 9) {
+                maps_data_npc_list.at(i).start_point.y -= 1;
+            }
+            */
+        }
+
+
         maps_data_object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
     }
 }

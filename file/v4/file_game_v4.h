@@ -719,7 +719,7 @@ namespace format_v4 {
         char game_start_screen_music_filename[FS_CHAR_NAME_SIZE];
         bool use_second_castle;
         Uint8 game_style;                                               // if 1, stages are executed one after another, like castlevania or ghouls & ghosts
-        Uint8 final_boss_id;                                            // indicates who is the final boss, the id refers to the map_npc id, not to the npc itself
+        Uint8 final_boss_id;                                            // indicates who is the final boss, the id refers NPC, so it is possible to add the same final boss intro two stages
 
 
         st_color weapon_menu_colors[MAX_WEAPON_N];

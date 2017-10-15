@@ -2611,9 +2611,13 @@ void character::check_reset_stand()
         return;
     }
     // is walking without moving, reset to stand
-    if (moveCommands.left == 0 && moveCommands.right == 0 && state.animation_type == ANIM_TYPE_WALK) {
-        if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #C" << std::endl;
-        set_animation_type(ANIM_TYPE_STAND);
+    if (moveCommands.left == 0 && moveCommands.right == 0) {
+        if (state.animation_type == ANIM_TYPE_WALK) {
+            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #C" << std::endl;
+            set_animation_type(ANIM_TYPE_STAND);
+        } else if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
+            set_animation_type(ANIM_TYPE_ATTACK);
+        }
     }
     if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
         switch (state.animation_type) {
@@ -3203,7 +3207,7 @@ void character::set_animation_type(ANIM_TYPE type)
         }
     }
     state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
-    animation_obj.set_type(state.animation_type);
+    animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
 }
 
 

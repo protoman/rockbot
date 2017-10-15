@@ -79,7 +79,17 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="5">
+        <item row="0" column="1">
+         <widget class="QComboBox" name="stageListCombo"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>Difficulty:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
          <widget class="QComboBox" name="difficulty_comboBox">
           <property name="currentIndex">
            <number>0</number>
@@ -101,20 +111,17 @@
           </item>
          </widget>
         </item>
-        <item row="0" column="4">
-         <widget class="QLabel" name="label_19">
-          <property name="text">
-           <string>Difficulty:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="stageListCombo"/>
-        </item>
-        <item row="0" column="6">
+        <item row="1" column="3">
          <widget class="QPushButton" name="difficultyMode_pushButton">
           <property name="text">
            <string>&gt;=</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Constraint:</string>
           </property>
          </widget>
         </item>
@@ -530,7 +537,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -655,7 +662,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -800,7 +807,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -883,7 +890,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -993,7 +1000,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1046,7 +1053,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>358</height>
+              <height>330</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1064,7 +1071,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>356</width>
-                  <height>165</height>
+                  <height>151</height>
                  </rect>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">

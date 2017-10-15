@@ -61,7 +61,7 @@ void key_map::draw_screen()
         graphLib.draw_text(config_text_pos.x, config_text_pos.y + i*CURSOR_SPACING, _keys_list[i].c_str());
         redraw_line(i);
     }
-    graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING, "RETURN");
+    graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING, strings_map::get_instance()->get_ingame_string(strings_config_return, game_config.selected_language));
     draw_lib.update_screen();
 
     graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));

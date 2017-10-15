@@ -110,9 +110,9 @@ void scenesLib::draw_main()
     std::string intro_path = FILEPATH + "/images/logo.png";
     graphLib.surfaceFromFile(intro_path, &intro_screen);
     //graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &intro_screen, &graphLib.gameScreen);
-    graphLib.zoom_image(intro_screen, false);
-    //gfx_sin_wave gfx_wave_obj(&intro_screen);
-    //gfx_wave_obj.show(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20);
+    //graphLib.zoom_image(intro_screen, false);
+    gfx_sin_wave gfx_wave_obj(&intro_screen);
+    gfx_wave_obj.show(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20);
 
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
@@ -123,7 +123,7 @@ void scenesLib::draw_main()
         graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
     }
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
-    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET");
+    graphLib.draw_centered_text(220, "http://rockbot.upperland.net");
 
 }
 
@@ -153,7 +153,7 @@ void scenesLib::main_screen()
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual, game_config.selected_language)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
 
-    option_picker main_picker(false, st_position(40-graphLib.RES_DIFF_W, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
+    option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
 
     main_picker.enable_check_input_reset_command();
@@ -303,7 +303,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 		if (selected_option == -1) {
 			break;
 		}
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
         if (selected_option == 0) { // CONFIG AUDIO
 			show_config_audio();
@@ -340,7 +340,7 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
         }
         fio.save_config(game_config);
 
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
 	}
     return res;
@@ -653,7 +653,7 @@ void scenesLib::show_config_android()
             }
             // @TODO: show warning that cloud load/save requires network connection
         }
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.updateScreen();
     }
     fio.save_config(game_config);
@@ -699,7 +699,7 @@ void scenesLib::show_config_video()
         fio.save_config(game_config);
         show_config_ask_restart();
         st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x-14, menu_pos.y, 195, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(menu_pos.x-14, menu_pos.y, RES_W, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         show_config_video();
     }
 }
@@ -781,14 +781,14 @@ void scenesLib::show_config_ask_restart()
     input.clean();
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -838,37 +838,37 @@ void scenesLib::show_config_language()
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     input.clean();
     timer.delay(300);
-    std::vector<std::string> options;
+    std::vector<st_menu_option> options;
     if (game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
-        options.push_back("ANGLAIS");
-        options.push_back("FRANCAIS");
-        options.push_back("ESPANOL");
-        options.push_back("ITALIEN");
-        options.push_back("PORTUGAIS");
+        options.push_back(st_menu_option("ANGLAIS"));
+        options.push_back(st_menu_option("FRANCAIS", true));
+        options.push_back(st_menu_option("ESPANOL", true));
+        options.push_back(st_menu_option("ITALIEN", true));
+        options.push_back(st_menu_option("PORTUGAIS"));
     } else if (game_config.selected_language == LANGUAGE_SPANISH) {    // SPANISH
-        options.push_back("INGLES");
-        options.push_back("FRANCES");
-        options.push_back("ESPANOL");
-        options.push_back("ITALIANO");
-        options.push_back("PORTUGUES");
+        options.push_back(st_menu_option("INGLES"));
+        options.push_back(st_menu_option("FRANCES", true));
+        options.push_back(st_menu_option("ESPANOL", true));
+        options.push_back(st_menu_option("ITALIANO", true));
+        options.push_back(st_menu_option("PORTUGUES"));
     } else if (game_config.selected_language == LANGUAGE_ITALIAN) {    // ITALIAN
-        options.push_back("INGLESE");
-        options.push_back("FRANCESE");
-        options.push_back("SPAGNOLO");
-        options.push_back("ITALIANO");
-        options.push_back("PORTOGHESE");
-    } else if (game_config.selected_language == LANGUAGE_PORTUGUESE) {    // ITALIAN
-        options.push_back("INGLES");
-        options.push_back("FRANCES");
-        options.push_back("ESPANHOL");
-        options.push_back("ITALIANO");
-        options.push_back("PORTUGUES");
+        options.push_back(st_menu_option("INGLESE"));
+        options.push_back(st_menu_option("FRANCESE", true));
+        options.push_back(st_menu_option("SPAGNOLO", true));
+        options.push_back(st_menu_option("ITALIANO", true));
+        options.push_back(st_menu_option("PORTOGHESE"));
+    } else if (game_config.selected_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
+        options.push_back(st_menu_option("INGLES"));
+        options.push_back(st_menu_option("FRANCES", true));
+        options.push_back(st_menu_option("ESPANHOL", true));
+        options.push_back(st_menu_option("ITALIANO", true));
+        options.push_back(st_menu_option("PORTUGUES"));
     } else {                                            // ENGLISH
-        options.push_back("ENGLISH");
-        options.push_back("FRENCH");
-        options.push_back("SPANISH");
-        options.push_back("ITALIAN");
-        options.push_back("PORTUGUESE");
+        options.push_back(st_menu_option("ENGLISH"));
+        options.push_back(st_menu_option("FRENCH", true));
+        options.push_back(st_menu_option("SPANISH", true));
+        options.push_back(st_menu_option("ITALIAN", true));
+        options.push_back(st_menu_option("PORTUGUESE"));
     }
 
     short selected_option = 0;
@@ -876,6 +876,7 @@ void scenesLib::show_config_language()
     selected_option = main_config_picker.pick();
     game_config.selected_language = selected_option;
     fio.save_config(game_config);
+    show_config_ask_restart();
 }
 
 void scenesLib::show_config_performance()
@@ -934,7 +935,7 @@ void scenesLib::show_config_performance()
         } else if (selected_option == 1) {
             gameControl.set_show_fps_enabled(!gameControl.get_show_fps_enabled());
         }
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 
     fio.save_config(game_config);
@@ -945,7 +946,7 @@ void scenesLib::show_config_warning_android_play_services()
     input.clean();
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services3, game_config.selected_language));
@@ -953,7 +954,7 @@ void scenesLib::show_config_warning_android_play_services()
     graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -962,7 +963,7 @@ void scenesLib::show_config_warning_android_cloud_save()
     input.clean();
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save3, game_config.selected_language));
@@ -970,7 +971,7 @@ void scenesLib::show_config_warning_android_cloud_save()
     graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -979,14 +980,14 @@ void scenesLib::show_config_warning_android_hide_controls()
     input.clean();
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
     graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
-    graphLib.clear_area(menu_pos.x, menu_pos.y, 193,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     draw_lib.update_screen();
 }
 
@@ -1158,7 +1159,7 @@ Uint8 scenesLib::select_player() {
             } else if (selected > max_loop) {
                 selected = 1;
             }
-            graphLib.clear_area(0, 49, 320, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            graphLib.clear_area(0, 49, RES_W, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             if (selected == 1) {
                 graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
             } else if (selected == 2) {
@@ -1168,7 +1169,7 @@ Uint8 scenesLib::select_player() {
             } else if (selected == 4) {
                 graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
-            graphLib.clear_area(60, 168, 204, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            graphLib.clear_area(60, 168, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name);
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
@@ -1224,7 +1225,7 @@ Uint8 scenesLib::select_difficulty()
             res = selected_option;
         }
         std::cout << "############ select_difficulty.selected_option[" << selected_option << "]" << std::endl;
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, 180,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
     }
     return res;

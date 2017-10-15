@@ -684,7 +684,9 @@ enum AI_ACTION_FLY_OPTION_LIST {
     AI_ACTION_FLY_OPTION_TO_PLAYER_Y, // move only in the Y axis
     AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD, // similar to horizontal-aahead but moving a bit on Y axias up/down
     AI_ACTION_FLY_OPTION_RANDOM_X,
-    AI_ACTION_FLY_OPTION_RANDOM_Y
+    AI_ACTION_FLY_OPTION_RANDOM_Y,
+    AI_ACTION_FLY_OPTION_SIN_AHEAD,     // moves ahead making a sin on y-axis
+    AI_ACTION_FLY_OPTION_COUNT
 };
 
 /**
@@ -911,6 +913,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_password,
     strings_ingame_gameover,
     strings_ingame_and,
+    strings_ingame_yougot,
     strings_ingame_selectgame,
     strings_ingame_savegameerror1,
     strings_ingame_savegameerror2,
@@ -1033,6 +1036,7 @@ enum E_STRINGS_INGAME {
     strings_config_wii_platformspecific,
 
     strings_config_keys_unet,
+    strings_config_return,
 
     strings_config_low,
     strings_config_medium,
@@ -1049,6 +1053,16 @@ enum E_STRINGS_INGAME {
     string_stage_select_lair_of,
     string_stage_select_enter_stage,
     string_stage_select_unavailable,
+
+    string_intro_presents,
+    string_intro_engine1,
+    string_intro_engine2,
+    string_intro_engine3,
+    string_intro_engine4,
+    string_intro_engine5,
+    string_intro_engine6,
+    string_intro_engine7,
+    string_intro_engine8,
 
     strings_ingame_COUNT
 };

@@ -117,11 +117,14 @@ namespace format_v4 {
             res = add_missing_default_ingame_strings(res, language);
         }
 
+        /*
+        // removed because suddnely, it was not needed, don't know why //
         if (convert_symbols == true) {
             for (unsigned int i=0; i<res.size(); i++) {
                 res[i] = convert_text_symbols(res[i]);
             }
         }
+        */
 
         return res;
     }
@@ -185,6 +188,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_password], "%s", "SENHA");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "E");
+            sprintf(lines[strings_ingame_yougot], "%s", "VOCÊ GANHOU");
             sprintf(lines[strings_ingame_selectgame], "%s", "SELECIONE JOGO");
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
@@ -306,6 +310,17 @@ namespace format_v4 {
             sprintf(lines[string_stage_select_lair_of], "%s", "LAR DE:");
             sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTRAR FASE]");
             sprintf(lines[string_stage_select_unavailable], "%s", "[INDISPONÍVEL NA DEMO]");
+            sprintf(lines[strings_config_return], "%s", "VOLTAR");
+
+            sprintf(lines[string_intro_presents], "%s", "APRESENTA");
+            sprintf(lines[string_intro_engine1], "%s", "- ROCKBOT ENGINE -");
+            sprintf(lines[string_intro_engine2], "%s", "JOGO CONTRUÍDO COM UM MOTOR DE JOGO");
+            sprintf(lines[string_intro_engine3], "%s", "DE UPPERLAND STUDIOS, CRIADO DE FORMA");
+            sprintf(lines[string_intro_engine4], "%s", "CASEIRA E NÃO-PROFISSIONAL.");
+            sprintf(lines[string_intro_engine5], "%s", "CÓDIGO-FONTE LICENCIADO SOB A");
+            sprintf(lines[string_intro_engine6], "%s", "GPL E LIVREMENTE DISTRIBUÍDO.");
+            sprintf(lines[string_intro_engine7], "%s", "CONTEÚDO DE JOGO DESTRIBUÍDO SOB");
+            sprintf(lines[string_intro_engine8], "%s", "LICENÇAS DE SEUS RESPECTIVOS CRIADORES.");
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -315,6 +330,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_password], "%s", "PASSWORD");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "AND");
+            sprintf(lines[strings_ingame_yougot], "%s", "YOU GOT");
             sprintf(lines[strings_ingame_selectgame], "%s", "SELECT GAME");
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
@@ -353,13 +369,10 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECTIONAL");
             sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANALOG");
             sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
-
-
             sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "CLOUD SAVE REQUIRES");
             sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "A NETWORK CONNECTION");
             sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "OR GAME WILL FREEZE WHEN");
             sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "GETTING SERVER DATA.");
-
             sprintf(lines[strings_ingame_config_android_play_services1], "%s", "ENABLING THIS OPTION REQUIRES");
             sprintf(lines[strings_ingame_config_android_play_services2], "%s", "A DATA CONNECTION.");
             sprintf(lines[strings_ingame_config_android_play_services3], "%s", "WARNING: THE GAME MAY FREEZE");
@@ -439,6 +452,18 @@ namespace format_v4 {
             sprintf(lines[string_stage_select_lair_of], "%s", "LAIR OF:");
             sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTER STAGE]");
             sprintf(lines[string_stage_select_unavailable], "%s", "[UNAVAILABLE IN DEMO]");
+            sprintf(lines[strings_config_return], "%s", "RETURN");
+
+            sprintf(lines[string_intro_presents], "%s", "PRESENTS");
+            sprintf(lines[string_intro_engine1], "%s", "- ROCKBOT ENGINE -");
+            sprintf(lines[string_intro_engine2], "%s", "GAME BUILT USING A GAME ENGINE");
+            sprintf(lines[string_intro_engine3], "%s", "FROM UPPERLAND STUDIOS, CREATED AS");
+            sprintf(lines[string_intro_engine4], "%s", "HOMEBREW AND UNPROFESSIONAL.");
+            sprintf(lines[string_intro_engine5], "%s", "SOURCE-CODE LICENSED UNDER");
+            sprintf(lines[string_intro_engine6], "%s", "GPL AND FREELY DISTRIBUTABLE.");
+            sprintf(lines[string_intro_engine7], "%s", "GAME CONTENT IS UNDER DIFFERENT");
+            sprintf(lines[string_intro_engine8], "%s", "LICENCES BY ITS RESPECTIVE CREATORS.");
+
 
         }
 

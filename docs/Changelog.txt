@@ -666,7 +666,13 @@ FILE-FORMAT-V4:
 - add Andrew Przelucki to credits
 - disable the cloud-services in Android
 
-###################################### 1.20.XXX/2.00.XXX ######################################
+########################################### 1.20.040 ##########################################
+- increase castle stage number in pck_stage after beating one
+- remove symbol conversion ins trings, as the issue with encoding seems to be fixed now
+- disable languages other than english and portuguese in config
+- in config, clear the whole area of text when creating a new config (full RES_W)
+- ROCKBOT1: finish translation dialogs
+- ROCKBOT1: adjust damage from weapons, make spike damage ape and lower damage ape takes from normal
 - text about unlocked char appearing on credits on main menu
 - credits on main mainu not working (not showing text)
 - remove stars as it does not match the new visual identity
@@ -677,3 +683,14 @@ FILE-FORMAT-V4:
 - if player has double-shot, special weapon (armor) must respect the number of projectiles as normal ones
 - ready message is not centered
 - in got armor dialogs, must use the weapon name, as we changed this from the old ability-type
+
+########################################### 2.00.092 ###########################################
+
+- translate you got" text
+- change "presents" image on intro
+- add on intro text that game is homebrew
+- ROCKBOT1: mispell ravok on intro, should be havok
+- ROCKBOT1/2: change projectiles, weapons and enemies names to uppercase
+- won't reset from walk-attack to stand-attack if keep firing even if not moving
+- EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
+- AI: add fly-sin-y

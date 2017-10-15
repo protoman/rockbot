@@ -403,7 +403,7 @@ void inputLib::clean_event_queue()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-int inputLib::waitScapeTime(int wait_period) {
+int inputLib::wait_scape_time(int wait_period) {
 	int now_time = 0;
 
     timer.delay(50);
@@ -422,13 +422,20 @@ int inputLib::waitScapeTime(int wait_period) {
             }
 #endif
 		}
-		now_time = timer.getTimer();
-		#ifdef PLAYSTATION
+        now_time = timer.getTimer();
+        #ifdef PLAYSTATION
 			RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
 		#endif
-        SDL_Delay(1);
+        timer.delay(1);
+        read_input();
 	}
-	return 0;
+    return 0;
+}
+
+int inputLib::clean_and_wait_scape_time(int wait_period)
+{
+    clean();
+    wait_scape_time(wait_period);
 }
 
 void inputLib::wait_keypress()

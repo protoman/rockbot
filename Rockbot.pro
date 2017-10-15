@@ -28,12 +28,12 @@ CONFIG += linux
 
 
 ### BETA VERSION ###
-DEFINESLIST += -DBETA_VERSION
-DEFINES += BETA_VERSION=1
+#DEFINESLIST += -DBETA_VERSION
+#DEFINES += BETA_VERSION=1
 
 ### DEMO VERSION (LIMITED STAGES) ###
-DEFINESLIST += -DDEMO_VERSION
-DEFINES += DEMO_VERSION=1
+#DEFINESLIST += -DDEMO_VERSION
+#DEFINES += DEMO_VERSION=1
 
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
@@ -102,6 +102,7 @@ android {
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
+    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_gfx/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
@@ -128,6 +129,7 @@ android {
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
+    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_gfx/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
     -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
@@ -146,6 +148,7 @@ android {
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_image.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_mixer.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_ttf.so \
+    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_gfx.so \
     -L$${ANDROIDSDK}/android-ndk-r11c/platforms/android-14/arch-arm/usr/lib \
     -lc -lm -lGLESv1_CM -ldl -llog -lz \
     -L/usr/lib \

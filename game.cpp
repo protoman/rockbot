@@ -432,7 +432,7 @@ void game::show_beta_version_warning()
     graphLib.draw_centered_text(150, "EXPRESS OR IMPLIED FROM AUTHOR.");
 
     graphLib.draw_centered_text(170, "REPORT ANY FOUND ISSUES TO");
-    graphLib.draw_centered_text(185, "protoman@upperland.net");
+    graphLib.draw_centered_text(185, "bugs@upperland.net");
     graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.");
     draw_lib.update_screen();
     input.wait_keypress();
@@ -468,44 +468,43 @@ void game::show_notice()
     graphicsLib_gSurface upperland_surface;
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/upperland.png", &upperland_surface);
 
-    graphicsLib_gSurface presents_surface;
-    graphLib.surfaceFromFile(GAMEPATH + "/shared/images/presents.png", &presents_surface);
-
     st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
-    graphLib.copyArea(st_rectangle(0, 0, presents_surface.width, presents_surface.height), st_position(RES_W*0.5-presents_surface.width*0.5, logo_pos.y + upperland_surface.height + 7), &presents_surface, &graphLib.gameScreen);
+
+
+    graphLib.draw_centered_text(logo_pos.y + upperland_surface.height + 7, strings_map::get_instance()->get_ingame_string(string_intro_presents, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
 
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
     graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET");
     draw_lib.update_screen();
-    input.waitScapeTime(400);
+    input.clean_and_wait_scape_time(400);
     for (int i=1; i<6; i++) {
         graphLib.copyArea(st_rectangle((upperland_surface.width/6)*i, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
-        input.waitScapeTime(30);
+        input.wait_scape_time(30);
     }
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
 
 
     draw_lib.update_screen();
 
-    timer.delay(1200);
+    input.clean_and_wait_scape_time(1200);
 
     graphLib.blank_screen();
 
-    graphLib.draw_centered_text(30, "ROCKBOT ENGINE", graphLib.gameScreen, st_color(199, 215, 255));
-    graphLib.draw_centered_text(60, "THIS GAME RUNS WITH");
-    graphLib.draw_centered_text(80, "UPPERLAND'S ROCKBOT ENGINE.");
-    graphLib.draw_centered_text(120, "GAME'S SOURCE-CODE IS LICENSED UNDER");
-    graphLib.draw_centered_text(135, "THE GPL AND IS FREELY DISTRIBUTABLE.");
-    graphLib.draw_centered_text(150, "GAME CONTENT IS UNDER DIFFERENT");
-    graphLib.draw_centered_text(165, "LICENCES BY ITS RESPECTIVE CREATORS");
-    graphLib.draw_centered_text(268, "AND USED WITH AUTHORIZATION.");
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine1, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(string_intro_engine2, game_config.selected_language));
+    graphLib.draw_centered_text(80, strings_map::get_instance()->get_ingame_string(string_intro_engine3, game_config.selected_language));
+    graphLib.draw_centered_text(100, strings_map::get_instance()->get_ingame_string(string_intro_engine4, game_config.selected_language));
+    graphLib.draw_centered_text(120, strings_map::get_instance()->get_ingame_string(string_intro_engine5, game_config.selected_language));
+    graphLib.draw_centered_text(140, strings_map::get_instance()->get_ingame_string(string_intro_engine6, game_config.selected_language));
+    graphLib.draw_centered_text(180, strings_map::get_instance()->get_ingame_string(string_intro_engine7, game_config.selected_language));
+    graphLib.draw_centered_text(200, strings_map::get_instance()->get_ingame_string(string_intro_engine8, game_config.selected_language));
 
     draw_lib.update_screen();
 
-    timer.delay(3000);
+    input.clean_and_wait_scape_time(4000);
 
 }
 
@@ -1185,7 +1184,8 @@ void game::got_weapon()
 			*p = toupper(*p);
 		}
 
-		std::string phrase = std::string("YOU GOT ") + weapon_name;
+
+        std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ") + weapon_name;
 
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
 		std::string extra_name = "";
@@ -1228,7 +1228,12 @@ void game::leave_stage()
     // return to stage selection
     player1.reset_charging_shot();
     player1.set_weapon(WEAPON_DEFAULT, false);
-    currentStage = scenes.pick_stage(currentStage);
+    // @TODO: last stage must be set by game_data.final_boss_id //
+    if (currentStage >= CASTLE1_STAGE1 && currentStage < CASTLE1_STAGE5) {
+        currentStage = scenes.pick_stage(currentStage+1);
+    } else {
+        currentStage = scenes.pick_stage(currentStage);
+    }
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
     soundManager.stop_music();
@@ -1393,7 +1398,7 @@ void game::quick_load_game()
 
     currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_NORMAL;
-    game_save.selected_player = PLAYER_3;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //

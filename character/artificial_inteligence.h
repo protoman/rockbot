@@ -248,6 +248,7 @@ protected:
     float acceleration_y; /**< TODO */
     st_position _origin_point;							// used as target for moving /**< TODO */
     st_float_position _dest_point; /**< TODO */
+    st_float_position _saved_point; /**< TODO */
 
 
     struct_ia_state _ai_state; /**< TODO */
@@ -264,6 +265,7 @@ protected:
     trajectory_parabola *_trajectory_parabola;          // used for jumping to a specific point
     bool _did_shot;                                         // used to avoid shooting multiple times
     st_float_position _diagonal_speed;
+    float _sin_x;                                       // used for sinoidal movement
     int _reaction_state;                                // used to control reaction so it won't execute two times or over an executing state
                                                         // 0 - waiting, 1 - executing
     int _reaction_type;                                 // 1: near, 2: hit, 3: dead

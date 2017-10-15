@@ -210,7 +210,7 @@ void artificial_inteligence::execute_ai_step()
         //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
         execute_ai_step_jump();
     } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
-        //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
+        std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
         execute_ai_action_wait_until_player_in_range();
     } else if (_current_ai_type == AI_ACTION_SAVE_POINT) {
         execute_ai_save_point();
@@ -1035,9 +1035,9 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 	} else {
 		struct_player_dist dist_players = dist_npc_players();
 		int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
-        //std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
+        std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
 		if (dist_player <= walk_range) {
-            //std::cout << "AI::WAIT_PLAYER_RANGE::DONE" << std::endl;
+            std::cout << "AI::WAIT_PLAYER_RANGE::DONE" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 		}
 	}
@@ -1163,7 +1163,9 @@ void artificial_inteligence::execute_ai_step_fly()
     // INITIALIZATION
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
-            _dest_point = position;
+            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER[INIT]" << std::endl;
+            struct_player_dist dist_players = dist_npc_players();
+            _dest_point = dist_players.pObj->getPosition();
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
             int rand_x = rand() % RES_W*2;
             int dest_x = position.x + rand_x;
@@ -1251,15 +1253,16 @@ void artificial_inteligence::execute_ai_step_fly()
             struct_player_dist dist_players = dist_npc_players();
             _dest_point.x = position.x;
             _dest_point.y = dist_players.pObj->getPosition().y;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD) {
+        } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD || _parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
+            _sin_x = 0;
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 _dest_point.x = position.x - frameSize.width/2 - walk_range;
             } else {
                 _dest_point.x = position.x + frameSize.width/2 + walk_range;
             }
             _ai_state.initial_position.x = 0;
-            _dest_point.y = position.y;
             _ai_state.initial_position.y = position.y;
+            _dest_point.y = position.y;
         }
 
         set_animation_type(ANIM_TYPE_WALK_AIR);
@@ -1323,6 +1326,7 @@ void artificial_inteligence::execute_ai_step_fly()
             if (move_to_point(_dest_point, 0, move_speed, is_ghost) == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
+        /*
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
 			struct_player_dist dist_players = dist_npc_players();
 
@@ -1354,9 +1358,16 @@ void artificial_inteligence::execute_ai_step_fly()
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 }
             }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
-			//std::cout << "artificial_inteligence::execute_ai_step_fly - POINT" << std::endl;
+        */
+        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
+            std::cout << "artificial_inteligence::execute_ai_step_fly - POSITION[" << position.x << ", " << position.y << "], POINT[" << _dest_point.x << ", " << _dest_point.y << "]" << std::endl;
             if (move_to_point(_dest_point, move_speed, move_speed, is_ghost) == true) {
+                std::cout << "artificial_inteligence::execute_ai_step_fly: FINISHED" << std::endl;
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            }
+        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
+            if (move_to_point(_saved_point, move_speed, move_speed, is_ghost) == true) {
+                std::cout << "artificial_inteligence::execute_ai_step_fly[SAVED_POINT]: FINISHED" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
@@ -1456,6 +1467,49 @@ void artificial_inteligence::execute_ai_step_fly()
                 }
                 //std::cout << "AI::execute_ai_step_fly - HORIZONTAL RIGHT - FINISHED" << std::endl;
             }
+
+        } else if (_parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
+
+            float dist_y = abs(position.y - _dest_point.y);
+            _sin_x += 0.12;
+            float sin_value = (TILESIZE*3)*sin(_sin_x);
+
+            //std::cout << "position.x[" << position.x << "], _dest_point.x[" << _dest_point.x << "], dist_y[" << dist_y << "]" << std::endl;
+
+            if (position.x == _dest_point.x && dist_y < 0.2) {
+                std::cout << "AI_ACTION_FLY_OPTION_SIN_AHEAD::FINISH #1" << std::endl;
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            } else {
+                if (move_to_point(_dest_point, move_speed, 0, is_ghost) == true) {
+                    if (dist_y > 0.2) {
+
+                        int move_adjust_y = 0.1;
+                        if (dist_y > sin_value) {
+                            move_adjust_y = sin_value;
+                        } else {
+                            if (dist_y > 10) {
+                                move_adjust_y = 5;
+                            } else if (dist_y > 3) {
+                                move_adjust_y = 1;
+                            }
+                        }
+
+                        std::cout << "ADJUST-Y[" << move_adjust_y << "], y[" << position.y << "], dest.y[" << _dest_point.y << "], dist_y[" << dist_y << "]" << std::endl;
+
+                        position.y = _ai_state.initial_position.y + move_adjust_y;
+                    } else {
+                        std::cout << "AI_ACTION_FLY_OPTION_SIN_AHEAD::FINISH #2" << std::endl;
+                        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+                    }
+                } else {
+                    // reached x, use small y-movement to reach point
+                    position.y = _ai_state.initial_position.y + sin_value;
+                    //std::cout << "_sin_x: " << _sin_x << ", sin_value: [" << sin_value << "], sin-y-diff[" << abs(dist_y-sin_value) << "]" << std::endl;
+                }
+
+            }
+
+
         } else {
             std::cout << "AI::FLY(EXECUTE) - unknown parameter #" << _parameter << std::endl;
         }
@@ -1464,8 +1518,10 @@ void artificial_inteligence::execute_ai_step_fly()
 
 void artificial_inteligence::execute_ai_save_point()
 {
+    std::cout << "execute_ai_save_point" << std::endl;
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        _dest_point = position;
+        std::cout << "execute_ai_save_point INIT/END" << std::endl;
+        _saved_point = position;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         last_execute_time = timer.getTimer() + 20;
     }

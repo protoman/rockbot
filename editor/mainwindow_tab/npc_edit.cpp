@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+#include <QMessageBox>
+
 npc_edit::npc_edit(QWidget *parent) : _data_loading(false), QWidget(parent), _npcedit_tab_selectednpc(0), ui(new Ui::npc_edit)
 {
 	_data_loading = true;
@@ -237,6 +239,18 @@ void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
     if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
         return;
     }
+
+    if (arg1.startsWith("PLAYER_")) {
+        QMessageBox msgBox;
+        msgBox.setText("ERROR");
+        msgBox.setInformativeText("Invalid name conflicts with player names.");
+        int ret = msgBox.exec();
+        char reset_name[50];
+        sprintf(reset_name, "NPC[%d]", _npcedit_tab_selectednpc);
+        ui->npc_edit_tab_NpcName->setText(reset_name);
+        return;
+    }
+
     sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).name, "%s", arg1.toStdString().c_str());
     QString temp_str = QString("[");
     if (_npcedit_tab_selectednpc < 10) {

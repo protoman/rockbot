@@ -57,17 +57,31 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
+- melhorar fly to player: usar diagonal direta e perfeita
+- EDITOR: doors (above) tiles are vanishing
+
+- spike-chain graphic inverted
+
+- Mummy bot teleport is kind of working funny, hard to hit him.
+- add more rockbot2 enemies:
+    # zodiac:
+        - snake: 38x30x6 = 228x30
+        - harpy: 44x37x5 = 220x37
+        - mega griffin: 67x54x3 = 201x54
+    # kurupira:
+        - saci: 32x40x8
+    # dragon
+        - sub-boss dragon: 98x47x3
+
 
 SERIOUS:
-- ROCKBOT1: adjust damage from weapons, make spike damage ape and lower damage ape takes from normal
-- ROCKBOT1/2: change projectiles, weapons and enemies names to uppercase
-- red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
-- won't reset from walk-attack to stand-attack if keep firing even if not moving
-- after finishing the game and selecting new game, the read and dialogs appear twice
-- EDITOR: change swap maps to replace npcs and objects with the new format
+- criar forma de ataque que é um dash (mantém animação de ataque)
+- EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 
 MEDIUM:
+- red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
+- create FAQ page on wordpress about release dates
+- after finishing the game and selecting new game, the ready message and dialogs appear twice
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 - improve game-over screen (it is a dialog over a config bg)
 
@@ -82,9 +96,7 @@ LOW:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
-- after beating castle stage, increase position of the cursor in pick_stage
 - AI: teleport won't work if char does not have teleport sprites
-- revisar chamadas a write_string_list_to_file e get_string_list_from_file para adicionar prefixo de linguagem
 - redraw entirely destrin tank
 - add castle 1 stage 6 with only destrin boss.
 - revisar e finalizar diálogos

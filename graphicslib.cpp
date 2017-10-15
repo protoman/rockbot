@@ -846,7 +846,7 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
                 text_y++;
         }
         updateScreen();
-        if (input.waitScapeTime(delay) ==1) {
+        if (input.wait_scape_time(delay) ==1) {
             return 1;
         }
         //timer.delay(delay);

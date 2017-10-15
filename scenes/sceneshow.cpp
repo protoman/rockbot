@@ -81,7 +81,7 @@ void sceneShow::show_scene(int n)
                 std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
             std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
-            if (input.waitScapeTime(scene.objects[i].delay_after) == 1) {
+            if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
                 _interrupt_scene = true;
             }
         } else {

@@ -390,7 +390,7 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
         if (can_leave) {
             input.read_input();
-            if (input.waitScapeTime(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
+            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
                 return 1;
             }
         } else {
