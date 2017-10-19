@@ -75,7 +75,6 @@ CRITICAL:
 
 
 SERIOUS:
-- criar forma de ataque que é um dash (mantém animação de ataque)
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 
 MEDIUM:
@@ -157,6 +156,7 @@ IMPROVEMENTS/IDEAS:
     # (one for each boss defeated)
 
 
+- criar forma de ataque que é um dash (mantém animação de ataque)
 - move file that have specific sizes and is common to games to shared folder:
     # backgrounds: btn_a, config, dialog, menu, player_selection, save_selector_disabled, save_selector_enabled
 - fade teleport must change player to jump and set Y to the dest-point (it not in ground)
