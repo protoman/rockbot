@@ -28,12 +28,12 @@ CONFIG += linux
 
 
 ### BETA VERSION ###
-#DEFINESLIST += -DBETA_VERSION
-#DEFINES += BETA_VERSION=1
+DEFINESLIST += -DBETA_VERSION
+DEFINES += BETA_VERSION=1
 
 ### DEMO VERSION (LIMITED STAGES) ###
-#DEFINESLIST += -DDEMO_VERSION
-#DEFINES += DEMO_VERSION=1
+DEFINESLIST += -DDEMO_VERSION
+DEFINES += DEMO_VERSION=1
 
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
@@ -409,7 +409,8 @@ OTHER_FILES += \
 DISTFILES += \
     docs/notes.txt \
     docs/Releases.txt \
-    docs/crashes.txt
+    docs/crashes.txt \
+    docs/translation_lines.txt
 
 
 

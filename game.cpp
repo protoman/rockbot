@@ -445,17 +445,20 @@ void game::show_free_version_warning()
     input.clean();
     timer.delay(100);
 
-    graphLib.draw_centered_text(30, "-- FREE VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(60, "THIS IS ROCKBOT 2'S FREE VERSION.");
-    graphLib.draw_centered_text(75, "IT CONTAINS THREE STAGES");
-    graphLib.draw_centered_text(90, "AND LACKS SUPPORT FOR");
-    graphLib.draw_centered_text(105, "A FEW FEATURES.");
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, game_config.selected_language), graphLib.gameScreen, st_color(255, 130, 0));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, game_config.selected_language));
+    graphLib.draw_centered_text(45, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, game_config.selected_language));
+    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, game_config.selected_language));
+    graphLib.draw_centered_text(75, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, game_config.selected_language));
+    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, game_config.selected_language));
+    graphLib.draw_centered_text(105, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, game_config.selected_language));
+    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, game_config.selected_language));
+    graphLib.draw_centered_text(145, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, game_config.selected_language));
+    graphLib.draw_centered_text(160, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, game_config.selected_language));
+    graphLib.draw_centered_text(175, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, game_config.selected_language));
 
-    graphLib.draw_centered_text(130, "FULL VERSION WILL BE RELEASED");
-    graphLib.draw_centered_text(145, "LATER DURING THE YEAR 2017.");
-
-    graphLib.draw_centered_text(185, "ENJOY!");
-    graphLib.draw_centered_text(210, "PRESS A BUTTON OR KEY TO CONTINUE.");
+    graphLib.draw_centered_text(205, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning11, game_config.selected_language));
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_press_key_or_button, game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
 }

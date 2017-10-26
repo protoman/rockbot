@@ -57,10 +57,7 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-- melhorar fly to player: usar diagonal direta e perfeita até o centro (fazer o npc-player-diff calcular o ponto)
 - EDITOR: doors (above) tiles are vanishing
-- novo escudo: stand + walk (nestes dois casos não é atingido, para "cascudos")
-
 - spike-chain graphic inverted
 
 - Mummy bot teleport is kind of working funny, hard to hit him.
@@ -73,13 +70,15 @@ CRITICAL:
         - saci: 32x40x8
     # dragon
         - sub-boss dragon: 98x47x3
-
+- inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
 SERIOUS:
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
     # 3 way horizontal
     # 2 way vertical
+- spawn point must be defied by arm's cannon point from editor
+- the magic card shooter NPC is showing when moving during teleport after two teleports
 
 MEDIUM:
 - red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
@@ -87,6 +86,7 @@ MEDIUM:
 - after finishing the game and selecting new game, the ready message and dialogs appear twice
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 - improve game-over screen (it is a dialog over a config bg)
+
 
 LOW:
 - update screenshots in the app-store for rockbot 2 free
@@ -99,6 +99,8 @@ LOW:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
+- makr armor pieces visible by using overlays. use this in the in-game menu also
+- melhorar fly to player: usar diagonal direta e perfeita até o centro (fazer o npc-player-diff calcular o ponto)
 - AI: teleport won't work if char does not have teleport sprites
 - redraw entirely destrin tank
 - add castle 1 stage 6 with only destrin boss.
@@ -119,6 +121,10 @@ Castle Bosses:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
+- remove the lifes/game-over. add option to leave stage even if incomplete
+- when you close the game form inside an stage, save the last checkpoint, so when you resume playing, it returns to that point
+    # reset checkpoint when you use the leave-stage option
+    # update the manual to add information about infinite lives
 - EDITOR: simplify loop through npcs and objects that happens several times in the code
 - remove dead npcs from list (make a copy of the list with only non-dead do be safe)
 - quando estiver fazendo ajuste de scroll pós transição, consegue sair da tela
@@ -142,6 +148,7 @@ IMPROVEMENTS/IDEAS:
     - spike ground attack of spikes (appear under player, raisis after an instant).
     - daisie: entangle, locks player in place for a few seconds if he steps on it.
     - create missile that, when near player, goes around him a few times, then explodes or leaves.
+    - hide some buttons depending on player selection (no need for shield button in other than Rockbot)
 
 - add achievements to editor
     # only set the IDs for each game, mechanics to get those will be hardcoded

@@ -1085,6 +1085,20 @@ enum E_STRINGS_INGAME {
     string_intro_engine7,
     string_intro_engine8,
 
+    string_intro_demo_warning_title,
+    string_intro_demo_warning1,
+    string_intro_demo_warning2,
+    string_intro_demo_warning3,
+    string_intro_demo_warning4,
+    string_intro_demo_warning5,
+    string_intro_demo_warning6,
+    string_intro_demo_warning7,
+    string_intro_demo_warning8,
+    string_intro_demo_warning9,
+    string_intro_demo_warning10,
+    string_intro_demo_warning11,
+    string_press_key_or_button,
+
     strings_ingame_COUNT
 };
 

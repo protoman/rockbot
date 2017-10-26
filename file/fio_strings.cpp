@@ -313,7 +313,7 @@ namespace format_v4 {
             sprintf(lines[strings_config_return], "%s", "VOLTAR");
 
             sprintf(lines[string_intro_presents], "%s", "APRESENTA");
-            sprintf(lines[string_intro_engine1], "%s", "- ROCKBOT ENGINE -");
+            sprintf(lines[string_intro_engine1], "%s", "-- ROCKBOT ENGINE --");
             sprintf(lines[string_intro_engine2], "%s", "JOGO CONTRUÍDO COM UM MOTOR DE JOGO");
             sprintf(lines[string_intro_engine3], "%s", "DE UPPERLAND STUDIOS, CRIADO DE FORMA");
             sprintf(lines[string_intro_engine4], "%s", "CASEIRA E NÃO-PROFISSIONAL.");
@@ -322,6 +322,19 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine7], "%s", "CONTEÚDO DE JOGO DESTRIBUÍDO SOB");
             sprintf(lines[string_intro_engine8], "%s", "LICENÇAS DE SEUS RESPECTIVOS CRIADORES.");
 
+            sprintf(lines[string_intro_demo_warning_title], "%s", "-- AVISO SOBRE VERSÃO FREE --");
+            sprintf(lines[string_intro_demo_warning1], "%s", "VOCÊ ESTÁ JOGANDO A VERSÃO GRATUÍTA.");
+            sprintf(lines[string_intro_demo_warning2], "%s", "ESTA CONTÉM APENAS ALGUMAS FASES E");
+            sprintf(lines[string_intro_demo_warning3], "%s", "NÃO POSSUIU ALGUMAS FUNÇÕES COMO");
+            sprintf(lines[string_intro_demo_warning4], "%s", "SELEÇÃO DE PERSONAGEM. A VERSÃO");
+            sprintf(lines[string_intro_demo_warning5], "%s", "INTEGRAL [INCOMPLETA] PODE SER");
+            sprintf(lines[string_intro_demo_warning6], "%s", "OBTIDA NO GOGOLE+ DO JOGO.");
+            sprintf(lines[string_intro_demo_warning7], "%s", "NÃO HÁ UMA DATA PARA FINALIZAÇÃO");
+            sprintf(lines[string_intro_demo_warning8], "%s", "DO DESENVOLVIMENTO, POIS ESTE É");
+            sprintf(lines[string_intro_demo_warning9], "%s", "UM SOFTWARE CASEIRO, SENDO");
+            sprintf(lines[string_intro_demo_warning10], "%s", "DESENVOLVIDO NO TEMPO PESSOAL LIVRE.");
+            sprintf(lines[string_intro_demo_warning11], "%s", "DIVIRTA-SE COM A DEMONSTRAÇÃO!");
+            sprintf(lines[string_press_key_or_button], "%s", "APERTE UM BOTÃO/TECLA PARA CONTINUAR");
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -455,7 +468,7 @@ namespace format_v4 {
             sprintf(lines[strings_config_return], "%s", "RETURN");
 
             sprintf(lines[string_intro_presents], "%s", "PRESENTS");
-            sprintf(lines[string_intro_engine1], "%s", "- ROCKBOT ENGINE -");
+            sprintf(lines[string_intro_engine1], "%s", "-- ROCKBOT ENGINE --");
             sprintf(lines[string_intro_engine2], "%s", "GAME BUILT USING A GAME ENGINE");
             sprintf(lines[string_intro_engine3], "%s", "FROM UPPERLAND STUDIOS, CREATED AS");
             sprintf(lines[string_intro_engine4], "%s", "HOMEBREW AND UNPROFESSIONAL.");
@@ -463,6 +476,20 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine6], "%s", "GPL AND FREELY DISTRIBUTABLE.");
             sprintf(lines[string_intro_engine7], "%s", "GAME CONTENT IS UNDER DIFFERENT");
             sprintf(lines[string_intro_engine8], "%s", "LICENCES BY ITS RESPECTIVE CREATORS.");
+
+            sprintf(lines[string_intro_demo_warning_title], "%s", "-- FREE VERSION WARNING --");
+            sprintf(lines[string_intro_demo_warning1], "%s", "YOU ARE PLAYING THE FREE VERSION.");
+            sprintf(lines[string_intro_demo_warning2], "%s", "THIS CONTAINS ONLY A FEW STAGES AND");
+            sprintf(lines[string_intro_demo_warning3], "%s", "LACKS SOME FEATURES LIKE CHARACTER");
+            sprintf(lines[string_intro_demo_warning4], "%s", "SELECTION. THE FULL VERSION");
+            sprintf(lines[string_intro_demo_warning5], "%s", "[INCOMPLETE] CAN BE OBTAINED");
+            sprintf(lines[string_intro_demo_warning6], "%s", "IN THE GAME'S GOGOLE+ COMMUNITY.");
+            sprintf(lines[string_intro_demo_warning7], "%s", "THERE IS NO DATA FOR DEVELOPMENT");
+            sprintf(lines[string_intro_demo_warning8], "%s", "BEING FINISHED, AS THIS IS HOMEBREW");
+            sprintf(lines[string_intro_demo_warning9], "%s", "SOFTWARE, BEING DEVELOPED AT");
+            sprintf(lines[string_intro_demo_warning10], "%s", "PERSONAL FREE TIME.");
+            sprintf(lines[string_intro_demo_warning11], "%s", "HAVE FUN WITH THE DEMONSTRATION!");
+            sprintf(lines[string_press_key_or_button], "%s", "PRESS A KEY/BUTTON TO CONTINUE.");
 
 
         }

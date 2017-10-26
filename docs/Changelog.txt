@@ -695,3 +695,6 @@ FILE-FORMAT-V4:
 - EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
 - AI: add fly-sin-y
 ===
+- new type of shield walk + stand (is shielded in both cases)
+- improve and translate for pt-BR the beta version warnings from intro
+
