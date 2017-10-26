@@ -113,18 +113,25 @@ void artificial_inteligence::check_ai_reaction()
     bool start_reaction = false;
     // near player
     struct_player_dist dist_players = dist_npc_players();
+    int diff_y = abs((dist_players.pObj->getPosition().y+dist_players.pObj->get_size().height) - (position.y+frameSize.height));
 
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[0].action > 0) {
+    //std::cout << "p.y[" << dist_players.pObj->getPosition().y << "], p.h[" << dist_players.pObj->get_size().height;
+    //std::cout << "], npc.y[" << position.y << "], npc.h[" << frameSize.height << "]" << std::endl;
+
+
+    //std::cout << "AI::check_ai_reaction::START - dist_players.dist[" << dist_players.dist << "], diff_y[" << diff_y << "]" << std::endl;
+
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - NEAR - START!!! <<<<<" << std::endl;
         _reaction_type = 0;
         start_reaction = true;
     // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[1].action > 0) {
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action > 0) {
         //std::cout << ">>>>> AI::check_ai_reaction - HIT - START!!! <<<<<" << std::endl;
         _reaction_type = 1;
         start_reaction = true;
     // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[2].action > 0) {
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action > 0) {
         std::cout << ">>>>> AI::check_ai_reaction - DEAD - START!!! <<<<<" << std::endl;
         _reaction_type = 2;
         start_reaction = true;
@@ -139,6 +146,10 @@ void artificial_inteligence::check_ai_reaction()
         animation anim2(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, state.direction, st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
         anim2.set_initial_delay(500);
         gameControl.get_current_map_obj()->add_animation(anim2);
+
+    } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
+        _reaction_type = 3;
+        start_reaction = true;
     }
 
     _was_hit = false; // reset flag
@@ -1532,7 +1543,33 @@ void artificial_inteligence::execute_ai_step_dash()
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         set_animation_type(ANIM_TYPE_SLIDE);
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-        if (_parameter == AI_ACTION_DASH_OPTION_LEFT) {
+        if (_parameter == AI_ACTION_DASH_OPTION_AHEAD) {
+
+
+            // check if can't move to the current direction and change to other, if needed
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                can_move_struct can_move_left = check_can_move_to_point(st_float_position(position.x-move_speed*4, position.y), -move_speed*2, 0, is_ghost);
+                std::cout << "#### can_move_left.result[" << (int)can_move_left.result << "], xinc[" << can_move_left.xinc << "], can_move_x[" << can_move_left.can_move_x << "]" << std::endl;
+                if (can_move_left.result != CAN_MOVE_SUCESS || can_move_left.xinc == 0 || can_move_left.can_move_x == false) {
+                    std::cout << "DASH::INVERT #1" << std::endl;
+                    state.direction = ANIM_DIRECTION_RIGHT;
+                }
+            } else if (state.direction == ANIM_DIRECTION_RIGHT) {
+                can_move_struct can_move_right = check_can_move_to_point(st_float_position(position.x+move_speed*4, position.y), move_speed*2, 0, is_ghost);
+                std::cout << "#### can_move_right.result[" << (int)can_move_right.result << "], xinc[" << can_move_right.xinc << "], can_move_x[" << can_move_right.can_move_x << "]" << std::endl;
+                if (can_move_right.result != CAN_MOVE_SUCESS || can_move_right.xinc == 0 || can_move_right.can_move_x == false) {
+                    std::cout << "DASH::INVERT #2" << std::endl;
+                    state.direction = ANIM_DIRECTION_LEFT;
+                }
+            }
+            std::cout << "DASH::INVERT DEFINE" << std::endl;
+
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                _dest_point.x = position.x + frameSize.width/2 - walk_range;
+            } else {
+                _dest_point.x = position.x + frameSize.width/2 + walk_range;
+            }
+        } else if (_parameter == AI_ACTION_DASH_OPTION_LEFT) {
             _dest_point.x = position.x + frameSize.width/2 - walk_range;
             state.direction = ANIM_DIRECTION_LEFT;
         } else if (_parameter == AI_ACTION_DASH_OPTION_RIGHT) {
@@ -1632,6 +1669,34 @@ void artificial_inteligence::execute_ai_wait_random_time()
 // returns false if can ove and true if blocked
 bool artificial_inteligence::move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls)
 {
+
+    can_move_struct move_inc = check_can_move_to_point(dest_point, speed_x, speed_y, can_pass_walls);
+
+    if (move_inc.result == CAN_MOVE_LEAVE_TRUE) {
+        return true;
+    } else if (move_inc.result == CAN_MOVE_LEAVE_FALSE) {
+        return false;
+    }
+
+    if (can_pass_walls) {
+        position.x += move_inc.xinc;
+        position.y += move_inc.yinc;
+        return false;
+    } else if ((move_inc.can_move_x == false && move_inc.can_move_y == false) || (move_inc.can_move_x == false && move_inc.yinc == 0) || (move_inc.can_move_y == false && move_inc.xinc == 0)) {
+        return true;
+    } else {
+        if (move_inc.can_move_x == true) {
+            position.x += move_inc.xinc;
+        }
+        if (move_inc.can_move_y == true) {
+            position.y += move_inc.yinc;
+        }
+    }
+    return false;
+}
+
+can_move_struct artificial_inteligence::check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls)
+{
     float xinc = 0;
     float yinc = 0;
 
@@ -1719,7 +1784,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     //if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
-        return true;
+        return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
     }
 
 
@@ -1736,10 +1801,10 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
                 map_point.x = (position.x + frameSize.width)/TILESIZE;
             }
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
-            //std::cout << "AI::move_to_point - HOLE check: " << map_lock << " - direction: " << state.direction << std::endl;
+            if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER) {
-                if (name == "KURUPIRA BOT") std::cout << "AI::move_to_point - HOLE AHEAD - direction: " << state.direction << std::endl;
-                return true;
+                if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
+                return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
             }
         }
     // always ahead will try to jump over obstables checking them a whole TILE ahead of time
@@ -1766,26 +1831,12 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
                 _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
                 _ai_state.main_status = 0;
                 //std::cout << "SET JUMP >>>>> artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
-                return false;
+                return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_FALSE);
             }
         }
     }
 
-    if (can_pass_walls) {
-        position.x += xinc;
-        position.y += yinc;
-        return false;
-    } else if ((can_move_x == false && can_move_y == false) || (can_move_x == false && yinc == 0) || (can_move_y == false && xinc == 0)) {
-        return true;
-    } else {
-        if (can_move_x == true) {
-            position.x += xinc;
-        }
-        if (can_move_y == true) {
-            position.y += yinc;
-        }
-    }
-    return false;
+    return can_move_struct(xinc, yinc, can_move_x, can_move_y, CAN_MOVE_SUCESS);
 }
 
 void artificial_inteligence::randomize_x_point(int max_adjust)

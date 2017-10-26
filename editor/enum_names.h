@@ -121,6 +121,7 @@ void init_enum_names() {
     AI_ACTION_DASH_OPTIONS.push_back("RIGHT");
     AI_ACTION_DASH_OPTIONS.push_back("TO PLAYER");
     AI_ACTION_DASH_OPTIONS.push_back("TO OPPOSITE WALL");
+    AI_ACTION_DASH_OPTIONS.push_back("AHEAD");
     // -------------------------------------------------------------- //
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("LEFT");
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("RIGHT");

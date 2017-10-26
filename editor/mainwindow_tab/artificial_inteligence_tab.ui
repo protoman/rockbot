@@ -361,22 +361,22 @@
      <property name="bottomMargin">
       <number>10</number>
      </property>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_20">
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_18">
        <property name="text">
-        <string>Hit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_21">
-       <property name="text">
-        <string>Dead</string>
+        <string>Extra Parameter</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="near_action"/>
+      <widget class="QComboBox" name="aiReactionAction_comboBox"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_19">
+       <property name="text">
+        <string>Reaction Type</string>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_11">
@@ -385,41 +385,42 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_18">
-       <property name="text">
-        <string>Extra Parameter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_19">
-       <property name="text">
-        <string>Reaction</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>Near player</string>
-       </property>
+      <widget class="QComboBox" name="aiReactionType_comboBox">
+       <item>
+        <property name="text">
+         <string>Player is on Range Distance</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NPC was damaged</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NPC was killed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Player is on same Y coord</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Player is Close (1/4 range)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TBD</string>
+        </property>
+       </item>
       </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="hit_action"/>
-     </item>
-     <item row="2" column="2">
-      <widget class="QComboBox" name="hit_extra_parameter"/>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="dead_action"/>
      </item>
      <item row="1" column="2">
-      <widget class="QComboBox" name="near_extra_parameter"/>
-     </item>
-     <item row="3" column="2">
-      <widget class="QComboBox" name="dead_extra_parameter"/>
+      <widget class="QComboBox" name="aiReactionParam_comboBox"/>
      </item>
     </layout>
    </item>

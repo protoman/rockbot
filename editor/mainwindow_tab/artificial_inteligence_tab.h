@@ -102,17 +102,11 @@ private slots:
 
     void on_chance8_valueChanged(int arg1);
 
-    void on_near_action_currentIndexChanged(int index);
+    void on_aiReactionAction_comboBox_currentIndexChanged(int index);
 
-    void on_near_extra_parameter_currentIndexChanged(int index);
+    void on_aiReactionParam_comboBox_currentIndexChanged(int index);
 
-    void on_hit_extra_parameter_currentIndexChanged(int index);
-
-    void on_dead_extra_parameter_currentIndexChanged(int index);
-
-    void on_hit_action_currentIndexChanged(int index);
-
-    void on_dead_action_currentIndexChanged(int index);
+    void on_aiReactionType_comboBox_currentIndexChanged(int index);
 
 private:
     void fill_next_combos();

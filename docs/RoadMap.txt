@@ -57,8 +57,9 @@ STAGES:
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
 CRITICAL:
-- melhorar fly to player: usar diagonal direta e perfeita
+- melhorar fly to player: usar diagonal direta e perfeita até o centro (fazer o npc-player-diff calcular o ponto)
 - EDITOR: doors (above) tiles are vanishing
+- novo escudo: stand + walk (nestes dois casos não é atingido, para "cascudos")
 
 - spike-chain graphic inverted
 
@@ -76,6 +77,9 @@ CRITICAL:
 
 SERIOUS:
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
+- criar trajetória de projétil:
+    # 3 way horizontal
+    # 2 way vertical
 
 MEDIUM:
 - red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)

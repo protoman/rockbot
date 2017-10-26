@@ -505,14 +505,34 @@ enum IA_CONDITIONALS {
 };
 
 #define AI_MAX_STATES 20
-#define MAX_AI_REACTIONS 6
+
+enum AI_REACTIONS {
+    AI_REACTION_PLAYER_ON_RANGE,            // player is on range-distance
+    AI_REACTION_HIT,                        // npc was damaged
+    AI_REACTION_DEAD,                       // npc was killed
+    AI_REACTION_PLAYER_SAME_Y,              // player on same y (tolerance=tilesize)
+    AI_REACTION_PLAYER_CLOSE,               // player on a close distance (1/4 range)
+    AI_REACTION_TBD,                        // to be later determined
+    MAX_AI_REACTIONS
+
+};
+
+//#define MAX_AI_REACTIONS 6
 
 
 /**
  * @brief
  *
  */
-enum e_shield_types { SHIELD_NO, SHIELD_FULL, SHIELD_FRONT, SHIELD_STAND, SHIELD_DISGUISE, SHIELD_STAND_FRONT, SHIELD_COUNT };
+enum e_shield_types {
+    SHIELD_NO,
+    SHIELD_FULL,
+    SHIELD_FRONT,
+    SHIELD_STAND,
+    SHIELD_DISGUISE,
+    SHIELD_STAND_FRONT,
+    SHIELD_STAND_AND_WALK,
+    SHIELD_COUNT };
 
 /**
  * @brief
@@ -737,6 +757,7 @@ enum AI_ACTION_DASH_OPTION_LIST {
     AI_ACTION_DASH_OPTION_RIGHT,
     AI_ACTION_DASH_OPTION_TO_PLAYER,
     AI_ACTION_DASH_OPTION_OPPOSITE_DIRECTION,
+    AI_ACTION_DASH_OPTION_AHEAD,
     AI_ACTION_DASH_OPTION_COUNT
 };
 

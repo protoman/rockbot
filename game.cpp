@@ -1185,7 +1185,7 @@ void game::got_weapon()
 		}
 
 
-        std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ") + weapon_name;
+        std::string phrase = weapon_name + std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ");
 
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
 		std::string extra_name = "";

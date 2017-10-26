@@ -10,6 +10,37 @@
  */
 enum e_action_states { IA_ACTION_STATE_INITIAL, IA_ACTION_STATE_EXECUTING, IA_ACTION_STATE_FINISHED  };
 
+enum e_can_move_result {
+    CAN_MOVE_SUCESS,
+    CAN_MOVE_LEAVE_TRUE,
+    CAN_MOVE_LEAVE_FALSE,
+    CAN_MOVE_COUNT
+};
+
+struct can_move_struct {
+    float xinc;
+    float yinc;
+    bool can_move_x;
+    bool can_move_y;
+    e_can_move_result result;
+
+    can_move_struct() {
+        xinc = 0;
+        yinc = 0;
+        can_move_x = true;
+        can_move_y = true;
+        result = CAN_MOVE_SUCESS;
+    }
+
+    can_move_struct(float set_xinc, float set_yinc, bool set_can_move_x, bool set_can_move_y,e_can_move_result result_value) {
+        xinc = set_xinc;
+        yinc = set_yinc;
+        can_move_x = set_can_move_x;
+        can_move_y = set_can_move_y;
+        result = result_value;
+    }
+};
+
 /**
  * @brief holds information about the distance of the current NPC for the closest player
  */
@@ -217,6 +248,8 @@ protected:
      * @return bool true -> point reached
      */
     bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
+
+    can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
 
 
     void randomize_x_point(int max_adjust);
