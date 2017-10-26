@@ -304,6 +304,12 @@ void classPlayer::attack(bool dont_update_colors)
         return;
     }
 
+    std::cout << "PLAYER::attack::state.animation_type[" << state.animation_type << "]" << std::endl;
+
+    if (state.animation_type == ANIM_TYPE_SHIELD) { // can't attack when using shield
+        return;
+    }
+
     bool always_charged = false;
     // player with armor-special-type changes to auto-carged instead of charging shot
     if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true && _simultaneous_shots > 1) {
@@ -326,10 +332,13 @@ void classPlayer::attack(bool dont_update_colors)
 
         bool is_on_ground = hit_ground();
         if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
+            std::cout << "ATTACK #1" << std::endl;
             character::attack(false, 1, always_charged);
         } else if (can_shoot_diagonal() == true && moveCommands.down != 0 && is_on_ground == true) {
+            std::cout << "ATTACK #2" << std::endl;
             character::attack(false, -1, always_charged);
         } else {
+            std::cout << "ATTACK #3" << std::endl;
             character::attack(false, 0, always_charged);
         }
         if (_player_must_reset_colors == true) {
@@ -909,7 +918,7 @@ void classPlayer::move()
 		}
 	}
 
-    if (GameMediator::get_instance()->player_list_v3_1[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.attack == 0 && moveCommands.shield == 1) {
+    if (GameMediator::get_instance()->player_list_v3_1[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.shield == 1) {
 		if (state.animation_type != ANIM_TYPE_SHIELD) {
 			std::cout << "playerClass::initShield CHANGE anim_type: " << state.animation_type << " to " << ANIM_TYPE_SHIELD << std::endl;
             set_animation_type(ANIM_TYPE_SHIELD);
@@ -918,8 +927,8 @@ void classPlayer::move()
 		}
 		return;
 	} else if (state.animation_type == ANIM_TYPE_SHIELD) {
-		//std::cout << "playerClass::initShield REMOVE shield" << std::endl;
-		if (is_player()) std::cout << "********* reset to STAND #15 **********" << std::endl;
+        //std::cout << "playerClass::initShield REMOVE shield" << std::endl;
+        if (is_player()) std::cout << "********* reset to STAND #15 **********" << std::endl;
         set_animation_type(ANIM_TYPE_STAND);
 	}
     execute_projectiles();
