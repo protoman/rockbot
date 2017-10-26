@@ -697,4 +697,5 @@ FILE-FORMAT-V4:
 ===
 - new type of shield walk + stand (is shielded in both cases)
 - improve and translate for pt-BR the beta version warnings from intro
+- dog boss gets locked on boss-intro/gravity due to water in castle1 stage
 

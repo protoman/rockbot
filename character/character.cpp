@@ -1168,8 +1168,6 @@ bool character::gravity(bool boss_demo_mode=false)
 
 
 			for (int i=limit_speed; i>0; i--) {
-
-
                 bool res_test_move = test_change_position(0, i);
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
                     position.y += i;
@@ -1768,7 +1766,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
     if (old_map_lock != new_map_lock) {
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
             must_block = true;
-        } else if (is_player() == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // NPCs must not enter water
+        } else if (is_player() == false && _is_boss == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // non-boss NPCs must not enter water
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
             must_block = true;

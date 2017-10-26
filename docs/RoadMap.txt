@@ -99,7 +99,8 @@ LOW:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 =========================================================================================================================================
-- makr armor pieces visible by using overlays. use this in the in-game menu also
+- make armor pieces visible by using overlays. use this in the in-game menu also
+    # (arms) https://ch4dstar.deviantart.com/art/Cops-of-20XX-679021363?src=MC_deviation_stack
 - melhorar fly to player: usar diagonal direta e perfeita até o centro (fazer o npc-player-diff calcular o ponto)
 - AI: teleport won't work if char does not have teleport sprites
 - redraw entirely destrin tank
