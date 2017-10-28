@@ -1213,10 +1213,14 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     draw_text(142, item_text_pos, ss.str());
 
 
+    // @TODO: add coins support //
+    /*
 	ss.str(std::string());
     ss << "0" << (int)game_save.items.bolts;
     draw_text(278, item_text_pos, ss.str());
+    */
 
+    // @TODO: add energy balancer support //
     /*
     if (item_ref->balancer > 0) {
         copyArea(st_position(245, 198), &energy_balancer, &gameScreen);
@@ -1238,7 +1242,10 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     draw_text(10, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_life, game_config.selected_language));
     draw_text(111, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_item, game_config.selected_language));
     draw_text(187, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_armor,game_config.selected_language));
-    draw_text(268, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_coin,game_config.selected_language));
+
+    // @TODO: add coins support //
+    //draw_text(268, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_coin,game_config.selected_language));
+
 	updateScreen();
 }
 

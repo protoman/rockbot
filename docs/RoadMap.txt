@@ -73,6 +73,7 @@ CRITICAL:
 - inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
 SERIOUS:
+- remove "coins" icon
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
     # 3 way horizontal
@@ -81,6 +82,7 @@ SERIOUS:
 - the magic card shooter NPC is showing when moving during teleport after two teleports
 
 MEDIUM:
+- remove player teleport-in on stage, make him appear on ground with the teleport animation
 - red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
 - create FAQ page on wordpress about release dates
 - after finishing the game and selecting new game, the ready message and dialogs appear twice

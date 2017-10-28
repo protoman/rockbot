@@ -255,22 +255,24 @@ void game::start_stage()
     player1.refill_weapons();
     player1.reset_hp();
 
-    // find teleport stop point
+    // find ground for player
     int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
     player1.set_teleport_minimal_y(min_y*TILESIZE);
 
     game_unpause();
 
+
+    // make player fall to the ground
+    while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
+        input.clean_all();
+        showGame(true, false);
+        //draw_lib.update_screen();
+    }
+    draw_lib.update_screen();
     show_ready();
 
     soundManager.play_music();
 
-
-    while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
-        input.clean_all();
-        showGame(true, false);
-        draw_lib.update_screen();
-    }
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
         input.clean_all();
         showGame(false, false);

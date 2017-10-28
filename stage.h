@@ -52,6 +52,7 @@ public:
     void reset_stage_npcs();
     int get_first_lock_on_left(int x_pos);
     int get_first_lock_on_right(int x_pos);
+    int get_first_ground(int x_pos);
     int get_teleport_minimal_y_tile(int xpos);
     void reset_objects_timers();
     bool subboss_alive_on_left(short tileX);

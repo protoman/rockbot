@@ -319,6 +319,12 @@ int stage::get_first_lock_on_right(int x_pos)
     return get_current_map()->get_first_lock_on_right(x_pos);
 }
 
+// find the first position player can stop on ground
+int stage::get_first_ground(int x_pos)
+{
+
+}
+
 int stage::get_teleport_minimal_y_tile(int xpos)
 {
     int tilex = xpos/TILESIZE;
