@@ -1,5 +1,3 @@
-#pragma GCC diagnostic ignored "-Wreorder"
-
 #ifndef GRAPHICSLIB_H
 #define GRAPHICSLIB_H
 

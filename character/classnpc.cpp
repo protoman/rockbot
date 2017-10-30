@@ -259,10 +259,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect;
     // if vulnerable-area is equal to sprites size, elave it empty
     if (vulnerable_area_box.x == _frame_pos_adjust.x && vulnerable_area_box.y == _frame_pos_adjust.y && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
-        std::cout << ">>> NPC[" << name << "] has no vulnerable area set <<<" << std::endl;
+        //std::cout << ">>> NPC[" << name << "] has no vulnerable area set <<<" << std::endl;
         vulnerable_area_box = st_rectangle(0, 0, 0, 0);
-    } else {
-        std::cout << ">>> NPC[" << name << "] HAS vulnerable area <<<" << std::endl;
+    //} else {
+        //std::cout << ">>> NPC[" << name << "] HAS vulnerable area <<<" << std::endl;
     }
 
     //std::cout << "end" << std::endl;

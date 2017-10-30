@@ -836,6 +836,12 @@ namespace format_v4 {
         if (config.volume_sfx == 0) {
             config.volume_sfx = 128;
         }
+
+        /*
+        if (config.android_touch_controls_size >= ANDROID_TOUCH_CONTROL_SIZE_COUNT) {
+            config.android_touch_controls_size = ANDROID_TOUCH_CONTROL_SIZE_MEDIUM;
+        }
+        */
     }
 
     void file_io::save_config(st_game_config &config) const

@@ -951,7 +951,6 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 		exit(-1);
 		// handle error
 	}
-    std::cout << "RENDER #3[" << text << "]" << std::endl;
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
 	if (textSF == NULL) {
 		return;

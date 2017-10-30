@@ -11,7 +11,7 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
@@ -32,8 +32,8 @@ DEFINESLIST += -DBETA_VERSION
 DEFINES += BETA_VERSION=1
 
 ### DEMO VERSION (LIMITED STAGES) ###
-DEFINESLIST += -DDEMO_VERSION
-DEFINES += DEMO_VERSION=1
+#DEFINESLIST += -DDEMO_VERSION
+#DEFINES += DEMO_VERSION=1
 
 
 # dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf

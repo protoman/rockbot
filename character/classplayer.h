@@ -52,11 +52,6 @@ public:
     int get_teleporter();
 
     /**
-     * @brief teleporting-out from screen animation
-     */
-    void teleport_stand();
-
-    /**
      * @brief set the player HP (hit points) back to the default value
      */
     void reset_hp();

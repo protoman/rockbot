@@ -178,7 +178,8 @@ void artificial_inteligence::define_ai_next_step()
         _initialized = true;
         int rand_n = rand() % 100;
 
-        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+
+        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -186,22 +187,23 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
             }
         }
         if (found_chance == false) {
-            //std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
+            std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
             _ai_chain_n = 0;
         }
     } else {
+        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
-        //std::cout << "AI::define_ai_next_step FORCE NEXT - " << _ai_chain_n << std::endl;
+        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
     }
     _current_ai_type = get_ai_type();
-    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -209,7 +211,7 @@ void artificial_inteligence::define_ai_next_step()
 
 void artificial_inteligence::execute_ai_step()
 {
-    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "artificial_inteligence::execute_ai_step[" << name << "] - _number: " << (int)_number << ", _current_ai_type: " << (int)_current_ai_type << std::endl;
     _ai_timer = timer.getTimer() + 20;
     if (_current_ai_type == AI_ACTION_WALK) {
         //std::cout << ">> AI:exec[" << name << "] WALK" << std::endl;
@@ -284,8 +286,8 @@ void artificial_inteligence::execute_ai_step()
     } else if (_current_ai_type == AI_ACTION_WAIT_RANDOM_TIME) {
         execute_ai_wait_random_time();
     } else {
-        std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
-        std::cout << "********** AI number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+        //std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
+        std::cout << "********** AI::UNKNOWN - number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
     }
 }
 
@@ -1046,9 +1048,9 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 	} else {
 		struct_player_dist dist_players = dist_npc_players();
 		int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
-        std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
+        //std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
 		if (dist_player <= walk_range) {
-            std::cout << "AI::WAIT_PLAYER_RANGE::DONE" << std::endl;
+            std::cout << "AI::WAIT_PLAYER_RANGE::FINISHED" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 		}
 	}
@@ -2200,12 +2202,14 @@ void artificial_inteligence::ia_action_teleport()
 {
     // go teleporting
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        std::cout << ">> AI::ia_action_teleport::INIT <<" << std::endl;
+
         if (state.animation_type != ANIM_TYPE_TELEPORT) { /// @TODO - must use teleport
-            //std::cout << ">> AI::ia_action_teleport(INIT) - ANIM_TYPE_SPECIAL_ATTACK <<" << std::endl;
+            std::cout << ">> AI::ia_action_teleport(INIT) - set anim_type to ANIM_TYPE_TELEPORT <<" << std::endl;
             set_animation_type(ANIM_TYPE_TELEPORT);
         } else {
-            if (_was_animation_reset == true) { // finished special_attack animation
-                //std::cout << ">> AI::ia_action_teleport(INIT) - CHANGE TO EXEC - animation_state: " << state.animation_state << ", animation_type: " << state.animation_type << std::endl;
+            if (_is_last_frame == true) { // finished teleport animation
+                std::cout << ">> AI::ia_action_teleport(INIT) - animation was reset " << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
                 state.invisible = true;
 
@@ -2244,7 +2248,7 @@ void artificial_inteligence::ia_action_teleport()
                     } else {
                         position.y = dest_pos.y;
                     }
-                    //std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
+                    std::cout << "#2 - AI::AI_ACTION_TELEPORT_OPTION_RANDOM_Y - y: " << position.x << std::endl;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RANDOM_POINT) {
                     st_position rand_pos = create_rand_point(walk_range);
 
@@ -2293,6 +2297,8 @@ void artificial_inteligence::ia_action_teleport()
                 _was_animation_reset = false;
                 _ignore_gravity = true;
                 state.animation_state = 0;
+            } else {
+                std::cout << "AI::TELEPORT[INIT] waiting for animation to reset <<" << std::endl;
             }
         }
     // return from teleporting
@@ -2304,7 +2310,7 @@ void artificial_inteligence::ia_action_teleport()
             /// @TODO: to avoid this problem,c reate method to start inverse animation ///
             advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
             _was_animation_reset = false;
-            std::cout << ">> AI::ia_action_teleport.EXEC.SET-LAST-FRAME, state.animation_state: " << state.animation_state  << std::endl;
+            //std::cout << ">> AI::ia_action_teleport.EXEC.SET-LAST-FRAME, state.animation_state: " << state.animation_state  << std::endl;
         }
         if (_was_animation_reset == true) {
             std::cout << ">> AI::ia_action_teleport - FINISH, x[" << position.x << "], state.animation_state: " << state.animation_state << " <<" << std::endl;

@@ -243,12 +243,6 @@ void game::start_stage()
 
     player1.cancel_slide();
 
-
-    loaded_stage.showStage();
-    loaded_stage.showAbove();
-    draw_lib.update_screen();
-
-
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_direction(ANIM_DIRECTION_RIGHT);
@@ -259,16 +253,19 @@ void game::start_stage()
     int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
     player1.set_teleport_minimal_y(min_y*TILESIZE);
 
+    player1.fall_to_ground();
+
+    loaded_stage.showStage();
+    for (int k=0; k<5; k++) {
+        player1.show();
+    }
+    loaded_stage.showAbove();
+    //draw_lib.update_screen();
+    draw_lib.fade_in_screen(0, 0, 0);
+
     game_unpause();
 
-
     // make player fall to the ground
-    while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
-        input.clean_all();
-        showGame(true, false);
-        //draw_lib.update_screen();
-    }
-    draw_lib.update_screen();
     show_ready();
 
     soundManager.play_music();
@@ -354,6 +351,7 @@ void game::restart_stage()
     draw_lib.update_screen();
     soundManager.restart_music();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
+    player1.fall_to_ground();
     show_ready();
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
@@ -622,11 +620,7 @@ bool game::test_teleport(classPlayer *test_player) {
 
 
     if (is_link_teleporter(stage_data.links[j].type) == true) {
-        if (link_type == LINK_FADE_TELEPORT) {
-            draw_lib.fade_out_screen(0, 0, 0, 300);
-        } else {
-            test_player->teleport_out();
-        }
+        draw_lib.fade_out_screen(0, 0, 0, 300);
         graphLib.blank_screen();
         draw_lib.update_screen();
         timer.delay(500);
@@ -1161,12 +1155,7 @@ void game::got_weapon()
 
         // fall to ground
         player1.fall();
-        timer.delay(500);
-
-
-		soundManager.play_sfx(SFX_TELEPORT);
-        player1.teleport_out();
-        timer.delay(1000);
+        timer.delay(1500);
 
 		/// @TODO
 		// show the "you got" screen
@@ -1206,8 +1195,6 @@ void game::got_weapon()
         player1.show();
 
         graphLib.wait_and_update_screen(5000);
-    } else {
-        player1.teleport_out();
 	}
 
     game_save.stages[currentStage] = 1;
@@ -1303,6 +1290,7 @@ void game::game_unpause()
     timer.unpause();
     input.read_input();
     player1.restore_input();
+    player1.reset_sprite_animation_timer();
 }
 
 void game::exit_game()
@@ -1426,7 +1414,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    //currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
@@ -1659,7 +1647,7 @@ short game::get_last_castle_stage()
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
-        std::cout << "CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        //std::cout << "CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0) {
             break;
         }
@@ -1806,7 +1794,7 @@ void game::finish_player_teleporter()
     remove_all_projectiles();
     remove_players_slide();
     player1.recharge(ENERGY_TYPE_HP, ENERGY_ITEM_BIG);
-    player1.teleport_out();
+    draw_lib.fade_out_screen(0, 0, 0, 500);
     timer.delay(1000);
 
     std::cout << "################### RESET PLAYER TELEPORTER ###################" << std::endl;
@@ -1814,7 +1802,7 @@ void game::finish_player_teleporter()
     _last_stage_used_teleporters.insert(pair<int,bool>(_player_teleporter.teleporter_n, true));
 	// teleport out
 	soundManager.play_sfx(SFX_TELEPORT);
-    player1.teleport_out();
+    draw_lib.fade_out_screen(0, 0, 0, 500);
     _player_teleporter.old_player_pos.y -= 5;
     player1.set_position(_player_teleporter.old_player_pos);
     loaded_stage.set_current_map(_player_teleporter.old_map_n);
@@ -1872,9 +1860,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     }
     std::cout << "############################################ TELEPORT #2" << std::endl;
     set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
-    classPlayer* test_player = &player1;
-    test_player->teleport_out();
-    graphLib.blank_screen();
+    draw_lib.fade_out_screen(0, 0, 0, 500);
     draw_lib.update_screen();
     timer.delay(500);
 
@@ -1882,6 +1868,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
 
     int new_scroll_pos = loaded_stage.get_first_lock_on_left(dest_pos.x);
     loaded_stage.set_scrolling(st_float_position(new_scroll_pos, 0));
+    classPlayer* test_player = &player1;
     test_player->set_position(st_position(dest_pos.x*TILESIZE, 0));
     test_player->char_update_real_position();
 

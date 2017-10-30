@@ -304,8 +304,6 @@ void classPlayer::attack(bool dont_update_colors)
         return;
     }
 
-    std::cout << "PLAYER::attack::state.animation_type[" << state.animation_type << "]" << std::endl;
-
     if (state.animation_type == ANIM_TYPE_SHIELD) { // can't attack when using shield
         return;
     }
@@ -332,13 +330,10 @@ void classPlayer::attack(bool dont_update_colors)
 
         bool is_on_ground = hit_ground();
         if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
-            std::cout << "ATTACK #1" << std::endl;
             character::attack(false, 1, always_charged);
         } else if (can_shoot_diagonal() == true && moveCommands.down != 0 && is_on_ground == true) {
-            std::cout << "ATTACK #2" << std::endl;
             character::attack(false, -1, always_charged);
         } else {
-            std::cout << "ATTACK #3" << std::endl;
             character::attack(false, 0, always_charged);
         }
         if (_player_must_reset_colors == true) {
@@ -947,31 +942,6 @@ int classPlayer::get_teleporter()
 }
 
 
-
-void classPlayer::teleport_stand()
-{
-	unsigned int waitTimer = timer.getTimer()+500;
-	state.animation_state = ANIM_TYPE_TELEPORT;
-	/*
-	if (p2Obj) {
-		p2Obj->sprite->anim_type = ANIM_TELEPORT;
-	}
-	*/
-	soundManager.play_sfx(SFX_TELEPORT);
-	while (waitTimer > timer.getTimer()) {
-        input.read_input();
-        draw_lib.update_screen();
-		show();
-		/*
-		if (p2Obj) {
-			show_sprite(p2Obj->sprite, game_screen);
-		}
-		*/
-		//drawMap3rdLevel(game_screen);
-		//updateScreen(game_screen);
-        timer.delay(20);
-	}
-}
 
 void classPlayer::death()
 {

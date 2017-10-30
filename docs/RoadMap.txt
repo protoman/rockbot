@@ -56,11 +56,6 @@ STAGES:
 ###################################################################################################################
 ### ROCKBOT 2 DEMO BETA ###
 ###################################################################################################################
-CRITICAL:
-- EDITOR: doors (above) tiles are vanishing
-- spike-chain graphic inverted
-
-- Mummy bot teleport is kind of working funny, hard to hit him.
 - add more rockbot2 enemies:
     # zodiac:
         - snake: 38x30x6 = 228x30
@@ -70,18 +65,28 @@ CRITICAL:
         - saci: 32x40x8
     # dragon
         - sub-boss dragon: 98x47x3
+
 - inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
+-------------------------------------------
+CRITICAL:
+-------------------------------------------
+- EDITOR: doors (above) tiles are vanishing
+
+
+-------------------------------------------
 SERIOUS:
+-------------------------------------------
 - remove "coins" icon
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
     # 3 way horizontal
     # 2 way vertical
-- spawn point must be defied by arm's cannon point from editor
-- the magic card shooter NPC is showing when moving during teleport after two teleports
+- NPC spawn point must be defied by arm's cannon point from editor
 
+-------------------------------------------
 MEDIUM:
+-------------------------------------------
 - remove player teleport-in on stage, make him appear on ground with the teleport animation
 - red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
 - create FAQ page on wordpress about release dates
@@ -90,8 +95,12 @@ MEDIUM:
 - improve game-over screen (it is a dialog over a config bg)
 
 
+-------------------------------------------
 LOW:
+-------------------------------------------
 - update screenshots in the app-store for rockbot 2 free
+- add text on images telling about features
+- usar "retro action plataformer" to describe the game
 - colocar informação na play store que pode usar teclado e joystick bluetooth (ícones no logo do jogo)
 - red shield dropped from platform and died (gear bot stage)
 - Gear Bot pára de andar (character::show_sprite_graphic(GEAR BOT) #1 - no graphic for type (1):frame_n(0), set to ZERO pos)

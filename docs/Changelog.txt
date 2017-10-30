@@ -692,11 +692,13 @@ FILE-FORMAT-V4:
 - ROCKBOT1: mispell ravok on intro, should be havok
 - ROCKBOT1/2: change projectiles, weapons and enemies names to uppercase
 - won't reset from walk-attack to stand-attack if keep firing even if not moving
-- EDITOR: do now allow an enemy with player name (playe1, player2 or p1, p2)
+- EDITOR: do now allow an enemy with player name
 - AI: add fly-sin-y
-===
 - new type of shield walk + stand (is shielded in both cases)
 - improve and translate for pt-BR the beta version warnings from intro
 - dog boss gets locked on boss-intro/gravity due to water in castle1 stage
 - can't attack if using shield
-
+- increase speed in stairs
+- after screen-transitioning, stairs animation (left/right) stops for a while due do pause
+- fixes for enemy teleport animation and AI
+- add check for android touch controls max-size value

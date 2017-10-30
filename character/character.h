@@ -1,5 +1,3 @@
-#pragma GCC diagnostic ignored "-Wreorder"
-
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
@@ -112,6 +110,7 @@ public:
     void show();
     void show_at(st_position pos);
     void show_sprite();
+    void reset_sprite_animation_timer();
     void show_sprite_graphic(short direction, short type, short n, st_position pos);
     st_size get_size() const;
     st_rectangle get_hitbox(int anim_type=-1);          // used for collision with map/objects
@@ -132,8 +131,8 @@ public:
     void execute_jump();								// execute a complete jump
     void execute_jump_up();					// execute jump until reaches the maximum height
     void fall();								// falls until reaching ground or leaving screen /// @TODO
+    void fall_to_ground();
     void initialize_position_to_ground();
-    void teleport_out();
     bool change_position(short int xinc, short int yinc);
     void change_position_x(short int xinc);
     int change_position_y(short int yinc);

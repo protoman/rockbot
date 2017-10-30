@@ -53,7 +53,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     can_fly = false;
 	attack_state = ATTACK_NOT;
 	max_projectiles = 1;
-    _debug_char_name = "PLAYER_9";
+    _debug_char_name = "MUMMY BOT";
     _frame_pos_adjust.x = 0;
     _frame_pos_adjust.y = 0;
     _stairs_stopped_count = 0;
@@ -224,7 +224,6 @@ void character::charMove() {
             return;
         }
 
-
         for (float i=temp_move_speed; i>=0.1; i--) {
             st_map_collision map_col = map_collision(-i, 0, gameControl.get_current_map_obj()->getMapScrolling());
             mapLock = map_col.block;
@@ -387,7 +386,7 @@ void character::charMove() {
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
 			}
             if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
-                position.y -= temp_move_speed/2;
+                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
                 position.x = stairs_pos.x * TILESIZE - 6;
             }
 		// out of stairs
@@ -397,7 +396,7 @@ void character::charMove() {
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
                 if (is_player()) std::cout << "STAIRS SEMI - SET #1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
-				position.y -= temp_move_speed/2;
+                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
 			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
                 if (is_player()) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
@@ -425,7 +424,7 @@ void character::charMove() {
 
             // check that path is clear to move
             if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
-                position.y += temp_move_speed/2;
+                position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
             }
 
             // if bottom point is not stairs, leave it
@@ -450,7 +449,7 @@ void character::charMove() {
 
                     //std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
 
-                    position.y += temp_move_speed/2;
+                    position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
                     position.x = stairs_pos_bottom.x * TILESIZE - 6;
                 }
             }
@@ -953,6 +952,7 @@ void character::show_at(st_position pos)
 
 void character::show_sprite()
 {
+    //if (is_player()) std::cout << "######### timer[" << timer.getTimer() << "], state.animation_timer[" << state.animation_timer << "]" << std::endl;
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
 
 		// change animation state to next frame
@@ -1006,6 +1006,19 @@ void character::show_sprite()
     }
 }
 
+// we need to reset the time of the animation to discount pause
+// because otherwise, we can't animate player/enemies during a pause like transition
+void character::reset_sprite_animation_timer()
+{
+    if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
+        state.animation_timer = timer.getTimer() + 180;
+    } else {
+        short direction = ANIM_DIRECTION_RIGHT;
+        int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+        state.animation_timer = timer.getTimer() + delay;
+    }
+}
+
 void character::show_sprite_graphic(short direction, short type, short frame_n, st_position frame_pos)
 {
     frame_pos.x += _frame_pos_adjust.x;
@@ -1022,8 +1035,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
         frame_n = 0;
     }
 
-    //std::cout << ">>>> CHAR::show_sprite_graphic - direction: " << direction << ", type: " << type << ", frame_n: " << frame_n << ", x: " << frame_pos.x << ", y: " << frame_pos.y << ", _have_right_direction_graphics: " << _have_right_direction_graphics << std::endl;
-
     std::map<std::string, st_char_sprite_data>::iterator it_graphic;
     it_graphic = graphLib.character_graphics_list.find(name);
     if (it_graphic == graphLib.character_graphics_list.end()) {
@@ -1031,8 +1042,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
         return;
     }
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
-
-
         if (frame_n == 0) {
             //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
             if (type == ANIM_TYPE_TELEPORT) {
@@ -1043,6 +1052,9 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
         } else {
             //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
             frame_n = 0;
+            state.animation_state = 0;
+            _was_animation_reset = true;
+            return;
         }
         state.animation_state = 0;
         _was_animation_reset = true;
@@ -1050,7 +1062,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
 
         //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             type = ANIM_TYPE_STAND;
             if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic at all
@@ -1104,11 +1116,9 @@ void character::reset_gravity_speed()
 bool character::gravity(bool boss_demo_mode=false)
 {
 
-
     /// @TODO: gravity speed is starting at 1.25, it should start at 0.25
 
     if (_progressive_appear_pos != 0) {
-        //std::cout << "CHAR::GRAVITY leave #1" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -1120,24 +1130,12 @@ bool character::gravity(bool boss_demo_mode=false)
 	}
 
 
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        unsigned int now_time = timer.getTimer();
-        if (last_execute_time < now_time) {
-            last_execute_time = now_time + 10;
-        } else {
-            reset_gravity_speed();
-            return true;
-        }
-    }
-
-
     bool can_use_air_dash = false;
     if (is_player() == true) {
         can_use_air_dash = can_air_dash();
     }
 
     if (can_use_air_dash == true && state.animation_type == ANIM_TYPE_SLIDE) {
-        //std::cout << "CHAR::GRAVITY leave #3" << std::endl;
         reset_gravity_speed();
         return false;
     }
@@ -1187,7 +1185,6 @@ bool character::gravity(bool boss_demo_mode=false)
         //std::cout << "**** gravity - LEAVE (death)" << std::endl;
 		hitPoints.current = 0;
 		death();
-        //std::cout << "CHAR:: GRAVITY leave #5" << std::endl;
         reset_gravity_speed();
         return false;
 	}
@@ -1261,7 +1258,7 @@ bool character::gravity(bool boss_demo_mode=false)
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    std::cout << "LEAVE STAIRS - GRAVITY #1, current-anim-type[" << state.animation_type << "]" << std::endl;
+                    //std::cout << "LEAVE STAIRS - GRAVITY #1, current-anim-type[" << state.animation_type << "]" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
 				}
 				was_moved = true;
@@ -1277,11 +1274,11 @@ bool character::gravity(bool boss_demo_mode=false)
 		}
 
 		if (was_moved == false && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && state.animation_type != ANIM_TYPE_SLIDE) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #H" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #H" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		} else if (was_moved == false && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #I" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #I" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		}
@@ -2445,6 +2442,9 @@ void character::advance_to_last_frame()
 
 bool character::have_frame_graphic(int direction, int type, int pos)
 {
+    if (pos >= ANIM_FRAMES_COUNT) {
+        return false;
+    }
     if ((graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.width == 0 || (graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.get_surface() == NULL) {
 		return false;
 	}
@@ -2928,6 +2928,22 @@ void character::fall()
     }
 }
 
+void character::fall_to_ground()
+{
+    _obj_jump.finish();
+    for (int i=0; i<100; i++) {
+        char_update_real_position();
+        gravity(false);
+        if (hit_ground() == true && state.animation_type == ANIM_TYPE_STAND) {
+            //std::cout << "CHAR::fall_to_ground, STOP" << std::endl;
+            show();
+            return;
+        }
+        //std::cout << "CHAR::fall_to_ground, i[" << i << "], y[" << position.y << "]" << std::endl;
+    }
+    show();
+}
+
 void character::initialize_position_to_ground()
 {
     if (can_fly == true) {
@@ -2942,29 +2958,6 @@ void character::initialize_position_to_ground()
         }
     }
 }
-
-void character::teleport_out() {
-	soundManager.play_sfx(SFX_TELEPORT);
-    set_animation_type(ANIM_TYPE_TELEPORT);
-    _obj_jump.finish();
-    while (position.y > -(frameSize.height+TILESIZE)) {
-        input.read_input();
-        //std::cout << "teleport_out - position.y: " << position.y << std::endl;
-        position.y -= GRAVITY_MAX_SPEED;
-		char_update_real_position();
-        gameControl.get_current_map_obj()->showMap();
-        gameControl.get_current_map_obj()->show_npcs();
-        gameControl.get_current_map_obj()->show_objects();
-        show();
-        gameControl.get_current_map_obj()->show_above_objects();
-        gameControl.get_current_map_obj()->showAbove();
-        draw_lib.update_screen();
-        timer.delay(10);
-	}
-    timer.delay(200);
-}
-
-
 
 bool character::change_position(short xinc, short yinc)
 {
@@ -3175,6 +3168,10 @@ void character::set_animation_type(ANIM_TYPE type)
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
+    }
+
+    if (name == "MUMMY BOT" && type == ANIM_TYPE_ATTACK) {
+        std::cout << "DBUG" << std::endl;
     }
 
     if (type != state.animation_type) {

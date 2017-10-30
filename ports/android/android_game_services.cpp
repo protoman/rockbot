@@ -60,6 +60,9 @@ void android_game_services::init_android_button_size()
 
 void android_game_services::set_android_default_buttons_size(int size)
 {
+    if (size >= ANDROID_TOUCH_CONTROL_SIZE_COUNT) {
+        return;
+    }
     {
        int screen_width = 800; // Pelya's default
        int screen_height = 480;

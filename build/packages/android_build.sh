@@ -14,8 +14,8 @@ demoFullName=""
 
 if [ "$version_number" == "2" ]
 then
-    read -r -p "Build demo version (y) or full(n)? " demo_mode
-    if [ "$demo_mode" == "y" ]
+    read -r -p "Build demo version (d) or full (f)? " demo_mode
+    if [ "$demo_mode" == "d" ]
     then
         demoName="Demo"
         demoFullName="demo"
