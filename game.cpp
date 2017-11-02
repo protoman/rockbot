@@ -265,9 +265,6 @@ void game::start_stage()
 
     game_unpause();
 
-    // make player fall to the ground
-    show_ready();
-
     soundManager.play_music();
 
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
@@ -278,14 +275,13 @@ void game::start_stage()
     }
     loaded_stage.add_autoscroll_delay();
 
-	/// @TODO: do not show twice
-    //if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
-        //if (game_save.stages[currentStage] == 0) {
-            game_dialogs.show_stage_dialog(currentStage);
-            // reset timers for objects
-            loaded_stage.reset_objects_timers();
-        //}
-    //}
+    game_dialogs.show_stage_dialog(currentStage);
+    showGame(false, false);
+    // reset timers for objects
+    loaded_stage.reset_objects_timers();
+
+    show_ready();
+
 }
 
 void game::show_ready()
@@ -598,7 +594,6 @@ bool game::test_teleport(classPlayer *test_player) {
     graphLib.set_screen_adjust(st_position(0, 0));
     remove_all_projectiles();
     reset_beam_objects(); // beam/ray objects must be reset when changing maps
-    remove_temp_objects();
 
 
     // must move the map, so that the dest position in screen is equal to player_real_pos_x
@@ -639,8 +634,10 @@ bool game::test_teleport(classPlayer *test_player) {
     } else {
         transition_screen(transition_type, temp_map_n, new_map_pos_x, test_player);
     }
+    remove_temp_objects();
 
     st_float_position bg1_pos = loaded_stage.get_current_map()->get_bg_scroll();
+
 
     set_current_map(temp_map_n);
 
@@ -894,7 +891,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     classMap* temp_map = &loaded_stage.maps[map_n];
     temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
-
+    temp_map->set_foreground_postion(loaded_stage.get_current_map()->get_foreground_postion());
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
@@ -978,12 +975,12 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
-                loaded_stage.showAbove(-i*TRANSITION_STEP);
+                loaded_stage.showAbove(-i*TRANSITION_STEP, false);
                 loaded_stage.get_current_map()->show_above_objects(-i*TRANSITION_STEP);
                 temp_map->show_above_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
 			} else {
-                loaded_stage.showAbove(i*TRANSITION_STEP);
+                loaded_stage.showAbove(i*TRANSITION_STEP, false);
                 loaded_stage.get_current_map()->show_above_objects(i*TRANSITION_STEP);
                 temp_map->show_above_objects(temp_map_3rdlevel_pos, adjust_x);
                 temp_map->showAbove(temp_map_3rdlevel_pos, adjust_x);
@@ -1012,7 +1009,11 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
                 pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y + TRANSITION_STEP));
             }
         }
-	}
+    }
+
+    // when transition finished, spawned npcs and objects such as jet/coild, must be removed
+    //temp_map->remove_temp_objects();
+
 
     temp_screen.freeGraphic();
 	pObj->set_teleporter(-1);
@@ -1179,7 +1180,7 @@ void game::got_weapon()
 		}
 
 
-        std::string phrase = weapon_name + std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ");
+        std::string phrase = weapon_name + std::string(" ") + std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ");
 
 		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
 		std::string extra_name = "";
@@ -1291,6 +1292,7 @@ void game::game_unpause()
     input.read_input();
     player1.restore_input();
     player1.reset_sprite_animation_timer();
+    loaded_stage.reset_timers();
 }
 
 void game::exit_game()
@@ -1389,8 +1391,8 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = CASTLE1_STAGE1;
-    game_save.difficulty = DIFFICULTY_NORMAL;
+    currentStage = INTRO_STAGE;
+    game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_1;
 
     /*

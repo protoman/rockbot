@@ -107,9 +107,9 @@ void stage::showStage()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::showAbove(int scroll_y)
+void stage::showAbove(int scroll_y, bool show_fg)
 {
-    get_current_map()->showAbove(scroll_y);
+    get_current_map()->showAbove(scroll_y, -99999, show_fg);
 }
 
 // ********************************************************************************************** //
@@ -382,6 +382,14 @@ void stage::add_autoscroll_delay()
     autoscroll_timer = timer.getTimer()+800;
 }
 
+// reset animation timers and such due to unpause
+void stage::reset_timers()
+{
+    for (int i=0; i<STAGE_MAX_MAPS; i++) {
+        maps[i].reset_timers();
+    }
+}
+
 void stage::check_map_effect()
 {
     if (number == -1 || stage_is_loaded == false) {
@@ -398,7 +406,7 @@ void stage::check_map_effect()
 
     //std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
     std::fflush(stdout);
-    std::cout << "####### STAGE::check_map_effect - currentMap[" << (int)currentMap << "], map.gfx: " << (int)get_current_map()->get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
+    //std::cout << "####### STAGE::check_map_effect - currentMap[" << (int)currentMap << "], map.gfx: " << (int)get_current_map()->get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (get_current_map()->get_map_gfx() != draw_lib.get_gfx()) {
         draw_lib.set_gfx(get_current_map()->get_map_gfx(), get_current_map()->get_map_gfx_mode());
     }

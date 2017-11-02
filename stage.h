@@ -27,7 +27,7 @@ public:
     Uint8 getMapPointLock(struct st_position);
     void change_map_scroll(st_float_position pos, bool check_lock, bool ignore_auto_scroll);
     st_float_position getMapScrolling();
-    void showAbove(int scroll_y=0);
+    void showAbove(int scroll_y=0, bool show_fg=true);
     classMap* get_current_map();
     Uint8 get_current_map_number();
     void set_current_map(int);
@@ -59,6 +59,7 @@ public:
     void activate_final_boss_teleporter();
     short get_current_map_gfx_mode();
     void add_autoscroll_delay();
+    void reset_timers();
 
 private:
     void check_map_effect();

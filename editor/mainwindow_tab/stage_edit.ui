@@ -37,16 +37,6 @@
          <property name="bottomMargin">
           <number>10</number>
          </property>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_63">
-           <property name="text">
-            <string>Gained Weapon:</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QComboBox" name="stages_tab_stage_combo"/>
          </item>
@@ -57,9 +47,6 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QComboBox" name="cutscenePre_comboBox"/>
-         </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_4">
            <property name="text">
@@ -67,43 +54,55 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="4">
-          <widget class="QComboBox" name="cutscenePos_comboBox"/>
+         <item row="5" column="1">
+          <widget class="QComboBox" name="cutscenePre_comboBox"/>
          </item>
-         <item row="5" column="3">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Scene After:</string>
-           </property>
-          </widget>
+         <item row="0" column="5">
+          <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
          </item>
-         <item row="1" column="4">
-          <widget class="QComboBox" name="stage_boss_weapon_combo">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
+         <item row="0" column="2">
           <widget class="QLabel" name="label_7">
            <property name="text">
             <string>Stage Name:</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item row="0" column="4">
           <widget class="QLabel" name="label_13">
            <property name="text">
             <string>Stage Music:</string>
            </property>
           </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Scene After:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
+          <widget class="QComboBox" name="cutscenePos_comboBox"/>
+         </item>
+         <item row="0" column="6">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -561,11 +560,7 @@
  <tabstops>
   <tabstop>scrollArea</tabstop>
   <tabstop>stages_tab_stage_combo</tabstop>
-  <tabstop>stages_tab_bgmusic_combo</tabstop>
   <tabstop>cutscenePre_comboBox</tabstop>
-  <tabstop>stages_tab_stage_name_lineedit</tabstop>
-  <tabstop>stage_boss_weapon_combo</tabstop>
-  <tabstop>cutscenePos_comboBox</tabstop>
   <tabstop>language_comboBox</tabstop>
   <tabstop>stages_tab_bossname_lineedit</tabstop>
   <tabstop>dialogs_line1_face_combo</tabstop>

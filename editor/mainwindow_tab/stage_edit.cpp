@@ -92,9 +92,6 @@ void stage_edit::fill_stage_tab_data(int language_n)
 	// fill digalogs faces
     common::fill_graphicfiles_combobox(std::string("/images/faces"), ui->dialogs_line1_face_combo);
 
-    common::fill_weapons_combo(ui->stage_boss_weapon_combo);
-    ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
-
     common::fill_scenes_combo(ui->cutscenePre_comboBox);
 
     common::fill_scenes_combo(ui->cutscenePos_comboBox);
@@ -128,8 +125,6 @@ void stage_edit::update_stage_data(int language_n)
     }
 
     //std::cout << "stage: " << Mediator::get_instance()->currentStage << ", boss.id_weapon: " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon << std::endl;
-    ui->stage_boss_weapon_combo->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon);
-
     int stage_id = Mediator::get_instance()->currentStage;
     if (language_n < 0 || language_n >= LANGUAGE_COUNT) {
         language_n = LANGUAGE_ENGLISH;
@@ -454,11 +449,6 @@ void stage_edit::on_boss_dialog_answer2_line3_textChanged(const QString &arg1)
     if (_data_loading) { return; }
     int adjust_boss_player = 5 + 4*6 +7 + ui->dialogs_answer1_player->currentIndex() * 6;
     Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(ui->stages_tab_stage_combo->currentIndex()).at(adjust_boss_player+5) = arg1.toStdString();
-}
-
-void stage_edit::on_stage_boss_weapon_combo_currentIndexChanged(int index)
-{
-    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon = index;
 }
 
 void stage_edit::on_language_comboBox_currentIndexChanged(int index)

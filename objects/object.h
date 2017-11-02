@@ -12,7 +12,8 @@ enum e_object_teleport_states {
     e_object_teleport_state_initial,
     e_object_teleport_state_teleport_in,
     e_object_teleport_state_waiting,
-    e_object_teleport_state_teleport_out
+    e_object_teleport_state_teleport_out,
+    e_object_teleport_state_count
 };
 
 /**
@@ -215,6 +216,7 @@ public:
     void reset_timers();
 
     void use_teleport_in_out();                                 // when called, will se object to be teleported in/out
+    void set_teleport_out();
 
     bool is_consumable();                                       // if item is a energy, tank, life, that player can get
 

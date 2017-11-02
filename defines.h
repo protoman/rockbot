@@ -386,7 +386,7 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define HIT_BLINK_ANIMATION_LAPSE 100
 
-#define WATER_SPEED_MULT 0.9
+#define WATER_SPEED_MULT 0.7
 
 #define ATTACK_DELAY 300 // how many milisseconds the attack frame must last before returning to stand/jump/walk
 

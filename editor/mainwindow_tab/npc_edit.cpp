@@ -240,6 +240,7 @@ void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
         return;
     }
 
+    // check that it is not the name of a player
     if (arg1.startsWith("PLAYER_")) {
         QMessageBox msgBox;
         msgBox.setText("ERROR");
@@ -250,6 +251,20 @@ void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
         ui->npc_edit_tab_NpcName->setText(reset_name);
         return;
     }
+    // check that it is not the name of another enemy
+    bool name_error = false;
+    for (int i=0; i<Mediator::get_instance()->enemy_list.size(); i++) {
+        if (arg1.toStdString() == Mediator::get_instance()->enemy_list.at(i).name) {
+            name_error = true;
+            break;
+        }
+    }
+    if (name_error == true) {
+        ui->npc_edit_tab_NpcName->setStyleSheet("color: #FF0000");
+    } else {
+        ui->npc_edit_tab_NpcName->setStyleSheet("color: #000000");
+    }
+
 
     sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).name, "%s", arg1.toStdString().c_str());
     QString temp_str = QString("[");

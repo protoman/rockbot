@@ -95,7 +95,7 @@ public:
 
     void init_animated_tiles();
 
-    void showAbove(int scroll_y=0, int temp_scroll_x = -99999);
+    void showAbove(int scroll_y=0, int temp_scroll_x = -99999, bool show_fg=true);
 
     bool is_point_solid(st_position pos) const;
 
@@ -169,6 +169,8 @@ public:
 
     void move_objects(bool paused);
 
+    void clean_finished_objects();
+
     std::vector<object*> check_collision_with_objects(st_rectangle collision_area);
 
     void show_objects(int adjust_y=0, int adjust_x=0);
@@ -199,6 +201,8 @@ public:
 
     int get_bg_scroll() const;
 
+    void reset_timers();
+    void reset_enemies_timers();
     void reset_objects_timers();
 
     void reset_objects(); // restore objects to their original position
@@ -221,8 +225,10 @@ public:
 
     st_float_position get_bg_scroll();
     void set_bg_scroll(st_float_position pos);
-
     st_rectangle get_player_hitbox();
+    st_float_position get_foreground_postion();
+    void set_foreground_postion(st_float_position pos);
+
 
 private:
     void load_map_npcs();
@@ -234,6 +240,7 @@ private:
     void adjust_dynamic_background_position();
 
     void adjust_foreground_position();
+
 
     bool value_in_range(int value, int min, int max) const;
 

@@ -71,12 +71,18 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- EDITOR: doors (above) tiles are vanishing
+- coil frog respawning when you return to the map you used it
+- dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
+- shield falling in holes
+- ready deve aparecer depois do diálogo
 
 
 -------------------------------------------
 SERIOUS:
 -------------------------------------------
+- refactor weapon-menu screen to show full weapon names
+- energy pill not falling over spikes in phantom bot stage
+- lighting bolt must be only one time and in the closest enemy position (x and y+h)
 - remove "coins" icon
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
@@ -87,6 +93,9 @@ SERIOUS:
 -------------------------------------------
 MEDIUM:
 -------------------------------------------
+- save cursor position on config sub items
+- allows player to go back from save-slot selecting in both new game and load game
+- items from one map appearing on the wrong one when going up/down on stairs
 - remove player teleport-in on stage, make him appear on ground with the teleport animation
 - red-shield on 2 are sometimes falling in holes (intro stage not in easy mode)
 - create FAQ page on wordpress about release dates
@@ -118,6 +127,7 @@ VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 - add castle 1 stage 6 with only destrin boss.
 - revisar e finalizar diálogos
 - finalizar intro
+- vase enemies (dragon bot) need to show smoke when the vase returns
 
 Castle Bosses:
     #1: brick
@@ -133,6 +143,7 @@ Castle Bosses:
 =========================================================================================================================================
 VERSION 2.0.0 RELEASE #2
 =========================================================================================================================================
+- barrels in circus must be objects that smash player if he stays over it for more than a second
 - remove the lifes/game-over. add option to leave stage even if incomplete
 - when you close the game form inside an stage, save the last checkpoint, so when you resume playing, it returns to that point
     # reset checkpoint when you use the leave-stage option
@@ -226,6 +237,7 @@ IMPROVEMENTS/IDEAS:
 =========================================================================================================================================
 VERSION 2.0.0 PRE-RELEASE #4
 =========================================================================================================================================
+- can't get energy capsule when it is in same position as checkpoint
 - refactor castle stage #5 and #6 to contain 4 bosses without teleporters
 - adicionar vozes do Nelson aos chefes
 - add option to leave game and return to intro screen to pick another save, start new game, read manual, etc
@@ -378,7 +390,7 @@ VERSION 2.0.5
 - EDITOR: clean editor code (find slots that aren't used anymore)
 - HP bars must not be drawn under 3rd level of tiles
 - move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
-
+- add item that can spawn another item when destroyed (so we can create castlevania-like breakeable walls)
 
 =========================================================================================================================================
 VERSION 2.0.6

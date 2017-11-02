@@ -355,6 +355,11 @@ int classnpc::get_parent_id()
     return _parent_id;
 }
 
+void classnpc::reset_timers()
+{
+    reset_sprite_animation_timer();
+}
+
 void classnpc::npc_set_hp(st_hit_points new_hp)
 {
     hitPoints = new_hp;

@@ -702,3 +702,10 @@ FILE-FORMAT-V4:
 - after screen-transitioning, stairs animation (left/right) stops for a while due do pause
 - fixes for enemy teleport animation and AI
 - add check for android touch controls max-size value
+
+########################################### 2.00.093 ###########################################
+- add reset timer to enemies and objects on game_unpause
+- foreground layer get doubled and out of position when transitioning maps up/down
+- objects and enemies must check for difficulty-ground terrain types
+- EDITOR: show error in name when using one that already exists
+- re-add spawn to gear bot's mecha AI

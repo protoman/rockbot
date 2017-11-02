@@ -17,8 +17,6 @@ extern graphicsLib graphLib;
 extern soundLib soundManager;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
-
-
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
 #define GRAVITY_SPEED 4
@@ -225,9 +223,13 @@ bool object::test_change_position(short xinc, short yinc)
         return false;
     }
 
-    if ((p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE) && (p2 == TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER || p2 == TERRAIN_SPIKE)) {
+    if (((p1 == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD) || (p1 == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE)
+            && ((p2 == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD) || (p2 == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || p2 == TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER || p2 == TERRAIN_SPIKE)) {
         return true;
 	}
+
+
+
 	return false;
 }
 
@@ -691,7 +693,7 @@ void object::move(bool paused)
         // teleporting IN
         } else if (_teleport_state == e_object_teleport_state_teleport_in) {
             int yinc = GRAVITY_SPEED*3;
-            std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
+            //std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
             if (position.y+yinc > start_point.y) {
                 position.y = start_point.y;
             } else {
@@ -701,10 +703,10 @@ void object::move(bool paused)
                 // check if not teleported inside terrain, if so, teleport out
                 int map_lock = map->getMapPointLock(st_position((position.x+framesize_w/2)/TILESIZE, (position.y+framesize_h/2)/TILESIZE));
                 if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                    std::cout << "OBJECT::TELEPORT #4 - finish(map-lock), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
+                    //std::cout << "OBJECT::TELEPORT #4 - finish(map-lock), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
                     _teleport_state = e_object_teleport_state_teleport_out;
                 } else {
-                    std::cout << "OBJECT::TELEPORT #4 - finish(reached-start-point), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
+                    //std::cout << "OBJECT::TELEPORT #4 - finish(reached-start-point), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
                     _teleport_state = e_object_teleport_state_waiting;
                 }
             }

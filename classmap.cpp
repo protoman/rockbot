@@ -315,7 +315,7 @@ void classMap::init_animated_tiles()
 // ********************************************************************************************** //
 // show the third level of tiles                                                                  //
 // ********************************************************************************************** //
-void classMap::showAbove(int scroll_y, int temp_scroll_x)
+void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
 {
     int scroll_x = scroll.x;
     if (temp_scroll_x != -99999) {
@@ -377,7 +377,9 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x)
         }
     }
 
-    draw_foreground_layer(scroll_x, scroll_y);
+    if (show_fg) {
+        draw_foreground_layer(scroll_x, scroll_y);
+    }
 
 
 }
@@ -737,6 +739,16 @@ void classMap::adjust_foreground_position()
     }
 }
 
+st_float_position classMap::get_foreground_postion()
+{
+    return fg_layer_scroll;
+}
+
+void classMap::set_foreground_postion(st_float_position pos)
+{
+    fg_layer_scroll = pos;
+}
+
 
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
@@ -989,9 +1001,25 @@ int classMap::get_bg_scroll() const
 }
 
 
+void classMap::reset_timers()
+{
+    reset_objects_timers();
+    reset_enemies_timers();
+}
+
+void classMap::reset_enemies_timers()
+{
+    //std::cout << ">>>>>> MAP::reset_enemies_timers - _npc_list.size: " << _npc_list.size() << std::endl;
+    std::vector<classnpc>::iterator enemy_it;
+    for (enemy_it = _npc_list.begin(); enemy_it != _npc_list.end(); enemy_it++) {
+        (*enemy_it).reset_timers(); // TODO: must pass scroll map to npcs somwhow...
+    }
+}
+
+
 void classMap::reset_objects_timers()
 {
-    std::cout << ">>>>>> MAP::reset_objects_timers - object_list.size: " << object_list.size() << std::endl;
+    //std::cout << ">>>>>> MAP::reset_objects_timers - object_list.size: " << object_list.size() << std::endl;
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
         (*object_it).reset_timers(); // TODO: must pass scroll map to npcs somwhow...
@@ -1657,7 +1685,14 @@ void classMap::remove_temp_objects()
         if (temp_obj.get_is_dropped() == true) {
             temp_obj.set_finished(true);
         }
+        for (int i=0; i<FS_PLATER_ITEMS_N; i++) {
+            if (temp_obj.get_id() == game_data.player_items[i]) {
+                std::cout << ">>> OBJ::FINISHED[" << temp_obj.get_name() << "], id[" << (int)temp_obj.get_id() << "], game_data.player_items[" << i << "][" << (int)game_data.player_items[i] << "]" << std::endl;
+                temp_obj.set_finished(true);
+            }
+        }
     }
+    clean_finished_objects();
 }
 
 
@@ -2151,6 +2186,18 @@ void classMap::move_objects(bool paused)
             (*object_it).execute(paused); /// @TODO: must pass scroll map to npcs somwhow...
 		}
     }
+}
+
+void classMap::clean_finished_objects()
+{
+    std::vector<object>::iterator object_it;
+    std::vector<object> kept_object_list;
+    for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
+        if ((*object_it).finished() == false) {
+            kept_object_list.push_back(*object_it);
+        }
+    }
+    object_list = kept_object_list;
 }
 
 std::vector<object*> classMap::check_collision_with_objects(st_rectangle collision_area)

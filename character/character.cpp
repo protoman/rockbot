@@ -231,9 +231,9 @@ void character::charMove() {
                 hit_moved_back_n += temp_move_speed;
             }
             if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                if (mapLock == BLOCK_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_Y) {
                     position.x -= i + gameControl.get_current_map_obj()->get_last_scrolled().x;
-				} else {
+                } else if (mapLock == BLOCK_WATER) {
                     position.x -= i*WATER_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
 				}
 				if (state.animation_type != ANIM_TYPE_HIT) {
@@ -279,9 +279,9 @@ void character::charMove() {
                 //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
                     //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", gameControl.get_current_map_obj()->get_last_scrolled().x: " << gameControl.get_current_map_obj()->get_last_scrolled().x << std::endl;
-                    if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
+                    if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
                         position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
-                    } else {
+                    } else if (mapLock == BLOCK_WATER) {
                         position.x += i*WATER_SPEED_MULT - gameControl.get_current_map_obj()->get_last_scrolled().x;
                     }
                     if (state.animation_type != ANIM_TYPE_HIT) {
@@ -394,13 +394,13 @@ void character::charMove() {
             int map_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
             //std::cout << ">> map_terrain: " << map_terrain << ", _dropped_from_stairs: " << _dropped_from_stairs << std::endl;
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
-                if (is_player()) std::cout << "STAIRS SEMI - SET #1" << std::endl;
+                //if (is_player()) std::cout << "STAIRS SEMI - SET #1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
                 position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
 			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
-                if (is_player()) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
+                //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
-                std::cout << "LEAVE STAIRS (BOTTOM->UP)" << std::endl;
+                //std::cout << "LEAVE STAIRS (BOTTOM->UP)" << std::endl;
                 position.y -= 2;
 			}
 		}
@@ -444,7 +444,7 @@ void character::charMove() {
                 // over stairs, enter it
                 st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
                 if (stairs_pos_bottom.x != -1) {
-                    std::cout << "STAIRS SEMI - SET #2" << std::endl;
+                    //std::cout << "STAIRS SEMI - SET #2" << std::endl;
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
 
                     //std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
@@ -1775,7 +1775,10 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
             }
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_HARD) {
-                damage_spikes(true);
+                if (mode_xy == 1 ||  is_player()) {
+                    std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
+                    damage_spikes(true);
+                }
                 must_block = true;
             }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {

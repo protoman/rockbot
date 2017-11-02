@@ -20,6 +20,7 @@ extern soundLib soundManager;
 
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
+extern CURRENT_FILE_FORMAT::st_save game_save;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 #define JUMP_ROOF_MIN_SPEED 3
@@ -1783,17 +1784,14 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
 
-    //if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
+    if (name == "SHIELD GROUND") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
         return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
     }
 
-
     // if is walking check for holes on the path
     int type = get_ai_type();
-
-
 
     // check that we are not in a infinite loop of walking, because if we do, we don't stop moving
     if (_always_move_ahead == false) {
@@ -1803,9 +1801,9 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
                 map_point.x = (position.x + frameSize.width)/TILESIZE;
             }
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
-            if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
-            if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER) {
-                if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
+            //if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
+            if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
+                //if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
                 return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
             }
         }

@@ -71,8 +71,6 @@ private slots:
 
     void on_boss_dialog_answer2_line3_textChanged(const QString &arg1);
 
-    void on_stage_boss_weapon_combo_currentIndexChanged(int index);
-
     void on_language_comboBox_currentIndexChanged(int index);
 
 public slots:
