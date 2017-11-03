@@ -204,7 +204,7 @@ namespace format_v4 {
         st_size_int8 sprite_size;                                       // size of sprite graphic
         st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
         Uint8 move_speed;                                               // how many sprites move each step
-        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
         file_weapon_colors weapon_colors[MAX_WEAPON_N];
         // habilities part
         bool have_shield;
@@ -295,7 +295,7 @@ namespace format_v4 {
         st_size_int8 sprite_size;                                       // size of sprite graphic
         st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
         Uint8 move_speed;                                               // how many sprites move each step
-        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
         file_weapon_colors weapon_colors[MAX_WEAPON_N];
         // habilities part
         bool have_shield;
@@ -399,7 +399,7 @@ namespace format_v4 {
             attack_frame = obj.attack_frame;
             normal_shot_projectile_id = -1;
 
-            for (int i=0; i<ANIM_TYPE_COUNT; i++) {
+            for (int i=0; i<OLD_ANIM_TYPE_COUNT; i++) {
                 for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
                     sprites[i][j] = obj.sprites[i][j];
                 }
@@ -412,6 +412,294 @@ namespace format_v4 {
 
         }
     };
+
+    struct st_weakness {
+        Sint8 weapon_id;                                           // weapon number of weakness, if -1, no weakness
+        Sint8 damage_multiplier;                                   // how many time more damage is taken, if zero, no damage from this weapon is taken
+        st_weakness() {
+            weapon_id = -1;
+            damage_multiplier = 1;
+        }
+    };
+
+    struct file_npc { // DONE - Game
+        Sint8 id;                                                  // serial number
+        //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
+        Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
+        char name[CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        struct st_hit_points hp;
+        Sint8 direction;                                           // defines how it behavies (kink of AI*)
+        Sint8 speed;                                               // defines the distances it can see enemies
+        Sint16 walk_range;                                         // defines how long from the start point it can go
+        Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
+        struct st_position start_point;
+        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
+        st_size_int8 frame_size;
+        bool is_ghost;
+        Sint8 shield_type;
+        Sint8 IA_type;                                             // IA types. For custom (edited) ones, use IA_TYPES_COUNT + position (in the array)
+        Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
+        st_weakness weakness[FS_NPC_WEAKNESSES];                                    // each npc have weaknesses for each boss weapon, plus the normal weapon
+        char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
+        st_position sprites_pos_bg;                                // holds position of sprites in relation with background
+        bool is_boss;                                              // indicates if this NPC is a boss
+        bool is_sub_boss;                                          // a middle-stage boss, the doors will only open after it's dead
+        int respawn_delay;                                         // if > 0, will respawn even if on-screen
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
+
+
+    /**
+     * @brief
+     *
+     */
+        file_npc() {
+            id = -1;
+            projectile_id[0] = -1;
+            projectile_id[1] = -1;
+            sprintf(name, "%s", "Enemy Name");
+            graphic_filename[0] = '\0';
+            direction = ANIM_DIRECTION_LEFT;
+            speed = 3;
+            walk_range = 160;
+            facing = ANIM_DIRECTION_LEFT;
+            frame_size.width = TILESIZE;
+            frame_size.height = TILESIZE;
+            is_ghost = false;
+            shield_type = 0;
+            IA_type = 0;
+            fly_flag = 0;
+            bg_graphic_filename[0] = '\0';
+            is_boss = false;
+            is_sub_boss = false;
+            respawn_delay = 0;
+            attack_frame = -1;
+        }
+
+    };
+
+
+    // **************************** PLAYER 3.1.1 **************************** //
+    struct file_player_v3_1_1 {
+        char name[FS_CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        char face_filename[FS_CHAR_NAME_SIZE];
+        Uint8 HP;
+        st_size_int8 sprite_size;                                       // size of sprite graphic
+        st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
+        Uint8 move_speed;                                               // how many sprites move each step
+        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+        file_weapon_colors weapon_colors[MAX_WEAPON_N];
+        // habilities part
+        bool have_shield;
+        Uint8 max_shots;                                                // number of maximum simultaneous projectiles
+        Uint8 simultaneous_shots;                                       // number of projectiles shot at one button press
+        bool can_double_jump;
+        bool can_slide;                                                 // if false, dashes instead of sliding
+        bool can_charge_shot;
+        Sint8 full_charged_projectile_id;
+        /// NEW IN FILE-FORMAT 3.0
+        bool can_air_dash;
+        Sint8 damage_modifier;
+        bool can_shot_diagonal;
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
+        bool double_shot;
+        Sint8 normal_shot_projectile_id;
+
+        file_player_v3_1_1(int n) {
+            sprintf(name, "PLAYER[%d]", n);
+            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
+            face_filename[0] = '\0';
+            HP = 0;
+            sprite_size.width = 29;
+            sprite_size.height = 29;
+            sprite_hit_area.x = 0;
+            sprite_hit_area.y = 0;
+            sprite_hit_area.w = 29;
+            sprite_hit_area.h = 29;
+            move_speed = 2.0;
+            max_shots = 3;
+            simultaneous_shots = 1;
+            can_double_jump = false;
+            have_shield = false;
+            can_slide = false;
+            can_charge_shot = false;
+            full_charged_projectile_id = -1;
+            can_air_dash = false;
+            damage_modifier = 0;
+            can_shot_diagonal = false;
+            attack_frame = 0;
+            normal_shot_projectile_id = -1;
+
+            /// === DEFAULT VALUES === //
+            // ROCK
+            if (n == 0) {
+                weapon_colors[0].color1 = st_color(143, 0, 119);
+                weapon_colors[0].color2 = st_color(0, 115, 239);
+                have_shield = true;
+                can_slide = true;
+                can_charge_shot = true;
+            } else if (n == 1) {
+                // CANDY
+                weapon_colors[0].color1 = st_color(191, 0, 191);
+                weapon_colors[0].color2 = st_color(131, 0, 243);
+                weapon_colors[0].color3 = st_color(166, 80, 239);
+                can_double_jump = true;
+                can_shot_diagonal = true;
+                damage_modifier = 1;
+            } else if (n == 2) {
+                // BETA
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                max_shots = 4;
+                damage_modifier = -1;
+                simultaneous_shots = 2;
+            } else {
+                // KITTY
+                weapon_colors[0].color1 = st_color(255, 51, 0);
+                weapon_colors[0].color2 = st_color(255, 155, 59);
+                weapon_colors[0].color3 = st_color(230, 255, 0);
+                have_shield = true;
+                can_charge_shot = true;
+                can_air_dash = true;
+            }
+        }
+
+        file_player_v3_1_1() {
+            file_player_v3_1_1(0);
+        }
+
+        file_player_v3_1_1(file_player_v3_1 obj) {
+            sprintf(name, "%s", obj.name);
+            sprintf(graphic_filename, "%s%", obj.graphic_filename);
+            sprintf(face_filename, "%s%", obj.face_filename);
+            HP = obj.HP;
+            sprite_size = obj.sprite_size;
+            sprite_hit_area = obj.sprite_hit_area;
+            move_speed = obj.move_speed;
+            max_shots = obj.max_shots;
+            simultaneous_shots = obj.simultaneous_shots;
+            can_double_jump = obj.can_double_jump;
+            have_shield = obj.have_shield;
+            can_slide = obj.can_slide;
+            can_charge_shot = obj.can_charge_shot;
+            full_charged_projectile_id = obj.full_charged_projectile_id;
+            can_air_dash = obj.can_air_dash;
+            damage_modifier = obj.damage_modifier;
+            can_shot_diagonal = obj.can_shot_diagonal;
+            attack_frame = obj.attack_frame;
+            normal_shot_projectile_id = -1;
+
+            for (int i=0; i<OLD_ANIM_TYPE_COUNT; i++) {
+                for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
+                    sprites[i][j] = obj.sprites[i][j];
+                }
+            }
+            for (int i=0; i<MAX_WEAPON_N; i++) {
+                weapon_colors[i] = obj.weapon_colors[i];
+            }
+            attack_arm_pos = obj.attack_arm_pos;
+            double_shot = obj.double_shot;
+
+        }
+    };
+    // **************************** PLAYER 3.1.1 **************************** //
+
+    // **************************** NPC 3.1.1 **************************** //
+    struct file_npc_v3_1_1 { // DONE - Game
+        Sint8 id;                                                  // serial number
+        //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
+        Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
+        char name[CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        struct st_hit_points hp;
+        Sint8 direction;                                           // defines how it behavies (kink of AI*)
+        Sint8 speed;                                               // defines the distances it can see enemies
+        Sint16 walk_range;                                         // defines how long from the start point it can go
+        Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
+        struct st_position start_point;
+        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
+        st_size_int8 frame_size;
+        bool is_ghost;
+        Sint8 shield_type;
+        Sint8 IA_type;                                             // IA types. For custom (edited) ones, use IA_TYPES_COUNT + position (in the array)
+        Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
+        st_weakness weakness[FS_NPC_WEAKNESSES];                                    // each npc have weaknesses for each boss weapon, plus the normal weapon
+        char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
+        st_position sprites_pos_bg;                                // holds position of sprites in relation with background
+        bool is_boss;                                              // indicates if this NPC is a boss
+        bool is_sub_boss;                                          // a middle-stage boss, the doors will only open after it's dead
+        int respawn_delay;                                         // if > 0, will respawn even if on-screen
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
+
+
+        file_npc_v3_1_1() {
+            id = -1;
+            projectile_id[0] = -1;
+            projectile_id[1] = -1;
+            sprintf(name, "%s", "Enemy Name");
+            graphic_filename[0] = '\0';
+            direction = ANIM_DIRECTION_LEFT;
+            speed = 3;
+            walk_range = 160;
+            facing = ANIM_DIRECTION_LEFT;
+            frame_size.width = TILESIZE;
+            frame_size.height = TILESIZE;
+            is_ghost = false;
+            shield_type = 0;
+            IA_type = 0;
+            fly_flag = 0;
+            bg_graphic_filename[0] = '\0';
+            is_boss = false;
+            is_sub_boss = false;
+            respawn_delay = 0;
+            attack_frame = -1;
+        }
+
+        file_npc_v3_1_1(file_npc old) {
+            id = old.id;
+            projectile_id[0] = old.projectile_id[0];
+            projectile_id[1] = old.projectile_id[1];
+            sprintf(name, "%s", old.name);
+            sprintf(graphic_filename, "%s", old.graphic_filename);
+            hp = old.hp;
+            direction = old.direction;
+            speed = old.speed;
+            walk_range = old.walk_range;
+            facing = old.facing;
+            start_point = old.start_point;
+            for (int i=0; i<OLD_ANIM_TYPE_COUNT; i++) {
+                for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
+                    sprites[i][j].collision_rect = old.sprites[i][j].collision_rect;
+                    sprites[i][j].duration = old.sprites[i][j].duration;
+                    sprites[i][j].sprite_graphic_pos_x = old.sprites[i][j].sprite_graphic_pos_x;
+                    sprites[i][j].used = old.sprites[i][j].used;
+                }
+            }
+            frame_size = old.frame_size;
+            is_ghost = old.is_ghost;
+            shield_type = old.shield_type;
+            IA_type = old.IA_type;
+            fly_flag = old.fly_flag;
+            for (int i=0; i<FS_NPC_WEAKNESSES; i++) {
+                weakness[i].damage_multiplier = old.weakness[i].damage_multiplier;
+                weakness[i].weapon_id = old.weakness[i].weapon_id;
+            }
+            sprintf(bg_graphic_filename, "%s", old.bg_graphic_filename);
+            sprites_pos_bg = old.sprites_pos_bg;
+            is_boss = old.is_boss;
+            is_sub_boss = old.is_sub_boss;
+            respawn_delay = old.respawn_delay;
+            attack_arm_pos = old.attack_arm_pos;
+            attack_frame = old.attack_frame;
+        }
+
+    };
+    // **************************** NPC 3.1.1 **************************** //
 
 
     struct file_weapon { // DONE - Game
@@ -459,72 +747,10 @@ namespace format_v4 {
     };
 
 
-    struct st_weakness {
-        Sint8 weapon_id;                                           // weapon number of weakness, if -1, no weakness
-        Sint8 damage_multiplier;                                   // how many time more damage is taken, if zero, no damage from this weapon is taken
-        st_weakness() {
-            weapon_id = -1;
-            damage_multiplier = 1;
-        }
-    };
 
 
-    struct file_npc { // DONE - Game
-        Sint8 id;                                                  // serial number
-        //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
-        Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
-        char name[CHAR_NAME_SIZE];
-        char graphic_filename[FS_CHAR_NAME_SIZE];
-        struct st_hit_points hp;
-        Sint8 direction;                                           // defines how it behavies (kink of AI*)
-        Sint8 speed;                                               // defines the distances it can see enemies
-        Sint16 walk_range;                                         // defines how long from the start point it can go
-        Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
-        struct st_position start_point;
-        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
-        st_size_int8 frame_size;
-        bool is_ghost;
-        Sint8 shield_type;
-        Sint8 IA_type;                                             // IA types. For custom (edited) ones, use IA_TYPES_COUNT + position (in the array)
-        Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
-        st_weakness weakness[FS_NPC_WEAKNESSES];                                    // each npc have weaknesses for each boss weapon, plus the normal weapon
-        char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
-        st_position sprites_pos_bg;                                // holds position of sprites in relation with background
-        bool is_boss;                                              // indicates if this NPC is a boss
-        bool is_sub_boss;                                          // a middle-stage boss, the doors will only open after it's dead
-        int respawn_delay;                                         // if > 0, will respawn even if on-screen
-        st_position_int8 attack_arm_pos;
-        Uint8 attack_frame;
 
 
-    /**
-     * @brief
-     *
-     */
-        file_npc() {
-            id = -1;
-            projectile_id[0] = -1;
-            projectile_id[1] = -1;
-            sprintf(name, "%s", "Enemy Name");
-            graphic_filename[0] = '\0';
-            direction = ANIM_DIRECTION_LEFT;
-            speed = 3;
-            walk_range = 160;
-            facing = ANIM_DIRECTION_LEFT;
-            frame_size.width = TILESIZE;
-            frame_size.height = TILESIZE;
-            is_ghost = false;
-            shield_type = 0;
-            IA_type = 0;
-            fly_flag = 0;
-            bg_graphic_filename[0] = '\0';
-            is_boss = false;
-            is_sub_boss = false;
-            respawn_delay = 0;
-            attack_frame = -1;
-        }
-
-    };
 
 
 

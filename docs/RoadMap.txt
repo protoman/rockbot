@@ -71,17 +71,13 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- coil frog respawning when you return to the map you used it
 - dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
-- shield falling in holes
-- ready deve aparecer depois do diálogo
 
 
 -------------------------------------------
 SERIOUS:
 -------------------------------------------
 - refactor weapon-menu screen to show full weapon names
-- energy pill not falling over spikes in phantom bot stage
 - lighting bolt must be only one time and in the closest enemy position (x and y+h)
 - remove "coins" icon
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons

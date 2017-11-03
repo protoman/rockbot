@@ -709,3 +709,4 @@ FILE-FORMAT-V4:
 - objects and enemies must check for difficulty-ground terrain types
 - EDITOR: show error in name when using one that already exists
 - re-add spawn to gear bot's mecha AI
+- coil frog respawning when you return to the map you used it

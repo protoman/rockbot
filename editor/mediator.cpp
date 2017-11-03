@@ -507,16 +507,24 @@ void Mediator::save_game()
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
-
-    // convert player_v3.0 to player_v3.1
-    /*
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player>("player_list.dat", player_list);
-    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1> player_list_v3_1;
-    for (int i=0; i<player_list.size(); i++) {
-        player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1(player_list.at(i)));
-    }
-    */
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat", player_list_v3_1);
+
+    // ######### convert player_v3.1 to player_v3.1.1 ######### //
+    player_list_v3_1_1.clear();
+    for (int i=0; i<player_list_v3_1.size(); i++) {
+        player_list_v3_1_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1_1(player_list_v3_1.at(i)));
+    }
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat", player_list_v3_1_1);
+    // ######### convert player_v3.1 to player_v3.1.1 ######### //
+
+    // ######### convert npc to npc_v3.1.1 ######### //
+    enemy_list_3_1_1.clear();
+    for (int i=0; i<enemy_list.size(); i++) {
+        enemy_list_3_1_1.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_1(enemy_list.at(i)));
+    }
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat", enemy_list_3_1_1);
+    // ######### convert npc to npc_v3.1.1 ######### //
+
 
     ScenesMediator::get_instance()->save_game_scenes();
 
