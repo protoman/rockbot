@@ -1139,24 +1139,22 @@ void game::got_weapon()
 		// fall to ground
         player1.fall();
 
+        std::vector<st_color> color_list;
+        color_list.push_back(st_color(251, 225, 101));
+        color_list.push_back(st_color(101, 105, 251));
+        color_list.push_back(st_color(112, 251, 101));
+        color_list.push_back(st_color(251, 101, 101));
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<color_list.size(); j++) {
+                graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
+                player1.show();
+                loaded_stage.showAbove();
+                draw_lib.update_screen();
+                timer.delay(250);
+            }
+        }
+        // TODO: show victory animation for player
 
-		/// @TODO: walk to boss room middle, if inside a boss room (must create a way to check this), otherwise, just jump up
-        walk_character_to_screen_point_x(&player1, RES_W/2);
-
-		// jump up, implosion, jump down and teleport out of the screen
-        player1.execute_jump_up();
-        draw_implosion(player1.get_real_position().x+player1.get_size().width/2-6, player1.get_real_position().y+player1.get_size().height/2-4);
-        player1.show();
-        draw_lib.update_screen();
-
-        player1.set_weapon(currentStage, false);
-        player1.fall();
-		soundManager.play_sfx(SFX_GOT_WEAPON);
-        timer.delay(5000);
-
-        // fall to ground
-        player1.fall();
-        timer.delay(1500);
 
 		/// @TODO
 		// show the "you got" screen
@@ -1431,6 +1429,8 @@ void game::quick_load_game()
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
     start_stage();
+
+    got_weapon();
 }
 
 void game::set_player_direction(ANIM_DIRECTION dir)
@@ -1496,46 +1496,6 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
 		}
         draw_lib.update_screen();
         timer.delay(10);
-	}
-}
-
-void game::draw_implosion(short int centerX, short int centerY) {
-	int distance=RES_W*0.5, mode=0;
-	int accel=1;
-    int second_distance = 100;
-
-    draw_lib.update_screen();
-	soundManager.stop_music();
-    soundManager.play_repeated_sfx(SFX_IMPLOSION, 1);
-	// x = a + r * cos(t)
-	// y = b + r * sin(t)
-    while (distance > -second_distance) {
-        loaded_stage.showStage();
-        player1.show();
-        loaded_stage.showAbove();
-        if (distance > 0) {
-            for (int i=0; i<6; i++) {
-				graphLib.copyArea(st_rectangle(TILESIZE*mode, 0, graphLib.small_explosion.width/3, graphLib.small_explosion.height), st_position(centerX+distance*cos(static_cast<double>(i*45)), centerY+distance*sin(static_cast<double>(i*45))), &graphLib.small_explosion, &graphLib.gameScreen);
-            }
-        }
-		if (distance < RES_W*0.5-50) {
-            for (int i=0; i<6; i++) {
-				graphLib.copyArea(st_rectangle(TILESIZE*mode, 0, graphLib.small_explosion.width/3, graphLib.small_explosion.height), st_position(centerX+(distance+second_distance)*cos(static_cast<double>(i*45)), centerY+(distance+second_distance)*sin(static_cast<double>(i*45))), &graphLib.small_explosion, &graphLib.gameScreen);
-			}
-		}
-		distance -= 3;
-		if ((int)abs((float)distance) % 4 == 0) {
-			if (mode+1 <= 2) {
-				mode++;
-			} else {
-				mode = 0;
-			}
-			if (accel +1 <= 5) {
-				accel++;
-			}
-		}
-        draw_lib.update_screen();
-        timer.delay(15);
 	}
 }
 

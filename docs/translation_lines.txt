@@ -1,4 +1,8 @@
-// main-menu //
+Parts between // are just to delimit blocks of specific parts.
+Parts between {* and } are notes to describe the meaning of the text and other observations
+
+
+// main-menu items - limit 15 //
 NEW GAME
 LOAD GAME
 CONFIG
@@ -8,13 +12,14 @@ GAME OVER
 AND
 WAS ACQUIRED
 SELECT GAME
+// main menu text - limit 30 //
 ERROR WHILE SAVING GAME
 PLEASE CHECK THAT THE DEVICE OR
 FILE IS NOT WRITE-PROTECTED.
 \xA9 2009-2017 UPPERLAND STUDIOS {*\xA9 is the copyright symbol}
 
 
-// configuration //
+// configuration - limit 30 //
 AUDIO
 INPUT
 VIDEO
@@ -49,6 +54,7 @@ DIRECTIONAL
 ANALOG
 DIGITAL
 
+// error and warning messages - limit 36 //
 CLOUD SAVE REQUIRES
 A NETWORK CONNECTION
 OR GAME WILL FREEZE WHEN
@@ -64,7 +70,7 @@ REQUIRES PHYSICAL CONTROLLER.
 OTHERWISE YOU WON'T BE
 ABLE TO RESTORE SETTING
 
-// errors //
+// errors - limit 30 //
 PASSWORD INVALID
 PRESS START
 ROCKBOT ENGINE ERROR
@@ -77,6 +83,8 @@ NO
 LIFE
 ITEM
 COIN
+
+// varied dialogs - limit 30 //
 GIVE YOU THE ABILITY TO
 IMPROVED ARMS ALLOWS YOU TO
 SHOOT {*as in fire a weapon}
@@ -133,14 +141,14 @@ LOW
 MEDIUM
 HIGH
 
-// stage-select screen //
+// stage-select screen - limit 25 //
 STAGE:
 LAIR OF:
 [ENTER STAGE]
 [UNAVAILABLE IN DEMO]
 RETURN *{as in go back}
 
-// intro strings //
+// intro strings limit 36 //
 PRESENTS
 -- ROCKBOT ENGINE --
 GAME BUILT USING A GAME ENGINE

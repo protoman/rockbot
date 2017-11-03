@@ -108,19 +108,6 @@ public:
 
 
     void draw_explosion(short int centerX, short int centerY, bool show_players);
-    /**
-     * @brief
-     *
-     * @param centerX
-     * @param centerY
-     */
-    void draw_implosion(short int centerX, short int centerY);
-	// PLAYER methods
-    /**
-     * @brief
-     *
-     * @param player_n
-     */
     void show_player();
     /**
      * @brief
