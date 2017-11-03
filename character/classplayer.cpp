@@ -626,7 +626,8 @@ void classPlayer::initFrames()
     // shoot-diagonal-down
     addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, playerSpriteSurface, 100);
 
-    // special-attack
+    // comemoration/got-weapon
+    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, playerSpriteSurface, 100);
     addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, playerSpriteSurface, 100);
 
     playerSpriteSurface.freeGraphic();
