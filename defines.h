@@ -187,8 +187,25 @@ enum ANIM_TYPE {
     ANIM_TYPE_ATTACK_SPECIAL, // (hadouken, shouryuken, etc)
     ANIM_TYPE_LOOK_UP,
     ANIM_TYPE_GRAB_WALL,
+    ANIM_TYPE_HIT_SPECIAL,
+    ANIM_TYPE_GOT_WEAPON,
+    ANIM_TYPE_HOLDING_HAND,
+    // placeholders for future use
+    ANIM_TYPE_PLACEHOLDER0,
+    ANIM_TYPE_PLACEHOLDER1,
+    ANIM_TYPE_PLACEHOLDER2,
+    ANIM_TYPE_PLACEHOLDER3,
+    ANIM_TYPE_PLACEHOLDER4,
+    ANIM_TYPE_PLACEHOLDER5,
+    ANIM_TYPE_PLACEHOLDER6,
+    ANIM_TYPE_PLACEHOLDER7,
+    ANIM_TYPE_PLACEHOLDER8,
+    ANIM_TYPE_PLACEHOLDER9,
     ANIM_TYPE_COUNT
 };
+
+#define OLD_ANIM_TYPE_COUNT 29
+
 
 // alguns como attack_trhow e throw; e special attack e attack_special estão repetidos. fica de reserva futura
 
