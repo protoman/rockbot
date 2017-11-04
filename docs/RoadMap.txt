@@ -98,7 +98,7 @@ MEDIUM:
 - after finishing the game and selecting new game, the ready message and dialogs appear twice
 - ao iniciar vôo, se estiver em ANIM_STAND e tiver animação TURN_VERTICAL, executa ela 1x antes de mudar para AIR_WALK
 - improve game-over screen (it is a dialog over a config bg)
-
+- cleanup old file-format files
 
 -------------------------------------------
 LOW:

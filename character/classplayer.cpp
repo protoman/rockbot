@@ -594,7 +594,8 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 13, playerSpriteSurface, 150);
     addSpriteFrame(ANIM_TYPE_WALK_ATTACK, 14, playerSpriteSurface, 150);
 	// HIT
-    addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_HIT, 16, playerSpriteSurface, 100);
 	// TELEPORT
     addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 750);
     addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 300);

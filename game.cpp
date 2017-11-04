@@ -1440,7 +1440,7 @@ void game::quick_load_game()
 
     start_stage();
 
-    got_weapon();
+    //got_weapon();
 }
 
 void game::set_player_direction(ANIM_DIRECTION dir)
@@ -1468,45 +1468,29 @@ void game::update_stage_scrolling()
 
 
 void game::draw_explosion(short int centerX, short int centerY, bool show_players) {
-	unsigned int timerInit;
-	int distance=0, mode=0;
-	int accel=1;
+    unsigned int timerInit;
+    int distance=0, mode=0;
+    int accel=1;
 
-	timerInit = timer.getTimer();
+    timerInit = timer.getTimer();
 
     draw_lib.update_screen();
-	soundManager.stop_music();
-	soundManager.play_sfx(SFX_PLAYER_DEATH);
-	// x = a + r * cos(t)
-	// y = b + r * sin(t)
-	while (timer.getTimer() < timerInit+2000) {
+    soundManager.stop_music();
+    soundManager.play_sfx(SFX_PLAYER_DEATH);
+
+    //ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize
+    st_float_position anim_pos = st_float_position(centerX-23+get_current_map_obj()->get_map_scrolling_ref()->x, centerY-23);
+    get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion_player_death, anim_pos, st_position(0, 0), 100, 6, player1.get_direction(), st_size(47, 47));
+
+    while (timer.getTimer() < timerInit+2000) {
         loaded_stage.showStage();
         if (show_players) {
             player1.show();
         }
         loaded_stage.showAbove();
-        for (int i=0; i<6; i++) {
-			graphLib.copyArea(st_rectangle(TILESIZE*mode, 0, graphLib.small_explosion.width/3, graphLib.small_explosion.height), st_position(centerX+distance*cos(static_cast<double>(i*45)), centerY+distance*sin(static_cast<double>(i*45))), &graphLib.small_explosion, &graphLib.gameScreen);
-		}
-		if (distance > 50) {
-			for (int i=0; i<6; i++) {
-				graphLib.copyArea(st_rectangle(TILESIZE*mode, 0, graphLib.small_explosion.width/3, graphLib.small_explosion.height), st_position(centerX+(distance-50)*cos(static_cast<double>(i*45)), centerY+(distance-50)*sin(static_cast<double>(i*45))), &graphLib.small_explosion, &graphLib.gameScreen);
-			}
-		}
-		distance += 3;
-		if (distance % 6 == 0) {
-			if (mode+1 <= 2) {
-				mode++;
-			} else {
-				mode = 0;
-			}
-			if (accel +1 <= 5) {
-				accel++;
-			}
-		}
         draw_lib.update_screen();
         timer.delay(10);
-	}
+    }
 }
 
 void game::show_player()

@@ -2760,22 +2760,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         _dropped_from_stairs = true;
     }
 
-    // boss hit animation
-    if (_is_boss == true && hit_animation_timer < now_timer) {
-        if (gameControl.get_current_map_obj() != NULL) {
-            int repeat_times = 4;
-            int frame_duration = BOSS_HIT_DURATION / (repeat_times*2); // one time for show, one time for hide
-            st_rectangle hitbox = get_hitbox();
-            st_float_position hit_anim_pos(hitbox.x + hitbox.w/2 - graphLib.hit.width/4, hitbox.y + hitbox.h/2 - graphLib.hit.height/2);
-
-            st_position adjust(hit_anim_pos.x - position.x, hit_anim_pos.y - position.y);
-            //std::cout << "pos.x[" << position.x << "], hit.x[" << (int)hit_anim_pos.x << "], pos.y[" << position.y << "], hit.y[" << (int)hit_anim_pos.y << "]" << std::endl;
-            gameControl.get_current_map_obj()->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, adjust, frame_duration, repeat_times, state.direction, st_size(24, 24));
-
-        }
-    }
-
-
     last_hit_time = now_timer;
     if (now_timer > hit_duration+last_hit_time) {
         hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
@@ -2788,7 +2772,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
 
     if (is_player() == true && state.animation_type != ANIM_TYPE_HIT) {
-
+        soundManager.play_sfx(SFX_PLAYER_HIT);
         set_animation_type(ANIM_TYPE_HIT);
         if (_obj_jump.is_started() == true) {
             hit_moved_back_n = get_hit_push_back_n()/2;
@@ -2802,7 +2786,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 hit_anim_x = 3;
             }
-            gameControl.get_current_map_obj()->add_animation(ANIMATION_DYNAMIC, &graphLib.hit, position, st_position(hit_anim_x, 5), 150, 4, state.direction, st_size(24, 24));
         }
 	}
 

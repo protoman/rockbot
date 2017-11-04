@@ -2009,11 +2009,11 @@ void graphicsLib::preload_images()
 	surfaceFromFile(filename, &explosion32);
     filename = FILEPATH + "images/animations/explosion_16.png";
 	surfaceFromFile(filename, &explosion16);
+    filename = FILEPATH + "images/animations/player_death_explosion.png";
+    surfaceFromFile(filename, &explosion_player_death);
 
     filename = FILEPATH + "images/animations/dash_dust.png";
 	surfaceFromFile(filename, &dash_dust);
-    filename = FILEPATH + "images/animations/hit.png";
-	surfaceFromFile(filename, &hit);
 
     filename = FILEPATH + "images/animations/water_splash.png";
 	surfaceFromFile(filename, &water_splash);

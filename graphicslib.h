@@ -272,8 +272,8 @@ public:
 
     graphicsLib_gSurface explosion32;
     graphicsLib_gSurface explosion16;
+    graphicsLib_gSurface explosion_player_death;
     graphicsLib_gSurface dash_dust;
-    graphicsLib_gSurface hit;
     graphicsLib_gSurface water_splash;
 
     graphicsLib_gSurface armor_icon_arms;
