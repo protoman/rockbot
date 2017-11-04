@@ -627,8 +627,8 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_ATTACK_DIAGONAL_DOWN, 24, playerSpriteSurface, 100);
 
     // comemoration/got-weapon
-    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 25, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 26, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 27, playerSpriteSurface, 200);
 
     playerSpriteSurface.freeGraphic();
 

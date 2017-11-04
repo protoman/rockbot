@@ -489,7 +489,7 @@ namespace format_v4 {
         st_size_int8 sprite_size;                                       // size of sprite graphic
         st_rectangle sprite_hit_area;                                   // the area of the graphic where is used for hit/collision
         Uint8 move_speed;                                               // how many sprites move each step
-        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
+        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];
         file_weapon_colors weapon_colors[MAX_WEAPON_N];
         // habilities part
         bool have_shield;
@@ -621,7 +621,7 @@ namespace format_v4 {
         Sint16 walk_range;                                         // defines how long from the start point it can go
         Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
         struct st_position start_point;
-        st_sprite_data sprites[OLD_ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
+        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
         st_size_int8 frame_size;
         bool is_ghost;
         Sint8 shield_type;

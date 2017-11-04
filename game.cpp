@@ -1136,7 +1136,9 @@ void game::got_weapon()
 
 		/// @TODO: teletransport if capsules
 
+        soundManager.stop_music();
 		// fall to ground
+        soundManager.play_sfx(SFX_BIG_EXPLOSION);
         player1.fall();
 
         std::vector<st_color> color_list;
@@ -1144,17 +1146,25 @@ void game::got_weapon()
         color_list.push_back(st_color(101, 105, 251));
         color_list.push_back(st_color(112, 251, 101));
         color_list.push_back(st_color(251, 101, 101));
+        soundManager.play_sfx(SFX_GOT_WEAPON);
         for (int i=0; i<2; i++) {
             for (int j=0; j<color_list.size(); j++) {
                 graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
                 player1.show();
                 loaded_stage.showAbove();
                 draw_lib.update_screen();
-                timer.delay(250);
+                timer.delay(300);
             }
         }
-        // TODO: show victory animation for player
-
+        long end_timer = timer.getTimer() + 3500;
+        player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
+        while (timer.getTimer() < end_timer) {
+            loaded_stage.showStage();
+            player1.show();
+            loaded_stage.showAbove();
+            draw_lib.update_screen();
+            timer.delay(250);
+        }
 
 		/// @TODO
 		// show the "you got" screen

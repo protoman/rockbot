@@ -142,7 +142,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, id[%d]", _number);
 #endif
 
-    CURRENT_FILE_FORMAT::file_npc* copyref = GameMediator::get_instance()->get_enemy(main_id);
+    CURRENT_FILE_FORMAT::file_npc_v3_1_1* copyref = GameMediator::get_instance()->get_enemy(main_id);
 
     name = std::string(copyref->name);
 

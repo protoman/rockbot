@@ -89,7 +89,7 @@ void npc_edit::fill_data()
 
 void npc_edit::add_frame_one()
 {
-    CURRENT_FILE_FORMAT::file_npc* new_npc_ref = &Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
+    CURRENT_FILE_FORMAT::file_npc_v3_1_1* new_npc_ref = &Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
     if (new_npc_ref->sprites[ANIM_TYPE_STAND][0].used == false) {
         new_npc_ref->sprites[ANIM_TYPE_STAND][0].used = true;
         new_npc_ref->sprites[ANIM_TYPE_STAND][0].duration = 100;

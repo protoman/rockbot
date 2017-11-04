@@ -90,7 +90,7 @@ Mediator::Mediator() : stage_data() {
 
     if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player(i));
+            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1_1(i));
         }
     }
 
@@ -383,9 +383,9 @@ void Mediator::load_game() {
     load_game_data();
     Mediator::get_instance()->fio.read_castle_data(castle_data);
 
-    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat");
+    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat");
     if (enemy_list.size() == 0) { // add one first item to avoid errors
-        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
+        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_1());
     }
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     if (object_list.size() == 0) { // add one first item to avoid errors
@@ -439,10 +439,10 @@ void Mediator::load_game() {
 
     anim_block_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat");
 
-    player_list_v3_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat");
+    player_list_v3_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat");
     if (player_list_v3_1.size() == 0) {
         for (int i=0; i<FS_MAX_PLAYERS; i++) {
-            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player(i));
+            player_list_v3_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1_1(i));
         }
     }
 
@@ -494,7 +494,7 @@ void Mediator::save_game()
     save_map_data();
     Mediator::get_instance()->fio.write_castle_data(castle_data);
 
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc>("game_enemy_list.dat", enemy_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
 
@@ -507,8 +507,9 @@ void Mediator::save_game()
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1>("player_list_v3_1.dat", player_list_v3_1);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat", player_list_v3_1);
 
+    /*
     // ######### convert player_v3.1 to player_v3.1.1 ######### //
     player_list_v3_1_1.clear();
     for (int i=0; i<player_list_v3_1.size(); i++) {
@@ -524,6 +525,7 @@ void Mediator::save_game()
     }
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat", enemy_list_3_1_1);
     // ######### convert npc to npc_v3.1.1 ######### //
+    */
 
 
     ScenesMediator::get_instance()->save_game_scenes();
@@ -615,7 +617,7 @@ void Mediator::clean_data()
 void Mediator::temp_fix_player_colors_order()
 {
     for (int i=0; i<player_list_v3_1.size(); i++) {
-        CURRENT_FILE_FORMAT::file_player_v3_1 temp_player = player_list_v3_1.at(i);
+        CURRENT_FILE_FORMAT::file_player_v3_1_1 temp_player = player_list_v3_1.at(i);
         CURRENT_FILE_FORMAT::file_weapon_colors copy_weapon_colors[MAX_WEAPON_N];
         for (int j=0; j<MAX_WEAPON_N; j++) {
             copy_weapon_colors[j] = player_list_v3_1.at(i).weapon_colors[j];

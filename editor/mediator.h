@@ -141,8 +141,8 @@ public:
     std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> maps_data_object_list;
 
 
-    std::vector<CURRENT_FILE_FORMAT::file_npc> enemy_list;
-    std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_1> enemy_list_3_1_1;
+    std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_1> enemy_list;
+    //std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_1> enemy_list_3_1_1;
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
     //std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3> ai_list;
@@ -154,8 +154,8 @@ public:
 
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_block_list;
-    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1> player_list_v3_1;
-    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1_1> player_list_v3_1_1;
+    std::vector<CURRENT_FILE_FORMAT::file_player_v3_1_1> player_list_v3_1;
+    //std::vector<CURRENT_FILE_FORMAT::file_player_v3_1_1> player_list_v3_1_1;
 
 
 
