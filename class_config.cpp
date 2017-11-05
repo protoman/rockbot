@@ -224,7 +224,7 @@ st_position class_config::move_weapon_curstor_down()
 
 void class_config::weapon_menu_show_player()
 {
-    graphLib.copyArea(st_position(26, 195), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &graphLib.gameScreen);
+    graphLib.copyArea(st_position(16, 195), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &graphLib.gameScreen);
 }
 
 void class_config::use_tank(int tank_type)

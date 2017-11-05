@@ -77,9 +77,7 @@ CRITICAL:
 -------------------------------------------
 SERIOUS:
 -------------------------------------------
-- refactor weapon-menu screen to show full weapon names
 - lighting bolt must be only one time and in the closest enemy position (x and y+h)
-- remove "coins" icon
 - EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
     # 3 way horizontal
@@ -103,6 +101,7 @@ MEDIUM:
 -------------------------------------------
 LOW:
 -------------------------------------------
+- refactor weapon-menu screen to show full weapon names
 - update screenshots in the app-store for rockbot 2 free
 - add text on images telling about features
 - usar "retro action plataformer" to describe the game

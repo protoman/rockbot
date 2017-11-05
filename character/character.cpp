@@ -2906,7 +2906,7 @@ void character::fall()
 {
 	/// @TODO
     _obj_jump.finish();
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<RES_H; i++) {
 		char_update_real_position();
 		gravity(false);
 		if (hit_ground() == true && state.animation_type == ANIM_TYPE_STAND) {
@@ -2924,18 +2924,20 @@ void character::fall()
     }
 }
 
+// @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
     _obj_jump.finish();
-    for (int i=0; i<100; i++) {
+    for (int i=0; i<RES_H; i++) {
         char_update_real_position();
-        gravity(false);
-        if (hit_ground() == true) {
-            //std::cout << "CHAR::fall_to_ground, STOP" << std::endl;
+        //gravity(true);
+        position.y++;
+        if (position.y >= RES_H/2 && hit_ground() == true) {
+            std::cout << "################## CHAR::fall_to_ground y[" << position.y << "]" << std::endl;
             return;
         }
-        //std::cout << "CHAR::fall_to_ground, i[" << i << "], y[" << position.y << "]" << std::endl;
     }
+    std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
 void character::initialize_position_to_ground()

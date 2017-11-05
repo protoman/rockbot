@@ -686,7 +686,7 @@ FILE-FORMAT-V4:
 
 ########################################### 2.00.092 ###########################################
 
-- translate you got" text
+- translate "you got" text
 - change "presents" image on intro
 - add on intro text that game is homebrew
 - ROCKBOT1: mispell ravok on intro, should be havok
@@ -703,10 +703,15 @@ FILE-FORMAT-V4:
 - fixes for enemy teleport animation and AI
 - add check for android touch controls max-size value
 
-########################################### 2.00.093 ###########################################
+###################################### 1.20.040/2.00.093 ######################################
 - add reset timer to enemies and objects on game_unpause
 - foreground layer get doubled and out of position when transitioning maps up/down
 - objects and enemies must check for difficulty-ground terrain types
 - EDITOR: show error in name when using one that already exists
 - re-add spawn to gear bot's mecha AI
 - coil frog respawning when you return to the map you used it
+- new teleport animation for player without falling down on start-start
+- new damage sprites for player
+- new player death animation and fade-out effect
+- press attack button to return from new/load game save selector
+- sub-menus in config must remember picked option

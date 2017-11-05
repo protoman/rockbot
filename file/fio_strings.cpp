@@ -188,7 +188,8 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_password], "%s", "SENHA");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "E");
-            sprintf(lines[strings_ingame_yougot], "%s", "FOI ADQUIRIDA");
+            sprintf(lines[strings_ingame_yougot_singular], "%s", "FOI ADQUIRIDA");
+            sprintf(lines[strings_ingame_yougot_plural], "%s", "FORAM ADQUIRIDOS");
             sprintf(lines[strings_ingame_selectgame], "%s", "SELECIONE JOGO");
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
@@ -343,7 +344,8 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_password], "%s", "PASSWORD");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "AND");
-            sprintf(lines[strings_ingame_yougot], "%s", "WAS ACQUIRED");
+            sprintf(lines[strings_ingame_yougot_singular], "%s", "HAS BEEN ACQUIRED");
+            sprintf(lines[strings_ingame_yougot_plural], "%s", "HAVE BEEN ACQUIRED");
             sprintf(lines[strings_ingame_selectgame], "%s", "SELECT GAME");
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");

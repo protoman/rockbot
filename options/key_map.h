@@ -53,7 +53,7 @@ private:
      */
     void redraw_line(short line) const;
 
-    Sint8 draw_config_input() const;
+    Sint8 draw_config_input(short current_selection) const;
 
     Sint8 pick_joystick();
 

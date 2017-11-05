@@ -16,6 +16,7 @@ soundLib::soundLib() : _repeated_sfx_channel(-1), _repeated_sfx(-1)
 {
 	music = NULL;
 	boss_music = NULL;
+    is_playing_boss_music = false;
 
     //game_config.volume_music = 10;
     //game_config.volume_sfx = 100;
@@ -288,6 +289,7 @@ void soundLib::unload_music()
 		Mix_FreeMusic(music);
 		music = NULL;
 	}
+    is_playing_boss_music = false;
 }
 
 
@@ -316,6 +318,7 @@ void soundLib::play_music() {
 }
 
 void soundLib::play_boss_music() {
+    is_playing_boss_music = true;
 	if (game_config.sound_enabled == false) {
         return;
 	}
@@ -338,6 +341,7 @@ void soundLib::play_boss_music() {
 }
 
 void soundLib::load_stage_music(std::string filename) {
+    is_playing_boss_music = false;
     //std::cout << "soundLib::load_stage_music - filename: " << filename << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SOUNDLIB::load_stage_music[%s] ###", filename.c_str());
@@ -346,7 +350,7 @@ void soundLib::load_stage_music(std::string filename) {
     if (filename.length() > 0) {
         load_music(filename);
 	} else {
-        std::cout << "soundLib::load_stage_music - NO MUSIC." << std::endl;
+        std::cout << "soundLib::load_stage_music - music filename undefined." << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SOUNDLIB::load_stage_music - music is NULL ###");
 #endif
@@ -458,5 +462,10 @@ Mix_Chunk* soundLib::sfx_from_file(string filename)
     filename = FILEPATH + "sfx/" + filename;
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
     return sfx;
+}
+
+bool soundLib::get_is_playing_boss_music()
+{
+    return is_playing_boss_music;
 }
 

@@ -365,6 +365,10 @@ void game::restart_stage()
     loaded_stage.showAbove();
 	graphLib.set_screen_adjust(st_position(0, 0));
     draw_lib.update_screen();
+    // if was on stage-boss, mneeds to reload music
+    if (soundManager.get_is_playing_boss_music() == true) {
+        soundManager.load_stage_music(stage_data.bgmusic_filename);
+    }
     soundManager.restart_music();
     show_player_teleport();
 
@@ -1206,9 +1210,7 @@ void game::got_weapon()
 		}
 
 
-        std::string phrase = weapon_name + std::string(" ") + std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot, game_config.selected_language) + " ");
-
-		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), phrase, false);
+        // line 1, weapon name; line 2 extra item; line 3 was acquired
 		std::string extra_name = "";
         if (currentStage == COIL_GOT_STAGE) {
             std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
@@ -1217,7 +1219,17 @@ void game::got_weapon()
             std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
             extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and, game_config.selected_language) + std::string(" ") + item_name;
         }
-		graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
+        std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular, game_config.selected_language) + " ");
+        graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);
+        short line3_pos = RES_H * 0.5 + 8;
+        if (extra_name.length() > 0) {
+            graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
+            line3_pos = RES_H * 0.5 + 20;
+            phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_plural, game_config.selected_language) + " ");
+        }
+        graphLib.draw_progressive_text((RES_W * 0.5 - 90), line3_pos, phrase, false);
+
+
 
         player1.show();
 

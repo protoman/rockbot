@@ -190,16 +190,30 @@ void scenesLib::main_screen()
                 exit(0);
             }
         } else if (picked_n == 0) { // NEW GAME
-			repeat_menu = false;
-            gameControl.set_current_stage(INTRO_STAGE);
-            gameControl.set_current_save_slot(select_save(true));
-            game_save.reset();
+            short selected_save = select_save(true);
+            if (selected_save != -1) {
+                repeat_menu = false;
+                gameControl.set_current_stage(INTRO_STAGE);
+                gameControl.set_current_save_slot(selected_save);
+                game_save.reset();
+            } else {
+                input.clean_all();
+                draw_main();
+                main_picker.draw();
+            }
         } else if (picked_n == 1) { // LOAD GAME
-            gameControl.set_current_save_slot(select_save(false));
-            if (have_save == true) {
-                fio.read_save(game_save, gameControl.get_current_save_slot());
-				repeat_menu = false;
-			}
+            short selected_save = select_save(true);
+            if (selected_save != -1) {
+                gameControl.set_current_save_slot(selected_save);
+                if (have_save == true) {
+                    fio.read_save(game_save, gameControl.get_current_save_slot());
+                    repeat_menu = false;
+                }
+            } else {
+                input.clean_all();
+                draw_main();
+                main_picker.draw();
+            }
         } else if (picked_n == 2) {
             show_main_config(0, false);
 			draw_main();
@@ -274,7 +288,6 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, game_config.selected_language)));
 
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance, game_config.selected_language)));
-
 
     if (called_from_game) {
         if (stage_finished) {
@@ -617,7 +630,7 @@ void scenesLib::show_config_android()
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
-        selected_option = main_config_picker.pick();
+        selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
             game_config.android_touch_controls_hide = !game_config.android_touch_controls_hide;
             game_services.set_touch_controls_visible(!game_config.android_touch_controls_hide);
@@ -668,39 +681,44 @@ void scenesLib::show_config_video()
 	config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
 	input.clean();
     timer.delay(300);
-	std::vector<std::string> options;
 
-    if (game_config.video_fullscreen == false) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
-	} else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
-	}
-
-    if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale, game_config.selected_language));
-    } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x, game_config.selected_language));
-    } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, game_config.selected_language));
-    }
 
     short selected_option = 0;
-    option_picker main_config_picker(false, config_text_pos, options, true);
-	selected_option = main_config_picker.pick();
-	if (selected_option == 0) {
-        game_config.video_fullscreen = !game_config.video_fullscreen;
-    } else if (selected_option == 1) {
-        game_config.video_filter++;
-        if (game_config.video_filter >= VIDEO_FILTER_COUNT) {
-            game_config.video_filter = 0;
+
+    while (selected_option != -1) {
+        std::vector<std::string> options;
+        if (game_config.video_fullscreen == false) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
         }
-    }
-    if (selected_option != -1) {
-        fio.save_config(game_config);
-        show_config_ask_restart();
-        st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
-        graphLib.clear_area(menu_pos.x-14, menu_pos.y, RES_W, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-        show_config_video();
+
+        if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale, game_config.selected_language));
+        } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x, game_config.selected_language));
+        } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, game_config.selected_language));
+        }
+
+
+        option_picker main_config_picker(false, config_text_pos, options, true);
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option == 0) {
+            game_config.video_fullscreen = !game_config.video_fullscreen;
+        } else if (selected_option == 1) {
+            game_config.video_filter++;
+            if (game_config.video_filter >= VIDEO_FILTER_COUNT) {
+                game_config.video_filter = 0;
+            }
+        }
+        if (selected_option != -1) {
+            fio.save_config(game_config);
+            show_config_ask_restart();
+            st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
+            graphLib.clear_area(menu_pos.x-14, menu_pos.y, RES_W, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            main_config_picker.draw();
+        }
     }
 }
 
@@ -712,21 +730,25 @@ void scenesLib::show_config_video_PSP()
     input.clean();
     timer.delay(300);
 
-    std::vector<std::string> options;
-    if (game_config.video_fullscreen == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
-    } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
-    }
     short selected_option = 0;
-    option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = main_config_picker.pick();
-    if (selected_option == 0) {
-        game_config.video_fullscreen = !game_config.video_fullscreen;
-    }
-    if (selected_option != -1) {
-        fio.save_config(game_config);
-        show_config_ask_restart();
+
+    while (selected_option != -1) {
+        std::vector<std::string> options;
+        if (game_config.video_fullscreen == true) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
+        }
+        option_picker main_config_picker(false, config_text_pos, options, true);
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option == 0) {
+            game_config.video_fullscreen = !game_config.video_fullscreen;
+        }
+        if (selected_option != -1) {
+            fio.save_config(game_config);
+            show_config_ask_restart();
+            main_config_picker.draw();
+        }
     }
 }
 
@@ -738,15 +760,18 @@ void scenesLib::show_config_wii()
     input.clean();
     timer.delay(300);
 
-    std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE, game_config.selected_language));
     short selected_option = 0;
-    option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = main_config_picker.pick();
-    if (selected_option != -1) {
-        game_config.wii_joystick_type = selected_option;
+    while (selected_option != -1) {
+        std::vector<std::string> options;
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE, game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC, game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE, game_config.selected_language));
+        option_picker main_config_picker(false, config_text_pos, options, true);
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option != -1) {
+            game_config.wii_joystick_type = selected_option;
+            main_config_picker.draw();
+        }
     }
 }
 
@@ -768,11 +793,14 @@ void scenesLib::show_config_PS2()
 
     short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = main_config_picker.pick();
-    if (selected_option != -1) {
-        game_config.playstation2_video_mode = selected_option;
-        fio.save_config(game_config);
-        show_config_ask_restart();
+    while (selected_option != -1) {
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option != -1) {
+            game_config.playstation2_video_mode = selected_option;
+            fio.save_config(game_config);
+            show_config_ask_restart();
+            main_config_picker.draw();
+        }
     }
 }
 
@@ -812,22 +840,25 @@ void scenesLib::show_config_audio()
 
 	short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
-	selected_option = main_config_picker.pick();
-	if (selected_option == 0) {
-        if (game_config.sound_enabled == false) {
-            soundManager.enable_sound();
-        } else {
-            soundManager.disable_sound();
+    selected_option = 0;
+    while (selected_option != -1) {
+        main_config_picker.draw();
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option == 0) {
+            if (game_config.sound_enabled == false) {
+                soundManager.enable_sound();
+            } else {
+                soundManager.disable_sound();
+            }
+        } else if (selected_option == 1) {
+            config_int_value(game_config.volume_music, 1, 128);
+            soundManager.update_volumes();
+            fio.save_config(game_config);
+        } else if (selected_option == 2) {
+            config_int_value(game_config.volume_sfx, 1, 128);
+            soundManager.update_volumes();
+            fio.save_config(game_config);
         }
-        show_config_audio();
-    } else if (selected_option == 1) {
-        config_int_value(game_config.volume_music, 1, 128);
-        soundManager.update_volumes();
-        fio.save_config(game_config);
-    } else if (selected_option == 2) {
-        config_int_value(game_config.volume_sfx, 1, 128);
-        soundManager.update_volumes();
-        fio.save_config(game_config);
     }
 }
 
@@ -873,32 +904,19 @@ void scenesLib::show_config_language()
 
     short selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = main_config_picker.pick();
-    game_config.selected_language = selected_option;
-    fio.save_config(game_config);
-    show_config_ask_restart();
+    while (selected_option != -1) {
+        selected_option = main_config_picker.pick(selected_option+1);
+        if (selected_option != -1) {
+            game_config.selected_language = selected_option;
+            fio.save_config(game_config);
+            show_config_ask_restart();
+            main_config_picker.draw();
+        }
+    }
 }
 
 void scenesLib::show_config_performance()
 {
-    /*
-    st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
-    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
-    input.clean();
-    timer.delay(300);
-
-    std::vector<std::string> options;
-    options.push_back("LOW-END");
-    options.push_back("NORMAL");
-    options.push_back("HIGH-END");
-
-    short selected_option = 0;
-    option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = main_config_picker.pick(game_config.graphics_performance_mode+1);
-    game_config.graphics_performance_mode = selected_option;
-    */
-
     short selected_option = 0;
     while (selected_option != -1) {
         st_position config_text_pos;
@@ -926,7 +944,7 @@ void scenesLib::show_config_performance()
 
         option_picker main_config_picker(false, config_text_pos, options, true);
 
-        selected_option = main_config_picker.pick();
+        selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
             game_config.graphics_performance_mode++;
             if (game_config.graphics_performance_mode > PERFORMANCE_MODE_HIGH) {
@@ -995,7 +1013,7 @@ void scenesLib::config_int_value(Uint8 &value_ref, int min, int max)
 {
     int config_text_pos_x = graphLib.get_config_menu_pos().x + 24;
     int config_text_pos_y = graphLib.get_config_menu_pos().y + 40;
-    graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 100, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 300, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     input.clean();
     timer.delay(10);
     char value[3]; // for now, we handle only 0-999
@@ -1357,6 +1375,8 @@ short scenesLib::select_save(bool is_new_game)
             } else {
                 break;
             }
+        } else if (input.p1_input[BTN_ATTACK] == 1) {
+            return -1;
         } else if (input.p1_input[BTN_UP] == 1) {
             selected--;
             soundManager.play_sfx(SFX_CURSOR);

@@ -34,7 +34,7 @@ public:
     void unload_music();
     void play_music();
     void play_boss_music();
-    void load_stage_music (string filename);
+    void load_stage_music(string filename);
     void restart_music();
     void stop_music() const;
     void close_audio();
@@ -48,6 +48,7 @@ public:
     void play_shared_sfx(std::string filename);
     void play_sfx_from_chunk(Mix_Chunk* chunk, int repeat_n);
     Mix_Chunk *sfx_from_file(std::string filename);
+    bool get_is_playing_boss_music();
 
 private:
 
@@ -60,6 +61,7 @@ private:
     Mix_Music *boss_music; /**< TODO */
     Sint8 _repeated_sfx_channel; /**< TODO */
     Uint8 _repeated_sfx; /**< TODO */
+    bool is_playing_boss_music;
 };
 
 #endif // SOUNDLIB_H

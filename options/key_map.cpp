@@ -125,7 +125,7 @@ void key_map::redraw_line(short line) const
 
 
 
-Sint8 key_map::draw_config_input() const
+Sint8 key_map::draw_config_input(short current_selection) const
 {
     input.clean();
     timer.delay(100);
@@ -166,7 +166,7 @@ Sint8 key_map::draw_config_input() const
 
     Sint8 selected_option = -1;
     option_picker main_config_picker(false, st_position(CONFIG_MENU_LEFT_SPACING, CONFIG_MENU_TOP_SPACING), options, true);
-    selected_option = main_config_picker.pick();
+    selected_option = main_config_picker.pick(current_selection+1);
     return selected_option;
 }
 
@@ -284,7 +284,7 @@ void key_map::config_input()
     int selected_option = 0;
 
     while (selected_option != -1) {
-        selected_option = draw_config_input();
+        selected_option = draw_config_input(selected_option);
 
         if (selected_option == 0) {
             config_buttons();
