@@ -2592,6 +2592,16 @@ bool character::get_can_fly()
     return can_fly;
 }
 
+bool character::animation_has_restarted()
+{
+    return _was_animation_reset;
+}
+
+void character::set_animation_has_restarted(bool restarted)
+{
+    _was_animation_reset = restarted;
+}
+
 
 
 void character::remove_freeze_effect()
@@ -2920,14 +2930,12 @@ void character::fall_to_ground()
     for (int i=0; i<100; i++) {
         char_update_real_position();
         gravity(false);
-        if (hit_ground() == true && state.animation_type == ANIM_TYPE_STAND) {
+        if (hit_ground() == true) {
             //std::cout << "CHAR::fall_to_ground, STOP" << std::endl;
-            show();
             return;
         }
         //std::cout << "CHAR::fall_to_ground, i[" << i << "], y[" << position.y << "]" << std::endl;
     }
-    show();
 }
 
 void character::initialize_position_to_ground()
@@ -3192,6 +3200,11 @@ void character::set_animation_type(ANIM_TYPE type)
     }
     state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
+}
+
+void character::set_animation_frame(uint frame)
+{
+    state.animation_state = frame;
 }
 
 

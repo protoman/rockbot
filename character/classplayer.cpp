@@ -49,7 +49,7 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     position.y = -TILESIZE;
 	position.x = 80;
     hit_duration = 2000;
-	hitPoints.total = PLAYER_INITIAL_HP;
+    hitPoints.total = PLAYER_INITIAL_HP;
 	hitPoints.current = hitPoints.total;
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
@@ -597,9 +597,9 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 100);
     addSpriteFrame(ANIM_TYPE_HIT, 16, playerSpriteSurface, 100);
 	// TELEPORT
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 750);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 300);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, playerSpriteSurface, 100);
 	// STAIRS
     addSpriteFrame(ANIM_TYPE_STAIRS, 17, playerSpriteSurface, 5000);
 	// stairs semi
@@ -947,6 +947,9 @@ int classPlayer::get_teleporter()
 
 void classPlayer::death()
 {
+    soundManager.stop_music();
+    soundManager.play_sfx(SFX_PLAYER_DEATH);
+
     //std::cout << "PLAYER::death, x: " << position.x << std::endl;
     gameControl.get_current_map_obj()->print_objects_number();
     reset_charging_shot();
@@ -970,7 +973,9 @@ void classPlayer::death()
 	input.clean();
 	state.direction = ANIM_DIRECTION_RIGHT;
     gameControl.remove_current_teleporter_from_list();
+    draw_lib.add_fade_out_effect(171, 0, 19);
     gameControl.draw_explosion(realPosition.x, realPosition.y, false);
+    draw_lib.remove_fade_out_effect();
     if (game_save.items.lifes == 0) {
         game_save.items.lifes = 3;
         std::cout << "GAME OVER" << std::endl;
@@ -978,7 +983,7 @@ void classPlayer::death()
         return;
     }
     game_save.items.lifes--;
-    //std::cout << "PLAYER::DEATH::DONE" << std::endl;
+    std::cout << "PLAYER::DEATH::DONE" << std::endl;
 }
 
 void classPlayer::reset_hp()

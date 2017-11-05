@@ -134,12 +134,6 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
         }
     }
 
-    /// @TODO - move this to the player, so we don't need to check every single loop
-    if (player1.is_dead() == true) {
-        //std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
-        restart_stage();
-        return;
-    }
 
     if (test_teleport(&player1)) {
         return;
@@ -159,6 +153,13 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     if (can_characters_move == true) {
         player1.execute();
         loaded_stage.move_npcs();
+    }
+
+    /// @TODO - move this to the player, so we don't need to check every single loop
+    if (player1.is_dead() == true) {
+        //std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
+        restart_stage();
+        return;
     }
 
     if (_dark_mode == false) {
@@ -244,7 +245,6 @@ void game::start_stage()
     player1.cancel_slide();
 
     player1.clean_projectiles();
-    player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_direction(ANIM_DIRECTION_RIGHT);
     player1.refill_weapons();
     player1.reset_hp();
@@ -253,12 +253,7 @@ void game::start_stage()
     int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
     player1.set_teleport_minimal_y(min_y*TILESIZE);
 
-    player1.fall_to_ground();
-
     loaded_stage.showStage();
-    for (int k=0; k<5; k++) {
-        player1.show();
-    }
     loaded_stage.showAbove();
     //draw_lib.update_screen();
     draw_lib.fade_in_screen(0, 0, 0);
@@ -269,19 +264,44 @@ void game::start_stage()
 
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
         input.clean_all();
-        showGame(false, false);
+        loaded_stage.showStage();
         draw_lib.update_screen();
         timer.delay(20);
     }
     loaded_stage.add_autoscroll_delay();
 
+    show_player_teleport();
     game_dialogs.show_stage_dialog(currentStage);
     showGame(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
 
-    show_ready();
 
+}
+
+void game::show_player_teleport()
+{
+    player1.fall_to_ground();
+    player1.set_animation_type(ANIM_TYPE_TELEPORT);
+    player1.set_animation_frame(0);
+    long end_time = timer.getTimer() + 1500;
+    bool player_reset_animation = false;
+    while (timer.getTimer() < end_time) {
+        loaded_stage.showStage();
+        loaded_stage.showAbove();
+        if (player1.animation_has_restarted()) {
+            player1.set_animation_frame(1);
+            player1.set_animation_has_restarted(false);
+        }
+        player1.show();
+        draw_lib.update_screen();
+        timer.delay(20);
+    }
+    player1.set_animation_frame(2);
+    player1.show();
+    draw_lib.update_screen();
+    timer.delay(20);
+    show_ready();
 }
 
 void game::show_ready()
@@ -346,9 +366,7 @@ void game::restart_stage()
 	graphLib.set_screen_adjust(st_position(0, 0));
     draw_lib.update_screen();
     soundManager.restart_music();
-    player1.set_animation_type(ANIM_TYPE_TELEPORT);
-    player1.fall_to_ground();
-    show_ready();
+    show_player_teleport();
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
         input.clean_all();
@@ -1401,7 +1419,7 @@ void game::quick_load_game()
 
     currentStage = INTRO_STAGE;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_4;
 
     /*
     // DEBUG //
@@ -1475,8 +1493,6 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
     timerInit = timer.getTimer();
 
     draw_lib.update_screen();
-    soundManager.stop_music();
-    soundManager.play_sfx(SFX_PLAYER_DEATH);
 
     //ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize
     st_float_position anim_pos = st_float_position(centerX-23+get_current_map_obj()->get_map_scrolling_ref()->x, centerY-23);
@@ -1491,6 +1507,7 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
         draw_lib.update_screen();
         timer.delay(10);
     }
+    timer.delay(300);
 }
 
 void game::show_player()

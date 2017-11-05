@@ -209,6 +209,7 @@ public:
 
 
     void set_animation_type(enum ANIM_TYPE type);
+    void set_animation_frame(uint frame);
 
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();
@@ -220,6 +221,8 @@ public:
     void remove_freeze_effect();
     void push_back(short direction);
     bool get_can_fly();
+    bool animation_has_restarted();
+    void set_animation_has_restarted(bool restarted);
 
 
 private:

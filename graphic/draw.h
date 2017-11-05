@@ -52,6 +52,8 @@ public:
     void show_ingame_warning(std::vector<std::string> message);
     void fade_in_screen(int r, int g, int b);
     void fade_out_screen(int r, int g, int b, int total_delay);
+    void add_fade_out_effect(int r, int g, int b);
+    void remove_fade_out_effect();
     void pixelate_screen();
     void add_weapon_tooltip(short weapon_n, const st_position &player_pos, const Uint8 &direction);
     void clear_maps_dynamic_background_list();
@@ -134,6 +136,9 @@ private:
     short _weapon_tooltip_n;                            // weapon number to show
     const Uint8* _weapon_tooltip_direction_ref;         // reference to player direction, so we can draw the icon in the correct position
     st_float_position *_map_scroll_ref;                 // reference to map scroll, so we can adjust position
+    int current_alpha;                                  // used for fade effect that runs each time update-screen is called
+    st_color current_alpha_color;
+    graphicsLib_gSurface current_alpha_surface;
 
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage

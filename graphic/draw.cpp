@@ -68,6 +68,7 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     _inferno_alpha = 0;
     _inferno_alpha_mode = 0;
     _boss_current_hp = -99;
+    current_alpha = -1;
 
 }
 
@@ -142,6 +143,17 @@ void draw::show_gfx()
 
 void draw::update_screen()
 {
+    if (current_alpha != -1) {
+        if (current_alpha < 254) {
+            current_alpha += 2;
+        }
+        if (current_alpha_surface.width == 0) {
+            graphLib.initSurface(st_size(RES_W, RES_H), &current_alpha_surface);
+            graphLib.clear_surface_area(0, 0, RES_W, RES_H, current_alpha_color.r, current_alpha_color.g, current_alpha_color.b, current_alpha_surface);
+        }
+        graphLib.set_surface_alpha(current_alpha, current_alpha_surface);
+        graphLib.showSurface(&current_alpha_surface);
+    }
     graphLib.updateScreen();
 }
 
@@ -719,6 +731,19 @@ void draw::fade_out_screen(int r, int g, int b, int total_delay)
             timer.delay(delay);
         }
     }
+}
+
+// executes the fade-out each time update screen is called
+void draw::add_fade_out_effect(int r, int g, int b)
+{
+    current_alpha = 0;
+    current_alpha_color = st_color(r, g, b);
+}
+
+void draw::remove_fade_out_effect()
+{
+    current_alpha = -1;
+    current_alpha_surface.freeGraphic();
 }
 
 void draw::pixelate_screen()

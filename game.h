@@ -235,6 +235,7 @@ private:
     bool check_player_is_on_teleport(classPlayer *test_player, int currentMap, int temp_x, int temp_y, int link_n, int transition_type, int &teleport_count, int &teleporter_dist, int &player_x, int &link_type);
     bool is_link_teleporter(int type);
     void start_stage();
+    void show_player_teleport();
 
 
     void show_ready();
