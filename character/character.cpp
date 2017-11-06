@@ -1488,7 +1488,13 @@ bool character::slide(st_float_position mapScrolling)
 	// no need to slide
     if (state.animation_type != ANIM_TYPE_SLIDE && moveCommands.dash != 1) {
 		return false;
-	}
+    }
+
+    if (position.x <= 0 && state.direction == ANIM_DIRECTION_LEFT) {
+        set_animation_type(ANIM_TYPE_JUMP);
+        state.slide_distance = 0;
+        return false;
+    }
 
 
     bool did_hit_ground = hit_ground();
@@ -1611,9 +1617,14 @@ bool character::slide(st_float_position mapScrolling)
     }
 
 
-    if (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER) {
+    if (res_move_x != 0 && (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER)) {
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
+    } else {
+        std::cout << "SLIDE::BLOCKED" << std::endl;
+        set_animation_type(ANIM_TYPE_JUMP);
+        state.slide_distance = 0;
+        return false;
     }
 
     return true;

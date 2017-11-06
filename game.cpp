@@ -1431,7 +1431,7 @@ void game::quick_load_game()
 
     currentStage = CASTLE1_STAGE5;
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_3;
 
     /*
     // DEBUG //
