@@ -3085,7 +3085,7 @@ bool character::is_shielded(int projectile_direction) const
 		return false;
 	} else {
 		//std::cout << ">> classnpc::is_shielded[" << name << "] - shield_type: " << shield_type << ", projectile_direction: " << projectile_direction << ", state.direction: " << state.direction << std::endl;
-		if (shield_type == SHIELD_FULL || (shield_type == SHIELD_FRONT && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK)) || (shield_type == SHIELD_STAND && state.animation_type == ANIM_TYPE_STAND)) {
+        if (shield_type == SHIELD_FULL || (shield_type == SHIELD_FRONT && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK  || state.animation_type == ANIM_TYPE_WALK_AIR)) || (shield_type == SHIELD_STAND && state.animation_type == ANIM_TYPE_STAND)) {
 			//std::cout << ">> classnpc::is_shielded[" << name << "] - TRUE" << std::endl;
 			return true;
 		}
