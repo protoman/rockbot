@@ -163,8 +163,8 @@ void game::showGame(bool can_characters_move, bool can_scroll_stage)
     }
 
     if (_dark_mode == false) {
-        loaded_stage.show_npcs();
         loaded_stage.show_objects();
+        loaded_stage.show_npcs();
         player1.show();
         loaded_stage.show_above_objects();
         loaded_stage.showAbove();
