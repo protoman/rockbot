@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-CONFIG += linux
-#CONFIG += android
+#CONFIG += linux
+CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
@@ -28,8 +28,8 @@ CONFIG += linux
 
 
 ### BETA VERSION ###
-DEFINESLIST += -DBETA_VERSION
-DEFINES += BETA_VERSION=1
+#DEFINESLIST += -DBETA_VERSION
+#DEFINES += BETA_VERSION=1
 
 ### DEMO VERSION (LIMITED STAGES) ###
 #DEFINESLIST += -DDEMO_VERSION

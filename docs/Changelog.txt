@@ -703,7 +703,7 @@ FILE-FORMAT-V4:
 - fixes for enemy teleport animation and AI
 - add check for android touch controls max-size value
 
-###################################### 1.20.040/2.00.093 ######################################
+###################################### 1.20.041/2.00.094 ######################################
 - add reset timer to enemies and objects on game_unpause
 - foreground layer get doubled and out of position when transitioning maps up/down
 - objects and enemies must check for difficulty-ground terrain types
@@ -715,3 +715,5 @@ FILE-FORMAT-V4:
 - new player death animation and fade-out effect
 - press attack button to return from new/load game save selector
 - sub-menus in config must remember picked option
+- reload stage music if boss-music is playing, fixes #42
+- better text for the "weapon acquired"

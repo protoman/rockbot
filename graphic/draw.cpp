@@ -147,12 +147,13 @@ void draw::update_screen()
         if (current_alpha < 254) {
             current_alpha += 2;
         }
-        if (current_alpha_surface.width == 0) {
+        if (current_alpha_surface.width < RES_W) {
             graphLib.initSurface(st_size(RES_W, RES_H), &current_alpha_surface);
             graphLib.clear_surface_area(0, 0, RES_W, RES_H, current_alpha_color.r, current_alpha_color.g, current_alpha_color.b, current_alpha_surface);
+        } else {
+            graphLib.set_surface_alpha(current_alpha, current_alpha_surface);
+            graphLib.showSurface(&current_alpha_surface);
         }
-        graphLib.set_surface_alpha(current_alpha, current_alpha_surface);
-        graphLib.showSurface(&current_alpha_surface);
     }
     graphLib.updateScreen();
 }
