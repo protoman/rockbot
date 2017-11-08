@@ -681,7 +681,8 @@ bool game::test_teleport(classPlayer *test_player) {
             timer.delay(50);
             draw_lib.fade_in_screen(0, 0, 0);
         } else {
-            test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, 0));
+            test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE,  stage_data.links[j].pos_destiny.y*TILESIZE));
+            test_player->set_animation_type(ANIM_TYPE_JUMP);
             test_player->char_update_real_position();
         }
     } else {
@@ -1454,7 +1455,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
