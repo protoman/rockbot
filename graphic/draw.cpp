@@ -69,6 +69,9 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
     _inferno_alpha_mode = 0;
     _boss_current_hp = -99;
     current_alpha = -1;
+    teleport_small_frame_count = 1;
+    teleport_small_frame = 0;
+    teleport_small_frame_timer = 0;
 
 }
 
@@ -77,6 +80,10 @@ void draw::preload()
     std::string filename = GAMEPATH + "shared/images/teleport_small.png";
     graphLib.surfaceFromFile(filename, &_teleport_small_gfx);
     _teleport_small_gfx.init_colorkeys();
+    teleport_small_frame_count = _teleport_small_gfx.width/_teleport_small_gfx.height;
+    if (teleport_small_frame_count <1) {
+        teleport_small_frame_count = 1;
+    }
 
     filename = GAMEPATH + "shared/images/snowflacke.png";
     graphLib.surfaceFromFile(filename, &snow_flacke);
@@ -326,7 +333,21 @@ void draw::set_teleport_small_colors(st_color color1, st_color color2)
 
 void draw::show_teleport_small(int x, int y)
 {
-    graphLib.showSurfaceAt(&_teleport_small_gfx, st_position(x+_teleport_small_gfx.width/2, y+_teleport_small_gfx.height/2), false);
+    if (teleport_small_frame_count > 0) {
+        int x_origin = teleport_small_frame * _teleport_small_gfx.height;
+        if (timer.getTimer() > teleport_small_frame_timer) {
+            teleport_small_frame++;
+            teleport_small_frame_timer = timer.getTimer()+100;
+        }
+        std::cout << "timer[" << timer.getTimer() << "], frame.timer[" << teleport_small_frame_timer << "], frames[" << teleport_small_frame_count << "], current frame[" << teleport_small_frame << "]" << std::endl;
+        if (teleport_small_frame >= teleport_small_frame_count) {
+            teleport_small_frame = 0;
+        }
+        st_rectangle origin_rect(x_origin, 0, _teleport_small_gfx.height, _teleport_small_gfx.height);
+        graphLib.showSurfaceRegionAt(&_teleport_small_gfx, origin_rect, st_position(x, y));
+    } else {
+        graphLib.showSurfaceAt(&_teleport_small_gfx, st_position(x, y), false);
+    }
 }
 
 int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text)

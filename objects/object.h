@@ -7,6 +7,7 @@
 
 class classMap; // forward declaration
 
+#define TELEPORT_TIME 400
 
 enum e_object_teleport_states {
     e_object_teleport_state_initial,
@@ -314,6 +315,8 @@ private:
     int _size;
     int max_frames;
     bool is_dropped;
+    bool show_teleport;
+    long teleport_max_timer;
 };
 
 #endif // OBJECT_H

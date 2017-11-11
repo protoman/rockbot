@@ -95,6 +95,8 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _expanding = true;
     _size = 0;
     is_dropped = false;
+    show_teleport = false;
+    teleport_max_timer = 0;
     add_graphic();
 }
 
@@ -134,6 +136,7 @@ void object::reset()
     }
     _obj_frame_timer = timer.getTimer() + _frame_duration;
     frame = 0;
+    //show_teleport = false;
 }
 
 
@@ -278,7 +281,16 @@ bool object::is_consumable()
 
 void object::enable_teleport_animation()
 {
-
+    show_teleport = true;
+    if (type == OBJ_ITEM_FLY) {
+        draw_lib.set_teleport_small_colors(st_color(219, 43, 0), st_color(235, 235, 235));
+    } else if (type == OBJ_ITEM_JUMP) {
+        draw_lib.set_teleport_small_colors(st_color(235, 235, 235), st_color(219, 43, 0));
+    } else {
+        draw_lib.set_teleport_small_colors(st_color(112, 110, 110), st_color(235, 235, 235));
+    }
+    teleport_max_timer = timer.getTimer()+TELEPORT_TIME;
+    _teleport_state = e_object_teleport_state_initial;
 }
 
 void object::set_precise_position(st_position pos, int direction)
@@ -348,6 +360,25 @@ void object::show(int adjust_y, int adjust_x)
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         show_deathray_horizontal(adjust_x, adjust_y);
         return;
+    }
+
+    if (show_teleport) {
+        if (_teleport_state == e_object_teleport_state_initial) {
+            _teleport_state = e_object_teleport_state_teleport_in;
+        }
+        if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
+            if (timer.getTimer() < teleport_max_timer) {
+                std::cout << "pos.x[" << position.x << "]" << std::endl;
+                draw_lib.show_teleport_small(position.x-scroll_x, position.y);
+                return;
+            } else {
+                if (_teleport_state == e_object_teleport_state_teleport_in) {
+                    _teleport_state = e_object_teleport_state_waiting;
+                } else {
+                    _finished = true;
+                }
+            }
+        }
     }
 
 	// checks if the Object is near the screen to show it
@@ -662,13 +693,16 @@ void object::move(bool paused)
         return;
     }
 
-
-
     //std::cout << "name: " << name << ", _duration: " << _duration << ", time-limit: " << _timer_limit << ", timer: " << timer.getTimer() << std::endl;
     if (_duration > 0 && timer.getTimer() > _timer_limit && !(type == OBJ_ITEM_FLY && _started == true)) { // eagle-jet, when active, can't teleport out because of timer
-        _finished = true;
-		return;
-	}
+        if (show_teleport == true && _teleport_state != e_object_teleport_state_teleport_out) {
+            _teleport_state = e_object_teleport_state_teleport_out;
+            teleport_max_timer = timer.getTimer() + TELEPORT_TIME;
+        } else if (show_teleport == false) {
+            _finished = true;
+        }
+        return;
+    }
 	//std::cout << "object::move::START" << std::endl;
 	if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT) {
 		if (distance > limit) {
