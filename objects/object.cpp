@@ -76,7 +76,6 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     frame = 0;
     _timer_limit = 0;
     _must_play_appearing_sfx = false;
-    _must_teleport_in = false;
     _teleport_state = 0;
     _ray_state = 0;
     _collision_mode = COLlISION_MODE_XY;
@@ -265,13 +264,8 @@ collision_modes object::get_collision_mode() const
 void object::reset_timers()
 {
     _obj_frame_timer = 0;
-    _timer_limit = 0;
+    _timer_limit = timer.getTimer() + obj_timer;
     frame = 0;
-}
-
-void object::use_teleport_in_out()
-{
-    _must_teleport_in = true;
 }
 
 bool object::is_consumable()
@@ -280,6 +274,11 @@ bool object::is_consumable()
         return true;
     }
     return false;
+}
+
+void object::enable_teleport_animation()
+{
+
 }
 
 void object::set_precise_position(st_position pos, int direction)
@@ -330,18 +329,6 @@ void object::show(int adjust_y, int adjust_x)
 		return;
 	}
 
-    if (_must_teleport_in) {
-        if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
-            draw_lib.show_teleport_small(position.x - scroll_x, position.y);
-            return;
-        }
-    }
-
-    /*
-    if (type == OBJ_ITEM_JUMP) {
-        std::cout << "OBJ::SHOW, y[" << position.y << "]" << std::endl;
-    }
-    */
 
     //std::cout << "LOOP: obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
@@ -674,63 +661,12 @@ void object::move(bool paused)
     if (paused == true && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
         return;
     }
-    // check teleport
-    if (_must_teleport_in == true) {
-        //std::cout << "OBJECT::TELEPORT #1 - _teleport_state: " << (int)_teleport_state << std::endl;
-        // init teleport IN
-        if (_teleport_state == e_object_teleport_state_initial) {
-            if (type == OBJ_ITEM_FLY) {
-                draw_lib.set_teleport_small_colors(st_color(219, 43, 0), st_color(235, 235, 235));
-            } else if (type == OBJ_ITEM_JUMP) {
-                draw_lib.set_teleport_small_colors(st_color(235, 235, 235), st_color(219, 43, 0));
-            } else {
-                draw_lib.set_teleport_small_colors(st_color(112, 110, 110), st_color(235, 235, 235));
-            }
-            position.y = -framesize_h+2;
-            //std::cout << "OBJECT::TELEPORT #2 - pos.y: " << position.y << std::endl;
-            _teleport_state = e_object_teleport_state_teleport_in;
-            return;
-        // teleporting IN
-        } else if (_teleport_state == e_object_teleport_state_teleport_in) {
-            int yinc = GRAVITY_SPEED*3;
-            //std::cout << "OBJECT::TELEPORT #3 - pos.y: " << position.y << ", start_point.y: " << start_point.y << std::endl;
-            if (position.y+yinc > start_point.y) {
-                position.y = start_point.y;
-            } else {
-                position.y += yinc;
-            }
-            if (position.y == start_point.y) {
-                // check if not teleported inside terrain, if so, teleport out
-                int map_lock = map->getMapPointLock(st_position((position.x+framesize_w/2)/TILESIZE, (position.y+framesize_h/2)/TILESIZE));
-                if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                    //std::cout << "OBJECT::TELEPORT #4 - finish(map-lock), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
-                    _teleport_state = e_object_teleport_state_teleport_out;
-                } else {
-                    //std::cout << "OBJECT::TELEPORT #4 - finish(reached-start-point), y[" << position.y << "], map_lock[" << map_lock << "]" << std::endl;
-                    _teleport_state = e_object_teleport_state_waiting;
-                }
-            }
-            return; // will stay in 2 until finished, when will be set to 3
-        // teleporting out
-        } else if (_teleport_state == e_object_teleport_state_teleport_out) {
-            //std::cout << "OBJECT::move - teleport OUT" << std::endl;
-            int yinc = GRAVITY_SPEED*3;
-            position.y -= yinc;
-            if (position.y + framesize_h < 0) {
-                _finished = true;
-            }
-        }
-    }
+
 
 
     //std::cout << "name: " << name << ", _duration: " << _duration << ", time-limit: " << _timer_limit << ", timer: " << timer.getTimer() << std::endl;
     if (_duration > 0 && timer.getTimer() > _timer_limit && !(type == OBJ_ITEM_FLY && _started == true)) { // eagle-jet, when active, can't teleport out because of timer
-        if (_must_teleport_in == true) {
-            //std::cout << "OBJECT::move - is finished, but must teleport out first" << std::endl;
-            _teleport_state = e_object_teleport_state_teleport_out;
-        } else {
-            _finished = true;
-        }
+        _finished = true;
 		return;
 	}
 	//std::cout << "object::move::START" << std::endl;

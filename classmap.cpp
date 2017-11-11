@@ -178,7 +178,7 @@ GameMediator::get_instance()->map_data[number].backgrounds[0].speed = 0;
 }
 
 
-void classMap::showMap()
+void classMap::show_map()
 {
     draw_dynamic_backgrounds();
     if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
@@ -563,6 +563,7 @@ void classMap::draw_dynamic_backgrounds()
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
         return;
     }
+    // if there is no background or it does not cover the whole screen, draw solid color
     if (surface_bg->width <= 0 || surface_bg->height < RES_H || GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y != 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
     }
@@ -572,28 +573,28 @@ void classMap::draw_dynamic_backgrounds()
     // dynamic background won't work in low-end graphics more
     if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
         if (bg1_scroll_mode == BG_SCROLL_MODE_LEFT) {
-            bg_scroll.x -= ((float)1*bg1_speed);
+            bg_scroll.x -= bg1_speed;
             adjust_dynamic_background_position();
         } else if (bg1_scroll_mode == BG_SCROLL_MODE_RIGHT) {
-            bg_scroll.x += ((float)1*bg1_speed);
+            bg_scroll.x += bg1_speed;
             adjust_dynamic_background_position();
         } else if (bg1_scroll_mode == BG_SCROLL_MODE_UP) {
-            bg_scroll.y -= ((float)1*bg1_speed);
+            bg_scroll.y -= bg1_speed;
             adjust_dynamic_background_position();
         } else if (bg1_scroll_mode == BG_SCROLL_MODE_DOWN) {
-            bg_scroll.y += ((float)1*bg1_speed);
+            bg_scroll.y += bg1_speed;
             adjust_dynamic_background_position();
         }
     }
 
     //std::cout << "## bg1_speed[" << bg1_speed << "], bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
 
-    int x1 = bg_scroll.x;
-    if (x1 > 0) { // moving to right
+    float x1 = bg_scroll.x;
+    if (x1 > 0.0) { // moving to right
         x1 = (RES_W - x1) * -1;
     }
 
-    int y1 = bg_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y;
+    float y1 = bg_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y;
 
     //std::cout << "## x1[" << x1 << "]" << std::endl;
 
@@ -605,10 +606,10 @@ void classMap::draw_dynamic_backgrounds()
         // draw rightmost part, if needed
         if (abs(bg_scroll.x) > RES_W) {
             //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
-            int bg_pos_x = RES_W - (abs(x1)-RES_W);
+            float bg_pos_x = RES_W - (abs(x1)-RES_W);
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
         }  else if (surface_bg->width - abs(bg_scroll.x) < RES_W) {
-            int bg_pos_x = surface_bg->width - (int)abs(bg_scroll.x);
+            float bg_pos_x = surface_bg->width - (int)abs(bg_scroll.x);
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
         }
     }
@@ -914,24 +915,45 @@ int classMap::get_first_lock_on_right(int x_pos) const
 // gets the first tile locked that have at least 3 tiles unlocked above it
 int classMap::get_first_lock_on_bottom(int x_pos)
 {
+    return get_first_lock_on_bottom(x_pos, TILESIZE, TILESIZE*3);
+}
+
+int classMap::get_first_lock_on_bottom(int x_pos, int w, int h)
+{
     int tilex = x_pos/TILESIZE;
+    int above_tiles_to_test = h/TILESIZE;
+    if (above_tiles_to_test < 2) { // at least two tiles above even for small npcs
+        above_tiles_to_test = 2;
+    }
+    int right_tiles_to_test = w/TILESIZE;
+    if (right_tiles_to_test < 1) {
+        right_tiles_to_test = 1;
+    }
 
-    for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
-
-        //std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
+    for (int i=MAP_H-1; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
 
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
-        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+        if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
             // found a stop point, now check above tiles
-            for (int j=i-1; j>=i-3; j--) {
-                int map_lock2 = getMapPointLock(st_position(tilex, j));
-                if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
-                    found_bad_point = true;
+            for (int j=i-1; j>=i-above_tiles_to_test; j--) {
+                for (int k=0; k<right_tiles_to_test; k++) {
+                    int map_lock2 = getMapPointLock(st_position(tilex+k, j));
+
+                    std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
+
+
+                    if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
+                        found_bad_point = true;
+                        break;
+                    }
+                }
+                if (found_bad_point) {
                     break;
                 }
             }
             if (found_bad_point == false) {
+                std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
                 return i-1;
             }
         }
@@ -1895,7 +1917,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 	for (int k=0; k<nTiles; k++) {
 		//if (is_close == false) { std::cout << "classMap::redraw_boss_door - nTiles: " << nTiles << ", tilePieces: " << tilePieces << ", tileCount: " << tileCount << std::endl; }
 		// redraw screen
-		showMap();
+        show_map();
 
         _3rd_level_ignore_area = st_rectangle(tileX, tileY-5, 1, nTiles+5);
         showAbove();

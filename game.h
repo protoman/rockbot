@@ -153,17 +153,6 @@ public:
      * @param player_n
      */
     void set_player_direction(Uint8 direction);
-    /**
-     * @brief
-     *
-     * @param player_n
-     */
-    void player_fall();
-    /**
-     * @brief
-     *
-     * @param show_dialog
-     */
     void map_present_boss(bool show_dialog);
 
     character* get_player();
@@ -235,7 +224,8 @@ private:
     bool check_player_is_on_teleport(classPlayer *test_player, int currentMap, int temp_x, int temp_y, int link_n, int transition_type, int &teleport_count, int &teleporter_dist, int &player_x, int &link_type);
     bool is_link_teleporter(int type);
     void start_stage();
-    void show_player_teleport();
+    void set_player_position_teleport_in(int initial_pos_x);
+    void show_player_teleport(int pos_x);
 
 
     void show_ready();

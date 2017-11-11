@@ -2862,7 +2862,7 @@ void character::execute_jump_up()
 	for (int i=0; i<100; i++) {
 		char_update_real_position();
 		gravity();
-        gameControl.get_current_map_obj()->showMap();
+        gameControl.get_current_map_obj()->show_map();
 		show();
         gameControl.get_current_map_obj()->showAbove(0);
         draw_lib.update_screen();
@@ -2877,7 +2877,7 @@ void character::execute_jump_up()
         input.read_input();
         char_update_real_position();
         jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-        gameControl.get_current_map_obj()->showMap();
+        gameControl.get_current_map_obj()->show_map();
 		show();
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();
@@ -2904,7 +2904,7 @@ void character::execute_jump()
         if (resJump == false) {
 			gravity();
 		}
-        gameControl.get_current_map_obj()->showMap();
+        gameControl.get_current_map_obj()->show_map();
 		show();
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();
@@ -2921,13 +2921,13 @@ void character::fall()
 		char_update_real_position();
 		gravity(false);
 		if (hit_ground() == true && state.animation_type == ANIM_TYPE_STAND) {
-            gameControl.get_current_map_obj()->showMap();
+            gameControl.get_current_map_obj()->show_map();
 			show();
             gameControl.get_current_map_obj()->showAbove();
             draw_lib.update_screen();
 			return;
 		}
-        gameControl.get_current_map_obj()->showMap();
+        gameControl.get_current_map_obj()->show_map();
 		show();
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();

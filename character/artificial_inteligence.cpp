@@ -224,7 +224,7 @@ void artificial_inteligence::execute_ai_step()
         //std::cout << ">> AI:exec[" << name << "] JUMP <<" << std::endl;
         execute_ai_step_jump();
     } else if (_current_ai_type == AI_ACTION_WAIT_UNTIL_PLAYER_IS_IN_RANGE) {
-        std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
+        //std::cout << ">> AI:exec[" << name << "] WAIT_UNTIL_PLAYER_IS_IN_RANGE <<" << std::endl;
         execute_ai_action_wait_until_player_in_range();
     } else if (_current_ai_type == AI_ACTION_SAVE_POINT) {
         execute_ai_save_point();

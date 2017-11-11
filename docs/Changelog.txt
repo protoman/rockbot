@@ -717,3 +717,5 @@ FILE-FORMAT-V4:
 - sub-menus in config must remember picked option
 - reload stage music if boss-music is playing, fixes #42
 - better text for the "weapon acquired"
+===================================================================================================================
+#45, #48, #52, #51, #49

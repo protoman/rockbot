@@ -249,10 +249,6 @@ void game::start_stage()
     player1.refill_weapons();
     player1.reset_hp();
 
-    // find ground for player
-    int min_y = loaded_stage.get_teleport_minimal_y_tile(85); // x = 70 + half a player width (30)
-    player1.set_teleport_minimal_y(min_y*TILESIZE);
-
     loaded_stage.showStage();
     loaded_stage.showAbove();
     //draw_lib.update_screen();
@@ -270,7 +266,7 @@ void game::start_stage()
     }
     loaded_stage.add_autoscroll_delay();
 
-    show_player_teleport();
+    show_player_teleport(PLAYER_INITIAL_X_POS);
     game_dialogs.show_stage_dialog(currentStage);
     showGame(false, false);
     // reset timers for objects
@@ -279,11 +275,22 @@ void game::start_stage()
 
 }
 
-void game::show_player_teleport()
+void game::set_player_position_teleport_in(int initial_pos_x)
 {
-    player1.fall_to_ground();
+    int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, player1.get_size().width, player1.get_size().height);
+
+    std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
+
+    player1.set_position(st_position(initial_pos_x, (first_unlocked_from_bottom+1)*TILESIZE-player1.get_size().height));
+    player1.char_update_real_position();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_animation_frame(0);
+}
+
+void game::show_player_teleport(int pos_x)
+{
+    // find ground for player
+    set_player_position_teleport_in(pos_x);
     long end_time = timer.getTimer() + 1500;
     bool player_reset_animation = false;
     while (timer.getTimer() < end_time) {
@@ -340,24 +347,8 @@ void game::restart_stage()
     player1.clean_projectiles();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
-    int min_y = checkpoint.y;
-    if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
-        // find teleport stop point
-        min_y = loaded_stage.get_teleport_minimal_y_tile(85);
-    }
-    // to avoid errors, set as 1/3 of the screen
-    if (min_y >= MAP_H) {
-        min_y = MAP_H/2;
-    }
-    player1.set_teleport_minimal_y(min_y*TILESIZE);
-
-
     player1.reset_hp();
     loaded_stage.reset_stage_maps();
-
-    player1.set_position(st_position(checkpoint.x, -TILESIZE));
-    player1.char_update_real_position();
-    std::cout << ">>>>>>>>>>>>> min_y: " << min_y << ", p.x: " << (int)player1.getPosition().x << std::endl;
 
     game_unpause();
 
@@ -370,7 +361,12 @@ void game::restart_stage()
         soundManager.load_stage_music(stage_data.bgmusic_filename);
     }
     soundManager.restart_music();
-    show_player_teleport();
+    if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
+        // find teleport stop point
+        show_player_teleport(PLAYER_INITIAL_X_POS);
+    } else {
+        show_player_teleport(checkpoint.x);
+    }
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
         input.clean_all();
@@ -1455,7 +1451,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    //currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
@@ -1567,11 +1563,6 @@ st_size game::get_player_size()
 void game::set_player_direction(Uint8 direction)
 {
     player1.set_direction(direction);
-}
-
-void game::player_fall()
-{
-    player1.fall();
 }
 
 void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)

@@ -223,6 +223,7 @@ public:
     bool get_can_fly();
     bool animation_has_restarted();
     void set_animation_has_restarted(bool restarted);
+    st_position get_int_position(); // converts float position to integer position
 
 
 private:
@@ -254,7 +255,6 @@ protected:
     int frames_count(); // find out the number of frames in the current direction/type
     void advance_to_last_frame();
     int is_executing_effect_weapon(); // returns type, or -1 if none
-    st_position get_int_position(); // converts float position to integer position
     void check_reset_stand();
     bool is_weak_to_freeze();                           // checks that this NPC is weak against the freeze weapon
     virtual bool can_air_dash();

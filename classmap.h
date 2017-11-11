@@ -87,7 +87,7 @@ public:
 
     void loadMap();
 
-    void showMap();
+    void show_map();
 
     void draw_map_tiles();
 
@@ -194,6 +194,8 @@ public:
     int get_first_lock_on_right(int x_pos) const;
 
     int get_first_lock_on_bottom(int x_pos);
+
+    int get_first_lock_on_bottom(int x_pos, int w, int h);
 
     void drop_item(classnpc *npc_ref);
 

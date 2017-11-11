@@ -215,10 +215,11 @@ public:
 
     void reset_timers();
 
-    void use_teleport_in_out();                                 // when called, will se object to be teleported in/out
     void set_teleport_out();
 
     bool is_consumable();                                       // if item is a energy, tank, life, that player can get
+
+    void enable_teleport_animation();                           // when this is called, object will show a teleporting in-animation
 
 
     void set_precise_position(st_position pos, int direction);                                // used to get a fine-tuning positioning instead of map-position
@@ -304,7 +305,6 @@ private:
     bool _hidden;
     enum collision_modes _collision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
-    bool _must_teleport_in;                                                     // if set, the object will teleport in when added and out when finished
     Uint8 _teleport_state;                                                      // used to control when start/finish the teleport
     Uint8 _ray_state;                                                           // controls death-ray movement
     st_position _boss_teleporter_dest;
