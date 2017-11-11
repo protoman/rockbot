@@ -30,6 +30,7 @@ extern game gameControl;
 
 #define DISAPPEARNING_VISIBLE_TIME 1500
 #define DISAPPEARNING_HIDDEN_TIME 2000
+#define DAMAGING_PLATFORM_TIME 100
 #define INITIAL_ACTIVATION_DELAY 220
 
 // constructor for game_object
@@ -110,8 +111,7 @@ void object::reset()
     _finished = false;
     _state = 0;
     _size = 0;
-    _duration = 0;
-    _timer_limit = 0;
+    //_duration = 0;
     //std::cout << "OBJECT - set_start_false[RESET]" << std::endl;
     _started = false;
     _animation_finished = false;
@@ -130,13 +130,26 @@ void object::reset()
     }
     _command_up = false;
     _command_down = false;
-    if (type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL) {
-        _timer_limit = timer.getTimer() + obj_timer;
-        //std::cout << "OBJ[" << name << "] RESET, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
-    }
-    _obj_frame_timer = timer.getTimer() + _frame_duration;
     frame = 0;
     //show_teleport = false;
+    reset_timer();
+}
+
+void object::reset_timer()
+{
+    if (_duration != 0) {
+        _timer_limit = timer.getTimer() + _duration;
+    } else if (type == OBJ_DISAPPEARING_BLOCK) {
+        _timer_limit = timer.getTimer() + obj_timer + DISAPPEARNING_VISIBLE_TIME;
+    } else if (type == OBJ_DAMAGING_PLATFORM) {
+        _timer_limit = timer.getTimer() + DAMAGING_PLATFORM_TIME;
+    } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL) {
+        _timer_limit = timer.getTimer() + DELAY_RAY;
+    } else {
+        _timer_limit = timer.getTimer() + obj_timer;
+
+    }
+    _obj_frame_timer = timer.getTimer() + _frame_duration;
 }
 
 
@@ -266,9 +279,8 @@ collision_modes object::get_collision_mode() const
 
 void object::reset_timers()
 {
-    _obj_frame_timer = 0;
-    _timer_limit = timer.getTimer() + obj_timer;
     frame = 0;
+    reset_timer();
 }
 
 bool object::is_consumable()
@@ -898,7 +910,7 @@ void object::move(bool paused)
                     gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
                 }
                 _state++;
-                _timer_limit = timer.getTimer() + 100;
+                _timer_limit = timer.getTimer() + DAMAGING_PLATFORM_TIME;
             } else {
                 _state = 0;
                 _started = false;

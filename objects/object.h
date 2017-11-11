@@ -27,15 +27,8 @@ public:
     //object(Uint8 id, struct CURRENT_FILE_FORMAT::file_object temp_obj); // game object constructor
     object(Uint8 _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest); // map object constructor
     ~object();
-    /**
-     * @brief
-     *
-    */
     void reset();
-    /**
-     * @brief
-     *
-     */
+    void reset_timer();
     void show(int adjust_y=0, int adjust_x=0);
 
 
