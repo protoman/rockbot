@@ -1451,7 +1451,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    //currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;

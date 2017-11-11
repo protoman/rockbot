@@ -399,7 +399,7 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define PLAYER_INITIAL_HP 28
 
-#define PLAYER_INITIAL_X_POS 85
+#define PLAYER_INITIAL_X_POS 144 // half-screen
 
 #define BOSS_INITIAL_HP 36 // a bit more HP (8 pts) than player, so it will endure a bit more on the fight
 
