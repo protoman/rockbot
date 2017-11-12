@@ -555,12 +555,10 @@ int main(int argc, char *argv[])
 
 
 #ifdef ANDROID
-    /*
     if (game_config.android_use_play_services == true) {
         std::string achievement_id = "CgkIhcyFyuEEEAIQBw";
         game_services.unclock_achievement(achievement_id);
     }
-    */
 #endif
 
 

@@ -72,6 +72,8 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
+- button size can be set in SDL new version besides controls size
+- usar threads to handle GMS/achievements
 - dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
 - increase drop ratio on enemies for easy mode
 - lighting must use a transparent yellow surface

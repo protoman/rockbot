@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-CONFIG += linux
-#CONFIG += android
+#CONFIG += linux
+CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
@@ -73,7 +73,7 @@ macosx {
 android {
     DEFINES+= ANDROID=1
     ANDROIDSDK="/home/iuri/Programas/android-studio/sdk/"
-    ANDROIDNDK="/home/iuri/Programas/android-studio/sdk/android-ndk-r11c"
+    ANDROIDNDK="/home/iuri/Programas/android-studio/sdk/android-ndk-r14b"
     INCLUDEPATH += $${ANDROIDNDK}/platforms/android-14/arch-arm/usr/include
 
 
@@ -149,15 +149,15 @@ android {
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_mixer.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_ttf.so \
     $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_gfx.so \
-    -L$${ANDROIDSDK}/android-ndk-r11c/platforms/android-14/arch-arm/usr/lib \
+    -L$${ANDROIDSDK}/android-ndk-r14b/platforms/android-14/arch-arm/usr/lib \
     -lc -lm -lGLESv1_CM -ldl -llog -lz \
     -L/usr/lib \
-    -L$${ANDROIDSDK}/android-ndk-r11c/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
+    -L$${ANDROIDSDK}/android-ndk-r14b/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
     -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
     -lsupc++  -lsdl-1.2 \
     -llog -landroid -lEGL -lGLESv1_CM \
     -L$${ANDROIDSDK}/rockbot_build/ \
-    #$${ANDROIDSDK}/android-ndk-r11c/platforms/android-14/arch-arm/usr/lib/c++/armeabi/libgpg.a # play services static library #
+    #$${ANDROIDSDK}/android-ndk-r14b/platforms/android-14/arch-arm/usr/lib/c++/armeabi/libgpg.a # play services static library #
 
 
     #SOURCES +=
