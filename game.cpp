@@ -107,11 +107,8 @@ void game::initGame()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void game::showGame(bool can_characters_move, bool can_scroll_stage)
+void game::show_game(bool can_characters_move, bool can_scroll_stage)
 {
-
-
-
     if (leave_game == true) {
         exit_game();
     }
@@ -268,7 +265,7 @@ void game::start_stage()
 
     show_player_teleport(PLAYER_INITIAL_X_POS);
     game_dialogs.show_stage_dialog(currentStage);
-    showGame(false, false);
+    show_game(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
 
@@ -370,12 +367,12 @@ void game::restart_stage()
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
         input.clean_all();
-        showGame(true, false);
+        show_game(true, false);
         draw_lib.update_screen();
     }
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to teleport without moving screen
         input.clean_all();
-        showGame(false, false);
+        show_game(false, false);
         draw_lib.update_screen();
         timer.delay(20);
     }
@@ -673,7 +670,7 @@ bool game::test_teleport(classPlayer *test_player) {
             test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, stage_data.links[j].pos_destiny.y*TILESIZE));
             test_player->char_update_real_position();
             test_player->set_animation_type(ANIM_TYPE_JUMP);
-            showGame(false, true);
+            show_game(false, true);
             timer.delay(50);
             draw_lib.fade_in_screen(0, 0, 0);
         } else {
@@ -1327,7 +1324,7 @@ void game::game_unpause()
     input.read_input();
     player1.restore_input();
     player1.reset_sprite_animation_timer();
-    loaded_stage.reset_timers();
+    loaded_stage.reset_stage_timers();
 }
 
 void game::exit_game()

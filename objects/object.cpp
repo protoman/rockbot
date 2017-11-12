@@ -152,6 +152,11 @@ void object::reset_timer()
     _obj_frame_timer = timer.getTimer() + _frame_duration;
 }
 
+void object::reset_obj_anim_timer()
+{
+    _obj_frame_timer = timer.getTimer() + _frame_duration;
+}
+
 
 // ********************************************************************************************** //
 // adds an entry into object_graphics_list map, if needed                                      //

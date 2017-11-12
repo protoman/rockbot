@@ -722,3 +722,5 @@ FILE-FORMAT-V4:
 ###################################### 1.20.041/2.00.094 ######################################
 #77
 - new animation for coil and jet teleport
+#80
+#84: Dark Mine: secret area blocks are badly synced, no way to get back.

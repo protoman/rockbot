@@ -55,11 +55,12 @@ public:
     int get_first_ground(int x_pos);
     int get_teleport_minimal_y_tile(int xpos);
     void reset_objects_timers();
+    void reset_objects_anim_timers();
     bool subboss_alive_on_left(short tileX);
     void activate_final_boss_teleporter();
     short get_current_map_gfx_mode();
     void add_autoscroll_delay();
-    void reset_timers();
+    void reset_stage_timers();
 
 private:
     void check_map_effect();

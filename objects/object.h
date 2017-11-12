@@ -29,6 +29,7 @@ public:
     ~object();
     void reset();
     void reset_timer();
+    void reset_obj_anim_timer();
     void show(int adjust_y=0, int adjust_x=0);
 
 

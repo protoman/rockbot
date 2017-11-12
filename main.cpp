@@ -574,7 +574,7 @@ int main(int argc, char *argv[])
             //RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
         #endif
 
-        gameControl.showGame(true, true);
+        gameControl.show_game(true, true);
         draw_lib.update_screen();
         if (input.p1_input[BTN_QUIT] == 1) {
             std::fflush(stdout);

@@ -359,6 +359,11 @@ void stage::reset_objects_timers()
     get_current_map()->reset_objects_timers();
 }
 
+void stage::reset_objects_anim_timers()
+{
+    get_current_map()->reset_objects_anim_timers();
+}
+
 bool stage::subboss_alive_on_left(short tileX)
 {
     return get_current_map()->subboss_alive_on_left(tileX);
@@ -383,10 +388,10 @@ void stage::add_autoscroll_delay()
 }
 
 // reset animation timers and such due to unpause
-void stage::reset_timers()
+void stage::reset_stage_timers()
 {
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
-        maps[i].reset_timers();
+        maps[i].reset_map_timers();
     }
 }
 

@@ -72,9 +72,7 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- sync timers disappearning platforms
 - dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
-- duration of items on menu (they disappear)
 - increase drop ratio on enemies for easy mode
 - lighting must use a transparent yellow surface
 

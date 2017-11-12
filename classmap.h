@@ -203,9 +203,10 @@ public:
 
     int get_bg_scroll() const;
 
-    void reset_timers();
+    void reset_map_timers();
     void reset_enemies_timers();
     void reset_objects_timers();
+    void reset_objects_anim_timers();
 
     void reset_objects(); // restore objects to their original position
 

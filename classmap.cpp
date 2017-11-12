@@ -1023,9 +1023,10 @@ int classMap::get_bg_scroll() const
 }
 
 
-void classMap::reset_timers()
+void classMap::reset_map_timers()
 {
-    reset_objects_timers();
+    //reset_objects_timers();
+    reset_objects_anim_timers();
     reset_enemies_timers();
 }
 
@@ -1045,6 +1046,14 @@ void classMap::reset_objects_timers()
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
         (*object_it).reset_timers(); // TODO: must pass scroll map to npcs somwhow...
+    }
+}
+
+void classMap::reset_objects_anim_timers()
+{
+    std::vector<object>::iterator object_it;
+    for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
+        (*object_it).reset_obj_anim_timer(); // TODO: must pass scroll map to npcs somwhow...
     }
 }
 
