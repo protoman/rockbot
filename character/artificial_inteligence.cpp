@@ -180,7 +180,7 @@ void artificial_inteligence::define_ai_next_step()
         int rand_n = rand() % 100;
 
 
-        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -188,7 +188,7 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
@@ -204,7 +204,7 @@ void artificial_inteligence::define_ai_next_step()
         std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
     }
     _current_ai_type = get_ai_type();
-    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -1181,23 +1181,28 @@ void artificial_inteligence::execute_ai_step_fly()
             struct_player_dist dist_players = dist_npc_players();
             _dest_point = dist_players.pObj->getPosition();
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
+            /*
             int rand_x = rand() % RES_W*2;
             int dest_x = position.x + rand_x;
             if (realPosition.x > RES_W/2) {
                 dest_x = position.x - rand_x;
             }
-
             int rand_y = rand() % RES_H;
+            */
+            int rand_x = create_rand_x_point(walk_range);
+            int rand_Y = create_rand_y_point(walk_range);
             //std::cout << ">>>>>> FLY.RANDOM - pos.x[" << position.x << "], real.x[" << realPosition.x << "], x[" << dest_x << "], y[" << rand_y << "]" << std::endl;
-            _dest_point = st_position(dest_x, rand_y);
+            _dest_point = st_position(rand_x, rand_Y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
-            int rand_x = rand() % RES_W;
-            //std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
-            _dest_point = st_position(rand_x, position.x);
+            //int rand_x = rand() % RES_W;
+            int rand_x = create_rand_x_point(walk_range);
+            std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-X[" << rand_x << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            _dest_point = st_position(rand_x, position.y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
-            int rand_y = rand() % RES_H;
+            //int rand_y = rand() % RES_H;
+            int rand_y = create_rand_y_point(walk_range);
             //std::cout << ">>>>>>>>>>>>>>>>>>>>> FLY=RAND-Y[" << rand_y << "] <<<<<<<<<<<<<<<<<<<<<" << std::endl;
-            _dest_point = st_position(position.y, rand_y);
+            _dest_point = st_position(position.x, rand_y);
         } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 _dest_point.x = position.x - frameSize.width/2 - walk_range;

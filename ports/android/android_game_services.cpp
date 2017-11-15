@@ -79,11 +79,11 @@ void android_game_services::set_android_default_buttons_size(int size)
 
        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>> set_android_default_buttons_size::screensize: w[%d], h[%d]", screen_width, screen_height);
 
-       float BUTTON_SIZE_MULTI = 1.2; // medium
+       float BUTTON_SIZE_MULTI = 1.4; // medium
        if (size == ANDROID_BUTTON_SMALL) {
-           BUTTON_SIZE_MULTI = 1;
+           BUTTON_SIZE_MULTI = 1.2;
        } else if (size == ANDROID_BUTTON_BIG) {
-           BUTTON_SIZE_MULTI = 1.4;
+           BUTTON_SIZE_MULTI = 1.6;
        }
 
        int button_w = original_pos_a.w * BUTTON_SIZE_MULTI;
