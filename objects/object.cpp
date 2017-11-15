@@ -493,7 +493,7 @@ void object::show(int adjust_y, int adjust_x)
 
 		// parte que vai ser colada
         graphic_destiny.x = position.x - scroll_x;
-		graphic_destiny.y = position.y + map->getMapScrolling().y;
+        graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
         //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
         if (type == OBJ_LIFE) {
@@ -535,7 +535,7 @@ void object::show_deathray_vertical(int adjust_x, int adjust_y)
         scroll_x = adjust_x;
     }
     graphic_destiny.x = position.x - scroll_x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
@@ -588,7 +588,7 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
         scroll_x = adjust_x;
     }
     graphic_destiny.x = position.x - scroll_x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
@@ -656,7 +656,7 @@ void object::show_vertical_ray(int adjust_x, int adjust_y)
         scroll_x = adjust_x;
     }
     graphic_destiny.x = position.x - scroll_x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
@@ -681,7 +681,7 @@ void object::show_horizontal_ray(int adjust_x, int adjust_y)
         scroll_x = adjust_x;
     }
     graphic_destiny.x = position.x - scroll_x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
         if (_obj_frame_timer < timer.getTimer()) {
@@ -711,7 +711,7 @@ void object::show_track_platform(int adjust_x, int adjust_y)
         scroll_x = adjust_x;
     }
     graphic_destiny.x = position.x - scroll_x;
-    graphic_destiny.y = position.y + map->getMapScrolling().y + +adjust_y;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
     if (draw_lib.get_object_graphic(_id) != NULL) {
         //std::cout << "show_track_platform - _state: " << _state << std::endl;
         graphLib.copyArea(st_rectangle(_state*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);

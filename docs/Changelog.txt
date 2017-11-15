@@ -729,4 +729,6 @@ FILE-FORMAT-V4:
 
 Castle Stage, part 2: ground turret displacement. #85
 Castle Stage, part 3: ground turrets displaced. #86
-nfoway: pop-up enemies on stairs are displaced #54
+Infoway: pop-up enemies on stairs are displaced #54
+#88
+#89
