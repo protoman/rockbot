@@ -199,9 +199,9 @@ void artificial_inteligence::define_ai_next_step()
             _ai_chain_n = 0;
         }
     } else {
-        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
-        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
     }
     _current_ai_type = get_ai_type();
     //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
@@ -1051,7 +1051,7 @@ void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 		int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
         //std::cout << "AI::WAIT_PLAYER_RANGE - dist_player: " << dist_player << ", walk_range: " << walk_range << std::endl;
 		if (dist_player <= walk_range) {
-            std::cout << "AI::WAIT_PLAYER_RANGE::FINISHED" << std::endl;
+            //std::cout << "AI::WAIT_PLAYER_RANGE::FINISHED" << std::endl;
 			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 		}
 	}
@@ -1379,14 +1379,14 @@ void artificial_inteligence::execute_ai_step_fly()
             }
         */
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
-            std::cout << "artificial_inteligence::execute_ai_step_fly - POSITION[" << position.x << ", " << position.y << "], POINT[" << _dest_point.x << ", " << _dest_point.y << "]" << std::endl;
+            //std::cout << "artificial_inteligence::execute_ai_step_fly - POSITION[" << position.x << ", " << position.y << "], POINT[" << _dest_point.x << ", " << _dest_point.y << "]" << std::endl;
             if (move_to_point(_dest_point, move_speed, move_speed, is_ghost) == true) {
-                std::cout << "artificial_inteligence::execute_ai_step_fly: FINISHED" << std::endl;
+                //std::cout << "artificial_inteligence::execute_ai_step_fly: FINISHED" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
             if (move_to_point(_saved_point, move_speed, move_speed, is_ghost) == true) {
-                std::cout << "artificial_inteligence::execute_ai_step_fly[SAVED_POINT]: FINISHED" << std::endl;
+                //std::cout << "artificial_inteligence::execute_ai_step_fly[SAVED_POINT]: FINISHED" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {

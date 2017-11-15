@@ -1480,9 +1480,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     return;
                 }
 
-                std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2, temp_blocked[" << temp_blocked << "] ###" << std::endl;
-
-
+                //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2, temp_blocked[" << temp_blocked << "] ###" << std::endl;
                 if (char_rect.y+char_rect.h-2 > temp_obj_y) {
 
                     //std::cout << "temp_blocked[" << temp_obj.get_name() << "] RESET BLOCK" << std::endl;

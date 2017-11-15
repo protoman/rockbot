@@ -80,18 +80,7 @@ object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position
     _teleport_state = 0;
     _ray_state = 0;
     _collision_mode = COLlISION_MODE_XY;
-    if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
-        _timer_limit = 1000;
-        direction = 0;
-        _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
-    } else if (type == OBJ_TRACK_PLATFORM) {
-        _timer_limit = 100;
-        direction = ANIM_DIRECTION_LEFT;
-    }
-    if (type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL) {
-        _timer_limit = timer.getTimer() + obj_timer;
-        //std::cout << "OBJ[" << name << "] INIT, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
-    }
+    reset_timer();
     // control animation for objects that expand/contract
     _expanding = true;
     _size = 0;
@@ -141,20 +130,41 @@ void object::reset_timer()
         _timer_limit = timer.getTimer() + _duration;
     } else if (type == OBJ_DISAPPEARING_BLOCK) {
         _timer_limit = timer.getTimer() + obj_timer + DISAPPEARNING_VISIBLE_TIME;
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
     } else if (type == OBJ_DAMAGING_PLATFORM) {
         _timer_limit = timer.getTimer() + DAMAGING_PLATFORM_TIME;
-    } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL) {
-        _timer_limit = timer.getTimer() + DELAY_RAY;
-    } else {
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
+    } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
+        _timer_limit = 1000;
+        _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
+        _ray_state = 0;
+        _state = 0;
+    } else if (type == OBJ_TRACK_PLATFORM) {
+        _timer_limit = 100;
+        direction = ANIM_DIRECTION_LEFT;
+    } else if (type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL) {
         _timer_limit = timer.getTimer() + obj_timer;
-
+        //std::cout << "OBJ[" << name << "] INIT, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
+        _ray_state = 0;
+        _state = 0;
+    } else {
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
+        _timer_limit = timer.getTimer() + obj_timer;
     }
-    _obj_frame_timer = timer.getTimer() + _frame_duration;
+
 }
 
 void object::reset_obj_anim_timer()
 {
-    _obj_frame_timer = timer.getTimer() + _frame_duration;
+    if (type == OBJ_DISAPPEARING_BLOCK) {
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
+    } else if (type == OBJ_DAMAGING_PLATFORM) {
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
+    } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
+        _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
+    } else {
+        _obj_frame_timer = timer.getTimer() + _frame_duration;
+    }
 }
 
 
@@ -534,6 +544,8 @@ void object::show_deathray_vertical(int adjust_x, int adjust_y)
             _ray_state = !_ray_state;
         }
 
+        //std::cout << "OBJECT::show_deathray_vertical, _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
+
         // draw base
         graphLib.copyArea(st_rectangle(framesize_w*_ray_state, 0, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         if (_state == 1) {
@@ -652,6 +664,9 @@ void object::show_vertical_ray(int adjust_x, int adjust_y)
             _ray_state = !_ray_state;
         }
         int dest_y = draw_lib.get_object_graphic(_id)->height-(TILESIZE*(_state+1));
+
+        std::cout << "OBJECT::show_vertical_ray, timer[" << timer.getTimer() << "], obj.timer[" << _obj_frame_timer << "], _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
+
         //std::cout << "OBJECT::show_vertical_ray - dest_y: " << dest_y << ", _state: " << _state << std::endl;
         graphLib.copyArea(st_rectangle(TILESIZE*_ray_state, dest_y, TILESIZE, TILESIZE*(_state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(_state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
