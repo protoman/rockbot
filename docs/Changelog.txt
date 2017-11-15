@@ -724,3 +724,9 @@ FILE-FORMAT-V4:
 - new animation for coil and jet teleport
 #80
 #84: Dark Mine: secret area blocks are badly synced, no way to get back.
+- correct variable names in fly-to-ran(x/y/point). fixes #83
+- change metools to attack on player direction, fixes #74
+
+Castle Stage, part 2: ground turret displacement. #85
+Castle Stage, part 3: ground turrets displaced. #86
+nfoway: pop-up enemies on stairs are displaced #54
