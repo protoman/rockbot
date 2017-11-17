@@ -1423,7 +1423,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = CASTLE1_STAGE5;
+    currentStage = CASTLE1_STAGE1;
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_3;
 
@@ -1448,7 +1448,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
 
     // DEBUG //
     std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
