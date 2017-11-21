@@ -466,6 +466,14 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 
     while (true) { // keep reading until a key is found
         while (SDL_PollEvent(&event)) {
+
+
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button - event.type[%d] ###", (int)event.type);
+#else
+std::cout << "### INPUT::pick_key_or_button[SDL_KEYDOWN][" << (int)event.key.keysym.sym << "]" << std::endl;
+#endif
+
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
                 if (event.type == SDL_KEYDOWN) {
                     // do not allow user to reassign ESCAPE key

@@ -72,6 +72,9 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
+- set default keys in file_config_v4.h for android "controller"
+
+
 - button size can be set in SDL new version besides controls size
 - usar threads to handle GMS/achievements
 - use a single file for save

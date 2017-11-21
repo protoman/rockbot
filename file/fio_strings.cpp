@@ -313,6 +313,7 @@ namespace format_v4 {
             sprintf(lines[string_stage_select_unavailable], "%s", "[INDISPONÍVEL NA DEMO]");
             sprintf(lines[strings_config_return], "%s", "VOLTAR");
 
+            sprintf(lines[string_intro_upperland_studios], "%s", "TIME DE JOGOS CASEIROS");
             sprintf(lines[string_intro_presents], "%s", "APRESENTA");
             sprintf(lines[string_intro_engine1], "%s", "-- ROCKBOT ENGINE --");
             sprintf(lines[string_intro_engine2], "%s", "JOGO CONTRUÍDO COM UM MOTOR DE JOGO");
@@ -469,6 +470,7 @@ namespace format_v4 {
             sprintf(lines[string_stage_select_unavailable], "%s", "[UNAVAILABLE IN DEMO]");
             sprintf(lines[strings_config_return], "%s", "RETURN");
 
+            sprintf(lines[string_intro_upperland_studios], "%s", "HOMEBREW GAMES TEAM");
             sprintf(lines[string_intro_presents], "%s", "PRESENTS");
             sprintf(lines[string_intro_engine1], "%s", "-- ROCKBOT ENGINE --");
             sprintf(lines[string_intro_engine2], "%s", "GAME BUILT USING A GAME ENGINE");

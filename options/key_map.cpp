@@ -363,30 +363,46 @@ void key_map::config_buttons()
 
         // check if jump/attack/start are set, can't leave if one of those is unset
         if (selected_option == -1) {
+
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @1 ###");
+#else
+std::cout << "### INPUT::config_buttons::FINISHED @1 ###" << std::endl;
+#endif
+timer.delay(200);
+
+
+
             if (is_key_set(BTN_JUMP, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" JUMP KEY");
-                graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                timer.delay(20);
+                graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
+                draw_lib.update_screen();
+                timer.delay(1000);
                 input.clean_all();
-                input.wait_keypress();
                 selected_option = 0;
             } else if (is_key_set(BTN_ATTACK, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" ATTACK KEY");
-                graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                timer.delay(20);
+                graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
+                draw_lib.update_screen();
+                timer.delay(1000);
                 input.clean_all();
-                input.wait_keypress();
                 selected_option = 0;
             } else if (is_key_set(BTN_START, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" START KEY");
-                graphLib.draw_text(menu_pos.x, RES_H-40, line);
-                timer.delay(20);
+                graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
+                timer.delay(1000);
+                draw_lib.update_screen();
                 input.clean_all();
-                input.wait_keypress();
                 selected_option = 0;
             }
         }
 
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @2 ###");
+#else
+std::cout << "### INPUT::config_buttons::FINISHED @2 ###" << std::endl;
+#endif
+timer.delay(200);
 
 
     }
@@ -397,13 +413,39 @@ void key_map::config_buttons()
 
 bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
+
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @1 ###");
+#else
+std::cout << "### INPUT::is_key_set @1 ###" << std::endl;
+#endif
+timer.delay(200);
+
     bool have_joystick = false;
     if (input.get_joysticks_number() > 0 && game_config_copy.selected_input_device < input.get_joysticks_number()) {
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @2 ###");
+#else
+std::cout << "### INPUT::is_key_set @2 ###" << std::endl;
+#endif
+timer.delay(200);
         have_joystick = true;
     }
     if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key].value == -1))) {
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @3 ###");
+#else
+std::cout << "### INPUT::is_key_set @3 ###" << std::endl;
+#endif
+timer.delay(200);
         return false;
     }
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @4 ###");
+#else
+std::cout << "### INPUT::is_key_set @4 ###" << std::endl;
+#endif
+timer.delay(200);
     return true;
 }
 

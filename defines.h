@@ -1107,6 +1107,7 @@ enum E_STRINGS_INGAME {
     string_stage_select_unavailable,
 
     string_intro_presents,
+    string_intro_upperland_studios,
     string_intro_engine1,
     string_intro_engine2,
     string_intro_engine3,
