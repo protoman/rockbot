@@ -18,6 +18,7 @@ extern soundLib soundManager;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_game game_data;
+extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 
 #define GRAVITY_SPEED 4
 #define FRAMETIMER_RAY 30
@@ -371,6 +372,12 @@ void object::show(int adjust_y, int adjust_x)
 
     //std::cout << "LOOP: obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
+    if (freeze_weapon_effect == FREEZE_EFFECT_NPC) {
+        _ray_state = 0;
+        _state = 0;
+    }
+
+
     // ray have a different way to show itself
     if (type == OBJ_RAY_VERTICAL) {
         show_vertical_ray(adjust_x, adjust_y);
@@ -663,9 +670,10 @@ void object::show_vertical_ray(int adjust_x, int adjust_y)
             _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
             _ray_state = !_ray_state;
         }
+
         int dest_y = draw_lib.get_object_graphic(_id)->height-(TILESIZE*(_state+1));
 
-        std::cout << "OBJECT::show_vertical_ray, timer[" << timer.getTimer() << "], obj.timer[" << _obj_frame_timer << "], _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
+        //std::cout << "OBJECT::show_vertical_ray, timer[" << timer.getTimer() << "], obj.timer[" << _obj_frame_timer << "], _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
 
         //std::cout << "OBJECT::show_vertical_ray - dest_y: " << dest_y << ", _state: " << _state << std::endl;
         graphLib.copyArea(st_rectangle(TILESIZE*_ray_state, dest_y, TILESIZE, TILESIZE*(_state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(_state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
@@ -722,6 +730,10 @@ void object::show_track_platform(int adjust_x, int adjust_y)
 void object::move(bool paused)
 {
     if (paused == true && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
+        return;
+    }
+
+    if (freeze_weapon_effect == FREEZE_EFFECT_NPC) {
         return;
     }
 
