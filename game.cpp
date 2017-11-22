@@ -68,7 +68,7 @@ extern fps_control fps_manager;
 // ********************************************************************************************** //
 game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
 {
-	currentStage = 1;
+    currentStage = INTRO_STAGE;
 	_frame_duration = 1000/80; // each frame must use this share of time
     invencible_old_value = false;
     _dark_mode = false;
@@ -1424,7 +1424,11 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    currentStage = CASTLE1_STAGE1;
+    /*
+    if (currentStage != INTRO_STAGE) {
+        currentStage = CASTLE1_STAGE1;
+    }
+    */
     game_save.difficulty = DIFFICULTY_HARD;
     game_save.selected_player = PLAYER_3;
 

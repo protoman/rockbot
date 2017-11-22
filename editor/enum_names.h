@@ -41,6 +41,11 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("SPIRAL");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("BOUNCING");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("INVERSE LINEAR");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("DOUBLE LINEAR");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("DOUBLE DIAGONAL");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("BOMB RAIN");
+
+
     // -------------------------------------------------------------- //
     AI_ACTION_NAMES.push_back("WALK");
     AI_ACTION_NAMES.push_back("FLY");

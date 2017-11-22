@@ -425,20 +425,24 @@ enum PROJECTILE_TRAJECTORIES {
 	TRAJECTORY_FREEZE,
 	TRAJECTORY_DIAGONAL_UP,
 	TRAJECTORY_DIAGONAL_DOWN,
-    TRAJECTORY_CENTERED,                // centered around character
-    TRAJECTORY_ZIGZAG,                  // linear until reach a wall, then return (repeat until reflection number = 3)
-    TRAJECTORY_TARGET_DIRECTION,        // adjust to linear, diagonal up or diagonal down depending on player position when shoot
-    TRAJECTORY_ARC_TO_TARGET,           // forms an arn that will end at player's position
-    TRAJECTORY_TARGET_EXACT,            // will go exactly to the point the target is in
-    TRAJECTORY_FALL_BOMB,               // falls until ground then explodes
+    TRAJECTORY_CENTERED,                        // centered around character
+    TRAJECTORY_ZIGZAG,                          // linear until reach a wall, then return (repeat until reflection number = 3)
+    TRAJECTORY_TARGET_DIRECTION,                // adjust to linear, diagonal up or diagonal down depending on player position when shoot
+    TRAJECTORY_ARC_TO_TARGET,                   // forms an arn that will end at player's position
+    TRAJECTORY_TARGET_EXACT,                    // will go exactly to the point the target is in
+    TRAJECTORY_FALL_BOMB,                       // falls until ground then explodes
     TRAJECTORY_LASER,
-    TRAJECTORY_PUSH_BACK,               // pushes player or enemies into opposite direction
+    TRAJECTORY_PUSH_BACK,                       // pushes player or enemies into opposite direction
     TRAJECTORY_ARC_SMALL,
-    TRAJECTORY_RING,                    // increases size and on last frame, oponent can pass in the middle
-    TRAJECTORY_LIGHTING,                // appears sequentially in some parts of the screen
+    TRAJECTORY_RING,                            // increases size and on last frame, oponent can pass in the middle
+    TRAJECTORY_LIGHTING,                        // appears sequentially in some parts of the screen
     TRAJECTORY_SPIRAL,
     TRAJECTORY_BOUNCING,
     TRAJECTORY_INVERSE_LINEAR,
+    TRAJECTORY_DOUBLE_LINEAR,                   // simultaneous shots left/right
+    TRAJECTORY_DOUBLE_DIAGONAL,                 // imperfect diagonal (only 45 degrees)
+    TRAJECTORY_BOMB_RAIN,                       // creates small drop-bombs progressively
+
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 

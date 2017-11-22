@@ -193,16 +193,8 @@ public:
     void reset_jump();
 
 
-    /**
-     * @brief remove the first projectile from the list
-     *
-     */
     void consume_projectile();
 
-    /**
-     * @brief identifies if the player is using some kind of cicle weapon (TRAJECTORY_CENTERED), so enemy projectiles will damage the player projectile, not himself
-     * @return bool true if using circle-type weapon
-     */
     bool is_using_circle_weapon();
 
     void inc_effect_weapon_status();
@@ -224,6 +216,8 @@ public:
     bool animation_has_restarted();
     void set_animation_has_restarted(bool restarted);
     st_position get_int_position(); // converts float position to integer position
+
+    void add_projectile(short id, st_position pos, int trajectory);
 
 
 private:
@@ -267,8 +261,6 @@ protected:
 public:
 	// projectile list
     std::vector<projectile> projectile_list;
-    //classMap *map;										// reference to the map this npc is in
-
 
 protected:
 	// members static that can be moved to use game_data

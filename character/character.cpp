@@ -2627,6 +2627,14 @@ st_position character::get_int_position()
     return st_position((int)position.x, (int)position.y);
 }
 
+void character::add_projectile(short id, st_position pos, int trajectory)
+{
+    projectile_list.push_back(projectile(id, state.direction, pos, is_player()));
+    projectile &temp_proj2 = projectile_list.back();
+    temp_proj2.set_is_permanent();
+    temp_proj2.set_trajectory(TRAJECTORY_FALL_BOMB);
+}
+
 void character::check_reset_stand()
 {
     if (!is_player()) { // NPCs do not need this

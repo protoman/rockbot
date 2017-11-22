@@ -2,6 +2,7 @@
 #include "projectilelib.h"
 #include "timerlib.h"
 #include "classmap.h"
+#include "character/character.h"
 #include "collision_detection.h"
 #include <cmath>
 
@@ -19,9 +20,8 @@ extern game gameControl;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
 #define FREEZE_DURATION 3500
-
 #define LIGHTING_FRAMES_N 6
-
+#define BOMB_RAIN_DELAY 600
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -30,6 +30,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 {
     set_default_values();
 	_id = id; // -1 is default projectile
+    owner = NULL;
 
 
     //std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "]" << std::endl;
@@ -744,8 +745,29 @@ st_size projectile::move() {
             }
         }
 
+    } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
+        if (owner == NULL) {
+            is_finished = true;
+            return;
+        }
+        if (move_timer < timer.getTimer()) {
+            // make the projectile owner to add new one into its list
+            st_position new_proj_pos;
+            new_proj_pos.x = RES_W/6 * status;
+            if (direction == ANIM_DIRECTION_LEFT) {
+                new_proj_pos.x = RES_W - (RES_W/6 * status);
+            }
+            // adds same type to get properties and graphics, but chances trajectory for a different type
+            owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB);
+            move_timer = timer.getTimer() + BOMB_RAIN_DELAY;
+            status++;
+            if (status >= 4) {
+                is_finished = true;
+            }
+        }
     } else {
-        std::cout << "projectile::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
+        std::cout << "PROJECTILE::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
+        is_finished = true;
 	}
 
     realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
@@ -1046,5 +1068,10 @@ void projectile::set_owner_position(st_float_position *owner_position)
 
 void projectile::set_owner_direction(Uint8 *owner_direction)
 {
-	_owner_direction = owner_direction;
+    _owner_direction = owner_direction;
+}
+
+void projectile::set_owner(character *owner_ptr)
+{
+    owner = owner_ptr;
 }

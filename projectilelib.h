@@ -14,6 +14,9 @@ extern draw draw_lib;
 #include "timerlib.h"
 extern timerLib timer;
 
+// forward declaration
+class character;
+
 /**
  * @brief
  *
@@ -57,6 +60,7 @@ public:
     short get_effect_n() const;
     void set_owner_position(st_float_position *owner_position);
     void set_owner_direction(Uint8 *owner_direction);
+    void set_owner(character* owner_ptr);
     Uint8 get_speed() const;
     Uint8 get_damage() const;
     Uint8 get_trajectory() const;
@@ -141,6 +145,9 @@ private:
 
     float _dist_y;                                       // used for bouncing ball
     float _gravity;                                       // used for bouncing ball
+
+    // owner for the projectile
+    character* owner;
 
 };
 #endif // PROJECTILELIB_H

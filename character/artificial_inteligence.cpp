@@ -1153,6 +1153,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
     projectile_list.push_back(projectile(projectile_type, proj_direction, proj_pos, is_player()));
     projectile &temp_proj = projectile_list.back();
     temp_proj.play_sfx(true);
+    temp_proj.set_owner(this);
 
 
     if (temp_projectile.trajectory == TRAJECTORY_CENTERED) {
@@ -1166,6 +1167,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
             temp_proj.set_target_position(p_player->get_position_ref());
         }
     }
+
 
 
     return true;
