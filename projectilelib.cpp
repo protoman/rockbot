@@ -744,9 +744,19 @@ st_size projectile::move() {
                 _dist_y = 0;
             }
         }
-
+    } else if (_move_type == TRAJECTORY_DOUBLE_LINEAR || _move_type == TRAJECTORY_DOUBLE_DIAGONAL) {
+        if (owner == NULL || is_finished == true) {
+            is_finished = true;
+            return;
+        }
+        // @TODO: calc the X position given the direction owner is facing and his projectile-origin
+        // left
+        owner->add_projectile(_id, st_position(position.x, position.y), TRAJECTORY_FALL_BOMB, ANIM_DIRECTION_LEFT);
+        // right
+        owner->add_projectile(_id, st_position(position.x, position.y), TRAJECTORY_FALL_BOMB, ANIM_DIRECTION_RIGHT);
+        is_finished = true;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
-        if (owner == NULL) {
+        if (owner == NULL || is_finished == true) {
             is_finished = true;
             return;
         }
@@ -758,7 +768,7 @@ st_size projectile::move() {
                 new_proj_pos.x = RES_W - (RES_W/6 * status);
             }
             // adds same type to get properties and graphics, but chances trajectory for a different type
-            owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB);
+            owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
             move_timer = timer.getTimer() + BOMB_RAIN_DELAY;
             status++;
             if (status >= 4) {

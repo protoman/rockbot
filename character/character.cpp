@@ -774,6 +774,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
         }
 
         int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
+        temp_proj.set_owner(this);
         if (proj_trajectory == TRAJECTORY_CENTERED) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
@@ -2627,12 +2628,12 @@ st_position character::get_int_position()
     return st_position((int)position.x, (int)position.y);
 }
 
-void character::add_projectile(short id, st_position pos, int trajectory)
+void character::add_projectile(short id, st_position pos, int trajectory, int direction)
 {
-    projectile_list.push_back(projectile(id, state.direction, pos, is_player()));
+    projectile_list.push_back(projectile(id, direction, pos, is_player()));
     projectile &temp_proj2 = projectile_list.back();
     temp_proj2.set_is_permanent();
-    temp_proj2.set_trajectory(TRAJECTORY_FALL_BOMB);
+    temp_proj2.set_trajectory(trajectory);
 }
 
 void character::check_reset_stand()
