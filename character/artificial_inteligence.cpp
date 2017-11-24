@@ -1128,29 +1128,12 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
         return false;
     }
 
-    st_position proj_pos;
     int proj_direction = state.direction;
     if (invert_direction == true) {
         proj_direction = !proj_direction;
     }
 
-    st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number)->attack_arm_pos;
-    if (attack_arm_pos.x < 1 && attack_arm_pos.y < 1) {
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
-        } else {
-            proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
-        }
-    } else {
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
-        } else {
-            proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
-        }
-    }
-    //std::cout << "attack_arm_pos.x: " << (int)attack_arm_pos.x << ", attack_arm_pos.y: " << (int)attack_arm_pos.y << ", pos.x: " << position.x << ", pos.y: " << position.y << ", proj_pos.x: " << proj_pos.x << ", proj_pos.y: " << proj_pos.y << std::endl;
-
-    projectile_list.push_back(projectile(projectile_type, proj_direction, proj_pos, is_player()));
+    projectile_list.push_back(projectile(projectile_type, proj_direction, get_attack_position(), is_player()));
     projectile &temp_proj = projectile_list.back();
     temp_proj.play_sfx(true);
     temp_proj.set_owner(this);
@@ -1413,15 +1396,9 @@ void artificial_inteligence::execute_ai_step_fly()
             if (dist > 120 * _counter) {
                 _counter++;
 
-                st_position proj_pos;
                 int n = 0;
                 int proj_direction = state.direction;
-                if (proj_direction == ANIM_DIRECTION_LEFT) {
-                    proj_pos = st_position(position.x+TILESIZE/2, position.y+frameSize.height/2);
-                } else {
-                    proj_pos = st_position(position.x+frameSize.width-TILESIZE*2, position.y+frameSize.height/2);
-                }
-                projectile_list.push_back(projectile(_parameter, proj_direction, proj_pos, is_player()));
+                projectile_list.push_back(projectile(_parameter, proj_direction, get_attack_position(), is_player()));
                 projectile &temp_proj = projectile_list.back();
                 temp_proj.play_sfx(true);
 

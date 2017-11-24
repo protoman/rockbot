@@ -691,6 +691,34 @@ void character::check_charging_colors(bool always_charged)
     }
 }
 
+st_position character::get_attack_position()
+{
+    get_attack_position(state.direction);
+}
+
+
+st_position character::get_attack_position(short direction)
+{
+    st_position proj_pos;
+    if (direction == ANIM_DIRECTION_LEFT) {
+        proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
+    } else {
+        proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
+    }
+    if (is_player() == false) {
+        st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number)->attack_arm_pos;
+        if (attack_arm_pos.x >= 1 || attack_arm_pos.y >= 1) {
+            if (direction == ANIM_DIRECTION_LEFT) {
+                proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
+            } else {
+                proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
+            }
+        }
+    }
+    return proj_pos;
+
+}
+
 /// @TODO: this must be moved to player, as character attack must be very simple
 void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
 {
@@ -738,13 +766,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
 
         //std::cout << "character::attack - shoot projectile" << std::endl;
-        st_position proj_pos;
-
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            proj_pos = st_position(position.x+TILESIZE/3, position.y+frameSize.height/2);
-        } else {
-            proj_pos = st_position(position.x+frameSize.width-TILESIZE/2, position.y+frameSize.height/2);
-        }
+        st_position proj_pos = get_attack_position();
 
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, is_player()));
         projectile &temp_proj = projectile_list.back();
@@ -2635,6 +2657,7 @@ void character::add_projectile(short id, st_position pos, int trajectory, int di
     temp_proj2.set_is_permanent();
     temp_proj2.set_trajectory(trajectory);
 }
+
 
 void character::check_reset_stand()
 {

@@ -140,6 +140,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
             position.x += scroll_diff_x;
         }
         _move_type = TRAJECTORY_LINEAR;
+    } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
+        move_timer = timer.getTimer() + BOMB_RAIN_DELAY;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -750,10 +752,20 @@ st_size projectile::move() {
             return;
         }
         // @TODO: calc the X position given the direction owner is facing and his projectile-origin
-        // left
-        owner->add_projectile(_id, st_position(position.x, position.y), TRAJECTORY_FALL_BOMB, ANIM_DIRECTION_LEFT);
-        // right
-        owner->add_projectile(_id, st_position(position.x, position.y), TRAJECTORY_FALL_BOMB, ANIM_DIRECTION_RIGHT);
+        st_position proj_pos_left = owner->get_attack_position(ANIM_DIRECTION_LEFT);
+        st_position proj_pos_right = owner->get_attack_position(ANIM_DIRECTION_RIGHT);
+        if (_move_type == TRAJECTORY_DOUBLE_LINEAR) {
+            owner->add_projectile(_id, proj_pos_left, TRAJECTORY_LINEAR, ANIM_DIRECTION_LEFT);
+            owner->add_projectile(_id, proj_pos_right, TRAJECTORY_LINEAR, ANIM_DIRECTION_RIGHT);
+        } else {
+            int trajectory = TRAJECTORY_DIAGONAL_UP;
+            // @TODO: compare target position (create method get target in character class)
+            if (owner->getPosition().y < RES_H/2) {
+                trajectory = TRAJECTORY_DIAGONAL_DOWN;
+            }
+            owner->add_projectile(_id, proj_pos_left, trajectory, ANIM_DIRECTION_LEFT);
+            owner->add_projectile(_id, proj_pos_right, trajectory, ANIM_DIRECTION_RIGHT);
+        }
         is_finished = true;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         if (owner == NULL || is_finished == true) {

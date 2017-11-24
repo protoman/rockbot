@@ -218,6 +218,8 @@ public:
     st_position get_int_position(); // converts float position to integer position
 
     void add_projectile(short id, st_position pos, int trajectory, int direction);
+    st_position get_attack_position();
+    st_position get_attack_position(short direction);
 
 
 private:
