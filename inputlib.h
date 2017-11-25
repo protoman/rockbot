@@ -50,6 +50,8 @@ private:
     bool _show_btn_debug;
     int held_button_count;
     long held_button_timer;
+    int default_keys_codes[BTN_COUNT];
+
 
 };
 

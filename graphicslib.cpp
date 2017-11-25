@@ -137,8 +137,8 @@ bool graphicsLib::initGraphics()
     fflush(stdout);
 
     // FONT
-	TTF_Init();
-    filename = GAMEPATH + "/fonts/gamegirl.ttf";
+    TTF_Init();
+    filename = GAMEPATH + "/fonts/pressstart2p.ttf";
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());

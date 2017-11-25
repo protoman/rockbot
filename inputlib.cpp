@@ -28,6 +28,10 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
         p1_save_input[i] = 0;
 	}
     _show_btn_debug = false;
+#ifdef ANDROID
+    game_config.get_default_keys(default_keys_codes);
+#endif
+
 }
 
 void inputLib::init_joystick()
@@ -119,10 +123,22 @@ void inputLib::read_input(bool check_input_reset)
         }
 
         if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
+            int *key_config_tmp = game_config.keys_codes;
+            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+#ifdef ANDROID
+                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### event.key.which[%d] ###", event.key.which);
+                if (event.key.which == 0) {
+                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING DEFAULT ###");
+                    key_config_tmp = default_keys_codes;
+                } else {
+                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING USER-CONFIG ###");
+                    key_config_tmp = game_config.keys_codes;
+                }
+#endif
+            }
             if (event.type == SDL_KEYDOWN) {
-
                 for (int i=0; i<BTN_COUNT; i++) {
-                    if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
+                    if (key_config_tmp[i] != -1 && key_config_tmp[i] == event.key.keysym.sym) {
                         p1_input[i] = 1;
                         _used_keyboard = true;
                         if (i == BTN_JUMP) {
@@ -132,7 +148,7 @@ void inputLib::read_input(bool check_input_reset)
                 }
             } else if (event.type == SDL_KEYUP) {
                 for (int i=0; i<BTN_COUNT; i++) {
-                    if (game_config.keys_codes[i] != -1 && game_config.keys_codes[i] == event.key.keysym.sym) {
+                    if (key_config_tmp[i] != -1 && key_config_tmp[i] == event.key.keysym.sym) {
                         //if (i == BTN_ATTACK) std::cout << "INPUT::readInput::KEYUP::ATTACK" << std::endl;
                         p1_input[i] = 0;
                         _used_keyboard = true;
@@ -464,6 +480,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
     #endif
 
 
+
     while (true) { // keep reading until a key is found
         while (SDL_PollEvent(&event)) {
 
@@ -476,6 +493,14 @@ std::cout << "### INPUT::pick_key_or_button[SDL_KEYDOWN][" << (int)event.key.key
 
             if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_KEYBOARD) {
                 if (event.type == SDL_KEYDOWN) {
+
+
+#ifdef ANDROID
+__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button - event.key.which[%d] ###", (int)event.key.which);
+#else
+std::cout << "### INPUT::pick_key_or_button[SDL_KEYDOWN][" << (int)event.key.which << "]" << std::endl;
+#endif
+
                     // do not allow user to reassign ESCAPE key
                     if (event.key.keysym.sym == SDLK_ESCAPE) {
                         #ifdef ANDROID

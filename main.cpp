@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 
 
 
-
+#ifdef PC
 	// check command-line paramethers
 	if (argc > 1) {
 		for (int i=1; i<argc; i++) {
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             }
 		}
 	}
-
+#endif
     fflush(stdout);
 
     /// DEBUG ///

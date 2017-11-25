@@ -500,7 +500,12 @@ void object::show(int adjust_y, int adjust_x)
 
 		// parte que vai ser colada
         graphic_destiny.x = position.x - scroll_x;
-        graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
+        //graphic_destiny.y = adjust_y + position.y - map->getMapScrolling().y;
+        graphic_destiny.y = adjust_y + position.y;
+
+        // -240 -> (160) -> -80
+
+        std::cout << "object::show::name[" << name << "]::adjust_y[" << adjust_y << "]::graphic_destiny.y[" << graphic_destiny.y << "]::position.y[" << position.y << "]" << std::endl;
 
         //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
         if (type == OBJ_LIFE) {
@@ -509,16 +514,16 @@ void object::show(int adjust_y, int adjust_x)
             if (draw_lib.get_object_graphic(_id)->width < init_x + framesize_w) {
                 init_x = 0;
             }
-            graphLib.copyArea(st_rectangle(init_x, 0, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y+adjust_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(init_x, 0, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             return;
         }
 
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
-            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y+adjust_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // disappearning block has a shadow under it
             if (type == OBJ_DISAPPEARING_BLOCK) {
-                graphLib.clear_area(graphic_destiny.x, graphic_destiny.y+framesize_h+adjust_y, framesize_w, 6, 0, 0, 0);
+                graphLib.clear_area(graphic_destiny.x, graphic_destiny.y+framesize_h, framesize_w, 6, 0, 0, 0);
                 if (_must_play_appearing_sfx == true) {
                     _must_play_appearing_sfx = false;
                     soundManager.play_sfx(SFX_DISAPPEARING_BLOCK);
