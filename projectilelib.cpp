@@ -747,7 +747,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_DOUBLE_LINEAR || _move_type == TRAJECTORY_DOUBLE_DIAGONAL) {
         if (owner == NULL || is_finished == true) {
             is_finished = true;
-            return;
+            return st_size(0, 0);
         }
         // @TODO: calc the X position given the direction owner is facing and his projectile-origin
         // left
@@ -758,7 +758,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         if (owner == NULL || is_finished == true) {
             is_finished = true;
-            return;
+            return st_size(0, 0);
         }
         if (move_timer < timer.getTimer()) {
             // make the projectile owner to add new one into its list
