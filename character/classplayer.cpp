@@ -418,7 +418,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         //std::cout << "############ weapon_id: " << weapon_id << std::endl;
 
-        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, proj_pos, is_player()));
+        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, get_attack_position(), is_player()));
         projectile &temp_proj = projectile_list.back();
         temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();
