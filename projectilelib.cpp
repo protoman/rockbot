@@ -749,7 +749,7 @@ st_size projectile::move() {
         position.x += moved_x;
         // check if hit ground
 
-        if (check_map_collision(st_position(moved_x, 0)) == false) { // hit ground, lets change to explosion
+        if (check_map_collision(st_position(moved_x, 0)) == false) { // hit ground, bounce
             position.y -= _dist_y;
             if (_dist_y < TILESIZE-2) {
                 _dist_y += _gravity;
@@ -757,7 +757,13 @@ st_size projectile::move() {
             //std::cout << "_dist_y[" << _dist_y << "]" << std::endl;
         } else {
             position.y -= abs(_dist_y);
-            _dist_y *= -0.9;
+            // first bounce must be stronger
+            if (status == 0) {
+                _dist_y *= -1.5;
+                status++;
+            } else {
+                _dist_y *= -0.6;
+            }
 
             if (fabs(_dist_y) < 0.01) {
                 _dist_y = 0;
@@ -893,13 +899,13 @@ void projectile::draw() {
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
         // @TODO - add animation frames
         // back
-        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(0, 0, frame_w, _size.height), realPosition);
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, 0, frame_w, _size.height), realPosition);
         // middle
         for (int i=0; i<status; i++) {
-            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(frame_w, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*i), realPosition.y));
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos+frame_w, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*i), realPosition.y));
         }
         // point
-        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos+frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
 
     } else {
         //printf(">> PROJECTILE::DRAW[%d] - direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);

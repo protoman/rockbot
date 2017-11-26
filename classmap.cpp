@@ -1432,20 +1432,22 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 continue;
             }
 
+            st_rectangle stopped_char_rect = charObj->get_hitbox();
+            stopped_char_rect.x+= CHAR_OBJ_COLlISION_KILL_ADJUST/2;
+            stopped_char_rect.y+= CHAR_OBJ_COLlISION_KILL_ADJUST;
+            stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
+            stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
+
+            std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
+            // check if, without moving, player is inside object
+            int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
+
+
             //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #1 ###" << std::endl;
 
 
             // some platforms can kill the player if he gets stuck inside it
             if (charObj->is_player() == true && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_FLY_PLATFORM)) {
-                st_rectangle stopped_char_rect = charObj->get_hitbox();
-                stopped_char_rect.x+= CHAR_OBJ_COLlISION_KILL_ADJUST/2;
-                stopped_char_rect.y+= CHAR_OBJ_COLlISION_KILL_ADJUST;
-                stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
-                stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
-
-                //std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
-                // check if, without moving, player is inside object
-                int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
                 if (no_move_blocked == BLOCK_XY) {
                     _obj_collision = object_collision(BLOCK_INSIDE_OBJ, &temp_obj);
                     std::cout << "obj[" << temp_obj.get_name() << "] - leave #5" << std::endl;
@@ -1511,6 +1513,11 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     continue;
                 }
 
+                // if inside object and is disappearing block, move char above it
+                if (no_move_blocked == BLOCK_XY && temp_blocked == BLOCK_XY && (charObj->is_player() && temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK || charObj->is_player() && temp_obj.get_type() == OBJ_ACTIVE_DISAPPEARING_BLOCK)) {
+                    charObj->set_position(st_position(charObj->get_int_position().x, temp_obj.get_position().y - charObj->get_size().height));
+                }
+
                 //std::cout << "y_inc[" << y_inc << "], char_rect.y[" << char_rect.y << "], temp_obj_y[" << temp_obj_y << "]" << std::endl;
 
                 if (y_inc > 0 && char_rect.y <= temp_obj_y) {
@@ -1525,6 +1532,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
                     if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
                         if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
+
+
                             charObj->set_platform(&temp_obj);
                             if (temp_obj.get_type() == OBJ_FALL_PLATFORM) {
                                 temp_obj.set_direction(ANIM_DIRECTION_LEFT);

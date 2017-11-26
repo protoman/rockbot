@@ -1938,9 +1938,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                     state.direction = ANIM_DIRECTION_RIGHT;
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
                 }
+            // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
-                //std::cout << "CHAR::PLAYER::check-obj-collision #2"  << std::endl;
-                // ignore block
+                // do nothing
             } else if (!get_item(res_collision_object)) {
                 map_block = res_collision_object._block;
 
@@ -1963,6 +1963,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             _can_execute_airdash = true;
         }
     }
+
 
 	if (is_player()) {
         if (have_shoryuken() == true && state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
