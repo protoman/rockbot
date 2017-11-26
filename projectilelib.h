@@ -101,6 +101,7 @@ private:
     unsigned int animation_timer;
     Uint8 direction;
     unsigned int move_timer;
+    long status_timer;
     int move_delay;
     Uint8 status; // status of animation (going/returning, etc)
     Uint8 _move_type;
@@ -148,6 +149,7 @@ private:
 
     // owner for the projectile
     character* owner;
+    short frame_w;
 
 };
 #endif // PROJECTILELIB_H

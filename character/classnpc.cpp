@@ -561,6 +561,8 @@ void classnpc::move_projectiles()
 			}
 		}
 	}
+    projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());
+    projectile_to_be_added_list.clear();
 }
 
 

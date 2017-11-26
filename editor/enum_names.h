@@ -44,6 +44,7 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("DOUBLE LINEAR");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("DOUBLE DIAGONAL");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("BOMB RAIN");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("LARGE BEAM");
 
 
     // -------------------------------------------------------------- //

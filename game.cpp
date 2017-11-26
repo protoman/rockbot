@@ -1449,7 +1449,7 @@ void game::quick_load_game()
 
     // TEST //
     //currentStage = scenes.pick_stage(INTRO_STAGE);
-    currentStage = CASTLE1_STAGE1;
+    currentStage = INTRO_STAGE;
 
 
     // DEBUG //

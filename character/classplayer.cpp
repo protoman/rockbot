@@ -423,6 +423,7 @@ void classPlayer::attack(bool dont_update_colors)
         temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();
         temp_proj.set_weapon_id(weapon_id);
+        temp_proj.set_owner(this);
 
 
         //std::cout << "weapon_id: " << weapon_id << ", projectile_id: " << game_data.weapons[weapon_id].id_projectile << std::endl;
@@ -806,6 +807,8 @@ void classPlayer::execute_projectiles()
             }
         }
     }
+    projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());
+    projectile_to_be_added_list.clear();
 }
 
 void classPlayer::move()

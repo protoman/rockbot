@@ -1401,6 +1401,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 projectile_list.push_back(projectile(_parameter, proj_direction, get_attack_position(), is_player()));
                 projectile &temp_proj = projectile_list.back();
                 temp_proj.play_sfx(true);
+                temp_proj.set_owner(this);
 
                 if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_CENTERED) {
                     temp_proj.set_owner_direction(&state.direction);

@@ -263,6 +263,7 @@ protected:
 public:
 	// projectile list
     std::vector<projectile> projectile_list;
+    std::vector<projectile> projectile_to_be_added_list;
 
 protected:
 	// members static that can be moved to use game_data

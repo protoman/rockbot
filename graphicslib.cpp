@@ -328,9 +328,15 @@ void graphicsLib::loadTileset(std::string file)
 void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
 {
     UNUSED(fix_colors);
+
+    if (!surfaceOrigin) {
+        std::cout << "copySDLArea - ERROR surfaceOrigin is NULL - ignoring..." << std::endl;
+        show_debug_msg("ERROR #21.1.0");
+        return;
+    }
     if (!surfaceDestiny) {
         std::cout << "copySDLArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
-        show_debug_msg("ERROR #21.1");
+        show_debug_msg("ERROR #21.1.1");
         return;
     }
     copySDLPortion(origin_rectangle, st_rectangle(destiny_pos.x, destiny_pos.y, origin_rectangle.w, origin_rectangle.h), surfaceOrigin, surfaceDestiny);
@@ -378,7 +384,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         return;
     }
     if (src.y >= surfaceOrigin->h || (src.y+src.h) > surfaceOrigin->h) {
-        printf(">> Invalid Y portion[%d] h[%d] for image.h[%d] <<\n", src.y, src.h, surfaceOrigin->h);
+        printf(">> Invalid Y portion[%d] h[%d] for image.w[%d] and image.h[%d] <<\n", src.y, src.h, surfaceOrigin->w, surfaceOrigin->h);
         fflush(stdout);
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid Y portion <<\n");

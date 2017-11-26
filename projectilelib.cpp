@@ -21,7 +21,10 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
 #define FREEZE_DURATION 3500
 #define LIGHTING_FRAMES_N 6
-#define BOMB_RAIN_DELAY 600
+#define BOMB_RAIN_DELAY 1600
+#define BOMB_RAIN_N 4
+
+#define LARGE_BEAM_DELAY 20
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -30,6 +33,9 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 {
     set_default_values();
 	_id = id; // -1 is default projectile
+
+    //std::cout << ">>>>>>>>>>>>> projectile.id[" << (int)id << "]" << std::endl;
+
     owner = NULL;
 
 
@@ -132,7 +138,6 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
             direction = ANIM_DIRECTION_RIGHT;
             position.x -= abs_pos_x;
 
-
             std::cout << ">>>> new_pos.x[" << position.x << "]" << std::endl;
         } else {
             int scroll_diff_x = RES_W - abs_pos_x;
@@ -141,7 +146,14 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         }
         _move_type = TRAJECTORY_LINEAR;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
-        move_timer = timer.getTimer() + BOMB_RAIN_DELAY;
+        status_timer = timer.getTimer();
+    } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
+        frame_w = _size.width/3;
+        status = 0;
+        status_timer = timer.getTimer() + LARGE_BEAM_DELAY;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= frame_w*2;
+        }
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -213,6 +225,8 @@ st_size projectile::get_size() const
         Uint8 w = _size.width;
         Uint8 h = (_size.height/_max_frames) * animation_pos;
         return st_size(w, h);
+    } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
+        return st_size(frame_w * (2+status), _size.height);
     }
     return GameMediator::get_instance()->get_projectile(_id).size;
 }
@@ -384,14 +398,17 @@ graphicsLib_gSurface *projectile::get_surface()
     if (direction != ANIM_DIRECTION_LEFT) {
         temp_direction = 1;
     }
+
 	if (_id == -1) {
         if (graphLib.projectile_surface[0].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #1");
+            std::cout << "projectile surface error #1 - temp_direction[" << temp_direction << "]" << std::endl;
         }
         return &graphLib.projectile_surface[0].surface[temp_direction];
 	} else {
         if (graphLib.projectile_surface[_id].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #2");
+            std::cout << "projectile surface error #2 - temp_direction[" << temp_direction << "]" << std::endl;
         }
         return &graphLib.projectile_surface[_id].surface[temp_direction];
     }
@@ -631,7 +648,7 @@ st_size projectile::move() {
                 //std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
                 /// morph into a bigger explosion
                 _points = 5000;
-                _effect_timer = timer.getTimer()+3600;
+                _effect_timer = timer.getTimer()+1600;
 
                 _size.width = 56;
                 _size.height = 56;
@@ -639,7 +656,7 @@ st_size projectile::move() {
                 position.y -= 48;
                 _max_frames = get_surface()->width / _size.width;
                 _effect_n++;
-                soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 3);
+                soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
             }
         } else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
             is_finished = true;
@@ -768,22 +785,40 @@ st_size projectile::move() {
         }
         is_finished = true;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
+        //std::cout << "TRAJECTORY_BOMB_RAIN::EXECUTE, status[" << (int)status << "], timer[" << timer.getTimer() << "], move_timer[" << move_timer << "]" << std::endl;
         if (owner == NULL || is_finished == true) {
+            std::cout << "TRAJECTORY_BOMB_RAIN::NO-OWNER-ERROR" << std::endl;
             is_finished = true;
             return st_size(0, 0);
         }
-        if (move_timer < timer.getTimer()) {
+        if (status_timer < timer.getTimer()) {
             // make the projectile owner to add new one into its list
             st_position new_proj_pos;
-            new_proj_pos.x = RES_W/6 * status;
+            new_proj_pos.x = RES_W/BOMB_RAIN_N * status  + gameControl.get_current_map_obj()->getMapScrolling().x;
             if (direction == ANIM_DIRECTION_LEFT) {
-                new_proj_pos.x = RES_W - (RES_W/6 * status);
+                new_proj_pos.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x;
             }
+            std::cout << "TRAJECTORY_BOMB_RAIN::ADD - new_proj_pos.x[" << new_proj_pos.x << "]" << std::endl;
             // adds same type to get properties and graphics, but chances trajectory for a different type
             owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
-            move_timer = timer.getTimer() + BOMB_RAIN_DELAY;
+            status_timer = timer.getTimer() + BOMB_RAIN_DELAY;
             status++;
-            if (status >= 4) {
+            if (status > BOMB_RAIN_N) {
+                std::cout << "TRAJECTORY_BOMB_RAIN::FINISHED" << std::endl;
+                is_finished = true;
+            }
+        }
+
+
+    } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
+        //std::cout << "PROJECTILE::move[TRAJECTORY_LARGE_BEAM] - timer[" << timer.getTimer() << "], status_timer[" << status_timer << "]" << std::endl;
+        if (status_timer < timer.getTimer()) {
+            status_timer = timer.getTimer() + LARGE_BEAM_DELAY;
+            status++;
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x -= frame_w;
+            }
+            if (status > RES_W/frame_w) {
                 is_finished = true;
             }
         }
@@ -812,7 +847,9 @@ void projectile::draw() {
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK) { /// QTODO: freeze could use some "sparkling" effect
 		//std::cout << "projectile::draw - invisible type" << std::endl;
 		return;
-	}
+    } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
+        return;
+    }
 
 	if (animation_pos >= _max_frames) {
 		//std::cout << "projectile::draw - RESET animation_pos" << std::endl;
@@ -853,6 +890,16 @@ void projectile::draw() {
             _effect_n++;
         }
 
+    } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
+        // @TODO - add animation frames
+        // back
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(0, 0, frame_w, _size.height), realPosition);
+        // middle
+        for (int i=0; i<status; i++) {
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(frame_w, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*i), realPosition.y));
+        }
+        // point
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
 
     } else {
         //printf(">> PROJECTILE::DRAW[%d] - direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
@@ -920,6 +967,8 @@ bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) co
         } else {
             pw = pos_inc.x + _chain_width;
         }
+    } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
+        pw = frame_w * (2+status);
     }
 
     st_rectangle p_rect(enemy_pos.x, enemy_pos.y, enemy_pos.w, enemy_pos.h);
@@ -980,12 +1029,14 @@ void projectile::reflect()
     // if it is a bomb, don't reflect at all
     if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING) {
         return;
-    }
-    if (get_trajectory() == TRAJECTORY_CHAIN) {
+    } else if (get_trajectory() == TRAJECTORY_LARGE_BEAM) {
+        return;
+    } else if (get_trajectory() == TRAJECTORY_CHAIN) {
         soundManager.play_sfx(SFX_SHOT_REFLECTED);
         is_finished = true;
         return;
     }
+
 	if (direction == ANIM_DIRECTION_LEFT) {
 		direction = ANIM_DIRECTION_RIGHT;
 	} else {

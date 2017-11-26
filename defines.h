@@ -442,6 +442,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_DOUBLE_LINEAR,                   // simultaneous shots left/right
     TRAJECTORY_DOUBLE_DIAGONAL,                 // imperfect diagonal (only 45 degrees)
     TRAJECTORY_BOMB_RAIN,                       // creates small drop-bombs progressively
+    TRAJECTORY_LARGE_BEAM,
 
 	PROJECTILE_TRAJECTORIES_COUNT };
 

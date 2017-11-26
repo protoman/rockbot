@@ -505,7 +505,7 @@ void object::show(int adjust_y, int adjust_x)
 
         // -240 -> (160) -> -80
 
-        std::cout << "object::show::name[" << name << "]::adjust_y[" << adjust_y << "]::graphic_destiny.y[" << graphic_destiny.y << "]::position.y[" << position.y << "]" << std::endl;
+        //std::cout << "object::show::name[" << name << "]::adjust_y[" << adjust_y << "]::graphic_destiny.y[" << graphic_destiny.y << "]::position.y[" << position.y << "]" << std::endl;
 
         //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
         if (type == OBJ_LIFE) {

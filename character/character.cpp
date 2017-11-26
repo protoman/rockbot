@@ -772,6 +772,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
         temp_proj.play_sfx(!is_player());
+        temp_proj.set_owner(this);
 
         _player_must_reset_colors = true;
 
@@ -781,6 +782,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
             projectile_list.push_back(projectile(attack_id, state.direction, st_position(proj_pos.x-TILESIZE, proj_pos.y+5), is_player()));
             projectile &temp_proj2 = projectile_list.back();
             temp_proj2.set_is_permanent();
+            temp_proj2.set_owner(this);
         }
         if (attack_id == 0 || attack_id == _normal_shot_projectile_id) { // handle normal attack differences depending on player
             if (updown_trajectory == 1) {
@@ -2652,10 +2654,11 @@ st_position character::get_int_position()
 
 void character::add_projectile(short id, st_position pos, int trajectory, int direction)
 {
-    projectile_list.push_back(projectile(id, direction, pos, is_player()));
-    projectile &temp_proj2 = projectile_list.back();
-    temp_proj2.set_is_permanent();
-    temp_proj2.set_trajectory(trajectory);
+    std::cout << "CHAR::add_projectile - id[" << id << "], pos[" << pos.x << "," << pos.y << "], trajectory[" << trajectory << "], direction[" << direction << "]" << std::endl;
+    projectile_to_be_added_list.push_back(projectile(id, direction, pos, is_player()));
+    projectile &new_projectile = projectile_to_be_added_list.back();
+    new_projectile.set_is_permanent();
+    new_projectile.set_trajectory(trajectory);
 }
 
 
