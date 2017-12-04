@@ -37,6 +37,7 @@ public:
     void init_android_button_size();
     void set_android_default_buttons_size(int size);
     void set_touch_controls_visible(bool show);
+    void firebase_log(std::string log_msg);
 
     //### NDK GAME SERVICES ###//
     //void ndk_connect();

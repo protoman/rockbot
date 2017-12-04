@@ -1,13 +1,3 @@
-#define B sp[i - b]
-#define D sp[i - (i>0?1:0)]
-#define F sp[i + (i<wd?1:0)]
-#define H sp[i + h]
-#define E  sp[i]
-#define E0 tp[i*2]
-#define E1 tp[i*2 + 1]
-#define E2 tp[i*2 + tpitch]
-#define E3 tp[i*2 + 1 + tpitch]
-
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
@@ -51,7 +41,19 @@ extern graphicsLib_gSurface _explosion_surface;
 
 #ifdef ANDROID
 #include <android/log.h>
+#include "ports/android/android_game_services.h"
+extern android_game_services game_services;
 #endif
+
+#define B sp[i - b]
+#define D sp[i - (i>0?1:0)]
+#define F sp[i + (i<wd?1:0)]
+#define H sp[i + h]
+#define E  sp[i]
+#define E0 tp[i*2]
+#define E1 tp[i*2 + 1]
+#define E2 tp[i*2 + tpitch]
+#define E3 tp[i*2 + 1 + tpitch]
 
 // initialize static member
 std::map<std::string, st_char_sprite_data> graphicsLib::character_graphics_list;
@@ -1655,6 +1657,9 @@ void graphicsLib::show_debug_msg(string msg)
 {
     std::cout << "show_debug_msg - msg: " << msg << std::endl;
     std::fflush(stdout);
+#ifdef ANDROID
+    game_services.firebase_log(msg);
+#endif
 
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);

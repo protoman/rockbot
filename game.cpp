@@ -90,6 +90,7 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
+    game_services.firebase_log("INIT GAME");
     player1.initialize();
     loaded_stage = stage(currentStage, &player1);
     player1.initFrames();

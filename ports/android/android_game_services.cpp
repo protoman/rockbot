@@ -51,6 +51,11 @@ void android_game_services::unclock_achievement(std::string achievement_id)
     SDL_ANDROID_UnlockAchievement(achievement_id.c_str());
 }
 
+void android_game_services::firebase_log(std::string log_msg)
+{
+    SDL_ANDROID_FirebaseLog(log_msg.c_str());
+}
+
 void android_game_services::init_android_button_size()
 {
     // get button 0 (A) as base to calc distance between buttons
@@ -212,3 +217,5 @@ void android_game_services::check_button_size(SDL_Rect& dest_size, SDL_Rect& def
 
 }
 #endif
+
+

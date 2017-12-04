@@ -72,12 +72,7 @@ STAGES:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- set default keys in file_config_v4.h for android "controller"
-
-
-- button size can be set in SDL new version besides controls size
-- usar threads to handle GMS/achievements
-- use a single file for save
+#97: use a single file for save to improve cloud-save
 - dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
 - increase drop ratio on enemies for easy mode
 - lighting must use a transparent yellow surface
