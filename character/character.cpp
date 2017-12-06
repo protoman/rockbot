@@ -2333,7 +2333,6 @@ st_rectangle character::get_hitbox(int anim_type)
         if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].used == true) {
             col_rect = GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].collision_rect;
         } else {
-
             col_rect = st_rectangle(GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x,
                                     GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y,
                                     GameMediator::get_instance()->get_enemy(_number)->frame_size.width,
@@ -2348,7 +2347,6 @@ st_rectangle character::get_hitbox(int anim_type)
         y += col_rect.y;
         w = col_rect.w - 4;
         h = col_rect.h;
-        //std::cout << "#### CHAR::GET_HITBOX [" << x << "," << y << "," << w << "," << h << "]" << std::endl;
         if (w <= 0 || h <= 0) {
             std::cout << "#### CHAR::GET_HITBOX name[" << name << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
             //std::cout << "A" << std::endl;
@@ -2379,6 +2377,7 @@ st_rectangle character::get_vulnerable_area(int anim_type)
         y += vulnerable_area_box.y;
         w = vulnerable_area_box.w - 2;
         h = vulnerable_area_box.h;
+        //if (state.animation_type == ANIM_TYPE_SLIDE) { std::cout << "#### CHAR::get_vulnerable_area [" << name << "][" << x << "," << y << "," << w << "," << h << "]" << std::endl; }
         return st_rectangle(x, y, w, h);
     } else {
         std::cout << "CHAR::get_vulnerable_area[" << name << "] - DO NOT EXISTS" << std::endl;

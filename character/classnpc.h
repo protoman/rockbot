@@ -52,7 +52,6 @@ public:
     bool is_subboss();
     void reset_position();
     st_position get_start_position();
-    st_rectangle get_hitbox();
     void show();
     // those are needed for AI to use because of linker not reconizing character class
     void npc_set_hp(st_hit_points new_hp);
