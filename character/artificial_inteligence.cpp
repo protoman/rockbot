@@ -49,6 +49,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     jump_attack_type = -1;
     _current_ai_type = -1;
     did_hit_player = false;
+    _saved_point = st_float_position(-99, -99);
 
 }
 
@@ -61,11 +62,15 @@ artificial_inteligence::~artificial_inteligence()
 
 void artificial_inteligence::execute_ai()
 {
-    //std::cout << "AI::execute_ai[" << name << "]" << std::endl;
+    // initialize saved point, if none was set yet
+    if (_saved_point.x == -99 && _saved_point.y == -99) {
+        _saved_point = position;
+    }
     if (_check_always_move_ahead == true) {
         _always_move_ahead = always_move_ahead();
         _check_always_move_ahead = false;
     }
+    //std::cout << "AI::execute_ai[" << name << "]" << std::endl;
     check_ai_reaction();
     if (timer.getTimer() < _ai_timer) {
         return;

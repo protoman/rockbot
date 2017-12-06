@@ -2951,8 +2951,12 @@ void character::execute_jump()
 
 void character::fall()
 {
-	/// @TODO
     _obj_jump.finish();
+    // already on the ground
+    if (hit_ground() == true) {
+        set_animation_type(ANIM_TYPE_STAND);
+        return;
+    }
     for (int i=0; i<RES_H; i++) {
 		char_update_real_position();
 		gravity(false);
@@ -2967,7 +2971,7 @@ void character::fall()
 		show();
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();
-        timer.delay(20);
+        timer.delay(10);
     }
 }
 

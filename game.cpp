@@ -90,7 +90,6 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
-    game_services.firebase_log("INIT GAME");
     player1.initialize();
     loaded_stage = stage(currentStage, &player1);
     player1.initFrames();
@@ -1142,7 +1141,6 @@ void game::got_weapon()
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE]; // store old value in order to not set the flag to false if it is on my command-line parameter
     GAME_FLAGS[FLAG_INVENCIBLE] = true;
 
-
     // remove any projectiles, charged shots, slides, etc
     player1.clean_projectiles();
     player1.clear_move_commands();
@@ -1158,6 +1156,7 @@ void game::got_weapon()
 		// fall to ground
         soundManager.play_sfx(SFX_BIG_EXPLOSION);
         player1.fall();
+        player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
 
         std::vector<st_color> color_list;
         color_list.push_back(st_color(251, 225, 101));
@@ -1175,7 +1174,6 @@ void game::got_weapon()
             }
         }
         long end_timer = timer.getTimer() + 3500;
-        player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
         while (timer.getTimer() < end_timer) {
             loaded_stage.showStage();
             player1.show();
