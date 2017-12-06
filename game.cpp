@@ -264,7 +264,9 @@ void game::start_stage()
     loaded_stage.add_autoscroll_delay();
 
     show_player_teleport(PLAYER_INITIAL_X_POS);
-    game_dialogs.show_stage_dialog(currentStage);
+    if (!game_save.stages[currentStage]) {
+        game_dialogs.show_stage_dialog(currentStage);
+    }
     show_game(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
@@ -831,7 +833,7 @@ void game::map_present_boss(bool show_dialog)
 	if (show_dialog == true) {
 		// 4. show boss dialog
         dialogs boss_dialog;
-        boss_dialog.show_boss_dialog(loaded_stage.get_number());
+        boss_dialog.show_boss_dialog(game_save.stages[loaded_stage.get_number()]);
 	}
 
     show_stage(8, false);
