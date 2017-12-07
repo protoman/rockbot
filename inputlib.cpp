@@ -21,13 +21,22 @@ extern bool leave_game;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_timer(0)
+inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_timer(0), cheat_input_count(0), cheat_input_previous(-1)
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
         p1_save_input[i] = 0;
 	}
     _show_btn_debug = false;
+
+    // Cheat is DASH, L, R, L, R
+    cheat_input_sequence.push_back(input_sequence(BTN_DASH));
+    cheat_input_sequence.push_back(input_sequence(BTN_L));
+    cheat_input_sequence.push_back(input_sequence(BTN_R));
+    cheat_input_sequence.push_back(input_sequence(BTN_L));
+    cheat_input_sequence.push_back(input_sequence(BTN_R));
+    cheat_input_is_active = false;
+
 #ifdef ANDROID
     game_config.get_default_keys(default_keys_codes);
 #endif
@@ -99,7 +108,7 @@ void inputLib::save()
 //                                                                                                //
 // ********************************************************************************************** //
 
-void inputLib::read_input(bool check_input_reset)
+void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 {
     _used_keyboard = false;
     if (check_input_reset == false) {
@@ -169,6 +178,9 @@ void inputLib::read_input(bool check_input_reset)
 
 
         if (_used_keyboard == true) { // next commands are all joystick only
+            if (check_input_cheat) {
+                check_cheat_input();
+            }
             return;
         }
 
@@ -396,6 +408,48 @@ void inputLib::read_input(bool check_input_reset)
 #endif
         }
     }
+    if (check_input_cheat) {
+        check_cheat_input();
+    }
+}
+
+void inputLib::check_cheat_input()
+{
+    //std::cout << "LEFT[" << (int)p1_input[BTN_LEFT] << "], DASH[" << (int)p1_input[BTN_DASH] << "], R[" << (int)p1_input[BTN_R] << "]" << std::endl;
+    for (int i=0; i<BTN_COUNT; i++) {
+        if (p1_input[i] == 1) {
+            if (i != BTN_DASH && i != BTN_L && i != BTN_R) {
+                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET #1" << std::endl;
+                reset_cheat_input_sequence();
+                return;
+            } else if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
+                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET #2" << std::endl;
+                reset_cheat_input_sequence();
+                return;
+            } else {
+                cheat_input_count++;
+                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT INC[" << cheat_input_count << "]" << std::endl;
+                if (cheat_input_count >= cheat_input_sequence.size()) {
+                    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT ACTIVATED!!!" << std::endl;
+                    cheat_input_is_active = true;
+                }
+            }
+        }
+    }
+}
+
+void inputLib::reset_cheat_input_sequence()
+{
+    cheat_input_count = 0;
+    for (int i=0; i<cheat_input_sequence.size(); i++) {
+        cheat_input_sequence.at(i).activated = false;
+    }
+}
+
+void inputLib::reset_cheat_input()
+{
+    cheat_input_is_active = false;
+    reset_cheat_input_sequence();
 }
 
 bool inputLib::is_check_input_reset_command_activated()
@@ -407,6 +461,11 @@ bool inputLib::is_check_input_reset_command_activated()
         return true;
     }
     return false;
+}
+
+bool inputLib::is_check_input_cheat_command_activated()
+{
+    return cheat_input_is_active;
 }
 
 void inputLib::clean_event_queue()
@@ -628,5 +687,5 @@ std::string inputLib::get_key_name(int key)
 
 void inputLib::read_input()
 {
-    this->read_input(false);
+    this->read_input(false, false);
 }

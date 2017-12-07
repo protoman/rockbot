@@ -60,6 +60,8 @@ extern bool leave_game;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
+extern bool GAME_FLAGS[FLAG_COUNT];
+
 #define TIME_SHORT 120
 #define TIME_LONG 300
 #define INTRO_DIALOG_DURATION_TIME 4000
@@ -157,6 +159,7 @@ void scenesLib::main_screen()
 
 
     main_picker.enable_check_input_reset_command();
+    main_picker.enable_check_input_cheat_command();
 
 
     bool have_save = fio.have_one_save_file();
@@ -230,6 +233,15 @@ void scenesLib::main_screen()
             }
             draw_main();
             main_picker.draw();
+        } else if (picked_n == 5) {
+            show_cheats_menu();
+            draw_main();
+            main_picker.draw();
+        } else if (picked_n == MAIN_MENU_CHEAT_RETURN) {
+            picked_n = 5;
+            main_picker.add_option_item(st_menu_option("CHEATS"));
+            draw_main();
+            main_picker.draw();
         }
 	}
     draw_lib.update_screen();
@@ -245,6 +257,59 @@ void scenesLib::main_screen()
         }
         gameControl.save_game();
     }
+}
+
+void scenesLib::show_cheats_menu()
+{
+    short res = 0;
+    st_position config_text_pos;
+    std::vector<st_menu_option> options;
+    config_text_pos.x = graphLib.get_config_menu_pos().x + 20;
+    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
+
+    graphLib.show_config_bg();
+    draw_lib.update_screen();
+    input.clean();
+    timer.delay(300);
+
+
+    short selected_option = 0;
+    while (selected_option != -1) {
+
+        options.clear();
+
+        std::string invencibleStr = "OFF";
+        if (GAME_FLAGS[FLAG_INVENCIBLE]) {
+            invencibleStr = "ON";
+        }
+        options.push_back(st_menu_option("INVENCIBLE: " + invencibleStr));
+
+        std::string allStagesStr = "OFF";
+        if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
+            allStagesStr = "ON";
+        }
+        options.push_back(st_menu_option("ALL BEATEN: " + allStagesStr));
+
+        char char_n[2];
+        sprintf(char_n, "%d", game_save.selected_player);
+        options.push_back(st_menu_option("CHARACTER: " + std::string(char_n)));
+
+        option_picker cheat_config_picker(false, config_text_pos, options, true);
+        cheat_config_picker.draw();
+        selected_option = cheat_config_picker.pick(selected_option+1);
+        if (selected_option == 0) {
+            GAME_FLAGS[FLAG_INVENCIBLE] = !GAME_FLAGS[FLAG_INVENCIBLE];
+        } else if (selected_option == 1) {
+            GAME_FLAGS[FLAG_ALLWEAPONS] = !GAME_FLAGS[FLAG_ALLWEAPONS];
+        } else if (selected_option == 2) {
+            game_save.selected_player++;
+            if (game_save.selected_player >= 4) {
+                game_save.selected_player = 0;
+            }
+        }
+    }
+
+
 }
 
 // ********************************************************************************************** //
@@ -358,6 +423,8 @@ short scenesLib::show_main_config(short stage_finished, bool called_from_game) /
 	}
     return res;
 }
+
+
 
 void scenesLib::game_scenes_show_unbeaten_intro()
 {

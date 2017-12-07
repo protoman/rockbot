@@ -17,6 +17,7 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
+extern bool GAME_FLAGS[FLAG_COUNT];
 
 extern bool leave_game;
 
@@ -48,7 +49,7 @@ short stage_select::finished_stages() const
 {
     short total_stages = 0;
     for (int i=0; i<STAGE_COUNT; i++) {
-        if (game_save.stages[i] == 1) {
+        if (game_save.stages[i] == 1 || GAME_FLAGS[FLAG_ALLWEAPONS]) {
             total_stages++;
         }
     }
@@ -160,7 +161,7 @@ int stage_select::pick_stage(int stage_n)
     }
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
+    if (stage_n <= 8 && (game_save.stages[stage_n] != 0 || GAME_FLAGS[FLAG_ALLWEAPONS])) {
         graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
     }
 
@@ -182,7 +183,7 @@ int stage_select::pick_stage(int stage_n)
         graphLib.surfaceFromFile(face_filename, &face_surface);
         graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &background_face_surface, &graphLib.gameScreen);
         graphLib.copyArea(st_position(face_pos.x, face_pos.y), &face_surface, &graphLib.gameScreen);
-        if (i <= 8 && game_save.stages[i] != 0) {
+        if (i <= 8 && (game_save.stages[i] != 0 || GAME_FLAGS[FLAG_ALLWEAPONS])) {
             graphLib.copyArea(st_position(face_pos.x, face_pos.y), &beaten_surface, &graphLib.gameScreen);
         }
     }

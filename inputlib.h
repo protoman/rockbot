@@ -6,6 +6,22 @@
 
 #include "file/format.h"
 
+
+struct input_sequence {
+    bool activated;
+    short key_n;
+
+    input_sequence(int key) {
+        activated = false;
+        key_n = key;
+    }
+
+    input_sequence() {
+        activated = false;
+        key_n = -1;
+    }
+};
+
 /**
  * @brief
  *
@@ -31,8 +47,12 @@ public:
     std::string get_key_name(int key);
 
     void read_input();
-    void read_input(bool check_input_reset);
+    void read_input(bool check_input_reset, bool check_input_cheat);
+    void check_cheat_input();
+    void reset_cheat_input_sequence();
+    void reset_cheat_input();
     bool is_check_input_reset_command_activated();
+    bool is_check_input_cheat_command_activated();
     void clean_event_queue();
 
 protected:
@@ -49,6 +69,10 @@ private:
     bool _used_keyboard;
     bool _show_btn_debug;
     int held_button_count;
+    bool cheat_input_is_active;
+    short cheat_input_count;
+    short cheat_input_previous;
+    std::vector<input_sequence> cheat_input_sequence;
     long held_button_timer;
     int default_keys_codes[BTN_COUNT];
 

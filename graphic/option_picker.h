@@ -25,8 +25,10 @@ public:
     void change_option_label(int n, std::string label);
     Sint8 pick(int initial_pick_pos=0);
     void enable_check_input_reset_command();
+    void enable_check_input_cheat_command();
     void show_reset_config_dialog();
     void wait_release_reset_config();
+    void add_option_item(st_menu_option item);
 
 
     void draw();
@@ -40,6 +42,7 @@ private:
     bool _show_return;
     int text_max_len;
     bool check_input_reset_command;                 // if this option is enabled, it will try to detect user holding two buttons for 5 seconds
+    bool check_input_cheat_command;
 };
 
 #endif // OPTION_PICKER_H

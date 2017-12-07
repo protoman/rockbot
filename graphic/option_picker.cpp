@@ -48,6 +48,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     //std::cout << "#3 option_picker -  pos.x: " << _position.x << ", pos.y: " << _position.y << std::endl;
 
     check_input_reset_command = false;
+    check_input_cheat_command = false;
 
     draw();
 }
@@ -74,6 +75,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<stri
     }
 
     check_input_reset_command = false;
+    check_input_cheat_command = false;
 
 
     draw();
@@ -97,10 +99,13 @@ Sint8 option_picker::pick(int initial_pick_pos)
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
-        input.read_input(check_input_reset_command);
+        input.read_input(check_input_reset_command, check_input_cheat_command);
         if (check_input_reset_command == true && input.is_check_input_reset_command_activated()) {
             std::cout << "RESET ACTIVE!!" << std::endl;
             show_reset_config_dialog();
+        } else if (check_input_cheat_command == true && input.is_check_input_cheat_command_activated()) {
+            input.reset_cheat_input();
+            return MAIN_MENU_CHEAT_RETURN;
         }
 
         if (input.p1_input[BTN_START] || input.p1_input[BTN_JUMP]) {
@@ -162,6 +167,11 @@ void option_picker::enable_check_input_reset_command()
     check_input_reset_command = true;
 }
 
+void option_picker::enable_check_input_cheat_command()
+{
+    check_input_cheat_command = true;
+}
+
 void option_picker::show_reset_config_dialog()
 {
     graphicsLib_gSurface screen_copy;
@@ -177,7 +187,7 @@ void option_picker::show_reset_config_dialog()
     graphLib.updateScreen();
     long init_timer = timer.getTimer();
     while (input.is_check_input_reset_command_activated() == false) {
-        input.read_input(true);
+        input.read_input(true, false);
         timer.delay(1);
         if (init_timer+10000 < timer.getTimer()) {
             break;
@@ -201,9 +211,14 @@ void option_picker::wait_release_reset_config()
     graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS");
     graphLib.updateScreen();
     while (input.is_check_input_reset_command_activated() == true) {
-        input.read_input(true);
+        input.read_input(true, false);
         timer.delay(1);
     }
+}
+
+void option_picker::add_option_item(st_menu_option item)
+{
+    _items.push_back(item);
 }
 
 
