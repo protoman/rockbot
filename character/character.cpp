@@ -2752,6 +2752,9 @@ void character::clean_projectiles()
         projectile_list.at(0).finish();
 		projectile_list.erase(projectile_list.begin());
     }
+    if (is_player() && freeze_weapon_effect == FREEZE_EFFECT_NPC) {
+        freeze_weapon_effect = FREEZE_EFFECT_NONE;
+    }
 }
 
 void character::clean_effect_projectiles()
