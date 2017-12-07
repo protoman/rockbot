@@ -38,8 +38,8 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
     cheat_input_sequence.push_back(input_sequence(BTN_RIGHT));
     cheat_input_sequence.push_back(input_sequence(BTN_LEFT));
     cheat_input_sequence.push_back(input_sequence(BTN_RIGHT));
-    cheat_input_sequence.push_back(input_sequence(BTN_L));
     cheat_input_sequence.push_back(input_sequence(BTN_R));
+    cheat_input_sequence.push_back(input_sequence(BTN_L));
     cheat_input_is_active = false;
 
 #ifdef ANDROID
