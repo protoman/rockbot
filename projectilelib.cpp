@@ -956,16 +956,12 @@ void projectile::draw() {
 bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) const
 {
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK) {
-        std::cout << ">>>> PROJECTILE::check_collision - LEAVE #1" << std::endl;
+        //std::cout << ">>>> PROJECTILE::check_collision - LEAVE #1" << std::endl;
         return false;
     }
 
-    std::cout << ">>>> PROJECTILE::check_collision - #1 enemy_rect[" << enemy_pos.x << "," << enemy_pos.y << "," << enemy_pos.w << "," << enemy_pos.h << "]" << std::endl;
+    //std::cout << ">>>> PROJECTILE::check_collision - #1 enemy_rect[" << enemy_pos.x << "," << enemy_pos.y << "," << enemy_pos.w << "," << enemy_pos.h << "]" << std::endl;
     collision_detection rect_collision_obj;
-
-    if (enemy_pos.w == 0) {
-        std::cout << "DEBIG" << std::endl;
-    }
 
     int px = position.x;
     int py = position.y;
@@ -1003,7 +999,7 @@ bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) co
     st_rectangle projectile_rect(px, py, pw, ph);
     bool res = rect_collision_obj.rect_overlap(projectile_rect, p_rect);
 
-    std::cout << ">>>> PROJECTILE::check_collision - #2, res[" << res << "], proj_rect[" << projectile_rect.x << "," << projectile_rect.y << "," << projectile_rect.w << "," << projectile_rect.h << "], enemy_rect[" << p_rect.x << "," << p_rect.y << "," << p_rect.w << "," << p_rect.h << "]" << std::endl;
+    //std::cout << ">>>> PROJECTILE::check_collision - #2, res[" << res << "], proj_rect[" << projectile_rect.x << "," << projectile_rect.y << "," << projectile_rect.w << "," << projectile_rect.h << "], enemy_rect[" << p_rect.x << "," << p_rect.y << "," << p_rect.w << "," << p_rect.h << "]" << std::endl;
     return res;
 }
 

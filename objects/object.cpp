@@ -130,8 +130,9 @@ void object::reset_timer()
     if (_duration != 0) {
         _timer_limit = timer.getTimer() + _duration;
     } else if (type == OBJ_DISAPPEARING_BLOCK) {
-        _timer_limit = timer.getTimer() + obj_timer + DISAPPEARNING_VISIBLE_TIME;
+        _timer_limit = 0;
         _obj_frame_timer = timer.getTimer() + _frame_duration;
+        _hidden = true;
     } else if (type == OBJ_DAMAGING_PLATFORM) {
         _timer_limit = timer.getTimer() + DAMAGING_PLATFORM_TIME;
         _obj_frame_timer = timer.getTimer() + _frame_duration;
