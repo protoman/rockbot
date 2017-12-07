@@ -210,6 +210,15 @@ void scenesLib::main_screen()
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
                     fio.read_save(game_save, gameControl.get_current_save_slot());
+                    if (GAME_FLAGS[FLAG_PLAYER1]) {
+                        game_save.selected_player = PLAYER_1;
+                    } else if (GAME_FLAGS[FLAG_PLAYER2]) {
+                        game_save.selected_player = PLAYER_2;
+                    } else if (GAME_FLAGS[FLAG_PLAYER3]) {
+                        game_save.selected_player = PLAYER_3;
+                    } else if (GAME_FLAGS[FLAG_PLAYER4]) {
+                        game_save.selected_player = PLAYER_4;
+                    }
                     repeat_menu = false;
                 }
             } else {
@@ -274,9 +283,12 @@ void scenesLib::show_cheats_menu()
 
 
     short selected_option = 0;
+    int current_player = game_save.selected_player;
     while (selected_option != -1) {
 
         options.clear();
+
+
 
         std::string invencibleStr = "OFF";
         if (GAME_FLAGS[FLAG_INVENCIBLE]) {
@@ -290,11 +302,12 @@ void scenesLib::show_cheats_menu()
         }
         options.push_back(st_menu_option("ALL BEATEN: " + allStagesStr));
 
-        char char_n[2];
-        sprintf(char_n, "%d", game_save.selected_player);
+        char char_n[50];
+        sprintf(char_n, "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
         options.push_back(st_menu_option("CHARACTER: " + std::string(char_n)));
 
         option_picker cheat_config_picker(false, config_text_pos, options, true);
+        graphLib.show_config_bg();
         cheat_config_picker.draw();
         selected_option = cheat_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
@@ -302,9 +315,30 @@ void scenesLib::show_cheats_menu()
         } else if (selected_option == 1) {
             GAME_FLAGS[FLAG_ALLWEAPONS] = !GAME_FLAGS[FLAG_ALLWEAPONS];
         } else if (selected_option == 2) {
-            game_save.selected_player++;
-            if (game_save.selected_player >= 4) {
-                game_save.selected_player = 0;
+            current_player++;
+            if (current_player >= 4) {
+                current_player = 0;
+            }
+            if (current_player == 0) {
+                GAME_FLAGS[FLAG_PLAYER1] = true;
+                GAME_FLAGS[FLAG_PLAYER2] = false;
+                GAME_FLAGS[FLAG_PLAYER3] = false;
+                GAME_FLAGS[FLAG_PLAYER4] = false;
+            } else if (current_player == 1) {
+                GAME_FLAGS[FLAG_PLAYER1] = false;
+                GAME_FLAGS[FLAG_PLAYER2] = true;
+                GAME_FLAGS[FLAG_PLAYER3] = false;
+                GAME_FLAGS[FLAG_PLAYER4] = false;
+            } else if (current_player == 2) {
+                GAME_FLAGS[FLAG_PLAYER1] = false;
+                GAME_FLAGS[FLAG_PLAYER2] = false;
+                GAME_FLAGS[FLAG_PLAYER3] = true;
+                GAME_FLAGS[FLAG_PLAYER4] = false;
+            } else if (current_player == 3) {
+                GAME_FLAGS[FLAG_PLAYER1] = false;
+                GAME_FLAGS[FLAG_PLAYER2] = false;
+                GAME_FLAGS[FLAG_PLAYER3] = false;
+                GAME_FLAGS[FLAG_PLAYER4] = true;
             }
         }
     }
@@ -1272,6 +1306,7 @@ Uint8 scenesLib::select_player() {
         timer.delay(10);
         draw_lib.update_screen();
     }
+
     return (selected-1);
 }
 

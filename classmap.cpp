@@ -1438,7 +1438,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
             stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
 
-            std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
+            //std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
             // check if, without moving, player is inside object
             int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
 

@@ -53,7 +53,7 @@ short stage_select::finished_stages() const
             total_stages++;
         }
     }
-    //std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
+    std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
     return total_stages;
 }
 
@@ -143,6 +143,9 @@ int stage_select::pick_stage(int stage_n)
     bool finished = false;
     CURRENT_FILE_FORMAT::file_io fio;
     bool can_access_castle = fio.can_access_castle(game_save);
+    if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
+        can_access_castle = true;
+    }
     int max_stage = gameControl.get_last_castle_stage();
 
     std::string bg_filename = FILEPATH + "/images/backgrounds/stage_select.png";
@@ -161,7 +164,7 @@ int stage_select::pick_stage(int stage_n)
     }
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    if (stage_n <= 8 && (game_save.stages[stage_n] != 0 || GAME_FLAGS[FLAG_ALLWEAPONS])) {
+    if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
         graphLib.copyArea(st_position(175, 15), &beaten_surface, &graphLib.gameScreen);
     }
 
@@ -183,7 +186,7 @@ int stage_select::pick_stage(int stage_n)
         graphLib.surfaceFromFile(face_filename, &face_surface);
         graphLib.copyArea(st_position(face_pos.x-8, face_pos.y-8), &background_face_surface, &graphLib.gameScreen);
         graphLib.copyArea(st_position(face_pos.x, face_pos.y), &face_surface, &graphLib.gameScreen);
-        if (i <= 8 && (game_save.stages[i] != 0 || GAME_FLAGS[FLAG_ALLWEAPONS])) {
+        if (i <= 8 && game_save.stages[i] != 0) {
             graphLib.copyArea(st_position(face_pos.x, face_pos.y), &beaten_surface, &graphLib.gameScreen);
         }
     }

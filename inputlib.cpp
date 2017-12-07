@@ -30,9 +30,14 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
     _show_btn_debug = false;
 
     // Cheat is DASH, L, R, L, R
-    cheat_input_sequence.push_back(input_sequence(BTN_DASH));
-    cheat_input_sequence.push_back(input_sequence(BTN_L));
-    cheat_input_sequence.push_back(input_sequence(BTN_R));
+    cheat_input_sequence.push_back(input_sequence(BTN_UP));
+    cheat_input_sequence.push_back(input_sequence(BTN_UP));
+    cheat_input_sequence.push_back(input_sequence(BTN_DOWN));
+    cheat_input_sequence.push_back(input_sequence(BTN_DOWN));
+    cheat_input_sequence.push_back(input_sequence(BTN_LEFT));
+    cheat_input_sequence.push_back(input_sequence(BTN_RIGHT));
+    cheat_input_sequence.push_back(input_sequence(BTN_LEFT));
+    cheat_input_sequence.push_back(input_sequence(BTN_RIGHT));
     cheat_input_sequence.push_back(input_sequence(BTN_L));
     cheat_input_sequence.push_back(input_sequence(BTN_R));
     cheat_input_is_active = false;
@@ -418,12 +423,8 @@ void inputLib::check_cheat_input()
     //std::cout << "LEFT[" << (int)p1_input[BTN_LEFT] << "], DASH[" << (int)p1_input[BTN_DASH] << "], R[" << (int)p1_input[BTN_R] << "]" << std::endl;
     for (int i=0; i<BTN_COUNT; i++) {
         if (p1_input[i] == 1) {
-            if (i != BTN_DASH && i != BTN_L && i != BTN_R) {
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET #1" << std::endl;
-                reset_cheat_input_sequence();
-                return;
-            } else if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET #2" << std::endl;
+            if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
+                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET" << std::endl;
                 reset_cheat_input_sequence();
                 return;
             } else {

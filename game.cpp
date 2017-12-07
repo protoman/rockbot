@@ -411,7 +411,7 @@ bool game::show_game_intro()
 
 	initGame();
 
-	if (game_save.stages[INTRO_STAGE] == 0) {
+    if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
         input.clean();
 		start_stage();
 	} else {
@@ -1294,7 +1294,7 @@ void game::return_to_intro_screen()
     currentStage = INTRO_STAGE;
     leave_game = false;
 
-    if (game_save.stages[INTRO_STAGE] == 0) {
+    if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
         currentStage = INTRO_STAGE;
         player1.initialize();
         loaded_stage = stage(currentStage, &player1);
@@ -1451,8 +1451,8 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    currentStage = scenes.pick_stage(INTRO_STAGE);
-    //currentStage = INTRO_STAGE;
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = CASTLE1_STAGE1;
 
 
     // DEBUG //
@@ -1621,13 +1621,13 @@ bool game::is_player_on_teleporter()
 
 short game::get_last_castle_stage()
 {
-    if (fio.can_access_castle(game_save) == false) {
+    if (fio.can_access_castle(game_save) == false && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
         return STAGE8;
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
         //std::cout << "CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
-        if (game_save.stages[i] == 0) {
+        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
         pos_n = i+1;
