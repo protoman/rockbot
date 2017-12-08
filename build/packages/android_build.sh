@@ -106,14 +106,16 @@ case $response in
 		# build release
 		sh ./build.sh rockbot release
 		rm $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME$demoName.apk
-		cp ./project/app/build/outputs/apk/app-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME$demoName.apk
+		pwd
+		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME$demoName.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
 		zip -d $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME$demoName.apk META-INF/*
 		# assina e realinha o APK
 		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME$demoName.apk alias_name
 		/home/iuri/Programas/android-studio/sdk/build-tools/26.0.2/zipalign -v 4 $ROCKBOTDIR/TEMP_Rockbot_Android_$VERSIONNAME$demoName.apk $ROCKBOTDIR/Rockbot_Android_$VERSIONNAME$demoName.apk
 		# copy mappings.txt so we can use for later debugging
-		cp ./project/bin/proguard/mapping.txt $ROCKBOTDIR/Tmappings_$VERSIONNAME$demoName.txt
+		#cp ./project/bin/proguard/mapping.txt $ROCKBOTDIR/Tmappings_$VERSIONNAME$demoName.txt
+		cp ./project/app/build/outputs/mapping/release/mapping.txt $ROCKBOTDIR/Tmappings_$VERSIONNAME$demoName.txt
 		;;
 	*)
 		echo "Aborted."
