@@ -2123,12 +2123,10 @@ void graphicsLib::place_water_tile(st_position dest)
     }
 }
 
-void graphicsLib::zoom_image(graphicsLib_gSurface picture, int smooth)
+// zoom from a small size to the picture size
+void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth)
 {
     SDL_Surface *rotozoom_picture;
-    SDL_Rect dest;
-    int framecount, framemax, frameinc;
-    float zoomxf,zoomyf;
 
     /*
     // Zoom and display the picture
@@ -2164,21 +2162,64 @@ void graphicsLib::zoom_image(graphicsLib_gSurface picture, int smooth)
         updateScreen();
     }
     */
-    for (float i=0.1; i<1.0; i+=0.1) {
-        if ((rotozoom_picture = zoomSurface(picture.get_surface(), i, i, smooth))!=NULL) {
-            if (SDL_BlitSurface(rotozoom_picture, NULL, gameScreen.get_surface(), &dest) < 0 ) {
-                fprintf(stderr, "Blit failed: %s\n", SDL_GetError());
-                break;
-            }
-            timer.delay(100);
+    st_position center(dest.x+picture.width/2, dest.y+picture.height/2);
+    std::cout << ">>>>>>>>>>> dest[" << dest.x << "][" << dest.y << "]" << std::endl;
+    std::cout << "center[" << center.x << "][" << center.y << "]" << std::endl;
+
+    for (float i=0.1; i<1.0; i+=0.03) {
+        if ((rotozoom_picture = zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
+        //double angle = 360*i;
+        //if ((rotozoom_picture = rotozoomSurface(picture.get_surface(), angle, 1.0, smooth)) != NULL) {
+            std::cout << "GRAPHLIB::ZOOM #1 [" << i << "]" << std::endl;
+            struct st_rectangle origin_rectangle(0, 0, rotozoom_picture->w, rotozoom_picture->h);
+
+            st_position dest_zoom(center.x-rotozoom_picture->w/2, center.y-rotozoom_picture->h/2);
+            std::cout << "rotozoom_picture[" << rotozoom_picture->w << "][" << rotozoom_picture->h << "]" << std::endl;
+            std::cout << "dest_zoom[" << dest_zoom.x << "][" << dest_zoom.y << "]" << std::endl;
+
+            // clear area
+            clear_area(dest_zoom.x, dest_zoom.y, rotozoom_picture->w, rotozoom_picture->h, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+
+
+            copySDLArea(origin_rectangle, dest_zoom, rotozoom_picture, game_screen, false);
             updateScreen();
-            clear_area(dest.x, dest.y, rotozoom_picture->w, rotozoom_picture->h, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            timer.delay(20);
             SDL_FreeSurface(rotozoom_picture);
+        } else {
+            std::cout << "Error creating zoomed surface" << std::endl;
         }
     }
 
     /* Pause for a sec */
-    SDL_Delay(1000);
+    SDL_Delay(100);
+}
+
+void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
+{
+    SDL_Surface *rotozoom_picture;
+
+    SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
+
+    if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
+        SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
+        SDL_FreeSurface(rotozoom_picture);
+        SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        picture.set_surface(res_surface);
+        //std::cout << "GRAPHLIB::rotate_image - #3: rotozoom_picture w[" << picture.width << "], h[" << picture.height << "]" << std::endl;
+    } else {
+        std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;
+    }
+    SDL_FreeSurface(alpha_surface);
+}
+
+void graphicsLib::rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface &dest, double angle)
+{
+    SDL_Surface *rotozoom_picture;
+    if ((rotozoom_picture = rotozoomSurface(picture->get_surface(), angle, 1.0, true)) != NULL) {
+        dest.set_surface(rotozoom_picture);
+    } else {
+        std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;
+    }
 }
 
 #ifdef PSP

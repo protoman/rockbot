@@ -116,7 +116,7 @@ private:
 
     bool diagonal_flag; // used to control diagonal shot angle
     Uint8 _max_frames; // number of frames for the projectile
-    float angle;
+    double angle;
     short int radius;
 
 	// used for quake effect
@@ -150,6 +150,9 @@ private:
     // owner for the projectile
     character* owner;
     short frame_w;
+
+    // used for rotated images
+    graphicsLib_gSurface rotated_surface;
 
 };
 #endif // PROJECTILELIB_H

@@ -112,9 +112,9 @@ void scenesLib::draw_main()
     std::string intro_path = FILEPATH + "/images/logo.png";
     graphLib.surfaceFromFile(intro_path, &intro_screen);
     //graphLib.copyArea(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), &intro_screen, &graphLib.gameScreen);
-    //graphLib.zoom_image(intro_screen, false);
-    gfx_sin_wave gfx_wave_obj(&intro_screen);
-    gfx_wave_obj.show(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20);
+    graphLib.zoom_image(st_position(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20), intro_screen, false);
+    //gfx_sin_wave gfx_wave_obj(&intro_screen);
+    //gfx_wave_obj.show(-graphLib.RES_DIFF_W, -graphLib.RES_DIFF_H+20);
 
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);

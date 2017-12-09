@@ -429,6 +429,8 @@ struct graphicsLib_gSurface {
             }
             if (surface != NULL) {
                 gSurface = surface;
+                width = gSurface->w;
+                height = gSurface->h;
             } else {
                 gSurface = NULL;
             }

@@ -385,6 +385,39 @@ void projectile::set_target_position(st_float_position *pos)
         set_direction_from_targetpos(TILESIZE/2);
 
 
+        graphLib.initSurface(st_size(_size.width, _size.height), &rotated_surface);
+        int temp_direction = direction;
+        direction  = ANIM_DIRECTION_LEFT;
+        graphLib.copyArea(st_rectangle(0, 0, _size.width, _size.height), st_position(0, 0), get_surface(), &rotated_surface);
+        direction = temp_direction;
+
+
+        // calculate angle and set image
+        angle = atan2(abs(dist_y), abs(dist_x));
+        angle = (360*angle)/6.28;
+        std::cout << ">>>>>>>>>>>>> ANGLE[" << angle << "], w[" << get_surface()->width << "]" << std::endl;
+        //angle = 55;
+        // TODO: generate an image from the region, not the whole picture
+        // TARGET to the LEFT
+        if (dist_x < 0) {
+            if (dist_y < 0) {
+                angle *= -1;
+            }
+            // if target is to the left, we need to "flip" image
+        // TARGET to the RIGHT
+        } else {
+            angle += 180;
+            if (dist_y > 0) {
+                angle *= -1;
+            }
+        }
+
+        std::cout << "### AJUDSTED-ANGLE[" << angle << "],dist_y[" << dist_y << "]" << std::endl;
+        if (angle != 0.0) {
+            graphLib.rotate_image(rotated_surface, angle);
+        }
+
+
     } else if (_target_position != NULL && _move_type == TRAJECTORY_ARC_TO_TARGET) {
         _trajectory_parabola = trajectory_parabola(_target_position->x - position.x);
         position0.y = position.y;
@@ -907,6 +940,9 @@ void projectile::draw() {
         // point
         graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos+frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
 
+    } else if (_move_type == TRAJECTORY_TARGET_EXACT) {
+        //std::cout << "TRAJECTORY_TARGET_EXACT - w[" << rotated_surface.width << "], h[" << rotated_surface.height << "]" << std::endl;
+        graphLib.showSurfaceAt(&rotated_surface, realPosition, false);
     } else {
         //printf(">> PROJECTILE::DRAW[%d] - direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
         if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*2) {

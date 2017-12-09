@@ -231,7 +231,9 @@ public:
     void psp_show_available_ram(int n);
 #endif
 
-    void zoom_image(graphicsLib_gSurface picture, int smooth);
+    void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
+    void rotate_image(graphicsLib_gSurface& picture, double angle);
+    void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);

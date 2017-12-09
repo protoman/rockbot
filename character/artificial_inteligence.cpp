@@ -1129,7 +1129,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
     }
     if (projectile_list.size() >= max_shots) {
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-        std::cout << "AI::SHOT::LEAVE #2, shots[" << projectile_list.size() << "], max_shots[" << max_shots << "]" << std::endl;
+        //std::cout << "AI::SHOT::LEAVE #2, shots[" << projectile_list.size() << "], max_shots[" << max_shots << "]" << std::endl;
         return false;
     }
 
