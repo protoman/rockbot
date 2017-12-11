@@ -723,7 +723,7 @@ Fix #49: Robot goes behind the save computer
 Fix #51: Infoway: turret/cannon is too high
 Fix #52: Infoway: pop-up enemies on stairs are displaced
 
-###################################### 1.20.04X/2.00.103 ######################################
+###################################### 2.00.103 ######################################
 - new animation for coil and jet teleport
 #54: Infoway: pop-up enemies on stairs are displaced
 #74: Change metools to attack on player direction
@@ -738,4 +738,31 @@ Fix #52: Infoway: pop-up enemies on stairs are displaced
 #96: Fixes for gamepad controller
 #93: New projectile types: missile rain and double shot
 
-###################################### XXX ######################################
+###################################### 1.20.046 ######################################
+=> same from [2.00.103]
+- useSDL_gfx rotate in target_exact missiles, fixes #76, #71 and #55
+- adjust proguard mapaing location in android's build script, fixes #98
+- reset timer to zero for disappearing blocks, fix #64, fix #44
+- add debug tools, fix #23
+- remove projectiles and npc_freeze_effect when player changes weapon, fix #79
+- remove old and deprecated get_hitbox from npc class, use the one from character instead, fix #99
+- missing game_save on parameter, fixes #46
+- set saved_point on first AI* execution
+- implement solution for #70
+- remove debug in file-io forgotten by accident
+- add missing image for beam projectile
+- move player to above platform to prevent him getting stuck, fixes #87
+- finish bomb-rain projectile-type
+- create large-beam (like a kamehameha) projectile-type
+- fix object transition on stairs
+- fixes for projectile spawning children
+- add command-line parameter to select stage
+- fixes for physical joystick config
+- new graphics for Dr. Destrin from Boberatu
+- make freeze effect stop objects, fixes #69
+- missing adjust_y in some object types show method. fixes #68
+
+======================
+(2 only)
+- set stage-bosses in rockbot2
+- charged shot not disappearing once hitting enemy

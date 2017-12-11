@@ -441,6 +441,10 @@ int main(int argc, char *argv[])
 #endif
 
 
+    // *** IURI: HACK TO FORCE DISABLE PLAY SERVICES *** //
+    game_config.android_use_cloud_save = false;
+    game_config.android_use_play_services = false;
+    // *** IURI: HACK TO FORCE DISABLE PLAY SERVICES *** //
 
 
     //GAMENAME = std::string("Rockbot2");

@@ -734,7 +734,11 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 #endif
         return;
     }
-    SDL_SetAlpha(surface.get_surface(), SDL_SRCALPHA, alpha);
+    if (surface.is_rle_enabled == false) {
+        SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        surface.is_rle_enabled = true;
+    }
+    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
@@ -746,7 +750,11 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 #endif
         return;
     }
-    SDL_SetAlpha(surface->get_surface(), SDL_SRCALPHA, alpha);
+    if (surface->is_rle_enabled == false) {
+        SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        surface->is_rle_enabled = true;
+    }
+    SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 

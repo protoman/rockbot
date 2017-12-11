@@ -58,7 +58,7 @@ void android_game_services::firebase_log(std::string log_msg)
 
 void android_game_services::init_android_button_size()
 {
-    // get button 0 (A) as base to calc distance between buttons
+    // get button 0 (A) and D-PAD as base to calc distance between buttons
     SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &original_pos_a);
     SDL_ANDROID_GetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &original_dpad_pos);
 }
@@ -84,11 +84,11 @@ void android_game_services::set_android_default_buttons_size(int size)
 
        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>> set_android_default_buttons_size::screensize: w[%d], h[%d]", screen_width, screen_height);
 
-       float BUTTON_SIZE_MULTI = 1.4; // medium
+       float BUTTON_SIZE_MULTI = 1.2; // medium
        if (size == ANDROID_BUTTON_SMALL) {
-           BUTTON_SIZE_MULTI = 1.2;
+           BUTTON_SIZE_MULTI = 1.0;
        } else if (size == ANDROID_BUTTON_BIG) {
-           BUTTON_SIZE_MULTI = 1.6;
+           BUTTON_SIZE_MULTI = 1.4;
        }
 
        int button_w = original_pos_a.w * BUTTON_SIZE_MULTI;
