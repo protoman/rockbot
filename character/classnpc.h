@@ -41,6 +41,7 @@ public:
     void copy(classnpc *from);
     void move();
     void move_projectiles();
+    void show_projectiles();
     virtual bool is_boss();
     void set_is_boss(bool set_boss);
     bool is_player_friend();

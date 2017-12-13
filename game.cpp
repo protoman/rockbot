@@ -1451,6 +1451,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
+    GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     currentStage = scenes.pick_stage(INTRO_STAGE);
     //currentStage = CASTLE1_STAGE1;
 

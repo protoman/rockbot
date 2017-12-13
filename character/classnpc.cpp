@@ -475,7 +475,6 @@ void classnpc::move_projectiles()
     st_rectangle player_hitbox = gameControl.get_current_map_obj()->get_player_hitbox();
 
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
-        (*it).draw();
         st_size moved = (*it).move();
         // check collision agains players
 
@@ -547,6 +546,14 @@ void classnpc::move_projectiles()
     projectile_to_be_added_list.clear();
 }
 
+void classnpc::show_projectiles()
+{
+    std::vector<projectile>::iterator it;
+    for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
+        (*it).draw();
+    }
+}
+
 
 // executes the NPC sub-IA behavior
 void classnpc::move() {
@@ -557,14 +564,14 @@ void classnpc::move() {
 
 	/// @TODO: this check must be placed in game.cpp and npc must have a set_frozen() method, for individual effect
 
-	move_projectiles();
+    move_projectiles();
 
 
-	if (last_execute_time > timer.getTimer()) {
+    if (last_execute_time > timer.getTimer()) {
 		return;
 	}
 
-	if (state.frozen == true) {
+    if (state.frozen == true) {
 		return;
 	}
 

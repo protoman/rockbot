@@ -2206,6 +2206,7 @@ void classMap::show_npcs() /// @TODO - check out of screen
         if (npc_ref->is_dead() == false) {
             npc_ref->show();
         }
+        npc_ref->show_projectiles();
     }
     if (has_boss == false) {
         draw_lib.set_boss_hp(-99);
