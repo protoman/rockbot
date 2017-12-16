@@ -1117,6 +1117,12 @@ void draw::show_lightingbolt_effect()
             if (_lightingbolt_effect_state == 1) {
                 soundManager.play_shared_sfx("thunder.wav");
             }
+            graphicsLib_gSurface transparent_area;
+            graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
+            graphLib.clear_surface_area(0, 0, RES_W, RES_H, 250, 250, 158, transparent_area);
+            graphLib.set_surface_alpha(80, transparent_area);
+            graphLib.showSurface(&transparent_area);
+
             graphLib.clear_area(0, 0, RES_W, RES_H, 250, 250, 158);
         }
     }
