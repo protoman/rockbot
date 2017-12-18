@@ -837,6 +837,9 @@ namespace format_v4 {
             config.volume_sfx = 128;
         }
 
+        // DEBUG //
+        config.game_finished = true;
+
         /*
         if (config.android_touch_controls_size >= ANDROID_TOUCH_CONTROL_SIZE_COUNT) {
             config.android_touch_controls_size = ANDROID_TOUCH_CONTROL_SIZE_MEDIUM;
@@ -890,18 +893,19 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
-        /*
         data_out.stages[INTRO_STAGE] = 1;
-        for (int i=STAGE1; i<CASTLE1_STAGE5; i++) {
+        for (int i=STAGE1; i<=STAGE8; i++) {
             data_out.stages[i] = 1;
+        }
+        for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
+            data_out.stages[i] = 0;
         }
         //data_out.stages[INTRO_STAGE] = 1;
         //data_out.stages[STAGE5] = 1;
         //data_out.stages[STAGE3] = 0;
-        data_out.armor_pieces[ARMOR_ARMS] = true;
-        data_out.armor_pieces[ARMOR_BODY] = true;
-        data_out.armor_pieces[ARMOR_LEGS] = true;
-        */
+        //data_out.armor_pieces[ARMOR_ARMS] = true;
+        //data_out.armor_pieces[ARMOR_BODY] = true;
+        //data_out.armor_pieces[ARMOR_LEGS] = true;
 
         // ------- DEBUG ------- //
 

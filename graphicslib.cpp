@@ -34,10 +34,9 @@ extern graphicsLib_gSurface _explosion_surface;
 #define DEBUG_MSG_DELAY 5000
 
 #include "file/file_io.h"
-
 #include "class_config.h"
-
 #include "strings_map.h"
+#include "aux_tools/exception_manager.h"
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -300,8 +299,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         fflush(stdout);
         timer.delay(1000);
         show_debug_msg("EXIT #05");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), filename);
 	} else {
         //std::cout << "surfaceFromFile - file: '" << filename << "'" << std::endl;
         res->width = res->get_surface()->w;
@@ -321,8 +319,7 @@ void graphicsLib::loadTileset(std::string file)
 	if (tileset == NULL) {
         cout << "ERROR::GRAPHLIB::loadTileset: Could not find file '" << filename << "'\n";
         show_debug_msg("EXIT #06");
-        SDL_Quit();
-		exit(-1);
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::loadTileset"), filename);
 	}
 }
 
@@ -691,8 +688,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
             graphLib.psp_show_available_ram(100);
 #endif
             show_debug_msg("EXIT #41.2");
-            SDL_Quit();
-            exit(-1);
+            exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
         }
         SDL_FreeSurface(rgb_surface);
     }
@@ -707,8 +703,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
     if (gSurface->get_surface() == NULL) {
         show_debug_msg("EXIT #21.INIT #2");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #2"), "NO RAM?");
     }
 	gSurface->width = size.width;
     gSurface->height = size.height;
@@ -771,8 +766,7 @@ struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle r
     if (res.get_surface() == NULL) {
         std::cout << "surfaceFromRegion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         show_debug_msg("EXIT #21.8");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_general_exception(std::string("graphicsLib::surfaceFromRegion"), "surfaceDestiny is NULL");
     }
 
     /// @NOTE: removed for optimization test
@@ -844,8 +838,7 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
     if (!font) {
         printf("ERROR - no fount found - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #09");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_progressive_text, fount is NULL"), std::string(TTF_GetError()));
     }
 
     for (i=0; i<text.size(); i++) {
@@ -892,8 +885,7 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
     if (!font) {
         printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #10");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
         // handle error
     }
 
@@ -929,9 +921,8 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
 	if (!font) {
 		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #11");
-        SDL_Quit();
-		exit(-1);
-		// handle error
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text #2, fount is NULL"), std::string(TTF_GetError()));
+        // handle error
     }
     text_pos.x += _screen_resolution_adjust.x;
     text_pos.y += _screen_resolution_adjust.y;
@@ -961,11 +952,9 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
     font_color.b = temp_font_color.b;
 	SDL_Rect text_pos={0, y, 0, 0};
 	if (!font) {
-		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
+        printf("graphicsLib::draw_centered_text - TTF_OpenFont: %s\n", TTF_GetError());
         show_debug_msg("EXIT #12");
-        SDL_Quit();
-		exit(-1);
-		// handle error
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_centered_text, fount is NULL"), std::string(TTF_GetError()));
 	}
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
 	if (textSF == NULL) {
@@ -1961,8 +1950,7 @@ void graphicsLib::set_video_mode()
 	if (!game_screen) {
         std::cout << "FATAL-ERROR::initGraphics Could not create game_screen" << std::endl;
         show_debug_msg("EXIT #13");
-        SDL_Quit();
-		exit(-1);
+        exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics, fount is NULL"), std::string("Could not create game_screen"));
 	}
     gameScreen.set_surface(game_screen);
     gameScreen.video_screen = true;
@@ -2107,8 +2095,9 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
                 res.put_pixel(x, ry, pixel );
             } else {
                 std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
-                SDL_Quit();
-                exit(-1);
+                char enum_str[20];
+                sprintf(enum_str, "%d", flip_mode);
+                exception_manager::throw_param_exception(std::string("graphicsLib::flip_image, invalid mode"), std::string(enum_str));
             }
         }
     }

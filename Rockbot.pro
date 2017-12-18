@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-CONFIG += linux
-#CONFIG += android
+#CONFIG += linux
+CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
@@ -50,7 +50,7 @@ CONFIG -= app_bundle
 TARGET = rockbot
 
 linux {
-        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs`
+        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
 
         INCLUDES = -I/usr/include/SDL \
                 -I/usr/include \
@@ -337,7 +337,8 @@ SOURCES += main.cpp \
     collision_detection.cpp \
     graphic/gfx_sin_wave.cpp \
     ports/android/android_game_services.cpp \
-    character/character_animation.cpp
+    character/character_animation.cpp \
+    aux_tools/exception_manager.cpp
 
 
 HEADERS += \
@@ -398,7 +399,8 @@ HEADERS += \
     collision_detection.h \
     graphic/gfx_sin_wave.h \
     ports/android/android_game_services.h \
-    character/character_animation.h
+    character/character_animation.h \
+    aux_tools/exception_manager.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

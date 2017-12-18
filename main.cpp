@@ -560,13 +560,13 @@ int main(int argc, char *argv[])
 
     gameControl.set_current_stage(current_stage);
 
-	// INIT GAME
-	if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
+    // INIT GAME
+    if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
         if (gameControl.show_game_intro() == false) {
             std::cout << "ERROR SHOWING INTRO" << std::endl;
-			return 0;
-		}
-	} else {
+            return 0;
+        }
+    } else {
         gameControl.quick_load_game();
     }
 
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
         #endif
 
 
-		#ifdef PLAYSTATION2
+        #ifdef PLAYSTATION2
             //RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
         #endif
 
@@ -623,11 +623,23 @@ extern "C" {
 
 JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj)
 {
-    char * argv[1];
-    argv[0] = "./";
-    activity_ref = obj;
-    main(1, argv);
+    try {
+        char * argv[1];
+        argv[0] = "./";
+        activity_ref = obj;
+        main(1, argv);
+    } catch (std::invalid_argument e) {
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Exception[invalid_argument]");
+        android_game_services android_services;
+        android_services.crash_handler(e.what());
+    } catch (std::runtime_error e) {
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Exception[runtime_error]");
+        android_game_services android_services;
+        android_services.crash_handler(e.what());
+    }
 }
+
+
 
 #endif
 

@@ -56,6 +56,11 @@ void android_game_services::firebase_log(std::string log_msg)
     SDL_ANDROID_FirebaseLog(log_msg.c_str());
 }
 
+void android_game_services::crash_handler(std::string log_msg)
+{
+    SDL_ANDROID_CrashHandler(log_msg.c_str());
+}
+
 void android_game_services::init_android_button_size()
 {
     // get button 0 (A) and D-PAD as base to calc distance between buttons
