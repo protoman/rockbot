@@ -20,6 +20,8 @@ extern draw draw_lib;
 #include "timerlib.h"
 extern timerLib timer;
 
+#include "aux_tools/exception_manager.h"
+
 sceneShow::sceneShow()
 {
     _interrupt_scene = false;
@@ -97,8 +99,9 @@ void sceneShow::show_image(int n)
     if (image_scenes.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.0");
-        SDL_Quit();
-        exit(-1);
+        char number_str[20];
+        sprintf(number_str, "%d", image_scenes.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::show_image - Invalid list position."), std::string(number_str));
     }
     speed_x = 1;
     speed_y = 1;
@@ -199,10 +202,11 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
 void sceneShow::show_text(int n)
 {
     if (text_list.size() <= n) {
-        std::cout << "ERROR: Scene Text[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        std::cout << "ERROR: Scene Text[" << n << "] invalid. List size is " << text_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.1");
-        SDL_Quit();
-        exit(-1);
+        char number_str[20];
+        sprintf(number_str, "%d", text_list.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::show_text - Invalid list position."), std::string(number_str));
     }
     run_text(n);
 }
@@ -210,10 +214,11 @@ void sceneShow::show_text(int n)
 void sceneShow::clear_area(int n)
 {
     if (cleararea_list.size() <= n) {
-        std::cout << "ERROR: Scene ClearArea[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        std::cout << "ERROR: Scene ClearArea[" << n << "] invalid. List size is " << cleararea_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.2");
-        SDL_Quit();
-        exit(-1);
+        char number_str[20];
+        sprintf(number_str, "%d", cleararea_list.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::clear_area - Invalid list position."), std::string(number_str));
     }
     graphLib.clear_area(cleararea_list.at(n).x, cleararea_list.at(n).y, cleararea_list.at(n).w, cleararea_list.at(n).h, cleararea_list.at(n).r, cleararea_list.at(n).g, cleararea_list.at(n).b);
     graphLib.updateScreen();
@@ -228,10 +233,11 @@ void sceneShow::clear_screen()
 void sceneShow::play_sfx(int n)
 {
     if (playsfx_list.size() <= n) {
-        std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << playsfx_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.3");
-        SDL_Quit();
-        exit(-1);
+        char number_str[20];
+        sprintf(number_str, "%d", playsfx_list.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::play_sfx - Invalid list position."), std::string(number_str));
     }
     if (playsfx_list.at(n).repeat_times < 1) {
         playsfx_list.at(n).repeat_times = 1;
@@ -242,10 +248,11 @@ void sceneShow::play_sfx(int n)
 void sceneShow::play_music(int n)
 {
     if (playmusic_list.size() <= n) {
-        std::cout << "ERROR: Scene PlayMusic[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
+        std::cout << "ERROR: Scene PlayMusic[" << n << "] invalid. List size is " << playmusic_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.4");
-        SDL_Quit();
-        exit(-1);
+        char number_str[20];
+        sprintf(number_str, "%d", playmusic_list.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::play_music - Invalid list position."), std::string(number_str));
     }
     soundManager.stop_music();
     soundManager.load_music(playmusic_list.at(n).filename);
@@ -349,11 +356,12 @@ void sceneShow::run_text(int n)
 void sceneShow::show_viewpoint(int n)
 {
     std::cout << "sceneShow::show_image::START" << std::endl;
-    if (image_scenes.size() <= n) {
-        std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
-        graphLib.show_debug_msg("EXIT #42.5");
-        SDL_Quit();
-        exit(-1);
+    if (viewpoint_list.size() <= n) {
+        std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << viewpoint_list.size() << "." << std::endl;
+        graphLib.show_viewpoint("EXIT #42.5");
+        char number_str[20];
+        sprintf(number_str, "%d", viewpoint_list.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::play_music - Invalid list position."), std::string(number_str));
     }
     speed_x = 1;
     speed_y = 1;

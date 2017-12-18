@@ -112,8 +112,7 @@ bool graphicsLib::initGraphics()
         std::cout << "SDL Error" << std::endl;
         std::cout << "Unable to init SDL. Error: " << SDL_GetError() << std::endl;
         std::fflush(stdout);
-        SDL_Quit();
-		exit(-1);
+        exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDL_GetError());
     }
 #endif
 	atexit(SDL_Quit);

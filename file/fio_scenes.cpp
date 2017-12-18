@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "fio_scenes.h"
+#include "aux_tools/exception_manager.h"
 
 namespace format_v4 {
 
@@ -141,7 +142,7 @@ namespace format_v4 {
             if (res_read == -1) {
                 std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
                 //SDL_Quit();
-                exit(-1);
+                exception_manager::throw_general_exception(std::string("fio_scenes::load_from_disk - Error reading data from file."), filename);
             } else if (res_read == 1) {
                 res.push_back(out);
             }

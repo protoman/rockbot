@@ -239,7 +239,7 @@ namespace format_v4 {
             if (read_result  == -1) {
                 std::cout << ">>file_io::read_game - Error reading struct data from game file '" << filename << "'." << std::endl;
                 fflush(stdout);
-                exit(-1);
+                exception_manager::throw_general_exception(std::string("file_io::read_game - Error reading data from file."), filename);
             }
             fclose(fp);
             return;

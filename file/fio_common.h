@@ -7,6 +7,8 @@
 #include <map>
 #include <stdio.h>
 
+#include "aux_tools/exception_manager.h"
+
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
 
@@ -61,7 +63,7 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
         //std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
         if (res_read == -1) {
             std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
-            exit(-1);
+            exception_manager::throw_general_exception(std::string("fio_common::load_from_disk - Error reading data from file."), filename);
         } else if (res_read == 1) {
             res.push_back(out);
         }

@@ -14,6 +14,7 @@ using namespace std;
 #include "collision_detection.h"
 #include "file/file_io.h"
 #include "game_mediator.h"
+#include "aux_tools/exception_manager.h"
 
 extern string FILEPATH;
 extern graphicsLib graphLib;
@@ -209,8 +210,7 @@ void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
 
     if (!mapSurface.get_surface()) {
         graphLib.show_debug_msg("EXIT #21.MALLOC");
-        SDL_Quit();
-        exit(-1);
+        exception_manager::throw_general_exception(std::string("classMap::get_map_area_surface"), "Could not init map surface");
     }
 
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, mapSurface);
@@ -1954,8 +1954,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                                     if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.C");
-                                        SDL_Quit();
-                                        exit(-1);
+                                        exception_manager::throw_general_exception(std::string("classMap::redraw_boss_door"), "Gamescreen is null #1");
                                     }
 
 
@@ -1968,8 +1967,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                                     if (!graphLib.gameScreen.get_surface()) {
                                         graphLib.show_debug_msg("EXIT #21.D");
-                                        SDL_Quit();
-                                        exit(-1);
+                                        exception_manager::throw_general_exception(std::string("classMap::redraw_boss_door"), "Gamescreen is null #2");
                                     }
 
 
@@ -1982,8 +1980,7 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
                             if (!graphLib.gameScreen.get_surface()) {
                                 graphLib.show_debug_msg("EXIT #21.E");
-                                SDL_Quit();
-                                exit(-1);
+                                exception_manager::throw_general_exception(std::string("classMap::redraw_boss_door"), "Gamescreen is null #3");
                             }
 
 

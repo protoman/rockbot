@@ -16,7 +16,6 @@ void exception_manager::throw_param_exception(std::string prefix, std::string pa
 {
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "throw_param_exception");
     sprintf(error_msg, "Exception: Invalid parameter [%s] - value[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     throw std::invalid_argument(error_msg);
 }
@@ -25,7 +24,6 @@ void exception_manager::throw_file_not_found_exception(std::string prefix, std::
 {
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "throw_file_not_found_exception");
     sprintf(error_msg, "Exception: file not found[%s] - file[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     throw std::invalid_argument(error_msg);
 }
@@ -34,7 +32,6 @@ void exception_manager::throw_general_exception(std::string prefix, std::string 
 {
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "throw_general_exception");
     sprintf(error_msg, "Exception: runtime error[%s] - code[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     throw std::runtime_error(error_msg);
 }
@@ -87,17 +84,14 @@ void exception_manager::getBacktrace(std::ostringstream &oss, const size_t max)
 
 std::string exception_manager::get_backtrace()
 {
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace #1");
+#ifdef ANDROID
     std::ostringstream oss;
     getBacktrace(oss, 30);
-    //__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace - res: %s", oss.str().c_str());
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace #2.0");
     char str_msg[50000];
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace #2.1");
     sprintf(str_msg, "%s", oss.str().c_str());
-
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace #3");
     std::string str(str_msg);
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "exception_manager::get_backtrace #4 str[%s]", str.c_str());
     return str;
+#else
+    return "";
+#endif
 }
