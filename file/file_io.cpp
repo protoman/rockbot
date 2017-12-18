@@ -5,6 +5,7 @@
 #include "convert.h"
 #include "../file/convert.h"
 #include "aux_tools/stringutils.h"
+#include "aux_tools/exception_manager.h"
 
 #ifdef DREAMCAST
 #include <kos.h>
