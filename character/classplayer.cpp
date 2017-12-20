@@ -1037,6 +1037,8 @@ void classPlayer::set_weapon(short weapon_n, bool show_tooltip_icon)
 {
 	selected_weapon = weapon_n;
     clean_projectiles();
+    soundManager.stop_repeated_sfx();
+    attack_button_last_state = 0;
     if (show_tooltip_icon == true) {
         draw_lib.add_weapon_tooltip(selected_weapon, realPosition, state.direction);
     }
