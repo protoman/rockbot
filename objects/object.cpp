@@ -251,8 +251,10 @@ bool object::test_change_position(short xinc, short yinc)
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
     //std::cout << "object::test_change_position[" << name << "] - p1: " << p1 << ", p2: " << p2 << std::endl;
 
-    if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
-        return false;
+    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+        if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
+            return false;
+        }
     }
 
     if (((p1 == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD) || (p1 == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || p1 == TERRAIN_UNBLOCKED ||  p1 == TERRAIN_WATER || p1 == TERRAIN_SPIKE)

@@ -358,7 +358,7 @@ void sceneShow::show_viewpoint(int n)
     std::cout << "sceneShow::show_image::START" << std::endl;
     if (viewpoint_list.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << viewpoint_list.size() << "." << std::endl;
-        graphLib.show_viewpoint("EXIT #42.5");
+        graphLib.show_debug_msg("EXIT #42.5");
         char number_str[20];
         sprintf(number_str, "%d", viewpoint_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::play_music - Invalid list position."), std::string(number_str));
