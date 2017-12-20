@@ -240,6 +240,7 @@ void game::start_stage()
     loaded_stage.reload_stage();
 
     player1.cancel_slide();
+    player1.reset_jump();
 
     player1.clean_projectiles();
     player1.set_direction(ANIM_DIRECTION_RIGHT);
@@ -258,6 +259,7 @@ void game::start_stage()
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
         input.clean_all();
         loaded_stage.showStage();
+        loaded_stage.showAbove();
         draw_lib.update_screen();
         timer.delay(20);
     }
@@ -347,6 +349,7 @@ void game::restart_stage()
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
     player1.reset_hp();
+    player1.reset_jump();
     loaded_stage.reset_stage_maps();
 
     game_unpause();
