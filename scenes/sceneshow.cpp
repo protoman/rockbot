@@ -332,7 +332,7 @@ void sceneShow::run_text(int n)
     // clear text area
     int max_h = lines.size()*SCENES_LINE_H_DIFF;
     std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
-    graphLib.clear_area(pos_x, pos_y, max_w, max_h, 0, 0, 0);
+    graphLib.clear_area(pos_x, pos_y, RES_W, max_h, 0, 0, 0);
 
 
     for (int i=0; i<lines.size(); i++) {

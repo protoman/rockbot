@@ -254,10 +254,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     int sprite_pos_y = BOSS_INTRO_BG_POS_Y-sprite_size.y/2;
     st_position boss_pos(RES_W/2-sprite_size.x/2, sprite_pos_y);
 
-    show_boss_intro_bg();
-
-    update_screen();
-
+    graphLib.showSurface(&boss_intro_bg);
 
     for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
         if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
@@ -269,11 +266,13 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     if (show_fall == true) {
         while (boss_pos.y < sprite_pos_y) {
             boss_pos.y += 4;
-            show_boss_intro_bg();
+            graphLib.showSurface(&boss_intro_bg);
             graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
-            graphLib.wait_and_update_screen(5);
+            graphLib.updateScreen();
+            timer.delay(5);
         }
-        graphLib.wait_and_update_screen(500);
+        graphLib.updateScreen();
+        timer.delay(500);
     } else {
         boss_pos.y = sprite_pos_y;
     }
@@ -284,18 +283,20 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
                 //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
-                show_boss_intro_bg();
+                graphLib.showSurface(&boss_intro_bg);
                 graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
                 // only wait if not last frame
                 if (i<ANIM_FRAMES_COUNT-1 && GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i+1].used) {
-                    graphLib.wait_and_update_screen(GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].duration);
+                    graphLib.updateScreen();
+                    timer.delay(GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].duration);
                 }
             }
         }
     } else { // just frow first sprite
-        show_boss_intro_bg();
+        graphLib.showSurface(&boss_intro_bg);
         graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
-        graphLib.wait_and_update_screen(200);
+        graphLib.updateScreen();
+        timer.delay(200);
     }
 }
 

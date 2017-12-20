@@ -1462,7 +1462,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    //show_ending();
+    show_ending();
 
     scenes.boss_intro(currentStage);
 
