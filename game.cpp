@@ -1172,7 +1172,6 @@ void game::got_weapon()
             for (int j=0; j<color_list.size(); j++) {
                 graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
                 player1.show();
-                loaded_stage.showAbove();
                 draw_lib.update_screen();
                 timer.delay(300);
             }

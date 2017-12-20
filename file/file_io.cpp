@@ -896,7 +896,7 @@ namespace format_v4 {
         // ------- DEBUG ------- //
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=STAGE1; i<=STAGE8; i++) {
-            data_out.stages[i] = 1;
+            data_out.stages[i] = 0;
         }
         for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 0;
