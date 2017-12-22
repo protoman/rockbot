@@ -839,7 +839,7 @@ namespace format_v4 {
         }
 
         // DEBUG //
-        config.game_finished = true;
+        //config.game_finished = true;
 
         /*
         if (config.android_touch_controls_size >= ANDROID_TOUCH_CONTROL_SIZE_COUNT) {
