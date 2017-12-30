@@ -7,16 +7,17 @@ graphic/animation.o stage.o stage_select.o class_config.o scenes/dialogs.o game.
 character/classnpc.o character/artificial_inteligence.o aux_tools/trajectory_parabola.o file/convert.o \
 graphic/draw.o graphic/gfx_sin_wave.o character/movement/jump.o character/movement/inertia.o scenes/sceneshow.o \
 scenes/password_generator.o game_mediator.o ports/psp/psp_ram.o strings_map.o file/fio_strings.o file/fio_common.o \
-file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o docs/game_manual.o
+file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o docs/game_manual.o aux_tools/exception_manager.o \
+character/character_animation.o
  
 INCDIR   = /opt/pspsdk/psp/sdk/include
-CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g
+CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g -fexceptions
 ASFLAGS  = $(CFLAGS)
  
 LIBDIR  =
 LDFLAGS =
-LIBS    = -lm -lc -lstdc++ -lc -lSDL_mixer -lvorbisidec -logg -lmikmod -lmmio -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz `$(PSPSDK)/bin/sdl-config --libs` -lpspirkeyb -lpsppower -L$(PSPSDK)/sdk/lib
+LIBS    = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -lvorbisidec -logg -lmikmod -lmmio -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz `$(PSPSDK)/bin/sdl-config --libs` -lpspirkeyb -lpsppower -L$(PSPSDK)/sdk/lib
  
 BUILD_PRX=1 
 PSP_LARGE_MEMORY = 1 
