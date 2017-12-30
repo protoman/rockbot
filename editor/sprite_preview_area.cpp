@@ -1,6 +1,7 @@
 #include "sprite_preview_area.h"
 
 #include "mediator.h"
+#include <QBitmap>
 
 sprite_preview_area::sprite_preview_area(QWidget *parent) :
     QWidget(parent)
@@ -35,12 +36,18 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    CURRENT_FILE_FORMAT::file_npc_v3_1_1 temp_npc = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
+    CURRENT_FILE_FORMAT::file_npc_v3_1_2 temp_npc = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
 
     std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename;
 
     QPixmap fg_image(filename.c_str());
-    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/backgrounds/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename;
+
+    if (fg_image.isNull() == false) {
+        QBitmap mask = fg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+        fg_image.setMask(mask);
+    }
+
+    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename;
     QPixmap bg_image(_bg_graphic_filename.c_str());
 
     int total_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width;
@@ -73,11 +80,11 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     }
     // draw hit-area
     painter.setBrush(QColor(255, 0, 0, 50));
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h != 0) {
-        int hitx = center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x*2;
-        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y*2;
-        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w*2;
-        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h*2;
+    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h != 0) {
+        int hitx = center_x+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.x*2;
+        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.y*2;
+        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w*2;
+        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h*2;
 
         //std::cout << "hitx: " << hitx << ", hity: " << hity << ", hitw: " << hitw << ", hith: " << hith << std::endl;
         painter.drawRect(hitx, hity, hitw, hith);

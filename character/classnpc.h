@@ -62,6 +62,7 @@ public:
     void set_parent_id(int parent_id);
     int get_parent_id();
     void reset_timers();
+    bool is_static();
 
 
 

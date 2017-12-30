@@ -422,6 +422,17 @@ namespace format_v4 {
         }
     };
 
+    struct st_weakness_3_1_2 {
+        Sint8 weapon_id;                                           // weapon number of weakness, if -1, no weakness
+        Sint8 damage_multiplier;                                   // how many time more damage is taken, if zero, no damage from this weapon is taken
+        Sint8 effect;                                              // the weapon can cause an special effect over this enemy like freezing, burning or changing itself into another enemy
+        st_weakness_3_1_2() {
+            weapon_id = -1;
+            damage_multiplier = 1;
+            effect = -1;
+        }
+    };
+
     struct file_npc { // DONE - Game
         Sint8 id;                                                  // serial number
         //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
@@ -700,6 +711,109 @@ namespace format_v4 {
 
     };
     // **************************** NPC 3.1.1 **************************** //
+
+
+    // **************************** NPC 3.1.2 **************************** //
+    struct file_npc_v3_1_2 {
+        Sint8 id;                                                  // serial number
+        //unsigned int projectile_id;                              // indicates the projectile ID (relation with file_projectile)
+        Sint8 projectile_id[2];                                    // indicate the id of an attack the NCP can user
+        char name[CHAR_NAME_SIZE];
+        char graphic_filename[FS_CHAR_NAME_SIZE];
+        struct st_hit_points hp;
+        Sint8 direction;                                           // defines how it behavies (kink of AI*)
+        Sint8 speed;                                               // defines the distances it can see enemies
+        Sint16 walk_range;                                         // defines how long from the start point it can go
+        Sint8 facing;                                              // defines the side npc is facing before start moving (also used by LINEWALK behavior)
+        struct st_position start_point;
+        st_sprite_data sprites[ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT];// changed in 2.0.4
+        st_size_int8 frame_size;
+        bool is_ghost;
+        Sint8 shield_type;
+        Sint8 IA_type;                                             // IA types. For custom (edited) ones, use IA_TYPES_COUNT + position (in the array)
+        Sint8 fly_flag;                                            // 0 - can't fly, 1 - flyer (...)
+        st_weakness_3_1_2 weakness[FS_NPC_WEAKNESSES];             // each npc have weaknesses for each boss weapon, plus the normal weapon
+        char bg_graphic_filename[FS_CHAR_NAME_SIZE];               // holds a static background
+        st_position sprites_pos_bg;                                // holds position of sprites in relation with background
+        bool is_boss;                                              // indicates if this NPC is a boss
+        bool is_sub_boss;                                          // a middle-stage boss, the doors will only open after it's dead
+        int respawn_delay;                                         // if > 0, will respawn even if on-screen
+        st_position_int8 attack_arm_pos;
+        Uint8 attack_frame;
+        st_rectangle vulnerable_area;
+        Sint8 gfx_effect;                                         // can cause snow, rain, darkned roon, etc
+
+
+        file_npc_v3_1_2() {
+            id = -1;
+            projectile_id[0] = -1;
+            projectile_id[1] = -1;
+            sprintf(name, "%s", "Enemy Name");
+            graphic_filename[0] = '\0';
+            direction = ANIM_DIRECTION_LEFT;
+            speed = 3;
+            walk_range = 160;
+            facing = ANIM_DIRECTION_LEFT;
+            frame_size.width = TILESIZE;
+            frame_size.height = TILESIZE;
+            is_ghost = false;
+            shield_type = 0;
+            IA_type = 0;
+            fly_flag = 0;
+            bg_graphic_filename[0] = '\0';
+            is_boss = false;
+            is_sub_boss = false;
+            respawn_delay = 0;
+            attack_frame = -1;
+            gfx_effect = -1;
+        }
+
+        file_npc_v3_1_2(file_npc_v3_1_1 old) {
+            id = old.id;
+            projectile_id[0] = old.projectile_id[0];
+            projectile_id[1] = old.projectile_id[1];
+            sprintf(name, "%s", old.name);
+            sprintf(graphic_filename, "%s", old.graphic_filename);
+            hp = old.hp;
+            direction = old.direction;
+            speed = old.speed;
+            walk_range = old.walk_range;
+            facing = old.facing;
+            start_point = old.start_point;
+            for (int i=0; i<OLD_ANIM_TYPE_COUNT; i++) {
+                for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
+                    sprites[i][j].collision_rect = old.sprites[i][j].collision_rect;
+                    sprites[i][j].duration = old.sprites[i][j].duration;
+                    sprites[i][j].sprite_graphic_pos_x = old.sprites[i][j].sprite_graphic_pos_x;
+                    sprites[i][j].used = old.sprites[i][j].used;
+                }
+            }
+            frame_size = old.frame_size;
+            is_ghost = old.is_ghost;
+            shield_type = old.shield_type;
+            IA_type = old.IA_type;
+            fly_flag = old.fly_flag;
+            for (int i=0; i<FS_NPC_WEAKNESSES; i++) {
+                weakness[i].damage_multiplier = old.weakness[i].damage_multiplier;
+                weakness[i].weapon_id = old.weakness[i].weapon_id;
+            }
+            sprintf(bg_graphic_filename, "%s", old.bg_graphic_filename);
+            sprites_pos_bg = old.sprites_pos_bg;
+            is_boss = old.is_boss;
+            is_sub_boss = old.is_sub_boss;
+            respawn_delay = old.respawn_delay;
+            attack_arm_pos = old.attack_arm_pos;
+            attack_frame = old.attack_frame;
+            vulnerable_area.x = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.x;
+            vulnerable_area.y = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y;
+            vulnerable_area.w = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w;
+            vulnerable_area.h = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h;
+            gfx_effect = -1;
+        }
+
+    };
+    // **************************** NPC 3.1.2 **************************** //
+
 
 
     struct file_weapon { // DONE - Game

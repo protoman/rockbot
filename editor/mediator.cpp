@@ -75,7 +75,7 @@ Mediator::Mediator() : stage_data() {
     selectedTileset = FILEPATH + "/images/tilesets/default.png";
 
     if (enemy_list.size() == 0) { // add one first item to avoid errors
-        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc());
+        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_2());
     }
     if (object_list.size() == 0) { // add one first item to avoid errors
         object_list.push_back(CURRENT_FILE_FORMAT::file_object());
@@ -383,10 +383,19 @@ void Mediator::load_game() {
     load_game_data();
     Mediator::get_instance()->fio.read_castle_data(castle_data);
 
-    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat");
-    if (enemy_list.size() == 0) { // add one first item to avoid errors
-        enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_1());
+    // convert enemy-ist to 3.1.2
+    enemy_list_3_1_1 = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat");
+    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat");
+    if (enemy_list.size() == 0) {
+        if (enemy_list_3_1_1.size() == 0) {
+            enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_2());
+        } else {
+            for (int i=0; i<enemy_list_3_1_1.size(); i++) {
+                enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_2(enemy_list_3_1_1.at(i)));
+            }
+        }
     }
+
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     if (object_list.size() == 0) { // add one first item to avoid errors
         object_list.push_back(CURRENT_FILE_FORMAT::file_object());
@@ -494,7 +503,7 @@ void Mediator::save_game()
     save_map_data();
     Mediator::get_instance()->fio.write_castle_data(castle_data);
 
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat", enemy_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
 

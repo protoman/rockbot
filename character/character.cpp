@@ -54,8 +54,6 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
 	attack_state = ATTACK_NOT;
 	max_projectiles = 1;
     _debug_char_name = "MUMMY BOT";
-    _frame_pos_adjust.x = 0;
-    _frame_pos_adjust.y = 0;
     _stairs_stopped_count = 0;
     _charged_shot_projectile_id = -1;
     _normal_shot_projectile_id = 0;
@@ -1050,11 +1048,6 @@ void character::reset_sprite_animation_timer()
 
 void character::show_sprite_graphic(short direction, short type, short frame_n, st_position frame_pos)
 {
-    frame_pos.x += _frame_pos_adjust.x;
-    frame_pos.y += _frame_pos_adjust.y;
-
-    //std::cout << "CHAR::show_sprite_graphic[" << frame_pos.x << ", " << frame_pos.y << "]" << std::endl;
-
     if (state.invisible == true) {
         return;
     }
@@ -2352,8 +2345,7 @@ st_rectangle character::get_hitbox(int anim_type)
         w = col_rect.w - 4;
         h = col_rect.h;
         if (w <= 0 || h <= 0) {
-            std::cout << "#### CHAR::GET_HITBOX name[" << name << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
-            //std::cout << "A" << std::endl;
+            std::cout << "#### CHAR::GET_HITBOX name[" << name << "], x[" << x << "], y[" << y << "], w[" << w << "], h[" << h << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
         }
     }
 

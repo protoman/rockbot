@@ -44,7 +44,7 @@ int GameMediator::get_projectile_list_size()
     return projectile_list.size();
 }
 
-CURRENT_FILE_FORMAT::file_npc_v3_1_1* GameMediator::get_enemy(int n)
+CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
 {
     // boss not yet set
     if (n < 0 || n >= enemy_list.size()) {
@@ -204,7 +204,7 @@ void GameMediator::wii_convert_anim_tile_list() {
 
 GameMediator::GameMediator()
 {
-    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat");
+    enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat");
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
     projectile_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_projectilev3>("data/game_projectile_list_v3.dat");

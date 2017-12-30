@@ -63,10 +63,16 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
 
     fflush(stdout);
 
-    start_point.x = GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE;
-    start_point.y = GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE;
+    start_point.x = (GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE) + GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+    if (GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x != 0) {
+        std::cout << ">>>>>>>>>>>>> bg_pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "]" << std::endl;
+    }
+    start_point.y = (GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE) + GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
     position.x = start_point.x;
     position.y = start_point.y;
+    if (name == "OCTOPUS") {
+        std::cout << "NPC[" << name << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
+    }
     _is_spawn = false;
     _initialized = false;
     _screen_blinked = false;
@@ -142,7 +148,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, id[%d]", _number);
 #endif
 
-    CURRENT_FILE_FORMAT::file_npc_v3_1_1* copyref = GameMediator::get_instance()->get_enemy(main_id);
+    CURRENT_FILE_FORMAT::file_npc_v3_1_2* copyref = GameMediator::get_instance()->get_enemy(main_id);
 
     name = std::string(copyref->name);
 
@@ -235,19 +241,19 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     if (have_background_graphics() == false) {
         graphicsLib_gSurface bg_surface;
         std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
-        //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
+        std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
         if (bg_filename.size() > 0) {
-            std::string full_bggraphic_filename = FILEPATH + "images/sprites/backgrounds/" + bg_filename;
+            std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
             std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << std::endl;
             graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
             if (bg_surface.get_surface() == NULL) {
                 std::cout << "initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
                 return;
             }
+            /*
             graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
             _has_background = true;
-            _frame_pos_adjust.x = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.x;
-            _frame_pos_adjust.y = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.y;
+            */
         }
     }
 
@@ -256,17 +262,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         is_ghost = false;
     }
 
-    vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->sprites[ANIM_TYPE_TELEPORT][0].collision_rect;
-    // if vulnerable-area is equal to sprites size, elave it empty
-    if (vulnerable_area_box.x == _frame_pos_adjust.x && vulnerable_area_box.y == _frame_pos_adjust.y && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
-        //std::cout << ">>> NPC[" << name << "] has no vulnerable area set <<<" << std::endl;
-        vulnerable_area_box = st_rectangle(0, 0, 0, 0);
-    //} else {
-        //std::cout << ">>> NPC[" << name << "] HAS vulnerable area <<<" << std::endl;
-    }
-
-    //std::cout << "end" << std::endl;
-
+    vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->vulnerable_area;
 }
 
 
@@ -342,6 +338,14 @@ void classnpc::reset_timers()
     reset_sprite_animation_timer();
 }
 
+bool classnpc::is_static()
+{
+    if (GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x != 0 && GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y != 0) {
+        return true;
+    }
+    return false;
+}
+
 void classnpc::npc_set_hp(st_hit_points new_hp)
 {
     hitPoints = new_hp;
@@ -406,13 +410,18 @@ void classnpc::boss_move()
     //std::cout << "classboss::boss_move[" << name << "] - _initialized: " << _initialized << std::endl;
 
     move_projectiles();
+    bool is_static_boss = is_static();
 
     if (is_on_visible_screen() && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
-        gameControl.map_present_boss(is_stage_boss());
+        gameControl.map_present_boss(is_stage_boss(), is_static_boss);
+        // set temp-background in map
+        if (is_static_boss == true) {
+            gameControl.set_map_enemy_static_background(FILEPATH + std::string("images/sprites/enemies/backgrounds/") + std::string(GameMediator::get_instance()->get_enemy(_number)->bg_graphic_filename));
+        }
         return;
-    } else if (_initialized == 1 && _is_boss == true) {
+    } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::GRAVITY #1, position.x[%f]", position.x);
 #endif
@@ -645,8 +654,13 @@ void classnpc::set_is_boss(bool set_boss)
     _is_boss = set_boss;
     if (_is_boss == true) {
         _screen_blinked = false;
-        _ai_state.initial_position.y = -(frameSize.height+1);
-        position.y = _ai_state.initial_position.y;
+        // only set initial y if not fixed position type
+        if (is_static() == false) {
+            _ai_state.initial_position.y = -(frameSize.height+1);
+            position.y = _ai_state.initial_position.y;
+        } else {
+            position.y = start_point.y;
+        }
         hitPoints.total = BOSS_INITIAL_HP;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;

@@ -19,7 +19,7 @@ public:
     CURRENT_FILE_FORMAT::file_projectilev3 get_projectile(int n);
     int get_projectile_list_size();
 
-    CURRENT_FILE_FORMAT::file_npc_v3_1_1* get_enemy(int n);
+    CURRENT_FILE_FORMAT::file_npc_v3_1_2* get_enemy(int n);
     int get_enemy_list_size();
 #ifdef WII
     void short_to_little_endian(short &s);
@@ -58,7 +58,7 @@ private:
     std::map<std::string, Mix_Chunk*> sfx_map;                                               // map of sfx files loaded, used in projectiles to avoid loading from disk every time
     fio_common fio_cmm;
 
-    std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_1> enemy_list;
+    std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_2> enemy_list;
 
 
 };

@@ -791,7 +791,7 @@ Uint8 game::get_current_map()
 }
 
 
-void game::map_present_boss(bool show_dialog)
+void game::map_present_boss(bool show_dialog, bool is_static_boss)
 {
 	is_showing_boss_intro = true;
 
@@ -820,14 +820,18 @@ void game::map_present_boss(bool show_dialog)
 	// 3. move boss from top to ground
     classnpc* boss_ref = loaded_stage.get_near_boss();
     if (boss_ref != NULL) {
-        loop_run = true;
-        while (loop_run == true) {
-            if (loaded_stage.boss_hit_ground(boss_ref) == true) {
-                loop_run = false;
-                show_stage(0, false);
-            } else {
-                show_stage(0, true);
+        if (is_static_boss == false) {
+            loop_run = true;
+            while (loop_run == true) {
+                if (loaded_stage.boss_hit_ground(boss_ref) == true) {
+                    loop_run = false;
+                    show_stage(0, false);
+                } else {
+                    show_stage(0, true);
+                }
             }
+        } else {
+            // TODO //
         }
     }
     show_stage(8, false);
@@ -851,6 +855,11 @@ void game::map_present_boss(bool show_dialog)
 	_show_boss_hp = true;
 	is_showing_boss_intro = false;
 
+}
+
+void game::set_map_enemy_static_background(string filename)
+{
+    loaded_stage.set_map_enemy_static_background(filename);
 }
 
 object* game::get_player_platform()

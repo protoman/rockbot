@@ -117,7 +117,8 @@ SOURCES += main.cpp \
     dialog_pick_color.cpp \
     mainwindow_tab/stageselectmapdialog.cpp \
     mainwindow_tab/stageselectmapeditarea.cpp \
-    files_editor/gametextcreditstab.cpp
+    files_editor/gametextcreditstab.cpp \
+    ../aux_tools/exception_manager.cpp
 
 HEADERS += mainwindow.h \
     editorarea.h \
@@ -197,7 +198,8 @@ HEADERS += mainwindow.h \
     dialog_pick_color.h \
     mainwindow_tab/stageselectmapdialog.h \
     mainwindow_tab/stageselectmapeditarea.h \
-    files_editor/gametextcreditstab.h
+    files_editor/gametextcreditstab.h \
+    ../aux_tools/exception_manager.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \

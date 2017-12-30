@@ -120,7 +120,7 @@ VERSION 2.0.0 RELEASE #1 (Open Beta for Full-Version)
 - melhorar fly to player: usar diagonal direta e perfeita até o centro (fazer o npc-player-diff calcular o ponto)
 - AI: teleport won't work if char does not have teleport sprites
 - redraw entirely destrin tank
-- add castle 1 stage 6 with only destrin boss.
+- add castle 1 stage 6 with only destrin boss
 - revisar e finalizar diálogos
 - finalizar intro
 - vase enemies (dragon bot) need to show smoke when the vase returns
@@ -150,7 +150,6 @@ VERSION 2.0.0 RELEASE #2
 - ENDING: adicionar thanks for playing (https://www.youtube.com/watch?v=9dZQK8tOIJE) junto de aviso unlock chars
 - AI: add "backtrack" movement, keep sprite in the inverse direction it is moving (???) qual a razão?
 - add SDL Gfx to project
-- make missile rotate to a given angle using SDL Gfx
 - ending: fazer estrelas continuarem movendo e texto permanecer ao final dos créditos
 - air dash won't stop if head is colliding with above terrain
 - criar opção export/import dentro da própria tela de save
@@ -220,7 +219,6 @@ IMPROVEMENTS/IDEAS:
     # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
     # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
 - tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
-- melhorar explosões de morte (refazer gráfico, usar mais posições usando ângulo)
 - melhorar implosão de ghost weapon (espiral)
 - jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
 - objeto que se move para esquerda/direita deve empurrar jogador.
@@ -347,7 +345,7 @@ VERSION 2.0.2
     - 1/ballom item (slowly up)
     - weapon that explodes releasing several NPCs (ave com ovo)
     - dark room that is iluminated if a fire-NPC is on visible_screen (heat)
-        * a área pode ser definida por um objeto na tela ou não, mesmo que objeto fique escondido
+    - object that cuases effect on room (snow, rain, darkness)
     - napalm projectile (heat man)
 
 - colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb

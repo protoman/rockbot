@@ -227,6 +227,7 @@ void stage::print_map_objects_number()
 
 void stage::reset_current_map()
 {
+    set_map_enemy_static_background("");
     set_current_map(checkpoint.map);
     //std::cout << "STAGE::reset_current_map - currentMap: " << currentMap << std::endl;
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
@@ -393,6 +394,11 @@ void stage::reset_stage_timers()
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
         maps[i].reset_map_timers();
     }
+}
+
+void stage::set_map_enemy_static_background(string filename)
+{
+    get_current_map()->set_map_enemy_static_background(filename);
 }
 
 void stage::check_map_effect()

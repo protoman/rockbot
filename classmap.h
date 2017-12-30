@@ -231,7 +231,7 @@ public:
     st_rectangle get_player_hitbox();
     st_float_position get_foreground_postion();
     void set_foreground_postion(st_float_position pos);
-
+    void set_map_enemy_static_background(std::string filename);
 
 private:
     void load_map_npcs();
@@ -272,6 +272,7 @@ private:
     bool wall_scroll_lock[MAP_W];
     st_float_position bg_scroll;
     st_float_position fg_layer_scroll;
+    graphicsLib_gSurface static_bg;
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;

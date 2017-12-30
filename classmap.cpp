@@ -556,6 +556,10 @@ void classMap::load_map_npcs()
 
 void classMap::draw_dynamic_backgrounds()
 {
+    if (static_bg.is_null() == false) {
+        graphLib.copyAreaWithAdjust(st_position(0, 0), &static_bg, &graphLib.gameScreen);
+        return;
+    }
     // only draw solid background color, if map-heigth is less than RES_H
     //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
     graphicsLib_gSurface* surface_bg = get_dynamic_bg();
@@ -749,6 +753,17 @@ void classMap::set_foreground_postion(st_float_position pos)
 {
     fg_layer_scroll = pos;
 }
+
+void classMap::set_map_enemy_static_background(string filename)
+{
+    if (static_bg.is_null() == false) {
+        static_bg.freeGraphic();
+    }
+    if (filename.length() > 0) {
+        graphLib.surfaceFromFile(filename, &static_bg);
+    }
+}
+
 
 
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)

@@ -61,6 +61,7 @@ public:
     short get_current_map_gfx_mode();
     void add_autoscroll_delay();
     void reset_stage_timers();
+    void set_map_enemy_static_background(std::string filename);
 
 private:
     void check_map_effect();

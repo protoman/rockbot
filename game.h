@@ -153,7 +153,8 @@ public:
      * @param player_n
      */
     void set_player_direction(Uint8 direction);
-    void map_present_boss(bool show_dialog);
+    void map_present_boss(bool show_dialog, bool is_static_boss);
+    void set_map_enemy_static_background(std::string filename);
 
     character* get_player();
 

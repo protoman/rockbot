@@ -342,7 +342,6 @@ protected:
     short slide_type; // 0 - dash (24 px height), 1 - slide (16px height)
     bool _water_splash;									// used to prevent making a new splash until completaly inside or outside water
     bool _has_background;
-    st_position _frame_pos_adjust;
     short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input
     short _charged_shot_projectile_id;
     short _normal_shot_projectile_id;

@@ -3,6 +3,7 @@
 #include <QString>
 #include <QImage>
 #include <QBitmap>
+#include <QPixmap>
 
 #include "mediator.h"
 
@@ -17,10 +18,15 @@ QWidget(parent), selected_player(0)
 void player_preview_area::update_sprites()
 {
     QString filename = QString(FILEPATH.c_str()) + QString("/images/sprites/") + QString(Mediator::get_instance()->player_graphics_data.graphics_filename.c_str());
-    _original_sprites = QImage(filename);
-    if (_original_sprites.isNull() == true || _original_sprites.width() <= 0) {
+    QPixmap sprites = QPixmap(filename);
+    if (sprites.isNull() == true || sprites.width() <= 0) {
         return;
     }
+
+    QBitmap mask = sprites.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+    sprites.setMask(mask);
+    _original_sprites = sprites.toImage();
+
     std::cout << ">>>>>>>>>>>>>>>>> count[" << _original_sprites.colorCount() << "]" << std::endl;
     _original_sprites = _original_sprites.scaled(_original_sprites.width()*PREVIEW_SCALE, _original_sprites.height()*PREVIEW_SCALE+1);
 

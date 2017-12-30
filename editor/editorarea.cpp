@@ -451,13 +451,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
                 int total_w = Mediator::get_instance()->enemy_list.at(npc_id).frame_size.width*Mediator::get_instance()->zoom;
                 int total_h = Mediator::get_instance()->enemy_list.at(npc_id).frame_size.height*Mediator::get_instance()->zoom;
-                int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x;
-                int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.y;
+                int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x*Mediator::get_instance()->zoom;
+                int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.y*Mediator::get_instance()->zoom;
 
 
                 std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
                 if (npc_bg_file.length() > 0) {
-                    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/backgrounds/" + npc_bg_file;
+                    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
                     QPixmap bg_image(_bg_graphic_filename.c_str());
 
                     // calculate total image size of background exists
