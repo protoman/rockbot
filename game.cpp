@@ -184,6 +184,8 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     }
     fps_manager.limit();
 
+    /*
+    // REMOVED BECAUSE IT IS NOT USER FRIENDLY //
     if (fps_manager.get_failed_min_fps() == true) {
         if (game_config.graphics_performance_mode == PERFORMANCE_MODE_HIGH) {
             game_config.graphics_performance_mode = PERFORMANCE_MODE_NORMAL;
@@ -192,6 +194,7 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         }
         fps_manager.reset_failed_min_fps();
     }
+    */
 }
 
 // ********************************************************************************************** //
