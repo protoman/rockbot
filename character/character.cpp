@@ -691,7 +691,7 @@ void character::check_charging_colors(bool always_charged)
 
 st_position character::get_attack_position()
 {
-    get_attack_position(state.direction);
+    return get_attack_position(state.direction);
 }
 
 

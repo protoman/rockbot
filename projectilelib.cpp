@@ -39,7 +39,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     owner = NULL;
 
 
-    //std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "]" << std::endl;
+    std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "], x[" << set_position.x << "], y[" << set_position.y << "]" << std::endl;
 
     position = set_position;
     direction = set_direction;
@@ -868,6 +868,9 @@ st_size projectile::move() {
 
     realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
     realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
+
+    //std::cout << "PROJECTILE::MOVE - y[" << position.y << "], map.scroll.y[" << gameControl.get_current_map_obj()->getMapScrolling().y << "]" << std::endl;
+
 	// check out of screen
 	if (_move_type != TRAJECTORY_FREEZE && _move_type != TRAJECTORY_QUAKE) { // special effect weapons can work out of screen
 		if (realPosition.x > RES_W+TILESIZE*2 || realPosition.x < 0-TILESIZE*2 || realPosition.y > RES_H+TILESIZE*2 || realPosition.y < 0-+TILESIZE*2) {
@@ -944,7 +947,7 @@ void projectile::draw() {
         //std::cout << "TRAJECTORY_TARGET_EXACT - w[" << rotated_surface.width << "], h[" << rotated_surface.height << "]" << std::endl;
         graphLib.showSurfaceAt(&rotated_surface, realPosition, false);
     } else {
-        //printf(">> PROJECTILE::DRAW[%d] - direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
+        //printf(">> PROJECTILE::DRAW[%d] - x[%d], y[%d], direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, realPosition.x, realPosition.y, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
         if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*2) {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, _size.height, show_width, _size.height), realPosition);
         } else if (direction == ANIM_DIRECTION_DOWN && get_surface()->height >= _size.height*3) {

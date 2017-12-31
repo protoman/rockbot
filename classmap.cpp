@@ -2256,7 +2256,7 @@ void classMap::show_npcs_to_left(int x)
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
-        std::cout << "MAP::show_npcs_to_left[" << npc_ref->get_name() << "], x[" << x << "], npc.x[" << npc_ref->getPosition().x << "]" << std::endl;
+        //std::cout << "MAP::show_npcs_to_left[" << npc_ref->get_name() << "], x[" << x << "], npc.x[" << npc_ref->getPosition().x << "]" << std::endl;
         if (npc_ref->is_dead() == false && npc_ref->is_on_visible_screen() && npc_ref->getPosition().x <= x) {
             npc_ref->show();
         }
