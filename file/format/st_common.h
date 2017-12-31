@@ -501,11 +501,11 @@ struct graphicsLib_gSurface {
 
         bool is_null() {
             if (width <= 0 || height <= 0) {
-                std::cout << "GSURFACE - invalid size[" << width << "][" << height << "]" << std::endl;
+                //std::cout << "GSURFACE - invalid size[" << width << "][" << height << "]" << std::endl;
                 return true;
             }
             if (gSurface == NULL) {
-                std::cout << "GSURFACE - SDL-Surface is NULL" << std::endl;
+                //std::cout << "GSURFACE - SDL-Surface is NULL" << std::endl;
                 return true;
             }
         }

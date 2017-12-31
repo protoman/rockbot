@@ -68,6 +68,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
         std::cout << ">>>>>>>>>>>>> bg_pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "]" << std::endl;
     }
     start_point.y = (GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE) + GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+    static_bg_pos = st_position(GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE, GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE);
     position.x = start_point.x;
     position.y = start_point.y;
     if (name == "OCTOPUS") {
@@ -96,6 +97,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     state.direction = direction;
     start_point.x = npc_pos.x;
     start_point.y = npc_pos.y;
+    static_bg_pos = st_position(npc_pos.x * TILESIZE, npc_pos.y * TILESIZE);
     position.x = npc_pos.x;
     position.y = npc_pos.y;
     _is_spawn = true;
@@ -308,6 +310,11 @@ st_position classnpc::get_start_position()
     return st_position(start_point.x, start_point.y);
 }
 
+st_position classnpc::get_bg_position()
+{
+    return static_bg_pos;
+}
+
 
 void classnpc::show()
 {
@@ -428,9 +435,6 @@ void classnpc::boss_move()
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss);
         // set temp-background in map
-        if (is_static_boss == true) {
-            gameControl.set_map_enemy_static_background(FILEPATH + std::string("images/sprites/enemies/backgrounds/") + std::string(GameMediator::get_instance()->get_enemy(_number)->bg_graphic_filename));
-        }
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
 #ifdef ANDROID
@@ -462,6 +466,7 @@ void classnpc::copy(classnpc *from)
 
 	facing = from->facing;
 	start_point = from->start_point;
+    static_bg_pos = from->static_bg_pos;
 
 	walk_range = from->walk_range;
 	graphic_filename = from->graphic_filename;

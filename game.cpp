@@ -144,7 +144,7 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     }
 
     if (_dark_mode == false) {
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
     }
 
     if (can_characters_move == true) {
@@ -247,7 +247,7 @@ void game::start_stage()
     player1.refill_weapons();
     player1.reset_hp();
 
-    loaded_stage.showStage();
+    loaded_stage.show_stage();
     loaded_stage.showAbove();
     //draw_lib.update_screen();
     draw_lib.fade_in_screen(0, 0, 0);
@@ -258,7 +258,7 @@ void game::start_stage()
 
     for (int i=0; i<AUTOSCROLL_START_DELAY_FRAMES; i++) { // extra delay to show dialogs
         input.clean_all();
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
         loaded_stage.showAbove();
         draw_lib.update_screen();
         timer.delay(20);
@@ -295,7 +295,7 @@ void game::show_player_teleport(int pos_x)
     long end_time = timer.getTimer() + 1500;
     bool player_reset_animation = false;
     while (timer.getTimer() < end_time) {
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
         loaded_stage.showAbove();
         if (player1.animation_has_restarted()) {
             player1.set_animation_frame(1);
@@ -354,7 +354,7 @@ void game::restart_stage()
 
     game_unpause();
 
-    loaded_stage.showStage();
+    loaded_stage.show_stage();
     loaded_stage.showAbove();
 	graphLib.set_screen_adjust(st_position(0, 0));
     draw_lib.update_screen();
@@ -802,7 +802,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
     player1.clear_move_commands();
 	bool loop_run = true;
 	while (loop_run == true) {
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
         player1.charMove();
         int anim_type = player1.get_anim_type();
         if (player1.hit_ground() == true && anim_type == ANIM_TYPE_STAND) {
@@ -855,11 +855,6 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
 	_show_boss_hp = true;
 	is_showing_boss_intro = false;
 
-}
-
-void game::set_map_enemy_static_background(string filename)
-{
-    loaded_stage.set_map_enemy_static_background(filename);
 }
 
 object* game::get_player_platform()
@@ -941,7 +936,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     // draw map in the screen, erasing all players/objects/npcs/GFX
     draw_lib.set_gfx(SCREEN_GFX_NONE, BG_SCROLL_MODE_NONE);
-    loaded_stage.showStage();
+    loaded_stage.show_stage();
 
 
     // draw the offscreen with the new loaded map
@@ -1082,7 +1077,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
             return;
         }
 
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
 		upTile = tileY;
 		for (i=tileY; i>=0; i--) {
 			if (temp_map->getMapPointLock(st_position(tileX, i)) == TERRAIN_DOOR) {
@@ -1111,11 +1106,16 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         player_move_x = player_move_x * -1;
     }
     std::cout << "player_move_x[" << player_move_x << "]" << std::endl;
+    int static_scroll_x = loaded_stage.getMapScrolling().x;
     for (int i=0; i<move_limit; i++) {
         //loaded_stage.changeScrolling(scroll_move, false);
         loaded_stage.change_map_scroll(scroll_move, false, true);
-        loaded_stage.showStage();
-        loaded_stage.show_npcs();
+        loaded_stage.show_stage();
+        if (loaded_stage.must_show_static_bg() == false) {
+            loaded_stage.show_npcs();
+        } else {
+            loaded_stage.show_npcs_to_left(static_scroll_x+RES_W);
+        }
         player1.show();
         loaded_stage.showAbove();
         // draw HUD
@@ -1141,7 +1141,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     timer.delay(6);
     game_unpause();
     loaded_stage.add_autoscroll_delay();
-    loaded_stage.showStage();
+    loaded_stage.show_stage();
 }
 
 
@@ -1190,7 +1190,7 @@ void game::got_weapon()
         }
         long end_timer = timer.getTimer() + 3500;
         while (timer.getTimer() < end_timer) {
-            loaded_stage.showStage();
+            loaded_stage.show_stage();
             player1.show();
             loaded_stage.showAbove();
             draw_lib.update_screen();
@@ -1522,7 +1522,7 @@ void game::draw_explosion(short int centerX, short int centerY, bool show_player
     get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion_player_death, anim_pos, st_position(0, 0), 100, 6, player1.get_direction(), st_size(47, 47));
 
     while (timer.getTimer() < timerInit+2000) {
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
         if (show_players) {
             player1.show();
         }
@@ -1587,7 +1587,7 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
 		char_obj->set_direction(ANIM_DIRECTION_LEFT);
 		while (char_obj->get_real_position().x+char_obj->get_size().width/2 > pos_x) {
 			char_obj->set_position(st_position(char_obj->getPosition().x-2, char_obj->getPosition().y));
-            loaded_stage.showStage();
+            loaded_stage.show_stage();
             loaded_stage.showAbove();
             loaded_stage.show_npcs();
             player1.show();
@@ -1599,7 +1599,7 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
         char_obj->set_animation_type(ANIM_TYPE_WALK);
 		while (char_obj->get_real_position().x+char_obj->get_size().width/2 < pos_x) {
 			char_obj->set_position(st_position(char_obj->getPosition().x+2, char_obj->getPosition().y));
-            loaded_stage.showStage();
+            loaded_stage.show_stage();
             loaded_stage.showAbove();
             loaded_stage.show_npcs();
             player1.show();
@@ -1816,7 +1816,7 @@ void game::finish_player_teleporter()
 void game::show_stage(int wait_time, bool move_npcs)
 {
     if (_dark_mode == false) {
-        loaded_stage.showStage();
+        loaded_stage.show_stage();
     }
 	if (move_npcs == true) {
         loaded_stage.move_npcs();
@@ -1933,7 +1933,7 @@ short game::get_drop_item_id(short type)
 
 void game::show_map()
 {
-    loaded_stage.showStage();
+    loaded_stage.show_stage();
     loaded_stage.showAbove();
     draw_lib.update_screen();
 }

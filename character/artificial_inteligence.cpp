@@ -191,17 +191,17 @@ void artificial_inteligence::define_ai_next_step()
         bool found_chance = false;
         int chance_sum = 0;
         for (int i=0; i<AI_MAX_STATES; i++) {
-            //std::cout << "[" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
+            //std::cout << "[" << name << "][" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step - FOUND CHANCE at [" << i << "]" << std::endl;
+                //std::cout << "AI::define_ai_next_step[" << name << "] - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
             }
         }
         if (found_chance == false) {
-            std::cout << "AI::define_ai_next_step - no chance found, use ZERO as default" << std::endl;
+            std::cout << "AI::define_ai_next_step[" << name << "] - no chance found, use ZERO as default" << std::endl;
             _ai_chain_n = 0;
         }
     } else {
@@ -1618,11 +1618,14 @@ void artificial_inteligence::execute_ai_step_dash()
 void artificial_inteligence::execute_ai_step_change_animation_type()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][INIT]" << std::endl;
         set_animation_type(static_cast<ANIM_TYPE>(_parameter));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][EXEC]" << std::endl;
         if (_is_last_frame == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][FINISH]" << std::endl;
         }
     }
 }

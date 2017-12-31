@@ -2345,7 +2345,13 @@ st_rectangle character::get_hitbox(int anim_type)
         w = col_rect.w - 4;
         h = col_rect.h;
         if (w <= 0 || h <= 0) {
+            CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_number);
             std::cout << "#### CHAR::GET_HITBOX name[" << name << "], x[" << x << "], y[" << y << "], w[" << w << "], h[" << h << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
+            if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].used == true) {
+                std::cout << "###### using sprite collision rect" << std::endl;
+            } else {
+                std::cout << "###### using npc basic info for rect" << std::endl;
+            }
         }
     }
 

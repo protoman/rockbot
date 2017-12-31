@@ -530,19 +530,26 @@ void classMap::load_map_npcs()
             continue;
         }
 
-        if (GameMediator::get_instance()->map_npc_data[i].id_npc != -1 && GameMediator::get_instance()->map_npc_data[i].stage_id == stage_number && GameMediator::get_instance()->map_npc_data[i].map_id == number) {
-            classnpc new_npc = classnpc(stage_number, number, GameMediator::get_instance()->map_npc_data[i].id_npc, i);
+        int npc_ic = GameMediator::get_instance()->map_npc_data[i].id_npc;
+
+        if (npc_ic != -1 && GameMediator::get_instance()->map_npc_data[i].stage_id == stage_number && GameMediator::get_instance()->map_npc_data[i].map_id == number) {
+            classnpc new_npc = classnpc(stage_number, number, npc_ic, i);
 
 
-            if (stage_data.boss.id_npc == GameMediator::get_instance()->map_npc_data[i].id_npc) {
+            if (stage_data.boss.id_npc == npc_ic) {
                 new_npc.set_stage_boss(true);
-            } else if (GameMediator::get_instance()->get_enemy(GameMediator::get_instance()->map_npc_data[i].id_npc)->is_boss == true) {
+            } else if (GameMediator::get_instance()->get_enemy(npc_ic)->is_boss == true) {
                 new_npc.set_is_boss(true);
             // adjust NPC position to ground, if needed
             } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
                 new_npc.initialize_position_to_ground();
             }
             new_npc.init_animation();
+
+            std::string static_bg(GameMediator::get_instance()->get_enemy(npc_ic)->bg_graphic_filename);
+            if (new_npc.is_static() && static_bg.length() > 0) {
+                set_map_enemy_static_background(FILEPATH + std::string("images/sprites/enemies/backgrounds/") + static_bg, new_npc.get_bg_position());
+            }
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
             //std::cout << "(A) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
@@ -556,15 +563,12 @@ void classMap::load_map_npcs()
 
 void classMap::draw_dynamic_backgrounds()
 {
-    if (static_bg.is_null() == false) {
-        graphLib.copyAreaWithAdjust(st_position(0, 0), &static_bg, &graphLib.gameScreen);
-        return;
-    }
     // only draw solid background color, if map-heigth is less than RES_H
     //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
     graphicsLib_gSurface* surface_bg = get_dynamic_bg();
     if (surface_bg == NULL || surface_bg->width <= 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
+        draw_static_background();
         return;
     }
     // if there is no background or it does not cover the whole screen, draw solid color
@@ -616,6 +620,19 @@ void classMap::draw_dynamic_backgrounds()
             float bg_pos_x = surface_bg->width - (int)abs(bg_scroll.x);
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
         }
+    }
+
+    draw_static_background();
+}
+
+void classMap::draw_static_background()
+{
+    //std::cout << "STATIC-BG-DRAW bg.x[" << static_bg_pos.x << "], scroll.x[" << scroll.x << "]" << std::endl;
+    if (static_bg.is_null() == false && static_bg_pos.x >= scroll.x-1 && static_bg_pos.x < scroll.x+RES_W) {
+        st_position adjusted_static_bg_pos((static_bg_pos.x-scroll.x), static_bg_pos.y);
+        //std::cout << "STATIC-BG-DRAW bg.x[" << static_bg_pos.x << "], scroll.x[" << scroll.x << "], x[" << adjusted_static_bg_pos.x << "]" << std::endl;
+        graphLib.copyAreaWithAdjust(adjusted_static_bg_pos, &static_bg, &graphLib.gameScreen);
+        return;
     }
 }
 
@@ -754,7 +771,15 @@ void classMap::set_foreground_postion(st_float_position pos)
     fg_layer_scroll = pos;
 }
 
-void classMap::set_map_enemy_static_background(string filename)
+bool classMap::must_show_static_bg()
+{
+    if (static_bg.is_null() == false && static_bg_pos.x >= scroll.x-1 && static_bg_pos.x < scroll.x+RES_W) {
+        return true;
+    }
+    return false;
+}
+
+void classMap::set_map_enemy_static_background(string filename, st_position pos)
 {
     if (static_bg.is_null() == false) {
         static_bg.freeGraphic();
@@ -762,6 +787,7 @@ void classMap::set_map_enemy_static_background(string filename)
     if (filename.length() > 0) {
         graphLib.surfaceFromFile(filename, &static_bg);
     }
+    static_bg_pos = pos;
 }
 
 
@@ -2223,6 +2249,20 @@ void classMap::show_npcs() /// @TODO - check out of screen
     if (has_boss == false) {
         draw_lib.set_boss_hp(-99);
     }
+}
+
+void classMap::show_npcs_to_left(int x)
+{
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        std::cout << "MAP::show_npcs_to_left[" << npc_ref->get_name() << "], x[" << x << "], npc.x[" << npc_ref->getPosition().x << "]" << std::endl;
+        if (npc_ref->is_dead() == false && npc_ref->is_on_visible_screen() && npc_ref->getPosition().x <= x) {
+            npc_ref->show();
+        }
+        npc_ref->show_projectiles();
+    }
+    draw_lib.set_boss_hp(-99);
 }
 
 void classMap::move_objects(bool paused)

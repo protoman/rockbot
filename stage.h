@@ -22,8 +22,8 @@ public:
     ~stage();
     int get_number();
     void setNumber(int);
-    void loadStage();
-    void showStage();
+    void load_stage();
+    void show_stage();
     Uint8 getMapPointLock(struct st_position);
     void change_map_scroll(st_float_position pos, bool check_lock, bool ignore_auto_scroll);
     st_float_position getMapScrolling();
@@ -43,6 +43,7 @@ public:
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
     void move_npcs();
     void show_npcs();
+    void show_npcs_to_left(int x);
     void move_objects(bool paused=false);
     void show_objects(int adjust=0);
     void show_above_objects(int adjust=0);
@@ -61,7 +62,7 @@ public:
     short get_current_map_gfx_mode();
     void add_autoscroll_delay();
     void reset_stage_timers();
-    void set_map_enemy_static_background(std::string filename);
+    bool must_show_static_bg();                                 // method used to prevent showing enemies on transition if showing static-bg
 
 private:
     void check_map_effect();

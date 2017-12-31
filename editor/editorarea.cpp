@@ -141,6 +141,47 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
+    // DRAW ENEMIES BACKGROUNDS //
+    if (Mediator::get_instance()->show_npcs_flag == true) {
+        /// draw NPCs
+        for (int i=0; i<Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+            if (Mediator::get_instance()->maps_data_npc_list[i].stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_npc_list[i].map_id != Mediator::get_instance()->currentMap) {
+                continue; // only show enemies from current stage/map
+            }
+            if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_GREATER && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level > Mediator::get_instance()->currentDifficulty) {
+                continue; // only show enemies with equal or lower difficulty
+            } else if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level != Mediator::get_instance()->currentDifficulty) {
+                continue;
+            }
+
+            //std::cout << "EditorArea::paintEvent #5.0.A [" << i << "]" << std::endl;
+            int npc_id = Mediator::get_instance()->maps_data_npc_list[i].id_npc;
+            if (npc_id >= Mediator::get_instance()->enemy_list.size() || npc_id < 0) {
+                Mediator::get_instance()->maps_data_npc_list[i].id_npc = -1;
+                continue;
+            }
+
+
+            std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
+            if (npc_bg_file.length() > 0) {
+                std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
+                QPixmap bg_image(_bg_graphic_filename.c_str());
+
+                // calculate total image size of background exists
+                if (!bg_image.isNull()) {
+                    int total_w = bg_image.width();
+                    int total_h = bg_image.height();
+                    QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                    bg_image.setMask(enemy_bg_mask);
+                    QRectF bg_target(QPoint(Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w*Mediator::get_instance()->zoom, total_h*Mediator::get_instance()->zoom));
+                    QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
+                    painter.drawPixmap(bg_target, bg_image, bg_source);
+                }
+            }
+        }
+    }
+
+
     // DRAW TILES //
     for (i=0; i<MAP_W; i++) {
         for (j=0; j<MAP_H; j++) {
@@ -451,26 +492,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
                 int total_w = Mediator::get_instance()->enemy_list.at(npc_id).frame_size.width*Mediator::get_instance()->zoom;
                 int total_h = Mediator::get_instance()->enemy_list.at(npc_id).frame_size.height*Mediator::get_instance()->zoom;
-                int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x*Mediator::get_instance()->zoom;
-                int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.y*Mediator::get_instance()->zoom;
+                int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x;
+                int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.y;
 
 
-                std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
-                if (npc_bg_file.length() > 0) {
-                    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
-                    QPixmap bg_image(_bg_graphic_filename.c_str());
-
-                    // calculate total image size of background exists
-                    if (!bg_image.isNull()) {
-                        total_w = bg_image.width();
-                        total_h = bg_image.height();
-                        QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
-                        bg_image.setMask(enemy_bg_mask);
-                        QRectF bg_target(QPoint(Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w, total_h));
-                        QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
-                        painter.drawPixmap(bg_target, bg_image, bg_source);
-                    }
-                }
 
                 QRectF target(QPoint((Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16+sprite_adjust_x)*Mediator::get_instance()->zoom, (Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16+sprite_adjust_y)*Mediator::get_instance()->zoom), QSize(total_w, total_h));
                 QRectF source;

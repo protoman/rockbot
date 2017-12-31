@@ -53,6 +53,7 @@ public:
     bool is_subboss();
     void reset_position();
     st_position get_start_position();
+    st_position get_bg_position();
     void show();
     // those are needed for AI to use because of linker not reconizing character class
     void npc_set_hp(st_hit_points new_hp);
@@ -103,6 +104,7 @@ protected:
     short _initialized; /**< TODO */
     bool _screen_blinked; /**< TODO */
     int _parent_id;
+    st_position static_bg_pos;
 };
 
 #endif // CLASSNPC_H

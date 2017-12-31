@@ -26,6 +26,9 @@ STAGES:
     # chefe-final
 
 
+Kraken: 34x66x6 = x66
+shield intangible
+
 - MUSICA BOA: http://modarchive.org/index.php?request=view_by_moduleid&query=159890
 
 - tileset stage select map (add credits to ROCKBOT2):

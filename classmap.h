@@ -166,6 +166,7 @@ public:
     void move_npcs();
 
     void show_npcs();
+    void show_npcs_to_left(int x);
 
     void move_objects(bool paused);
 
@@ -231,12 +232,13 @@ public:
     st_rectangle get_player_hitbox();
     st_float_position get_foreground_postion();
     void set_foreground_postion(st_float_position pos);
-    void set_map_enemy_static_background(std::string filename);
+    bool must_show_static_bg();                                 // method used to prevent showing enemies on transition if showing static-bg
 
 private:
     void load_map_npcs();
 
     void draw_dynamic_backgrounds();
+    void draw_static_background();
 
     void draw_foreground_layer(int scroll_x, int scroll_y);
 
@@ -252,6 +254,8 @@ private:
     graphicsLib_gSurface* get_dynamic_bg();
 
     graphicsLib_gSurface* get_dynamic_foreground();
+    void set_map_enemy_static_background(std::string filename, st_position pos);
+
 
 
 public:
@@ -273,6 +277,7 @@ private:
     st_float_position bg_scroll;
     st_float_position fg_layer_scroll;
     graphicsLib_gSurface static_bg;
+    st_position static_bg_pos;
     short _platform_leave_counter;
     water_bubble _water_bubble;
     st_rectangle _3rd_level_ignore_area;

@@ -66,7 +66,7 @@ void stage::setNumber(int setNumber)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::loadStage() {
+void stage::load_stage() {
     //std::cout << "*************** stage::loadStage(" << number << ") ***************" << std::endl;
     if (number == -1) {
         graphLib.show_debug_msg("ERROR::stage::loadStage - stage number was not set, can't load it before setting the number");
@@ -99,7 +99,7 @@ void stage::loadStage() {
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-void stage::showStage()
+void stage::show_stage()
 {
     get_current_map()->show_map();
 }
@@ -217,7 +217,7 @@ void stage::move_map(const short int move_x, const short int move_y)
 
 void stage::reload_stage()
 {
-    loadStage();
+    load_stage();
 }
 
 void stage::print_map_objects_number()
@@ -227,7 +227,6 @@ void stage::print_map_objects_number()
 
 void stage::reset_current_map()
 {
-    set_map_enemy_static_background("");
     set_current_map(checkpoint.map);
     //std::cout << "STAGE::reset_current_map - currentMap: " << currentMap << std::endl;
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
@@ -264,6 +263,11 @@ void stage::move_npcs()
 void stage::show_npcs()
 {
     get_current_map()->show_npcs();
+}
+
+void stage::show_npcs_to_left(int x)
+{
+    get_current_map()->show_npcs_to_left(x);
 }
 
 void stage::move_objects(bool paused)
@@ -396,9 +400,9 @@ void stage::reset_stage_timers()
     }
 }
 
-void stage::set_map_enemy_static_background(string filename)
+bool stage::must_show_static_bg()
 {
-    get_current_map()->set_map_enemy_static_background(filename);
+    get_current_map()->must_show_static_bg();
 }
 
 void stage::check_map_effect()
