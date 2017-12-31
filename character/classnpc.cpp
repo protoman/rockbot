@@ -82,6 +82,10 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     if (is_ghost == true && can_fly == false) {
         is_ghost = false;
     }
+
+    if (is_static()) {
+        can_fly = true;
+    }
 }
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend) // spawned npc
@@ -102,6 +106,9 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     // can't have ghosts that don't fly
     if (is_ghost == true && can_fly == false) {
         is_ghost = false;
+    }
+    if (is_static()) {
+        can_fly = true;
     }
 }
 
@@ -261,6 +268,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     if (is_ghost == true && can_fly == false) {
         is_ghost = false;
     }
+    if (is_static()) {
+        can_fly = true;
+    }
+
 
     vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->vulnerable_area;
 }

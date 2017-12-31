@@ -590,6 +590,7 @@ std::vector<string> draw::create_engine_credits_text()
 
     credits_list.push_back("- PROGRAMMER -");
     credits_list.push_back("IURI FIEDORUK");
+    credits_list.push_back("FARLEY KNIGHT");
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
