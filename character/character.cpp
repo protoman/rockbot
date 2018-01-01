@@ -1370,7 +1370,7 @@ bool character::is_on_screen()
 
     scroll = gameControl.get_current_map_obj()->getMapScrolling();
 
-    // is on screen
+    // is on screen plus a bit more on both sides
     if (abs((float)position.x+frameSize.width*2) >= scroll.x && abs((float)position.x-frameSize.width*2) <= scroll.x+RES_W) {
         return true;
     }
