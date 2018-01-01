@@ -1375,6 +1375,12 @@ bool character::is_on_screen()
         return true;
     }
 
+
+    // regular enemies work only on a limited screen
+    if (is_stage_boss() == false) {
+        return false;
+    }
+
     // is on left of the screen
     if (abs((float)position.x) > scroll.x-RES_W/2 && abs((float)position.x) < scroll.x) {
         // check wall-lock on the range
@@ -1402,6 +1408,7 @@ bool character::is_on_screen()
             }
         }
         if (found_lock == false) {
+            std::cout << "CHAR::is_on_screen[" << name << "], x[" << position.x << "], map_point_start[" << map_point_start << "], map_point_end[" << map_point_end << "]" << std::endl;
             return true;
         }
         if (name == "Dynamite Bot") std::cout << ">>>> character::is_on_screen - right <<<<" << std::endl;

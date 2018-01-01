@@ -45,11 +45,7 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
     _initialized = false;
     _screen_blinked = false;
     _parent_id = -1;
-
-    // can't have ghosts that don't fly
-    if (is_ghost == true && can_fly == false) {
-        is_ghost = false;
-    }
+    is_ghost = false;
 }
 
 
@@ -79,10 +75,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     _screen_blinked = false;
     _parent_id = -1;
 
-    // can't have ghosts that don't fly
-    if (is_ghost == true && can_fly == false) {
-        is_ghost = false;
-    }
+    is_ghost = false;
 
     if (is_static()) {
         can_fly = true;
@@ -105,10 +98,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     _screen_blinked = false;
     _parent_id = -1;
 
-    // can't have ghosts that don't fly
-    if (is_ghost == true && can_fly == false) {
-        is_ghost = false;
-    }
+    is_ghost = false;
     if (is_static()) {
         can_fly = true;
     }
@@ -131,10 +121,7 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
     _screen_blinked = false;
     _parent_id = -1;
 
-    // can't have ghosts that don't fly
-    if (is_ghost == true && can_fly == false) {
-        is_ghost = false;
-    }
+    is_ghost = false;
 }
 
 
