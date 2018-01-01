@@ -1776,7 +1776,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
 
-    if (name == "SHIELD GROUND") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
+    //if (name == "SHIELD GROUND") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
         return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);

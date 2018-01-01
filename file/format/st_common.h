@@ -187,6 +187,21 @@ struct st_rectangle {
         }
         return false;
     }
+    bool operator==(const st_rectangle &comp_pt) const
+    {
+        if (x == comp_pt.x && y == comp_pt.y && w == comp_pt.w && h == comp_pt.h) {
+            return true;
+        }
+        return false;
+    }
+    bool operator!=(const st_rectangle &comp_pt) const
+    {
+        if (x != comp_pt.x || y != comp_pt.y || w != comp_pt.w && h != comp_pt.h) {
+            return true;
+        }
+        return false;
+    }
+
 };
 
 struct st_color {

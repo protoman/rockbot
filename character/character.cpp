@@ -2367,17 +2367,21 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     float w = frameSize.width;
     float h = frameSize.height;
 
+    if (vulnerable_area_box.x == 0 && vulnerable_area_box.y == 0 && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
+        std::cout << "#### DEFAULT hitbox" << std::endl;
+        return st_rectangle(0, 0, 0, 0);
+    }
+
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
-        std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
+        std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - pos[" << position.x << ", " << position.y << "], x[" << vulnerable_area_box.x << "], w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            x += vulnerable_area_box.x - 2;
+            x += vulnerable_area_box.x;
         } else {
             std::cout << "%%%%%%% RIGHT - pos.x[" << position.x << "], vulnerable_area_box.x[" << vulnerable_area_box.x << "], hitbox.x[" << x << "]" << std::endl;
-            //x = position.x - (frameSize.width - vulnerable_area_box.w) + vulnerable_area_box.x + 2;
-            x = position.x + frameSize.width - vulnerable_area_box.w + 2;
+            x = position.x + frameSize.width - vulnerable_area_box.w;
         }
         y += vulnerable_area_box.y;
-        w = vulnerable_area_box.w - 2;
+        w = vulnerable_area_box.w;
         h = vulnerable_area_box.h;
         //if (state.animation_type == ANIM_TYPE_SLIDE) { std::cout << "#### CHAR::get_vulnerable_area [" << name << "][" << x << "," << y << "," << w << "," << h << "]" << std::endl; }
         return st_rectangle(x, y, w, h);
