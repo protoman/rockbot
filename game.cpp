@@ -1079,26 +1079,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
             game_unpause();
             return;
         }
-
         loaded_stage.show_stage();
-		upTile = tileY;
-		for (i=tileY; i>=0; i--) {
-			if (temp_map->getMapPointLock(st_position(tileX, i)) == TERRAIN_DOOR) {
-				upTile = i;
-			} else {
-				break;
-			}
-		}
-		downTile = tileY;
-		for (i=tileY; i<MAP_H; i++) {
-			if (temp_map->getMapPointLock(st_position(tileX, i)) == TERRAIN_DOOR) {
-				downTile = i;
-			} else {
-				break;
-			}
-		}
-        soundManager.play_sfx(SFX_DOOR_OPEN);
-        loaded_stage.redraw_boss_door(false, (downTile-upTile+1), tileX, tileY, player1.get_number());//bool is_close, int nTiles, int tileX
 	}
 
 
@@ -1137,8 +1118,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         */
 	}
     if (is_door == true) {
-        soundManager.play_sfx(SFX_DOOR_OPEN);
-        loaded_stage.redraw_boss_door(true, (downTile-upTile+1), tileX, tileY, player1.get_number());
         remove_players_slide();
     }
     timer.delay(6);
