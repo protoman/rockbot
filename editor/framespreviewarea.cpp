@@ -51,6 +51,8 @@ void framesPreviewArea::paintEvent(QPaintEvent *) {
     QRectF target, source;
 	int i;
 
+
+
 	if (graphic_filename.find(".png") == std::string::npos) {
 		return;
 	}
@@ -81,6 +83,7 @@ void framesPreviewArea::paintEvent(QPaintEvent *) {
 
 
     if (image.isNull() == true || image.width() <= 0) {
+        std::cout << "IMG IS NULL" << std::endl;
         return;
     }
 
@@ -90,6 +93,9 @@ void framesPreviewArea::paintEvent(QPaintEvent *) {
 
     image_w = image.width();
     image_h = image.height();
+
+    std::cout << "image_w[" << image_w << "], image_h[" << image_h << "], img_grid_w[" << img_grid_w << "], img_grid_h[" << img_grid_h << "]" << std::endl;
+
     image = image.scaled(image.width()*2, image.height()*2);
     if (_bg_graphic_filename.length() > 0) {
 		this->resize(QSize(std::max(image.width(), bg_image.width())+1, std::max(image.height(), bg_image.height())+1));

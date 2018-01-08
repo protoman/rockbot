@@ -338,7 +338,8 @@ SOURCES += main.cpp \
     graphic/gfx_sin_wave.cpp \
     ports/android/android_game_services.cpp \
     character/character_animation.cpp \
-    aux_tools/exception_manager.cpp
+    aux_tools/exception_manager.cpp \
+    scenes/game_menu.cpp
 
 
 HEADERS += \
@@ -400,7 +401,8 @@ HEADERS += \
     graphic/gfx_sin_wave.h \
     ports/android/android_game_services.h \
     character/character_animation.h \
-    aux_tools/exception_manager.h
+    aux_tools/exception_manager.h \
+    scenes/game_menu.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

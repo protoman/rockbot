@@ -1431,6 +1431,7 @@ void game::show_demo_ending()
 
 void game::quick_load_game()
 {
+    GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
@@ -1869,7 +1870,8 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
 
 bool game::show_config(short finished_stage)
 {
-    if (scenes.show_main_config(finished_stage, true) == 1) {
+    game_menu menu;
+    if (menu.show_main_config(finished_stage, true) == 1) {
         input.clean();
         timer.delay(50);
         config_manager.disable_ingame_menu();

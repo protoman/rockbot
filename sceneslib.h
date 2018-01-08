@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "graphicslib.h"
+#include "scenes/game_menu.h"
 #include "file/fio_scenes.h"
 
 
@@ -24,7 +25,6 @@ public:
     short pick_stage(int last_stage);
     void boss_intro(Uint8 pos_n);
     void show_castle_boss_intro(Uint8 pos_n);
-    short show_main_config(short stage_finished, bool called_from_game);
     void show_cheats_menu();
     void game_scenes_show_unbeaten_intro();
     void show_game_scene(e_game_scenes_types n);
@@ -40,19 +40,7 @@ private:
     void unload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)
     void unload_stage_select();
 
-    // platform dependant configs
-    void show_config_android();
-    void show_config_video();
-    void show_config_video_PSP();
-    void show_config_wii();
-    void show_config_PS2();
-    void show_config_ask_restart();
-    void show_config_audio();
-    void show_config_language();
-    void show_config_performance();
-    void show_config_warning_android_play_services();
-    void show_config_warning_android_cloud_save();
-    void show_config_warning_android_hide_controls();
+
 
 
     void config_int_value(Uint8 &value_ref, int min, int max);
@@ -72,6 +60,7 @@ private:
 
     CURRENT_FILE_FORMAT::fio_scenes fio_scn;
     std::map<Uint8, Uint8> game_scenes_map;
+    game_menu menu;
 
 
 };

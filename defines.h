@@ -966,6 +966,7 @@ enum E_STRINGS_INGAME {
     strings_ingame_loadgame,
     strings_ingame_config,
     strings_ingame_about,
+    strings_ingame_extras,
     strings_ingame_password,
     strings_ingame_gameover,
     strings_ingame_and,
@@ -1023,6 +1024,11 @@ enum E_STRINGS_INGAME {
     strings_ingame_config_android_hide_controls1,
     strings_ingame_config_android_hide_controls2,
     strings_ingame_config_android_hide_controls3,
+
+    strings_ingame_config_extras_music_player,
+    strings_ingame_config_extras_sound_player,
+    strings_ingame_config_extras_art_gallery,
+
 
     strings_ingame_passwordinvalid,
     strings_ingame_pressstart,
@@ -1221,6 +1227,7 @@ enum e_LANGUAGES {
 };
 
 //#define SHOW_HITBOXES 1
+#define SHOW_VULNERABLE_AREAS 1
 
 #define DEMO_VERSION_STAGE1 4
 #define DEMO_VERSION_STAGE2 8

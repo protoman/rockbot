@@ -971,6 +971,10 @@ void character::show_at(st_position pos)
         graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     }
+#ifdef SHOW_VULNERABLE_AREAS
+    st_rectangle vulnerable_area = get_vulnerable_area();
+    graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 100);
+#endif
 }
 
 

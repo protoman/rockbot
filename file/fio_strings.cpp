@@ -185,6 +185,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_loadgame], "%s", "CARREGAR JOGO");
             sprintf(lines[strings_ingame_config], "%s", "CONFIG");
             sprintf(lines[strings_ingame_about], "%s", "SOBRE");
+            sprintf(lines[strings_ingame_extras], "%s", "EXTRAS");
             sprintf(lines[strings_ingame_password], "%s", "SENHA");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "E");
@@ -242,6 +243,11 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUER UM CONTROLE FÍSICO,");
             sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "CASO CONTRÁRIO NAO CONSEGUIRA");
             sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "RESTAURAR CONFIGURACOES.");
+
+            sprintf(lines[strings_ingame_config_extras_music_player], "%s", "PLAYER DE MÚSICA");
+            sprintf(lines[strings_ingame_config_extras_sound_player], "%s", "PLAYER DE EFEITOS SONOROS");
+            sprintf(lines[strings_ingame_config_extras_art_gallery], "%s", "GALERIA DE ARTE");
+
             sprintf(lines[strings_ingame_passwordinvalid], "%s", "SENHA INVALIDA");
             sprintf(lines[strings_ingame_pressstart], "%s", "APERTE START");
             sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
@@ -342,6 +348,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
             sprintf(lines[strings_ingame_config], "%s", "CONFIG");
             sprintf(lines[strings_ingame_about], "%s", "ABOUT");
+            sprintf(lines[strings_ingame_extras], "%s", "EXTRAS");
             sprintf(lines[strings_ingame_password], "%s", "PASSWORD");
             sprintf(lines[strings_ingame_gameover], "%s", "GAME OVER");
             sprintf(lines[strings_ingame_and], "%s", "AND");
@@ -398,6 +405,12 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUIRES PHYSICAL CONTROLLER.");
             sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "OTHERWISE YOU WON'T BE");
             sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "ABLE TO RESTORE SETTING");
+
+            sprintf(lines[strings_ingame_config_extras_music_player], "%s", "MUSIC PLAYER");
+            sprintf(lines[strings_ingame_config_extras_sound_player], "%s", "SFX PLAYER");
+            sprintf(lines[strings_ingame_config_extras_art_gallery], "%s", "ART GALLERY");
+
+
             sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
             sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
             sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");

@@ -7,8 +7,12 @@ using namespace std;
 
 #include "defines.h"
 
+#define LOAD_FILE_NUMBER_TRIES 4
+
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
+
+#include "aux_tools/stringutils.h"
 
 #include "inputlib.h"
 extern inputLib input;
@@ -259,6 +263,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 	SDL_RWops *rwop;
 	SDL_Surface *spriteCopy;
 
+    filename = StringUtils::clean_filename(filename);
     rwop = SDL_RWFromFile(filename.c_str(), "rb");
 
     if (!rwop) {
@@ -287,8 +292,12 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         return;
     }
     res->freeGraphic();
-    res->set_surface(SDLSurfaceFromFile(filename));
-
+    for (int i=0; i<LOAD_FILE_NUMBER_TRIES; i++) {
+        res->set_surface(SDLSurfaceFromFile(filename));
+        if (res->get_surface() != NULL) {
+            break;
+        }
+    }
     if (res->get_surface() == NULL) {
         std::cout << "surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
         _debug_msg_pos = 1;
