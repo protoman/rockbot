@@ -268,8 +268,8 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 
     if (!rwop) {
         std::cout << "DEBUG.SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
-		return NULL;
-	}
+            return NULL;
+    }
     spriteCopy = IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
         std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
@@ -292,6 +292,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         return;
     }
     res->freeGraphic();
+    // try a few times to load the file to prevent intermitent errors //
     for (int i=0; i<LOAD_FILE_NUMBER_TRIES; i++) {
         res->set_surface(SDLSurfaceFromFile(filename));
         if (res->get_surface() != NULL) {
@@ -308,7 +309,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         timer.delay(1000);
         show_debug_msg("EXIT #05");
         exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), filename);
-	} else {
+    } else {
         //std::cout << "surfaceFromFile - file: '" << filename << "'" << std::endl;
         res->width = res->get_surface()->w;
         res->height = res->get_surface()->h;
@@ -383,7 +384,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     //std::cout << "GRAPHLIB::copySDLPortion - surfaceOrigin.w[" << surfaceOrigin->w << "]" << std::endl;
 
     if (src.x >= surfaceOrigin->w || (src.x+src.w) > surfaceOrigin->w) {
-        printf(">> Invalid X portion src.x[%d], src.w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
+        //printf(">> Invalid X portion src.x[%d], src.w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion <<\n");
@@ -731,7 +732,7 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 {
     if (surface.width <= 0 || surface.get_surface() == NULL) {
-        std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring" << std::endl;
+        //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
 #endif
@@ -747,7 +748,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 {
     if (surface->width <= 0 || surface->get_surface() == NULL) {
-        std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[*] - invalid surface, ignoring" << std::endl;
+        //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[*] - invalid surface, ignoring" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
 #endif

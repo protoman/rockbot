@@ -69,6 +69,8 @@ STAGES:
     # dragon
         - sub-boss dragon: 98x47x3
 
+beast, valkyrie, gear, snow, dragon, kurupira, phanton, zodiac
+
 - inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
 -------------------------------------------

@@ -295,13 +295,13 @@ void game::set_player_position_teleport_in(int initial_pos_x)
 
 void game::show_player_teleport(int pos_x)
 {
-    std::cout << "GAME::show_player_telport #2" << std::endl;
+    //std::cout << "GAME::show_player_telport #2" << std::endl;
 
     // find ground for player
     set_player_position_teleport_in(pos_x);
     long end_time = timer.getTimer() + 1500;
 
-    std::cout << "GAME::show_player_telport #2" << std::endl;
+    //std::cout << "GAME::show_player_telport #2" << std::endl;
 
     while (timer.getTimer() < end_time) {
         loaded_stage.show_stage();
@@ -315,15 +315,15 @@ void game::show_player_teleport(int pos_x)
         timer.delay(20);
     }
 
-    std::cout << "GAME::show_player_telport #3" << std::endl;
+    //std::cout << "GAME::show_player_telport #3" << std::endl;
     player1.set_animation_frame(2);
     player1.show();
     draw_lib.update_screen();
     timer.delay(20);
-    std::cout << "GAME::show_player_telport #4" << std::endl;
+    //std::cout << "GAME::show_player_telport #4" << std::endl;
 
     show_ready();
-    std::cout << "GAME::show_player_telport #5" << std::endl;
+    //std::cout << "GAME::show_player_telport #5" << std::endl;
     // force stand to avoid gravity not doing it for any reason
     player1.set_animation_type(ANIM_TYPE_STAND);
 

@@ -212,6 +212,7 @@ public:
     virtual int get_armor_arms_attack_id();
     void remove_freeze_effect();
     void push_back(short direction);
+    void pull(short direction);
     bool get_can_fly();
     bool animation_has_restarted();
     void set_animation_has_restarted(bool restarted);

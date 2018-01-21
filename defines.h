@@ -443,6 +443,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_DOUBLE_DIAGONAL,                 // imperfect diagonal (only 45 degrees)
     TRAJECTORY_BOMB_RAIN,                       // creates small drop-bombs progressively
     TRAJECTORY_LARGE_BEAM,
+    TRAJECTORY_PULL,                            // pull player or enemies into shooter
 
 	PROJECTILE_TRAJECTORIES_COUNT };
 

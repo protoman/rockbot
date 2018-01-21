@@ -2379,16 +2379,16 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     float h = frameSize.height;
 
     if (vulnerable_area_box.x == 0 && vulnerable_area_box.y == 0 && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
-        std::cout << "#### DEFAULT hitbox" << std::endl;
+        //std::cout << "#### DEFAULT hitbox" << std::endl;
         return st_rectangle(0, 0, 0, 0);
     }
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
-        std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - pos[" << position.x << ", " << position.y << "], x[" << vulnerable_area_box.x << "], w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
+        //std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - pos[" << position.x << ", " << position.y << "], x[" << vulnerable_area_box.x << "], w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             x += vulnerable_area_box.x;
         } else {
-            std::cout << "%%%%%%% RIGHT - pos.x[" << position.x << "], vulnerable_area_box.x[" << vulnerable_area_box.x << "], hitbox.x[" << x << "]" << std::endl;
+            //std::cout << "%%%%%%% RIGHT - pos.x[" << position.x << "], vulnerable_area_box.x[" << vulnerable_area_box.x << "], hitbox.x[" << x << "]" << std::endl;
             x = position.x + frameSize.width - vulnerable_area_box.w;
         }
         y += vulnerable_area_box.y;
@@ -2397,7 +2397,7 @@ st_rectangle character::get_vulnerable_area(int anim_type)
         //if (state.animation_type == ANIM_TYPE_SLIDE) { std::cout << "#### CHAR::get_vulnerable_area [" << name << "][" << x << "," << y << "," << w << "," << h << "]" << std::endl; }
         return st_rectangle(x, y, w, h);
     } else {
-        std::cout << "CHAR::get_vulnerable_area[" << name << "] - DO NOT EXISTS" << std::endl;
+        //std::cout << "CHAR::get_vulnerable_area[" << name << "] - DO NOT EXISTS" << std::endl;
         return st_rectangle(0, 0, 0, 0);
     }
 
@@ -2594,6 +2594,8 @@ int character::is_executing_effect_weapon()
             return TRAJECTORY_CENTERED;
         } else if (move_type == TRAJECTORY_PUSH_BACK) {
             return TRAJECTORY_PUSH_BACK;
+        } else if (move_type == TRAJECTORY_PULL) {
+            return TRAJECTORY_PULL;
         }
     }
     return -1;
@@ -2634,6 +2636,20 @@ void character::push_back(short direction)
     }
 
     //std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;
+
+    if (test_change_position(xinc, 0)) {
+        position.x += xinc;
+    }
+}
+
+void character::pull(short direction)
+{
+    int xinc = (move_speed-0.2);
+    if (direction == ANIM_DIRECTION_LEFT) {
+        xinc = -(move_speed-0.2);
+    }
+
+    //std::cout << "CHAR::PULL - xinc: " << xinc << std::endl;
 
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
@@ -2780,7 +2796,7 @@ void character::clean_effect_projectiles()
         bool found_item = false;
         for (int i=0; i<projectile_list.size(); i++) {
             Uint8 move_type = projectile_list.at(i).get_move_type();
-            if (move_type == TRAJECTORY_QUAKE || move_type == TRAJECTORY_FREEZE || move_type == TRAJECTORY_CENTERED || move_type == TRAJECTORY_PUSH_BACK) {
+            if (move_type == TRAJECTORY_QUAKE || move_type == TRAJECTORY_FREEZE || move_type == TRAJECTORY_CENTERED || move_type == TRAJECTORY_PUSH_BACK || move_type == TRAJECTORY_PULL) {
                 found_item = true;
                 projectile_list.at(i).finish();
                 projectile_list.erase(projectile_list.begin()+i);

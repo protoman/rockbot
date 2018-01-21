@@ -507,6 +507,10 @@ void classnpc::move_projectiles()
                 //@TODO
                 push_back_players(!state.direction);
                 continue;
+            } else if ((*it).get_move_type() == TRAJECTORY_PULL) {
+                //@TODO
+                pull_players(!state.direction);
+                continue;
             }
 
             if ((*it).check_collision(player_hitbox, st_position(moved.width, moved.height)) == true) {

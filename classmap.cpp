@@ -1143,8 +1143,8 @@ bool classMap::subboss_alive_on_left(short tileX)
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
-        if (npc_ref->is_subboss() == true && npc_ref->is_dead() == false) {
-            std::cout << "Opa, achou um sub-boss!" << std::endl;
+        if ((npc_ref->is_boss() == true || npc_ref->is_subboss() == true) && npc_ref->is_dead() == false) {
+            std::cout << "Opa, achou um boss/sub-boss!" << std::endl;
             int dist_door_npc = tileX*TILESIZE - npc_ref->getPosition().x;
             std::cout << "dist_door_npc[" << dist_door_npc << "], NPC-pos.x: " << npc_ref->getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
             if (npc_ref->getPosition().x >= (tileX-20)*TILESIZE && npc_ref->getPosition().x <= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
