@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-CONFIG += linux
-#CONFIG += android
+#CONFIG += linux
+CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux

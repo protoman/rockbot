@@ -20,6 +20,10 @@ extern game gameControl;
 #include "timerlib.h"
 extern timerLib timer;
 
+#include "ports/android/android_game_services.h"
+extern android_game_services game_services;
+
+
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_game game_data;
