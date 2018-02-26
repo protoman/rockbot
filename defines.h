@@ -420,7 +420,7 @@ enum PROJECTILE_TRAJECTORIES {
 	TRAJECTORY_CHAIN,
 	TRAJECTORY_QUAKE,
 	TRAJECTORY_BOMB,
-	TRAJECTORY_FOLLOW,
+    TRAJECTORY_FOLLOW,                          // follow enemy
 	TRAJECTORY_PROGRESSIVE,
 	TRAJECTORY_FREEZE,
 	TRAJECTORY_DIAGONAL_UP,
@@ -444,7 +444,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_BOMB_RAIN,                       // creates small drop-bombs progressively
     TRAJECTORY_LARGE_BEAM,
     TRAJECTORY_PULL,                            // pull player or enemies into shooter
-
+    TRAJECTORY_SLASH,                           // stay in place, runs until animation finishes
 	PROJECTILE_TRAJECTORIES_COUNT };
 
 

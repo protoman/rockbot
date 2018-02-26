@@ -429,7 +429,7 @@ void classPlayer::attack(bool dont_update_colors)
         //std::cout << "weapon_id: " << weapon_id << ", projectile_id: " << game_data.weapons[weapon_id].id_projectile << std::endl;
 
         int weapon_trajectory = GameMediator::get_instance()->get_projectile(game_data.weapons[weapon_id].id_projectile).trajectory;
-        if (weapon_trajectory == TRAJECTORY_CENTERED) {
+        if (weapon_trajectory == TRAJECTORY_CENTERED || weapon_trajectory == TRAJECTORY_SLASH) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
         } else if (weapon_trajectory == TRAJECTORY_CHAIN) {
@@ -712,7 +712,7 @@ void classPlayer::execute_projectiles()
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                     std::cout << "### #3 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].intangible[TRUE]" << std::endl;
                     continue;
-                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING && (*it).get_vanishes_on_hit() == true) {
+                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING && (*it).get_trajectory() != TRAJECTORY_SLASH && (*it).get_vanishes_on_hit() == true) {
                     std::cout << "### #4 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].shielded[TRUE]" << std::endl;
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();

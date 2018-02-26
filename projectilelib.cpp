@@ -511,11 +511,25 @@ st_size projectile::move() {
             position.y += get_speed();
             moved.height += get_speed();
         }
+    } else if (_move_type == TRAJECTORY_SLASH) {
+        // follow owner position
+        if (_owner_position == NULL) {
+            std::cout << "ERROR: owner positoon NOT set in TRAJECTORY_SLASH projectile" << std::endl;
+        } else {
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x = _owner_position->x - 20;
+                position.y = _owner_position->y + 6;
+            } else {
+                position.x = _owner_position->x + 20;
+                position.y = _owner_position->y + 6;
+            }
+            if (_owner_direction != NULL) {
+                direction = *_owner_direction;
+            }
+        }
     } else if (_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) {
         move_ahead(moved);
         position.y += _diagonal_speed.y;
-
-
     } else if (_move_type == TRAJECTORY_ARC) {
         if (position.y < _size.height || position.y > RES_H) {
             is_finished = true;
@@ -904,6 +918,8 @@ void projectile::draw() {
 		//std::cout << "projectile::draw - RESET animation_pos" << std::endl;
         if (_move_type == TRAJECTORY_RING) { // ring will be kept at last two frames
             animation_pos = _max_frames-2;
+        } else if (_move_type == TRAJECTORY_SLASH) {
+            is_finished = true;
         } else {
             animation_pos = 0;
         }
@@ -1080,7 +1096,7 @@ Uint8 projectile::get_direction() const
 void projectile::reflect()
 {
     // if it is a bomb, don't reflect at all
-    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING) {
+    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_SLASH) {
         return;
     } else if (get_trajectory() == TRAJECTORY_LARGE_BEAM) {
         return;

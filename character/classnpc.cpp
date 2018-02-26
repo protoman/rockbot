@@ -514,7 +514,7 @@ void classnpc::move_projectiles()
             }
 
             if ((*it).check_collision(player_hitbox, st_position(moved.width, moved.height)) == true) {
-                if (gameControl.get_current_map_obj()->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                if (gameControl.get_current_map_obj()->_player_ref->is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING&& (*it).get_trajectory() != TRAJECTORY_SLASH) {
                     (*it).reflect();
                 } else if (gameControl.get_current_map_obj()->_player_ref->is_using_circle_weapon() == true) {
                     //std::cout << "consume_projectile #0" << std::endl;
@@ -541,7 +541,7 @@ void classnpc::move_projectiles()
 					//std::cout << "is_shielded::CALL 2" << std::endl;
                     if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                         continue;
-                    } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING) {
+                    } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING&& (*it).get_trajectory() != TRAJECTORY_SLASH) {
                         (*it).reflect();
 					} else {
                         gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage(), false);

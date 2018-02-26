@@ -1437,7 +1437,7 @@ void game::quick_load_game()
     }
 
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_4;
 
     /*
     // DEBUG //

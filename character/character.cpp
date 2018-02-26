@@ -801,7 +801,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
         int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
         temp_proj.set_owner(this);
-        if (proj_trajectory == TRAJECTORY_CENTERED) {
+        if (proj_trajectory == TRAJECTORY_CENTERED || proj_trajectory == TRAJECTORY_SLASH) {
             temp_proj.set_owner_direction(&state.direction);
             temp_proj.set_owner_position(&position);
 		}
