@@ -1,18 +1,22 @@
 #include "tab_text.h"
 #include "ui_tab_text.h"
 #include "../file/format.h"
-
+#include "common.h"
 
 TabText::TabText(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TabText)
 {
+    dataLoading = true;
     currentIndex = -1;
+    currentLanguage = LANGUAGE_ENGLISH;
 
     ui->setupUi(this);
 
+    common::fill_languages_combo(ui->languageComboBox);
 
     fill_data();
+    dataLoading = false;
 }
 
 TabText::~TabText()
@@ -33,7 +37,7 @@ void TabText::save_data(int n)
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         text_list.push_back(scene_text_list[i]);
     }
-    fio_str.write_scene_text_file(currentIndex, text_list, LANGUAGE_ENGLISH);
+    fio_str.write_scene_text_file(currentIndex, text_list, currentLanguage);
 }
 
 void TabText::reload()
@@ -65,7 +69,7 @@ void TabText::fill_data()
 
 void TabText::set_fields(int index)
 {
-    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index, LANGUAGE_ENGLISH);
+    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index, currentLanguage);
     for (int i=0; i<text_list.size(); i++) {
         scene_text_list[i] = text_list.at(i);
     }
@@ -234,4 +238,14 @@ void TabText::on_lineEdit6_textChanged(const QString &arg1)
     scene_text_list[5] = arg1.toStdString();
     ui->widget->set_selected_n(ui->select_comboBox->currentIndex(), scene_text_list);
     ui->widget->repaint();
+}
+
+void TabText::on_languageComboBox_currentIndexChanged(int index)
+{
+    if (dataLoading == true) {
+        return;
+    }
+    save_data();
+    currentLanguage = index;
+    set_fields(currentIndex);
 }

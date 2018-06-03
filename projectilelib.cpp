@@ -116,7 +116,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         _effect_n = 0;
         position0.x = position.x;
         position0.y = position.y;
-        int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2);
+        int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
         position.y = 0;
         std::cout << "Y: " << position.y << std::endl;
         _size.height = first_bottom_lock*TILESIZE + TILESIZE;

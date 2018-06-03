@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <climits>
 
 #include <SDL/SDL.h>				//Include da SDL
 #include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
@@ -175,6 +175,9 @@ public:
     void blank_screen();
     void blank_screen(int r, int g, int b);
     void blank_surface(struct graphicsLib_gSurface& surface);
+
+    std::string utf8_substr2(const std::string &str,int start, int length=INT_MAX);
+
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt);
     int draw_progressive_text(short int x, short int y, std::string text, bool interrupt, int delay);
     void draw_text(short int x, short int y, std::string text);

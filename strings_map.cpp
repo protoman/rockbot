@@ -19,7 +19,8 @@ strings_map *strings_map::get_instance()
 
 std::string strings_map::get_ingame_string(int n, int language)
 {
-    return fio_str.get_ingame_string(n, language, true);
+    std::string str_out = fio_str.get_ingame_string(n, language, true);
+    return str_out;
 }
 
 std::string strings_map::toupper(const std::string &s)

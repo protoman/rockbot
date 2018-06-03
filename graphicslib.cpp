@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+
 using namespace std;
 
 
@@ -807,6 +808,50 @@ void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
 
     SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
 }
+/*
+ * http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
+ * code snippets are licensed under Creative Commons CC-By-SA 3.0 (unless otherwise specified)
+*/
+std::string graphicsLib::utf8_substr2(const std::string &str, int start, int length)
+{
+    int i,ix,j,realstart,reallength;
+    if (length==0) return "";
+    if (start<0 || length <0)
+    {
+        //find j=utf8_strlen(str);
+        for(j=0,i=0,ix=str.length(); i<ix; i+=1, j++)
+        {
+            unsigned char c= str[i];
+            if      (c>=0   && c<=127) i+=0;
+            else if (c>=192 && c<=223) i+=1;
+            else if (c>=224 && c<=239) i+=2;
+            else if (c>=240 && c<=247) i+=3;
+            else if (c>=248 && c<=255) return "";//invalid utf8
+        }
+        if (length !=INT_MAX && j+length-start<=0) return "";
+        if (start  < 0 ) start+=j;
+        if (length < 0 ) length=j+length-start;
+    }
+
+    j=0,realstart=0,reallength=0;
+    for(i=0,ix=str.length(); i<ix; i+=1, j++)
+    {
+        if (j==start) { realstart=i; }
+        if (j>=start && (length==INT_MAX || j<=start+length)) { reallength=i-realstart; }
+        unsigned char c= str[i];
+        if      (c>=0   && c<=127) i+=0;
+        else if (c>=192 && c<=223) i+=1;
+        else if (c>=224 && c<=239) i+=2;
+        else if (c>=240 && c<=247) i+=3;
+        else if (c>=248 && c<=255) return "";//invalid utf8
+    }
+    if (j==start) { realstart=i; }
+    if (j>=start && (length==INT_MAX || j<=start+length)) { reallength=i-realstart; }
+
+    return str.substr(realstart,reallength);
+}
+
+
 
 void graphicsLib::blank_area(short int x, short int y, short int w, short int h) {
     clear_area(x, y, w, h, 0, 0, 0);
@@ -836,10 +881,9 @@ int graphicsLib::draw_progressive_text(short int x, short int y, string text, bo
 
 int graphicsLib::draw_progressive_text(short x, short y, string text, bool interrupt, int delay)
 {
-    UNUSED(interrupt);
     //SDL_Color font_color = {255,255,255};
     string temp_text;
-    char temp_char;
+    std::string temp_char;
     int text_x = 0;
     int text_y = 0;
     unsigned int i;
@@ -852,22 +896,26 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
 
     for (i=0; i<text.size(); i++) {
         input.read_input();
-        temp_char = text.at(i);
+        temp_char = utf8_substr2(text, i, 1);
 
         temp_text = "";
+
         temp_text += temp_char;
 
         draw_text(text_x*9+x, text_y*11+y, temp_text);
         text_x++;
-        if (temp_char == '\n') {
+        if (temp_char.length() > 0 && temp_char.at(0) == '\n') {
                 text_x = 0;
                 text_y++;
         }
         updateScreen();
-        if (input.wait_scape_time(delay) ==1) {
-            return 1;
+        if (interrupt == true) {
+            if (input.wait_scape_time(delay) ==1) {
+                return 1;
+            }
+        } else {
+            timer.delay(delay);
         }
-        //timer.delay(delay);
     }
     return 0;
 }

@@ -642,13 +642,12 @@ void EditorArea::paintEvent(QPaintEvent *) {
         }
 
 
-
+        // DRAW OBJECT TELEPORT CIRCLES
         for (int k=0; k<FS_STAGE_MAX_MAPS; k++) {
             for (int m=0; m<Mediator::get_instance()->maps_data_object_list.size(); m++) {
-                if (Mediator::get_instance()->maps_data_object_list[m].stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_npc_list[m].map_id != Mediator::get_instance()->currentMap) {
+                if (Mediator::get_instance()->maps_data_object_list[m].stage_id != Mediator::get_instance()->currentStage) {
                     continue; // only show enemies from current stage/map
                 }
-
                 CURRENT_FILE_FORMAT::file_map_object_v2 map_obj = Mediator::get_instance()->maps_data_object_list[m];
                 int obj_id = map_obj.id_object;
                 if (obj_id == -1 || obj_id >= Mediator::get_instance()->object_list.size()) { // old format style or invalid object
@@ -656,12 +655,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 }
 
                 // draw teleport destiny links
-                //std::cout << "OBJ[" << i << "].map_dest: " << (int)map_obj.map_dest << ", currentMap: " << k << std::endl;
+                std::cout << "OBJ[" << i << "].map_dest: " << (int)map_obj.map_dest << ", currentMap: " << k << std::endl;
                 if (map_obj.map_dest == Mediator::get_instance()->currentMap) {
 
-
-
-                    //std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)map_obj.link_dest.x << ", y: " << (int)map_obj.link_dest.y << std::endl;
+                    std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)map_obj.link_dest.x << ", y: " << (int)map_obj.link_dest.y << std::endl;
 
                     if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));
@@ -1016,7 +1013,8 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
                 new_obj.difficulty_mode = Mediator::get_instance()->currentDifficultyMode;
                 editor_selected_object_pos_map = Mediator::get_instance()->currentMap;
                 // se item é teleportador, deve entrar no modo de colocar link de object
-                if (Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type == OBJ_BOSS_TELEPORTER || Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type == OBJ_FINAL_BOSS_TELEPORTER) {
+                int obj_type = Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type;
+                if (obj_type == OBJ_BOSS_TELEPORTER || obj_type == OBJ_FINAL_BOSS_TELEPORTER || obj_type == OBJ_PLATFORM_TELEPORTER) {
                     editor_selected_object_pos = Mediator::get_instance()->maps_data_object_list.size();
                     std::cout << "SET editor_selected_object_pos: " << editor_selected_object_pos << std::endl;
                     Mediator::get_instance()->editTool = EDITMODE_OBJECT_LINK_PLACING;

@@ -46,6 +46,8 @@ private slots:
 
     void on_lineEdit6_textChanged(const QString &arg1);
 
+    void on_languageComboBox_currentIndexChanged(int index);
+
 public slots:
 
 
@@ -63,6 +65,8 @@ private:
     bool data_loading;
     std::string scene_text_list[SCENE_TEXT_LINES_N];
     int currentIndex;
+    int currentLanguage;
+    bool dataLoading;
 };
 
 #endif // TEXT_H

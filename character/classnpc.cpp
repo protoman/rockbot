@@ -42,7 +42,7 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 	clean_projectiles();
     facing = 0;
     _is_spawn = false;
-    _initialized = false;
+    _initialized = 0;
     _screen_blinked = false;
     _parent_id = -1;
     is_ghost = false;
@@ -71,7 +71,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
         std::cout << "NPC[" << name << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
     }
     _is_spawn = false;
-    _initialized = false;
+    _initialized = 0;
     _screen_blinked = false;
     _parent_id = -1;
 
@@ -94,7 +94,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     position.x = npc_pos.x;
     position.y = npc_pos.y;
     _is_spawn = true;
-    _initialized = false;
+    _initialized = 0;
     _screen_blinked = false;
     _parent_id = -1;
 
@@ -117,7 +117,7 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
 	add_graphic();
     facing = 0;
     _is_spawn = false;
-    _initialized = false;
+    _initialized = 0;
     _screen_blinked = false;
     _parent_id = -1;
 
@@ -417,11 +417,14 @@ void classnpc::boss_move()
     move_projectiles();
     bool is_static_boss = is_static();
 
-    if (is_on_visible_screen() && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
+    if (is_entirely_on_screen() == true && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss);
         // set temp-background in map
+        return;
+    } else if (is_entirely_on_screen() == false && is_on_screen() == true &&  _initialized == 0 && _is_boss == true) {
+        fall_to_ground();
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
 #ifdef ANDROID
@@ -663,11 +666,9 @@ void classnpc::set_is_boss(bool set_boss)
         _screen_blinked = false;
         // only set initial y if not fixed position type
         if (is_static() == false) {
-            _ai_state.initial_position.y = -(frameSize.height+1);
-            position.y = _ai_state.initial_position.y;
-            std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
+            fall_to_ground();
+            _ai_state.initial_position.y = position.y;
         } else {
-            std::cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << std::endl;
             position.y = start_point.y;
         }
         hitPoints.total = BOSS_INITIAL_HP;

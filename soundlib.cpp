@@ -177,10 +177,6 @@ void soundLib::load_all_sfx() {
 	sfx_list[i] = Mix_LoadWAV(filename.c_str());
 	i++;
 
-    filename = FILEPATH + "sfx/skull_castle_intro.wav";
-	sfx_list[SFX_SKULL_CASTLE_INTRO] = Mix_LoadWAV(filename.c_str());
-	i++;
-
     filename = FILEPATH + "sfx/charged_shot.wav";
 	sfx_list[SFX_PLAYER_CHARGED_SHOT] = Mix_LoadWAV(filename.c_str());
 	i++;

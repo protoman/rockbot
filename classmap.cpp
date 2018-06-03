@@ -954,12 +954,12 @@ int classMap::get_first_lock_on_right(int x_pos) const
 }
 
 // gets the first tile locked that have at least 3 tiles unlocked above it
-int classMap::get_first_lock_on_bottom(int x_pos)
+int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 {
-    return get_first_lock_on_bottom(x_pos, TILESIZE, TILESIZE*3);
+    return get_first_lock_on_bottom(x_pos, y_pos, TILESIZE, TILESIZE*3);
 }
 
-int classMap::get_first_lock_on_bottom(int x_pos, int w, int h)
+int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
@@ -971,7 +971,12 @@ int classMap::get_first_lock_on_bottom(int x_pos, int w, int h)
         right_tiles_to_test = 1;
     }
 
-    for (int i=MAP_H-1; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
+    int initial_y = MAP_H-1;
+    if (y_pos >= 0) {
+        initial_y = y_pos;
+    }
+
+    for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
 
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
@@ -1400,6 +1405,9 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
     if (obj_type == OBJ_BOSS_TELEPORTER) {
         return true;
     }
+    if (obj_type == OBJ_PLATFORM_TELEPORTER) {
+        return true;
+    }
     if (obj_type == OBJ_SPECIAL_TANK) {
         return true;
     }
@@ -1517,7 +1525,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         temp_obj.start();
                     }
                     checkpoint.x = charObj->getPosition().x;
-                    checkpoint.y = charObj->getPosition().y/TILESIZE;
+                    checkpoint.y = (charObj->getPosition().y+charObj->get_size().height-1)/TILESIZE;
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;

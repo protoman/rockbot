@@ -72,6 +72,7 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("JUMP ATTACK [AHEAD]");
     AI_ACTION_NAMES.push_back("WAIT TIME [RANDOM]");
     AI_ACTION_NAMES.push_back("MORPH INTO");
+    AI_ACTION_NAMES.push_back("PLAY SOUND EFFECT");
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
     AI_ACTION_SHOT_OPTIONS.push_back("AHEAD");
@@ -134,6 +135,7 @@ void init_enum_names() {
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("LEFT");
     AI_ACTION_GRAB_WALL_OPTIONS.push_back("RIGHT");
     // -------------------------------------------------------------- //
+
     ANIMATION_TYPE_LIST.push_back("STAND");
     ANIMATION_TYPE_LIST.push_back("WALK");
     ANIMATION_TYPE_LIST.push_back("JUMP");

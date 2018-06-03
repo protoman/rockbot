@@ -199,7 +199,7 @@ public:
     bool show_config(short finished_stage);
     void show_savegame_error();
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
-    void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id);
+    void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return);
     void remove_current_teleporter_from_list(); // used when player dies
     void select_game_screen();
     std::string get_selected_game();
@@ -224,8 +224,8 @@ private:
     bool check_player_is_on_teleport(classPlayer *test_player, int currentMap, int temp_x, int temp_y, int link_n, int transition_type, int &teleport_count, int &teleporter_dist, int &player_x, int &link_type);
     bool is_link_teleporter(int type);
     void start_stage();
-    void set_player_position_teleport_in(int initial_pos_x);
-    void show_player_teleport(int pos_x);
+    void set_player_position_teleport_in(int initial_pos_x, int initial_pos_y);
+    void show_player_teleport(int pos_x, int pos_y);
 
 
     void show_ready();

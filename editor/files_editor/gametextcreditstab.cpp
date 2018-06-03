@@ -69,8 +69,8 @@ void GameTextCreditsTab::save_data()
       game_credits_data.push_back(str.toStdString());
     }
 
-    fio_str.write_string_list_to_file(game_credits_data, FILEPATH + "/game_credits.txt");
-    fio_str.write_string_list_to_file(boss_credits_data, FILEPATH + "/boss_credits.txt");
+    fio_str.save_game_strings(game_credits_data, FILEPATH + "/game_credits.txt");
+    fio_str.save_game_strings(boss_credits_data, FILEPATH + "/boss_credits.txt");
 }
 
 void GameTextCreditsTab::on_bossCredits_lineEdit1_textChanged(const QString &arg1)

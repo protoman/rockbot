@@ -239,6 +239,11 @@
             <string>Boss Door</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Platform Teleporter</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

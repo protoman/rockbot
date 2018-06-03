@@ -40,7 +40,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _reaction_type = 0;
     _last_jump_yinc = 0;
     _check_always_move_ahead = true;
-    _initialized = false;
+    _initialized = 0;
     _ai_state.main_status = 0;
     _parameter = 0;
     _show_reset_stand = false;
@@ -181,8 +181,8 @@ void artificial_inteligence::check_ai_reaction()
 
 void artificial_inteligence::define_ai_next_step()
 {
-    if (_initialized == false || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
-        _initialized = true;
+    if (_initialized == 0 || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
+        _initialized = 1;
         int rand_n = rand() % 100;
 
 
@@ -1945,7 +1945,7 @@ int artificial_inteligence::find_wall(float initial_x, int direction)
     } else if (direction == ANIM_DIRECTION_RIGHT) {
         pos_x = gameControl.get_current_map_obj()->get_first_lock_on_right(ini_x);
     } else if (direction == ANIM_DIRECTION_UP) {
-        pos_x = gameControl.get_current_map_obj()->get_first_lock_on_bottom(ini_x);
+        pos_x = gameControl.get_current_map_obj()->get_first_lock_on_bottom(ini_x, -1);
     } else if (direction == ANIM_DIRECTION_DOWN) {
         pos_x = gameControl.get_current_map_obj()->get_first_lock_on_right(ini_x);
     }
@@ -2197,6 +2197,8 @@ void artificial_inteligence::ia_action_teleport()
 
         if (state.animation_type != ANIM_TYPE_TELEPORT) { /// @TODO - must use teleport
             std::cout << ">> AI::ia_action_teleport(INIT) - set anim_type to ANIM_TYPE_TELEPORT <<" << std::endl;
+            // remove all projectiles, so we don't end with a circle one around an emey that moved
+            clean_effect_projectiles();
             set_animation_type(ANIM_TYPE_TELEPORT);
         } else {
             if (_is_last_frame == true) { // finished teleport animation

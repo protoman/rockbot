@@ -22,6 +22,8 @@ extern timerLib timer;
 
 #include "aux_tools/exception_manager.h"
 
+extern CURRENT_FILE_FORMAT::st_game_config game_config;
+
 sceneShow::sceneShow()
 {
     _interrupt_scene = false;
@@ -82,7 +84,7 @@ void sceneShow::show_scene(int n)
             } else {
                 std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
-            std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
+            //std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
             if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
                 _interrupt_scene = true;
             }
@@ -272,7 +274,7 @@ void sceneShow::run_text(int n)
 
 
     std::vector<std::string> text_lines;
-    std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, LANGUAGE_ENGLISH);
+    std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, game_config.selected_language);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
 
         std::string line = scene_text_list[i];
@@ -331,7 +333,7 @@ void sceneShow::run_text(int n)
     }
     // clear text area
     int max_h = lines.size()*SCENES_LINE_H_DIFF;
-    std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
+    //std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
     graphLib.clear_area(pos_x, pos_y, RES_W, max_h, 0, 0, 0);
 
 
@@ -433,7 +435,7 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
             }
         }
         graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
-        std::cout << "x[" << x << "], img.w[" << image.width << "], frame.w[" << scene.frame_w << "]" << std::endl;
+        //std::cout << "x[" << x << "], img.w[" << image.width << "], frame.w[" << scene.frame_w << "]" << std::endl;
         graphLib.showSurfaceRegionAt(&image, st_rectangle(x, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
         graphLib.updateScreen();
         timer.delay(scene.frame_delay);

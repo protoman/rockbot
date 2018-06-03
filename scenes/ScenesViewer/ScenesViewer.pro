@@ -24,7 +24,7 @@ TARGET = scenesviewer
 
 
 linux {
-        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf `sdl-config --libs`
+        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs`
 
         INCLUDES = -I/usr/include/SDL \
                 -I/usr/include \
@@ -43,7 +43,7 @@ win32 {
         LIBS =  -lSDL_mixer \
                 -lSDL_image \
                 -lSDL_ttf \
-                -lmingw32 -lSDL -mwindows \
+                -lmingw32 -lSDL_gfx -lSDL -mwindows \
                 -LC:\Qt\5.5\mingw492_32\lib
 
 
@@ -74,7 +74,8 @@ SOURCES += main.cpp \
     ../../aux_tools/stringutils.cpp \
     ../../file/fio_strings.cpp \
     ../../game_mediator.cpp \
-    ../../file/fio_common.cpp
+    ../../file/fio_common.cpp \
+    ../../aux_tools/exception_manager.cpp \
 
 HEADERS += \
     ../../graphicslib.h \
@@ -97,4 +98,5 @@ HEADERS += \
     ../../aux_tools/stringutils.h \
     ../../file/fio_strings.h \
     ../../game_mediator.h \
-    ../../file/fio_common.h
+    ../../file/fio_common.h \
+    ../../aux_tools/exception_manager.h

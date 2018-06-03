@@ -44,7 +44,6 @@ public:
 
     // === GENERIC FROM-FILE STRINGS === //
     std::vector<std::string> get_string_list_from_file(std::string filename);
-    void write_string_list_to_file(std::vector<std::string> list, std::string filename);
 
 
     // === scenes string files === //

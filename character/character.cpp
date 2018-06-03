@@ -1439,6 +1439,22 @@ bool character::is_on_visible_screen()
     return false;
 }
 
+bool character::is_entirely_on_screen()
+{
+    if (gameControl.get_current_map_obj() == NULL) { // used ins scenes
+        return true;
+    }
+    st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
+
+    if (abs((float)position.x + frameSize.width) >= scroll.x+TILESIZE && abs((float)position.x+(float)frameSize.width) < scroll.x+RES_W-TILESIZE) {
+        if (!is_player()) {
+            //std::cout << "CHAR::is_on_visible_screen - pos.x[" << position.x << "], w[" << frameSize.width << "], scroll.x[" << scroll.x << "]" << std::endl;
+        }
+        return true;
+    }
+    return false;
+}
+
 bool character::is_invisible() const
 {
 	return state.invisible;
@@ -1939,13 +1955,17 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         // deal with teleporter object that have special block-area and effect (9)teleporting)
         if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
 
-            //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "]" << std::endl;
+            std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                     state.direction = ANIM_DIRECTION_RIGHT;
-                    gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id());
+                    gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), true);
                 }
+            // platform teleporter is just a base where player can step in to teleport
+            } else if (res_collision_object._object->get_type() == OBJ_PLATFORM_TELEPORTER && is_on_teleport_platform(res_collision_object._object) == true) {
+                state.direction = ANIM_DIRECTION_RIGHT;
+                gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
                 // do nothing
@@ -2174,7 +2194,27 @@ bool character::is_on_teleporter_capsulse(object *object)
         int limit_min = object->get_position().x + obj_center_diff;
         int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
         int px = position.x + frameSize.width/2;
-        //std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
+        std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
+        if (px > limit_min && px < limit_max) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool character::is_on_teleport_platform(object *object)
+{
+    // check if player is above platform
+    int obj_y = object->get_position().y;
+    int py = position.y + frameSize.height;
+    if (py-obj_y <= 2) {
+        // só teleporta quando estiver no centro (1 TILE), caso contrário, ignora block
+        double abs_value = TILESIZE/2 - object->get_size().width;
+        int obj_center_diff = abs(abs_value)/2;
+        int limit_min = object->get_position().x + obj_center_diff;
+        int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
+        int px = position.x + frameSize.width/2;
+        std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
         if (px > limit_min && px < limit_max) {
             return true;
         }
@@ -3013,14 +3053,19 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
+    std::cout << "################## CHAR::fall_to_ground START" << std::endl;
     _obj_jump.finish();
+    if (hit_ground() == true) {
+        return;
+    }
     for (int i=0; i<RES_H; i++) {
         char_update_real_position();
-        //gravity(true);
         position.y++;
         if (position.y >= RES_H/2 && hit_ground() == true) {
-            std::cout << "################## CHAR::fall_to_ground y[" << position.y << "]" << std::endl;
+            std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
             return;
+        } else {
+            std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
         }
     }
     std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;

@@ -205,7 +205,7 @@ void scenesLib::main_screen()
                 main_picker.draw();
             }
         } else if (picked_n == 1) { // LOAD GAME //
-            short selected_save = select_save(true);
+            short selected_save = select_save(false);
             if (selected_save != -1) {
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
@@ -498,7 +498,6 @@ void scenesLib::show_enemies_ending()
             stage_boss_id_list.insert(temp_data);
         }
     }
-
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
         if (GameMediator::get_instance()->get_enemy(i)->id == -1) {
             continue;
@@ -571,15 +570,22 @@ void scenesLib::show_bosses_ending()
 
         // 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
-        graphLib.draw_centered_text(170, boss_credits_data.at(i*3));
+        std::string boss_n = boss_credits_data.at(i*4) + ":";
+        std::string concept = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
+        std::string design = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
+        int delay = 60;
+
+        graphLib.draw_progressive_text(5, 170, boss_n, false, delay);
+        graphLib.draw_progressive_text(90, 170, boss_credits_data.at(i*4+1), false, delay);
         draw_lib.update_screen();
-        graphLib.draw_centered_text(185, boss_credits_data.at(i*3+1));
+
+        graphLib.draw_progressive_text(5, 185, concept.c_str(), false, delay);
+        graphLib.draw_progressive_text(90, 185, boss_credits_data.at(i*4+2), false, delay);
         draw_lib.update_screen();
-        graphLib.draw_centered_text(201, boss_credits_data.at(i*3+2));
+        graphLib.draw_progressive_text(5, 201, design.c_str(), false, delay);
+        graphLib.draw_progressive_text(90, 201, boss_credits_data.at(i*4+3), false, delay);
         draw_lib.update_screen();
-        //graphLib.draw_progressive_text(130, 164, boss_credits_data.at(i*3), false, 20);
-        //graphLib.draw_progressive_text(130, 175, boss_credits_data.at(i*3+1), false, 20);
-        //graphLib.draw_progressive_text(130, 186, boss_credits_data.at(i*3+2), false, 20);
+
         timer.delay(2000);
     }
 

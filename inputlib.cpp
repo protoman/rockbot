@@ -491,11 +491,13 @@ int inputLib::wait_scape_time(int wait_period) {
 			return 1;
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
         } else if (p1_input[BTN_QUIT] == 1) {
+            /*
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 SDL_Quit();
                 exit(0);
             }
+            */
 #endif
 		}
         now_time = timer.getTimer();

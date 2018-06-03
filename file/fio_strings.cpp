@@ -101,6 +101,7 @@ namespace format_v4 {
                 }
                 StringUtils::replace_all(str, "\\xC9", "é");
             }
+            std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
             res.push_back(str);
         }
 
@@ -137,7 +138,7 @@ namespace format_v4 {
             return;
         }
 
-        for (int i=0; i<list.size(); i++) {
+        for (uint i=0; i<list.size(); i++) {
             // add line break to separate each line
             std::string line = list.at(i);
             // if there are any remaining extra chars, remove it
@@ -343,6 +344,9 @@ namespace format_v4 {
             sprintf(lines[string_intro_demo_warning10], "%s", "DESENVOLVIDO NO TEMPO PESSOAL LIVRE.");
             sprintf(lines[string_intro_demo_warning11], "%s", "DIVIRTA-SE COM A DEMONSTRAÇÃO!");
             sprintf(lines[string_press_key_or_button], "%s", "APERTE UM BOTÃO/TECLA PARA CONTINUAR");
+            sprintf(lines[STRING_ENDING_CONCEPT], "%s", "CONCEITO");
+            sprintf(lines[STRING_ENDING_DESIGN], "%s", "DESENHO");
+
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -507,6 +511,8 @@ namespace format_v4 {
             sprintf(lines[string_intro_demo_warning10], "%s", "PERSONAL FREE TIME.");
             sprintf(lines[string_intro_demo_warning11], "%s", "HAVE FUN WITH THE DEMONSTRATION!");
             sprintf(lines[string_press_key_or_button], "%s", "PRESS A KEY/BUTTON TO CONTINUE.");
+            sprintf(lines[STRING_ENDING_CONCEPT], "%s", "CONCEPT");
+            sprintf(lines[STRING_ENDING_DESIGN], "%s", "DESIGN");
 
 
         }
@@ -662,7 +668,8 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(filename.c_str());
+        std::ifstream fp(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        //fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
 
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
@@ -681,36 +688,82 @@ namespace format_v4 {
         return res;
     }
 
-    void fio_strings::write_string_list_to_file(std::vector<std::string> list, std::string filename)
-    {
-        std::ofstream fp(filename.c_str());
-        if (!fp.is_open()) {
-            std::cout << ">> fio_strings::create_default_ingame_strings: Could not open '" << filename << "' for writting." << std::endl;
-            return;
-        }
 
-        for (int i=0; i<list.size(); i++) {
-            // add line break to separate each line
-            std::string line = list.at(i);
-            // if there are any remaining extra chars, remove it
-            StringUtils::replace_all(line, "\n", "");
-            StringUtils::replace_all(line, "\r", "");
-
-            line += std::string("\n");
-            fp << line.c_str();
-        }
-        fp.close();
-    }
 
     std::vector<std::string> fio_strings::get_string_list_from_scene_text_file(int text_scene_n, int language)
     {
         std::vector<std::string> text_list;
         char file_chr[255];
 
+        /*
+        std::vector<std::string> res;
+        filename = StringUtils::clean_filename(filename);
+        std::ifstream fp(filename.c_str());
+
+        if (!fp.is_open()) {
+            std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
+            if (filename == get_game_strings_filename(language)) {
+                create_default_ingame_strings();
+            } else if (filename == get_common_strings_filename(language)) {
+                create_default_common_strings();
+            }
+            fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+            if (!fp.is_open()) {
+                std::cout << "[WARNING] file_io::load_game_strings - Critical error, can't open' '" << filename << "' for reading." << std::endl;
+            }
+        }
+
+        std::string str;
+        while (getline(fp, str)) {
+            if (str.length() > 0) {
+                StringUtils::replace_all(str, "\n", "");
+                StringUtils::replace_all(str, "\r", "");
+                std::string str2 = "\\xC9";
+                if (str.find(str2) != -1) {
+                    str.replace(str.find(str2), str2.length(),"é");
+                }
+                StringUtils::replace_all(str, "\\xC9", "é");
+            }
+            res.push_back(str);
+        }
+
+
+        fp.close();
+        */
+
+
         sprintf(file_chr, "%d.txt", text_scene_n);
-        std::string filename = FILEPATH + "scenes/text/" + std::string(file_chr);
+        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
+        filename = StringUtils::clean_filename(filename);
+        // if does not have language, try default english
+        if (!file_exists(filename) && language != LANGUAGE_ENGLISH) {
+            std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>> try another language" << std::endl;
+            filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(LANGUAGE_ENGLISH) + "/" + std::string(file_chr);
+            filename = StringUtils::clean_filename(filename);
+        }
         if (file_exists(filename)) {
-            text_list = get_string_list_from_file(filename);
+            //text_list = get_string_list_from_file(filename);
+            std::ifstream fp(filename.c_str());
+            std::string str;
+            while (getline(fp, str)) {
+                if (str.length() > 0) {
+                    StringUtils::replace_all(str, "\n", "");
+                    StringUtils::replace_all(str, "\r", "");
+                    std::string str2 = "\\xC9";
+                    if (str.find(str2) != -1) {
+                        str.replace(str.find(str2), str2.length(),"é");
+                    }
+                    StringUtils::replace_all(str, "\\xC9", "é");
+                }
+                std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
+                text_list.push_back(str);
+            }
+
+        }
+        for (int i=0; i<text_list.size(); i++) {
+            std::cout << "scene.text.original[" << text_list.at(i) << "]" << std::endl;
+            //text_list.at(i) = convert_text_symbols(text_list.at(i));
+            //std::cout << "scene.text.converted[" << text_list.at(i) << "]" << std::endl;
         }
         // fill empty spaces
         if (text_list.size() < SCENE_TEXT_LINES_N) {
@@ -727,7 +780,7 @@ namespace format_v4 {
         char file_chr[255];
 
         sprintf(file_chr, "%d.txt", text_scene_n);
-        std::string filename = FILEPATH + "scenes/text/" + std::string(file_chr);
+        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
         // fill empty spaces
         if (list.size() < SCENE_TEXT_LINES_N) {
             for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {
@@ -735,7 +788,7 @@ namespace format_v4 {
             }
         }
 
-        write_string_list_to_file(list, filename);
+        save_game_strings(list, filename);
 
     }
 

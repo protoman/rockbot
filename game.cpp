@@ -268,7 +268,7 @@ void game::start_stage()
     }
     loaded_stage.add_autoscroll_delay();
 
-    show_player_teleport(PLAYER_INITIAL_X_POS);
+    show_player_teleport(PLAYER_INITIAL_X_POS, -1);
     if (!game_save.stages[currentStage]) {
         game_dialogs.show_stage_dialog(currentStage);
     }
@@ -279,9 +279,9 @@ void game::start_stage()
 
 }
 
-void game::set_player_position_teleport_in(int initial_pos_x)
+void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 {
-    int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, player1.get_size().width, player1.get_size().height);
+    int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, initial_pos_y, player1.get_size().width, player1.get_size().height);
 
     std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
 
@@ -293,12 +293,12 @@ void game::set_player_position_teleport_in(int initial_pos_x)
     std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::DONE" << std::endl;
 }
 
-void game::show_player_teleport(int pos_x)
+void game::show_player_teleport(int pos_x, int pos_y)
 {
     //std::cout << "GAME::show_player_telport #2" << std::endl;
 
     // find ground for player
-    set_player_position_teleport_in(pos_x);
+    set_player_position_teleport_in(pos_x, pos_y);
     long end_time = timer.getTimer() + 1500;
 
     //std::cout << "GAME::show_player_telport #2" << std::endl;
@@ -383,9 +383,9 @@ void game::restart_stage()
     soundManager.restart_music();
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
-        show_player_teleport(PLAYER_INITIAL_X_POS);
+        show_player_teleport(PLAYER_INITIAL_X_POS, -1);
     } else {
-        show_player_teleport(checkpoint.x);
+        show_player_teleport(checkpoint.x, checkpoint.y);
     }
 
     while (player1.get_anim_type() == ANIM_TYPE_TELEPORT) {
@@ -1471,7 +1471,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    //show_ending();
+    show_ending();
 
     scenes.boss_intro(currentStage);
 
@@ -1840,15 +1840,16 @@ classMap *game::get_current_map_obj()
     return loaded_stage.get_current_map();
 }
 
-void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id)
+void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return)
 {
-
     // checa se já foi usado
     if (_last_stage_used_teleporters.find(teleporter_id) != _last_stage_used_teleporters.end()) {
         return;
     }
     std::cout << "############################################ TELEPORT #2" << std::endl;
-    set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
+    if (must_return) {
+        set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
+    }
     draw_lib.fade_out_screen(0, 0, 0, 500);
     draw_lib.update_screen();
     timer.delay(500);
@@ -1858,7 +1859,13 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     int new_scroll_pos = loaded_stage.get_first_lock_on_left(dest_pos.x);
     loaded_stage.set_scrolling(st_float_position(new_scroll_pos, 0));
     classPlayer* test_player = &player1;
-    test_player->set_position(st_position(dest_pos.x*TILESIZE, 0));
+    int pos_y = loaded_stage.get_current_map()->get_first_lock_on_bottom(dest_pos.x*TILESIZE, dest_pos.y*TILESIZE, test_player->get_size().width, test_player->get_size().height);
+    if (pos_y < 0 || pos_y > RES_H/TILESIZE) {
+        pos_y = 0;
+    }
+    // adjust to avoid getting stuck into ground
+    pos_y--;
+    test_player->set_position(st_position(dest_pos.x*TILESIZE, pos_y*TILESIZE));
     test_player->char_update_real_position();
 
     loaded_stage.get_current_map()->reset_scrolled();
