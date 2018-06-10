@@ -1965,6 +1965,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             // platform teleporter is just a base where player can step in to teleport
             } else if (res_collision_object._object->get_type() == OBJ_PLATFORM_TELEPORTER && is_on_teleport_platform(res_collision_object._object) == true) {
                 state.direction = ANIM_DIRECTION_RIGHT;
+                soundManager.play_sfx(SFX_TELEPORT);
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
@@ -3331,7 +3332,27 @@ void character::set_animation_type(ANIM_TYPE type)
             }
         }
     }
-    state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
+    int frame_delay = 20;
+    if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
+        st_char_sprite_data sprite_data = graphLib.character_graphics_list.find(name)->second;
+
+        std::cout << "set_animation_type::state.direction[" << (int)state.direction << "]" << std::endl;
+        std::cout << "set_animation_type::state.animation_type[" << state.animation_type << "]" << std::endl;
+        std::cout << "set_animation_type::state.animation_state[" << state.animation_state << "]" << std::endl;
+
+        if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
+            state.direction = 0;
+        }
+        if (state.animation_type >= ANIM_TYPE_COUNT) {
+            state.animation_type = 0;
+        }
+        if (state.animation_state >= ANIM_FRAMES_COUNT) {
+            state.animation_state = 0;
+        }
+
+        frame_delay = sprite_data.frames[state.direction][state.animation_type][state.animation_state].delay;
+    }
+    state.animation_timer = timer.getTimer() + frame_delay;
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
 }
 

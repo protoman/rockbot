@@ -1483,7 +1483,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
+    GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     currentStage = scenes.pick_stage(INTRO_STAGE);
     //currentStage = CASTLE1_STAGE1;
 
@@ -1882,7 +1882,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     int new_scroll_pos = loaded_stage.get_first_lock_on_left(dest_pos.x);
     loaded_stage.set_scrolling(st_float_position(new_scroll_pos, 0));
     classPlayer* test_player = &player1;
-    int pos_y = loaded_stage.get_current_map()->get_first_lock_on_bottom(dest_pos.x*TILESIZE, dest_pos.y*TILESIZE, test_player->get_size().width, test_player->get_size().height);
+    int pos_y = loaded_stage.get_current_map()->get_first_lock_on_bottom(dest_pos.x*TILESIZE, -1, test_player->get_size().width, test_player->get_size().height);
     if (pos_y < 0 || pos_y > RES_H/TILESIZE) {
         pos_y = 0;
     }

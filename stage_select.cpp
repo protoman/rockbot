@@ -417,7 +417,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, bottom_panel);
 
     // animate
-    for (int i=0; i<=RES_W; i+=4) {
+    for (int i=0; i<=RES_W; i+=6) {
         // top
         graphLib.copyArea(st_position(i, 8), &top_panel_copy, &graphLib.gameScreen);
         graphLib.copyArea(st_position(-RES_W+i, 8), &top_panel, &graphLib.gameScreen);
