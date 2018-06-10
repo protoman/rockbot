@@ -77,14 +77,9 @@ beast, valkyrie, gear, snow, dragon, kurupira, phanton, zodiac
 CRITICAL:
 -------------------------------------------
 DIALOGS:
-
-
-- se teleportar, deve remover todos os projéteis (escudo de escamas fica no ar)
-- dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore
 - increase drop ratio on enemies for easy mode
-- when returning to checkpoing, look for first ground above the checkpoint+height, not from the bottom
 - [1*] dynabot is leaving screen after using time stopper
-- [1*] crash after first boss (?)
+- [1*] crash after first castle boss (?)
 
 - boss initial position must be on ground, remove the animation of him falling from presenation
 - boss presentation must init only when boss is entirely on-screen
