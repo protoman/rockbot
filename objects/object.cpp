@@ -405,7 +405,7 @@ void object::show(int adjust_y, int adjust_x)
         }
         if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
             if (timer.getTimer() < teleport_max_timer) {
-                std::cout << "pos.x[" << position.x << "]" << std::endl;
+                //std::cout << "obj.show.pos.x[" << position.x << "]" << std::endl;
                 draw_lib.show_teleport_small(position.x-scroll_x, position.y);
                 return;
             } else {

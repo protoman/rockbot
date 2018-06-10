@@ -77,13 +77,7 @@ beast, valkyrie, gear, snow, dragon, kurupira, phanton, zodiac
 CRITICAL:
 -------------------------------------------
 DIALOGS:
-    # fio_str.save_stage_dialogs(it->first, i, list_copy);
-    # save_game_strings(data, get_stage_dialogs_filename(stage_id, language));
 
-
-
-IN-GAME: save_game_strings
-write_string_list_to_file
 
 - se teleportar, deve remover todos os projéteis (escudo de escamas fica no ar)
 - dragon bot fires dragon eyes that stay in same place forever and he can't shoot anymore

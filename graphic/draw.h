@@ -50,7 +50,7 @@ public:
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);
     void show_ingame_warning(std::vector<std::string> message);
-    void fade_in_screen(int r, int g, int b);
+    void fade_in_screen(int r, int g, int b, int total_delay);
     void fade_out_screen(int r, int g, int b, int total_delay);
     void add_fade_out_effect(int r, int g, int b);
     void remove_fade_out_effect();

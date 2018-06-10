@@ -101,7 +101,7 @@ namespace format_v4 {
                 }
                 StringUtils::replace_all(str, "\\xC9", "é");
             }
-            std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
+            //std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
             res.push_back(str);
         }
 
@@ -755,7 +755,7 @@ namespace format_v4 {
                     }
                     StringUtils::replace_all(str, "\\xC9", "é");
                 }
-                std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
+                //std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
                 text_list.push_back(str);
             }
 

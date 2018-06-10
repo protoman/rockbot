@@ -983,7 +983,7 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
     }
     text_pos.x += _screen_resolution_adjust.x;
     text_pos.y += _screen_resolution_adjust.y;
-    std::cout << "RENDER #2[" << text << "]" << std::endl;
+    //std::cout << "RENDER #2[" << text << "]" << std::endl;
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);

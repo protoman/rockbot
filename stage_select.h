@@ -14,6 +14,16 @@
 #include "soundlib.h"
 //#include "game.h"
 
+#define MAP_POINT_ANIMATION_DELAY 150
+
+struct st_map_point_animation {
+    long timer;
+    int state;
+    st_map_point_animation() {
+        timer = 0;
+        state = 0;
+    }
+};
 
 /**
  * @brief
@@ -26,6 +36,8 @@ public:
     short finished_stages() const;
 
     int pick_stage(int stage_n);
+
+    void show_stage_face(int x, int y, int stage_n);
 
     st_position calc_face_pos(int stage_n);
 
@@ -51,6 +63,10 @@ private:
     bool highlight_animation_white;
     unsigned int timer_intro;
     graphicsLib_gSurface *light_mode;
+    std::vector<st_position> stage_select_point_list;
+    graphicsLib_gSurface stage_select_map_point_surface;
+    graphicsLib_gSurface beaten_surface;
+    st_map_point_animation map_point_animation;
 };
 
 #endif // STAGE_SELECT_H

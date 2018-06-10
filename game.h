@@ -51,6 +51,8 @@ public:
 
     void show_notice();
 
+    void show_in_memorian();
+
     /**
      * @brief
      *

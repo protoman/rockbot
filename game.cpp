@@ -253,7 +253,7 @@ void game::start_stage()
     loaded_stage.show_stage();
     loaded_stage.showAbove();
     //draw_lib.update_screen();
-    draw_lib.fade_in_screen(0, 0, 0);
+    draw_lib.fade_in_screen(0, 0, 0, 1000);
 
     game_unpause();
 
@@ -326,6 +326,11 @@ void game::show_player_teleport(int pos_x, int pos_y)
     //std::cout << "GAME::show_player_telport #5" << std::endl;
     // force stand to avoid gravity not doing it for any reason
     player1.set_animation_type(ANIM_TYPE_STAND);
+    loaded_stage.show_stage();
+    loaded_stage.showAbove();
+    player1.show();
+    draw_lib.update_screen();
+    timer.delay(20);
 
 }
 
@@ -409,6 +414,7 @@ void game::restart_stage()
 // ********************************************************************************************** //
 bool game::show_game_intro()
 {
+
 
     show_notice();
 
@@ -529,6 +535,8 @@ void game::show_notice()
 
     input.clean_and_wait_scape_time(1200);
 
+    show_in_memorian();
+
     graphLib.blank_screen();
 
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine1, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
@@ -544,6 +552,22 @@ void game::show_notice()
 
     input.clean_and_wait_scape_time(4000);
 
+}
+
+void game::show_in_memorian()
+{
+    graphLib.blank_screen();
+    draw_lib.update_screen();
+
+    graphLib.draw_centered_text(60, "IN MEMORIAN TO MY OLD BROTHER");
+    graphLib.draw_centered_text(100, "IVAN FIEDORUK");
+    graphLib.draw_centered_text(120, "AUGUST, 27, 1973 - MAY, 16, 2018");
+    graphLib.draw_centered_text(160, "CREATOR OF APEBOT");
+    graphLib.draw_centered_text(180, "REST IN PEACE");
+    draw_lib.fade_in_screen(0, 0, 0, 2000);
+    draw_lib.update_screen();
+    timer.delay(4000);
+    draw_lib.fade_out_screen(0, 0, 0, 2000);
 }
 
 
@@ -696,7 +720,7 @@ bool game::test_teleport(classPlayer *test_player) {
             test_player->set_animation_type(ANIM_TYPE_JUMP);
             show_game(false, true);
             timer.delay(50);
-            draw_lib.fade_in_screen(0, 0, 0);
+            draw_lib.fade_in_screen(0, 0, 0, 1000);
         } else {
             test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE,  stage_data.links[j].pos_destiny.y*TILESIZE));
             test_player->set_animation_type(ANIM_TYPE_JUMP);
@@ -1431,13 +1455,12 @@ void game::show_demo_ending()
 
 void game::quick_load_game()
 {
-    GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
 
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_4;
+    game_save.selected_player = PLAYER_2;
 
     /*
     // DEBUG //
@@ -1460,7 +1483,7 @@ void game::quick_load_game()
     scenes.preloadScenes();
 
     // TEST //
-    GAME_FLAGS[FLAG_ALLWEAPONS] = true;
+    //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     currentStage = scenes.pick_stage(INTRO_STAGE);
     //currentStage = CASTLE1_STAGE1;
 
@@ -1471,7 +1494,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     scenes.boss_intro(currentStage);
 
@@ -1636,7 +1659,7 @@ short game::get_last_castle_stage()
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
-        //std::cout << "CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }

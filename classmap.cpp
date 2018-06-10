@@ -961,6 +961,9 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 
 int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
+
+    std::cout << "get_first_lock_on_bottom, y_pos[" << y_pos << "]" << std::endl;
+
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
     if (above_tiles_to_test < 2) { // at least two tiles above even for small npcs
@@ -973,10 +976,12 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 
     int initial_y = MAP_H-1;
     if (y_pos >= 0) {
-        initial_y = y_pos;
+        initial_y = y_pos/TILESIZE;
     }
 
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
+
+        std::cout << "get_first_lock_on_bottom, i[" << i << "]" << std::endl;
 
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;

@@ -340,7 +340,7 @@ void draw::show_teleport_small(int x, int y)
             teleport_small_frame++;
             teleport_small_frame_timer = timer.getTimer()+100;
         }
-        std::cout << "timer[" << timer.getTimer() << "], frame.timer[" << teleport_small_frame_timer << "], frames[" << teleport_small_frame_count << "], current frame[" << teleport_small_frame << "]" << std::endl;
+        //std::cout << "timer[" << timer.getTimer() << "], frame.timer[" << teleport_small_frame_timer << "], frames[" << teleport_small_frame_count << "], current frame[" << teleport_small_frame << "]" << std::endl;
         if (teleport_small_frame >= teleport_small_frame_count) {
             teleport_small_frame = 0;
         }
@@ -711,7 +711,7 @@ void draw::show_ingame_warning(std::vector<std::string> message)
     input.wait_keypress();
 }
 
-void draw::fade_in_screen(int r, int g, int b)
+void draw::fade_in_screen(int r, int g, int b, int total_delay)
 {
     graphicsLib_gSurface screen_copy;
     graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
@@ -721,12 +721,17 @@ void draw::fade_in_screen(int r, int g, int b)
     graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, r, g, b, transparent_area);
 
-    for (int i=255; i>=0; i-=FADE_INC) {
+    float step = 255.0/20.0;
+    float alpha_value = 255;
+    float delay = (total_delay / 25)-10;
+
+    for (float i=0; i<=20; i++) {
         graphLib.showSurface(&screen_copy);
-        graphLib.set_surface_alpha(i, transparent_area);
+        graphLib.set_surface_alpha((int)alpha_value, transparent_area);
         graphLib.showSurface(&transparent_area);
+        alpha_value -= step;
         graphLib.updateScreen();
-        timer.delay(1);
+        timer.delay(delay);
     }
 }
 
