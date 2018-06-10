@@ -18,3 +18,13 @@
 ====================================================================================
 2.0.0 Beta 20:
 ====================================================================================
+
+
+
+
+- In memorian to Ivan Fiedoruk
+- New stage select screen
+- Added Translation for cutscenes
+- Fixes:
+    # unicode text with progressive draw
+    #

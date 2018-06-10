@@ -1530,7 +1530,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         temp_obj.start();
                     }
                     checkpoint.x = charObj->getPosition().x;
-                    checkpoint.y = (charObj->getPosition().y+charObj->get_size().height-1)/TILESIZE;
+                    checkpoint.y = (charObj->getPosition().y+charObj->get_size().height-1);
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
