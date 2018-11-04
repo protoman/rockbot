@@ -31,7 +31,7 @@ void armor_edit::reload()
     ui->body_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[ui->playerSelect_comboBox->currentIndex()]);
 
     int arms_n = Mediator::get_instance()->game_data.armor_pieces[ARMOR_TYPE_ARMS].special_ability[ui->playerSelect_comboBox->currentIndex()];
-    std::cout << "ARMS[" << arms_n << "]" << std::endl;
+    //std::cout << "ARMS[" << arms_n << "]" << std::endl;
 
     ui->arm_comboBox->setCurrentIndex(Mediator::get_instance()->game_data.armor_pieces[ARMOR_TYPE_ARMS].special_ability[ui->playerSelect_comboBox->currentIndex()]+1);
 

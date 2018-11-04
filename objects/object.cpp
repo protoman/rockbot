@@ -38,7 +38,7 @@ extern game gameControl;
 
 
 // constructor for map_object
-object::object(Uint8 set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
+object::object(short set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
 {
 	map = set_map;
 	_id = set_id;

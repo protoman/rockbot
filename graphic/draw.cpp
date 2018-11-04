@@ -995,7 +995,7 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
 
 
-        std::cout << "DRAW::add_dynamic_background::ADD[" << filename << "]" << std::endl;
+        //std::cout << "DRAW::add_dynamic_background::ADD[" << filename << "]" << std::endl;
 
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
@@ -1004,7 +1004,7 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
         graphicsLib_gSurface temp_surface;
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
 
-        std::cout << "MAP::add_bg[" << bg1_filename << "], w[" << (int)temp_surface.width << "], h[" << (int)temp_surface.height << "]" << std::endl;
+        //std::cout << "MAP::add_bg[" << bg1_filename << "], w[" << (int)temp_surface.width << "], h[" << (int)temp_surface.height << "]" << std::endl;
 
 
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);

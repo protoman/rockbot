@@ -3336,9 +3336,9 @@ void character::set_animation_type(ANIM_TYPE type)
     if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
         st_char_sprite_data sprite_data = graphLib.character_graphics_list.find(name)->second;
 
-        std::cout << "set_animation_type::state.direction[" << (int)state.direction << "]" << std::endl;
-        std::cout << "set_animation_type::state.animation_type[" << state.animation_type << "]" << std::endl;
-        std::cout << "set_animation_type::state.animation_state[" << state.animation_state << "]" << std::endl;
+        //std::cout << "set_animation_type::state.direction[" << (int)state.direction << "]" << std::endl;
+        //std::cout << "set_animation_type::state.animation_type[" << state.animation_type << "]" << std::endl;
+        //std::cout << "set_animation_type::state.animation_state[" << state.animation_state << "]" << std::endl;
 
         if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
             state.direction = 0;

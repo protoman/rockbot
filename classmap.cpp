@@ -962,7 +962,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
 
-    std::cout << "get_first_lock_on_bottom, y_pos[" << y_pos << "]" << std::endl;
+    //std::cout << "get_first_lock_on_bottom, y_pos[" << y_pos << "]" << std::endl;
 
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
@@ -981,8 +981,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
 
-        std::cout << "get_first_lock_on_bottom, i[" << i << "]" << std::endl;
-
+        //std::cout << "get_first_lock_on_bottom, i[" << i << "]" << std::endl;
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
@@ -991,9 +990,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
                 for (int k=0; k<right_tiles_to_test; k++) {
                     int map_lock2 = getMapPointLock(st_position(tilex+k, j));
 
-                    std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
-
-
+                    //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
                     if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
                         found_bad_point = true;
                         break;
@@ -1004,7 +1001,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
                 }
             }
             if (found_bad_point == false) {
-                std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
+                //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
                 return i-1;
             }
         }
@@ -1014,15 +1011,15 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 
 void classMap::drop_item(classnpc* npc_ref)
 {
-    st_position position = st_position(npc_ref->getPosition().x + npc_ref->get_size().width/2, npc_ref->getPosition().y + npc_ref->get_size().height/2);
+    st_float_position position = st_float_position(npc_ref->getPosition().x + npc_ref->get_size().width/2, npc_ref->getPosition().y + npc_ref->get_size().height/2);
     // dying out of screen should not drop item
     if (position.y > RES_H) {
         return;
     }
-    srand(timer.getTimer());
+    srand(static_cast<unsigned int>(timer.getTimer()));
     //int rand_n = rand() % 100;
-    int rand_n = (int) (100.0 * (rand() / (RAND_MAX + 1.0)));
-    std::cout << ">>>>>>> classMap::drop_item - rand_n: " << rand_n << std::endl;
+    int rand_n = static_cast<int> (100.0 * (rand() / (RAND_MAX + 1.0)));
+    std::cout << ">>>>>>> classMap::drop_item() - rand_n: " << rand_n << std::endl;
     DROP_ITEMS_LIST obj_type;
 
     // sub-bosses always will drop energy big
@@ -1031,25 +1028,36 @@ void classMap::drop_item(classnpc* npc_ref)
     } else {
         // 1UP (1%), Big Energy (2%), Big Weapon (2%), Small Energy (15)%, Small Weapon (15%), Score Pearl (53%)
         // .byt 99, 97, 95, 80, 65, 12 (http://tasvideos.org/RandomGenerators.html)
-        if (rand_n == 99) {
+        int drop_ratio[] = {99, 97, 95, 80, 65, 50};
+        if (game_save.difficulty == DIFFICULTY_EASY) {
+            // 5%, 10%, 10%, 20%, 20%, 20% //
+            int drop_ratio_easy[] = {95, 85, 75, 55, 35, 15};
+            std::copy(std::begin(drop_ratio_easy), std::end(drop_ratio_easy), std::begin(drop_ratio));
+        } else if (game_save.difficulty == DIFFICULTY_HARD) {
+            // 1%, 1%, 1%, 10%, 10%, 10% //
+            int drop_ratio_hard[] = {99, 98, 97, 87, 77, 67};
+            std::copy(std::begin(drop_ratio_hard), std::end(drop_ratio_hard), std::begin(drop_ratio));
+        }
+
+        if (rand_n == drop_ratio[0]) {
             obj_type = DROP_ITEM_1UP;
-        } else if (rand_n >= 97) {
+        } else if (rand_n >= drop_ratio[1]) {
             obj_type = DROP_ITEM_ENERGY_BIG;
-        } else if (rand_n >= 95) {
+        } else if (rand_n >= drop_ratio[2]) {
             obj_type = DROP_ITEM_WEAPON_BIG;
-        } else if (rand_n >= 80) {
+        } else if (rand_n >= drop_ratio[3]) {
             obj_type = DROP_ITEM_ENERGY_SMALL;
-        } else if (rand_n >= 65) {
+        } else if (rand_n >= drop_ratio[4]) {
             obj_type = DROP_ITEM_WEAPON_SMALL;
-        } else if (rand_n >= 50) {
+        } else if (rand_n >= drop_ratio[5]) {
             obj_type = DROP_ITEM_COIN;
         } else {
             return;
         }
     }
     st_position obj_pos;
-    obj_pos.y = position.y/TILESIZE;
-    obj_pos.x = (position.x - TILESIZE)/TILESIZE;
+    obj_pos.y = static_cast<short>(position.y/TILESIZE);
+    obj_pos.x = static_cast<short>((position.x - TILESIZE)/TILESIZE);
 
     short obj_type_n = gameControl.get_drop_item_id(obj_type);
     if (obj_type_n == -1) {
@@ -1058,7 +1066,7 @@ void classMap::drop_item(classnpc* npc_ref)
     }
 
     object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
-    temp_obj.set_position(position);
+    temp_obj.set_position(st_position(static_cast<int>(position.x), static_cast<int>(position.y)));
     temp_obj.set_duration(4500);
     add_object(temp_obj);
 }
@@ -1070,7 +1078,7 @@ void classMap::set_bg_scroll(int scrollx)
 
 int classMap::get_bg_scroll() const
 {
-    return bg_scroll.x;
+    return static_cast<int>(bg_scroll.x);
 }
 
 

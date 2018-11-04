@@ -31,6 +31,8 @@ extern soundLib soundManager;
 #include "inputlib.h"
 extern inputLib input;
 
+extern std::string GAMENAME;
+
 #include "graphic/option_picker.h"
 #include "file/format.h"
 #include "defines.h"
@@ -283,14 +285,14 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 {
     int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, initial_pos_y, player1.get_size().width, player1.get_size().height);
 
-    std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
+    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
 
     player1.set_position(st_position(initial_pos_x, (first_unlocked_from_bottom+1)*TILESIZE-player1.get_size().height));
     player1.char_update_real_position();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_animation_frame(0);
 
-    std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::DONE" << std::endl;
+    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::DONE" << std::endl;
 }
 
 void game::show_player_teleport(int pos_x, int pos_y)
@@ -534,8 +536,10 @@ void game::show_notice()
     draw_lib.update_screen();
 
     input.clean_and_wait_scape_time(1200);
+    if (GAMENAME.find("Rockbot") != std::string::npos) {
+        show_in_memorian();
+    }
 
-    show_in_memorian();
 
     graphLib.blank_screen();
 
@@ -1460,7 +1464,7 @@ void game::quick_load_game()
     }
 
     game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //

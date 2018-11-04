@@ -782,4 +782,6 @@ more items and checkpoints for easy difficulty
 #102: update save-slot selection images
 #104: add RLE optimization in set_surface_alpha
 
+################
+Change drop ratio on enemies depending on picked difficulty
 

@@ -32,66 +32,15 @@
        <item>
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="rightMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
          <property name="bottomMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="stages_tab_stage_combo"/>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_48">
-           <property name="text">
-            <string>Stage:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Scene Before:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QComboBox" name="cutscenePre_comboBox"/>
-         </item>
-         <item row="0" column="5">
+         <item row="0" column="6">
           <widget class="QComboBox" name="stages_tab_bgmusic_combo"/>
          </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Stage Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <widget class="QLabel" name="label_13">
-           <property name="text">
-            <string>Stage Music:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
-          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
-           <property name="maxLength">
-            <number>30</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Scene After:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="3">
-          <widget class="QComboBox" name="cutscenePos_comboBox"/>
-         </item>
-         <item row="0" column="6">
+         <item row="0" column="7">
           <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -103,6 +52,71 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="0" column="5">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Stage Music:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="stages_tab_stage_combo"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_48">
+           <property name="text">
+            <string>Stage:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Stage Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QLineEdit" name="stages_tab_stage_name_lineedit">
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>Enabled</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cutscenePre_comboBox"/>
+         </item>
+         <item row="0" column="3">
+          <widget class="QComboBox" name="cutscenePos_comboBox"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Scene Before:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Scene After:</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -560,7 +574,6 @@
  <tabstops>
   <tabstop>scrollArea</tabstop>
   <tabstop>stages_tab_stage_combo</tabstop>
-  <tabstop>cutscenePre_comboBox</tabstop>
   <tabstop>language_comboBox</tabstop>
   <tabstop>stages_tab_bossname_lineedit</tabstop>
   <tabstop>dialogs_line1_face_combo</tabstop>

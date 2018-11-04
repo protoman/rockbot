@@ -2,7 +2,6 @@
 #define GAME_PROPERTIES_TAB_H
 
 #include <QWidget>
-#include "mainwindow_tab/stageselectmapdialog.h"
 
 namespace Ui {
 class game_properties_tab;
@@ -13,7 +12,7 @@ class game_properties_tab : public QWidget
     Q_OBJECT
     
 public:
-    explicit game_properties_tab(QWidget *parent = 0);
+    explicit game_properties_tab(QWidget *parent = nullptr);
     ~game_properties_tab();
     void reload();
 
@@ -53,8 +52,6 @@ private slots:
 
     void on_finalBoss_comboBox_currentIndexChanged(int index);
 
-    void on_editMap_pushButton_clicked();
-
 private:
     void fill_data();
     
@@ -62,7 +59,6 @@ private:
     Ui::game_properties_tab *ui;
     bool _data_loading;
     int _current_stage;
-    StageSelectMapDialog map_dialog;
 };
 
 #endif // GAME_PROPERTIES_TAB_H

@@ -25,7 +25,7 @@ class object
 {
 public:
     //object(Uint8 id, struct CURRENT_FILE_FORMAT::file_object temp_obj); // game object constructor
-    object(Uint8 _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, Uint8 map_dest); // map object constructor
+    object(short _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest); // map object constructor
     ~object();
     void reset();
     void reset_timer();
@@ -270,20 +270,20 @@ private:
 
 
 private:
-    Uint8 _id;
+    short _id;
     std::string name;
     std::string graphic_filename;												// graphic file used on it
-    Uint8 type;
+    short type;
     unsigned int obj_timer;														// used as time for disapearing block
     unsigned int _obj_frame_timer;
     int _frame_duration;
     int speed;																	// used as speed for moving platform
     int limit;																	// used as range (pixels) for moving platform, visible time for disapearing block
-    Uint8 direction;																// used to check if moving away from oiginalpoint or moving to it
+    short direction;																// used to check if moving away from oiginalpoint or moving to it
     int distance;
     int framesize_w;
     int framesize_h;
-    Uint8 frame;																	// indicates what is the used frame
+    short frame;																	// indicates what is the used frame
     struct st_position start_point;
     struct st_position position;
     classMap *map;																// reference to the map this object is in
@@ -300,11 +300,11 @@ private:
     bool _hidden;
     enum collision_modes _collision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
-    Uint8 _teleport_state;                                                      // used to control when start/finish the teleport
-    Uint8 _ray_state;                                                           // controls death-ray movement
+    short _teleport_state;                                                      // used to control when start/finish the teleport
+    short _ray_state;                                                           // controls death-ray movement
     st_position _boss_teleporter_dest;
-    Uint8 _boss_teleporter_map_dest;
-    Uint8 _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
+    short _boss_teleporter_map_dest;
+    short _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
     bool _expanding;
     int _size;
     int max_frames;

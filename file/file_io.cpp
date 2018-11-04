@@ -458,11 +458,44 @@ namespace format_v4 {
             std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
             return;
         }
-        for (int i=0; i<FS_MAX_STAGES; i++) {
-            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
-                fp.read(reinterpret_cast<char *>(&data_out[i][j]), sizeof(file_map));
+        // SWOKE //
+        for (int i=0; i<4; i++) {
+            for (int j=0; j<5; j++) {
+                // ignore extra maps
+                if (j >= 3) {
+                    file_map temp_map;
+                    fp.read(reinterpret_cast<char *>(&temp_map), sizeof(file_map));
+                } else {
+                    fp.read(reinterpret_cast<char *>(&data_out[i][j]), sizeof(file_map));
+                    for (int x=0; x<RES_W; x++) {
+                        for (int y=0; y<RES_H; y++) {
+                            if (data_out[i][j].tiles[x][y].tile1.x != -1 && data_out[i][j].tiles[x][y].tile1.x != 0 && data_out[i][j].tiles[x][y].tile1.y != 0) {
+                                std::cout << "read_all_maps::stage[" << i << "].map[" << j << "].tile[" << x << "][" << y << "]: [" << (int)data_out[i][j].tiles[x][y].tile1.x << "][" << (int)data_out[i][j].tiles[x][y].tile1.y << "]" << std::endl;
+                            }
+                        }
+                    }
+                }
             }
         }
+
+
+        /*
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+                fp.read(reinterpret_cast<char *>(&data_out[stage_n][map_n]), sizeof(file_map));
+
+                    for (int x=0; x<RES_W; x++) {
+                        for (int y=0; y<RES_H; y++) {
+                            if (data_out[i][j].tiles[x][y].tile1.x != -1 && data_out[i][j].tiles[x][y].tile1.x != 0 && data_out[i][j].tiles[x][y].tile1.y != 0) {
+                                std::cout << "read_all_maps::stage[" << i << "].map[" << j << "].tile[" << x << "][" << y << "]: [" << (int)data_out[i][j].tiles[x][y].tile1.x << "][" << (int)data_out[i][j].tiles[x][y].tile1.y << "]" << std::endl;
+                            }
+                        }
+                    }
+
+
+            }
+        }
+        */
 
         fp.close();
     }
@@ -580,7 +613,7 @@ namespace format_v4 {
     {
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
-        for (int i=0; i<temp.size(); i++) {
+        for (uint i=0; i<temp.size(); i++) {
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }
@@ -593,7 +626,7 @@ namespace format_v4 {
     {
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
-        for (int i=0; i<temp.size(); i++) {
+        for (uint i=0; i<temp.size(); i++) {
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }
@@ -603,6 +636,7 @@ namespace format_v4 {
 
     bool file_io::file_exists(std::string filename) const
     {
+        std::cout << "file_io::file_exists.filename[" << filename << "]" << std::endl;
         bool res = false;
         FILE *fp;
         fp = fopen(filename.c_str(), "rb");
@@ -1088,42 +1122,12 @@ namespace format_v4 {
         fp.close();
     }
 
-    void file_io::read_stage_select_data(CURRENT_FILE_FORMAT::file_stage_select &data_out, bool check_error)
+    std::string file_io::get_sufix()
     {
-        std::string filename = std::string(FILEPATH) + "/stage_select_data" + sufix + ".dat";
-        filename = StringUtils::clean_filename(filename);
-        FILE *fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << ">>file_io::read_game - file '" << filename << "' not found." << std::endl;
-            fflush(stdout);
-            return;
-        }
-        int read_result = fread(&data_out, sizeof(struct CURRENT_FILE_FORMAT::file_stage_select), 1, fp);
-
-
-#ifdef ANDROID
-        std::string log_line_filename = "filename[" + filename + "]";
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", log_line_filename.c_str());
-#endif
-
-        fclose(fp);
-
+        return sufix;
     }
 
-    void file_io::write_stage_select_data(CURRENT_FILE_FORMAT::file_stage_select &data_in)
-    {
-        std::ofstream fp;
-        std::string filename = std::string(FILEPATH) + "/stage_select_data" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        } else {
-            std::cout << "fio::write_game - recorded to file '" << filename << std::endl;
-        }
-        fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct CURRENT_FILE_FORMAT::file_stage_select));
-        fp.close();
-    }
+
 
 
 #ifdef WII

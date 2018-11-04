@@ -67,7 +67,6 @@ public:
     bool show_teleporters_flag;
     short stage_select_edit_mode;
     short stage_select_stage_number;
-    CURRENT_FILE_FORMAT::file_stage_select stage_select_data;
     bool show_grid;
 
 
@@ -89,8 +88,6 @@ public:
 
     void clean_data();                                      // any sanity data cleaning goest here
     void temp_fix_player_colors_order();
-    void load_stage_select_data();
-    void save_stage_select_data();
 
     //void convertProjectileListToV2();
 
@@ -132,6 +129,7 @@ public:
     // old globals
     CURRENT_FILE_FORMAT::file_game game_data;
     CURRENT_FILE_FORMAT::file_stages stage_data;
+    CURRENT_FILE_FORMAT::file_stages_extra_data stage_extra_data;
     CURRENT_FILE_FORMAT::file_castle castle_data;
 
     // maps data

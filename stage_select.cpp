@@ -351,6 +351,9 @@ void stage_select::show_stage_face(int x, int y, int stage_n)
     } else {
         face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[9];
     }
+
+    std::cout << ">>>>> face_filename[" << face_filename << "]" << std::endl;
+
     graphicsLib_gSurface face_surface;
     graphLib.surfaceFromFile(face_filename, &face_surface);
     graphLib.clear_area(x, y, face_surface.width, face_surface.height, 8, 25, 42);
@@ -430,7 +433,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     }
 
     // clear selection text
-    int text_pos_y = 227;
+    short text_pos_y = 227;
     graphLib.clear_area(21, text_pos_y, 76, 16, 19, 2, 36);
     graphLib.clear_area(184, text_pos_y, 206, 16, 19, 2, 36);
     graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
@@ -441,42 +444,6 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     }
 }
 
-bool stage_select::walk_path(int incx, int incy, st_position& pos, format_v4::file_stage_select map_data)
-{
-    if (map_data.points[pos.x+incx][pos.y+incy] == STAGE_SELECT_EDIT_MODE_LOCKED) {
-        soundManager.play_sfx(SFX_PLAYER_HIT);
-        return false;
-    }
-
-
-    while (map_data.points[pos.x+incx][pos.y+incy] != STAGE_SELECT_EDIT_MODE_LOCKED) {
-        pos.x += incx;
-        pos.y += incy;
-        // stop in stage points
-        if (map_data.points[pos.x][pos.y] > 10 || map_data.points[pos.x][pos.y] == STAGE_SELECT_EDIT_MODE_CASTLE) {
-            return true;
-        }
-        // stop in bifurcations
-        int forks = 0;
-        if (map_data.points[pos.x+1][pos.y] == STAGE_SELECT_EDIT_MODE_PATH) {
-            forks++;
-        }
-        if (map_data.points[pos.x-1][pos.y] == STAGE_SELECT_EDIT_MODE_PATH) {
-            forks++;
-        }
-        if (map_data.points[pos.x][pos.y-1] == STAGE_SELECT_EDIT_MODE_PATH) {
-            forks++;
-        }
-        if (map_data.points[pos.x][pos.y+1] == STAGE_SELECT_EDIT_MODE_PATH) {
-            forks++;
-        }
-        if (forks > 2) {
-            return true;
-        }
-    }
-
-    return true;
-}
 
 
 

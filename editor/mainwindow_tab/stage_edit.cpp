@@ -201,6 +201,13 @@ void stage_edit::update_stage_data(int language_n)
     ui->cutscenePos_comboBox->setCurrentIndex(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].cutscene_pos);
 
     ui->stages_tab_bossname_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name);
+
+
+    if (Mediator::get_instance()->stage_extra_data.extra_data[stage_id].active == true) {
+        ui->checkBox->setCheckState(Qt::Checked);
+    } else {
+        ui->checkBox->setCheckState(Qt::Unchecked);
+    }
 }
 
 
@@ -456,4 +463,14 @@ void stage_edit::on_language_comboBox_currentIndexChanged(int index)
     if (_data_loading) { return; }
     Mediator::get_instance()->save_dialogs();
     update_stage_data(index);
+}
+
+void stage_edit::on_checkBox_stateChanged(int arg1)
+{
+    if (_data_loading) { return; }
+    bool active = false;
+    if (arg1 == Qt::Checked) {
+        active = true;
+    }
+    Mediator::get_instance()->stage_extra_data.extra_data[Mediator::get_instance()->currentStage].active = active;
 }

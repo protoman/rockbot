@@ -27,7 +27,7 @@ void player_preview_area::update_sprites()
     sprites.setMask(mask);
     _original_sprites = sprites.toImage();
 
-    std::cout << ">>>>>>>>>>>>>>>>> count[" << _original_sprites.colorCount() << "]" << std::endl;
+    //std::cout << ">>>>>>>>>>>>>>>>> count[" << _original_sprites.colorCount() << "]" << std::endl;
     _original_sprites = _original_sprites.scaled(_original_sprites.width()*PREVIEW_SCALE, _original_sprites.height()*PREVIEW_SCALE+1);
 
     replace_colors();
@@ -37,7 +37,7 @@ void player_preview_area::update_sprites()
 void player_preview_area::replace_colors()
 {
 
-    std::cout << "### PLAYERPREVIEW::PAINT::START ###" << std::endl;
+    //std::cout << "### PLAYERPREVIEW::PAINT::START ###" << std::endl;
 
     _colored_sprites = _original_sprites.copy();
 

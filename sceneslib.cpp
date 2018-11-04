@@ -843,8 +843,7 @@ void scenesLib::boss_intro(Uint8 pos_n)
     int text_x = RES_W-(full_stage_str.length()*8);
     text_x = text_x/2;
 
-    std::cout << "full_stage_str.length()[" << full_stage_str.length() << "], calc.size[" << (full_stage_str.length()*8) << "], text_x[" << text_x << "]" << std::endl;
-
+    //std::cout << "full_stage_str.length()[" << full_stage_str.length() << "], calc.size[" << (full_stage_str.length()*8) << "], text_x[" << text_x << "]" << std::endl;
     for(unsigned int i = 0; i < full_stage_str.size(); ++i) {
         boss_name += (std::toupper(full_stage_str[i], settings));
         graphLib.draw_text(text_x, BOSS_INTRO_BG_TEXT_Y, boss_name);

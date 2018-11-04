@@ -73,11 +73,23 @@ beast, valkyrie, gear, snow, dragon, kurupira, phanton, zodiac
 
 - inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
+
+-------------------------------------------
+VAPPEBOY:
+-------------------------------------------
+- criar arquivo adicional que indica quais fases estão ativas
+    # seleção de fases deixa entrar só nas ativas
+
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-DIALOGS:
-- increase drop ratio on enemies for easy mode
+- seahorse and dynamite music not working
+- stage selected fanfarre
+- castle 4
+- spikebot
+
+- Upon selecting spike's stage, game crashes on pixel2 phone
+
 - [1*] dynabot is leaving screen after using time stopper
 - [1*] crash after first castle boss (?)
 

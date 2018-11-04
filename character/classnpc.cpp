@@ -237,10 +237,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     if (have_background_graphics() == false) {
         graphicsLib_gSurface bg_surface;
         std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
-        std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
+        //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
         if (bg_filename.size() > 0) {
             std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
-            std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << std::endl;
+            //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << std::endl;
             graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
             if (bg_surface.get_surface() == NULL) {
                 std::cout << "initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;

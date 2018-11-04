@@ -43,8 +43,6 @@ public:
 
     void draw_stage_select_text_info(int stage_n);
 
-    bool walk_path(int incx, int incy, st_position &pos, CURRENT_FILE_FORMAT::file_stage_select map_data);
-
 private:
     void move_highlight(Sint8 x_inc, Sint8 y_inc);
     void show_highlight();

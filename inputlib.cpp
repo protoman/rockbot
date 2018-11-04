@@ -424,14 +424,14 @@ void inputLib::check_cheat_input()
     for (int i=0; i<BTN_COUNT; i++) {
         if (p1_input[i] == 1) {
             if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET" << std::endl;
+                //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT RESET" << std::endl;
                 reset_cheat_input_sequence();
                 return;
             } else {
                 cheat_input_count++;
-                std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT INC[" << cheat_input_count << "]" << std::endl;
+                //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT INC[" << cheat_input_count << "]" << std::endl;
                 if (cheat_input_count >= cheat_input_sequence.size()) {
-                    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT ACTIVATED!!!" << std::endl;
+                    //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>> CHEAT ACTIVATED!!!" << std::endl;
                     cheat_input_is_active = true;
                 }
             }

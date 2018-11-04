@@ -549,7 +549,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
     if (Mediator::get_instance()->show_objects_flag == true) {
         /// draw objects
-        std::cout << "################### START LOOP" << std::endl;
+        //std::cout << "################### START LOOP" << std::endl;
         for (int i=0; i<Mediator::get_instance()->maps_data_object_list.size(); i++) {
             int obj_stage_id = (int)Mediator::get_instance()->maps_data_object_list[i].stage_id;
             int obj_map_id = (int)Mediator::get_instance()->maps_data_object_list[i].map_id;
@@ -566,7 +566,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
             int obj_id = (int)Mediator::get_instance()->maps_data_object_list[i].id_object;
 
-            std::cout << "OBJ[" << i << "][" << Mediator::get_instance()->object_list.at(obj_id).name << "].stage[" << (int)Mediator::get_instance()->maps_data_object_list[i].stage_id << "].map[" << (int)Mediator::get_instance()->maps_data_object_list[i].map_id << "], currentStage[" << Mediator::get_instance()->currentStage << "], currentMap[" << Mediator::get_instance()->currentMap << "]" << std::endl;
+            //std::cout << "OBJ[" << i << "][" << Mediator::get_instance()->object_list.at(obj_id).name << "].stage[" << (int)Mediator::get_instance()->maps_data_object_list[i].stage_id << "].map[" << (int)Mediator::get_instance()->maps_data_object_list[i].map_id << "], currentStage[" << Mediator::get_instance()->currentStage << "], currentMap[" << Mediator::get_instance()->currentMap << "]" << std::endl;
 
 
             if (obj_id != -1) {
@@ -621,10 +621,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 if (Mediator::get_instance()->maps_data_object_list[i].map_dest != -1) {
                     int obj_w = Mediator::get_instance()->object_list.at(obj_id).size.width;
                     int obj_h = Mediator::get_instance()->object_list.at(obj_id).size.height;
-                    std::cout << "OBJ.w: " << obj_w << ", obj_h: " << obj_h << std::endl;
+                    //std::cout << "OBJ.w: " << obj_w << ", obj_h: " << obj_h << std::endl;
                     int dest_x = Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom + (obj_w/2)*Mediator::get_instance()->zoom - TILESIZE/2;
                     int dest_y = Mediator::get_instance()->maps_data_object_list[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom + (obj_h/2)*Mediator::get_instance()->zoom - TILESIZE/2;
-                    std::cout << "DRAW OBJECT TELEPORTER ORIGIN[" << i << "] - map: " << (int)Mediator::get_instance()->maps_data_object_list[i].map_dest  << ", x: " << Mediator::get_instance()->maps_data_object_list[i].start_point.x << ", y: " << Mediator::get_instance()->maps_data_object_list[i].start_point.y << std::endl;
+                    //std::cout << "DRAW OBJECT TELEPORTER ORIGIN[" << i << "] - map: " << (int)Mediator::get_instance()->maps_data_object_list[i].map_dest  << ", x: " << Mediator::get_instance()->maps_data_object_list[i].start_point.x << ", y: " << Mediator::get_instance()->maps_data_object_list[i].start_point.y << std::endl;
                     if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));
                     } else {
@@ -655,10 +655,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 }
 
                 // draw teleport destiny links
-                std::cout << "OBJ[" << i << "].map_dest: " << (int)map_obj.map_dest << ", currentMap: " << k << std::endl;
+                //std::cout << "OBJ[" << i << "].map_dest: " << (int)map_obj.map_dest << ", currentMap: " << k << std::endl;
                 if (map_obj.map_dest == Mediator::get_instance()->currentMap) {
 
-                    std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)map_obj.link_dest.x << ", y: " << (int)map_obj.link_dest.y << std::endl;
+                    //std::cout << "## EDITORAREA::paintEvent - teleporter_obj - x: " << (int)map_obj.link_dest.x << ", y: " << (int)map_obj.link_dest.y << std::endl;
 
                     if (Mediator::get_instance()->object_list.at(obj_id).type == OBJ_FINAL_BOSS_TELEPORTER) {
                         painter.setBrush(QColor(160, 60, 60, 180));

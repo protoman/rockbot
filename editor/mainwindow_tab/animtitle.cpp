@@ -32,7 +32,7 @@ void animTitle::update_properties()
     }
     QString filename = QString(FILEPATH.c_str()) + QString("images/tilesets/anim/") + QString(Mediator::get_instance()->anim_block_list.at(Mediator::get_instance()->selectedAnimTileset).filename);
 
-    std::cout << "animTitle::update_properties::filename: " << filename.toStdString() << ", selectedAnimTileset: " << Mediator::get_instance()->selectedAnimTileset << std::endl;
+    //std::cout << "animTitle::update_properties::filename: " << filename.toStdString() << ", selectedAnimTileset: " << Mediator::get_instance()->selectedAnimTileset << std::endl;
 
     image = QImage(filename);
     if (image.isNull()) {

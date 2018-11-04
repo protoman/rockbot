@@ -46,19 +46,6 @@ struct file_castle {
 };
 
 
-struct file_stage_select {
-    Uint8 points[RES_W/TILESIZE][RES_H/TILESIZE];
-
-    file_stage_select() {
-        for (int i=0; i<RES_W/TILESIZE; i++) {
-            for (int j=0; j<RES_H/TILESIZE; j++) {
-                points[i][j] = STAGE_SELECT_EDIT_MODE_LOCKED;
-            }
-        }
-    }
-};
-
-
 struct file_link { // DONE - Stage
     Sint8 id_map_origin;
     Sint8 id_map_destiny;
@@ -136,6 +123,26 @@ struct file_stages {
             } else {
                 sprintf(stages[i].name, "Castle #2 Stage #%d", i);
             }
+        }
+    }
+};
+
+// extra data added after file-format was frozen
+struct file_stage_extra_data {
+    bool active;                                // allows user to define witch stages can be accessed or are still in development
+
+};
+
+struct file_stages_extra_data {
+    file_stage_extra_data extra_data[FS_MAX_STAGES];
+    file_stages_extra_data() {
+        for (int i=0; i<FS_MAX_STAGES; i++) {
+            if (i == 0) {
+                extra_data[i].active = true;
+            } else {
+                extra_data[i].active = false;
+            }
+
         }
     }
 };

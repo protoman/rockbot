@@ -85,10 +85,6 @@ namespace format_v4 {
         void read_castle_data(file_castle& data_out);
         void write_castle_data(file_castle& data_in);
 
-        void read_stage_select_data(file_stage_select& data_out, bool check_error);
-        void write_stage_select_data(file_stage_select& data_in);
-
-
 #ifdef PS2
         //int file_io::listcdvd(const char *path, entries *FileEntry);
         void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
@@ -96,6 +92,7 @@ namespace format_v4 {
         void wii_convert_game_data(file_game& data_out);
         void wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS]);
 #endif
+        std::string get_sufix();
 
 
     private:

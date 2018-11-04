@@ -27,7 +27,7 @@ struct object_collision {
 	}
     object_collision() {
         _block = 0;
-        _object = NULL;
+        _object = nullptr;
     }
 };
 
@@ -35,8 +35,10 @@ struct water_bubble {
     st_position pos;
     float x_adjust;
     int x_adjust_direction;
-    unsigned int timer;
+    float timer;
 };
+
+
 
 
 struct st_level3_tile {

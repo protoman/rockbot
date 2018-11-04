@@ -15,9 +15,9 @@
 #define PROJECTILE_FILE_V3 "data/game_projectile_list_v3.dat"
 
 // Global static pointer used to ensure a single instance of the class.
-Mediator* Mediator::_instance = NULL;
+Mediator* Mediator::_instance = nullptr;
 
-Mediator::Mediator() : stage_data() {
+Mediator::Mediator() : stage_data(), stage_extra_data() {
 	palleteX=0;
 	palleteY=0;
     selectedTileset = "/images/tilesets/default.png";
@@ -378,8 +378,14 @@ void Mediator::setPallete(char *value) {
 
 
 void Mediator::load_game() {
-    Mediator::get_instance()->fio.read_game(game_data);
-    Mediator::get_instance()->fio.read_all_stages(stage_data);
+    fio.read_game(game_data);
+    fio.read_all_stages(stage_data);
+    std::string stages_extra_data_filename = "data/stages_extra_data" + fio.get_sufix() + ".dat";
+
+
+    if (fio.file_exists(FILEPATH + "/" + stages_extra_data_filename)) {
+        stage_extra_data = fio_cmm.load_struct_data<CURRENT_FILE_FORMAT::file_stages_extra_data>(stages_extra_data_filename);
+    }
     load_game_data();
     Mediator::get_instance()->fio.read_castle_data(castle_data);
 
@@ -455,8 +461,6 @@ void Mediator::load_game() {
         }
     }
 
-    load_stage_select_data();
-
     ScenesMediator::get_instance()->load_game_scenes();
 
 }
@@ -500,6 +504,10 @@ void Mediator::save_game()
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
 
+    std::string stages_extra_data_filename = "data/stages_extra_data" + fio.get_sufix() + ".dat";
+    fio_cmm.save_struct_data<CURRENT_FILE_FORMAT::file_stages_extra_data>(stages_extra_data_filename, stage_extra_data);
+
+
     save_map_data();
     Mediator::get_instance()->fio.write_castle_data(castle_data);
 
@@ -540,9 +548,6 @@ void Mediator::save_game()
     ScenesMediator::get_instance()->save_game_scenes();
 
     save_dialogs();
-
-    save_stage_select_data();
-
 }
 
 void Mediator::save_map_data()
@@ -562,6 +567,8 @@ void Mediator::convert_map_data_to_v2()
     for (int i=0; i<FS_MAX_STAGES; i++) {
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             maps_data_v2[i][j] = CURRENT_FILE_FORMAT::file_map_v2(maps_data[i][j]);
+
+            /*
             for (int k=0; k<FS_MAX_MAP_NPCS; k++) {
                 if (maps_data[i][j].map_npcs[k].id_npc != -1) {
                     maps_data_npc_list.push_back(CURRENT_FILE_FORMAT::file_map_npc_v2(maps_data[i][j].map_npcs[k], i, j));
@@ -572,6 +579,7 @@ void Mediator::convert_map_data_to_v2()
                     maps_data_object_list.push_back(CURRENT_FILE_FORMAT::file_map_object_v2(maps_data[i][j].map_objects[k], i, j));
                 }
             }
+            */
         }
     }
 }
@@ -642,18 +650,6 @@ void Mediator::temp_fix_player_colors_order()
         player_list_v3_1.at(i).weapon_colors[7] = copy_weapon_colors[6];
     }
 }
-
-void Mediator::load_stage_select_data()
-{
-    fio.read_stage_select_data(stage_select_data, false);
-}
-
-void Mediator::save_stage_select_data()
-{
-    fio.write_stage_select_data(stage_select_data);
-}
-
-
 
 
 void Mediator::centNumberFormat(int n) {
