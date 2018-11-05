@@ -204,7 +204,7 @@ public:
 
 
     void set_animation_type(enum ANIM_TYPE type);
-    void set_animation_frame(uint frame);
+    void set_animation_frame(unsigned int frame);
 
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();

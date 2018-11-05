@@ -27,7 +27,7 @@ struct object_collision {
 	}
     object_collision() {
         _block = 0;
-        _object = nullptr;
+        _object = NULL;
     }
 };
 

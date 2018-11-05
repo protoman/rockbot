@@ -5,7 +5,6 @@
 #include <cmath>
 #include <cstdlib>
 
-
 using namespace std;
 
 #include "classmap.h"
@@ -1032,11 +1031,11 @@ void classMap::drop_item(classnpc* npc_ref)
         if (game_save.difficulty == DIFFICULTY_EASY) {
             // 5%, 10%, 10%, 20%, 20%, 20% //
             int drop_ratio_easy[] = {95, 85, 75, 55, 35, 15};
-            std::copy(std::begin(drop_ratio_easy), std::end(drop_ratio_easy), std::begin(drop_ratio));
+            std::copy(drop_ratio_easy, drop_ratio_easy+6, drop_ratio);
         } else if (game_save.difficulty == DIFFICULTY_HARD) {
             // 1%, 1%, 1%, 10%, 10%, 10% //
             int drop_ratio_hard[] = {99, 98, 97, 87, 77, 67};
-            std::copy(std::begin(drop_ratio_hard), std::end(drop_ratio_hard), std::begin(drop_ratio));
+            std::copy(drop_ratio_hard, drop_ratio_hard+6, drop_ratio);
         }
 
         if (rand_n == drop_ratio[0]) {

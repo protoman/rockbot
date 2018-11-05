@@ -138,7 +138,7 @@ namespace format_v4 {
             return;
         }
 
-        for (uint i=0; i<list.size(); i++) {
+        for (unsigned int i=0; i<list.size(); i++) {
             // add line break to separate each line
             std::string line = list.at(i);
             // if there are any remaining extra chars, remove it

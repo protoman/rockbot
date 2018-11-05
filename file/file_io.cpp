@@ -613,7 +613,7 @@ namespace format_v4 {
     {
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
-        for (uint i=0; i<temp.size(); i++) {
+        for (unsigned int i=0; i<temp.size(); i++) {
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }
@@ -626,7 +626,7 @@ namespace format_v4 {
     {
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
-        for (uint i=0; i<temp.size(); i++) {
+        for (unsigned int i=0; i<temp.size(); i++) {
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }

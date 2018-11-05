@@ -3356,7 +3356,7 @@ void character::set_animation_type(ANIM_TYPE type)
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
 }
 
-void character::set_animation_frame(uint frame)
+void character::set_animation_frame(unsigned int frame)
 {
     state.animation_state = frame;
 }

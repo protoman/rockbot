@@ -75,7 +75,7 @@ template <class T> void fio_common::save_data_to_disk(std::string file, std::vec
 
     std::cout << ">>file_io::save_data_to_disk - size: " << data.size() << std::endl;
 
-    for (uint i=0; i<data.size(); i++) {
+    for (unsigned int i=0; i<data.size(); i++) {
         int block_size = sizeof(T);
         T data_in = data.at(i);
         fwrite(&data_in, block_size, 1, fp);

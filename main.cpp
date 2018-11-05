@@ -361,8 +361,9 @@ int main(int argc, char *argv[])
 	if (argc > 1) {
 		for (int i=1; i<argc; i++) {
 			std::string temp_argv(argv[i]);
+            std::size_t stage_found = temp_argv.find("--stage");
 			if (temp_argv == "--fullscreen") {
-
+                // TODO
 			} else if (temp_argv == "--quickload") {
 				GAME_FLAGS[FLAG_QUICKLOAD] = true;
             } else if (temp_argv == "--invencible") { // player is not hit by enemies
@@ -379,11 +380,12 @@ int main(int argc, char *argv[])
                 GAME_FLAGS[FLAG_PLAYER3] = true;
             } else if (temp_argv == "--player4") {
                 GAME_FLAGS[FLAG_PLAYER4] = true;
-            } else if (temp_argv.find("--stage" != std::string::npos) && temp_argv.length() > 7) {
+            } else if (stage_found = std::string::npos && temp_argv.length() > 7) {
                 char n1 = temp_argv.at(7);
                 std::stringstream s;
                 s<<n1;
-                if (temp_argv.length() > 8 && temp_argv.at(8) != " ") {
+                char char_at_eight = temp_argv[8];
+                if (temp_argv.length() > 8 && char_at_eight != ' ') {
                     char n2 = temp_argv.at(8);
                     s<<n2;
                 }

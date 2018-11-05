@@ -11,9 +11,9 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += android
-#CONFIG += win32
+CONFIG += win32
 #CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
@@ -172,7 +172,7 @@ win32 {
                 -lSDL_ttf \
                 -lSDL_gfx \
                 -lmingw32 -lSDL -mwindows \
-                -LC:\Qt\5.5\mingw492_32\lib
+                -LC:\Qt\4.8.4\lib
 
 
 		INCLUDES = -I/usr/include/SDL \
@@ -181,7 +181,7 @@ win32 {
                 -I./include \
                 -L/usr/lib
                 QMAKE_CCFLAGS += -DWIN32 -DPC
-                QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib
+                QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\4.8.4\ -IC:\Qt\4.8.4\include -LC:\Qt\4.8.4\lib
                 CONFIG -= console
 }
 
