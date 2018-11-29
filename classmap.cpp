@@ -2147,6 +2147,8 @@ void classMap::move_npcs() /// @TODO - check out of screen
         st_position npc_pos = npc_ref->get_real_position();
         short dead_state = npc_ref->get_dead_state();
 
+        //std::cout << "classMap::move_npcs[" << npc_ref->get_name() << "]" << std::endl;
+
         std::string name(npc_ref->get_name());
 
 
@@ -2154,6 +2156,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
             if (dead_state == 2 && npc_ref->is_boss() == false && npc_ref->is_subboss()) {
                 npc_ref->revive();
             }
+            npc_ref->move_projectiles();
             continue; // no need for moving NPCs that are out of sight
         } else if (dead_state == 2 && npc_ref->auto_respawn() == true && npc_ref->is_boss() == false) {
             npc_ref->reset_position();
@@ -2170,9 +2173,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
         }
 
         npc_ref->execute(); // TODO: must pass scroll map to npcs somwhow...
-
-
-
 
 		if (dead_state == 1) {
             if (npc_ref->is_stage_boss() == false) {
@@ -2212,7 +2212,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
 
                 if (npc_ref->is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
                     std::cout << "##### STAGE-BOSS IS DEAD (#2) #####" << std::endl;
-                    gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
+                    gameControl.draw_explosion(npc_pos, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
                     continue;
@@ -2224,7 +2224,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     /// @TODO - replace with game_data.final_boss_id
                     if (game_data.final_boss_id == npc_ref->get_number()) {
                         soundManager.stop_music();
-                        gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
+                        gameControl.draw_explosion(npc_pos, true);
                         graphLib.blink_screen(255, 255, 255);
                         graphLib.blank_screen();
                         graphLib.updateScreen();
@@ -2232,7 +2232,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                         gameControl.show_ending();
                         return;
                     } else {
-                        gameControl.draw_explosion(npc_pos.x, npc_pos.y, true);
+                        gameControl.draw_explosion(npc_pos, true);
                         gameControl.got_weapon();
                     }
                 }

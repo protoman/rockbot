@@ -31,6 +31,10 @@
 // SDL, you can clone this class and use other platform-specific methods          //
 // ****************************************************************************** //
 
+enum e_PRELOADED_IMAGES {
+    PRELOADED_IMAGES_EXPLOSION_BUBBLE,
+    PRELOADED_IMAGES_COUNT
+};
 
 enum e_flip_type {
     flip_type_horizontal,
@@ -237,6 +241,7 @@ public:
     void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
     void rotate_image(graphicsLib_gSurface& picture, double angle);
     void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
+    graphicsLib_gSurface* get_preloaded_image(e_PRELOADED_IMAGES image_n);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
@@ -334,6 +339,9 @@ private:
 
 
     struct graphicsLib_gSurface _screen_border;
+
+    graphicsLib_gSurface preloaded_images[PRELOADED_IMAGES_COUNT];
+
 
 
 #ifdef PSP

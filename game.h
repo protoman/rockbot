@@ -109,7 +109,7 @@ public:
     void show_demo_ending();
 
 
-    void draw_explosion(short int centerX, short int centerY, bool show_players);
+    void draw_explosion(st_position center, bool show_players);
     void show_player();
     /**
      * @brief

@@ -400,6 +400,13 @@ void common::fill_languages_combo(QComboBox *combo)
     combo->addItem(QString("Portuguese"));
 }
 
+void common::fill_numbered_combo(QComboBox *combo, int start, int end)
+{
+    for (int i=start; i<=end; i++) {
+        combo->addItem(QString::number(i));
+    }
+}
+
 std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;

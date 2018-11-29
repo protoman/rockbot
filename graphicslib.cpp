@@ -2091,6 +2091,9 @@ void graphicsLib::preload_images()
     filename = FILEPATH + "images/sprites/objects/armor_legs.png";
     surfaceFromFile(filename, &armor_icon_legs);
 
+    filename = FILEPATH + "images/animations/explosion_32.png";
+    surfaceFromFile(filename, &preloaded_images[PRELOADED_IMAGES_EXPLOSION_BUBBLE]);
+    set_surface_alpha(120, &preloaded_images[PRELOADED_IMAGES_EXPLOSION_BUBBLE]);
 }
 
 void graphicsLib::preload_anim_tiles()
@@ -2274,6 +2277,11 @@ void graphicsLib::rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;
     }
+}
+
+graphicsLib_gSurface *graphicsLib::get_preloaded_image(e_PRELOADED_IMAGES image_n)
+{
+    return &preloaded_images[image_n];
 }
 
 #ifdef PSP

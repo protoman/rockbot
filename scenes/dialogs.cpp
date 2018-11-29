@@ -170,7 +170,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
     }
 
 
-    input.clean();
+    input.clean_confirm_button();
     input.wait_keypress();
     gameControl.game_unpause();
 

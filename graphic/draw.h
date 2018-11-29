@@ -8,6 +8,8 @@
 #define FLASH_POINTS_N 10
 #define SNOW_PARTICLES_NUMBER 20
 
+
+
 struct st_snow_particle {
     st_float_position position;
     float speed;                    // vertical speed. horizontal speed is the same for all
@@ -66,6 +68,9 @@ public:
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
     void set_boss_hp(int hp);
     void show_boss_intro_bg();
+    void draw_explosion(st_position center_point, int radius, int angle_inc);
+    void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
+    void draw_castle_point(int x, int y);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
@@ -79,8 +84,8 @@ private:
     void show_inferno_effect();
     void free_inferno_surface();
     void show_weapon_tooltip();
+    st_float_position get_radius_point(st_position center_point, int radius, float angle);
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
-
 
 
 private:
@@ -142,6 +147,7 @@ private:
     int current_alpha;                                  // used for fade effect that runs each time update-screen is called
     st_color current_alpha_color;
     graphicsLib_gSurface current_alpha_surface;
+    graphicsLib_gSurface castle_point;
 
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage

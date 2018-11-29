@@ -5,6 +5,7 @@
 #include "file/file_io.h"
 #include "file/fio_scenes.h"
 #include "file/fio_strings.h"
+#include "file/v4/file_castlepoints.h"
 
 #include "scenes/scenesmediator.h"
 
@@ -165,6 +166,9 @@ public:
 
     // stage dialogs, key is stage_n, vector represent the list for each text line
     std::vector<std::map<int, std::vector<std::string> > > stage_dialog_list;
+
+    CURRENT_FILE_FORMAT::st_file_castle_ponts points_castle1;
+    CURRENT_FILE_FORMAT::st_file_castle_ponts points_castle2;
 
 
 private:

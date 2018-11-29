@@ -35,6 +35,7 @@ public:
     static void fill_scenes_combo(QComboBox *combo);
     static void fill_languages_combo(QComboBox *combo);
     static void fill_sfx_combo(QComboBox *combo);
+    static void fill_numbered_combo(QComboBox *combo, int start, int end);
     static std::vector<std::string> get_npc_names_list();
     static std::vector<std::string> get_weapon_names_list();
     static st_size calc_image_size(std::string file);

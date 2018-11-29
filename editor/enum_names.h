@@ -73,9 +73,11 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("WAIT TIME [RANDOM]");
     AI_ACTION_NAMES.push_back("MORPH INTO");
     AI_ACTION_NAMES.push_back("PLAY SOUND EFFECT");
+
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
     AI_ACTION_SHOT_OPTIONS.push_back("AHEAD");
+
     // -------------------------------------------------------------- //
     AI_ACTION_WALK_OPTIONS.push_back("HORIZONTAL AHEAD");
     AI_ACTION_WALK_OPTIONS.push_back("HORIZONTAL TURN");
@@ -85,6 +87,7 @@ void init_enum_names() {
     AI_ACTION_WALK_OPTIONS.push_back("RANDOM DIRECTION");
     AI_ACTION_WALK_OPTIONS.push_back("TO OPPOSITE WALL");
 
+    // -------------------------------------------------------------- //
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD");
     AI_ACTION_FLY_OPTIONS.push_back("TURN");
     AI_ACTION_FLY_OPTIONS.push_back("UP");
@@ -104,6 +107,7 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("RANDOM X");
     AI_ACTION_FLY_OPTIONS.push_back("RANDOM Y");
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD [SIN-Y]");
+    AI_ACTION_FLY_OPTIONS.push_back("AIR-DASH TO PLAYER");
 
     // -------------------------------------------------------------- //
     AI_ACTION_JUMP_OPTIONS.push_back("AHEAD");

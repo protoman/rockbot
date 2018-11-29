@@ -45,12 +45,6 @@ class classMap;		// advance declaration
 struct object_collision;
 
 
-
-
-
-
-
-
 /**
  * @brief
  *
@@ -108,6 +102,7 @@ public:
     bool is_player() const;
     void advance_frameset(); // changes the state for the next (or previous) frame
     void show();
+    void show_previous_sprites();
     void show_at(st_position pos);
     void show_sprite();
     void reset_sprite_animation_timer();
@@ -122,6 +117,7 @@ public:
     void clean_projectiles();
     void clean_effect_projectiles();
     void char_update_real_position();
+    st_float_position get_screen_position_from_point(st_float_position pos);
     virtual void damage(unsigned int damage_points, bool ignore_hit_timer);
     virtual void damage_spikes(bool ignore_hit_timer);
     bool is_dead() const;
@@ -144,6 +140,7 @@ public:
     st_color get_color_key(short int key_n) const;
     short int get_number() const;
     void charMove();
+    void store_previous_position();
     void clear_move_commands();
     void reset_gravity_speed();
     bool gravity(bool boss_demo_mode);							// returns true if finished (reached ground)
@@ -377,7 +374,8 @@ protected:
     st_rectangle vulnerable_area_box;                       // hitarea, set by classnpc
     character_animation animation_obj;
 
-
+    std::vector<st_float_position> previous_position_list;
+    bool must_show_dash_effect;
 };
 
 #endif // CHARACTER_H

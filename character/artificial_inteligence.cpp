@@ -1170,10 +1170,14 @@ void artificial_inteligence::execute_ai_step_fly()
     //std::cout << "AI::execute_ai_step_fly, _parameter: " << _parameter << std::endl;
     // INITIALIZATION
 	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER) {
+        must_show_dash_effect = false;
+        previous_position_list.clear();
+        if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
             std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER[INIT]" << std::endl;
             struct_player_dist dist_players = dist_npc_players();
             _dest_point = dist_players.pObj->getPosition();
+            must_show_dash_effect = true;
+
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
             /*
             int rand_x = rand() % RES_W*2;
@@ -1374,6 +1378,11 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
             //std::cout << "artificial_inteligence::execute_ai_step_fly - POSITION[" << position.x << ", " << position.y << "], POINT[" << _dest_point.x << ", " << _dest_point.y << "]" << std::endl;
             if (move_to_point(_dest_point, move_speed, move_speed, is_ghost) == true) {
+                //std::cout << "artificial_inteligence::execute_ai_step_fly: FINISHED" << std::endl;
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            }
+        } else if (_parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
+            if (move_to_point(_dest_point, move_speed*2, move_speed*2, is_ghost) == true) {
                 //std::cout << "artificial_inteligence::execute_ai_step_fly: FINISHED" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }

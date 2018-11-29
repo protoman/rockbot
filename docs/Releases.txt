@@ -32,3 +32,15 @@
 - Fixes:
     # unicode text with progressive draw
     # better teleporter y-position handling
+
+
+
+====================================================================================
+1.20.069:
+====================================================================================
+- enemy projectile not moving if he is not on-screen
+- bring back to mega-like stage selection
+- bring back castle stages intro
+- new music from Simone Bernacchia
+- dash shadow effect
+- AI: fly+dash to player

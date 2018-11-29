@@ -493,6 +493,9 @@ void Mediator::load_game_data()
 
 
         maps_data_object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
+
+        points_castle1 = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle1_points.dat"));
+        points_castle2 = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle2_points.dat"));
     }
 }
 
@@ -544,6 +547,8 @@ void Mediator::save_game()
     // ######### convert npc to npc_v3.1.1 ######### //
     */
 
+    fio_cmm.save_single_object_to_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>("castle1_points.dat", points_castle1);
+    fio_cmm.save_single_object_to_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>("castle2_points.dat", points_castle2);
 
     ScenesMediator::get_instance()->save_game_scenes();
 

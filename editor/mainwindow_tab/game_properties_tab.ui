@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>801</width>
-    <height>475</height>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -229,7 +229,7 @@
      <item row="15" column="0">
       <widget class="QLabel" name="label_21">
        <property name="text">
-        <string>Stage Select Map:</string>
+        <string>Castle Map Points:</string>
        </property>
       </widget>
      </item>

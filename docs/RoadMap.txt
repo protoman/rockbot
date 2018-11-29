@@ -83,7 +83,6 @@ VAPPEBOY:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- seahorse and dynamite music not working
 - stage selected fanfarre
 - castle 4
 - spikebot

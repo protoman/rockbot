@@ -35,7 +35,8 @@ public:
 	stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]);
     short finished_stages() const;
 
-    int pick_stage(int stage_n);
+    int pick_stage(int selected_stage_n);
+    int pick_stage_new(int stage_n);
 
     void show_stage_face(int x, int y, int stage_n);
 

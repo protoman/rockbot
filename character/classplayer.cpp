@@ -701,19 +701,19 @@ void classPlayer::execute_projectiles()
 
             // collision against whole body
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
-            std::cout << "### #1 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
+            //std::cout << "### #1 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hitbox[" << npc_hitbox.x << "," << npc_hitbox.y << "," << npc_hitbox.w << "," << npc_hitbox.h << "]" << std::endl;
 
             //classnpc* enemy = (*enemy_it);
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
 
-                std::cout << "### #2 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hit[TRUE]" << std::endl;
+                //std::cout << "### #2 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].hit[TRUE]" << std::endl;
 
                 // shielded NPC: reflects/finishes shot
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
-                    std::cout << "### #3 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].intangible[TRUE]" << std::endl;
+                    //std::cout << "### #3 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].intangible[TRUE]" << std::endl;
                     continue;
                 } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING && (*it).get_trajectory() != TRAJECTORY_SLASH && (*it).get_vanishes_on_hit() == true) {
-                    std::cout << "### #4 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].shielded[TRUE]" << std::endl;
+                    //std::cout << "### #4 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].shielded[TRUE]" << std::endl;
                     if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
                         (*it).consume_projectile();
                     } else {
@@ -722,18 +722,18 @@ void classPlayer::execute_projectiles()
                     continue;
                 }
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
-                    std::cout << "### #5 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].invisible[TRUE]" << std::endl;
+                    //std::cout << "### #5 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].invisible[TRUE]" << std::endl;
                     continue;
                 }
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_teleporting() == true) { // executing AI-action TELEPORT
-                    std::cout << "### #6 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].teleporting[TRUE]" << std::endl;
+                    //std::cout << "### #6 - enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].teleporting[TRUE]" << std::endl;
                     continue;
                 }
 
                 // check if have hit area, and if hit it
                 st_rectangle npc_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 
-                std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].vulnerable_area[" << npc_vulnerable_area.x << "," << npc_vulnerable_area.y << "," << npc_vulnerable_area.w << "," << npc_vulnerable_area.h << "]" << std::endl;
+                //std::cout << "### enemy[" << gameControl.get_current_map_obj()->_npc_list.at(i).get_name() << "].vulnerable_area[" << npc_vulnerable_area.x << "," << npc_vulnerable_area.y << "," << npc_vulnerable_area.w << "," << npc_vulnerable_area.h << "]" << std::endl;
 
                 int temp_x = Sint16(npc_vulnerable_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
 
@@ -977,9 +977,12 @@ void classPlayer::death()
 	input.clean();
 	state.direction = ANIM_DIRECTION_RIGHT;
     gameControl.remove_current_teleporter_from_list();
-    draw_lib.add_fade_out_effect(171, 0, 19);
-    gameControl.draw_explosion(realPosition.x, realPosition.y, false);
-    draw_lib.remove_fade_out_effect();
+
+    //draw_lib.add_fade_out_effect(171, 0, 19);
+    gameControl.draw_explosion(realPosition, false);
+    //draw_lib.draw_explosion(realPosition);
+    //draw_lib.remove_fade_out_effect();
+
     if (game_save.items.lifes == 0) {
         game_save.items.lifes = 3;
         std::cout << "GAME OVER" << std::endl;

@@ -783,5 +783,5 @@ more items and checkpoints for easy difficulty
 #104: add RLE optimization in set_surface_alpha
 
 ################
-Change drop ratio on enemies depending on picked difficulty
-
+Change drop ratio on enemies depending on picked difficulty.
+Only clean confirm/jump button when starting stage.

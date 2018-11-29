@@ -79,6 +79,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     _stairs_falling_timer = 0;
     attack_button_pressed_timer = 0;
     attack_button_last_state = 0;
+    must_show_dash_effect = false;
 }
 
 
@@ -104,7 +105,21 @@ void character::char_update_real_position() {
     } else {
 		realPosition.x = position.x;
 		realPosition.y = position.y;
-	}
+    }
+}
+
+st_float_position character::get_screen_position_from_point(st_float_position pos)
+{
+    st_float_position res_pos;
+    if (gameControl.get_current_map_obj() != NULL) {
+        res_pos.x = pos.x - (int)gameControl.get_current_map_obj()->getMapScrolling().x;
+        res_pos.y = pos.y - (int)gameControl.get_current_map_obj()->getMapScrolling().y;
+        //std::cout << ">>>> show::char_update_real_position - realPosition.y: " << realPosition.y << ", pos.y: " << position.y << ", gameControl.get_current_map_obj()->getMapScrolling().y: " << gameControl.get_current_map_obj()->getMapScrolling().y << std::endl;
+    } else {
+        res_pos.x = pos.x;
+        res_pos.y = pos.y;
+    }
+    return res_pos;
 }
 
 // ********************************************************************************************** //
@@ -116,8 +131,10 @@ void character::charMove() {
 	bool moved = false;
     float temp_move_speed = move_speed;
 
+    // store previous position
+    store_previous_position();
+
     if (timer.is_paused() == true) {
-        std::cout << "# CHAR::MOVE::PAUSED" << std::endl;
         return;
     }
 
@@ -520,6 +537,14 @@ void character::charMove() {
 
 }
 
+void character::store_previous_position()
+{
+    previous_position_list.push_back(position);
+    if (previous_position_list.size() > PREVIOUS_FRAMES_MAX) {
+        previous_position_list.erase(previous_position_list.begin());
+    }
+}
+
 void character::clear_move_commands()
 {
 	moveCommands.up = 0;
@@ -919,7 +944,29 @@ void character::show() {
         show_at(realPosition);
     }
     */
+
+    show_previous_sprites();
+
     show_at(realPosition);
+}
+
+void character::show_previous_sprites()
+{
+    if (must_show_dash_effect == false && state.animation_type != ANIM_TYPE_SLIDE) {
+        return;
+    }
+    // show previous frames
+    std::map<std::string, st_char_sprite_data>::iterator it_graphic = graphLib.character_graphics_list.find(name);
+    for (int i=0; i<previous_position_list.size(); i++) {
+        // only show each two frames
+        if (i%2 == 0) {
+            continue;
+        }
+        st_float_position screen_pos = get_screen_position_from_point(previous_position_list.at(i));
+        graphLib.set_surface_alpha(40*i/2, &it_graphic->second.frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        show_at(st_position(screen_pos.x, screen_pos.y));
+    }
+    graphLib.set_surface_alpha(255, &it_graphic->second.frames[state.direction][state.animation_type][state.animation_state].frameSurface);
 }
 
 void character::show_at(st_position pos)
@@ -1599,6 +1646,7 @@ bool character::slide(st_float_position mapScrolling)
                 if (state.direction == ANIM_DIRECTION_LEFT) {
                     adjust_x = frameSize.width+3;
                 }
+                previous_position_list.clear();
                 gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction, st_size(8, 8));
             }
 		}
@@ -1836,7 +1884,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_HARD) {
                 if (mode_xy == 1 ||  is_player()) {
-                    std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
+                    //std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
                     damage_spikes(true);
                 }
                 must_block = true;
@@ -1955,7 +2003,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         // deal with teleporter object that have special block-area and effect (9)teleporting)
         if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
 
-            std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
+            //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {

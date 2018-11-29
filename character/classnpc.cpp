@@ -371,8 +371,6 @@ void classnpc::initFrames()
 // ********************************************************************************************** //
 void classnpc::execute()
 {
-
-
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
         clean_projectiles();
         return;
@@ -579,7 +577,6 @@ void classnpc::move() {
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT-1) {
         state.direction = ANIM_DIRECTION_LEFT;
     }
-
 
 	/// @TODO: this check must be placed in game.cpp and npc must have a set_frozen() method, for individual effect
 

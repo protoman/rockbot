@@ -38,6 +38,7 @@ public:
     void clean_all();     /// removes also the attack state
     void save();
     void wait_keypress(); /// waits intil a key is pressed
+    void clean_confirm_button();
 
     bool pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_config_copy, INPUT_COMMANDS key);
 

@@ -526,7 +526,17 @@ void inputLib::wait_keypress()
         }
         timer.delay(1);
     }
-    clean();
+    clean_confirm_button();
+}
+
+void inputLib::clean_confirm_button()
+{
+    //std::cout << "INPUT::CLEAN CALL" << std::endl;
+    for (int i=0; i<BTN_COUNT; i++) {
+        if (i == BTN_JUMP) { // don't clean attack to save charging
+            p1_input[i] = 0;
+        }
+    }
 }
 
 // returns false for keyboard, true for joysticks

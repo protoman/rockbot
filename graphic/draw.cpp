@@ -15,6 +15,7 @@
 #define TRAIN_EFFECT_SCREEN_MOVE 1
 #define INFERNO_ALPHA_STEP 3
 #define STARS_DELAY 50
+#define CASTLE_PATH_DURATION 1000
 
 #define ENERGY_BALL_IMG_SIZE 10
 #define ENERGY_BALL_PERCENT_SLICE 5
@@ -121,6 +122,10 @@ void draw::preload()
 
     filename = FILEPATH + "/images/1up_icons.png";
     graphLib.surfaceFromFile(filename, &hud_player_1up);
+
+    filename = FILEPATH + "images/backgrounds/castle_point.png";
+    graphLib.surfaceFromFile(filename, &castle_point);
+
 }
 
 void draw::show_gfx()
@@ -453,7 +458,7 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 int draw::show_credits(bool can_leave)
 {
     soundManager.stop_music();
-    soundManager.load_shared_music("sprnova.it");
+    soundManager.load_music("rockbot_endcredits.mod");
     soundManager.play_music();
     int res = show_credits_text(can_leave, create_engine_credits_text());
     if (res == 1) {
@@ -851,6 +856,129 @@ void draw::show_weapon_tooltip()
         }
         graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y), true);
     }
+}
+
+st_float_position draw::get_radius_point(st_position center_point, int radius, float angle)
+{
+    st_float_position res;
+    // x = r * cos(x0), y = r * sin(y0)
+    res.x = radius * cos(angle) + center_point.x;
+    res.y = radius * sin(angle) + center_point.y;
+    return res;
+}
+
+void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
+{
+    int dist_x = initial_point.x - final_point.x;
+    int dist_y = initial_point.y - final_point.y;
+    int duration = CASTLE_PATH_DURATION;
+    int step_delay = duration / (abs(dist_x) + abs(dist_y));
+    if (instant == true) {
+        duration = 0;
+        step_delay = 0;
+    }
+
+    std::cout << "step_delay[" << step_delay << "]" << std::endl;
+
+    draw_castle_point(initial_point.x, initial_point.y);
+    draw_castle_point(final_point.x, final_point.y);
+    graphLib.updateScreen();
+
+    int pos_y = initial_point.y - 1;
+    int pos_x = initial_point.x + 2;
+
+    // first, move Y axis
+    if (dist_y < 0) {
+        pos_y += castle_point.height + 1;
+    }
+    std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
+    if (dist_y != 0) {
+        for (int i=0; i<abs(dist_y)-2; i++) {
+            // border left
+            graphLib.clear_area(pos_x-1, pos_y, 1, 1, 19, 19, 19);
+            // middle
+            graphLib.clear_area(pos_x, pos_y, 4, 1, 220, 220, 220);
+            // border right
+            graphLib.clear_area(pos_x+4, pos_y, 1, 1, 19, 19, 19);
+
+            if (dist_y > 0) {
+                pos_y--;
+            } else {
+                pos_y++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+    // remove extra bit
+    if (dist_y > 0) {
+        pos_y++;
+    } else {
+        pos_y -= 4;
+    }
+
+    int temp_pos_x = pos_x;
+    int max_dist_x = abs(dist_x)-2;
+    if (dist_x > 0) {
+        temp_pos_x -= 1;
+        max_dist_x -= 4;
+    } else if (dist_x < 0) {
+        temp_pos_x += 4;
+        max_dist_x -= 4;
+    }
+
+    // secondly, move x axis
+    if (dist_x > 0) {
+        pos_x += 3;
+    }
+    std::cout << "ini.x[" << initial_point.x << "], end.x[" << final_point.x << "], dist_x[" << dist_x << "]" << std::endl;
+    if (dist_x != 0) {
+        for (int i=0; i<max_dist_x; i++) {
+            // top
+            graphLib.clear_area(temp_pos_x, pos_y-1, 1, 1, 19, 19, 19);
+            // middle
+            graphLib.clear_area(temp_pos_x, pos_y, 1, 4, 220, 220, 220);
+            // bottom
+            graphLib.clear_area(temp_pos_x, pos_y+4, 1, 1, 19, 19, 19);
+            if (dist_x > 0) {
+                temp_pos_x--;
+            } else {
+                temp_pos_x++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+
+}
+
+void draw::draw_castle_point(int x, int y)
+{
+    graphLib.copyArea(st_position(x, y), &castle_point, &graphLib.gameScreen);
+}
+
+void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
+{
+    // 8 initial points
+    int points_n = 12;
+    st_float_position points[points_n];
+    float angle_diff = 360 / points_n;
+    int frame = 0;
+
+    std::cout << "DRAW::draw_explosion::START, angle_diff[" << angle_diff << "], center[" << center_point.x << "][" << center_point.y << "]" << std::endl;
+
+    for (int j=0; j<points_n; j++) {
+        float angle = (j*angle_diff)+angle_inc;
+        float angle_rad = (angle * 3.14)/180;
+        points[j] = get_radius_point(center_point, radius, angle_rad);
+        std::cout << "DRAW::draw_explosion - angle[" << angle_rad << "], point[" << j << "][" << points[j].x << "][" << points[j].y << "]" << std::endl;
+        graphLib.copyArea(st_rectangle(frame*32, 0, 32, 32), st_position(points[j].x, points[j].y), graphLib.get_preloaded_image(PRELOADED_IMAGES_EXPLOSION_BUBBLE), &graphLib.gameScreen);
+    }
+    update_screen();
 }
 
 

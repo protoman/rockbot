@@ -19,7 +19,9 @@ public:
 
 public:
     template <class T> std::vector<T> load_from_disk(std::string file);
+    template <class T> T load_single_object_from_disk(std::string file);
     template <class T> void save_data_to_disk(std::string file, std::vector<T> data);
+    template <class T> void save_single_object_to_disk(std::string file, T data);
 
     template <class T> void save_struct_data(std::string file, T data);
     template <class T> T load_struct_data(std::string file);
@@ -113,6 +115,48 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
     }
     fclose(fp);
     return res;
+}
+
+template <class T> T fio_common::load_single_object_from_disk(std::string file)
+{
+    std::string filename = std::string(FILEPATH) + "/" + file;
+    T res;
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp) {
+        std::cout << ">>file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
+        return res;
+    }
+
+    while (!feof(fp) && !ferror(fp)) {
+        T out;
+        int res_read = fread(&out, sizeof(T), 1, fp);
+
+        //std::cout << ">>file_io::load_single_object_from_disk - res_read '" << res_read << "'." << std::endl;
+        if (res_read == -1) {
+            std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
+        } else if (res_read == 1) {
+            res = out;
+            break;
+        }
+
+    }
+    fclose(fp);
+    return res;
+}
+
+template <class T> void fio_common::save_single_object_to_disk(std::string file, T data_in)
+{
+    std::string filename = std::string(FILEPATH) + "/" + file;
+    std::cout << ">> file_io::save_single_object_to_disk - filename: '" << filename << "'." << std::endl;
+    FILE *fp = fopen(filename.c_str(), "wb");
+    if (!fp) {
+        std::cout << ">> file_io::save_single_object_to_disk - file '" << filename << "' not found." << std::endl;
+        return;
+    }
+
+    int block_size = sizeof(T);
+    fwrite(&data_in, block_size, 1, fp);
+    fclose(fp);
 }
 
 #endif // FIO_COMMON_H
