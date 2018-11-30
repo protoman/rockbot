@@ -953,7 +953,16 @@ void character::show() {
 void character::show_previous_sprites()
 {
     if (must_show_dash_effect == false && state.animation_type != ANIM_TYPE_SLIDE) {
+        dash_effect_shadow_surface_frame.freeGraphic();
         return;
+    }
+
+    if (dash_effect_shadow_surface_frame.is_null()) {
+        graphicsLib_gSurface *surface_frame_original = get_current_frame_surface(state.direction, state.animation_type, state.animation_state);
+        // make a copy of the frame
+        graphLib.initSurface(st_size(surface_frame_original->width, surface_frame_original->height), &dash_effect_shadow_surface_frame);
+        graphLib.copyArea(st_position(0, 0), surface_frame_original, &dash_effect_shadow_surface_frame);
+
     }
     // show previous frames
     std::map<std::string, st_char_sprite_data>::iterator it_graphic = graphLib.character_graphics_list.find(name);
@@ -963,10 +972,10 @@ void character::show_previous_sprites()
             continue;
         }
         st_float_position screen_pos = get_screen_position_from_point(previous_position_list.at(i));
-        graphLib.set_surface_alpha(40*i/2, &it_graphic->second.frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        show_at(st_position(screen_pos.x, screen_pos.y));
+        graphLib.set_surface_alpha_nocolorkey(40*i/2, dash_effect_shadow_surface_frame);
+        graphLib.showSurfaceAt(&dash_effect_shadow_surface_frame, st_position(screen_pos.x, screen_pos.y), false);
     }
-    graphLib.set_surface_alpha(255, &it_graphic->second.frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+    graphLib.set_surface_alpha_nocolorkey(255, dash_effect_shadow_surface_frame);
 }
 
 void character::show_at(st_position pos)
@@ -1099,12 +1108,56 @@ void character::reset_sprite_animation_timer()
 
 void character::show_sprite_graphic(short direction, short type, short frame_n, st_position frame_pos)
 {
+
     if (state.invisible == true) {
         return;
     }
 
+    graphicsLib_gSurface *frame_surface = get_current_frame_surface(direction, type, frame_n);
+
+    if (frame_surface == NULL) {
+        return;
+    }
+
+    /// blinking when hit
+    unsigned int now_timer = timer.getTimer();
+    if (now_timer < hit_duration+last_hit_time) {
+
+        //if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
+
+        if (hit_animation_timer > now_timer) {
+            //graphLib.show_white_surface_at(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos);
+            graphLib.show_white_surface_at(frame_surface, frame_pos);
+            hit_animation_count = 0;
+            return;
+        } else if ((hit_animation_timer+HIT_BLINK_ANIMATION_LAPSE) < now_timer) {
+            hit_animation_count++;
+            if (hit_animation_count > 2) {
+                hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
+            }
+            return;
+        }
+    }
+    if (_progressive_appear_pos == 0) {
+        //graphLib.showSurfaceAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos, false);
+        graphLib.showSurfaceAt(frame_surface, frame_pos, false);
+    } else {
+        int diff_y = frameSize.height-_progressive_appear_pos;
+
+        //graphLib.showSurfaceRegionAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, st_rectangle(0, 0, frameSize.width, (frameSize.height-_progressive_appear_pos)), st_position(frame_pos.x, frame_pos.y-diff_y));
+        graphLib.showSurfaceRegionAt(frame_surface, st_rectangle(0, 0, frameSize.width, (frameSize.height-_progressive_appear_pos)), st_position(frame_pos.x, frame_pos.y-diff_y));
+        _progressive_appear_pos--;
+        if (_progressive_appear_pos == 0) {
+            position.y -= frameSize.height;
+        }
+    }
+}
+
+graphicsLib_gSurface *character::get_current_frame_surface(short direction, short type, short frame_n)
+{
+
     if (frame_n < 0) {
-        std::cout << "ERROR" << std::endl;
+        std::cout << "ERROR::haracter::get_current_frame_surface - negative frame-n" << std::endl;
         frame_n = 0;
     }
 
@@ -1112,7 +1165,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
     it_graphic = graphLib.character_graphics_list.find(name);
     if (it_graphic == graphLib.character_graphics_list.end()) {
         std::cout << "ERROR: #1 character::show_sprite_graphic - Could not find graphic for NPC [" << name << "]" << std::endl;
-        return;
+        return NULL;
     }
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
         if (frame_n == 0) {
@@ -1127,7 +1180,7 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
             frame_n = 0;
             state.animation_state = 0;
             _was_animation_reset = true;
-            return;
+            return &it_graphic->second.frames[direction][type][frame_n].frameSurface;
         }
         state.animation_state = 0;
         _was_animation_reset = true;
@@ -1140,41 +1193,12 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
             type = ANIM_TYPE_STAND;
             if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic at all
                 std::cout << "ERROR: #2 character::show_sprite_graphic - Could not find graphic for NPC [" << name << "] at pos[0][0][0]" << std::endl;
-                return;
+                return NULL;
             }
         }
     }
 
-    /// blinking when hit
-    unsigned int now_timer = timer.getTimer();
-    if (now_timer < hit_duration+last_hit_time) {
-
-        //if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
-
-        if (hit_animation_timer > now_timer) {
-            graphLib.show_white_surface_at(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos);
-            hit_animation_count = 0;
-            return;
-        } else if ((hit_animation_timer+HIT_BLINK_ANIMATION_LAPSE) < now_timer) {
-            hit_animation_count++;
-            if (hit_animation_count > 2) {
-                hit_animation_timer = now_timer+HIT_BLINK_ANIMATION_LAPSE;
-            }
-            return;
-        }
-    }
-    if (_progressive_appear_pos == 0) {
-        //std::cout << "direction[" << direction << "], type[" << type << "], frame_n[" << frame_n << "], frame_pos[" << frame_pos.x << "," << frame_pos.y << "], max_frames[" << frames_count() << "]" << std::endl;
-        graphLib.showSurfaceAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos, false);
-    } else {
-        int diff_y = frameSize.height-_progressive_appear_pos;
-
-        graphLib.showSurfaceRegionAt(&it_graphic->second.frames[direction][type][frame_n].frameSurface, st_rectangle(0, 0, frameSize.width, (frameSize.height-_progressive_appear_pos)), st_position(frame_pos.x, frame_pos.y-diff_y));
-        _progressive_appear_pos--;
-        if (_progressive_appear_pos == 0) {
-            position.y -= frameSize.height;
-        }
-    }
+    return &it_graphic->second.frames[direction][type][frame_n].frameSurface;
 }
 
 void character::reset_gravity_speed()

@@ -762,6 +762,11 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
+void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
+{
+    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+}
+
 
 struct graphicsLib_gSurface graphicsLib::surfaceFromRegion(struct st_rectangle rect_origin, struct graphicsLib_gSurface& originalSurface)
 {

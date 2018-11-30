@@ -107,6 +107,7 @@ public:
     void show_sprite();
     void reset_sprite_animation_timer();
     void show_sprite_graphic(short direction, short type, short n, st_position pos);
+    graphicsLib_gSurface* get_current_frame_surface(short direction, short type, short frame_n);
     st_size get_size() const;
     st_rectangle get_hitbox(int anim_type=-1);          // used for collision with map/objects
     st_rectangle get_vulnerable_area(int anim_type=-1);         // used for collision agains projectiles, takes vulnerable_area into account
@@ -376,6 +377,7 @@ protected:
 
     std::vector<st_float_position> previous_position_list;
     bool must_show_dash_effect;
+    graphicsLib_gSurface dash_effect_shadow_surface_frame;
 };
 
 #endif // CHARACTER_H

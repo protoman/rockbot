@@ -175,6 +175,9 @@ public:
 
     void set_surface_alpha(int alpha, graphicsLib_gSurface &surface);
     void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);
+
+    void set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface);
+
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
     void blank_screen();
     void blank_screen(int r, int g, int b);
