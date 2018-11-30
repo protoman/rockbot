@@ -83,6 +83,38 @@ VAPPEBOY:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
+- following projectile, when turns to zig-zag is not hitting enemy
+
+
+(walking)
+11-30 08:29:49.897 20701 20754 I ###ROCKBOT2###: Invalid X portion <<
+11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: ### GAME::show_player_at[-47, 93] ###
+11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: [WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring
+11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: Invalid X portion <<
+
+(milonga crash)
+11-30 08:32:27.499 20701 20754 I ###ROCKBOT2###: DRAW::show_boss_intro_sprites, id[37], filename[/storage/emulated/0/Android/data/net.upperland.rockbot/files//games/Rockbot1/images/sprites/enemies/milonga.png]
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #00 pc 0004aab0  /system/lib/libc.so (tgkill+12)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #01 pc 0001a443  /system/lib/libc.so (abort+54)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #02 pc 000e701f  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN9__gnu_cxx27__verbose_terminate_handlerEv+230)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #03 pc 000afe71  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN10__cxxabiv111__terminateEPFvvE+4)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #04 pc 000aff79  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZSt9terminatev+8)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #05 pc 000b010b  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (__cxa_throw+110)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #06 pc 000e092f  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #07 pc 00050e37  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN9scenesLib18show_bosses_endingEv+1706)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #08 pc 00051275  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN9scenesLib19show_enemies_endingEv+660)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #09 pc 00040173  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN4game11show_endingEv+58)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #10 pc 00047917  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN8classMap9move_npcsEv+1590)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #11 pc 00040453  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN5stage9move_npcsEv+6)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #12 pc 0003affd  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (_ZN4game9show_gameEbb+368)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #13 pc 0002065d  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (SDL_main+1440)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #14 pc 00020c2b  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/lib/arm/libapplication.so (Java_net_upperland_rockbot_DemoRenderer_nativeInit+26)
+11-30 08:32:28.001 21967 21967 F DEBUG   :     #15 pc 0004c1a1  /data/app/net.upperland.rockbot-gTFK23tHnJ4tnaAQInhqkg==/oat/arm/base.odex (offset 0x21000)
+
+
+- you are using the Weapon Aquired Tune in stead of the Stage Start tune when the enemy is introduced
+- look like enemy descriptions are out too (had mummybot being described as SeaHorse Bot)
+
 - stage selected fanfarre
 - castle 4
 - spikebot

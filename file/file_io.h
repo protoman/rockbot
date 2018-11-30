@@ -48,7 +48,7 @@ namespace format_v4 {
         // stages
         void write_all_stages(file_stages& stages_data_in) const;
         void read_all_stages(file_stages &stages_data_out);
-        void read_stage(file_stage& stages_data_out, short stage_n);
+        void read_stage(file_stage& stages_data_out, unsigned short stage_n);
         // maps
         void read_all_maps(file_map (&data_out)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);
         //void write_all_maps(file_map (&data_in)[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]);

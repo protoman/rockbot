@@ -427,7 +427,7 @@ namespace format_v4 {
     }
 
 
-    void file_io::read_stage(format_v4::file_stage &stages_data_out, short stage_n)
+    void file_io::read_stage(format_v4::file_stage &stages_data_out, unsigned short stage_n)
     {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
@@ -435,13 +435,26 @@ namespace format_v4 {
         fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.read_stage: Could not read stage '%s'] ###", filename.c_str());
+#endif
+
             fflush(stdout);
             return;
         }
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### file_io::read_stage, stage_n[%d]] ###", stage_n);
+#endif
+
+
         fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
-        int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
-        if (read_result == -1) {
-            printf(">>file_io::read_game - Error reading struct data from stage file.\n");
+        size_t read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
+        if (read_result != 1) {
+            std::cout << ">>file_io::read_game - Error reading struct data from stage file, read_result[" << read_result << "], expected[" << sizeof(struct format_v4::file_stage) << "]" << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.read_stage:Error reading struct data from stage file ###");
+#endif
             fflush(stdout);
             exit(-1);
         }
@@ -928,17 +941,13 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
-        /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=STAGE1; i<=STAGE8; i++) {
-            data_out.stages[i] = 0;
+            data_out.stages[i] = 1;
         }
-        */
-        /*
-        for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
-            data_out.stages[i] = 0;
+        for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
+            data_out.stages[i] = 1;
         }
-        */
         //data_out.stages[INTRO_STAGE] = 1;
         //data_out.stages[CASTLE1_STAGE1] = 1;
         //data_out.stages[CASTLE1_STAGE2] = 1;

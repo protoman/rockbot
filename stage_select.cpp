@@ -103,14 +103,14 @@ short stage_select::finished_stages() const
             total_stages++;
         }
     }
-    std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
+    //std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
     return total_stages;
 }
 
 
 void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
 
-    std::cout << "STAGESELECT::move_highlight  - xinc: " << (int)x_inc << ", yinc: " << (int)y_inc << std::endl;
+    //std::cout << "STAGESELECT::move_highlight  - xinc: " << (int)x_inc << ", yinc: " << (int)y_inc << std::endl;
 
 	graphLib.copyArea(highlight_pos, &s_dark, &graphLib.gameScreen);
 	highlight_pos.x += x_inc;
@@ -188,6 +188,14 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 int stage_select::pick_stage(int selected_stage_n) {
     struct st_position spacing;
     int selection_end=0;
+
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt");
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### stage_select::pick_stage::boss_credits_data.size[%d] ###", boss_credits_data.size());
+#endif
+
 
     soundManager.load_music(game_data.stage_select_music_filename);
     soundManager.play_music();

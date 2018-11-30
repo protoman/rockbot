@@ -668,16 +668,27 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        //fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
+#endif
             return res;
+        } else {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] loaded. ###", filename.c_str());
+#endif
         }
 
         std::string str;
+
         while (getline(fp, str)) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file::read.str[%s], res.size[%d]. ###", str.c_str(), res.size());
+#endif
+
             if (str.length() > 0) {
                 StringUtils::replace_all(str, "\n", "");
                 StringUtils::replace_all(str, "\r", "");
@@ -685,6 +696,11 @@ namespace format_v4 {
             res.push_back(str);
         }
         fp.close();
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file res.size[%d]. ###", res.size());
+#endif
+
         return res;
     }
 

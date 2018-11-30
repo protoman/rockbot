@@ -66,6 +66,7 @@ extern bool GAME_FLAGS[FLAG_COUNT];
 #define TIME_SHORT 120
 #define TIME_LONG 300
 #define INTRO_DIALOG_DURATION_TIME 4000
+#define BOSS_CREDITS_LINES_N 4
 
 // ********************************************************************************************** //
 // ScenesLib handles all scinematic like intro and ending                                         //
@@ -562,37 +563,94 @@ void scenesLib::ending_show_single_enemy(int id, std::string name)
 
 void scenesLib::show_bosses_ending()
 {
+
+    // TODO: error handling //
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending ###");
+#endif
+
     graphLib.blank_screen();
     // read bosses strings
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     std::vector<std::string> boss_credits_data = fio_str.get_string_list_from_file(FILEPATH + "/boss_credits.txt");
 
-    for (int i=0; i<CASTLE1_STAGE5; i++) {
+    for (short i=0; i<CASTLE1_STAGE5; i++) {
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #1, i[%d] ###", i);
+#endif
 
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
         fio.read_stage(stage_data_obj, i);
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #2");
+#endif
+
 
         draw_lib.show_boss_intro_bg();
         graphLib.updateScreen();
         int boss_id = stage_data_obj.boss.id_npc;
 
-        // 40y, 111h
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #3");
+#endif
+
+        // BOSS POSITION IN DATA - 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
-        std::string boss_n = boss_credits_data.at(i*4) + ":";
-        std::string concept = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
-        std::string design = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
+        unsigned int boss_pos = i*BOSS_CREDITS_LINES_N;
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #4, boss_pos[%d] ###", boss_pos);
+#endif
+
+
+        if (boss_pos >= boss_credits_data.size()) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "ERROR: boss_pos[%d] is greater than list size[%d]", boss_pos, boss_credits_data.size());
+#endif
+            std::cout << "ERROR: boss_pos[" << boss_pos << "] is greater than list size[" << boss_credits_data.size() << "]" << std::endl;
+            continue;
+        }
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #5");
+#endif
+
+        std::string boss_n = boss_credits_data.at(boss_pos) + ":";
+        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
+        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
         int delay = 60;
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #6");
+#endif
 
         graphLib.draw_progressive_text(5, 170, boss_n, false, delay);
         graphLib.draw_progressive_text(90, 170, boss_credits_data.at(i*4+1), false, delay);
         draw_lib.update_screen();
 
-        graphLib.draw_progressive_text(5, 185, concept.c_str(), false, delay);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #7");
+#endif
+
+
+        graphLib.draw_progressive_text(5, 185, concept_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 185, boss_credits_data.at(i*4+2), false, delay);
         draw_lib.update_screen();
-        graphLib.draw_progressive_text(5, 201, design.c_str(), false, delay);
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #8");
+#endif
+
+        graphLib.draw_progressive_text(5, 201, design_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 201, boss_credits_data.at(i*4+3), false, delay);
         draw_lib.update_screen();
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #9");
+#endif
 
         timer.delay(2000);
     }
@@ -816,7 +874,6 @@ void scenesLib::boss_intro(Uint8 pos_n)
         return;
     }
 
-    std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
 
     graphicsLib_gSurface boss_img;
     char boss_filename_chr[12];
@@ -832,7 +889,6 @@ void scenesLib::boss_intro(Uint8 pos_n)
     // TODO: must set this in game-data //
     soundManager.load_music("rockbot_weapon_aquired.mod");
     soundManager.play_music();
-    //soundManager.play_sfx(SFX_STAGE_SELECTED);
     graphLib.blank_screen();
     draw_lib.show_boss_intro_bg();
     draw_lib.update_screen();
@@ -847,7 +903,12 @@ void scenesLib::boss_intro(Uint8 pos_n)
 
     CURRENT_FILE_FORMAT::file_stage temp_stage_data;
     fio.read_stage(temp_stage_data, pos_n);
+    std::string botname = GameMediator::get_instance()->get_enemy(temp_stage_data.boss.id_npc)->name;
+
     std::string full_stage_str = botname + " [" + std::string(temp_stage_data.name) + "]";
+
+    std::cout << "SCENES::BOSS_INTRO - pos_n[" << (int)pos_n << "], full_stage_str[" << full_stage_str << "]" << std::endl;
+
     // convert name to uppercase
     std::locale settings;
     std::string boss_name;
