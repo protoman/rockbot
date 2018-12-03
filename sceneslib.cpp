@@ -953,7 +953,7 @@ void scenesLib::show_castle_boss_intro(Uint8 pos_n)
         //show_destrin_ship_intro();
     }
 
-    std::cout << "####################### pos_n[" << pos_n << "]" << std::endl;
+    std::cout << "####################### pos_n[" << (int)pos_n << "]" << std::endl;
 
 
     std::string filename = FILEPATH + "images/backgrounds/castle.png";

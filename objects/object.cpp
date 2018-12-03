@@ -397,6 +397,9 @@ void object::show(int adjust_y, int adjust_x)
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         show_deathray_horizontal(adjust_x, adjust_y);
         return;
+    } else if (type == OBJ_BOSS_DOOR) {
+        show_boss_door(adjust_x, adjust_y);
+        return;
     }
 
     if (show_teleport) {
@@ -654,12 +657,37 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
     }
 }
 
+void object::show_boss_door(int adjust_x, int adjust_y)
+{
+    if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
+        return;
+    }
+    st_position graphic_destiny;
+
+    float scroll_x = (float)map->getMapScrolling().x;
+    if (adjust_x != 0) {
+        scroll_x = adjust_x;
+    }
+    graphic_destiny.x = position.x - scroll_x;
+    graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
+
+    int graph_h = framesize_h;
+    if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENING || _state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
+        graph_h = framesize_h - _ray_state;
+        std::cout << "object::show_boss_door::graph_h[" << graph_h << "]" << std::endl;
+    }
+
+    if (draw_lib.get_object_graphic(_id) != NULL) {
+        graphLib.copyArea(st_rectangle(0, 0, framesize_w, graph_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    }
+
+}
+
 bool object::is_platform()
 {
     if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
         return true;
     }
-
 }
 
 void object::show_vertical_ray(int adjust_x, int adjust_y)
@@ -1082,6 +1110,21 @@ void object::move(bool paused)
         } else {
             _state = 0;
         }
+    } else if (type == OBJ_BOSS_DOOR) {
+        if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
+            _ray_state++;
+            if (_ray_state >= framesize_h) {
+                _state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
+            }
+        } else if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
+            gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x);
+            _state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
+        } else if (_state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
+            _ray_state--;
+            if (_ray_state <= 0) {
+                _state = e_OBJECT_BOSS_DOOR_STATE_NONE;
+            }
+        }
     }
 }
 
@@ -1145,6 +1188,11 @@ st_position object::get_position() const
         }
     }
     return position;
+}
+
+st_position object::get_start_position() const
+{
+    return start_point;
 }
 
 st_rectangle object::get_area()
@@ -1287,9 +1335,13 @@ void object::start()
 	_started = true;
     _start_timer = timer.getTimer() + INITIAL_ACTIVATION_DELAY;
     _obj_frame_timer = timer.getTimer() + _frame_duration;
-    //std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
-    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
+    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
         std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
+        if (type == OBJ_BOSS_DOOR) {
+            _state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
+            _teleport_state = 0;
+        }
         _timer_limit = timer.getTimer() + obj_timer;
     }
 }

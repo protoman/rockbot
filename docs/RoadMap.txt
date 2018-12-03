@@ -83,50 +83,40 @@ VAPPEBOY:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
+- new object: door
+
+
 - following projectile, when turns to zig-zag is not hitting enemy
-- dash showing with default instead of weapon colors
-
-(walking)
-11-30 08:29:49.897 20701 20754 I ###ROCKBOT2###: Invalid X portion <<
-11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: ### GAME::show_player_at[-47, 93] ###
-11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: [WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring
-11-30 08:29:49.916 20701 20754 I ###ROCKBOT2###: Invalid X portion <<
-
 - you are using the Weapon Aquired Tune in stead of the Stage Start tune when the enemy is introduced
-- look like enemy descriptions are out too (had mummybot being described as SeaHorse Bot)
-
-- stage selected fanfarre
-- castle 4
-- spikebot
 
 - Upon selecting spike's stage, game crashes on pixel2 phone
 
 - [1*] dynabot is leaving screen after using time stopper
 - [1*] crash after first castle boss (?)
 
-- boss initial position must be on ground, remove the animation of him falling from presenation
 - boss presentation must init only when boss is entirely on-screen
     # boss_move
     # if (is_on_visible_screen() && _initialized == 0 && _is_boss == true) {
 - boss must move even if out of screen, if is started
 
-- review sfx files, and remove ones deprecated or that should not be kept into memory
-- [2] clean dialogs from castle stages
-- fix falling bomb area (when there is scroll on screen): it must start ahead of enemy
+- [Rockbot2] clean dialogs from castle stages
 ===============
-- it is written "create save" when selecting slot to load
-- [2] fix lifes order
 
 
 *(can't reproduce on linux)
 -------------------------------------------
 SERIOUS:
 -------------------------------------------
+- review sfx files, and remove ones deprecated or that should not be kept into memory
+- it is written "create save" when selecting slot to load
+
+- fix falling bomb area (when there is scroll on screen): it must start ahead of enemy
 - lighting bolt must be only one time and in the closest enemy position (x and y+h)
-- EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - criar trajetória de projétil:
     # 3 way horizontal
     # 2 way vertical
+
+- EDITOR: change swap maps to replace npcs and objects with the new format, also, change weapons
 - NPC spawn point must be defied by arm's cannon point from editor
 
 -------------------------------------------

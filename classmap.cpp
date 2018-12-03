@@ -115,6 +115,9 @@ void classMap::setMapNumber(int setMapN) {
 // ********************************************************************************************** //
 void classMap::loadMap()
 {
+
+    std::cout << "classMap::loadMap, stage_number[" << stage_number << "]" << std::endl;
+
 	if (stage_number == -1) {
         graphLib.show_debug_msg("ERROR::loadStage invalid number[-1]");
 		cout << "ERROR::map::loadMap - stage number was not set, can't load it before setting the number.\n";
@@ -133,17 +136,7 @@ void classMap::loadMap()
     animation_list.clear();
 
 
-	bool column_locked = true;
-	for (int i=0; i<MAP_W; i++) {
-		column_locked = true;
-		for (int j=0; j<MAP_H; j++) {
-            if (GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SOLID && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_DOOR && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_ICE && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SPIKE) {
-				column_locked = false;
-				break;
-			}
-		}
-		wall_scroll_lock[i] = column_locked;
-	}
+
 
 
     _level3_tiles.clear();
@@ -165,6 +158,33 @@ void classMap::loadMap()
 	load_map_npcs();
 
     load_map_objects();
+
+    std::cout << "check-map-scroll-lock, object_list.size[" << object_list.size() << "]" << std::endl;
+    bool column_locked = true;
+    for (int i=0; i<MAP_W; i++) {
+        column_locked = true;
+        for (int j=0; j<MAP_H; j++) {
+            // check if a object-door ocuppies the position
+            std::vector<object>::iterator object_it;
+            bool obj_locked = false;
+            for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
+                object *obj_item = &(*object_it);
+
+                if (obj_item->get_type() == OBJ_BOSS_DOOR) {
+                    //std::cout << "obj[" << obj_item->get_name() << "], start[" << (obj_item->get_start_position().x/TILESIZE) << "][" << (obj_item->get_start_position().y/TILESIZE) << "], point[" << i << "][" << j << "]" << std::endl;
+                    if ((i >= obj_item->get_start_position().x/TILESIZE && i < obj_item->get_start_position().x/TILESIZE+obj_item->get_size().width/TILESIZE) && (j >= obj_item->get_start_position().y/TILESIZE && j < obj_item->get_start_position().y/TILESIZE+obj_item->get_size().height/TILESIZE)) {
+                        std::cout << "classMap::loadMap, obj[" << obj_item->get_name() << "] is locking scroll at [" << i << "][" << j << "]" << std::endl;
+                        obj_locked = true;
+                    }
+                }
+            }
+            if (obj_locked != true && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SOLID && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_DOOR && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SCROLL_LOCK && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_ICE && GameMediator::get_instance()->map_data[number].tiles[i][j].locked != TERRAIN_SPIKE) {
+                column_locked = false;
+                break;
+            }
+        }
+        wall_scroll_lock[i] = column_locked;
+    }
 
     create_dynamic_background_surfaces();
 
@@ -1254,6 +1274,7 @@ void classMap::load_map_objects() {
 			object_list.push_back(temp_obj);
 		}
 	}
+    std::cout << "classMap::load_map_objects, count[" << object_list.size() << "]" << std::endl;
 }
 
 
@@ -1541,6 +1562,15 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
+                } else if (temp_obj.get_type() == OBJ_BOSS_DOOR) {
+                    if (temp_obj.is_started() == false) {
+                        temp_obj.start();
+                        if (charObj->get_int_position().x > temp_obj.get_position().x + temp_obj.get_size().width) {
+                            temp_obj.set_direction(ANIM_DIRECTION_LEFT);
+                        } else {
+                            temp_obj.set_direction(ANIM_DIRECTION_RIGHT);
+                        }
+                    }
                 }
 
                 //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2, temp_blocked[" << temp_blocked << "] ###" << std::endl;

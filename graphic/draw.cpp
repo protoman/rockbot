@@ -869,6 +869,9 @@ st_float_position draw::get_radius_point(st_position center_point, int radius, f
 
 void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
 {
+    if (initial_point.x == 0 && initial_point.y == 0 && final_point.x == 0 && final_point.x == 0) {
+        return;
+    }
     int dist_x = initial_point.x - final_point.x;
     int dist_y = initial_point.y - final_point.y;
     int duration = CASTLE_PATH_DURATION;

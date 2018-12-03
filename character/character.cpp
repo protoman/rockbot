@@ -1947,13 +1947,15 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     if (incx > 0 && map_lock == TERRAIN_DOOR) {
         //std::cout << "#1 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
     }
+    /*
     if (incx > 0 && map_lock == TERRAIN_DOOR && check_y > map_pos.y*TILESIZE) {
         //std::cout << "#2 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
         gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
 		return true;
 	}
+    */
     if (incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
-        gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
+        gameControl.horizontal_screen_move(ANIM_DIRECTION_LEFT, true, map_pos.x);
 		return true;
 	}
     if (state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {

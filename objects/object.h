@@ -17,6 +17,14 @@ enum e_object_teleport_states {
     e_object_teleport_state_count
 };
 
+enum e_OBJECT_BOSS_DOOR_STATES {
+    e_OBJECT_BOSS_DOOR_STATE_NONE,
+    e_OBJECT_BOSS_DOOR_STATE_OPENING,
+    e_OBJECT_BOSS_DOOR_STATE_OPENED,
+    e_OBJECT_BOSS_DOOR_STATE_CLOSING,
+    e_OBJECT_BOSS_DOOR_STATE_COUNT
+};
+
 /**
  * @brief
  *
@@ -39,6 +47,7 @@ public:
 
     void show_deathray_vertical(int adjust_x=0, int adjust_y=0);
     void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
+    void show_boss_door(int adjust_x=0, int adjust_y=0);
 
     bool is_platform();                                             // tell if object is of platform type
 
@@ -66,36 +75,14 @@ public:
      */
     st_position get_position() const;
 
+    st_position get_start_position() const;
+
 
     st_rectangle get_area();
-
-    /**
-     * @brief
-     *
-     * @return st_size
-     */
     st_size get_size();
-    /**
-     * @brief
-     *
-     * @return short
-     */
     Uint8 get_type() const;
-
-
     Uint8 get_id() const;
-
-    /**
-     * @brief
-     *
-     * @return int
-     */
     Uint8 get_direction() const;
-    /**
-     * @brief
-     *
-     * @param int
-     */
     void set_direction(int);
     /**
      * @brief
@@ -138,10 +125,6 @@ public:
      *
      */
     void invert_direction_x();
-    /**
-     * @brief
-     *
-     */
     void invert_direction_y();
     /**
      * @brief
@@ -149,124 +132,39 @@ public:
      * @param obj_state
      */
     void set_state(short obj_state);
-    /**
-     * @brief
-     *
-     * @return short
-     */
     short get_state() const;
-    /**
-     * @brief
-     *
-     * @param duration
-     */
     void set_duration(int duration);
-    /**
-     * @brief
-     *
-     */
     void start();
-    /**
-     * @brief
-     *
-     */
     void command_up();															// some objects can be controlled by the player
-    /**
-     * @brief
-     *
-     */
     void command_down();														// some objects can be controlled by the player
-    /**
-     * @brief
-     *
-     * @return std::string
-     */
     std::string get_name() const;
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_hidden() const;
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_started() const;
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool is_on_screen();
-
     bool is_on_visible_screen();
-
-
     void set_collision_mode(enum collision_modes collision_mode); // if player uses this as platform, move him
-
     enum collision_modes get_collision_mode() const;
-
     void reset_timers();
-
     void set_teleport_out();
-
     bool is_consumable();                                       // if item is a energy, tank, life, that player can get
-
     void enable_teleport_animation();                           // when this is called, object will show a teleporting in-animation
-
-
     void set_precise_position(st_position pos, int direction);                                // used to get a fine-tuning positioning instead of map-position
-
-
     void set_position(st_position pos);
-
     void remove_graphic();
-
     st_position get_boss_teleporter_dest();
-
     Uint8 get_boss_teleport_map_dest();
-
     Uint8 get_obj_map_id();
-
     void set_obj_map_id(Uint8 id);
-
     bool is_teleporting();
-
     void set_is_dropped(bool dropped);
-
     bool get_is_dropped();
 
 
 private:
-    /**
-     * @brief
-     *
-     */
     void add_graphic();
-    /**
-     * @brief
-     *
-     */
     void gravity();
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @param yinc
-     * @return bool
-     */
     bool test_change_position(short int xinc, short int yinc);
-    /**
-     * @brief
-     *
-     * @param xinc
-     * @param yinc
-     */
     void check_player_move(int xinc, int yinc) const; // if player uses this as platform, move him
-
-
 
 
 private:

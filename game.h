@@ -79,7 +79,7 @@ public:
      * @return st_position
      */
     st_float_position checkScrolling();
-    void horizontal_screen_move(short direction, bool is_door, short tileX, short tileY);
+    void horizontal_screen_move(short direction, bool is_door, short tileX);
     /**
      * @brief
      *

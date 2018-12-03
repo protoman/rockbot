@@ -1090,16 +1090,11 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 }
 
 
-void game::horizontal_screen_move(short direction, bool is_door, short tileX, short tileY)
+void game::horizontal_screen_move(short direction, bool is_door, short tileX)
 {
-    int i = 0;
-    int upTile = 0;
-    int downTile = 0;
     st_float_position scroll_move;
 
     game_pause();
-
-    classMap* temp_map = loaded_stage.get_current_map();
 
     graphLib.set_screen_adjust(st_position(0, 0));
 
@@ -1127,8 +1122,10 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
     if (scroll_move.x < 0) {
         player_move_x = player_move_x * -1;
     }
-    std::cout << "player_move_x[" << player_move_x << "]" << std::endl;
     int static_scroll_x = loaded_stage.getMapScrolling().x;
+
+
+    std::cout << "player_move_x[" << player_move_x << "], move_limit[" << move_limit << "]" << std::endl;
     for (int i=0; i<move_limit; i++) {
         //loaded_stage.changeScrolling(scroll_move, false);
         loaded_stage.change_map_scroll(scroll_move, false, true);
@@ -1143,7 +1140,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX, sh
         // draw HUD
         draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 #if defined(PC)
-        timer.delay(1);
+        timer.delay(2);
 #endif
         draw_lib.update_screen();
 
