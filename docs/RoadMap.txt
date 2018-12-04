@@ -84,6 +84,7 @@ VAPPEBOY:
 CRITICAL:
 -------------------------------------------
 - new object: door
+- use a surface to render HP/WPN, or just remove it
 
 
 - following projectile, when turns to zig-zag is not hitting enemy

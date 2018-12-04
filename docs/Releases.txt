@@ -45,3 +45,4 @@
 - dash shadow effect
 - AI: fly+dash to player
 - ANDROID: fix crash in boss credits
+- font outline

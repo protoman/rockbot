@@ -1034,8 +1034,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
-    graphLib.draw_text(6, 10, "HP:");
-    draw_enery_ball(hp_percent, 30, hud_player_hp_ball);
+    draw_enery_ball(hp_percent, 3, hud_player_hp_ball);
     /*
     for (int i=0; i<5; i++) {
         int min = 20*i;
@@ -1060,8 +1059,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
         //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
-        graphLib.draw_text(90, 10, "WPN:");
-        draw_enery_ball(wpn_percent, 122, hud_player_wpn_ball);
+        draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     }
 
     // boss HP
@@ -1100,7 +1098,7 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
             img_origin_x = ENERGY_BALL_IMG_SIZE*3;
         }
 
-        graphLib.copyArea(st_rectangle(img_origin_x, 0, ball_surface.height, ball_surface.height), st_position(x_pos+(10*i), 9), &ball_surface, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(img_origin_x, 0, ball_surface.height, ball_surface.height), st_position(x_pos+(10*i), 3), &ball_surface, &graphLib.gameScreen);
     }
 }
 
