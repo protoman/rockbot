@@ -156,8 +156,12 @@ bool graphicsLib::initGraphics()
 		return false;
 	} else {
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
+        // outline-font
+        outline_font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
+        TTF_SetFontOutline(outline_font, 1);
     }
     delete[] buffer;
+
 
     printf(">> WII.DEBUG.INIT_GRAPHICS #3 <<\n");
     fflush(stdout);
@@ -937,63 +941,14 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
     if (text.length() <= 0) {
         return;
     }
-    SDL_Color font_color = SDL_Color();
-    font_color.r = color.r;
-    font_color.g = color.g;
-    font_color.b = color.b;
-    x += _screen_resolution_adjust.x;
-    y += _screen_resolution_adjust.y;
-    SDL_Rect text_pos={x, y, 0, 0};
-    if (!font) {
-        printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
-        show_debug_msg("EXIT #10");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
-        // handle error
-    }
 
-    //std::cout << "RENDER #1[" << text << "]" << std::endl;
-    /*
-    if (text.length() == 1) {
-        std::cout << "DEBUG #9" << std::endl;
-    }
-    */
-    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
-
-    if (!textSF) {
-        return;
-    }
-    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-    SDL_FreeSurface(textSF);
-
-    if (!textSF_format) {
-        return;
-    }
-    SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
-    SDL_FreeSurface(textSF_format);
+    render_text(x, y, text, color, gameScreen, false);
 }
 
 
 void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface &surface)
 {
-	SDL_Color font_color;
-	font_color.r = 255;
-	font_color.g = 255;
-	font_color.b = 255;
-    SDL_Rect text_pos={x, y, 0, 0};
-	if (!font) {
-		printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
-        show_debug_msg("EXIT #11");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text #2, fount is NULL"), std::string(TTF_GetError()));
-        // handle error
-    }
-    text_pos.x += _screen_resolution_adjust.x;
-    text_pos.y += _screen_resolution_adjust.y;
-    //std::cout << "RENDER #2[" << text << "]" << std::endl;
-    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
-    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-    SDL_FreeSurface(textSF);
-    SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
-    SDL_FreeSurface(textSF_format);
+    render_text(x, y, text, st_color(255, 255, 255), surface, false);
 }
 
 void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
@@ -1008,29 +963,59 @@ void graphicsLib::draw_centered_text(short y, string text)
 
 void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface &surface, st_color temp_font_color)
 {
-	SDL_Color font_color;
-    font_color.r = temp_font_color.r;
-    font_color.g = temp_font_color.g;
-    font_color.b = temp_font_color.b;
-	SDL_Rect text_pos={0, y, 0, 0};
-	if (!font) {
-        printf("graphicsLib::draw_centered_text - TTF_OpenFont: %s\n", TTF_GetError());
-        show_debug_msg("EXIT #12");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_centered_text, fount is NULL"), std::string(TTF_GetError()));
-	}
+    render_text(0, y, text, temp_font_color, surface, true);
+}
+
+void graphicsLib::render_text(short x, short y, string text, st_color color, graphicsLib_gSurface &surface, bool centered)
+{
+    SDL_Rect text_pos={x, y, 0, 0};
+    SDL_Color font_color = SDL_Color();
+    font_color.r = color.r;
+    font_color.g = color.g;
+    font_color.b = color.b;
+    x += _screen_resolution_adjust.x;
+    y += _screen_resolution_adjust.y;
+
+    if (!font) {
+        printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
+        show_debug_msg("EXIT #10");
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
+        // handle error
+    }
+
+    if (outline_font) {
+        SDL_Color black = {0, 0, 0};
+        SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
+
+        if (text_outlineSF) {
+            SDL_Surface* text_outlineSF_format = SDL_DisplayFormat(text_outlineSF);
+            SDL_FreeSurface(text_outlineSF);
+
+            if (text_outlineSF_format) {
+                if (centered == true && text.size() > 0) {
+                    text_pos.x = RES_W/2 - text_outlineSF_format->w/2;
+                }
+                SDL_BlitSurface(text_outlineSF_format, 0, game_screen, &text_pos);
+                SDL_FreeSurface(text_outlineSF_format);
+            }
+        }
+
+    }
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
-	if (textSF == NULL) {
-		return;
-	}
-	if (text.size() > 0) {
-		text_pos.x = RES_W/2 - textSF->w/2;
-	}
-    text_pos.y = y;
-    text_pos.x += _screen_resolution_adjust.x;
-    text_pos.y += _screen_resolution_adjust.y;
+    if (centered == true && text.size() > 0) {
+        text_pos.x = RES_W/2 - textSF->w/2;
+    }
+
+    if (!textSF) {
+        return;
+    }
     SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
-    SDL_BlitSurface(textSF_format, 0, surface.get_surface(), &text_pos);
+
+    if (!textSF_format) {
+        return;
+    }
+    SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
     SDL_FreeSurface(textSF_format);
 }
 
