@@ -89,9 +89,9 @@ CRITICAL:
     # seahorse
     # skull-castle-3,
 
+- [INTERMITENT] when player is damaged, is entering inside boss-door
 
 - following projectile, when turns to zig-zag is not hitting enemy
-
 - Upon selecting spike's stage, game crashes on pixel2 phone
 
 - [1*] dynabot is leaving screen after using time stopper

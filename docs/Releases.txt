@@ -50,4 +50,5 @@
 - new graphic for stage-boss teleporter
 - show commands (< > ENTER, etc) on manual' bottom
 - separate manual parts between game-specific and general
+- "got weapon" music playing two times, should not play on colors celebration
 

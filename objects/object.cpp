@@ -1117,7 +1117,7 @@ void object::move(bool paused)
                 _state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
             }
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
-            gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x);
+            gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x/TILESIZE);
             _state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
             gameControl.show_door_animation();
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {

@@ -1566,7 +1566,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
                 } else if (temp_obj.get_type() == OBJ_BOSS_DOOR) {
-                    if (temp_obj.is_started() == false) {
+                    if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) {
+                        // check for sub-boss alive on the left
                         temp_obj.start();
                         if (charObj->get_int_position().x > temp_obj.get_position().x + temp_obj.get_size().width) {
                             temp_obj.set_direction(ANIM_DIRECTION_LEFT);

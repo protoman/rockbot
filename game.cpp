@@ -1219,8 +1219,6 @@ void game::got_weapon()
         color_list.push_back(st_color(101, 105, 251));
         color_list.push_back(st_color(112, 251, 101));
         color_list.push_back(st_color(251, 101, 101));
-        soundManager.load_music(game_data.got_weapon_music_filename);
-        soundManager.play_music();
         for (int i=0; i<2; i++) {
             for (int j=0; j<color_list.size(); j++) {
                 graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);

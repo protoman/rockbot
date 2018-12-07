@@ -1955,7 +1955,8 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
 	}
     */
     if (incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
-        gameControl.horizontal_screen_move(ANIM_DIRECTION_LEFT, true, map_pos.x);
+        //gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
+        gameControl.horizontal_screen_move(state.direction, true, map_pos.x);
 		return true;
 	}
     if (state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
