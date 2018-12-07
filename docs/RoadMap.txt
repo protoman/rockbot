@@ -83,12 +83,6 @@ VAPPEBOY:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- remove mid-boss old-doors and use new ones
-    # OK - apebot
-    # daisie
-    # seahorse
-    # skull-castle-3,
-
 - [INTERMITENT] when player is damaged, is entering inside boss-door
 
 - following projectile, when turns to zig-zag is not hitting enemy
