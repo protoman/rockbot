@@ -36,7 +36,7 @@
 
 
 ====================================================================================
-1.20.069:
+1.20.070:
 ====================================================================================
 - enemy projectile not moving if he is not on-screen
 - bring back to mega-like stage selection
@@ -46,3 +46,8 @@
 - AI: fly+dash to player
 - ANDROID: fix crash in boss credits
 - font outline
+- new door object for middle-stage bosses
+- new graphic for stage-boss teleporter
+- show commands (< > ENTER, etc) on manual' bottom
+- separate manual parts between game-specific and general
+

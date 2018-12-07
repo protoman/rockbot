@@ -1161,6 +1161,29 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
     loaded_stage.show_stage();
 }
 
+void game::show_door_animation()
+{
+    int steps = 50;
+    remove_players_slide();
+
+    for (int i=0; i<steps; i++) {
+        loaded_stage.show_stage();
+        loaded_stage.show_npcs();
+        loaded_stage.show_objects();
+        player1.show();
+        loaded_stage.showAbove();
+        // draw HUD
+        draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
+#if defined(PC)
+        timer.delay(2);
+#endif
+        draw_lib.update_screen();
+    }
+    timer.delay(6);
+    game_unpause();
+    loaded_stage.show_stage();
+}
+
 
 
 

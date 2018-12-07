@@ -83,12 +83,14 @@ VAPPEBOY:
 -------------------------------------------
 CRITICAL:
 -------------------------------------------
-- new object: door
-- use a surface to render HP/WPN, or just remove it
+- remove mid-boss old-doors and use new ones
+    # OK - apebot
+    # daisie
+    # seahorse
+    # skull-castle-3,
 
 
 - following projectile, when turns to zig-zag is not hitting enemy
-- you are using the Weapon Aquired Tune in stead of the Stage Start tune when the enemy is introduced
 
 - Upon selecting spike's stage, game crashes on pixel2 phone
 

@@ -1438,6 +1438,9 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
     if (obj_type == OBJ_BOSS_TELEPORTER) {
         return true;
     }
+    if (obj_type == OBJ_STAGE_BOSS_TELEPORTER) {
+        return true;
+    }
     if (obj_type == OBJ_PLATFORM_TELEPORTER) {
         return true;
     }
@@ -2361,7 +2364,7 @@ void classMap::show_objects(int adjust_y, int adjust_x)
     /// @TODO - update timers
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        if ((*object_it).get_type() != OBJ_BOSS_TELEPORTER) {
+        if ((*object_it).get_type() != OBJ_STAGE_BOSS_TELEPORTER && (*object_it).get_type() != OBJ_BOSS_TELEPORTER && (*object_it).get_type() != OBJ_FINAL_BOSS_TELEPORTER) { // teleporters are shown above
             (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
         }
     }
@@ -2371,7 +2374,7 @@ void classMap::show_above_objects(int adjust_y, int adjust_x)
 {
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        if ((*object_it).get_type() == OBJ_BOSS_TELEPORTER) {
+        if ((*object_it).get_type() == OBJ_STAGE_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_FINAL_BOSS_TELEPORTER) { // teleporters are shown above
             (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
         }
     }

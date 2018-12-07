@@ -244,6 +244,11 @@
             <string>Platform Teleporter</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Stage Boss teleporter</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

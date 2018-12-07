@@ -37,9 +37,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     //std::cout << ">>>>>>>>>>>>> projectile.id[" << (int)id << "]" << std::endl;
 
     owner = NULL;
-
-
-    std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "], x[" << set_position.x << "], y[" << set_position.y << "]" << std::endl;
+    //std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "], x[" << set_position.x << "], y[" << set_position.y << "]" << std::endl;
 
     position = set_position;
     direction = set_direction;

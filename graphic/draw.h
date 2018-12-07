@@ -36,6 +36,7 @@ public:
 public:
     void preload();
     void show_gfx();
+    graphicsLib_gSurface* get_input_surface(e_INPUT_IMAGES input);
     void update_screen(); // replaces external calls to graphLib.updateScreen
     void set_gfx(Uint8 gfx, short mode);
     Uint8 get_gfx();
@@ -153,7 +154,7 @@ private:
     // used to avoid having multiple copies of same background for all 3 maps in same stage
     std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;
 
-
+    std::map<e_INPUT_IMAGES, graphicsLib_gSurface> input_images_map;
 };
 
 #endif // DRAW_H

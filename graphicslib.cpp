@@ -143,22 +143,46 @@ bool graphicsLib::initGraphics()
 
     // FONT
     TTF_Init();
-    filename = GAMEPATH + "/fonts/pressstart2p.ttf";
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG GAMEPATH[%s]", GAMEPATH.c_str());
+#endif
+
+    filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
-	SDL_RWops *fileRW;
-	fileRW = SDL_RWFromFile(buffer, "rb");
-	if (!fileRW) {
+    SDL_RWops *fileRW = SDL_RWFromFile(buffer, "rb");
+    SDL_RWops *fileOutlineRW = SDL_RWFromFile(buffer, "rb");
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG file[%s]", filename.c_str());
+#endif
+
+
+    if (!fileRW || !fileOutlineRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
         fflush(stdout);
         delete[] buffer;
 		return false;
-	} else {
+    } else {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #1");
+#endif
+
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #2");
+#endif
         // outline-font
-        outline_font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
+        outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #3");
+#endif
         TTF_SetFontOutline(outline_font, 1);
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #4");
+#endif
     }
     delete[] buffer;
 

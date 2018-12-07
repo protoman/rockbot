@@ -316,6 +316,24 @@ void soundLib::play_music() {
     }
 }
 
+void soundLib::play_music_once()
+{
+    if (game_config.sound_enabled == false) {
+        return;
+    }
+    int res = -1;
+    if (music) {
+        res = Mix_PlayMusic(music, 1);
+        if (res == -1) {
+            std::cout << "<<<<<<<<<<<<< soundLib::play_music_once: " << Mix_GetError() << std::endl;
+        }
+        //std::cout << "SOUNDLIB::play_music" << std::endl;
+        Mix_VolumeMusic(game_config.volume_music);
+    } else {
+        std::cout << ">> soundLib::play_music_once: music is null" << std::endl;
+    }
+}
+
 void soundLib::play_boss_music() {
     is_playing_boss_music = true;
 	if (game_config.sound_enabled == false) {

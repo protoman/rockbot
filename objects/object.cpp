@@ -1119,6 +1119,7 @@ void object::move(bool paused)
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
             gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x);
             _state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
+            gameControl.show_door_animation();
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
             _ray_state--;
             if (_ray_state <= 0) {
@@ -1341,6 +1342,7 @@ void object::start()
         if (type == OBJ_BOSS_DOOR) {
             _state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
             _teleport_state = 0;
+            gameControl.show_door_animation();
         }
         _timer_limit = timer.getTimer() + obj_timer;
     }

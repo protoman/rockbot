@@ -2036,6 +2036,12 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                     state.direction = ANIM_DIRECTION_RIGHT;
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), true);
                 }
+            } else if (res_collision_object._object->get_type() == OBJ_STAGE_BOSS_TELEPORTER) {
+                std::cout << "character::map_collision - OBJ_STAGE_BOSS_TELEPORTER" << std::endl;
+                if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
+                    state.direction = ANIM_DIRECTION_RIGHT;
+                    gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
+                }
             // platform teleporter is just a base where player can step in to teleport
             } else if (res_collision_object._object->get_type() == OBJ_PLATFORM_TELEPORTER && is_on_teleport_platform(res_collision_object._object) == true) {
                 state.direction = ANIM_DIRECTION_RIGHT;

@@ -1014,7 +1014,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
                 editor_selected_object_pos_map = Mediator::get_instance()->currentMap;
                 // se item é teleportador, deve entrar no modo de colocar link de object
                 int obj_type = Mediator::get_instance()->object_list.at(Mediator::get_instance()->selectedNPC).type;
-                if (obj_type == OBJ_BOSS_TELEPORTER || obj_type == OBJ_FINAL_BOSS_TELEPORTER || obj_type == OBJ_PLATFORM_TELEPORTER) {
+                if (obj_type == OBJ_BOSS_TELEPORTER || obj_type == OBJ_FINAL_BOSS_TELEPORTER || obj_type == OBJ_PLATFORM_TELEPORTER || obj_type == OBJ_STAGE_BOSS_TELEPORTER) {
                     editor_selected_object_pos = Mediator::get_instance()->maps_data_object_list.size();
                     std::cout << "SET editor_selected_object_pos: " << editor_selected_object_pos << std::endl;
                     Mediator::get_instance()->editTool = EDITMODE_OBJECT_LINK_PLACING;

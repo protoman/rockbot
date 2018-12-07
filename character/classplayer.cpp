@@ -1000,7 +1000,7 @@ void classPlayer::reset_hp()
 
 void classPlayer::change_player_color(bool full_change)
 {
-    std::cout << "PLAYER::change_player_color - selected_weapon[" << selected_weapon << "], full_change[" << full_change << "]" << std::endl;
+    //std::cout << "PLAYER::change_player_color - selected_weapon[" << selected_weapon << "], full_change[" << full_change << "]" << std::endl;
 	if (full_change == false) {
         graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
         graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);

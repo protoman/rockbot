@@ -33,6 +33,7 @@ public:
     void load_boss_music(string music_file);
     void unload_music();
     void play_music();
+    void play_music_once();
     void play_boss_music();
     void load_stage_music(string filename);
     void restart_music();

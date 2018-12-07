@@ -18,6 +18,9 @@ extern draw draw_lib;
 #include "soundlib.h"
 extern soundLib soundManager;
 
+extern std::string GAMENAME;
+
+#include "strings_map.h"
 
 game_manual::game_manual()
 {
@@ -43,17 +46,17 @@ void game_manual::execute()
                 page++;
             }
 
-            std::cout << "PAGE[BEFORE]: " << page << ", list.size: " << page_list.size() << std::endl;
+            //std::cout << "PAGE[BEFORE]: " << page << ", list.size: " << page_list.size() << std::endl;
 
             if (page > 0 && page >= page_list.size()) {
-                std::cout << "RESET #1" << std::endl;
+                //std::cout << "RESET #1" << std::endl;
                 page = 0;
             } else if (page < 0) {
-                std::cout << "RESET #2" << std::endl;
+                //std::cout << "RESET #2" << std::endl;
                 page = page_list.size()-1;
             }
 
-            std::cout << "PAGE[AFTER]: " << page << std::endl;
+            //std::cout << "PAGE[AFTER]: " << page << std::endl;
 
             draw_page(page);
             draw_lib.update_screen();
@@ -72,6 +75,7 @@ void game_manual::execute()
 
 void game_manual::draw_page(int page_n)
 {
+    //std::cout << "### game_manual::draw_page - page_n[" << page_n << "], page_list.size[" << page_list.size() << "]" << std::endl;
     if (page_n < 0 || page_n >= page_list.size()) {
         return;
     }
@@ -83,9 +87,7 @@ void game_manual::draw_page(int page_n)
 
     for (int i=0; i<PAGE_LINES; i++) {
         int y = initial_y + i*10;
-
-        //std::cout << "MANUAL::draw_page::y: " << y << std::endl;
-
+        //std::cout << "MANUAL::draw_page- i[" << i << "], y[" << y << "],  temp.line[i][" <<  temp.line[i] << "]" << std::endl;
         if (i == 0) {
             graphLib.draw_centered_text(y, temp.line[i], title_color);
         } else {
@@ -94,19 +96,33 @@ void game_manual::draw_page(int page_n)
         }
     }
 
-    char page_number[3];
+    char page_number[10];
     sprintf(page_number, "%d/%d", (page_n+1), page_list.size());
     std::string page_line = std::string("< PAGE ") + std::string(page_number) + std::string(" >");
 
     graphLib.draw_centered_text(RES_H-12, page_line);
 
+    draw_bottom();
     graphLib.updateScreen();
 
+}
+
+void game_manual::draw_bottom()
+{
+    graphicsLib_gSurface *surface_dpad = draw_lib.get_input_surface(INPUT_IMAGES_DPAD_LEFTRIGHT);
+    graphLib.showSurfaceAt(surface_dpad, st_position(4, RES_H-surface_dpad->height-4), false);
+    graphLib.draw_text(6+surface_dpad->width,  RES_H-surface_dpad->height-1, std::string("CHANGE"));
+
+    graphicsLib_gSurface *surface_b = draw_lib.get_input_surface(INPUT_IMAGES_B);
+    graphLib.showSurfaceAt(surface_b, st_position(RES_W-54-surface_b->width, RES_H-surface_b->height-4), false);
+    graphLib.draw_text(RES_W-50,  RES_H-surface_dpad->height-1, std::string("RETURN"));
 }
 
 void game_manual::generate_pages()
 {
     struct st_manual_page temp;
+
+    std::string game_name_upper = strings_map::get_instance()->toupper(GAMENAME);
 
     temp.add_line_text("== CONTROLING CHARACTER [1] ==");
     temp.add_line_text("MOVE LEFT OR RIGHT:");
@@ -139,7 +155,8 @@ void game_manual::generate_pages()
     temp.clear_text();
 
     temp.add_line_text("== GETTING STARTED ==");
-    temp.add_line_text("INSERT ROCKBOT MEGA PACK INTO YOUR");
+    /// @TODO: game-name //
+    temp.add_line_text("INSERT " + game_name_upper + " MEGA PACK INTO YOUR");
     temp.add_line_text("ENTERTAINMENT SYSTEM.");
     temp.add_line_text("");
     temp.add_line_text("AT THE TITLE SCREEN, PRESS UP/DOWN");
@@ -241,14 +258,9 @@ void game_manual::generate_pages()
     temp.add_line_text("== CONFIG [ANDROID] ==");
     temp.add_line_text("WHEN PLAYING ON AN ANDROID");
     temp.add_line_text("GAME DEVICE, YOU CAN USE THE");
-    temp.add_line_text("SDL MENU THAT APPEARS BEFORE");
-    temp.add_line_text("GAME STARTS, TO CHANGE ON-SCREEN");
-    temp.add_line_text("CONTROLS SIZE AND POSITION.");
-    temp.add_line_text("");
-    temp.add_line_text("PLEASE REFER TO GAME DESCRIPTION");
-    temp.add_line_text("IN APP STORE FOR A LINK TO");
-    temp.add_line_text("A VIDEO THAT SHOWS HOW TO");
-    temp.add_line_text("USE THIS SETTING.");
+    temp.add_line_text("GAME CONFIG TO SET OPTIONS");
+    temp.add_line_text("SUCH AS TOUCH CONTROLS");
+    temp.add_line_text("SIZE AND POSITION.");
     page_list.push_back(temp);
     temp.clear_text();
 
@@ -362,53 +374,6 @@ void game_manual::generate_pages()
     temp.clear_text();
 
 
-    temp.add_line_text("== ROBOT MASTERS [1] ==");
-    temp.add_line_text("SNOW BOT");
-    temp.add_line_text("A COLD BODY AND DISTANT ATTITUDE");
-    temp.add_line_text("HIDES A WARM HEART.");
-
-    temp.add_line_text("");
-    temp.add_line_text("VALKYRIE BOT");
-    temp.add_line_text("FROM NORDIC ORIGINS, THIS GIRL");
-    temp.add_line_text("ROBOT CONTROLS THE WEATHER");
-    temp.add_line_text("LIKE THE GOD THOR.");
-
-    temp.add_line_text("");
-    temp.add_line_text("KURUPIRA BOT");
-    temp.add_line_text("PROTECTOR OF THE JUNGLE AND");
-    temp.add_line_text("ANIMALS, LOVES THE GOOD LIFE.");
-
-    temp.add_line_text("");
-    temp.add_line_text("GEAR BOT");
-    temp.add_line_text("MILITARY ROBOT MADE FOR");
-    temp.add_line_text("ONLY ONE PURPOSE, TO BRING");
-    temp.add_line_text("WAR TO HIS ENEMIES.");
-    page_list.push_back(temp);
-    temp.clear_text();
-
-    temp.add_line_text("== ROBOT MASTERS [2] ==");
-    temp.add_line_text("BEAST BOT:");
-    temp.add_line_text("TRAVELLING WITH A CIRCUS, HE IS");
-    temp.add_line_text("VERY AGRESSIVE AND ANGRY.");
-
-    temp.add_line_text("");
-    temp.add_line_text("PHANTOM BOT");
-    temp.add_line_text("A LOVER OF THE NIGHT AND OPERA.");
-
-    temp.add_line_text("");
-    temp.add_line_text("DRAGON BOT");
-    temp.add_line_text("FROM FAR EAST, THIS MASTER");
-    temp.add_line_text("HAVE UNKNOWN MYSTICAL POWERS.");
-
-    temp.add_line_text("");
-    temp.add_line_text("ZODIAC BOT");
-    temp.add_line_text("POWERED BY THE STARS, THIS");
-    temp.add_line_text("ROBOT IS PROTECTED BY THE");
-    temp.add_line_text("LEGENDARY GOLDEN ARMOR.");
-    page_list.push_back(temp);
-    temp.clear_text();
-
-
     temp.add_line_text("== TIPS FOR WINNING ==");
     temp.add_line_text("");
     temp.add_line_text("IF YOUR CHARACTER CAN SLIDE,");
@@ -492,6 +457,102 @@ void game_manual::generate_pages()
     temp.add_line_text("ENERGY CATS.");
     page_list.push_back(temp);
     temp.clear_text();
+
+    if (game_name_upper == "ROCKBOT1") {
+        temp.add_line_text("== ROBOT MASTERS [1] ==");
+        temp.add_line_text("APE BOT");
+        temp.add_line_text("THE JUNGLE HIDES DANGERS");
+        temp.add_line_text("UNDER THE TREETOPS.");
+
+        temp.add_line_text("");
+        temp.add_line_text("DAISIE BOT");
+        temp.add_line_text("SHE LIKES CUTE THINGS");
+        temp.add_line_text("LIKE FLOWERS. PROTECTS");
+        temp.add_line_text("PLANTS FROM POLLUTION.");
+
+        temp.add_line_text("");
+        temp.add_line_text("SEAHORSE BOT");
+        temp.add_line_text("PROTECTOR OF THE SEAS AND");
+        temp.add_line_text("SWIMS LIKE A TORPEDO.");
+
+        temp.add_line_text("");
+        temp.add_line_text("MAGE BOT");
+        temp.add_line_text("ARE YOU UP FOR A TRICK?");
+        temp.add_line_text("HIS LAIR IS A MAZE DISGUIZED");
+        temp.add_line_text("AS AN MIDDLE AGES CASTLE.");
+        page_list.push_back(temp);
+        temp.clear_text();
+
+        temp.add_line_text("== ROBOT MASTERS [2] ==");
+        temp.add_line_text("TECHNO BOT:");
+        temp.add_line_text("GET INTO THE INFORMATION");
+        temp.add_line_text("HIGHWAY. BUT CAN YOU KEEP.");
+        temp.add_line_text("UP WITH THE SPEED?.");
+
+        temp.add_line_text("");
+        temp.add_line_text("SPIKE BOT");
+        temp.add_line_text("DON'T TOUCH THE SPIKES!");
+
+        temp.add_line_text("");
+        temp.add_line_text("DYNABOT BOT");
+        temp.add_line_text("HE IS STRONG AND FAST,");
+        temp.add_line_text("LIKES TO EXPLODE ROCKS,");
+        temp.add_line_text("BUT CAN'T JUMP.");
+
+        temp.add_line_text("");
+        temp.add_line_text("MUMMY BOT");
+        temp.add_line_text("FROM THE ANCIENT REAL");
+        temp.add_line_text("OF THE IMMORTALS RAISE");
+        temp.add_line_text("THE SCARAB MASTER.");
+        page_list.push_back(temp);
+        temp.clear_text();
+    } else if (game_name_upper == "ROCKBOT2") {
+        temp.add_line_text("== ROBOT MASTERS [1] ==");
+        temp.add_line_text("SNOW BOT");
+        temp.add_line_text("A COLD BODY AND DISTANT ATTITUDE");
+        temp.add_line_text("HIDES A WARM HEART.");
+
+        temp.add_line_text("");
+        temp.add_line_text("VALKYRIE BOT");
+        temp.add_line_text("FROM NORDIC ORIGINS, THIS GIRL");
+        temp.add_line_text("ROBOT CONTROLS THE WEATHER");
+        temp.add_line_text("LIKE THE GOD THOR.");
+
+        temp.add_line_text("");
+        temp.add_line_text("KURUPIRA BOT");
+        temp.add_line_text("PROTECTOR OF THE JUNGLE AND");
+        temp.add_line_text("ANIMALS, LOVES THE GOOD LIFE.");
+
+        temp.add_line_text("");
+        temp.add_line_text("GEAR BOT");
+        temp.add_line_text("MILITARY ROBOT MADE FOR");
+        temp.add_line_text("ONLY ONE PURPOSE, TO BRING");
+        temp.add_line_text("WAR TO HIS ENEMIES.");
+        page_list.push_back(temp);
+        temp.clear_text();
+
+        temp.add_line_text("== ROBOT MASTERS [2] ==");
+        temp.add_line_text("BEAST BOT:");
+        temp.add_line_text("TRAVELLING WITH A CIRCUS, HE IS");
+        temp.add_line_text("VERY AGRESSIVE AND ANGRY.");
+
+        temp.add_line_text("");
+        temp.add_line_text("PHANTOM BOT");
+        temp.add_line_text("A LOVER OF THE NIGHT AND OPERA.");
+
+        temp.add_line_text("");
+        temp.add_line_text("DRAGON BOT");
+        temp.add_line_text("FROM FAR EAST, THIS MASTER");
+        temp.add_line_text("HAVE UNKNOWN MYSTICAL POWERS.");
+
+        temp.add_line_text("");
+        temp.add_line_text("ZODIAC BOT");
+        temp.add_line_text("POWERED BY THE STARS, THIS");
+        temp.add_line_text("ROBOT IS PROTECTED BY THE");
+        temp.add_line_text("LEGENDARY GOLDEN ARMOR.");
+        page_list.push_back(temp);
+        temp.clear_text();
+    }
 
     /*
     temp.add_line("== XX ==");

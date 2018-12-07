@@ -126,6 +126,25 @@ void draw::preload()
     filename = FILEPATH + "images/backgrounds/castle_point.png";
     graphLib.surfaceFromFile(filename, &castle_point);
 
+    filename = GAMEPATH + "/shared/images/buttons/d_pad.png";
+    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_DPAD_LEFTRIGHT, graphicsLib_gSurface()));
+    graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_DPAD_LEFTRIGHT));
+
+    filename = GAMEPATH + "/shared/images/buttons/btn_a.png";
+    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_A, graphicsLib_gSurface()));
+    graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_A));
+
+    filename = GAMEPATH + "/shared/images/buttons/btn_b.png";
+    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_B, graphicsLib_gSurface()));
+    graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_B));
+
+    filename = GAMEPATH + "/shared/images/buttons/btn_x.png";
+    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_X, graphicsLib_gSurface()));
+    graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_X));
+
+    filename = GAMEPATH + "/shared/images/buttons/btn_y.png";
+    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_Y, graphicsLib_gSurface()));
+    graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_Y));
 }
 
 void draw::show_gfx()
@@ -151,6 +170,11 @@ void draw::show_gfx()
         show_flash();
     }
     show_weapon_tooltip();
+}
+
+graphicsLib_gSurface *draw::get_input_surface(e_INPUT_IMAGES input)
+{
+    return &input_images_map.at(input);
 }
 
 void draw::update_screen()

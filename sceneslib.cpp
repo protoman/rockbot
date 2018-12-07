@@ -887,8 +887,8 @@ void scenesLib::boss_intro(Uint8 pos_n)
 
     soundManager.stop_music();
     // TODO: must set this in game-data //
-    soundManager.load_music("rockbot_weapon_aquired.mod");
-    soundManager.play_music();
+    soundManager.load_music("rockbot_stage_start.mod");
+    soundManager.play_music_once();
     graphLib.blank_screen();
     draw_lib.show_boss_intro_bg();
     draw_lib.update_screen();
@@ -974,8 +974,10 @@ void scenesLib::show_castle_boss_intro(Uint8 pos_n)
         draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
     }
 
-    soundManager.play_sfx_from_file("skull_castle_intro.wav", 1);
-    graphLib.wait_and_update_screen(6000);
+    //soundManager.play_sfx_from_file("skull_castle_intro.wav", 1);
+    soundManager.load_music("rockbot_skull_castle_intro.mod");
+    soundManager.play_music_once();
+    graphLib.wait_and_update_screen(7000);
 
     draw_lib.update_screen();
     timer.delay(1000);

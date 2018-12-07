@@ -93,6 +93,8 @@ int main(int argc, char *argv[])
 	#endif
 
 	std::string argvString = std::string(argv[0]);
+
+
     GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     std::cout << " *** EXEC_NAME: " << EXEC_NAME << ", FILEPATH: " << FILEPATH << ", SAVEPATH: " << SAVEPATH << " ***" << std::endl;
 

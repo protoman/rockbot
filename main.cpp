@@ -57,7 +57,7 @@ jobject activity_ref;
 #include "game.h"
 #include "stage_select.h"
 
-#define MAXPATHLEN 256
+#define MAXPATHLEN 1024
 
 #if defined(LINUX) || defined(OSX)
     #include <errno.h>
@@ -250,12 +250,21 @@ void get_filepath()
     }
 #else
     char *buffer = new char[MAXPATHLEN];
-    char* res = getcwd(buffer, MAXPATHLEN);
+    char *res = getcwd(buffer, MAXPATHLEN);
+
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAIN.DEBUG.res[%s]",res);
+#endif
+
     UNUSED(res);
     if(buffer != NULL){
         FILEPATH = std::string(buffer);
     }
     FILEPATH += "/";
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAIN.DEBUG.FILEPATH[%s]",FILEPATH.c_str());
+#endif
+
     delete[] buffer;
 #endif
 
@@ -452,6 +461,7 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("Rockbot2");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
+    std::cout << ">>>>>>>>>>>>>>>>>>>> GAMENAME[" << GAMENAME << "]" << std::endl;
 
     fflush(stdout);
 
@@ -625,8 +635,14 @@ extern "C" {
 
 JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj)
 {
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", cwd);
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "cwd is NULL");
+    }
     try {
-        char * argv[1];
+        char *argv[1];
         argv[0] = "./";
         activity_ref = obj;
         main(1, argv);
