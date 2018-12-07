@@ -111,11 +111,28 @@ short stage_select::finished_stages() const
 void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
 
     //std::cout << "STAGESELECT::move_highlight  - xinc: " << (int)x_inc << ", yinc: " << (int)y_inc << std::endl;
+    // CLEAR AREA
 
 	graphLib.copyArea(highlight_pos, &s_dark, &graphLib.gameScreen);
 	highlight_pos.x += x_inc;
 	highlight_pos.y += y_inc;
-	graphLib.copyArea(highlight_pos, &s_light, &graphLib.gameScreen);
+
+
+    graphLib.clear_area(1, 11, RES_W, 15, 25, 77, 129);
+    if (select_pos.x != 1 || select_pos.y != 1) {
+        CURRENT_FILE_FORMAT::file_io fio;
+        short stage_n = (select_pos.x + select_pos.y*3) + 1;
+        if (select_pos.y == 2 || (select_pos.y == 1 && select_pos.x > 1)) {
+            stage_n = (select_pos.x + select_pos.y*3);
+        }
+        fio.read_stage(temp_stage_data, stage_n);
+        std::string stage_name(temp_stage_data.name);
+        std::string boss_name(temp_stage_data.boss.name);
+        graphLib.draw_text(3, 12, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, game_config.selected_language) + " " + stage_name, graphLib.gameScreen);
+        //graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, graphLib.gameScreen);
+    }
+
+    graphLib.copyArea(highlight_pos, &s_light, &graphLib.gameScreen);
     draw_lib.update_screen();
 }
 
@@ -134,11 +151,11 @@ void stage_select::place_face(std::string face_file, std::string botname, st_pos
     //std::cout << "stage_select::place_face - face_file: '" << face_file << "'" << std::endl;
 
 	if (face_file.size() > 0) {
-        graphLib.place_face(face_file, st_position(pos.x*80+64, pos.y*64+32));
+        graphLib.place_face(face_file, st_position(pos.x*80+64, pos.y*62+36));
     }
     botname = botname.substr(0, FS_CHAR8_NAME_SIZE);
     txtPosX = pos.x*80+78-(botname.size()*7)*0.5;
-    txtPosY = pos.y*64+73;
+    txtPosY = pos.y*62+78;
     graphLib.draw_text(txtPosX, txtPosY, botname);
 }
 
@@ -173,7 +190,7 @@ void stage_select::draw_eyes(Uint8 x, Uint8 y, bool erase_eyes) {
 	}
 
     posX = posX+80+64;
-    posY = posY+64+32-1;
+    posY = posY+64+32+1;
 	if (erase_eyes) {
         char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
         sprintf(eyes_filename_char, "player%d.png", (game_save.selected_player+1));
@@ -205,9 +222,9 @@ int stage_select::pick_stage(int selected_stage_n) {
     select_pos.x = 1;
     select_pos.y = 1;
     spacing.x = 80;
-    spacing.y = 64;
+    spacing.y = 62;
     highlight_pos.x = 136-graphLib.RES_DIFF_W;
-    highlight_pos.y = 88;
+    highlight_pos.y = 90;
     graphLib.blank_screen();
     light_mode = &s_light;
 
@@ -218,6 +235,20 @@ int stage_select::pick_stage(int selected_stage_n) {
     graphicsLib_gSurface bg_surface;
     graphLib.surfaceFromFile(bg_filename, &bg_surface);
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+
+    short text_pos_y = 217;
+    graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
+    if (gameControl.is_free_version() == true && stage_n != INTRO_STAGE && stage_n != DEMO_VERSION_STAGE1 && stage_n != DEMO_VERSION_STAGE2 && stage_n != DEMO_VERSION_STAGE3 && stage_n != DEMO_VERSION_STAGE4) {
+        graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_unavailable, game_config.selected_language), st_color(250, 250, 250));
+    } else {
+        graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, game_config.selected_language), st_color(250, 250, 250));
+    }
+    /*
+    std::string stage_name(temp_stage_data.name);
+    std::string boss_name(temp_stage_data.boss.name);
+    graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, graphLib.gameScreen);
+    */
+
 
     for (int i=0; i<=2; i++) {
         for (int j=0; j<=2; j++) {
@@ -253,8 +284,6 @@ int stage_select::pick_stage(int selected_stage_n) {
     light_mode = &s_light;
 
     draw_lib.update_screen();
-    std::string press_start_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language);
-    graphLib.draw_text(RES_W*0.5-(FONT_SIZE*press_start_string.length())/2, 217, press_start_string);
     if (gameControl.is_free_version() == true) {
         graphLib.clear_area(0, 3, RES_W, 11, 0, 0, 0);
         graphLib.draw_centered_text(5, "FREE VERSION", graphLib.gameScreen, st_color(255, 130, 0));

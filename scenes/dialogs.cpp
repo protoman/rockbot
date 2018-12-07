@@ -291,8 +291,8 @@ void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)
         std::string weapon_name(GameMediator::get_instance()->projectile_list.at(type).name);
         ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_arms_msg, game_config.selected_language) + " " + weapon_name + ".";
     } else if (armor_type == ARMOR_TYPE_LEGS) {
+        type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs, game_config.selected_language);
         if (type == ARMOR_ABILITY_LEGS_AIRDASH) {
-            type_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs, game_config.selected_language);
             ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg1, game_config.selected_language);
         } else if (type == ARMOR_ABILITY_LEGS_DOUBLEJUMP) {
             ability_str = strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_legs_msg2, game_config.selected_language);
