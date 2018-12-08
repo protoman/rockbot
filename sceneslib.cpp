@@ -964,9 +964,8 @@ void scenesLib::show_castle_boss_intro(Uint8 pos_n)
 
 
     // draw previous points/paths
-    if (pos_n == CASTLE1_STAGE2) {
-        draw_lib.draw_castle_point(castle_data.points[0].x, castle_data.points[0].y);
-    } else if (pos_n == CASTLE1_STAGE3) {
+    draw_lib.draw_castle_point(castle_data.points[0].x, castle_data.points[0].y); // first point is always visible
+    if (pos_n == CASTLE1_STAGE3) {
         draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
     } else if (pos_n == CASTLE1_STAGE4 || pos_n == CASTLE1_STAGE5) {
         draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
@@ -974,7 +973,6 @@ void scenesLib::show_castle_boss_intro(Uint8 pos_n)
         draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
     }
 
-    //soundManager.play_sfx_from_file("skull_castle_intro.wav", 1);
     soundManager.load_music("rockbot_skull_castle_intro.mod");
     soundManager.play_music_once();
     graphLib.wait_and_update_screen(7000);

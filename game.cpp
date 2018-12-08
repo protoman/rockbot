@@ -1787,9 +1787,11 @@ void game::select_game_screen()
     std::vector<std::string> game_list = fio.read_game_list();
     if (game_list.size() < 1) {
         _selected_game = std::string("");
-        return;
+        std::cout << "select_game_screen [NO GAMES]" << std::endl;
+        exit(-1);
     } else if (game_list.size() == 1) {
         _selected_game = game_list.at(0);
+        std::cout << "select_game_screen [" + _selected_game + "]" << std::endl;
         return;
     }
     graphLib.show_config_bg();

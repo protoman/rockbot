@@ -166,22 +166,12 @@ bool graphicsLib::initGraphics()
         delete[] buffer;
 		return false;
     } else {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #1");
-#endif
 
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #2");
-#endif
         // outline-font
         outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #3");
-#endif
+#if !defined(DINGUX) && !defined(PSP)
         TTF_SetFontOutline(outline_font, 1);
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG #4");
 #endif
     }
     delete[] buffer;
@@ -1007,6 +997,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, gra
         // handle error
     }
 
+#if !defined(DINGUX) && !defined(PSP)
     if (outline_font) {
         SDL_Color black = {0, 0, 0};
         SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
@@ -1023,8 +1014,8 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, gra
                 SDL_FreeSurface(text_outlineSF_format);
             }
         }
-
     }
+#endif
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
     if (centered == true && text.size() > 0) {
         text_pos.x = RES_W/2 - textSF->w/2;

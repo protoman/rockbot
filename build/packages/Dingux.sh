@@ -11,6 +11,13 @@ mkdir ./Dingux/Rockbot2/shared
 
 cp ../rockbot.dge ./Dingux/Rockbot2/
 
+
+mkdir ././Dingux/Rockbot2/data
+mkdir ././Dingux/Rockbot2/data/games
+rsync -r --exclude=.svn ../fonts ././Dingux/Rockbot2/data
+rsync -r --exclude=.svn ../games/Rockbot$version_number ././Dingux/Rockbot2/data/games
+rsync -r --exclude=.svn ../shared ././Dingux/Rockbot2/data
+
 rsync -r --exclude=.svn ../games ./Dingux/Rockbot2
 rsync -r --exclude=.svn ../fonts ./Dingux/Rockbot2
 rsync -r --exclude=.svn ../shared ./Dingux/Rockbot2

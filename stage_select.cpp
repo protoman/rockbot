@@ -98,7 +98,7 @@ stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
 short stage_select::finished_stages() const
 {
     short total_stages = 0;
-    for (int i=0; i<STAGE_COUNT; i++) {
+    for (int i=0; i<MAX_STAGES; i++) {
         if (game_save.stages[i] == 1 || GAME_FLAGS[FLAG_ALLWEAPONS]) {
             total_stages++;
         }

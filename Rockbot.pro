@@ -19,7 +19,6 @@ CONFIG += linux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
-#CONFIG += dingoo_native
 #CONFIG += macosx
 
 # -m64 problem in android build:
@@ -230,10 +229,6 @@ playstation2 {
 	PRE_TARGETDEPS += usbhdfsd.s
 
 
-        QMAKE_CFLAGS -= -m64
-        QMAKE_CXXFLAGS -= -m64
-        QMAKE_LFLAGS -= -m64
-
         SOURCES += ports/ps2/cdvd_rpc.c
 	QMAKE_CC = ee-gcc
         QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -I$(PS2SDK)/ee/ee/include/sys -w
@@ -241,6 +236,12 @@ playstation2 {
 	QMAKE_CXX = ee-g++
 	QMAKE_LINK = ee-g++
         QMAKE_CXXFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -w
+
+        QMAKE_CFLAGS -= -m64
+        QMAKE_CFLAGS -= -std=gnu++11
+        QMAKE_CXXFLAGS -= -m64
+        QMAKE_CXXFLAGS -= -std=gnu++11
+        QMAKE_LFLAGS -= -m64
 
 	INCLUDES = -D_EE -O2 -G0 -Wall -O6 -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common I$(PS2SDK)/ee/include
         LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$(PS2SDK)/ports/lib -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc

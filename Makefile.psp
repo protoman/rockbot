@@ -6,9 +6,9 @@ sceneslib.o stage_select.o graphic/option_picker.o classmap.o objects/object.o c
 graphic/animation.o stage.o stage_select.o class_config.o scenes/dialogs.o game.o character/classplayer.o \
 character/classnpc.o character/artificial_inteligence.o aux_tools/trajectory_parabola.o file/convert.o \
 graphic/draw.o graphic/gfx_sin_wave.o character/movement/jump.o character/movement/inertia.o scenes/sceneshow.o \
-scenes/password_generator.o game_mediator.o ports/psp/psp_ram.o strings_map.o file/fio_strings.o file/fio_common.o \
+game_mediator.o ports/psp/psp_ram.o strings_map.o file/fio_strings.o file/fio_common.o \
 file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o docs/game_manual.o aux_tools/exception_manager.o \
-character/character_animation.o
+character/character_animation.o scenes/game_menu.o
  
 INCDIR   = /opt/pspsdk/psp/sdk/include
 CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions

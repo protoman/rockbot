@@ -36,12 +36,12 @@
 
 
 ====================================================================================
-1.20.070:
+1.20.074:
 ====================================================================================
+- new soundtrack by Simone Bernacchia!
 - enemy projectile not moving if he is not on-screen
-- bring back to mega-like stage selection
+- bring back to classic stage selection
 - bring back castle stages intro
-- new music from Simone Bernacchia
 - dash shadow effect
 - AI: fly+dash to player
 - ANDROID: fix crash in boss credits
