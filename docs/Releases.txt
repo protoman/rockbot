@@ -15,9 +15,6 @@
 - player selection must be shown only in full-game, not demo
 
 
-====================================================================================
-2.0.0 Beta 20:
-====================================================================================
 
 
 
@@ -52,3 +49,9 @@
 - separate manual parts between game-specific and general
 - "got weapon" music playing two times, should not play on colors celebration
 
+
+====================================================================================
+2.0.0 Beta 20:
+====================================================================================
+- shield must stop any movement (left, right, up, down)
+- na tela de seleção de fase, tá escrito pra apertar A, mas só entra com start

@@ -76,6 +76,10 @@ namespace format_v4 {
             keys_codes_copy[BTN_RIGHT] = SDLK_RIGHT;
             keys_codes_copy[BTN_UP] = SDLK_UP;
             keys_codes_copy[BTN_DOWN] = SDLK_DOWN;
+#elif RASPBERRY
+            for (int i=0; i<BTN_COUNT; i++) {
+                keys_codes_copy[i] = -1;
+            }
 #else
             keys_codes_copy[BTN_ATTACK] = SDLK_a;
             keys_codes_copy[BTN_JUMP] = SDLK_x;
@@ -239,6 +243,25 @@ namespace format_v4 {
             // start //
             button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_START].value = 9;
+#elif RASPBERRY
+            // shield, tiro, pulo, slide
+            // QUIT e START: OK
+            button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_ATTACK].value = 1;
+            button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_JUMP].value = 0;
+            button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_DASH].value = 0;
+            button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_SHIELD].value = 3;
+            button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_L].value = 6;
+            button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_R].value = 7;
+            button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_QUIT].value = 8;
+            button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
+            button_codes_copy[BTN_START].value = 9;
 #else
             button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_ATTACK].value = 2;
@@ -297,6 +320,8 @@ namespace format_v4 {
             return PLATFORM_WII;
     #elif DREAMCAST
             return PLATFORM_DREAMCAST;
+    #elif RASPBERRY
+            return PLATFORM_RASPBERRY;
     #else
             return PLATFORM_WINDOWS;
     #endif

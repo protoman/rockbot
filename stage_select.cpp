@@ -355,7 +355,7 @@ int stage_select::pick_stage(int selected_stage_n) {
             move_highlight(spacing.x, 0);
             timer.delay(200);
             input.clean();
-        } else if (input.p1_input[BTN_START] && (gameControl.is_free_version() == true || finished_stages() < 9) && (select_pos.x != 1 || select_pos.y != 1)) {
+        } else if ((input.p1_input[BTN_START] || input.p1_input[BTN_JUMP]) && (gameControl.is_free_version() == true || finished_stages() < 9) && (select_pos.x != 1 || select_pos.y != 1)) {
             if (gameControl.is_free_version() == true) {
                 int pos_n = select_pos.x + 1 + select_pos.y*3;
 
@@ -369,7 +369,7 @@ int stage_select::pick_stage(int selected_stage_n) {
             } else {
                 selection_end = 1;
             }
-        } else if (input.p1_input[BTN_START] && finished_stages() >= 9) {
+        } else if ((input.p1_input[BTN_START] || input.p1_input[BTN_JUMP]) && finished_stages() >= 9) {
             if (gameControl.is_free_version() == true) {
                 selection_end = 0;
             } else {

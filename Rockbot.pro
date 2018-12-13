@@ -12,6 +12,7 @@ QT       -= gui
 
 
 CONFIG += linux
+#CONFIG += raspberry
 #CONFIG += android
 #CONFIG += win32
 #CONFIG += playstation2
@@ -59,6 +60,19 @@ linux {
         QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
         QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
 
+}
+
+raspberry {
+        DEFINES+= RASPBERRY=1
+        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
+
+        INCLUDES = -I/usr/include/SDL \
+                -I/usr/include \
+                -I. \
+                -I./include \
+                -L/usr/lib
+        QMAKE_CCFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
+        QMAKE_CXXFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
 }
 
 macosx {

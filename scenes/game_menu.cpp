@@ -1,5 +1,10 @@
 #include "game_menu.h"
 
+#ifdef ANDROID
+#include <android/log.h>
+#endif
+
+
 extern std::string FILEPATH;
 
 #include "graphicslib.h"
@@ -682,6 +687,9 @@ void game_menu::music_player()
     int max = CASTLE1_STAGE5;
     // check stages that have music for max-value, default is castle 1.5
     for (int i=0; i<FS_MAX_STAGES; i++) {
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "game_menu::music_player - stage[%d], music[%s]", i, stages_data.stages[i].bgmusic_filename);
+#endif
         std::string filename(stages_data.stages[i].bgmusic_filename);
         std::cout << "stage[" << i << "].music[" << filename << "]" << std::endl;
         if (filename.length() == 0) {

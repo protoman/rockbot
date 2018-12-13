@@ -1984,6 +1984,9 @@ void graphicsLib::set_video_mode()
 #elif defined(PLAYSTATION2)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;
+#elif defined(RASPBERRY)
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {

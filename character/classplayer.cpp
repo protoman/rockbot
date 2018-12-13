@@ -847,6 +847,10 @@ void classPlayer::move()
 	}
 	if (input.p1_input[BTN_SHIELD] == 1) {
 		moveCommands.shield = 1;
+        moveCommands.left = 0;
+        moveCommands.right = 0;
+        moveCommands.up = 0;
+        moveCommands.down = 0;
 	} else {
 		moveCommands.shield = 0;
 	}

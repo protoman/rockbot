@@ -9,7 +9,7 @@
 
 #include <sstream>
 
-#if defined(LINUX) || defined(OSX)
+#if defined(LINUX) || defined(OSX) || defined(RASPBERRY)
     #include <errno.h>
     #include <sys/stat.h>
     #include <unistd.h>

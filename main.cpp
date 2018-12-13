@@ -59,7 +59,7 @@ jobject activity_ref;
 
 #define MAXPATHLEN 1024
 
-#if defined(LINUX) || defined(OSX)
+#if defined(LINUX) || defined(OSX) || defined(RASPBERRY)
     #include <errno.h>
     #include <sys/stat.h>
     #include <unistd.h>
@@ -413,7 +413,7 @@ int main(int argc, char *argv[])
     //GAME_FLAGS[FLAG_INVENCIBLE] = true;
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
-    #ifdef LINUX
+    #if defined(LINUX) || defined(OSX) || defined(RASPBERRY)
         SAVEPATH = std::string(getenv("HOME")) + "/.rockbot/";
         mkdir(SAVEPATH.c_str(), 0777);
         //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;

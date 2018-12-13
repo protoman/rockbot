@@ -941,18 +941,16 @@ namespace format_v4 {
 
 
         // ------- DEBUG ------- //
-        /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=STAGE1; i<=STAGE8; i++) {
-            data_out.stages[i] = 0;
+            data_out.stages[i] = 1;
         }
         for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 0;
         }
-        */
         //data_out.stages[INTRO_STAGE] = 1;
-        //data_out.stages[CASTLE1_STAGE1] = 1;
-        //data_out.stages[CASTLE1_STAGE2] = 1;
+        data_out.stages[CASTLE1_STAGE1] = 1;
+        data_out.stages[CASTLE1_STAGE2] = 1;
         //data_out.stages[CASTLE1_STAGE3] = 1;
         //data_out.stages[CASTLE1_STAGE4] = 1;
         //data_out.stages[STAGE3] = 0;

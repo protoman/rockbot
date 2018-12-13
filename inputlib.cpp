@@ -12,6 +12,9 @@ extern timerLib timer;
 #include "game.h"
 extern game gameControl;
 
+#include "graphicslib.h"
+extern graphicsLib graphLib;
+
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 #define DOUBLE_TAP_DELTA 500
@@ -151,6 +154,12 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 #endif
             }
             if (event.type == SDL_KEYDOWN) {
+                char inputTextChar[512];
+                sprintf(inputTextChar, "KEY[%d]", (int)event.key.keysym.sym);
+                graphLib.draw_text(10, 10, std::string(inputTextChar));
+                graphLib.updateScreen();
+                timer.delay(200);
+
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (key_config_tmp[i] != -1 && key_config_tmp[i] == event.key.keysym.sym) {
                         p1_input[i] = 1;
@@ -199,6 +208,13 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
                     std::cout << "held_button_count++ [" << held_button_count << "]" << std::endl;
                     held_button_timer = timer.getTimer();
                 }
+
+                char inputTextChar[512];
+                sprintf(inputTextChar, "BTN[%d]", (int)event.jbutton.button);
+                graphLib.draw_text(10, 10, std::string(inputTextChar));
+                graphLib.updateScreen();
+                timer.delay(200);
+
 
                 //std::cout << "#1 INPUT::readInput - joystick button[" << (int)event.jbutton.button << "] pressed." << std::endl;
                 for (int i=0; i<BTN_COUNT; i++) {
