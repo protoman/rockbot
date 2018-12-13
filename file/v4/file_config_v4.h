@@ -247,17 +247,17 @@ namespace format_v4 {
             // shield, tiro, pulo, slide
             // QUIT e START: OK
             button_codes_copy[BTN_ATTACK].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_ATTACK].value = 1;
+            button_codes_copy[BTN_ATTACK].value = 5;
             button_codes_copy[BTN_JUMP].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_JUMP].value = 0;
+            button_codes_copy[BTN_JUMP].value = 4;
             button_codes_copy[BTN_DASH].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_DASH].value = 0;
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_SHIELD].value = 3;
+            button_codes_copy[BTN_SHIELD].value = 1;
             button_codes_copy[BTN_L].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_L].value = 6;
+            button_codes_copy[BTN_L].value = 3;
             button_codes_copy[BTN_R].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_R].value = 7;
+            button_codes_copy[BTN_R].value = 2;
             button_codes_copy[BTN_QUIT].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_QUIT].value = 8;
             button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
