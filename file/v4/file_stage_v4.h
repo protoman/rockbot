@@ -37,7 +37,7 @@ struct file_castle {
     file_dialog boss_defeated_dialog;                                       // boss defeated dialog
 
     file_castle() {
-        // default values from Rockbot1
+        // default values from RockDroid1
         points[0] = st_position(109, 150);
         points[1] = st_position(177, 138);
         points[2] = st_position(195, 110);

@@ -14,47 +14,6 @@ android_game_services::android_game_services()
     //gpg::AndroidPlatformConfiguration platform_configuration;
     //platform_configuration.SetActivity(activity_ref);
 }
-void android_game_services::cloud_load_game(int save_n)
-{
-    //SDLCALL SDL_ANDROID_CloudLoad(const char *filename, const char *saveId, const char *dialogTitle);
-    SDL_ANDROID_CloudLoad(fio.get_save_filename(save_n).c_str(), get_save_id(save_n).c_str(), SAVE_TITLE);
-}
-
-void android_game_services::cloud_save_game(int save_n)
-{
-    //extern DECLSPEC int SDLCALL SDL_ANDROID_CloudSave(const char *filename, const char *saveId,
-    // const char *dialogTitle, const char *description, const char *screenshotFile, uint64_t playedTimeMs);
-    SDL_ANDROID_CloudSave(fio.get_save_filename(save_n).c_str(), get_save_id(save_n).c_str(), SAVE_TITLE, NULL, NULL, SDL_GetTicks());
-}
-
-void android_game_services::connect()
-{
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>> android_game_services::connect");
-#endif
-    SDL_ANDROID_ConnectPlayServices();
-}
-
-void android_game_services::disconnect()
-{
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>> android_game_services::disconnect");
-#endif
-    SDL_ANDROID_DisconnectPlayServices();
-}
-
-void android_game_services::unclock_achievement(std::string achievement_id)
-{
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>>>>>>>>>>>>>> android_game_services::unclock_achievement");
-#endif
-    SDL_ANDROID_UnlockAchievement(achievement_id.c_str());
-}
-
-void android_game_services::firebase_log(std::string log_msg)
-{
-    SDL_ANDROID_FirebaseLog(log_msg.c_str());
-}
 
 void android_game_services::crash_handler(std::string log_msg)
 {
@@ -87,7 +46,7 @@ void android_game_services::set_android_default_buttons_size(int size)
 
        std::cout << "screen_width: " << screen_width << ", screen_height: " << screen_height << std::endl;
 
-       __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>> set_android_default_buttons_size::screensize: w[%d], h[%d]", screen_width, screen_height);
+       __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", ">>>>> set_android_default_buttons_size::screensize: w[%d], h[%d]", screen_width, screen_height);
 
        float BUTTON_SIZE_MULTI = 1.2; // medium
        if (size == ANDROID_BUTTON_SMALL) {
@@ -137,7 +96,7 @@ void android_game_services::set_android_default_buttons_size(int size)
        r5_pos.x = screen_width-r5_pos.w+(r5_pos.w/MARGIN_DIVISOR);
        r5_pos.y = 0;
 
-       __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", ">>>>> set_android_default_buttons_size::R(5): x[%d], w[%d], h[%d]", r5_pos.x, r5_pos.w, r5_pos.h);
+       __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", ">>>>> set_android_default_buttons_size::R(5): x[%d], w[%d], h[%d]", r5_pos.x, r5_pos.w, r5_pos.h);
 
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_5, &r5_pos);
 
@@ -197,19 +156,6 @@ void android_game_services::set_touch_controls_visible(bool show)
     }
 }
 
-/*
-void android_game_services::ndk_connect()
-{
-
-}
-*/
-
-std::string android_game_services::get_save_id(int save_n)
-{
-    char save_id[20];
-    sprintf(save_id, "Rockbot2_0%d", save_n);
-    return std::string(save_id);
-}
 
 void android_game_services::check_button_size(SDL_Rect& dest_size, SDL_Rect& default_size)
 {

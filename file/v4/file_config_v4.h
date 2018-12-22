@@ -23,13 +23,11 @@ namespace format_v4 {
         bool auto_charge_mode;
         Uint8 volume_sfx;
         Uint8 volume_music;
-        bool android_use_play_services;                     // for android to use cloud save, trophies, etc
         bool android_touch_controls_hide;                   // define if touch controls must be hidden
         Uint8 android_touch_controls_size;                  // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
         Sint8 wii_joystick_type;                            // for wii to define between wiimote, classic, gamecube, etc
         Uint8 playstation2_video_mode;                      // for playstation 2, define screen resolution setting
         Uint8 graphics_performance_mode;                    // 0 => lowend, 1=> normal, 2 => highend
-        bool android_use_cloud_save;
         bool first_run;
 
         void get_default_keys(int (&keys_codes_copy)[BTN_COUNT]) {
@@ -342,13 +340,11 @@ namespace format_v4 {
             volume_sfx = 90;
             volume_music = 128;
 
-            android_use_play_services = false;
             android_touch_controls_hide = false;
             android_touch_controls_size = 1;
             wii_joystick_type = 0;
             playstation2_video_mode = 0;
             graphics_performance_mode = PERFORMANCE_MODE_HIGH;
-            android_use_cloud_save = false;
         }
 
 

@@ -22,11 +22,7 @@ public:
     void preloadScenes();
     void draw_main();
     void main_screen();
-    short pick_stage(int last_stage);
-    void boss_intro(Uint8 pos_n);
-    void show_castle_boss_intro(Uint8 pos_n);
     void show_cheats_menu();
-    void game_scenes_show_unbeaten_intro();
     void show_game_scene(e_game_scenes_types n);
     void show_player_ending();
     void show_player_walking_ending();

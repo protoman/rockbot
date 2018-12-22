@@ -2192,7 +2192,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 /*
 #ifdef ANDROID
         if (is_player() == false) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
         }
 #endif
 

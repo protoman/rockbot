@@ -389,12 +389,12 @@ void game_manual::generate_pages()
     temp.add_line_text("");
     temp.add_line_text("THE HERO OF THE CITY AFTER");
     temp.add_line_text("SAVING IT FROM DR. DESTRIN,");
-    temp.add_line_text("ROCKBOT AS GOOD AS IT GETS,");
+    temp.add_line_text("ROCKDROID AS GOOD AS IT GETS,");
     temp.add_line_text("ALWAYS FOLLOWING THE LAWS");
     temp.add_line_text("AND ORDERS FROM GOOD DOCTOR");
     temp.add_line_text("KANOTUS, HIS CREATOR.");
     temp.add_line_text("");
-    temp.add_line_text("WITH ROCKBOT YOU CAN FIRE");
+    temp.add_line_text("WITH ROCKDROID YOU CAN FIRE");
     temp.add_line_text("CHARGED SHOTS, SLIDE UNDER");
     temp.add_line_text("OBSTACLES AND USE A SHIELD.");
     page_list.push_back(temp);
@@ -458,7 +458,7 @@ void game_manual::generate_pages()
     page_list.push_back(temp);
     temp.clear_text();
 
-    if (game_name_upper == "ROCKBOT1") {
+    if (game_name_upper == "ROCKDROID1") {
         temp.add_line_text("== ROBOT MASTERS [1] ==");
         temp.add_line_text("APE BOT");
         temp.add_line_text("THE JUNGLE HIDES DANGERS");
@@ -506,7 +506,7 @@ void game_manual::generate_pages()
         temp.add_line_text("THE SCARAB MASTER.");
         page_list.push_back(temp);
         temp.clear_text();
-    } else if (game_name_upper == "ROCKBOT2") {
+    } else if (game_name_upper == "ROCKDROID2") {
         temp.add_line_text("== ROBOT MASTERS [1] ==");
         temp.add_line_text("SNOW BOT");
         temp.add_line_text("A COLD BODY AND DISTANT ATTITUDE");

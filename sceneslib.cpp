@@ -121,11 +121,6 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-    if (gameControl.is_free_version() == true) {
-        graphLib.draw_text(RES_W-12*9, 8, "FREE VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-    } else {
-        graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-    }
     graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
     graphLib.draw_centered_text(220, "http://rockbot.upperland.net");
 
@@ -261,11 +256,7 @@ void scenesLib::main_screen()
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
-        if (gameControl.is_free_version() == false) {
-                game_save.selected_player = select_player();
-        } else {
-                game_save.selected_player = PLAYER_1;
-        }
+        game_save.selected_player = select_player();
         gameControl.save_game();
     }
 }
@@ -348,34 +339,6 @@ void scenesLib::show_cheats_menu()
 
 }
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-short scenesLib::pick_stage(int last_stage) {
-	graphLib.blank_screen();
-	stage_select selection(STAGE_SELECT_SURFACES);
-
-    short pos_n = selection.pick_stage(last_stage);
-
-    timer.delay(100);
-    soundManager.stop_music();
-
-    if (game_save.stages[pos_n] == 0 || pos_n >= CASTLE1_STAGE1) {
-        boss_intro(pos_n);
-    }
-
-    return pos_n;
-
-}
-
-
-
-void scenesLib::game_scenes_show_unbeaten_intro()
-{
-    sceneShow show;
-    show.show_scene(game_scenes_map[GAME_SCENE_TYPES_INTRO_GAME_UNBEATEN]);
-    //std::cout << "game_scenes_show_unbeaten_intro::DONE";
-}
 
 void scenesLib::show_game_scene(e_game_scenes_types n)
 {
@@ -543,7 +506,7 @@ void scenesLib::ending_show_single_enemy(int id, std::string name)
 
     std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
 #endif
 
     int w = GameMediator::get_instance()->get_enemy(id)->frame_size.width;
@@ -567,7 +530,7 @@ void scenesLib::show_bosses_ending()
     // TODO: error handling //
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending ###");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending ###");
 #endif
 
     graphLib.blank_screen();
@@ -578,14 +541,14 @@ void scenesLib::show_bosses_ending()
     for (short i=0; i<CASTLE1_STAGE5; i++) {
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #1, i[%d] ###", i);
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #1, i[%d] ###", i);
 #endif
 
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
         fio.read_stage(stage_data_obj, i);
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #2");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #2");
 #endif
 
 
@@ -594,7 +557,7 @@ void scenesLib::show_bosses_ending()
         int boss_id = stage_data_obj.boss.id_npc;
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #3");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #3");
 #endif
 
         // BOSS POSITION IN DATA - 40y, 111h
@@ -602,20 +565,20 @@ void scenesLib::show_bosses_ending()
         unsigned int boss_pos = i*BOSS_CREDITS_LINES_N;
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #4, boss_pos[%d] ###", boss_pos);
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #4, boss_pos[%d] ###", boss_pos);
 #endif
 
 
         if (boss_pos >= boss_credits_data.size()) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "ERROR: boss_pos[%d] is greater than list size[%d]", boss_pos, boss_credits_data.size());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "ERROR: boss_pos[%d] is greater than list size[%d]", boss_pos, boss_credits_data.size());
 #endif
             std::cout << "ERROR: boss_pos[" << boss_pos << "] is greater than list size[" << boss_credits_data.size() << "]" << std::endl;
             continue;
         }
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #5");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #5");
 #endif
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
@@ -624,7 +587,7 @@ void scenesLib::show_bosses_ending()
         int delay = 60;
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #6");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #6");
 #endif
 
         graphLib.draw_progressive_text(5, 170, boss_n, false, delay);
@@ -632,7 +595,7 @@ void scenesLib::show_bosses_ending()
         draw_lib.update_screen();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #7");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #7");
 #endif
 
 
@@ -641,7 +604,7 @@ void scenesLib::show_bosses_ending()
         draw_lib.update_screen();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #8");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #8");
 #endif
 
         graphLib.draw_progressive_text(5, 201, design_creator.c_str(), false, delay);
@@ -649,7 +612,7 @@ void scenesLib::show_bosses_ending()
         draw_lib.update_screen();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #9");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #9");
 #endif
 
         timer.delay(2000);
@@ -864,135 +827,9 @@ Uint8 scenesLib::select_difficulty()
 
 
 
-void scenesLib::boss_intro(Uint8 pos_n)
-{
-    if (pos_n >= CASTLE1_STAGE1) {
-        show_castle_boss_intro(pos_n);
-        return;
-    }
-    if (pos_n == INTRO_STAGE) {
-        return;
-    }
 
 
-    graphicsLib_gSurface boss_img;
-    char boss_filename_chr[12];
-    sprintf(boss_filename_chr, "0%d.png", pos_n);
-    std::string boss_filename = FILEPATH + "images/backgrounds/boss_intro/" + std::string(boss_filename_chr);
-    graphLib.surfaceFromFile(boss_filename, &boss_img);
 
-    int init_pos = -boss_img.width;
-    int end_pos = RES_W-boss_img.width;
-    int pos_y = 151-boss_img.height;
-
-    soundManager.stop_music();
-    // TODO: must set this in game-data //
-    soundManager.load_music("rockbot_stage_start.mod");
-    soundManager.play_music_once();
-    graphLib.blank_screen();
-    draw_lib.show_boss_intro_bg();
-    draw_lib.update_screen();
-
-    for (int i=init_pos; i<=end_pos; i++) {
-        graphLib.clear_area(0, 34, RES_W, 117, 13, 15, 97);
-        graphLib.copyArea(st_position(i, pos_y), &boss_img, &graphLib.gameScreen);
-        draw_lib.update_screen();
-        timer.delay(5);
-
-    }
-
-    CURRENT_FILE_FORMAT::file_stage temp_stage_data;
-    fio.read_stage(temp_stage_data, pos_n);
-    std::string botname = GameMediator::get_instance()->get_enemy(temp_stage_data.boss.id_npc)->name;
-
-    std::string full_stage_str = botname + " [" + std::string(temp_stage_data.name) + "]";
-
-    std::cout << "SCENES::BOSS_INTRO - pos_n[" << (int)pos_n << "], full_stage_str[" << full_stage_str << "]" << std::endl;
-
-    // convert name to uppercase
-    std::locale settings;
-    std::string boss_name;
-    int text_x = RES_W-(full_stage_str.length()*8);
-    text_x = text_x/2;
-
-    //std::cout << "full_stage_str.length()[" << full_stage_str.length() << "], calc.size[" << (full_stage_str.length()*8) << "], text_x[" << text_x << "]" << std::endl;
-    for(unsigned int i = 0; i < full_stage_str.size(); ++i) {
-        boss_name += (std::toupper(full_stage_str[i], settings));
-        graphLib.draw_text(text_x, BOSS_INTRO_BG_TEXT_Y, boss_name);
-        draw_lib.update_screen();
-        timer.delay(100);
-    }
-    graphLib.wait_and_update_screen(2500);
-
-}
-
-void scenesLib::show_castle_boss_intro(Uint8 pos_n)
-{
-    fio_common fio_cmm;
-    CURRENT_FILE_FORMAT::st_file_castle_ponts castle_data = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle1_points.dat"));
-
-    graphicsLib_gSurface spriteCopy;
-
-
-    // set skullcastole number accoring to the save
-    if (pos_n == CASTLE1_STAGE1) {
-        if (game_save.stages[CASTLE1_STAGE5] != 0 || game_save.stages[CASTLE1_STAGE4] != 0) {
-            pos_n = CASTLE1_STAGE5;
-        } else if (game_save.stages[CASTLE1_STAGE3] != 0) {
-            pos_n = CASTLE1_STAGE4;
-        } else if (game_save.stages[CASTLE1_STAGE2] != 0) {
-            pos_n = CASTLE1_STAGE3;
-        } else if (game_save.stages[CASTLE1_STAGE1] != 0) {
-            pos_n = CASTLE1_STAGE2;
-        }
-    }
-
-    if (pos_n == CASTLE1_STAGE1) {
-        graphLib.blank_screen();
-        /// @TODO - use scenes here
-        //show_destrin_ship_intro();
-    }
-
-    std::cout << "####################### pos_n[" << (int)pos_n << "]" << std::endl;
-
-
-    std::string filename = FILEPATH + "images/backgrounds/castle.png";
-    graphLib.surfaceFromFile(filename, &spriteCopy);
-    graphLib.copyArea(st_position(0, 0), &spriteCopy, &graphLib.gameScreen);
-    graphLib.updateScreen();
-    graphLib.blink_screen(255, 255, 255);
-
-
-    // draw previous points/paths
-    draw_lib.draw_castle_point(castle_data.points[0].x, castle_data.points[0].y); // first point is always visible
-    if (pos_n == CASTLE1_STAGE3) {
-        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
-    } else if (pos_n == CASTLE1_STAGE4 || pos_n == CASTLE1_STAGE5) {
-        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
-        draw_lib.draw_castle_path(true, castle_data.points[1], castle_data.points[2]);
-        draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
-    }
-
-    soundManager.load_music("rockbot_skull_castle_intro.mod");
-    soundManager.play_music_once();
-    graphLib.wait_and_update_screen(7000);
-
-    draw_lib.update_screen();
-    timer.delay(1000);
-
-
-    /// @TODO - instant path for drawing previous ones (do not need a for-loop)
-    if (pos_n == CASTLE1_STAGE2) {
-        draw_lib.draw_castle_path(false, castle_data.points[0], castle_data.points[1]);
-    } else if (pos_n == CASTLE1_STAGE3) {
-        draw_lib.draw_castle_path(false, castle_data.points[1], castle_data.points[2]);
-    } else if (pos_n == CASTLE1_STAGE4) {
-        draw_lib.draw_castle_path(false, castle_data.points[2], castle_data.points[3]);
-    } else if (pos_n == CASTLE1_STAGE5) {
-        draw_lib.draw_castle_path(false, castle_data.points[3], castle_data.points[4]);
-    }
-    timer.delay(1500);
-}
 
 
 short scenesLib::select_save(bool is_new_game)

@@ -20,8 +20,6 @@ typedef struct {
 
 #ifdef ANDROID
 #include <android/log.h>
-#include "ports/android/android_game_services.h"
-extern android_game_services game_services;
 #endif
 
 extern std::string FILEPATH;
@@ -436,7 +434,7 @@ namespace format_v4 {
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.read_stage: Could not read stage '%s'] ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.read_stage: Could not read stage '%s'] ###", filename.c_str());
 #endif
 
             fflush(stdout);
@@ -444,7 +442,7 @@ namespace format_v4 {
         }
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### file_io::read_stage, stage_n[%d]] ###", stage_n);
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### file_io::read_stage, stage_n[%d]] ###", stage_n);
 #endif
 
 
@@ -453,7 +451,7 @@ namespace format_v4 {
         if (read_result != 1) {
             std::cout << ">>file_io::read_game - Error reading struct data from stage file, read_result[" << read_result << "], expected[" << sizeof(struct format_v4::file_stage) << "]" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.read_stage:Error reading struct data from stage file ###");
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.read_stage:Error reading struct data from stage file ###");
 #endif
             fflush(stdout);
             exit(-1);
@@ -727,7 +725,7 @@ namespace format_v4 {
         iox_dirent_t buf;
 
         // force because code crashed //
-        res.push_back("Rockbot2");
+        res.push_back("RockDroid2");
         return;
 
         printf(">>> file_io::ps2_listfiles::START <<<\n");
@@ -819,7 +817,7 @@ namespace format_v4 {
         closedir(dir);
 
 #else
-        res.push_back(std::string("Rockbot2"));
+        res.push_back(std::string("RockDroid2"));
         /*
         if (filename.find("cdfs:") != std::string::npos) {
             // @TODO

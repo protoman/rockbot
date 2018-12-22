@@ -72,11 +72,11 @@ jobject activity_ref;
 #endif
 
 #if defined(DINGUX)
-	std::string EXEC_NAME("rockbot.dge");
+    std::string EXEC_NAME("rockdroid.dge");
 #elif defined(WIN32)
-    std::string EXEC_NAME = std::string("rockbot.exe");
+    std::string EXEC_NAME = std::string("rockdroid.exe");
 #elif defined(PLAYSTATION2)
-	std::string EXEC_NAME("rockbot.elf");
+    std::string EXEC_NAME("rockdroid.elf");
 #elif defined(PSP)
 	std::string EXEC_NAME("EBOOT.PBP");
 #elif defined(ANDROID)
@@ -84,7 +84,7 @@ jobject activity_ref;
 #elif defined(WII)
     std::string EXEC_NAME("boot.dol");
 #else
-    std::string EXEC_NAME("rockbot");
+    std::string EXEC_NAME("rockdroid");
 #endif
 
 // EXTERNAL GLOBALS
@@ -189,7 +189,7 @@ void PS2_create_save_icons()
 
 
 #ifdef PSP
-PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
+PSP_MODULE_INFO("RockDroid", PSP_MODULE_USER, 1, 0);
 //PSP_HEAP_SIZE_KB(-1024);
 PSP_HEAP_SIZE_MAX();
 
@@ -253,7 +253,7 @@ void get_filepath()
     char *res = getcwd(buffer, MAXPATHLEN);
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAIN.DEBUG.res[%s]",res);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAIN.DEBUG.res[%s]",res);
 #endif
 
     UNUSED(res);
@@ -262,16 +262,16 @@ void get_filepath()
     }
     FILEPATH += "/";
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAIN.DEBUG.FILEPATH[%s]",FILEPATH.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAIN.DEBUG.FILEPATH[%s]",FILEPATH.c_str());
 #endif
 
     delete[] buffer;
 #endif
 
     #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
-        FILEPATH = "mass:/PS2/Rockbot/";
+        FILEPATH = "mass:/PS2/RockDroid/";
     //#elif WII
-        //FILEPATH = "sd:/apps/Rockbot/";
+        //FILEPATH = "sd:/apps/RockDroid/";
         //printf("MAIN #D\n");
     #endif
     std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
@@ -414,11 +414,11 @@ int main(int argc, char *argv[])
 
     // PS2 version have to load config AFTER SDL_Init due to SDK issues
     #if defined(LINUX) || defined(OSX) || defined(RASPBERRY)
-        SAVEPATH = std::string(getenv("HOME")) + "/.rockbot/";
+        SAVEPATH = std::string(getenv("HOME")) + "/.rockdroid/";
         mkdir(SAVEPATH.c_str(), 0777);
         //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;
     #elif WIN32
-        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockbot";
+        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
         std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
         _mkdir(SAVEPATH.c_str());
     #elif DREAMCAST
@@ -452,13 +452,7 @@ int main(int argc, char *argv[])
 #endif
 
 
-    // *** IURI: HACK TO FORCE DISABLE PLAY SERVICES *** //
-    game_config.android_use_cloud_save = false;
-    game_config.android_use_play_services = false;
-    // *** IURI: HACK TO FORCE DISABLE PLAY SERVICES *** //
-
-
-    //GAMENAME = std::string("Rockbot2");
+    //GAMENAME = std::string("RockDroid");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
     std::cout << ">>>>>>>>>>>>>>>>>>>> GAMENAME[" << GAMENAME << "]" << std::endl;
@@ -474,7 +468,7 @@ int main(int argc, char *argv[])
 #endif
 
     // DEBUG PS2 //
-    //GAMENAME = std::string("Rockbot2");
+    //GAMENAME = std::string("RockDroid");
 
     if (GAMENAME == "") {
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, game_config.selected_language) + std::string(":"));
@@ -502,7 +496,7 @@ int main(int argc, char *argv[])
     // define SAVEPATH
     #ifdef PLAYSTATION2
         PS2_load_MC();
-        SAVEPATH = "mc0:Rockbot/";
+        SAVEPATH = "mc0:RockDroid/";
 
         if (fioMkdir(SAVEPATH.c_str()) < 0) {
             std::cout << "main - warning: could not create '" << SAVEPATH << "' folder" << std::endl; std::fflush(stdout);
@@ -585,14 +579,6 @@ int main(int argc, char *argv[])
     fflush(stdout);
 
 
-#ifdef ANDROID
-    if (game_config.android_use_play_services == true) {
-        std::string achievement_id = "CgkIhcyFyuEEEAIQBw";
-        game_services.unclock_achievement(achievement_id);
-    }
-#endif
-
-
     while (run_game) {
         #if !defined(DINGUX)
             timer.start_ticker();
@@ -614,7 +600,7 @@ int main(int argc, char *argv[])
 
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### Leaving game gracefully ###");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### Leaving game gracefully ###");
 #endif
 
 #ifdef PSP
@@ -630,16 +616,16 @@ int main(int argc, char *argv[])
 
 #ifdef ANDROID
 extern "C" {
-    JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj);
+    JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIEnv * env, jobject obj);
 };
 
-JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv * env, jobject obj)
+JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIEnv * env, jobject obj)
 {
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", cwd);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", cwd);
     } else {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "cwd is NULL");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "cwd is NULL");
     }
     try {
         char *argv[1];
@@ -647,11 +633,11 @@ JNIEXPORT void JNICALL Java_net_upperland_rockbot_DemoRenderer_nativeInit(JNIEnv
         activity_ref = obj;
         main(1, argv);
     } catch (std::invalid_argument e) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Exception[invalid_argument]");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Exception[invalid_argument]");
         android_game_services android_services;
         android_services.crash_handler(e.what());
     } catch (std::runtime_error e) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Exception[runtime_error]");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Exception[runtime_error]");
         android_game_services android_services;
         android_services.crash_handler(e.what());
     }

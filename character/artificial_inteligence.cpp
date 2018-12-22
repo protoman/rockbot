@@ -2092,7 +2092,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
             #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, SET NEW BOSS");
+                __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "AI::SPAWN, SET NEW BOSS");
             #endif
             std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
             _is_stage_boss = false;
@@ -2103,7 +2103,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "AI::SPAWN, DONE");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "AI::SPAWN, DONE");
 #endif
 
 }

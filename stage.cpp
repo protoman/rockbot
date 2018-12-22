@@ -189,7 +189,7 @@ void stage::set_current_map(int new_map_n)
 
     if (new_map_n < 0 || new_map_n >= PRELOAD_MAP_N) {
         #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid value for set_current_map[%d]", new_map_n);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Invalid value for set_current_map[%d]", new_map_n);
         #endif
         std::cout << "Invalid value for set_current_map[" << new_map_n << "]" << std::endl;
         return;

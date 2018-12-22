@@ -1233,7 +1233,7 @@ void classPlayer::damage_spikes(bool ignore_hit_timer)
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
         std::cout << "################## SPIKES Immunity" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "####### SPIKES Immunity #######");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "####### SPIKES Immunity #######");
 #endif
         return;
     }

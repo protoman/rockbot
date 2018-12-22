@@ -196,7 +196,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "ARQUIVO ESTÁ PROTEGIDO PARA GRAVACAO.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2017 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2019 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "CONTROLE");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -673,12 +673,12 @@ namespace format_v4 {
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
 #endif
             return res;
         } else {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] loaded. ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] loaded. ###", filename.c_str());
 #endif
         }
 
@@ -686,7 +686,7 @@ namespace format_v4 {
 
         while (getline(fp, str)) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file::read.str[%s], res.size[%d]. ###", str.c_str(), res.size());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file::read.str[%s], res.size[%d]. ###", str.c_str(), res.size());
 #endif
 
             if (str.length() > 0) {
@@ -698,7 +698,7 @@ namespace format_v4 {
         fp.close();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### ERROR.fio_strings::get_string_list_from_file res.size[%d]. ###", res.size());
+        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file res.size[%d]. ###", res.size());
 #endif
 
         return res;

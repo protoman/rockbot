@@ -207,18 +207,6 @@ void game_menu::show_config_android()
         } else {
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM, game_config.selected_language)));
         }
-        // OPTION #2: use play services
-        if (game_config.android_use_play_services == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language), true));
-        } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_useplayservices, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled,game_config.selected_language), true));
-        }
-        // OPTION #3: use cloud save (only available if use play services is true)
-        if (game_config.android_use_cloud_save == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language), true));
-        } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_usecloudsave, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language), true));
-        }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
@@ -232,30 +220,6 @@ void game_menu::show_config_android()
                 game_config.android_touch_controls_size = 0;
             }
             game_services.set_android_default_buttons_size(game_config.android_touch_controls_size);
-        } else if (selected_option == 2) {
-            game_config.android_use_play_services = !game_config.android_use_play_services;
-            if (game_config.android_use_play_services == true) {
-                game_services.connect();
-            } else {
-                game_services.disconnect();
-            }
-            // disable cloud service always when changing play-services value
-            game_config.android_use_cloud_save = false;
-        } else if (selected_option == 3) {
-            if (game_config.android_use_play_services == false) {
-                game_config.android_use_cloud_save = false;
-                if (game_config.android_use_cloud_save == true) {
-                    show_config_warning_android_play_services();
-                }
-            } else {
-                game_config.android_use_cloud_save = !game_config.android_use_cloud_save;
-                if (game_config.android_use_cloud_save == true) {
-                    show_config_warning_android_cloud_save();
-                    // load saves from cloud, leave conflits to the library do handle //
-                    gameControl.load_save_data_from_cloud();
-                }
-            }
-            // @TODO: show warning that cloud load/save requires network connection
         }
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.updateScreen();
@@ -688,7 +652,7 @@ void game_menu::music_player()
     // check stages that have music for max-value, default is castle 1.5
     for (int i=0; i<FS_MAX_STAGES; i++) {
 #ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "game_menu::music_player - stage[%d], music[%s]", i, stages_data.stages[i].bgmusic_filename);
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "game_menu::music_player - stage[%d], music[%s]", i, stages_data.stages[i].bgmusic_filename);
 #endif
         std::string filename(stages_data.stages[i].bgmusic_filename);
         std::cout << "stage[" << i << "].music[" << filename << "]" << std::endl;

@@ -12,8 +12,6 @@
 
 #ifdef ANDROID
 #include <android/log.h>
-#include "ports/android/android_game_services.h"
-extern android_game_services game_services;
 #endif
 
 
@@ -425,27 +423,16 @@ bool game::show_game_intro()
     show_beta_version_warning();
 #endif
 
-    if (is_free_version()) {
-        show_free_version_warning();
-    }
-
-    scenes.preloadScenes();
-
-    /// @TODO - add scene intro here
-    scenes.game_scenes_show_unbeaten_intro();
-	scenes.main_screen();
-
-
-
     currentStage = INTRO_STAGE;
 
+    scenes.main_screen();
 	initGame();
 
     if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
         input.clean();
 		start_stage();
 	} else {
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = get_next_stage();
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
@@ -463,7 +450,7 @@ void game::show_beta_version_warning()
     timer.delay(100);
 
     graphLib.draw_centered_text(30, "-- BETA VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,");
+    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKDROID,");
     graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT");
     graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.");
 
@@ -1287,11 +1274,6 @@ void game::got_weapon()
 
     game_save.stages[currentStage] = 1;
 
-
-    if (is_free_version() && game_save.stages[DEMO_VERSION_STAGE1] == 1 && game_save.stages[DEMO_VERSION_STAGE2] == 1) {
-        show_demo_ending();
-    }
-
     leave_stage();
 }
 
@@ -1309,11 +1291,9 @@ void game::leave_stage()
     player1.reset_charging_shot();
     player1.set_weapon(WEAPON_DEFAULT, false);
     // @TODO: last stage must be set by game_data.final_boss_id //
-    if (currentStage >= CASTLE1_STAGE1 && currentStage < CASTLE1_STAGE5) {
-        currentStage = scenes.pick_stage(currentStage+1);
-    } else {
-        currentStage = scenes.pick_stage(currentStage);
-    }
+
+    currentStage = get_next_stage();
+
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
     soundManager.stop_music();
@@ -1352,7 +1332,7 @@ void game::return_to_intro_screen()
         input.clean();
         start_stage();
     } else {
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = get_next_stage();
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
@@ -1387,7 +1367,7 @@ void game::exit_game()
 
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### GAME::exit_game ###");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### GAME::exit_game ###");
 #endif
 
 
@@ -1450,22 +1430,6 @@ void game::show_ending()
     return_to_intro_screen();
 }
 
-void game::show_demo_ending()
-{
-    input.clean();
-    timer.delay(200);
-    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
-    graphLib.draw_centered_text(10, "-THANKS FOR PLAYING-", st_color(255, 130, 0));
-    graphLib.draw_centered_text(30, "YOU FINISHED ROCKBOT'S FREE VERSION.");
-    graphLib.draw_centered_text(45, "THE COMPLETE GAME WILL BE AVAILABLE");
-    graphLib.draw_centered_text(60, "AS AN OPEN BETA VERSION FOR");
-    graphLib.draw_centered_text(60, "PURSHASE BY 2017'S ENDING.");
-    graphLib.draw_centered_text(RES_H-40, "PRESENTED BY UPPERLAND STUDIOS.");
-    graphLib.draw_centered_text(RES_H-20, "PRESS A BUTTON TO CONTINUE PLAYING.");
-    draw_lib.update_screen();
-    input.wait_keypress();
-}
-
 void game::quick_load_game()
 {
     if (fio.save_exists(current_save_slot)) {
@@ -1497,7 +1461,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = get_next_stage();
     //currentStage = CASTLE1_STAGE1;
 
 
@@ -1608,7 +1572,7 @@ void game::set_player_anim_type(ANIM_TYPE anim_type)
 void game::show_player_at(int x, int y)
 {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### GAME::show_player_at[%d, %d] ###", x, y);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### GAME::show_player_at[%d, %d] ###", x, y);
 #endif
     //std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
     player1.show_at(st_position(x, y));
@@ -1681,6 +1645,22 @@ bool game::is_player_on_teleporter()
     return _player_teleporter.active;
 }
 
+unsigned short game::get_next_stage()
+{
+    unsigned short pos_n = INTRO_STAGE;
+    for (unsigned short i=INTRO_STAGE; i<=CASTLE1_STAGE5; i++) {
+        std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
+            break;
+        }
+        pos_n = i+1;
+    }
+    if (pos_n > CASTLE1_STAGE5) {
+        pos_n = CASTLE1_STAGE5;
+    }
+    return pos_n;
+}
+
 short game::get_last_castle_stage()
 {
     if (fio.can_access_castle(game_save) == false && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
@@ -1730,7 +1710,6 @@ void game::save_game()
         graphLib.draw_text(10, 20, "PLEASE WAIT AND BE SURE TO HAVE");
         graphLib.draw_text(10, 30, "AN AVAILABLE NETWORK CONNECTION.");
         graphLib.updateScreen();
-        game_services.cloud_save_game(current_save_slot);
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &bg_copy, &graphLib.gameScreen);
         graphLib.updateScreen();
@@ -1749,28 +1728,6 @@ bool game::get_show_fps_enabled()
     return show_fps_enabled;
 }
 
-
-#ifdef ANDROID
-bool game::load_save_data_from_cloud()
-{
-    graphicsLib_gSurface bg_copy;
-    graphLib.initSurface(st_size(RES_W, RES_H), &bg_copy);
-    graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &bg_copy);
-
-    // show loading from network dialog
-    graphLib.blank_screen();
-    graphLib.draw_text(10, 10, "LOADING SAVE DATA FROM GOOGLE DRIVE,");
-    graphLib.draw_text(10, 20, "PLEASE WAIT AND BE SURE TO HAVE");
-    graphLib.draw_text(10, 30, "AN AVAILABLE NETWORK CONNECTION.");
-    graphLib.updateScreen();
-    for (int i=0; i<SAVE_MAX_SLOT_NUMBER; i++) {
-        game_services.cloud_load_game(i);
-    }
-    graphLib.copyArea(st_position(0, 0), &bg_copy, &graphLib.gameScreen);
-    graphLib.updateScreen();
-    return fio.have_one_save_file();
-}
-#endif
 
 
 
@@ -1821,16 +1778,6 @@ string game::get_selected_game()
 {
     return _selected_game;
 }
-
-bool game::is_free_version()
-{
-#ifdef DEMO_VERSION
-    return true;
-#else
-    return false;
-#endif
-}
-
 
 void game::finish_player_teleporter()
 {

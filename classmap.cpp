@@ -2124,7 +2124,7 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 {
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "MAP::spawn_map_npc, id[%d]", npc_id);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
 
     //std::cout << "$$$ MAP::SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;

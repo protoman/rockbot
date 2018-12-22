@@ -141,7 +141,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	graphicsLib_gSurface npc_sprite_surface;
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, id[%d]", _number);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "CLASSNPC::build_basic_npc, id[%d]", _number);
 #endif
 
     CURRENT_FILE_FORMAT::file_npc_v3_1_2* copyref = GameMediator::get_instance()->get_enemy(main_id);
@@ -149,8 +149,8 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     name = std::string(copyref->name);
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, name#1[%s]", copyref->name);
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "CLASSNPC::build_basic_npc, name#2[%s]", name.c_str());
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "CLASSNPC::build_basic_npc, name#1[%s]", copyref->name);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "CLASSNPC::build_basic_npc, name#2[%s]", name.c_str());
 #endif
 
 
@@ -426,7 +426,7 @@ void classnpc::boss_move()
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "NPC::boss_move::GRAVITY #1, position.x[%f]", position.x);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "NPC::boss_move::GRAVITY #1, position.x[%f]", position.x);
 #endif
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;

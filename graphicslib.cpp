@@ -45,8 +45,6 @@ extern graphicsLib_gSurface _explosion_surface;
 
 #ifdef ANDROID
 #include <android/log.h>
-#include "ports/android/android_game_services.h"
-extern android_game_services game_services;
 #endif
 
 #define B sp[i - b]
@@ -145,7 +143,7 @@ bool graphicsLib::initGraphics()
     TTF_Init();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG GAMEPATH[%s]", GAMEPATH.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "LOAD.FONT.DEBUG GAMEPATH[%s]", GAMEPATH.c_str());
 #endif
 
     filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
@@ -156,7 +154,7 @@ bool graphicsLib::initGraphics()
     SDL_RWops *fileOutlineRW = SDL_RWFromFile(buffer, "rb");
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "LOAD.FONT.DEBUG file[%s]", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "LOAD.FONT.DEBUG file[%s]", filename.c_str());
 #endif
 
 
@@ -184,7 +182,7 @@ bool graphicsLib::initGraphics()
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
-    SDL_WM_SetCaption("Rockbot Game", "Rockbot Game");
+    SDL_WM_SetCaption("RockDroid", "RockDroid");
 #endif
     set_video_mode();
 #ifdef PC
@@ -384,7 +382,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     if (!surfaceOrigin) {
         cout << "copySDLArea - ERROR surfaceOrigin is NULL\n";
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "ERROR surfaceOrigin is NULL");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "ERROR surfaceOrigin is NULL");
 #endif
         show_debug_msg("ERROR #20");
         return;
@@ -392,7 +390,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     if (!surfaceDestiny) {
         std::cout << "copySDLPortion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "ERROR surfaceDestiny is NULL");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "ERROR surfaceDestiny is NULL");
 #endif
         show_debug_msg("ERROR #21");
         return;
@@ -406,7 +404,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         //printf(">> Invalid X portion src.x[%d], src.w[%d] for image.w[%d] <<\n", src.x, src.w, surfaceOrigin->w);
         fflush(stdout);
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid X portion <<\n");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Invalid X portion <<\n");
 #endif
         return;
     }
@@ -414,7 +412,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         printf(">> Invalid Y portion[%d] h[%d] for image.w[%d] and image.h[%d] <<\n", src.y, src.h, surfaceOrigin->w, surfaceOrigin->h);
         fflush(stdout);
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "Invalid Y portion <<\n");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Invalid Y portion <<\n");
 #endif
         return;
     }
@@ -522,7 +520,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     if (anim_tile_id >= ANIM_TILES_SURFACES.size()) {
         std::cout << "place_anim_tile - ERROR Invalid anim-tile-id: " << anim_tile_id << " - ignoring..." << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "place_anim_tile - ERROR Invalid anim-tile-id[%d], ignoring.", anim_tile_id);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "place_anim_tile - ERROR Invalid anim-tile-id[%d], ignoring.", anim_tile_id);
 #endif
         return;
     }
@@ -535,7 +533,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
         char debug_msg[255];
         sprintf(debug_msg, "EXIT:place_anim_tile[%d][%d]", anim_tile_id, ANIM_TILES_SURFACES.size());
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
 #endif
         show_debug_msg(debug_msg);
         return;
@@ -753,7 +751,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
     if (surface.width <= 0 || surface.get_surface() == NULL) {
         //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
 #endif
         return;
     }
@@ -769,7 +767,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     if (surface->width <= 0 || surface->get_surface() == NULL) {
         //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[*] - invalid surface, ignoring" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
 #endif
         return;
     }
@@ -1716,9 +1714,6 @@ void graphicsLib::show_debug_msg(string msg)
 {
     std::cout << "show_debug_msg - msg: " << msg << std::endl;
     std::fflush(stdout);
-#ifdef ANDROID
-    game_services.firebase_log(msg);
-#endif
 
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);
