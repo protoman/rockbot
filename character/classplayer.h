@@ -126,11 +126,6 @@ public:
     void damage(unsigned int damage_points, bool ignore_hit_timer);
 
     void damage_spikes(bool ignore_hit_timer);
-
-    /**
-     * @brief changes the colormap of stored frames surfaces for the current weapon color
-     * @param full_change indicates if must update all (true) or only current (false) frame
-     */
     void change_player_color(bool full_change);
 
     // to be used when game is paused
