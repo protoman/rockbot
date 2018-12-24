@@ -73,6 +73,8 @@ public:
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
     void draw_castle_point(int x, int y);
 
+    void show_interstage_map_bg(st_position pos);
+
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
     void show_rain();
@@ -149,6 +151,8 @@ private:
     st_color current_alpha_color;
     graphicsLib_gSurface current_alpha_surface;
     graphicsLib_gSurface castle_point;
+
+    graphicsLib_gSurface interstage_map;
 
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage
