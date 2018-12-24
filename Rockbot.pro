@@ -189,7 +189,6 @@ SOURCES += main.cpp \
     aux_tools/stringutils.cpp \
     file/fio_common.cpp \
     game_mediator.cpp \
-    docs/game_manual.cpp \
     collision_detection.cpp \
     graphic/gfx_sin_wave.cpp \
     character/character_animation.cpp \
@@ -252,7 +251,6 @@ HEADERS += \
     file/fio_common.h \
     game_mediator.h \
     file/v4/file_anim_block.h \
-    docs/game_manual.h \
     collision_detection.h \
     graphic/gfx_sin_wave.h \
     character/character_animation.h \
