@@ -247,21 +247,17 @@ void class_config::use_tank(int tank_type)
 		return;
 	}
 	if (tank_type == TANK_ENERGY || tank_type == TANK_SPECIAL) {
-		while (player_ref->get_hp().current < player_ref->get_hp().total) {
-            input.read_input();
-			player_ref->set_current_hp(1);
-			if (n == 0 || n % 6 == 0) {
-				soundManager.play_sfx(SFX_GOT_ENERGY);
-			}
-			n++;
-            graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1, player_ref->get_max_hp());
-            draw_lib.update_screen();
-			timer.delay(50);
-		}
+        int diff = player_ref->get_hp().current - player_ref->get_hp().total;
+        int play_times = diff/6;
+        if (play_times < 2) {
+            play_times = 2;
+        }
+        player_ref->set_current_hp(diff);
+        soundManager.play_sfx(SFX_GOT_ENERGY);
 	}
 	if (tank_type == TANK_SPECIAL || tank_type == TANK_WEAPON) {
 		st_position weapon_pos(0, 0);
-		for (int i=0; i<WEAPON_COUNT; i++) {
+        for (int i=WEAPON_ITEM_COIL; i<WEAPON_COUNT; i++) {
 			n = 0;
 			short unsigned int value = player_ref->get_weapon_value(i);
 			if (value < player_ref->get_hp().total) {
@@ -273,8 +269,6 @@ void class_config::use_tank(int tank_type)
 						soundManager.play_sfx(SFX_GOT_ENERGY);
 					}
 					n++;
-                    graphLib.draw_weapon_cursor(weapon_pos, player_ref->get_weapon_value(i), -1, player_ref->get_max_hp());
-                    draw_lib.update_screen();
 					timer.delay(50);
 				}
 			}
@@ -429,25 +423,25 @@ Sint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
             //std::cout << "#0 CONFIG::find_next_weapon - wpnId: " << i << ", save: " << game_save.stages[i] << std::endl;
-            if (game_save.stages[i] == 1) {
+            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
                 //std::cout << "#0 CONFIG::find_next_weapon - OK[" << i << "]" << std::endl;
                 return i;
             }
         }
         for (int i=0; i<current; i++) { // from start to position
-            if (game_save.stages[i] == 1) {
+            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
                 return i;
             }
         }
     } else {
         for (int i=current-1; i>=0; i--) { // from position to start
-            if (game_save.stages[i] == 1) {
+            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
                 //std::cout << ">>#1 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
-            if (game_save.stages[i] == 1) {
+            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
                 //std::cout << ">>#2 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
