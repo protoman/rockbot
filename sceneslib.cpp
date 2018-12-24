@@ -34,8 +34,6 @@ extern draw draw_lib;
 
 #include "graphic/animation.h"
 
-#include "docs/game_manual.h"
-
 #include "game.h"
 extern game gameControl;
 
@@ -149,7 +147,6 @@ void scenesLib::main_screen()
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language), true));
     }
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual, game_config.selected_language)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
@@ -162,17 +159,6 @@ void scenesLib::main_screen()
     bool have_save = fio.have_one_save_file();
 
     // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
-#ifdef ANDROID
-    // if config player services is set, and no save is found, get it from cloud
-    /*
-    if (have_save == false && game_config.android_use_play_services == true && game_config.android_use_cloud_save == true) {
-        gameControl.load_save_data_from_cloud();
-        have_save = fio.have_one_save_file();
-    }
-    */
-#endif
-
-
 
     int picked_n = 0;
 
@@ -227,12 +213,7 @@ void scenesLib::main_screen()
             menu.show_main_config(0, false);
 			draw_main();
 			main_picker.draw();
-        } else if (picked_n == 3) { // MANUAL //
-            game_manual manual;
-            manual.execute();
-            draw_main();
-            main_picker.draw();
-        } else if (picked_n == 4) { // ABOUT/CREDITS //
+        } else if (picked_n == 3) { // ABOUT/CREDITS //
             // only wait for keypress if user did not interrupted credits
             if (draw_lib.show_credits(true) == 0) {
                 input.wait_keypress();
@@ -256,7 +237,7 @@ void scenesLib::main_screen()
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
-        game_save.selected_player = select_player();
+        game_save.selected_player = PLAYER_2;
         gameControl.save_game();
     }
 }
@@ -346,25 +327,6 @@ void scenesLib::show_game_scene(e_game_scenes_types n)
     show.show_scene(game_scenes_map[n]);
 }
 
-void scenesLib::show_player_ending()
-{
-    switch (game_save.selected_player) {
-        case PLAYER_1:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER1);
-            break;
-        case PLAYER_2:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER2);
-            break;
-        case PLAYER_3:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER3);
-            break;
-        case PLAYER_4:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER4);
-            break;
-        default:
-            break;
-    }
-}
 
 void scenesLib::show_player_walking_ending()
 {
@@ -621,168 +583,6 @@ void scenesLib::show_bosses_ending()
 
 }
 
-
-
-
-
-
-
-
-
-
-void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int selected, int adjustX, int adjustY) {
-	int posX, invPosX;
-
-	invPosX = 0;
-
-	if (_timer < timer.getTimer()) {
-		_timer = timer.getTimer()+200;
-		if (_state == 0) {
-			_state = 1;
-		} else {
-			_state = 0;
-		}
-	}
-	if (_state != 0) {
-		posX = 6;
-	} else {
-		posX = 0;
-	}
-    int XPos[4];
-    XPos[0] = 2;
-    XPos[1] = 88;
-    XPos[2] = 162;
-    XPos[3] = 248;
-    int YPos[4];
-    YPos[0] = 2;
-    YPos[1] = 88;
-    YPos[2] = 114;
-    YPos[3] = 200;
-
-    // erase previous position
-    for (int i=0; i<2; i++) {
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    }
-
-    if (selected == PLAYER_1) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_2) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_3) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_4) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    }
-    draw_lib.update_screen();
-}
-
-
-Uint8 scenesLib::select_player() {
-    int selected = 1;
-    graphicsLib_gSurface bg_surface;
-
-    int max_loop = 2;
-    if (game_config.game_finished == true) {
-        max_loop = 4;
-    }
-
-
-    graphLib.blank_screen();
-    std::string filename = FILEPATH + "images/backgrounds/player_selection.png";
-    graphLib.surfaceFromFile(filename, &bg_surface);
-
-    filename = FILEPATH + "images/backgrounds/player_select_p1.png";
-    graphicsLib_gSurface p1_surface;
-    graphLib.surfaceFromFile(filename, &p1_surface);
-
-    filename = FILEPATH + "images/backgrounds/player_select_p2.png";
-    graphicsLib_gSurface p2_surface;
-    graphLib.surfaceFromFile(filename, &p2_surface);
-
-    filename = FILEPATH + "images/backgrounds/player_select_p3.png";
-    graphicsLib_gSurface p3_surface;
-    graphLib.surfaceFromFile(filename, &p3_surface);
-
-    filename = FILEPATH + "images/backgrounds/player_select_p4.png";
-    graphicsLib_gSurface p4_surface;
-    graphLib.surfaceFromFile(filename, &p4_surface);
-
-    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language));
-    graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language));
-    graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
-    draw_lib.update_screen();
-
-
-    input.clean();
-    timer.delay(100);
-
-    while (true) {
-        input.read_input();
-        if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
-            soundManager.play_sfx(SFX_CURSOR);
-            if (input.p1_input[BTN_RIGHT] == 1) {
-                selected++;
-            } else {
-                selected--;
-            }
-            // adjust selected/loop
-            if (selected < 1) {
-                selected = max_loop;
-            } else if (selected > max_loop) {
-                selected = 1;
-            }
-            graphLib.clear_area(0, 49, RES_W, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-            if (selected == 1) {
-                graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
-            } else if (selected == 2) {
-                graphLib.copyArea(st_position(0, 50), &p2_surface, &graphLib.gameScreen);
-            } else if (selected == 3) {
-                graphLib.copyArea(st_position(0, 50), &p3_surface, &graphLib.gameScreen);
-            } else if (selected == 4) {
-                graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
-            }
-            graphLib.clear_area(60, 168, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-            graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name);
-        } else if (input.p1_input[BTN_QUIT] == 1) {
-            dialogs dialogs_obj;
-            if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDL_Quit();
-                exit(0);
-            }
-        } else if (input.p1_input[BTN_START] == 1) {
-            input.clean();
-            draw_lib.update_screen();
-            timer.delay(80);
-            break;
-        }
-        input.clean();
-        timer.delay(10);
-        draw_lib.update_screen();
-    }
-
-    return (selected-1);
-}
 
 
 Uint8 scenesLib::select_difficulty()
