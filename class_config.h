@@ -31,6 +31,7 @@ public:
     st_position convert_stage_n_to_menu_pos(short stage_n) const;
     Sint8 find_next_weapon(Uint8 current, Uint8 move) const; // used by L/R buttons
     void disable_ingame_menu();
+    void use_tank(int tank_type);
 
 
 private:
@@ -40,7 +41,6 @@ private:
     st_position move_weapon_curstor_up();
     st_position move_weapon_curstor_down();
     void weapon_menu_show_player();
-    void use_tank(int tank_type);
     void generate_weapons_matrix();
     void generate_weapons_array();                      // used  to create an array with all weapons that have have depending on save
 
