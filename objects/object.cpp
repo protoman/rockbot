@@ -397,9 +397,9 @@ void object::show(int adjust_y, int adjust_x)
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         show_deathray_horizontal(adjust_x, adjust_y);
         return;
-    } else if (type == OBJ_BOSS_DOOR) {
-        show_boss_door(adjust_x, adjust_y);
-        return;
+    //} else if (type == OBJ_BOSS_DOOR) {
+        //show_boss_door(adjust_x, adjust_y);
+        //return;
     }
 
     if (show_teleport) {
@@ -673,8 +673,8 @@ void object::show_boss_door(int adjust_x, int adjust_y)
 
     int graph_h = framesize_h;
     if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENING || _state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
-        graph_h = framesize_h - _ray_state;
-        std::cout << "object::show_boss_door::graph_h[" << graph_h << "]" << std::endl;
+        //graph_h = framesize_h - _ray_state;
+        //std::cout << "object::show_boss_door::graph_h[" << graph_h << "]" << std::endl;
     }
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
@@ -1118,7 +1118,7 @@ void object::move(bool paused)
             }
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
             gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x/TILESIZE);
-            _state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
+            _state = e_OBJECT_BOSS_DOOR_STATE_NONE;
             gameControl.show_door_animation();
         } else if (_state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
             _ray_state--;
@@ -1340,7 +1340,7 @@ void object::start()
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
         std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
         if (type == OBJ_BOSS_DOOR) {
-            _state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
+            _state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
             _teleport_state = 0;
             gameControl.show_door_animation();
         }
