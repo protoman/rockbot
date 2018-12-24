@@ -24,7 +24,6 @@ public:
     void main_screen();
     void show_cheats_menu();
     void show_game_scene(e_game_scenes_types n);
-    void show_player_ending();
     void show_player_walking_ending();
     void show_enemies_ending();
     void ending_show_single_enemy(int id, std::string name);
@@ -40,9 +39,7 @@ private:
 
 
     void config_int_value(Uint8 &value_ref, int min, int max);
-    Uint8 select_player();
     Uint8 select_difficulty();
-    void draw_lights_select_player(graphicsLib_gSurface& lights, int mode, int adjustX, int adjustY);
     short select_save(bool is_new_game);
     void draw_save_details(int n, format_v4::st_save save);
 
