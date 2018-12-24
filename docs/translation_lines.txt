@@ -16,7 +16,7 @@ SELECT GAME
 ERROR WHILE SAVING GAME
 PLEASE CHECK THAT THE DEVICE OR
 FILE IS NOT WRITE-PROTECTED.
-\xA9 2009-2017 UPPERLAND STUDIOS {*\xA9 is the copyright symbol}
+\xA9 2009-2019 UPPERLAND STUDIOS {*\xA9 is the copyright symbol}
 
 
 // configuration - limit 30 //
