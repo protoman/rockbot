@@ -20,26 +20,6 @@ public:
  *
  */
     dialogs();
-    /**
-     * @brief
-     *
-     * @param stage
-     */
-    void show_stage_dialog(int stage_n);
-    /**
-     * @brief
-     *
-     * @param stage
-     */
-    void show_boss_dialog(int stage_n);
-    /**
-     * @brief
-     *
-     * @param face_file
-     * @param is_left
-     * @param lines[]
-     * @param show_btn
-     */
     void show_dialog(std::string face_file, bool is_left, std::string lines[3], bool show_btn);
 
     bool show_leave_game_dialog();
