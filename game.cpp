@@ -75,6 +75,21 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
     is_showing_boss_intro = false;
     current_save_slot = 0;
     show_fps_enabled = false;
+
+    map_interstage_points.push_back(st_position(11, 27));
+    map_interstage_points.push_back(st_position(54, 31));
+    map_interstage_points.push_back(st_position(105, 27));
+    map_interstage_points.push_back(st_position(160, 70));
+    map_interstage_points.push_back(st_position(198, 7));
+    map_interstage_points.push_back(st_position(288, 26));
+    map_interstage_points.push_back(st_position(265, 92));
+    map_interstage_points.push_back(st_position(190, 135));
+    map_interstage_points.push_back(st_position(78, 120));
+    map_interstage_points.push_back(st_position(41, 174));
+    map_interstage_points.push_back(st_position(120, 204));
+    map_interstage_points.push_back(st_position(201, 205));
+    map_interstage_points.push_back(st_position(277, 171));
+
 }
 
 // ********************************************************************************************** //
@@ -238,6 +253,9 @@ void game::start_stage()
     player1.set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
 
 	soundManager.stop_music();
+
+    show_interstage_map();
+
     soundManager.load_stage_music(stage_data.bgmusic_filename);
 
     loaded_stage.reload_stage();
@@ -270,9 +288,6 @@ void game::start_stage()
     loaded_stage.add_autoscroll_delay();
 
     show_player_teleport(PLAYER_INITIAL_X_POS, -1);
-    if (!game_save.stages[currentStage]) {
-        game_dialogs.show_stage_dialog(currentStage);
-    }
     show_game(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
@@ -536,8 +551,25 @@ void game::show_notice()
 
     draw_lib.update_screen();
 
-    input.clean_and_wait_scape_time(4000);
+    timer.delay(10000);
 
+    graphLib.blank_screen();
+
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, game_config.selected_language));
+    graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, game_config.selected_language));
+    graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, game_config.selected_language));
+    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, game_config.selected_language));
+    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, game_config.selected_language));
+    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, game_config.selected_language));
+    graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, game_config.selected_language));
+    graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, game_config.selected_language));
+    graphLib.draw_centered_text(200, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, game_config.selected_language));
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, game_config.selected_language));
+
+    draw_lib.update_screen();
+    timer.delay(10000);
+    graphLib.blank_screen();
 }
 
 void game::show_in_memorian()
@@ -865,17 +897,6 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
     show_stage(8, false);
 
 
-	if (show_dialog == true) {
-		// 4. show boss dialog
-        dialogs boss_dialog;
-        if (!game_save.stages[loaded_stage.get_number()]) {
-            boss_dialog.show_boss_dialog(loaded_stage.get_number());
-        }
-	}
-
-    show_stage(8, false);
-
-
     soundManager.play_boss_music();
 
     timer.delay(100);
@@ -1124,6 +1145,7 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         }
         player1.show();
         loaded_stage.showAbove();
+        loaded_stage.show_above_objects();
         // draw HUD
         draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 #if defined(PC)
@@ -1153,19 +1175,6 @@ void game::show_door_animation()
     int steps = 50;
     remove_players_slide();
 
-    for (int i=0; i<steps; i++) {
-        loaded_stage.show_stage();
-        loaded_stage.show_npcs();
-        loaded_stage.show_objects();
-        player1.show();
-        loaded_stage.showAbove();
-        // draw HUD
-        draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
-#if defined(PC)
-        timer.delay(2);
-#endif
-        draw_lib.update_screen();
-    }
     timer.delay(6);
     game_unpause();
     loaded_stage.show_stage();
@@ -1226,55 +1235,19 @@ void game::got_weapon()
             timer.delay(250);
         }
 
-		/// @TODO
-		// show the "you got" screen
-		graphLib.blank_screen();
-		graphLib.blink_screen(255, 255, 255);
-		graphLib.blank_screen();
-
-        graphLib.show_config_bg();
-
-        player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
-        player1.set_animation_type(ANIM_TYPE_ATTACK);
-        loaded_stage.set_scrolling(st_float_position(0, 0));
-        player1.char_update_real_position();
-        player1.show();
-
-        std::string weapon_name(game_data.weapons[currentStage].name);
-		for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
-			*p = toupper(*p);
-		}
-
-
-        // line 1, weapon name; line 2 extra item; line 3 was acquired
-		std::string extra_name = "";
-        if (currentStage == COIL_GOT_STAGE) {
-            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
-            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and, game_config.selected_language) + std::string(" ") + item_name;
-        } else if (currentStage == JET_GOT_STAGE) {
-            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
-            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and, game_config.selected_language) + std::string(" ") + item_name;
-        }
-        std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular, game_config.selected_language) + " ");
-        graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);
-        short line3_pos = RES_H * 0.5 + 8;
-        if (extra_name.length() > 0) {
-            graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
-            line3_pos = RES_H * 0.5 + 20;
-            phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_plural, game_config.selected_language) + " ");
-        }
-        graphLib.draw_progressive_text((RES_W * 0.5 - 90), line3_pos, phrase, false);
-
-
-
-        player1.show();
-
-        graphLib.wait_and_update_screen(5000);
+        // @TODO: show map screen //
 	}
 
     game_save.stages[currentStage] = 1;
 
     leave_stage();
+}
+
+void game::show_interstage_map() {
+    int next_stage = get_next_stage();
+    if (next_stage >=0 && next_stage <= CASTLE1_STAGE5) {
+        draw_lib.show_interstage_map_bg(map_interstage_points.at(next_stage));
+    }
 }
 
 void game::leave_stage()
@@ -1377,38 +1350,6 @@ void game::exit_game()
 
 }
 
-void game::game_over()
-{
-    _last_stage_used_teleporters.clear();
-
-    timer.delay(200);
-    input.clean();
-    soundManager.load_music(game_data.game_over_music_filename);
-    soundManager.play_music();
-    graphLib.blank_screen();
-
-
-    graphLib.show_config_bg();
-
-    graphicsLib_gSurface dialog_img;
-    std::string filename = FILEPATH + "images/backgrounds/dialog.png";
-    graphLib.surfaceFromFile(filename, &dialog_img);
-    graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
-
-    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover, game_config.selected_language));
-
-    draw_lib.update_screen();
-    timer.delay(400);
-    input.wait_keypress();
-    if (currentStage != INTRO_STAGE) {
-        leave_stage();
-    } else {
-        soundManager.stop_music();
-        soundManager.load_stage_music(stage_data.bgmusic_filename);
-        // restart stage will play the music
-        restart_stage();
-    }
-}
 
 void game::show_ending()
 {
@@ -1419,7 +1360,6 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    scenes.show_player_ending();
     scenes.show_player_walking_ending();
 
     scenes.show_enemies_ending();
@@ -1436,8 +1376,8 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    game_save.difficulty = DIFFICULTY_HARD;
-    game_save.selected_player = PLAYER_1;
+    game_save.difficulty = DIFFICULTY_NORMAL;
+    game_save.selected_player = PLAYER_2;
 
     /*
     // DEBUG //
