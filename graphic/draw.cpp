@@ -145,6 +145,10 @@ void draw::preload()
     filename = GAMEPATH + "/shared/images/buttons/btn_y.png";
     input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_Y, graphicsLib_gSurface()));
     graphLib.surfaceFromFile(filename, &input_images_map.at(INPUT_IMAGES_Y));
+
+
+    filename = FILEPATH + "images/backgrounds/map.png";
+    graphLib.surfaceFromFile(filename, &interstage_map);
 }
 
 void draw::show_gfx()
@@ -494,14 +498,6 @@ int draw::show_credits(bool can_leave)
     //graphLib.blank_screen();// should leave presented by on the screen
     graphLib.updateScreen();
     timer.delay(1000);
-    if (can_leave == false) {
-        graphLib.draw_centered_text(RES_H/2+16, "YOU HAVE UNLOCKED A SECRET.");
-        graphLib.draw_centered_text(RES_H/2+28, "SELECT NEW GAME TO PICK");
-        graphLib.draw_centered_text(RES_H/2+40, "A NEW AVAILABLE CHARACTER.");
-
-        graphLib.draw_centered_text(RES_H/2+64, "PRESS A BUTTON TO CONTINUE.");
-        graphLib.updateScreen();
-    }
     input.clean();
     timer.delay(100);
     input.wait_keypress();
@@ -988,6 +984,14 @@ void draw::draw_castle_point(int x, int y)
     graphLib.copyArea(st_position(x, y), &castle_point, &graphLib.gameScreen);
 }
 
+void draw::show_interstage_map_bg(st_position pos)
+{
+    graphLib.showSurface(&interstage_map);
+    graphLib.showSurfaceRegionAt(&hud_player_1up, st_rectangle(TILESIZE, 0, TILESIZE, TILESIZE), st_position(pos.x-4, pos.y-4));
+    graphLib.updateScreen();
+    timer.delay(5000);
+}
+
 void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
 {
     // 8 initial points
@@ -1077,11 +1081,23 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
     */
 
 
-    if (selected_weapon != WEAPON_DEFAULT) {
+    if (selected_weapon != WEAPON_DEFAULT && selected_weapon < WEAPON_ITEM_ETANK) {
         // draw weapon
 
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
+        //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
+        draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
+    } else if (selected_weapon != WEAPON_DEFAULT && selected_weapon >= WEAPON_ITEM_ETANK) {
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, st_color(250, 250, 250));
+        int wpn_percent = 0;
+        if (selected_weapon == WEAPON_ITEM_ETANK) {
+            wpn_percent = game_save.items.energy_tanks*10;
+        } else if (selected_weapon == WEAPON_ITEM_WTANK) {
+            wpn_percent = game_save.items.weapon_tanks*10;
+        } else if (selected_weapon == WEAPON_ITEM_STANK) {
+            wpn_percent = game_save.items.special_tanks*10;
+        }
         //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     }
