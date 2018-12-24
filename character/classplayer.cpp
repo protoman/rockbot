@@ -342,7 +342,7 @@ void classPlayer::attack(bool dont_update_colors)
         }
         return;
     } else if (game_save.items.weapons[selected_weapon] <= 0) {
-        std::cout << "invalid weapon" << std::endl;
+        std::cout << "PLAYER::ATTACK - invalid weapon" << std::endl;
         return;
     }
 
@@ -383,6 +383,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         short int weapon_id = 0;
 
+        std::cout << "PLAYER::ATTACK - used_weapon[" << used_weapon << "]" << std::endl;
 
         if (used_weapon == WEAPON_ITEM_COIL) {
             if (gameControl.get_current_map_obj()->have_player_object() == true) {
@@ -396,6 +397,22 @@ void classPlayer::attack(bool dont_update_colors)
             } else {
                 add_jet_object();
             }
+        } else if (used_weapon == WEAPON_ITEM_ETANK) {
+            std::cout << "PLAYER::ATTACK - WEAPON_ITEM_ETANK" << std::endl;
+            class_config config_manager;
+            config_manager.set_player_ref(this);
+            config_manager.use_tank(TANK_ENERGY);
+            set_weapon(WEAPON_DEFAULT, true);
+        } else if (used_weapon == WEAPON_ITEM_WTANK) {
+            class_config config_manager;
+            config_manager.set_player_ref(this);
+            config_manager.use_tank(TANK_WEAPON);
+            set_weapon(WEAPON_DEFAULT, true);
+        } else if (used_weapon == WEAPON_ITEM_STANK) {
+            class_config config_manager;
+            config_manager.set_player_ref(this);
+            config_manager.use_tank(TANK_SPECIAL);
+            set_weapon(WEAPON_DEFAULT, true);
         } else {
             weapon_id = used_weapon;
         }
@@ -987,13 +1004,6 @@ void classPlayer::death()
     //draw_lib.draw_explosion(realPosition);
     //draw_lib.remove_fade_out_effect();
 
-    if (game_save.items.lifes == 0) {
-        game_save.items.lifes = 3;
-        std::cout << "GAME OVER" << std::endl;
-        gameControl.game_over();
-        return;
-    }
-    game_save.items.lifes--;
     std::cout << "PLAYER::DEATH::DONE" << std::endl;
 }
 
@@ -1005,27 +1015,27 @@ void classPlayer::reset_hp()
 void classPlayer::change_player_color(bool full_change)
 {
     //std::cout << "PLAYER::change_player_color - selected_weapon[" << selected_weapon << "], full_change[" << full_change << "]" << std::endl;
-	if (full_change == false) {
-        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-	} else {
+    if (full_change == false) {
+        graphLib.change_surface_color(0, weapon_colors[0].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[0].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[0].color3, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+    } else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
-			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
-				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-					if (weapon_colors[selected_weapon].color1.r != -1) {
-                        graphLib.change_surface_color(0, weapon_colors[selected_weapon].color1, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
-					}
-					if (weapon_colors[selected_weapon].color2.r != -1) {
-                        graphLib.change_surface_color(1, weapon_colors[selected_weapon].color2, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
-					}
-					if (weapon_colors[selected_weapon].color3.r != -1) {
-                        graphLib.change_surface_color(2, weapon_colors[selected_weapon].color3, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
-					}
-				}
-			}
-		}
-	}
+            for (int j=0; j<ANIM_TYPE_COUNT; j++) {
+                for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
+                    if (weapon_colors[0].color1.r != -1) {
+                        graphLib.change_surface_color(0, weapon_colors[0].color1, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                    }
+                    if (weapon_colors[0].color2.r != -1) {
+                        graphLib.change_surface_color(1, weapon_colors[0].color2, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                    }
+                    if (weapon_colors[0].color3.r != -1) {
+                        graphLib.change_surface_color(2, weapon_colors[0].color3, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void classPlayer::save_input()
