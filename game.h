@@ -85,26 +85,15 @@ public:
     void show_door_animation();
 
     void got_weapon();
-    /**
-     * @brief
-     *
-     */
+
+    void show_interstage_map();
+
     void leave_stage();
 
     void return_to_intro_screen();
 
     void game_pause();
     void game_unpause();
-
-    /**
-     * @brief
-     *
-     */
-    void game_over();
-    /**
-     * @brief
-     *
-     */
     void show_ending();
 
 
@@ -308,6 +297,9 @@ private:
     short current_save_slot;
 
     bool show_fps_enabled;
+
+    std::vector<st_position> map_interstage_points;
+
 
 
 #ifdef PSP
