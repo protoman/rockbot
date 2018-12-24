@@ -2375,7 +2375,7 @@ void classMap::show_above_objects(int adjust_y, int adjust_x)
 {
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        if ((*object_it).get_type() == OBJ_STAGE_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_FINAL_BOSS_TELEPORTER) { // teleporters are shown above
+        if ((*object_it).get_type() == OBJ_STAGE_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_FINAL_BOSS_TELEPORTER || (*object_it).get_type() == OBJ_BOSS_DOOR) { // teleporters are shown above
             (*object_it).show(adjust_y, adjust_x); // TODO: must pass scroll map to objects somwhow...
         }
     }
