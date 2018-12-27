@@ -24,9 +24,6 @@ CONFIG += linux
 #DEFINES += BETA_VERSION=1
 
 
-# dolphin-emu -d -e ~/Desenvolvimento/rockbot/build/rockbot.elf
-
-
 # sudo mount -o defaults,umask=000 ~/.local/share/dolphin-emu/Wii/sd.raw /media/sdcard
 # cp -r ~/Desenvolvimento/rockbot/build/games/RockDroid2 /media/sdcard/RockDroid2
 # cp -r ~/Desenvolvimento/rockbot/build/fonts /media/sdcard
@@ -47,7 +44,6 @@ linux {
                 -L/usr/lib
         QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
         QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
-
 }
 
 
@@ -139,7 +135,6 @@ android {
     -lsupc++  -lsdl-1.2 \
     -llog -landroid -lEGL -lGLESv1_CM \
     -L$${ANDROIDSDK}/rockbot_build/ \
-    #$${ANDROIDSDK}/android-ndk-r14b/platforms/android-14/arch-arm/usr/lib/c++/armeabi/libgpg.a # play services static library #
 
 
     #SOURCES +=

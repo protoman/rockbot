@@ -83,12 +83,13 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
     map_interstage_points.push_back(st_position(198, 7));
     map_interstage_points.push_back(st_position(288, 26));
     map_interstage_points.push_back(st_position(265, 92));
-    map_interstage_points.push_back(st_position(190, 135));
+    map_interstage_points.push_back(st_position(161, 121));
     map_interstage_points.push_back(st_position(78, 120));
     map_interstage_points.push_back(st_position(41, 174));
     map_interstage_points.push_back(st_position(120, 204));
     map_interstage_points.push_back(st_position(201, 205));
-    map_interstage_points.push_back(st_position(277, 171));
+    map_interstage_points.push_back(st_position(203, 170));
+    map_interstage_points.push_back(st_position(282, 171));
 
 }
 
