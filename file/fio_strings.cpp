@@ -331,6 +331,9 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine6], "%s", "À JOGOS ANTIGOS OU ENGANO.");
             sprintf(lines[string_intro_engine7], "%s", "ROCKDROID E UPPERLAND NÃO TEM");
             sprintf(lines[string_intro_engine8], "%s", "QUALQUER RELAÇÃO COM OUTRAS EMPRESAS.");
+            sprintf(lines[string_intro_engine9], "%s", "ROCKBOT FOI REMOVIDO PELO GOOGLE");
+            sprintf(lines[string_intro_engine10], "%s", "USUÁRIOS RELATANDO ELE COMO");
+            sprintf(lines[string_intro_engine11], "%s", "SENDO VERSÃO 'FALSA' DE OUTRO.");
 
             sprintf(lines[string_intro_demo_warning_title], "%s", "-- AVISO JOGO CASEIRO"
                                                                   " --");
@@ -499,6 +502,9 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine6], "%s", "TO OLD GAMES OR A MISTAKE.");
             sprintf(lines[string_intro_engine7], "%s", "ROCKDROID AND UPPERLAND ARE NOT");
             sprintf(lines[string_intro_engine8], "%s", "RELATED TO ANY COMPANY OR GAMES.");
+            sprintf(lines[string_intro_engine9], "%s", "GOOGLE REMOVED ROCKBOT DUE TO");
+            sprintf(lines[string_intro_engine10], "%s", "USERS REPORTING IT AS");
+            sprintf(lines[string_intro_engine11], "%s", "'IMPERSONATING' OTHER GAME.");
 
             sprintf(lines[string_intro_demo_warning_title], "%s", "-- WARNING HOMEBREW --");
             sprintf(lines[string_intro_demo_warning1], "%s", "THIS IS A HOMEBREW GAME, MADE BY A FEW");

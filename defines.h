@@ -1131,6 +1131,9 @@ enum E_STRINGS_INGAME {
     string_intro_engine6,
     string_intro_engine7,
     string_intro_engine8,
+    string_intro_engine9,
+    string_intro_engine10,
+    string_intro_engine11,
 
     string_intro_demo_warning_title,
     string_intro_demo_warning1,

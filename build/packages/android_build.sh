@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 read -r -p "What is the version number you are building? " version_number
 if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
