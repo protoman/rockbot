@@ -2192,41 +2192,6 @@ void graphicsLib::place_water_tile(st_position dest)
 void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth)
 {
     SDL_Surface *rotozoom_picture;
-
-    /*
-    // Zoom and display the picture
-    framemax=4*360; frameinc=1;
-    for (framecount=360; framecount<framemax; framecount += frameinc) {
-        if ((framecount % 360)==0) frameinc++;
-        input.read_input();
-        if (input.p1_input[BTN_JUMP] == 1) {
-            SDL_FreeSurface(rotozoom_picture);
-            return;
-        }
-        blank_screen();
-        zoomxf=(float)framecount/(float)framemax;
-        zoomxf=1.5*zoomxf*zoomxf;
-        zoomyf=0.5+fabs(1.0*sin((double)framecount/80.0));
-        if ((framecount % 120)==0) {
-         printf ("  Frame: %i   Zoom: x=%.2f y=%.2f\n",framecount,zoomxf,zoomyf);
-        }
-        if ((rotozoom_picture = zoomSurface(picture.get_surface(), zoomxf, zoomyf, smooth))!=NULL) {
-            dest.x = (gameScreen.get_surface()->w - rotozoom_picture->w)/2;;
-            dest.y = (gameScreen.get_surface()->h - rotozoom_picture->h)/2;
-            dest.w = rotozoom_picture->w;
-            dest.h = rotozoom_picture->h;
-            if (SDL_BlitSurface(rotozoom_picture, NULL, gameScreen.get_surface(), &dest) < 0 ) {
-                fprintf(stderr, "Blit failed: %s\n", SDL_GetError());
-                break;
-            }
-            SDL_FreeSurface(rotozoom_picture);
-        }
-
-        // Display by flipping screens
-        timer.delay(100);
-        updateScreen();
-    }
-    */
     st_position center(dest.x+picture.width/2, dest.y+picture.height/2);
     std::cout << ">>>>>>>>>>> dest[" << dest.x << "][" << dest.y << "]" << std::endl;
     std::cout << "center[" << center.x << "][" << center.y << "]" << std::endl;

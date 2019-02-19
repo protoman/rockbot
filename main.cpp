@@ -126,10 +126,6 @@ int current_stage = 0;
     #include "ports/ps2/modules.h"
 
 
-
-
-
-
 void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
 {
     FILE *fp_read = fopen(file_in.c_str(), "rb");

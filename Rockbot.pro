@@ -12,10 +12,10 @@ QT       -= gui
 
 
 #CONFIG += linux
-CONFIG += raspberry
+#CONFIG += raspberry
 #CONFIG += android
 #CONFIG += win32
-#CONFIG += playstation2
+CONFIG += playstation2
 #CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
@@ -25,6 +25,7 @@ CONFIG += raspberry
 # -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
+# or, in a install in home (qt5),
 
 
 ### BETA VERSION ###
@@ -224,6 +225,7 @@ dingux {
 
 
 playstation2 {
+        QMAKESPEC=./ports/ps2/g++-ps2.conf
         DEFINES+= PLAYSTATION2=1
 	TARGET = rockbot.elf
 

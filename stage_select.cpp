@@ -118,7 +118,7 @@ void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
 	highlight_pos.y += y_inc;
 
 
-    graphLib.clear_area(1, 11, RES_W, 15, 25, 77, 129);
+    graphLib.clear_area(1, 11, RES_W, 15, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     if (select_pos.x != 1 || select_pos.y != 1) {
         CURRENT_FILE_FORMAT::file_io fio;
         short stage_n = (select_pos.x + select_pos.y*3) + 1;
@@ -583,7 +583,7 @@ void stage_select::show_stage_face(int x, int y, int stage_n)
 
     graphicsLib_gSurface face_surface;
     graphLib.surfaceFromFile(face_filename, &face_surface);
-    graphLib.clear_area(x, y, face_surface.width, face_surface.height, 8, 25, 42);
+    graphLib.clear_area(x, y, face_surface.width, face_surface.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.copyArea(st_position(x, y), &face_surface, &graphLib.gameScreen);
 
     if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
@@ -630,16 +630,16 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.initSurface(st_size(RES_W, 18), &bottom_panel);
     graphLib.initSurface(st_size(RES_W, 18), &top_panel_copy);
     graphLib.initSurface(st_size(RES_W, 18), &bottom_panel_copy);
-    graphLib.clear_surface_area(0, 0, top_panel.width, top_panel.height, 8, 25, 42, top_panel);
-    graphLib.clear_surface_area(0, 0, bottom_panel.width, bottom_panel.height, 8, 25, 42, bottom_panel);
-    graphLib.clear_surface_area(0, 0, top_panel_copy.width, top_panel_copy.height, 8, 25, 42, top_panel_copy);
-    graphLib.clear_surface_area(0, 0, bottom_panel_copy.width, bottom_panel_copy.height, 8, 25, 42, bottom_panel_copy);
+    graphLib.clear_surface_area(0, 0, top_panel.width, top_panel.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, top_panel);
+    graphLib.clear_surface_area(0, 0, bottom_panel.width, bottom_panel.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, bottom_panel);
+    graphLib.clear_surface_area(0, 0, top_panel_copy.width, top_panel_copy.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, top_panel_copy);
+    graphLib.clear_surface_area(0, 0, bottom_panel_copy.width, bottom_panel_copy.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, bottom_panel_copy);
     graphLib.copyArea(st_rectangle(0, 8, RES_W, 18), st_position(0, 0), &graphLib.gameScreen, &top_panel_copy);
     graphLib.copyArea(st_position(0, RES_H-top_panel.height-20), &graphLib.gameScreen, &bottom_panel_copy);
 
     // clear panel
-    //graphLib.clear_area(0, 7, RES_W, 18, 8, 25, 42);
-    //graphLib.clear_area(0, RES_H-45, RES_W, 18, 8, 25, 42);
+    //graphLib.clear_area(0, 7, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    //graphLib.clear_area(0, RES_H-45, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 
     std::string stage_name(temp_stage_data.name);
     std::string boss_name(temp_stage_data.boss.name);

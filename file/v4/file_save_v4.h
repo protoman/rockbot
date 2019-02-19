@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+typedef signed char int8_t;
 typedef int8_t		Sint8;
 
 namespace format_v4 {
