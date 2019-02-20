@@ -1100,17 +1100,28 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 
 void graphicsLib::load_icons()
 {
+    std::cout << ">>> graphicsLib::load_icons <<<" << std::endl;
 	struct graphicsLib_gSurface tmp;
     std::string filename = FILEPATH + "images/icons.png";
 
 	// big icon
 	surfaceFromFile(filename, &tmp);
+    std::cout << ">>> graphicsLib::load_icons #1 <<<" << std::endl;
     int icon_size = tmp.height/2;
+    std::cout << ">>> graphicsLib::load_icons #1.1 <<<" << std::endl;
+    weapon_icons.clear();
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
-		weapon_icons.push_back(graphicsLib_gSurface());
+        std::cout << ">>> graphicsLib::load_icons #1.2[" << i << "] <<<" << std::endl;
+        graphicsLib_gSurface new_surface = graphicsLib_gSurface();
+        std::cout << ">>> graphicsLib::load_icons #1.3 <<<" << std::endl;
+        weapon_icons.push_back(new_surface);
+        std::cout << ">>> graphicsLib::load_icons #1.4 <<<" << std::endl;
+
         initSurface(st_size(icon_size, icon_size*2), &weapon_icons.at(weapon_icons.size()-1));
         copyArea(st_rectangle(i*icon_size, 0, icon_size, icon_size*2), st_position(0, 0), &tmp, &(weapon_icons.at(weapon_icons.size()-1)));
+        std::cout << ">>> graphicsLib::load_icons #1.5 <<<" << std::endl;
 	}
+    std::cout << ">>> graphicsLib::load_icons #2 <<<" << std::endl;
 
 	// small icons
     filename = FILEPATH + "images/icons_small.png";
@@ -1982,8 +1993,20 @@ void graphicsLib::set_video_mode()
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    //game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, 16, SDL_SWSURFACE | SDL_DOUBLEBUF );
     _video_filter = VIDEO_FILTER_NOSCALE;
+
+    /*
+    256, 224 - good
+    288, 224 - good (strange colors?)
+    256x256 -
+    320x200 - distortion
+    320x240 - distortion
+    320x256 - distortion (small)
+    400x256 - distortion
+    512x448 - good but small
+    */
 #elif defined(RASPBERRY)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;

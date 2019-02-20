@@ -877,7 +877,9 @@ namespace format_v4 {
         config.video_filter = VIDEO_FILTER_NOSCALE;
         std::cout << "IO::load_config - SET video_filter to " << VIDEO_FILTER_NOSCALE << ", value: " << config.video_filter << std::endl;
 #endif
-
+#ifdef PLAYSTATION2
+        config.reset();
+#endif
         if (config.volume_music == 0) {
             config.volume_music = 128;
         }

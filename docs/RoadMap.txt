@@ -74,6 +74,19 @@ beast, valkyrie, gear, snow, dragon, kurupira, phanton, zodiac
 - inspiration for enemies behavior: https://www.youtube.com/watch?v=Zm7qkZsGNqM
 
 
+###################################################################################################################
+PLAYSTATION 2:
+###################################################################################################################
+ERROR: Could not open read file 'mass:/PS2/Rockbot//games/Rockbot2/images/icon.sys'
+show_debug_msg - msg: ERROR #1
+show_debug_msg - msg: mass:/PS2/Rockbot//games/Rockbot2/images/icon.sys
+open name mass:/PS2/Rockbot/games/Rockbot2/images/rockbot_ps2_icon.icn flag 1 data 45d78
+open fd = -2
+ERROR: Could not open read file 'mass:/PS2/Rockbot//games/Rockbot2/images/rockbot_ps2_icon.icn'
+show_debug_msg - msg: ERROR #1
+show_debug_msg - msg: mass:/PS2/Rockbot//games/Rockbot2/images/rockbot_ps2_icon.icn
+
+
 -------------------------------------------
 VAPPEBOY:
 -------------------------------------------

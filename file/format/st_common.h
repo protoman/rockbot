@@ -230,7 +230,6 @@ struct graphicsLib_gSurface {
     private:
         SDL_Surface *gSurface;
 
-
         SDL_Color get_pixel_color(Uint32 pixel) const {
             if (!gSurface) {
                 return SDL_Color();
@@ -298,7 +297,6 @@ struct graphicsLib_gSurface {
         // copy CONSTRUCTOR
         graphicsLib_gSurface(const graphicsLib_gSurface &original)
         {
-
             if (original.gSurface == NULL) {
                 gSurface = NULL;
                 width = 0;
@@ -332,7 +330,6 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
-
             if (original.gSurface == NULL) {
                 gSurface = NULL;
                 width = 0;
@@ -364,7 +361,6 @@ struct graphicsLib_gSurface {
 
         ~graphicsLib_gSurface()
         {
-            setbuf(stdout, NULL);
             freeGraphic();
             colorkey1_points.clear();
             colorkey2_points.clear();

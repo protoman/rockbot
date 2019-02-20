@@ -130,8 +130,6 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
     while (SDL_PollEvent(&event)) {
 
 
-        //std::cout << ">>> INPUT::read_input[EVENT] <<<" << std::endl;
-
         if (_show_btn_debug == false) {
             _show_btn_debug = true;
         }
@@ -193,6 +191,7 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
         if (game_config.input_type == INPUT_TYPE_DOUBLE || game_config.input_type == INPUT_TYPE_JOYSTICK) {
             if (event.type == SDL_JOYBUTTONDOWN) {
 
+                std::cout << "SDL_JOYBUTTONDOWN[" << (int)event.jbutton.button << "]" << std::endl;
 
                 if (check_input_reset) {
                     held_button_count++;
@@ -242,7 +241,9 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
         // check AXIS buttons //
         if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE || game_config.input_mode == INPUT_MODE_DIGITAL)) {
 
-            //std::cout << "INPUT::read_input - event.SDL_JOYAXISMOTION, axis[" << (int)event.jaxis.axis << "], j.value[" << event.jaxis.value << "]" << std::endl;
+            if (event.jaxis.value > JOYVAL || event.jaxis.value < -JOYVAL) {
+                std::cout << "INPUT::read_input - event.SDL_JOYAXISMOTION, axis[" << (int)event.jaxis.axis << "], j.value[" << event.jaxis.value << "]" << std::endl;
+            }
 
 
             // value is the axis (0 is X, 1 is Y)
@@ -250,39 +251,41 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 
             for (int i=0; i<BTN_COUNT; i++) {
 
+                /*
+                //std::cout << "i[" << i << "], type[" << (int)game_config.button_codes[i].type << "], expected[" << JOYSTICK_INPUT_TYPE_AXIS << "]" << std::endl;
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS) {
                     //std::cout << "AXIS input config[" << i << "], value[" << game_config.button_codes[i].value << "]" << std::endl;
                     if (game_config.button_codes[i].value == event.jaxis.axis) {
                         //std::cout << "FOUND AXIS CONFIG, CONFIG.AXIS_TYPE[" << game_config.button_codes[i].axis_type << "]" << std::endl;
 
-
-
                         if (event.jaxis.value > JOYVAL) {
-                            //std::cout << "GREATER THAN JOYVAL" << std::endl;
+                            std::cout << "GREATER THAN JOYVAL" << std::endl;
                         } else if (event.jaxis.value < -JOYVAL) {
-                            //std::cout << "SMALLER THAN JOYVAL" << std::endl;
+                            std::cout << "SMALLER THAN JOYVAL" << std::endl;
                         } else {
-                            //std::cout << "NOT REACHED JOYVAL" << std::endl;
+                            std::cout << "NOT REACHED JOYVAL" << std::endl;
                         }
                     }
                 }
+                */
 
                 if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
                     if (game_config.button_codes[i].axis_type > 0) {
                         if (event.jaxis.value > JOYVAL) {
-                            //std::cout << "AXIS[" << i << "].POSITIVE" << std::endl;
+                            std::cout << "AXIS[" << i << "].POSITIVE, value[" << event.jaxis.value << "], JOYVAL[" << JOYVAL << "]" << std::endl;
                             p1_input[i] = 1;
                         } else {
                             p1_input[i] = 0;
                         }
                     } else if (game_config.button_codes[i].axis_type < 0) {
                         if (event.jaxis.value < -JOYVAL) {
-                            //std::cout << "AXIS[" << i << "].NEGATIVE[" << event.jaxis.value << "][" << JOYVAL << "]" << std::endl;
+                            std::cout << "AXIS[" << i << "].NEGATIVE, value[" << event.jaxis.value << "], JOYVAL[" << JOYVAL << "]" << std::endl;
                             p1_input[i] = 1;
                         } else {
                             p1_input[i] = 0;
                         }
                     } else {
+                        std::cout << "AXIS[" << i << "].RESET, value[" << event.jaxis.value << "], JOYVAL[" << JOYVAL << "]" << std::endl;
                         p1_input[i] = 0;
                     }
                 }
@@ -323,10 +326,17 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
         */
 
 
-        if ((game_config.input_mode == INPUT_MODE_DIGITAL || game_config.input_mode == INPUT_MODE_DOUBLE) && event.type == SDL_JOYHATMOTION) {
-            // check HAT input //
-            if (event.type == SDL_JOYAXISMOTION && (game_config.input_mode == INPUT_MODE_ANALOG || game_config.input_mode == INPUT_MODE_DOUBLE)) {
+        if (event.type == SDL_JOYHATMOTION) {
+            std::cout << "SDL_JOYHATMOTION, game_config.input_mode[" << (int)game_config.input_mode << "]" << std::endl;
+            if (game_config.input_mode == INPUT_MODE_DIGITAL || game_config.input_mode == INPUT_MODE_DOUBLE) {
+                // check HAT input //
+                std::cout << "SDL_JOYHATMOTION #2" << std::endl;
+                std::cout << ">>> HAT-EVENT - axis[" << (int)event.jaxis.axis << "], value[" << (int)event.jaxis.value << "]" << std::endl;
+
                 for (int i=0; i<BTN_COUNT; i++) {
+
+                    std::cout << "config - i[" << i << "], type[" << (int)game_config.button_codes[i].type << "], value[" << (int)game_config.button_codes[i].value << "], JOYVAL[" << (int)JOYVAL << "]" << std::endl;
+
                     if (game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_AXIS && game_config.button_codes[i].value != -1 && game_config.button_codes[i].value == event.jaxis.axis) {
                         if (game_config.button_codes[i].axis_type > 0 && event.jaxis.value > JOYVAL) {
                             p1_input[i] = 1;
@@ -337,77 +347,78 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
                         }
                     }
                 }
-            }
 
 
-            // CODES: up - 1, right: 2, down: 4, left: 8
-#ifdef DREAMCAST
-/*
-            if (event.jhat.value == 14) { // up
 
-                p1_input[BTN_DOWN] = 0;
-                p1_input[BTN_UP] = 1;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 13) { // right
-                p1_input[BTN_RIGHT] = 1;
-                p1_input[BTN_LEFT] = 0;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 11) { // down
-                p1_input[BTN_DOWN] = 1;
-                p1_input[BTN_UP] = 0;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 7) { // left
-                p1_input[BTN_LEFT] = 1;
-                p1_input[BTN_RIGHT] = 0;
-                _used_keyboard = false;
-            }
-*/
-            if (event.jhat.value == 15 && _used_keyboard == false) {
-                p1_input[BTN_LEFT] = 0;
-                p1_input[BTN_RIGHT] = 0;
-                p1_input[BTN_DOWN] = 0;
-                p1_input[BTN_UP] = 0;
-            }
+                // CODES: up - 1, right: 2, down: 4, left: 8
+    #ifdef DREAMCAST
+    /*
+                if (event.jhat.value == 14) { // up
 
-#else
-/*
- *          // hats are not used by default unless the platform qasks for it or user sets button to use //
-            if (event.jhat.value == 1 || event.jhat.value == 3 || event.jhat.value == 9) { // up
-                p1_input[BTN_DOWN] = 0;
-                p1_input[BTN_UP] = 1;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 2 || event.jhat.value == 3 || event.jhat.value == 6) { // right
-                p1_input[BTN_RIGHT] = 1;
-                p1_input[BTN_LEFT] = 0;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 4 || event.jhat.value == 6 || event.jhat.value == 12) { // down
-                p1_input[BTN_DOWN] = 1;
-                p1_input[BTN_UP] = 0;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 8 || event.jhat.value == 9 || event.jhat.value == 12) { // left
-                p1_input[BTN_LEFT] = 1;
-                p1_input[BTN_RIGHT] = 0;
-                _used_keyboard = false;
-            }
-            if (event.jhat.value == 0 && _used_keyboard == false) {
-                p1_input[BTN_LEFT] = 0;
-                p1_input[BTN_RIGHT] = 0;
-                p1_input[BTN_DOWN] = 0;
-                p1_input[BTN_UP] = 0;
-            }
-*/
+                    p1_input[BTN_DOWN] = 0;
+                    p1_input[BTN_UP] = 1;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 13) { // right
+                    p1_input[BTN_RIGHT] = 1;
+                    p1_input[BTN_LEFT] = 0;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 11) { // down
+                    p1_input[BTN_DOWN] = 1;
+                    p1_input[BTN_UP] = 0;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 7) { // left
+                    p1_input[BTN_LEFT] = 1;
+                    p1_input[BTN_RIGHT] = 0;
+                    _used_keyboard = false;
+                }
+    */
+                if (event.jhat.value == 15 && _used_keyboard == false) {
+                    p1_input[BTN_LEFT] = 0;
+                    p1_input[BTN_RIGHT] = 0;
+                    p1_input[BTN_DOWN] = 0;
+                    p1_input[BTN_UP] = 0;
+                }
 
-            // prevent double-direction input //
-            if (p1_input[BTN_LEFT] == 1) {
-                p1_input[BTN_RIGHT] = 0;
-            } else if (p1_input[BTN_UP] == 1) {
-                p1_input[BTN_DOWN] = 0;
+    #else
+    /*
+     *          // hats are not used by default unless the platform qasks for it or user sets button to use //
+                if (event.jhat.value == 1 || event.jhat.value == 3 || event.jhat.value == 9) { // up
+                    p1_input[BTN_DOWN] = 0;
+                    p1_input[BTN_UP] = 1;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 2 || event.jhat.value == 3 || event.jhat.value == 6) { // right
+                    p1_input[BTN_RIGHT] = 1;
+                    p1_input[BTN_LEFT] = 0;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 4 || event.jhat.value == 6 || event.jhat.value == 12) { // down
+                    p1_input[BTN_DOWN] = 1;
+                    p1_input[BTN_UP] = 0;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 8 || event.jhat.value == 9 || event.jhat.value == 12) { // left
+                    p1_input[BTN_LEFT] = 1;
+                    p1_input[BTN_RIGHT] = 0;
+                    _used_keyboard = false;
+                }
+                if (event.jhat.value == 0 && _used_keyboard == false) {
+                    p1_input[BTN_LEFT] = 0;
+                    p1_input[BTN_RIGHT] = 0;
+                    p1_input[BTN_DOWN] = 0;
+                    p1_input[BTN_UP] = 0;
+                }
+    */
+
+                // prevent double-direction input //
+                if (p1_input[BTN_LEFT] == 1) {
+                    p1_input[BTN_RIGHT] = 0;
+                } else if (p1_input[BTN_UP] == 1) {
+                    p1_input[BTN_DOWN] = 0;
+                }
             }
 
 #endif

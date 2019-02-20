@@ -119,7 +119,6 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/boss_hp_ball.png";
     graphLib.surfaceFromFile(filename, &hud_boss_hp_ball);
 
-
     filename = FILEPATH + "/images/1up_icons.png";
     graphLib.surfaceFromFile(filename, &hud_player_1up);
 

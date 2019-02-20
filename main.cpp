@@ -29,9 +29,9 @@
 #include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
-//#define PS2LOADFROMFIXEDPOINT 1
+#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
-//#define PS2LINK 1
+#define PS2LINK 1
 #define DEBUG_OUTPUT 1 // will output all DEBUG_COUT messages, comments this out to disable all console output messages
 
 // GLOBAL/EXTERN VARIABLES
@@ -170,9 +170,9 @@ void PS2_create_save_icons()
     std::string filename = SAVEPATH + "/icon.sys";
     FILE *fp = fopen(filename.c_str(), "rb");
     if (fp == NULL) {
-        std::string filename = FILEPATH + "images/icon.sys";
+        std::string filename = GAMEPATH + "/shared/images/icon.sys";
         PS2_copy_to_memorycard(filename, "icon.sys");
-        filename = FILEPATH + "images/rockbot_ps2_icon.icn";
+        filename = GAMEPATH + "/shared/images/rockbot_ps2_icon.icn";
         PS2_copy_to_memorycard(filename, "rockbot_ps2_icon.icn");
     } else {
         fclose(fp);
@@ -498,14 +498,17 @@ int main(int argc, char *argv[])
     // define SAVEPATH
     #ifdef PLAYSTATION2
         PS2_load_MC();
-        SAVEPATH = "mc0:Rockbot/";
+        //SAVEPATH = "mc0:Rockbot/";
+        SAVEPATH = FILEPATH;
 
+        /*
         if (fioMkdir(SAVEPATH.c_str()) < 0) {
             std::cout << "main - warning: could not create '" << SAVEPATH << "' folder" << std::endl; std::fflush(stdout);
             /// @TODO - check if directory exists
         } else {
             std::cout << "Folder '" << SAVEPATH << "' created" << std::endl; std::fflush(stdout);
         }
+        */
 
     #endif
 
@@ -555,7 +558,7 @@ int main(int argc, char *argv[])
     // === DEBUG === //
     //game_config.volume_sfx = 128;
     //game_config.volume_music = 128;
-    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    GAME_FLAGS[FLAG_QUICKLOAD] = true;
     //GAME_FLAGS[FLAG_INVENCIBLE] = true;
     // === DEBUG === //
 

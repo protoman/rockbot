@@ -1493,12 +1493,12 @@ void game::quick_load_game()
     }
 
 
-    scenes.preloadScenes();
+    //scenes.preloadScenes();
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = scenes.pick_stage(INTRO_STAGE);
-    //currentStage = CASTLE1_STAGE1;
+    //currentStage = scenes.pick_stage(INTRO_STAGE);
+    currentStage = STAGE1;
 
 
     // DEBUG //

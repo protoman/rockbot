@@ -143,14 +143,20 @@ namespace format_v4 {
             button_codes_copy[BTN_QUIT].value = -1;
             button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_START].value = 5;
-            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_LEFT].value = -1; // uses default axis
-            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_RIGHT].value = -1; // uses default axis
-            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_UP].value = -1; // uses default axis
-            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_DOWN].value = -1; // uses default axis
+
+            button_codes_copy[BTN_DOWN].axis_type = 1;
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].value = 1;
+            button_codes_copy[BTN_UP].axis_type = -1;
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_UP].value = 1;
+            button_codes_copy[BTN_RIGHT].axis_type = 1;
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_RIGHT].value = 0;
+            button_codes_copy[BTN_LEFT].axis_type = -1;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_LEFT].value = 0;
+
 #elif PSP
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_SHIELD].value = 3;

@@ -13,8 +13,8 @@ rsync -r --exclude=.svn ../shared ./PS2/Rockbot/
 rsync -r --exclude=.svn ../games ./PS2/Rockbot/
 rsync -r --exclude=.svn ../*.dat ./PS2/Rockbot/
 
-cp ./rockbot_ps2_icon.icn ./PS2/Rockbot/data/images/
-cp ./icon.sys ./PS2/Rockbot/data/images/
+cp ./rockbot_ps2_icon.icn ./PS2/Rockbot/shared/images/
+cp ./icon.sys ./PS2/Rockbot/shared/images/
 rm ./PS2/Rockbot/data/game*.sav
 rm ./PS2/Rockbot/data/config*.sav
 
