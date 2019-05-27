@@ -237,7 +237,7 @@ void scenesLib::main_screen()
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         // demo do not have player selection, only rockbot is playable
-        game_save.selected_player = PLAYER_2;
+        game_save.selected_player = PLAYER_1;
         gameControl.save_game();
     }
 }
@@ -580,6 +580,20 @@ void scenesLib::show_bosses_ending()
         timer.delay(2000);
     }
 
+
+}
+
+short scenesLib::pick_stage(int last_stage)
+{
+    graphLib.blank_screen();
+    stage_select selection(STAGE_SELECT_SURFACES);
+
+    short pos_n = selection.pick_stage(last_stage);
+
+    timer.delay(100);
+    soundManager.stop_music();
+
+    return pos_n;
 
 }
 

@@ -203,6 +203,7 @@ public:
     void load_icons();
     void draw_weapon_icon(short, st_position menu_pos, bool active);
     void draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled);
+    void draw_weapon_changed_tooltip(short weapon_n);
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
@@ -325,6 +326,7 @@ private:
     struct graphicsLib_gSurface _btn_a_surface;
     struct graphicsLib_gSurface _easymode_block;
     struct graphicsLib_gSurface _hardmode_block;
+    struct graphicsLib_gSurface _weapn_tooltip_bg;
 
     st_position _dialog_pos;
     st_position _config_menu_pos;

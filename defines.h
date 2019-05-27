@@ -837,8 +837,8 @@ enum collision_modes {
 };
 
 
-#define FONT_SIZE 8
-#define FONT_SIZE_SMALL 8
+#define FONT_SIZE 16
+#define FONT_SIZE_SMALL 12
 
 #define MENU_CHANGE_DELAY 100
 

@@ -593,8 +593,7 @@ void classPlayer::initFrames()
     // @TODO - automatically add inverse direction (right) sprites
 
 	// STAND
-    addSpriteFrame(ANIM_TYPE_STAND, 3, playerSpriteSurface, 5000);
-    addSpriteFrame(ANIM_TYPE_STAND, 4, playerSpriteSurface, 150);
+    addSpriteFrame(ANIM_TYPE_STAND, 3, playerSpriteSurface, 200000);
 	// WALK
     addSpriteFrame(ANIM_TYPE_WALK, 7, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_TYPE_WALK, 8, playerSpriteSurface, WALK_FRAME_DELAY);
@@ -1014,23 +1013,27 @@ void classPlayer::reset_hp()
 
 void classPlayer::change_player_color(bool full_change)
 {
+    int color_n = selected_weapon;
+    if (selected_weapon > WEAPON_ITEM_JET) {
+        color_n = 0;
+    }
     //std::cout << "PLAYER::change_player_color - selected_weapon[" << selected_weapon << "], full_change[" << full_change << "]" << std::endl;
     if (full_change == false) {
-        graphLib.change_surface_color(0, weapon_colors[0].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(1, weapon_colors[0].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(2, weapon_colors[0].color3, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
     } else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
                     if (weapon_colors[0].color1.r != -1) {
-                        graphLib.change_surface_color(0, weapon_colors[0].color1, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
                     }
                     if (weapon_colors[0].color2.r != -1) {
-                        graphLib.change_surface_color(1, weapon_colors[0].color2, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
                     }
                     if (weapon_colors[0].color3.r != -1) {
-                        graphLib.change_surface_color(2, weapon_colors[0].color3, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
                     }
                 }
             }

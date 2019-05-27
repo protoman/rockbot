@@ -448,7 +448,8 @@ bool game::show_game_intro()
         input.clean();
 		start_stage();
 	} else {
-        currentStage = get_next_stage();
+        //currentStage = get_next_stage();
+        currentStage = scenes.pick_stage(INTRO_STAGE);
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
@@ -540,7 +541,7 @@ void game::show_notice()
 
 
     graphLib.blank_screen();
-
+/*
     graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_engine1, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine2, game_config.selected_language));
     graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_engine3, game_config.selected_language));
@@ -574,6 +575,7 @@ void game::show_notice()
     draw_lib.update_screen();
     timer.delay(10000);
     graphLib.blank_screen();
+*/
 }
 
 void game::show_in_memorian()
@@ -1368,7 +1370,6 @@ void game::show_ending()
 
     scenes.show_enemies_ending();
 
-    scenes.show_game_scene(GAME_SCENE_TYPES_ENDING_GAME_CREDITS);
     draw_lib.show_credits(false);
 
     return_to_intro_screen();
@@ -1381,7 +1382,7 @@ void game::quick_load_game()
     }
 
     game_save.difficulty = DIFFICULTY_NORMAL;
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //
@@ -1405,7 +1406,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = get_next_stage();
+    currentStage = STAGE3;
     //currentStage = CASTLE1_STAGE1;
 
 

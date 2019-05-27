@@ -146,7 +146,7 @@ bool graphicsLib::initGraphics()
         __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "LOAD.FONT.DEBUG GAMEPATH[%s]", GAMEPATH.c_str());
 #endif
 
-    filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
+    filename = GAMEPATH + std::string("/fonts/kapel.ttf");
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
@@ -215,12 +215,14 @@ void graphicsLib::load_shared_graphics()
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
     SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
     _config_menu_pos.x = 0;
+
+    filename = GAMEPATH + "shared/images/backgrounds/weapon_tooltip.png";
+    surfaceFromFile(filename, &_weapn_tooltip_bg);
 }
 
 void graphicsLib::preload()
 {
     load_icons();
-    loadTileset("default.png");
     preload_faces();
     preload_images();
     preload_anim_tiles();
@@ -1177,6 +1179,34 @@ void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position,
     }
 }
 
+void graphicsLib::draw_weapon_changed_tooltip(short weapon_n)
+{
+    if (weapon_n >= weapon_icons.size()) {
+        return;
+    }
+    graphLib.showSurfaceAt(&_weapn_tooltip_bg, st_position(10, RES_H-30), false);
+    draw_weapon_tooltip_icon(weapon_n, st_position(14, RES_H-22), true);
+    std::string weapon_name(game_data.weapons[weapon_n].name);
+    if (weapon_n == WEAPON_ITEM_COIL) {
+        weapon_name = "FROG COIL";
+    } else if (weapon_n == WEAPON_ITEM_JET) {
+        weapon_name = "EAGLE JET";
+    } else if (weapon_n == WEAPON_ITEM_ETANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "HP CRYSTAL [%d]", game_save.items.energy_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (weapon_n == WEAPON_ITEM_WTANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "MP CRYSTAL [%d]", game_save.items.weapon_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (weapon_n == WEAPON_ITEM_STANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "SPECIAL CRYSTAL [%d]", game_save.items.special_tanks);
+        weapon_name = std::string(crystal_msg);
+    }
+    graphLib.draw_text(34, RES_H-22, weapon_name);
+}
+
 void graphicsLib::draw_menu_item(int x_pos)
 {
 	graphicsLib_gSurface* spriteCopy;
@@ -1218,97 +1248,36 @@ void graphicsLib::erase_menu_item(int x_pos)
 void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame, short max_hp) {
     int icon_size = weapon_icons.at(0).width;
     int spacer_h = icon_size+2;
+    int pos_x = 170;
 
     showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
 
-    showSurfaceRegionAt(&weapon_icons.at(0), st_rectangle(0, icon_size, icon_size, icon_size), st_position(WPN_COLUMN1_X, 50));
-    draw_horizontal_hp_bar(WPN_COLUMN_Y, 2, current_hp, 3, max_hp);
-
-    for (int i=1; i<6; i++) {
-        if (game_save.stages[i] == 1) {
-            //std::cout << ">> #1 graphicsLib::draw_weapon_menu_bg - stage[" << i << "]: " << game_save.stages[i] << std::endl;
-            showSurfaceRegionAt(&weapon_icons.at(i), st_rectangle(0, icon_size, icon_size, icon_size), st_position(WPN_COLUMN1_X, 50+(i)*spacer_h));
-            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i)*spacer_h, 2, game_save.items.weapons[i], 3, max_hp);
-		}
-    }
-
-    for (int i=6; i<=9; i++) {
-        if (game_save.stages[i] == 1) {
-            //std::cout << ">> #3 graphicsLib::draw_weapon_menu_bg - stage[" << i << "]: " << game_save.stages[i] << std::endl;
-            showSurfaceRegionAt(&weapon_icons.at(i), st_rectangle(0, icon_size, icon_size, icon_size), st_position(182, 50+(i-5)*spacer_h));
-            draw_horizontal_hp_bar(WPN_COLUMN_Y+(i-5)*spacer_h, 3, game_save.items.weapons[i], 3, max_hp);
-		}
-	}
-
-    // coil and jet
-    if (game_save.stages[COIL_GOT_STAGE] == 1) {
-        int wpn_icon_n = 9;
-        int menu_row = 4;
-        showSurfaceRegionAt(&weapon_icons.at(wpn_icon_n), st_rectangle(0, icon_size, icon_size, icon_size), st_position(182, 50+(menu_row)*spacer_h));
-        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*spacer_h, 3, game_save.items.weapons[wpn_icon_n], 3, max_hp);
-    }
-    if (game_save.stages[JET_GOT_STAGE] == 1) {
-        int wpn_icon_n = 10;
-        int menu_row = 5;
-        showSurfaceRegionAt(&weapon_icons.at(wpn_icon_n), st_rectangle(0, icon_size, icon_size, icon_size), st_position(182, 50+(menu_row)*spacer_h));
-        draw_horizontal_hp_bar(WPN_COLUMN_Y+(menu_row)*spacer_h, 3, game_save.items.weapons[wpn_icon_n], 3, max_hp);
-    }
-
-
-    // player life
-    copyArea(st_position(16, 195), player_frame, &gameScreen);
-    int item_text_pos = 217;
-    std::stringstream ss;
-	ss.str(std::string());
-    ss << "0" << (short)game_save.items.lifes;
-    draw_text(48, item_text_pos, ss.str());
-
-
-    ss.str(std::string());
-    ss << "0" << (short)game_save.items.energy_tanks;
-    draw_text(93, item_text_pos, ss.str());
-
-	ss.str(std::string());
-    ss << "0" << (short)game_save.items.weapon_tanks;
-    draw_text(117, item_text_pos, ss.str());
-
-	ss.str(std::string());
-    ss << "0" << (short)game_save.items.special_tanks;
-    draw_text(142, item_text_pos, ss.str());
-
-
-    // @TODO: add coins support //
-    /*
-	ss.str(std::string());
-    ss << "0" << (int)game_save.items.bolts;
-    draw_text(278, item_text_pos, ss.str());
-    */
-
-    // @TODO: add energy balancer support //
-    /*
-    if (item_ref->balancer > 0) {
-        copyArea(st_position(245, 198), &energy_balancer, &gameScreen);
-	}
-    */
-
-    if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
-        copyArea(st_position(198, 200), &armor_icon_arms, &gameScreen);
-    }
-    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
-        copyArea(st_position(221, 200), &armor_icon_body, &gameScreen);
-    }
-    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true) {
-        copyArea(st_position(175, 200), &armor_icon_legs, &gameScreen);
-    }
-
     int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language).length()+4)*8;
     draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
-    draw_text(10, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_life, game_config.selected_language));
-    draw_text(111, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_item, game_config.selected_language));
-    draw_text(187, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_armor,game_config.selected_language));
 
-    // @TODO: add coins support //
-    //draw_text(268, 188, strings_map::get_instance()->get_ingame_string(strings_ingame_coin,game_config.selected_language));
+    draw_text(pos_x, 60, "HEALTH CRYSTALS:");
+    std::stringstream ss;
+    ss.str(std::string());
+    ss << "0" << (short)game_save.items.energy_tanks;
+    draw_text(290, 60, ss.str());
+
+
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true) {
+        draw_text(pos_x, 80, "BOOTS: ENHANCED");
+    } else {
+        draw_text(pos_x, 80, "BOOTS: NORMAL");
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
+        draw_text(pos_x, 100, "ARMOR: ENHANCED");
+    } else {
+        draw_text(pos_x, 100, "ARMOR: NORMAL");
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
+        draw_text(pos_x, 120, "BEAM:  ENHANCED");
+    } else {
+        draw_text(pos_x, 120, "BEAM:  NORMAL");
+    }
+
 
 	updateScreen();
 }

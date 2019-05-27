@@ -33,9 +33,6 @@ stage::stage(int setStageN, classPlayer* set_player_ref) : stage_is_loaded(false
 
 
     std::string tileset_name(stage_data.tileset_filename);
-    if (tileset_name.length() == 0) {
-        tileset_name = std::string("default.png");
-    }
     graphLib.loadTileset(tileset_name);
 
     autoscroll_timer = 0;

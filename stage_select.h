@@ -34,12 +34,10 @@ class stage_select
 public:
 	stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]);
     short finished_stages() const;
-
     void show_stage_face(int x, int y, int stage_n);
-
     st_position calc_face_pos(int stage_n);
-
     void draw_stage_select_text_info(int stage_n);
+    int pick_stage(int stage_n);
 
 private:
     void move_highlight(Sint8 x_inc, Sint8 y_inc);

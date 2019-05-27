@@ -874,7 +874,8 @@ void draw::show_weapon_tooltip()
         if (direction_value == ANIM_DIRECTION_LEFT) {
             adjust_x = 10;
         }
-        graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y), true);
+        graphLib.draw_weapon_changed_tooltip(_weapon_tooltip_n);
+        //graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(20, RES_H-60), true);
     }
 }
 
@@ -986,10 +987,12 @@ void draw::draw_castle_point(int x, int y)
 
 void draw::show_interstage_map_bg(st_position pos)
 {
+    /*
     graphLib.showSurface(&interstage_map);
     graphLib.showSurfaceRegionAt(&hud_player_1up, st_rectangle(TILESIZE, 0, TILESIZE, TILESIZE), st_position(pos.x-4, pos.y-4));
     graphLib.updateScreen();
     timer.delay(5000);
+    */
 }
 
 void draw::draw_explosion(st_position center_point, int radius, int angle_inc)

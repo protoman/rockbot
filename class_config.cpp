@@ -295,13 +295,11 @@ void class_config::use_tank(int tank_type)
 
 void class_config::draw_ingame_menu()
 {
-    /*
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
     graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp());
-    graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-    graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
-    */
-    graphLib.draw_centered_text(RES_H/2-8, "PAUSED (@TODO)", st_color(255, 255, 255));
+    //graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
+    //graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
+    //graphLib.draw_centered_text(RES_H/2-8, "PAUSED (@TODO)", st_color(255, 255, 255));
 }
 
 bool class_config::execute_ingame_menu()
@@ -324,11 +322,11 @@ bool class_config::execute_ingame_menu()
         } else {
             // left menu, change player color/weapon and remove pause
             if (ingame_menu_pos.y != 6) {
-                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
+                //player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
                 gameControl.game_unpause();
             } else {
                 // use item
-                use_tank(ingame_menu_pos.x);
+                //use_tank(ingame_menu_pos.x);
                 ingame_menu_active = !ingame_menu_active; // keep itself inside the menu
                 generate_weapons_matrix();
                 draw_ingame_menu();
@@ -340,13 +338,13 @@ bool class_config::execute_ingame_menu()
         old_pos.x = ingame_menu_pos.x;
         old_pos.y = ingame_menu_pos.y;
         if (input.p1_input[BTN_UP] == 1) {
-            move_cursor(0, -1);
+            //move_cursor(0, -1);
         } else if (input.p1_input[BTN_DOWN] == 1) {
-            move_cursor(0, 1);
+            //move_cursor(0, 1);
         } else if (input.p1_input[BTN_LEFT] == 1) {
-            move_cursor(-1, 0);
+            //move_cursor(-1, 0);
         } else if (input.p1_input[BTN_RIGHT] == 1) {
-            move_cursor(1, 0);
+            //move_cursor(1, 0);
         } else if (input.p1_input[BTN_R] == 1) {
             if (gameControl.show_config(game_save.stages[gameControl.currentStage]) == true) { // player picked "leave stage" option
                 ingame_menu_active = false;
@@ -423,25 +421,25 @@ Sint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
             //std::cout << "#0 CONFIG::find_next_weapon - wpnId: " << i << ", save: " << game_save.stages[i] << std::endl;
-            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
+            if (game_save.stages[i] == 1) {
                 //std::cout << "#0 CONFIG::find_next_weapon - OK[" << i << "]" << std::endl;
                 return i;
             }
         }
         for (int i=0; i<current; i++) { // from start to position
-            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
+            if (game_save.stages[i] == 1) {
                 return i;
             }
         }
     } else {
         for (int i=current-1; i>=0; i--) { // from position to start
-            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
+            if (game_save.stages[i] == 1) {
                 //std::cout << ">>#1 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
-            if (i == WEAPON_DEFAULT || i >= WEAPON_ITEM_COIL) {
+            if (game_save.stages[i] == 1) {
                 //std::cout << ">>#2 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }

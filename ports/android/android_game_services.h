@@ -17,9 +17,7 @@
 #include <gpg/android_platform_configuration.h>
 #include <gpg/android_support.h>
 */
-#define TOUCH_KEYBOARD_MARGIN 30
-#define BUTTON_DISTANCE 1.3
-#define MARGIN_DIVISOR 6
+#define MARGIN_DIVISOR 3
 #endif
 
 class android_game_services

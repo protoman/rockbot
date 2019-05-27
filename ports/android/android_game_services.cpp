@@ -57,6 +57,9 @@ void android_game_services::set_android_default_buttons_size(int size)
 
        int button_w = original_pos_a.w * BUTTON_SIZE_MULTI;
        int button_h = original_pos_a.h * BUTTON_SIZE_MULTI;
+       //dpad_pos.y = screen_height-dpad_pos.h+(dpad_pos.h/MARGIN_DIVISOR);
+       int spacer_w = button_w/5;
+       int spacer_h = button_h/5;
 
        // default size is 1/20 of screen
        if (original_pos_a.w == 0) {
@@ -65,7 +68,6 @@ void android_game_services::set_android_default_buttons_size(int size)
        if (original_pos_a.h == 0) {
            original_pos_a.h = (screen_height/20)*BUTTON_SIZE_MULTI;
        }
-       float button_diff_w = original_pos_a.w - (original_pos_a.w * BUTTON_SIZE_MULTI);
        float button_diff_h = original_pos_a.h - (original_pos_a.h * BUTTON_SIZE_MULTI);
 
        // Move button START(4) to the top-left of screen
@@ -74,8 +76,8 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_start.w = button_w;
        pos_button_start.h = button_h;
        check_button_size(pos_button_start, original_pos_a);
-       pos_button_start.x = 0;
-       pos_button_start.y = 0;
+       pos_button_start.x = -spacer_w;
+       pos_button_start.y = -spacer_h;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_4, &pos_button_start);
 
 
@@ -83,8 +85,10 @@ void android_game_services::set_android_default_buttons_size(int size)
        SDL_Rect dpad_pos = {0, 0, 0, 0};
        dpad_pos.w = original_dpad_pos.w * BUTTON_SIZE_MULTI;
        dpad_pos.h = original_dpad_pos.h * BUTTON_SIZE_MULTI;
-       dpad_pos.x = -(dpad_pos.w/MARGIN_DIVISOR);
-       dpad_pos.y = screen_height-dpad_pos.h+(dpad_pos.h/MARGIN_DIVISOR);
+       dpad_pos.x = -button_w/2;
+
+       dpad_pos.y = screen_height - dpad_pos.h + spacer_h*2;
+
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_DPAD, &dpad_pos);
 
        // BUTTON R(5) - TOP RIGHT
@@ -93,8 +97,8 @@ void android_game_services::set_android_default_buttons_size(int size)
        r5_pos.w = button_w;
        r5_pos.h = button_h;
        check_button_size(r5_pos, original_pos_a);
-       r5_pos.x = screen_width-r5_pos.w+(r5_pos.w/MARGIN_DIVISOR);
-       r5_pos.y = 0;
+       r5_pos.x = screen_width-r5_pos.w;
+       r5_pos.y = -spacer_h;
 
        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", ">>>>> set_android_default_buttons_size::R(5): x[%d], w[%d], h[%d]", r5_pos.x, r5_pos.w, r5_pos.h);
 
@@ -108,8 +112,8 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_a.w = button_w;
        pos_button_a.h = button_h;
        check_button_size(pos_button_a, original_pos_a);
-       pos_button_a.x = screen_width-pos_button_a.w+(pos_button_a.w/MARGIN_DIVISOR);
-       pos_button_a.y = screen_height-pos_button_a.h;
+       pos_button_a.x = screen_width-pos_button_a.w + spacer_w;
+       pos_button_a.y = screen_height-pos_button_a.h + spacer_h;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &pos_button_a);
 
        // button 1 (B)
@@ -118,7 +122,7 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_b.w = button_w;
        pos_button_b.h = button_h;
        check_button_size(pos_button_b, original_pos_a);
-       pos_button_b.x = pos_button_a.x - button_diff_w - pos_button_b.w;
+       pos_button_b.x = pos_button_a.x - button_w/1.5;
        pos_button_b.y = pos_button_a.y;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &pos_button_b);
 
@@ -129,7 +133,7 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_x.h = button_h;
        check_button_size(pos_button_x, original_pos_a);
        pos_button_x.x = pos_button_a.x;
-       pos_button_x.y = pos_button_a.y - button_diff_h - pos_button_x.h;
+       pos_button_x.y = pos_button_a.y - button_h/1.5;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &pos_button_x);
 
 
