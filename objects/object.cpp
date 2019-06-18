@@ -1,19 +1,20 @@
 #include <cstdlib>
+
 #include "object.h"
-#include "file/format.h"
-#include "classmap.h"
-#include "file/format/st_common.h"
+#include "../file/format.h"
+#include "../classmap.h"
+#include "../file/format/st_common.h"
 
 extern graphicsLib graphLib;
 extern std::string FILEPATH;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
@@ -26,7 +27,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 #define DELAY_RAY 1500
 #define FRAMETIMER_DEATHRAY 30
 
-#include "game.h"
+#include "../game.h"
 extern game gameControl;
 
 #define DISAPPEARNING_VISIBLE_TIME 1500
@@ -688,6 +689,7 @@ bool object::is_platform()
     if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
         return true;
     }
+    return false;
 }
 
 void object::show_vertical_ray(int adjust_x, int adjust_y)

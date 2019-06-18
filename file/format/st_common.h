@@ -7,7 +7,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "defines.h"
+#include "../../defines.h"
 
 /**
  * @brief
@@ -287,7 +287,7 @@ struct graphicsLib_gSurface {
 
         graphicsLib_gSurface()
         {
-            gSurface = NULL;
+            gSurface = nullptr;
             width = 0;
             height = 0;
             persistent = false;
@@ -295,12 +295,13 @@ struct graphicsLib_gSurface {
             show_debug = false;
             is_rle_enabled = false;
         }
+
         // copy CONSTRUCTOR
         graphicsLib_gSurface(const graphicsLib_gSurface &original)
         {
 
-            if (original.gSurface == NULL) {
-                gSurface = NULL;
+            if (original.width == 0 || original.height == 0) {
+                gSurface = nullptr;
                 width = 0;
                 height = 0;
                 persistent = false;
@@ -323,7 +324,7 @@ struct graphicsLib_gSurface {
                     // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
-                    gSurface = NULL;
+                    gSurface = nullptr;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
@@ -332,9 +333,9 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
-
-            if (original.gSurface == NULL) {
-                gSurface = NULL;
+            SDL_Surface* sdl_surface_ref = original.gSurface;
+            if (original.width == 0 || original.height == 0) {
+                gSurface = nullptr;
                 width = 0;
                 height = 0;
                 persistent = false;
@@ -356,15 +357,16 @@ struct graphicsLib_gSurface {
                     // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
-                    gSurface = NULL;
+                    gSurface = nullptr;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
+            return *this;
         }
 
         ~graphicsLib_gSurface()
         {
-            setbuf(stdout, NULL);
+            setbuf(stdout, nullptr);
             freeGraphic();
             colorkey1_points.clear();
             colorkey2_points.clear();
@@ -444,9 +446,7 @@ struct graphicsLib_gSurface {
         void set_surface(SDL_Surface *surface) {
             // free old surface memory
             if (gSurface != NULL) {
-                try {
-                    SDL_FreeSurface(gSurface);
-                } catch (std::exception e) {}
+                SDL_FreeSurface(gSurface);
             }
             if (surface != NULL) {
                 gSurface = surface;
@@ -523,6 +523,7 @@ struct graphicsLib_gSurface {
                 //std::cout << "GSURFACE - SDL-Surface is NULL" << std::endl;
                 return true;
             }
+            return false;
         }
 
 

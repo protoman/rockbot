@@ -1,8 +1,8 @@
 #ifndef FILE_MAP_H
 #define FILE_MAP_H
 
-#include "file/format/st_common.h"
-#include "defines.h"
+#include "../format/st_common.h"
+#include "../defines.h"
 
 #define MAP_BACKGROUND_COUNT 2
 

@@ -12,7 +12,7 @@ QT       -= gui
 
 
 CONFIG += linux
-#CONFIG += android
+
 
 # -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
@@ -24,122 +24,20 @@ CONFIG += linux
 #DEFINES += BETA_VERSION=1
 
 
-# sudo mount -o defaults,umask=000 ~/.local/share/dolphin-emu/Wii/sd.raw /media/sdcard
-# cp -r ~/Desenvolvimento/rockbot/build/games/RockDroid2 /media/sdcard/RockDroid2
-# cp -r ~/Desenvolvimento/rockbot/build/fonts /media/sdcard
-# cp -r ~/Desenvolvimento/rockbot/build/shared /media/sdcard
-# sudo umount /media/sdcard
-
 CONFIG += console
 CONFIG -= app_bundle
 TARGET = rockdroid
 
 linux {
-        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
+        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++
 
         INCLUDES = -I/usr/include/SDL \
                 -I/usr/include \
                 -I. \
                 -I./include \
                 -L/usr/lib
-        QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
-        QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
-}
-
-
-
-android {
-    DEFINES+= ANDROID=1
-    ANDROIDSDK="/home/iuri/Programas/android-studio/sdk/"
-    ANDROIDNDK="/home/iuri/Programas/android-studio/sdk/android-ndk-r14b"
-    INCLUDEPATH += $${ANDROIDNDK}/platforms/android-14/arch-arm/usr/include
-
-
-    TARGET = libapplication-armeabi.so
-
-    QMAKE_CCFLAGS += -std=c++11 -pthread -DHAVE_PTHREADS             # C++ 11 is required by play services library
-    QMAKE_CXXFLAGS += -std=c++11 -pthread -DHAVE_PTHREADS             # C++ 11 is required by play services library
-
-    QMAKE_CXX = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
-    QMAKE_LINK = $${ANDROIDNDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++
-
-
-    QMAKE_CXXFLAGS += -fpic -ffunction-sections -funwind-tables -fstack-protector \
-    -DANDROID -DHANDHELD -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
-    -D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
-    -fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -finline-functions -Wa,--noexecstack \
-    -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
-    --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
-    -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/include \
-    -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/include \
-    -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include  \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/application/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_main/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_gfx/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/ogg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/flac/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/vorbis/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/freetype/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
-    -I$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include
-
-    LIBS = -fpic -ffunction-sections -funwind-tables -fstack-protector \
-    -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ -D__ARM_ARCH_5E__ \
-    -D__ARM_ARCH_5TE__ -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer \
-    -fno-strict-aliasing -finline-limit=64 -DANDROID -DNDEBUG -O2 -finline-functions -Wa,--noexecstack \
-    -D_GNU_SOURCE=1 -D_REENTRANT -shared -Wl,-soname,libapplication-armeabi.so \
-    --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
-    -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib \
-    -isystem$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib/c++/armeabi/ \
-    -isystem$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include  \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/application/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_main/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_image/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_mixer/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_ttf/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/sdl_gfx/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/stlport/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/ogg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/flac/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/vorbis/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/freetype/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/jpeg/include \
-    -isystem$${ANDROIDSDK}/rockbot_build/project/jni/png/include \
-    -I$${ANDROIDSDK}/rockbot_build/project/jni/sdl-1.2/include \
-    --sysroot=$${ANDROIDNDK}/platforms/android-14/arch-arm \
-    -L$${ANDROIDNDK}/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
-    -L$${ANDROIDNDK}/platforms/android-14/arch-arm/usr/lib/ \
-    -L$${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi \
-    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl-1.2.so \
-    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_image.so \
-    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_mixer.so \
-    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_ttf.so \
-    $${ANDROIDSDK}/rockbot_build/project/jni/../obj/local/armeabi/libsdl_gfx.so \
-    -L$${ANDROIDSDK}/android-ndk-r14b/platforms/android-14/arch-arm/usr/lib \
-    -lc -lm -lGLESv1_CM -ldl -llog -lz \
-    -L/usr/lib \
-    -L$${ANDROIDSDK}/android-ndk-r14b/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi \
-    -lgnustl_static -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now \
-    -lsupc++  -lsdl-1.2 \
-    -llog -landroid -lEGL -lGLESv1_CM \
-    -L$${ANDROIDSDK}/rockbot_build/ \
-
-
-    #SOURCES +=
-    #HEADERS +=
-
+        QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
+        QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
 }
 
 

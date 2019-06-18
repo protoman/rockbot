@@ -4,24 +4,24 @@
 
 extern std::string FILEPATH;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "inputlib.h"
+#include "../inputlib.h"
 extern inputLib input;
 
-#include "graphic/draw.h"
+#include "../graphic/draw.h"
 extern draw draw_lib;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 
-#include "game.h"
+#include "../game.h"
 extern game gameControl;
 
-#include "graphic/option_picker.h"
-#include "strings_map.h"
+#include "../graphic/option_picker.h"
+#include "../strings_map.h"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
 

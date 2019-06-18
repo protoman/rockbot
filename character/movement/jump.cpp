@@ -6,9 +6,9 @@
 // if not interrupted, jump takes 700 milisseconds
 // jump max high is 74 px
 
-#define JUMP_INITIAL_SPEED 5.375
+#define JUMP_INITIAL_SPEED 5.675
 
-#include "game.h"
+#include "../../game.h"
 extern game gameControl;
 
 

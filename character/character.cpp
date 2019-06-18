@@ -1,19 +1,18 @@
 #include "character.h"
-#include "game.h"
-#include "timerlib.h"
+#include "../game.h"
+#include "../timerlib.h"
 
 
 extern game gameControl;
-#include "timerlib.h"
 extern timerLib timer;
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
-#include "inputlib.h"
+#include "../inputlib.h"
 extern inputLib input;
 
-#include "game_mediator.h"
+#include "../game_mediator.h"
 
 #ifdef ANDROID
 #include <android/log.h>

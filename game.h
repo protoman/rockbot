@@ -86,8 +86,6 @@ public:
 
     void got_weapon();
 
-    void show_interstage_map();
-
     void leave_stage();
 
     void return_to_intro_screen();

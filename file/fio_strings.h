@@ -7,7 +7,7 @@
 #include <fstream>
 #include <map>
 
-#include "file/v4/file_strings.h"
+#include "v4/file_strings.h"
 
 class fio_strings
 {

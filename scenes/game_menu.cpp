@@ -7,25 +7,25 @@
 
 extern std::string FILEPATH;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "inputlib.h"
+#include "../inputlib.h"
 extern inputLib input;
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
-#include "graphic/draw.h"
+#include "../graphic/draw.h"
 extern draw draw_lib;
 
-#include "game.h"
+#include "../game.h"
 extern game gameControl;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
-#include "ports/android/android_game_services.h"
+#include "../ports/android/android_game_services.h"
 extern android_game_services game_services;
 
 

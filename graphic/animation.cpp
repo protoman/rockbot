@@ -1,6 +1,6 @@
 #include "animation.h"
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 extern graphicsLib graphLib;

@@ -1,9 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 
-#include "soundlib.h"
+#include "../soundlib.h"
 
 #define FLASH_POINTS_N 10
 #define SNOW_PARTICLES_NUMBER 20
@@ -72,8 +72,6 @@ public:
     void draw_explosion(st_position center_point, int radius, int angle_inc);
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
     void draw_castle_point(int x, int y);
-
-    void show_interstage_map_bg(st_position pos);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);

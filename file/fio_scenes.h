@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-#include "file/v4/file_scene_v4.h"
+#include "v4/file_scene_v4.h"
 
 extern std::string FILEPATH; /**< TODO */
 

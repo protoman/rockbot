@@ -1,9 +1,10 @@
 #ifndef OPTION_PICKER_H
 #define OPTION_PICKER_H
 
-#include "file/format/st_common.h"
 #include <string>
 #include <vector>
+
+#include "../file/format/st_common.h"
 
 
 /**

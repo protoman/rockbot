@@ -3,7 +3,7 @@
 
 extern graphicsLib graphLib;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 #define SIN_STEPS 6

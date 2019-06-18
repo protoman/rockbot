@@ -510,7 +510,7 @@ int inputLib::wait_scape_time(int wait_period) {
     return 0;
 }
 
-int inputLib::clean_and_wait_scape_time(int wait_period)
+void inputLib::clean_and_wait_scape_time(int wait_period)
 {
     clean();
     wait_scape_time(wait_period);

@@ -7,22 +7,22 @@
 #endif
 
 #include "classplayer.h"
-#include "inputlib.h"
-#include "game_mediator.h"
+#include "../inputlib.h"
+#include "../game_mediator.h"
 
 extern inputLib input;
-#include "class_config.h"
+#include "../class_config.h"
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
-#include "game.h"
+#include "../game.h"
 extern game gameControl;
 
 
-#define PLAYER_MOVE_SPEED 1.25 // higher is faster
-#include "file/file_io.h"
-#include "classmap.h"
+#define PLAYER_MOVE_SPEED 1.65 // higher is faster
+#include "../file/file_io.h"
+#include "../classmap.h"
 
 
 extern std::string FILEPATH;
@@ -391,12 +391,14 @@ void classPlayer::attack(bool dont_update_colors)
             } else {
                 add_coil_object();
             }
+            set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_JET) {
             if (gameControl.get_current_map_obj()->have_player_object() == true) {
                 weapon_id = -1;
             } else {
                 add_jet_object();
             }
+            set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_ETANK) {
             std::cout << "PLAYER::ATTACK - WEAPON_ITEM_ETANK" << std::endl;
             class_config config_manager;

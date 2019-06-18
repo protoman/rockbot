@@ -1,9 +1,9 @@
 #ifndef SCENESHOW_H
 #define SCENESHOW_H
 
-#include "defines.h"
-#include "file/fio_scenes.h"
-#include "file/fio_strings.h"
+#include "../defines.h"
+#include "../file/fio_scenes.h"
+#include "../file/fio_strings.h"
 
 class sceneShow
 {

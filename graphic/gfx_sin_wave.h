@@ -2,8 +2,8 @@
 #define GFX_SIN_WAVE_H
 
 
-#include "defines.h"
-#include "graphicslib.h"
+#include "../defines.h"
+#include "../graphicslib.h"
 
 class gfx_sin_wave
 {

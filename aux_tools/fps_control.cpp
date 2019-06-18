@@ -1,13 +1,9 @@
 #include "fps_control.h"
 
-#include <iostream>
-
-
-
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
 

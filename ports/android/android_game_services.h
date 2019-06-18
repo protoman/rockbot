@@ -8,8 +8,8 @@
 #include <SDL_android.h>
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>
-#include "defines.h"
-#include "file/file_io.h"
+#include "../../defines.h"
+#include "../../file/file_io.h"
 
 //### NDK ###//
 /*

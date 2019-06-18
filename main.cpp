@@ -622,16 +622,18 @@ extern "C" {
 JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIEnv * env, jobject obj)
 {
     char cwd[1024];
+    /*
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", cwd);
     } else {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "cwd is NULL");
     }
-    try {
-        char *argv[1];
-        argv[0] = "./";
-        activity_ref = obj;
-        main(1, argv);
+    */
+    char *argv[1];
+    argv[0] = "./";
+    activity_ref = obj;
+    main(1, argv);
+    /*
     } catch (std::invalid_argument e) {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Exception[invalid_argument]");
         android_game_services android_services;
@@ -641,6 +643,7 @@ JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIE
         android_game_services android_services;
         android_services.crash_handler(e.what());
     }
+    */
 }
 
 

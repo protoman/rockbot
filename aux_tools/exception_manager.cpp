@@ -1,11 +1,5 @@
 #include "exception_manager.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <sstream>
-
-
 exception_manager::exception_manager()
 {
 
@@ -17,7 +11,7 @@ void exception_manager::throw_param_exception(std::string prefix, std::string pa
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: Invalid parameter [%s] - value[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
-    throw std::invalid_argument(error_msg);
+    //throw std::invalid_argument(error_msg);
 }
 
 void exception_manager::throw_file_not_found_exception(std::string prefix, std::string param)
@@ -25,7 +19,7 @@ void exception_manager::throw_file_not_found_exception(std::string prefix, std::
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: file not found[%s] - file[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
-    throw std::invalid_argument(error_msg);
+    //throw std::invalid_argument(error_msg);
 }
 
 void exception_manager::throw_general_exception(std::string prefix, std::string param)
@@ -33,7 +27,7 @@ void exception_manager::throw_general_exception(std::string prefix, std::string 
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: runtime error[%s] - code[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
-    throw std::runtime_error(error_msg);
+    //throw std::runtime_error(error_msg);
 }
 
 #ifdef ANDROID

@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "fio_scenes.h"
-#include "aux_tools/exception_manager.h"
+#include "../aux_tools/exception_manager.h"
 
 namespace format_v4 {
 

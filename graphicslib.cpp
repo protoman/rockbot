@@ -2097,8 +2097,6 @@ void graphicsLib::preload_anim_tiles()
 
 void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface& res, e_flip_type flip_mode)
 {
-
-
     //std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 
     //Pointer to the soon to be flipped surface

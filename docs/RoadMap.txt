@@ -1,1 +1,20 @@
-﻿- ao derrotar chefe, adicionar tela entre estágios (mapa estilo castlevania)
+﻿- versão 64 bits
+
+- bug: é possível iniciar a transição de sala na porta abaixo dela (spo a cabeça tocando nela)
+
+- bug: phantom se teleportou para fora da sala no castelo5 (não deve estar verificando portas)
+
+- bug: textos fora de posição (tem que ter tamanho virtual de fonte para cálculo de posição)
+
+- [2] final boss teleporter não está funcionando (sem animação, não teleporta)
+
+- [2] scales armor tem que ter um tempo entre o dano (está sugando energia)
+
+- [PC] trocar ícone na janela do jogo
+
+- [1] trocar logo da intro (usar variação do betabot)
+
+- criar intro em texto (soldado e blá blá blá), apenas em new game
+
+- adicionar música no final, já que não tem cutscene
+    (adicionar cutscene só texto, hardcoded, ainda que com i18n)

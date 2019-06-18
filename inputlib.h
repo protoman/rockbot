@@ -33,7 +33,7 @@ public:
     void init_joystick();
     void change_joystick();
     int wait_scape_time(int);
-    int clean_and_wait_scape_time(int);
+    void clean_and_wait_scape_time(int);
     void clean();
     void clean_all();     /// removes also the attack state
     void save();

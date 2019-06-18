@@ -1,7 +1,7 @@
 #ifndef FILE_CONFIG_301_H
 #define FILE_CONFIG_301_H
 
-#include "file/format/st_common.h"
+#include "../format/st_common.h"
 
 namespace format_v4 {
 

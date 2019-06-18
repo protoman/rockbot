@@ -2,8 +2,8 @@
 #define FILE_SCENE_H
 
 
-#include "defines.h"
-#include "file/format/st_common.h"
+#include "../../defines.h"
+#include "../format/st_common.h"
 
 #define SCENE_TEXT_LINES_N 6
 #define SCENE_OBJECTS_MAX 20

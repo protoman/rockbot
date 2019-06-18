@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 #include <iostream>
-#include "defines.h"
-#include "file/format/st_common.h"
-#include "file/format/st_hitPoints.h"
+#include "../../defines.h"
+#include "../format/st_common.h"
+#include "../format/st_hitPoints.h"
 
-#include "file/v4/file_stage_v4.h"
-#include "file/v4/file_save_v4.h"
-#include "file/v4/file_config_v4.h"
-#include "file/v4/file_scene_v4.h"
+#include "file_stage_v4.h"
+#include "file_save_v4.h"
+#include "file_config_v4.h"
+#include "file_scene_v4.h"
 
 
 // @NOTE: all defines related to filesystem must contain a "FS_" prefix

@@ -1,26 +1,26 @@
 #include "option_picker.h"
 
 extern std::string FILEPATH;
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "inputlib.h"
+#include "../inputlib.h"
 extern inputLib input;
 
-#include "graphic/draw.h"
+#include "draw.h"
 extern draw draw_lib;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 
-#include "strings_map.h"
+#include "../strings_map.h"
 
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
-#include "file/file_io.h"
+#include "../file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 

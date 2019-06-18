@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "draw.h"
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 
-#include "game_mediator.h"
+#include "../graphic/draw.h"
+#include "../game_mediator.h"
+#include "../timerlib.h"
+#include "../game.h"
+#include "../inputlib.h"
+#include "../strings_map.h"
+#include "../file/file_io.h"
+
 
 #define RAIN_DELAY 160
 #define FLASH_DELAY 260
@@ -20,32 +29,26 @@
 #define ENERGY_BALL_IMG_SIZE 10
 #define ENERGY_BALL_PERCENT_SLICE 5
 
-#ifdef ANDROID
-#include <android/log.h>
-#endif
+
 
 extern graphicsLib graphLib;
 
-#include "timerlib.h"
 extern timerLib timer;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern std::string FILEPATH;
 
-#include "game.h"
+
 extern game gameControl;
 
-#include "inputlib.h"
 extern inputLib input;
 
-#include "strings_map.h"
 
 extern soundLib soundManager;
 
 #define FADE_INC 2
 
-#include "file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::st_game_config game_config;
@@ -501,6 +504,7 @@ int draw::show_credits(bool can_leave)
     input.clean();
     timer.delay(100);
     input.wait_keypress();
+    return 0;
 }
 
 void draw::show_unlocked_charsMsg()
@@ -983,16 +987,6 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
 void draw::draw_castle_point(int x, int y)
 {
     graphLib.copyArea(st_position(x, y), &castle_point, &graphLib.gameScreen);
-}
-
-void draw::show_interstage_map_bg(st_position pos)
-{
-    /*
-    graphLib.showSurface(&interstage_map);
-    graphLib.showSurfaceRegionAt(&hud_player_1up, st_rectangle(TILESIZE, 0, TILESIZE, TILESIZE), st_position(pos.x-4, pos.y-4));
-    graphLib.updateScreen();
-    timer.delay(5000);
-    */
 }
 
 void draw::draw_explosion(st_position center_point, int radius, int angle_inc)

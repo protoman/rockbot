@@ -1,7 +1,6 @@
 #ifndef FILE_IO_H
 #define FILE_IO_H
 
-#include "format.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -18,7 +17,8 @@
 #include <fileio.h>
 #endif
 
-#include "file/fio_common.h"
+#include "format.h"
+#include "fio_common.h"
 
 extern std::string FILEPATH;
 extern std::string SAVEPATH;

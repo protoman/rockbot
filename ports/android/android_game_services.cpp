@@ -17,7 +17,7 @@ android_game_services::android_game_services()
 
 void android_game_services::crash_handler(std::string log_msg)
 {
-    SDL_ANDROID_CrashHandler(log_msg.c_str());
+    //SDL_ANDROID_CrashHandler(log_msg.c_str());
 }
 
 void android_game_services::init_android_button_size()

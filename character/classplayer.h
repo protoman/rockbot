@@ -1,8 +1,8 @@
 #ifndef CLASSPLAYER_H
 #define CLASSPLAYER_H
 
-#include "character/character.h"
-#include "character/classnpc.h"
+#include "character.h"
+#include "classnpc.h"
 
 class classnpc; // advance declaration
 

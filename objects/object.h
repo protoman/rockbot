@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include "graphicslib.h"
+#include "../graphicslib.h"
 
 class classMap; // forward declaration
 

@@ -24,6 +24,8 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 
+export ANDROID_SDK_ROOT=$ANDROIDSDK
+
 
 read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
 case $response in
@@ -48,10 +50,10 @@ case $response in
 		cd ..
 		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/*.zip
 		cp ./data_$VERSIONNAME$demoName.zip $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/
-		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/libapplication.so
-		rm $ANDROIDSDK/rockbot_build/project/obj/local/armeabi/libapplication.so
-		rm $ANDROIDSDK/rockbot_build/project/libs/armeabi/libapplication.so
-		cp ../../libapplication.so ../../../Android/project/jni/application/src/libapplication.so
+		#rm $ANDROIDSDK/rockbot_build/project/jni/application/src/libapplication.so
+		#rm $ANDROIDSDK/rockbot_build/project/obj/local/armeabi/libapplication.so
+		#rm $ANDROIDSDK/rockbot_build/project/libs/armeabi/libapplication.so
+		#cp ../../libapplication.so ../../../Android/project/jni/application/src/libapplication.so
 		cd $ANDROIDSDK/rockbot_build
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
@@ -101,7 +103,7 @@ case $response in
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
 		sh ./build.sh rockdroid debug
-		cp ./project/jni/application/rockdroid/libapplication-armeabi.so $ROCKDROIDDIR/libapplication-armeabi_$VERSIONNAME$demoName.so
+		#cp ./project/jni/application/rockdroid/libapplication-armeabi.so $ROCKDROIDDIR/libapplication-armeabi_$VERSIONNAME$demoName.so
 		
 		# build release
 		sh ./build.sh rockdroid release

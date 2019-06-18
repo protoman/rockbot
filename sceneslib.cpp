@@ -193,15 +193,8 @@ void scenesLib::main_screen()
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
                     fio.read_save(game_save, gameControl.get_current_save_slot());
-                    if (GAME_FLAGS[FLAG_PLAYER1]) {
-                        game_save.selected_player = PLAYER_1;
-                    } else if (GAME_FLAGS[FLAG_PLAYER2]) {
-                        game_save.selected_player = PLAYER_2;
-                    } else if (GAME_FLAGS[FLAG_PLAYER3]) {
-                        game_save.selected_player = PLAYER_3;
-                    } else if (GAME_FLAGS[FLAG_PLAYER4]) {
-                        game_save.selected_player = PLAYER_4;
-                    }
+                    // FIX to avoid old-save //
+                    game_save.selected_player = PLAYER_1;
                     repeat_menu = false;
                 }
             } else {
@@ -671,6 +664,7 @@ short scenesLib::select_save(bool is_new_game)
             save_slot_exists[i] = false;
         } else {
             fio.read_save(save_detail_array[i], i);
+            game_save.selected_player = PLAYER_1; // fix to avoid old player selection //
             save_slot_exists[i] = true;
         }
     }
@@ -741,7 +735,7 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
     // intro stage is rock buster icon, other are weapons icons
     int y_pos = n*40+34;
     for (int i=0; i<=8; i++) {
-        st_position pos((i+1)*18, y_pos);
+        st_position pos((i+1)*18-14, y_pos);
         if (save.stages[i] == 1) {
             graphLib.draw_weapon_tooltip_icon(i, pos, true);
         } else {
@@ -749,29 +743,30 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
             graphLib.draw_weapon_tooltip_icon(i, pos, false);
         }
     }
+    int item_adjust_x = 12;
     // lifes
-    st_position pos_lifes(9*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(11+save.selected_player, pos_lifes, true);
+    st_position pos_lifes(9*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(14+save.selected_player, pos_lifes, true);
     char buffer[3];
     sprintf(buffer, "x%d", save.items.lifes);
-    graphLib.draw_text(10*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(10*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // e-tank
-    st_position pos_etank(11*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(15, pos_etank, true);
+    st_position pos_etank(11*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(11, pos_etank, true);
     sprintf(buffer, "x%d", save.items.energy_tanks);
-    graphLib.draw_text(12*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(12*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // w-tank
-    st_position pos_wtank(13*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(16, pos_wtank, true);
+    st_position pos_wtank(13*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(12, pos_wtank, true);
     sprintf(buffer, "x%d", save.items.weapon_tanks);
-    graphLib.draw_text(14*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(14*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // s-tank
-    st_position pos_stank(15*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(17, pos_stank, true);
+    st_position pos_stank(15*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(13, pos_stank, true);
     sprintf(buffer, "x%d", save.items.special_tanks);
-    graphLib.draw_text(16*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(16*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 }
 

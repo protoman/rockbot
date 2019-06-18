@@ -1,7 +1,7 @@
 #ifndef JUMP_H
 #define JUMP_H
 
-#include "defines.h"
+#include "../../defines.h"
 
 enum E_JUMP_STATE {
     NOJUMP,

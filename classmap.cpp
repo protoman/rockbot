@@ -1450,9 +1450,11 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
     if (obj_type == OBJ_FINAL_BOSS_TELEPORTER) {
         return true;
     }
+    /*
     if (obj_type == OBJ_BOSS_DOOR) {
         return true;
     }
+    */
     if (obj_type == OBJ_CHECKPOINT) {
         return true;
     }
@@ -1565,7 +1567,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
-                } else if (temp_obj.get_type() == OBJ_BOSS_DOOR) {
+                } else if (temp_obj.get_type() == OBJ_BOSS_DOOR && charObj->is_player()) {
                     if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) {
                         // check for sub-boss alive on the left
                         temp_obj.start();

@@ -2,9 +2,9 @@
 #define CLASSNPC_H
 
 #include <string>
+#include "../file/format.h"
 #include "character.h"
-#include "file/format.h"
-#include "character/artificial_inteligence.h"
+#include "artificial_inteligence.h"
 
 class classPlayer;
 

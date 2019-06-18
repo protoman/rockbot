@@ -87,6 +87,7 @@ struct st_spriteFrame {
             frameSurface = other.frameSurface;
         }
         delay = other.delay;
+        return *this;
     }
 
     void setDelay(int newDelay)
@@ -138,6 +139,7 @@ struct st_char_sprite_data {
         }
         printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
         fflush(stdout);
+        return *this;
     }
 };
 

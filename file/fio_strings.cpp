@@ -5,9 +5,9 @@
 #include <sstream>
 #include <algorithm>
 
-#include "defines.h"
-#include "aux_tools/stringutils.h"
-#include "file/fio_common.h"
+#include "../defines.h"
+#include "../aux_tools/stringutils.h"
+#include "fio_common.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -288,7 +288,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "VOLUME EFEITOS");
             sprintf(lines[strings_ingame_config_enabled], "%s", "HABILITADO");
             sprintf(lines[strings_ingame_config_disabled], "%s", "DESABILITADO");
-            sprintf(lines[strings_ingame_ready_message], "%s", "PREPARE-SE!!");
+            sprintf(lines[strings_ingame_ready_message], "%s", "MISSÃO INICIADA!");
             sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECIONE PERSONAGEM >");
             sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "APERTE START PARA INICIAR");
             sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
@@ -316,7 +316,7 @@ namespace format_v4 {
             sprintf(lines[strings_config_high], "%s", "ALTO");
             sprintf(lines[string_stage_select_stage], "%s", "FASE:");
             sprintf(lines[string_stage_select_lair_of], "%s", "LAR DE:");
-            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTRAR FASE]");
+            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTRAR MISSÃO]");
             sprintf(lines[string_stage_select_unavailable], "%s", "[INDISPONÍVEL NA DEMO]");
             sprintf(lines[strings_config_return], "%s", "VOLTAR");
 
@@ -459,7 +459,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "SFX VOLUME");
             sprintf(lines[strings_ingame_config_enabled], "%s", "ENABLED");
             sprintf(lines[strings_ingame_config_disabled], "%s", "DISABLED");
-            sprintf(lines[strings_ingame_ready_message], "%s", "GET READY!!");
+            sprintf(lines[strings_ingame_ready_message], "%s", "MISSION STARTED!");
             sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECT PLAYER >");
             sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESS START TO SELECT");
             sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
@@ -488,7 +488,7 @@ namespace format_v4 {
 
             sprintf(lines[string_stage_select_stage], "%s", "STAGE:");
             sprintf(lines[string_stage_select_lair_of], "%s", "LAIR OF:");
-            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTER STAGE]");
+            sprintf(lines[string_stage_select_enter_stage], "%s", "[ENTER MISSION]");
             sprintf(lines[string_stage_select_unavailable], "%s", "[UNAVAILABLE IN DEMO]");
             sprintf(lines[strings_config_return], "%s", "RETURN");
 

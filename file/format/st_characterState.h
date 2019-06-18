@@ -7,7 +7,7 @@
 #include "st_teleporter.h"
 #include "st_projectile.h"
 #include "st_platform.h"
-#include "defines.h"
+#include "../defines.h"
 
 /**
  * @brief

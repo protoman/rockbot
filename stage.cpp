@@ -167,7 +167,7 @@ classMap *stage::get_current_map()
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
         char error_msg[255];
         sprintf(error_msg, "(stage::get_current_map): Invalid currenct map value[%d]", currentMap);
-        throw std::invalid_argument(error_msg);
+        //throw std::invalid_argument(error_msg);
     }
 
     return &maps[currentMap];
@@ -324,7 +324,7 @@ int stage::get_first_lock_on_right(int x_pos)
 // find the first position player can stop on ground
 int stage::get_first_ground(int x_pos)
 {
-
+    return 0;
 }
 
 int stage::get_teleport_minimal_y_tile(int xpos)
@@ -400,6 +400,7 @@ void stage::reset_stage_timers()
 bool stage::must_show_static_bg()
 {
     get_current_map()->must_show_static_bg();
+    return false;
 }
 
 void stage::check_map_effect()

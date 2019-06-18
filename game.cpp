@@ -244,7 +244,7 @@ st_float_position game::checkScrolling()
 // ********************************************************************************************** //
 void game::start_stage()
 {
-	_show_boss_hp = false;
+    _show_boss_hp = false;
     input.clean();
 
 
@@ -253,9 +253,7 @@ void game::start_stage()
     /// @TODO - this must be on a single method in soundlib
     player1.set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
 
-	soundManager.stop_music();
-
-    show_interstage_map();
+    soundManager.stop_music();
 
     soundManager.load_stage_music(stage_data.bgmusic_filename);
 
@@ -1204,14 +1202,14 @@ void game::got_weapon()
     player1.clear_move_commands();
 
     if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
-		// check witch is the boss that was killed
+        // check witch is the boss that was killed
 
-		/// @TODO: save game
+        /// @TODO: save game
 
-		/// @TODO: teletransport if capsules
+        /// @TODO: teletransport if capsules
 
         soundManager.stop_music();
-		// fall to ground
+        // fall to ground
         soundManager.play_sfx(SFX_BIG_EXPLOSION);
         player1.fall();
         player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
@@ -1249,13 +1247,6 @@ void game::got_weapon()
     leave_stage();
 }
 
-void game::show_interstage_map() {
-    int next_stage = get_next_stage();
-    if (next_stage >=0 && next_stage <= CASTLE1_STAGE5) {
-        draw_lib.show_interstage_map_bg(map_interstage_points.at(next_stage));
-    }
-}
-
 void game::leave_stage()
 {
     save_game();
@@ -1271,7 +1262,8 @@ void game::leave_stage()
     player1.set_weapon(WEAPON_DEFAULT, false);
     // @TODO: last stage must be set by game_data.final_boss_id //
 
-    currentStage = get_next_stage();
+    //currentStage = get_next_stage();
+    currentStage = scenes.pick_stage(currentStage);
 
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
@@ -1311,7 +1303,8 @@ void game::return_to_intro_screen()
         input.clean();
         start_stage();
     } else {
-        currentStage = get_next_stage();
+        //currentStage = get_next_stage();
+        currentStage = scenes.pick_stage(currentStage);
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
@@ -1406,7 +1399,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = STAGE3;
+    currentStage = CASTLE1_STAGE3;
     //currentStage = CASTLE1_STAGE1;
 
 

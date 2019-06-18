@@ -4,14 +4,14 @@
 #include <cstdlib>
 #include <string>
 
-#include "defines.h"
-#include "graphicslib.h"
-#include "strings_map.h"
-#include "game_mediator.h"
-#include "file/file_io.h"
-#include "file/fio_strings.h"
-#include "graphic/option_picker.h"
-#include "options/key_map.h"
+#include "../defines.h"
+#include "../graphicslib.h"
+#include "../strings_map.h"
+#include "../game_mediator.h"
+#include "../file/file_io.h"
+#include "../file/fio_strings.h"
+#include "../graphic/option_picker.h"
+#include "../options/key_map.h"
 
 class game_menu
 {

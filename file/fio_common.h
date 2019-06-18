@@ -7,7 +7,7 @@
 #include <map>
 #include <stdio.h>
 
-#include "aux_tools/exception_manager.h"
+#include "../aux_tools/exception_manager.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;

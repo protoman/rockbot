@@ -4,9 +4,9 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "defines.h"
-#include "file/format/st_common.h"
-#include "file/format.h"
+#include "../defines.h"
+#include "../file/format/st_common.h"
+#include "../file/format.h"
 
 class dialogs
 {

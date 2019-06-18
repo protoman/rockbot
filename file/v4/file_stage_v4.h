@@ -1,8 +1,8 @@
 #ifndef FILE_STAGE_v301H
 #define FILE_STAGE_v301H
 
-#include "file/format/st_common.h"
-#include "defines.h"
+#include "../format/st_common.h"
+#include "../../defines.h"
 #include <stdio.h>
 
 namespace format_v4 {

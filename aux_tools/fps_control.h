@@ -6,6 +6,7 @@
 #define FPS_MINIMAL_LIMIT 50            // if fps is lower or equal this value, we increment fail-count
 #define FPS_MINIMAL_MAX_FAIL 10         // if we have 10 consecutive times fps is under limit, we take action
 
+#include <iostream>
 #include <SDL/SDL.h>
 
 // === FPS limiter by Felipe Zacani === //
