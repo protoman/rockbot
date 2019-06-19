@@ -1399,7 +1399,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = CASTLE1_STAGE3;
+    currentStage = STAGE2;
     //currentStage = CASTLE1_STAGE1;
 
 

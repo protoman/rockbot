@@ -2027,7 +2027,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
+        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != nullptr) {
 
             //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
@@ -2176,6 +2176,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             }
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, 0, map_point);
+            if (is_player()) {
+                std::cout << "##### character::map_collision - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << i << "][" << new_map_lock << "]" << std::endl;
+            }
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -3248,7 +3251,7 @@ int character::change_position_y(short yinc)
 
 bool character::test_change_position(short xinc, short yinc)
 {
-    if (gameControl.get_current_map_obj() == NULL) {
+    if (gameControl.get_current_map_obj() == nullptr) {
         return false;
     }
     if (yinc < 0 && position.y < 0) {
