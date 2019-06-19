@@ -1,4 +1,6 @@
-﻿- versão 64 bits
+﻿- ANDROID: versão 64 bits
+
+- ANDROID: atualizar ícone do 2 (usar darkbot)
 
 - bug: é possível iniciar a transição de sala na porta abaixo dela (spo a cabeça tocando nela)
 
