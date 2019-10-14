@@ -374,8 +374,10 @@ void classnpc::initFrames()
 // ********************************************************************************************** //
 void classnpc::execute()
 {
+    //std::cout << "classnpc::execute[" << name << "]" << std::endl;
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {
         clean_projectiles();
+        //std::cout << "classnpc::execute[" << name << "]::LEAVE.FREEZE" << std::endl;
         return;
     }
 
@@ -383,8 +385,10 @@ void classnpc::execute()
         move_projectiles();
     } else {
         if (is_boss() || is_stage_boss()) {
+            //std::cout << "classnpc::execute[" << name << "]::BOSS" << std::endl;
             boss_move();
         } else {
+            //std::cout << "classnpc::execute[" << name << "]::NOT-BOSS" << std::endl;
             move();
         }
         charMove();
@@ -398,7 +402,7 @@ void classnpc::init_animation()
 
 void classnpc::boss_move()
 {
-    //std::cout << "NPC::boss_move::BEGIN" << std::endl;
+    //std::cout << "NPC::boss_move[" << name << "]::BEGIN" << std::endl;
     if (hitPoints.current <= 0 || position.x < gameControl.get_current_map_obj()->getMapScrolling().x-TILESIZE*2 || position.x > gameControl.get_current_map_obj()->getMapScrolling().x+RES_W+TILESIZE*2) {
         //std::cout << "classboss::execute - LEAVE #1" << std::endl;
         return;
@@ -419,13 +423,16 @@ void classnpc::boss_move()
     bool is_static_boss = is_static();
 
     if (is_entirely_on_screen() == true && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
+        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::TELEPORT" << std::endl;
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss);
         // set temp-background in map
         return;
     } else if (is_entirely_on_screen() == false && is_on_screen() == true &&  _initialized == 0 && _is_boss == true) {
+        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::FALL" << std::endl;
         fall_to_ground();
+        _initialized = 1;
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
 #ifdef ANDROID
@@ -442,9 +449,11 @@ void classnpc::boss_move()
     }
 
     if (_ai_timer > timer.getTimer()) {
+        //std::cout << "NPC::boss_move[" << name << "]::LEAVE-TIMER[" << _ai_timer << "][" << timer.getTimer() << "]" << std::endl;
         return;
     }
 
+    //std::cout << "NPC::boss_move[" << name << "]::EXECUTE-AI-CALL" << std::endl;
     execute_ai();
     gravity(false);
 }

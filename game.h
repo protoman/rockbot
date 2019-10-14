@@ -188,6 +188,7 @@ public:
     void show_savegame_error();
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
     void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return);
+    void object_teleport_final_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return);
     void remove_current_teleporter_from_list(); // used when player dies
     void select_game_screen();
     std::string get_selected_game();

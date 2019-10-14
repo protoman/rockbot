@@ -39,40 +39,24 @@ public:
     void reset_timer();
     void reset_obj_anim_timer();
     void show(int adjust_y=0, int adjust_x=0);
-
-
     void show_vertical_ray(int adjust_x, int adjust_y=0);
     void show_horizontal_ray(int adjust_x, int adjust_y=0);
     void show_track_platform(int adjust_x, int adjust_y=0);
-
     void show_deathray_vertical(int adjust_x=0, int adjust_y=0);
     void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
     void show_boss_door(int adjust_x=0, int adjust_y=0);
 
     bool is_platform();                                             // tell if object is of platform type
 
-    /**
-     * @brief
-     *
-     */
     void move(bool paused);
 
     void reset_animation();
 
     void stop();
 
-    /**
-     * @brief
-     *
-     */
     void execute(bool paused);
 
 
-    /**
-     * @brief
-     *
-     * @return st_position
-     */
     st_position get_position() const;
 
     st_position get_start_position() const;
@@ -84,53 +68,14 @@ public:
     Uint8 get_id() const;
     Uint8 get_direction() const;
     void set_direction(int);
-    /**
-     * @brief
-     *
-     * @return int
-     */
     int get_distance() const;
-    /**
-     * @brief
-     *
-     * @param int
-     */
     void set_distance(int);
-    /**
-     * @brief
-     *
-     * @param int
-     */
     void set_timer(int);
-    /**
-     * @brief
-     *
-     * @return unsigned int
-     */
     unsigned int get_timer() const;
-    /**
-     * @brief
-     *
-     * @return bool
-     */
     bool finished() const;
-    /**
-     * @brief
-     *
-     * @param is_finished
-     */
     void set_finished(bool is_finished);
-    /**
-     * @brief
-     *
-     */
     void invert_direction_x();
     void invert_direction_y();
-    /**
-     * @brief
-     *
-     * @param obj_state
-     */
     void set_state(short obj_state);
     short get_state() const;
     void set_duration(int duration);

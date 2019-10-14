@@ -1206,6 +1206,7 @@ void classMap::finish_object_teleporter(int number)
 
 void classMap::activate_final_boss_teleporter()
 {
+    std::cout << "classMap::activate_final_boss_teleporter::START" << std::endl;
     for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
         object& temp_obj = (*it);
         std::cout << "number: " << number << ", obj.id: " << temp_obj.get_obj_map_id() << ", type: " << temp_obj.get_type() << ", OBJ_FINAL_BOSS_TELEPORTER: " << OBJ_FINAL_BOSS_TELEPORTER << std::endl;
@@ -1525,12 +1526,12 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
             stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
 
-            std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
+            //std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
             // check if, without moving, player is inside object
             int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
 
 
-            std::cout << "### classMap::collision_char_object - obj[" << temp_obj.get_name() << "] - CHECK #1 ###" << std::endl;
+            //std::cout << "### classMap::collision_char_object - obj[" << temp_obj.get_name() << "] - CHECK #1 ###" << std::endl;
 
 
             // some platforms can kill the player if he gets stuck inside it
@@ -1546,7 +1547,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             int temp_blocked = 0;
             //std::cout << "collision_rect_player_obj::CALL #2" << std::endl;
             temp_blocked = collision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
-            std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK::temp_blocked[" << temp_blocked << "] ###" << std::endl;
+            //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK::temp_blocked[" << temp_blocked << "] ###" << std::endl;
 
 
             int temp_obj_y = temp_obj.get_position().y;

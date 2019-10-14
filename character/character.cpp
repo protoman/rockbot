@@ -126,6 +126,9 @@ st_float_position character::get_screen_position_from_point(st_float_position po
 // ********************************************************************************************** //
 void character::charMove() {
 
+
+    if (!is_player()) std::cout << "character::charMove[" << name << "]::START" << std::endl;
+
     int mapLock = 0;
 	bool moved = false;
     float temp_move_speed = move_speed;
@@ -134,6 +137,7 @@ void character::charMove() {
     store_previous_position();
 
     if (timer.is_paused() == true) {
+        std::cout << "character::charMove[" << name << "]::LEAVE.PAUSED" << std::endl;
         return;
     }
 
@@ -153,11 +157,9 @@ void character::charMove() {
     }
 
 
-    //if (is_player()) std::cout << "CHAR::CHARMOVE - _fractional_move_speed: " << _fractional_move_speed << std::endl;
-
 
     if (gameControl.get_current_map_obj() == NULL) {
-        std::cout << "# CHAR::MOVE::NO-MAP" << std::endl;
+        std::cout << "character::charMove[" << name << "]::LEAVE.NO-MAP" << std::endl;
 		return; // error - can't execute this action without an associated map
 	}
 
@@ -197,6 +199,7 @@ void character::charMove() {
 	}
 
 	if (state.animation_type == ANIM_TYPE_TELEPORT) {
+        std::cout << "character::charMove[" << name << "]::LEAVE.TELEPORT" << std::endl;
 		gravity(false);
 		return;
 	}
@@ -2032,6 +2035,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
+                std::cout << "FINAL_BOSS_TELEPORTER::STARTED" << std::endl;
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                     state.direction = ANIM_DIRECTION_RIGHT;
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), true);
@@ -2049,7 +2053,10 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
-                // do nothing
+                std::cout << "FINAL_BOSS_TELEPORTER::ACTIVATE" << std::endl;
+                // acho que era para ver se todos os inimigos estão mortos, mas não completei o código, então vamos fazer como um boss-teleproter
+                state.direction = ANIM_DIRECTION_RIGHT;
+                gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             } else if (!get_item(res_collision_object)) {
                 map_block = res_collision_object._block;
 
@@ -2176,9 +2183,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             }
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, 0, map_point);
-            if (is_player()) {
-                std::cout << "##### character::map_collision - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << i << "][" << new_map_lock << "]" << std::endl;
-            }
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -3137,7 +3141,7 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
-    std::cout << "################## CHAR::fall_to_ground START" << std::endl;
+    //std::cout << "################## CHAR::fall_to_ground START" << std::endl;
     _obj_jump.finish();
     if (hit_ground() == true) {
         return;
@@ -3146,13 +3150,13 @@ void character::fall_to_ground()
         char_update_real_position();
         position.y++;
         if (position.y >= RES_H/2 && hit_ground() == true) {
-            std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
+            //std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
             return;
         } else {
-            std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
+            //std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
         }
     }
-    std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
+    //std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
 void character::initialize_position_to_ground()

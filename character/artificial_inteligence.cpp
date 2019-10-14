@@ -71,12 +71,12 @@ void artificial_inteligence::execute_ai()
         _always_move_ahead = always_move_ahead();
         _check_always_move_ahead = false;
     }
-    //std::cout << "AI::execute_ai[" << name << "]" << std::endl;
+    std::cout << "AI::execute_ai[" << name << "]" << std::endl;
     check_ai_reaction();
     if (timer.getTimer() < _ai_timer) {
         return;
     }
-    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << ", parameter[" << (int)_parameter << "], direction[" << (int)state.direction << "]" << std::endl;
+    std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << ", parameter[" << (int)_parameter << "], direction[" << (int)state.direction << "]" << std::endl;
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;
@@ -89,7 +89,7 @@ void artificial_inteligence::execute_ai()
             }
         }
 
-        //std::cout << ">> SET INITIAL #2 <<" << std::endl;
+        std::cout << ">> SET INITIAL #2 <<" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
         define_ai_next_step();
     } else {
@@ -109,9 +109,9 @@ void artificial_inteligence::check_ai_reaction()
     //std::cout << "AI::check_ai_reaction::START - hitPoints.current: " << hitPoints.current << std::endl;
     // check and reset state if needed
     if (_reaction_state == 1) {
-        //std::cout << ">>>>> AI::check_ai_reaction - EXECUTING <<<<<" << std::endl;
+        std::cout << ">>>>> AI::check_ai_reaction - EXECUTING <<<<<" << std::endl;
         if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-            //std::cout << ">>>>> AI::check_ai_reaction - DONE <<<<<" << std::endl;
+            std::cout << ">>>>> AI::check_ai_reaction - DONE <<<<<" << std::endl;
             _reaction_state = 0;
         }
         return; // do not check again if already executing
@@ -186,7 +186,7 @@ void artificial_inteligence::define_ai_next_step()
         int rand_n = rand() % 100;
 
 
-        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -194,7 +194,7 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << name << "][" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                //std::cout << "AI::define_ai_next_step[" << name << "] - FOUND CHANCE at [" << i << "]" << std::endl;
+                std::cout << "AI::define_ai_next_step[" << name << "] - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
@@ -205,12 +205,12 @@ void artificial_inteligence::define_ai_next_step()
             _ai_chain_n = 0;
         }
     } else {
-        //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
+        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
         //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
     }
     _current_ai_type = get_ai_type();
-    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }

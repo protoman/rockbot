@@ -1359,11 +1359,11 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    scenes.show_player_walking_ending();
+    //scenes.show_player_walking_ending();
 
     scenes.show_enemies_ending();
 
-    draw_lib.show_credits(false);
+    //draw_lib.show_credits(false);
 
     return_to_intro_screen();
 }
@@ -1409,7 +1409,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    //show_ending();
+    show_ending();
 
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
@@ -1810,6 +1810,11 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     loaded_stage.get_current_map()->reset_scrolled();
 
     draw_lib.update_screen();
+}
+
+void game::object_teleport_final_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return)
+{
+
 }
 
 

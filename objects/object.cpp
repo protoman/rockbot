@@ -482,13 +482,7 @@ void object::show(int adjust_y, int adjust_x)
             frame = 0;
 		}
 
-        if (type == OBJ_FINAL_BOSS_TELEPORTER && _started == false) {
-            frame = 0;
-        }
-
-
-
-		//std::cout << "object::show - frame_n: " << frame << ", _animation_reversed: " << _animation_reversed << ", max_frames: " << max_frames << std::endl;
+        //std::cout << "object::show - frame_n: " << frame << ", _animation_reversed: " << _animation_reversed << ", max_frames: " << max_frames << std::endl;
 		// direction
         if (framesize_h*2 <= draw_lib.get_object_graphic(_id)->height)  {
 			//std::cout << ">>>> object height is enought for direction-right";

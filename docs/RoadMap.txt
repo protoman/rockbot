@@ -1,4 +1,10 @@
-﻿- ANDROID: versão 64 bits
+﻿- na fase do castelo, MageBot se teleporta para fora da sala
+
+- hit-area de objetos tipo teleportadores não esta funcionando
+
+- dizem que seleciona fase mas vai para a mesma (testar melhor)
+
+- ANDROID: versão 64 bits
 
 - ANDROID: atualizar ícone do 2 (usar darkbot)
 

@@ -997,13 +997,13 @@ void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
     float angle_diff = 360 / points_n;
     int frame = 0;
 
-    std::cout << "DRAW::draw_explosion::START, angle_diff[" << angle_diff << "], center[" << center_point.x << "][" << center_point.y << "]" << std::endl;
+    //std::cout << "DRAW::draw_explosion::START, angle_diff[" << angle_diff << "], center[" << center_point.x << "][" << center_point.y << "]" << std::endl;
 
     for (int j=0; j<points_n; j++) {
         float angle = (j*angle_diff)+angle_inc;
         float angle_rad = (angle * 3.14)/180;
         points[j] = get_radius_point(center_point, radius, angle_rad);
-        std::cout << "DRAW::draw_explosion - angle[" << angle_rad << "], point[" << j << "][" << points[j].x << "][" << points[j].y << "]" << std::endl;
+        //std::cout << "DRAW::draw_explosion - angle[" << angle_rad << "], point[" << j << "][" << points[j].x << "][" << points[j].y << "]" << std::endl;
         graphLib.copyArea(st_rectangle(frame*32, 0, 32, 32), st_position(points[j].x, points[j].y), graphLib.get_preloaded_image(PRELOADED_IMAGES_EXPLOSION_BUBBLE), &graphLib.gameScreen);
     }
     update_screen();

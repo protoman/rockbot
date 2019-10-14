@@ -401,7 +401,6 @@ void scenesLib::show_player_walking_ending()
 void scenesLib::show_enemies_ending()
 {
     st_color font_color(250, 250, 250);
-    std::pair<int, std::string> final_boss_data = std::pair<int, std::string>(-1, "");
 
     graphLib.blank_screen();
     draw_lib.show_boss_intro_bg();
@@ -422,30 +421,29 @@ void scenesLib::show_enemies_ending()
         int boss_id = stage_data_obj.boss.id_npc;
         if (boss_id != -1) {
             std::pair<int, std::string> temp_data(boss_id, std::string(stage_data_obj.boss.name));
+            std::cout << "############ stage[" << i << "].boss_id[" << boss_id << "].name[" << std::string(stage_data_obj.boss.name) << "]" << std::endl;
             stage_boss_id_list.insert(temp_data);
         }
     }
+    //std::cout << "GameMediator::get_instance()->get_enemy_list_size[" << GameMediator::get_instance()->get_enemy_list_size() << "]" << std::endl;
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
-        if (GameMediator::get_instance()->get_enemy(i)->id == -1) {
-            continue;
-        }
 
-        if (stage_boss_id_list.find(GameMediator::get_instance()->get_enemy(i)->id) != stage_boss_id_list.end()) {
+        std::cout << "i[" << i << "].name[" << GameMediator::get_instance()->get_enemy(i)->name << "], game_data.final_boss_id[" << (int)game_data.final_boss_id << "]" << std::endl;
+
+        if (stage_boss_id_list.find(i) != stage_boss_id_list.end()) {
             continue;
         }
         // final boss
         std::string name = std::string(GameMediator::get_instance()->get_enemy(i)->name);
 
-        if (GameMediator::get_instance()->get_enemy(i)->id == game_data.final_boss_id) {
-            final_boss_data = std::pair<int, std::string>(GameMediator::get_instance()->get_enemy(i)->id, name);
-        } else {
-            ending_show_single_enemy(GameMediator::get_instance()->get_enemy(i)->id, name);
-        }
+        ending_show_single_enemy(i, name);
 
     }
+
     show_bosses_ending();
-    if (final_boss_data.first != -1) {
-        ending_show_single_enemy(final_boss_data.first, final_boss_data.second);
+
+    if (game_data.final_boss_id != -1) {
+        ending_show_single_enemy(game_data.final_boss_id, GameMediator::get_instance()->get_enemy(game_data.final_boss_id)->name);
     }
 
     graphLib.blank_screen();
@@ -484,9 +482,6 @@ void scenesLib::show_bosses_ending()
 
     // TODO: error handling //
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending ###");
-#endif
 
     graphLib.blank_screen();
     // read bosses strings
@@ -495,80 +490,49 @@ void scenesLib::show_bosses_ending()
 
     for (short i=0; i<CASTLE1_STAGE5; i++) {
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #1, i[%d] ###", i);
-#endif
 
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
         fio.read_stage(stage_data_obj, i);
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #2");
-#endif
 
 
         draw_lib.show_boss_intro_bg();
         graphLib.updateScreen();
         int boss_id = stage_data_obj.boss.id_npc;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #3");
-#endif
 
         // BOSS POSITION IN DATA - 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
         unsigned int boss_pos = i*BOSS_CREDITS_LINES_N;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #4, boss_pos[%d] ###", boss_pos);
-#endif
 
 
         if (boss_pos >= boss_credits_data.size()) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "ERROR: boss_pos[%d] is greater than list size[%d]", boss_pos, boss_credits_data.size());
-#endif
             std::cout << "ERROR: boss_pos[" << boss_pos << "] is greater than list size[" << boss_credits_data.size() << "]" << std::endl;
             continue;
         }
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #5");
-#endif
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
         std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
         std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
         int delay = 60;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #6");
-#endif
 
         graphLib.draw_progressive_text(5, 170, boss_n, false, delay);
         graphLib.draw_progressive_text(90, 170, boss_credits_data.at(i*4+1), false, delay);
         draw_lib.update_screen();
-
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #7");
-#endif
 
 
         graphLib.draw_progressive_text(5, 185, concept_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 185, boss_credits_data.at(i*4+2), false, delay);
         draw_lib.update_screen();
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #8");
-#endif
 
         graphLib.draw_progressive_text(5, 201, design_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 201, boss_credits_data.at(i*4+3), false, delay);
         draw_lib.update_screen();
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### scenesLib::show_bosses_ending #9");
-#endif
 
         timer.delay(2000);
     }
