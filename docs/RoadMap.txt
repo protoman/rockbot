@@ -1,28 +1,24 @@
-﻿- na fase do castelo, MageBot se teleporta para fora da sala
+﻿- música para player andando no final
+
+- inimigos param de atirar após um tempo (? feedback de usuário, não consegui entender)
 
 - hit-area de objetos tipo teleportadores não esta funcionando
 
 - dizem que seleciona fase mas vai para a mesma (testar melhor)
 
-- ANDROID: versão 64 bits
-
-- ANDROID: atualizar ícone do 2 (usar darkbot)
-
-- bug: é possível iniciar a transição de sala na porta abaixo dela (spo a cabeça tocando nela)
-
-- bug: phantom se teleportou para fora da sala no castelo5 (não deve estar verificando portas)
-
 - bug: textos fora de posição (tem que ter tamanho virtual de fonte para cálculo de posição)
+    # seleção de player
+    # config do menu de armas
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
-- [2] scales armor tem que ter um tempo entre o dano (está sugando energia)
+- [2] chefes/sub-chefes tem que ter um tempo entre o dano (está sugando energia ds inimigos muito rápido)
 
 - [PC] trocar ícone na janela do jogo
-
-- [1] trocar logo da intro (usar variação do betabot)
 
 - criar intro em texto (soldado e blá blá blá), apenas em new game
 
 - adicionar música no final, já que não tem cutscene
     (adicionar cutscene só texto, hardcoded, ainda que com i18n)
+
+- problemas de audio em alguns aparelhos (?)

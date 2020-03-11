@@ -72,6 +72,7 @@ public:
     void draw_explosion(st_position center_point, int radius, int angle_inc);
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
     void draw_castle_point(int x, int y);
+    void show_weapon_tooltip();
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
@@ -84,7 +85,6 @@ private:
     void show_shadow_top_effect();
     void show_inferno_effect();
     void free_inferno_surface();
-    void show_weapon_tooltip();
     st_float_position get_radius_point(st_position center_point, int radius, float angle);
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
 

@@ -192,9 +192,9 @@ public:
 
     st_position get_first_lock_in_direction(st_position pos, st_size max_dist, int direction);
 
-    int get_first_lock_on_left(int x_pos) const;
+    int get_first_lock_on_left(int x_tile_pos) const;
 
-    int get_first_lock_on_right(int x_pos) const;
+    int get_first_lock_on_right(int x_tile_pos) const;
 
     int get_first_lock_on_bottom(int x_pos, int y_pos);
 

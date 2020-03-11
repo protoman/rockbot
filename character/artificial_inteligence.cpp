@@ -71,12 +71,12 @@ void artificial_inteligence::execute_ai()
         _always_move_ahead = always_move_ahead();
         _check_always_move_ahead = false;
     }
-    std::cout << "AI::execute_ai[" << name << "]" << std::endl;
+    //std::cout << "AI::execute_ai[" << name << "]" << std::endl;
     check_ai_reaction();
     if (timer.getTimer() < _ai_timer) {
         return;
     }
-    std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << ", parameter[" << (int)_parameter << "], direction[" << (int)state.direction << "]" << std::endl;
+    //std::cout << "AI::execute_ai[" << name << "] - _current_ai_type: " << _current_ai_type << ", _ai_state.sub_status: " << _ai_state.sub_status << ", parameter[" << (int)_parameter << "], direction[" << (int)state.direction << "]" << std::endl;
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         //std::cout << "AI::execute_ai::FINISHED" << std::endl;

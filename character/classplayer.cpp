@@ -595,7 +595,8 @@ void classPlayer::initFrames()
     // @TODO - automatically add inverse direction (right) sprites
 
 	// STAND
-    addSpriteFrame(ANIM_TYPE_STAND, 3, playerSpriteSurface, 200000);
+    addSpriteFrame(ANIM_TYPE_STAND, 3, playerSpriteSurface, 2000);
+    addSpriteFrame(ANIM_TYPE_STAND, 4, playerSpriteSurface, 100);
 	// WALK
     addSpriteFrame(ANIM_TYPE_WALK, 7, playerSpriteSurface, WALK_FRAME_DELAY);
     addSpriteFrame(ANIM_TYPE_WALK, 8, playerSpriteSurface, WALK_FRAME_DELAY);
@@ -616,9 +617,9 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 100);
     addSpriteFrame(ANIM_TYPE_HIT, 16, playerSpriteSurface, 100);
 	// TELEPORT
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 200);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 100);
 	// STAIRS
     addSpriteFrame(ANIM_TYPE_STAIRS, 17, playerSpriteSurface, 5000);
 	// stairs semi
@@ -899,7 +900,7 @@ void classPlayer::move()
 	if (input.p1_input[BTN_L] == 1 && l_key_released == true) {
         int selected_weapon_c = find_next_weapon(selected_weapon, -1);
         if (selected_weapon_c != -1) {
-            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c, true);
+            set_weapon(selected_weapon_c, true);
         }
 		l_key_released = false;
         //std::cout << ">>> LBUTTON - selected_weapon: " << selected_weapon << ", selected_weapon_c: " << selected_weapon_c << ", WEAPON_COUNT: " << WEAPON_COUNT << std::endl;
@@ -914,7 +915,7 @@ void classPlayer::move()
 			selected_weapon_c = WEAPON_DEFAULT;
 		}
         if (selected_weapon_c != -1) {
-            set_weapon((WEAPON_ICONS_ENUM)selected_weapon_c, true);
+            set_weapon(selected_weapon_c, true);
         }
 		r_key_released = false;
         //std::cout << ">>> RBUTTON - selected_weapon: " << selected_weapon << ", selected_weapon_c: " << selected_weapon_c << ", WEAPON_COUNT: " << WEAPON_COUNT << std::endl;
@@ -1056,7 +1057,7 @@ void classPlayer::restore_input()
     //std::cout << "PLAYER::restore_input::ATTACK: " << moveCommands.attack << ", BTN-ATTACK: " << (int)input.p1_input[BTN_ATTACK] << std::endl;
 }
 
-void classPlayer::set_weapon(short weapon_n, bool show_tooltip_icon)
+void classPlayer::set_weapon(int weapon_n, bool show_tooltip_icon)
 {
 	selected_weapon = weapon_n;
     clean_projectiles();

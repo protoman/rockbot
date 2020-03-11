@@ -29,7 +29,8 @@ public:
     void set_player_ref(classPlayer* set_player_ref);
     short convert_menu_pos_to_weapon_n(st_position menu_pos) const;
     st_position convert_stage_n_to_menu_pos(short stage_n) const;
-    Sint8 find_next_weapon(Uint8 current, Uint8 move) const; // used by L/R buttons
+    int find_next_weapon(int current, int move) const; // used by L/R buttons
+    bool has_weapon(int weapon_n) const;
     void disable_ingame_menu();
     void use_tank(int tank_type);
 

@@ -860,39 +860,53 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
     st_position res;
     st_position x_limit_pos;
 
-    std::cout << "########### get_first_lock_in_direction pos[" << pos.x << "][" << pos.y << "]" << std::endl;
+    std::cout << "########### get_first_lock_in_direction::START - pos[" << pos.x << "][" << pos.y << "]" << std::endl;
 
     switch (direction) {
 
     case ANIM_DIRECTION_LEFT:
+    {
         res.y = pos.y;
         res.x = pos.x - max_dist.width;
-        for (int pos_i=pos.x; pos_i>(pos.x-max_dist.width); pos_i--) {
-            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
-            //std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
-            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                std::cout << "LEFT - pos_i[" << pos_i << "]" << std::endl;
-                res.x = pos_i+1;
-                break;
+        int scroll_lock_left = get_first_lock_on_left(pos.x/TILESIZE);
+        if (scroll_lock_left < pos.x-max_dist.width) {
+            for (int pos_i=pos.x; pos_i>(pos.x-max_dist.width); pos_i--) {
+                int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
+                std::cout << "get_first_lock_in_direction - TELEPORT::LEFT x[" << pos.x << "], map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "], scroll_lock_left[" << scroll_lock_left << "]" << std::endl;
+                if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                    std::cout << "get_first_lock_in_direction - FOUND-LEFT - pos_i[" << pos_i << "]" << std::endl;
+                    res.x = pos_i+1;
+                    break;
+                }
             }
+        } else {
+            res.x = scroll_lock_left+TILESIZE;
         }
         break;
+    }
 
     case ANIM_DIRECTION_RIGHT:
+    {
         res.y = pos.y;
         res.x = pos.x + max_dist.width;
-        for (int pos_i=pos.x; pos_i<(pos.x+max_dist.width); pos_i++) {
-            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
-            //std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
-            if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                std::cout << "TELEPORT::RIGHT #2 - pos_i[" << pos_i << "]" << std::endl;
-                res.x = pos_i-1;
-                break;
+        int scroll_lock_right = get_first_lock_on_right(pos.x/TILESIZE);
+        if (scroll_lock_right > pos.x+max_dist.width) {
+            for (int pos_i=pos.x; pos_i<(pos.x+max_dist.width); pos_i++) {
+                int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
+                std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << "], map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
+                if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                    std::cout << "TELEPORT::RIGHT #2 - pos_i[" << pos_i << "]" << std::endl;
+                    res.x = pos_i-1;
+                    break;
+                }
             }
+        } else {
+            res.x = scroll_lock_right-TILESIZE;
         }
         break;
-
+    }
     case ANIM_DIRECTION_UP:
+    {
         res.y = pos.y - max_dist.height;
         res.x = pos.x;
         for (int pos_i=pos.y; pos_i>(pos.y-max_dist.height); pos_i--) {
@@ -905,7 +919,7 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
             }
         }
         break;
-
+    }
 
     case ANIM_DIRECTION_DOWN:
         res.y = pos.y + max_dist.height;
@@ -945,12 +959,13 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         break;
     }
 
+    std::cout << "########### get_first_lock_in_direction::START - res.x[" << res.x << "], res.y[" << res.y << "]" << std::endl;
     return res;
 }
 
-int classMap::get_first_lock_on_left(int x_pos) const
+int classMap::get_first_lock_on_left(int x_tile_pos) const
 {
-    for (int i=x_pos; i>= 0; i--) {
+    for (int i=x_tile_pos; i>= 0; i--) {
         if (wall_scroll_lock[i] == true) {
             return i*TILESIZE;
         }
@@ -958,12 +973,12 @@ int classMap::get_first_lock_on_left(int x_pos) const
     return -1;
 }
 
-int classMap::get_first_lock_on_right(int x_pos) const
+int classMap::get_first_lock_on_right(int x_tile_pos) const
 {
     int limit = (scroll.x+RES_W)/TILESIZE;
-    x_pos += 1;
-    std::cout << "classMap::get_first_lock_on_right - x_pos: " << x_pos << ", limit: " << limit << std::endl;
-    for (int i=x_pos; i<=limit; i++) {
+    x_tile_pos += 1;
+    std::cout << "classMap::get_first_lock_on_right - x_pos: " << x_tile_pos << ", limit: " << limit << std::endl;
+    for (int i=x_tile_pos; i<=limit; i++) {
         if (wall_scroll_lock[i] == true) {
             std::cout << "classMap::get_first_lock_on_right - found lock at: " << i << std::endl;
             return i*TILESIZE;
@@ -1569,13 +1584,15 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
                 } else if (temp_obj.get_type() == OBJ_BOSS_DOOR && charObj->is_player()) {
-                    if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) {
-                        // check for sub-boss alive on the left
-                        temp_obj.start();
-                        if (charObj->get_int_position().x > temp_obj.get_position().x + temp_obj.get_size().width) {
-                            temp_obj.set_direction(ANIM_DIRECTION_LEFT);
-                        } else {
-                            temp_obj.set_direction(ANIM_DIRECTION_RIGHT);
+                    if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) { // check for sub-boss alive on the left
+                        // check if player position is not under door //
+                        if ((char_rect.y + char_rect.h) <= (temp_obj.get_position().y+temp_obj.get_size().height+2) && char_rect.y >= temp_obj.get_position().y) {
+                            temp_obj.start();
+                            if (charObj->get_int_position().x > temp_obj.get_position().x + temp_obj.get_size().width) {
+                                temp_obj.set_direction(ANIM_DIRECTION_LEFT);
+                            } else {
+                                temp_obj.set_direction(ANIM_DIRECTION_RIGHT);
+                            }
                         }
                     }
                 }

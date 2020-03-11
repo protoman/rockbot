@@ -29,6 +29,7 @@ public:
     void ending_show_single_enemy(int id, std::string name);
     void show_bosses_ending();
     short pick_stage(int last_stage);
+    Uint8 select_player();
 
 private:
     // preload/unload

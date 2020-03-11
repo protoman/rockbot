@@ -209,7 +209,7 @@ public:
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
-    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
+    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp, short selected_weapon);
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
 
     void clear_area_alpha(short int x, short int y, short int w, short int h, short int r, short int g, short int b, int alpha);
@@ -329,6 +329,8 @@ private:
     struct graphicsLib_gSurface _easymode_block;
     struct graphicsLib_gSurface _hardmode_block;
     struct graphicsLib_gSurface _weapn_tooltip_bg;
+
+    struct graphicsLib_gSurface player_image_big[4];
 
     st_position _dialog_pos;
     st_position _config_menu_pos;

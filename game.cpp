@@ -195,6 +195,8 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     // draw HUD
     draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
 
+    draw_lib.show_weapon_tooltip();
+
     if (show_fps_enabled == true) {
         fps_manager.fps_count();
     }
@@ -1359,11 +1361,11 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    //scenes.show_player_walking_ending();
+    scenes.show_player_walking_ending();
 
     scenes.show_enemies_ending();
 
-    //draw_lib.show_credits(false);
+    draw_lib.show_credits(false);
 
     return_to_intro_screen();
 }
@@ -1399,8 +1401,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = STAGE2;
-    //currentStage = CASTLE1_STAGE1;
+    currentStage = CASTLE1_STAGE5;
 
 
     // DEBUG //
@@ -1409,7 +1410,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 

@@ -296,7 +296,10 @@ void class_config::use_tank(int tank_type)
 void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
-    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp());
+    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp(), player_ref->get_selected_weapon());
+
+
+
     //graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
     //graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
     //graphLib.draw_centered_text(RES_H/2-8, "PAUSED (@TODO)", st_color(255, 255, 255));
@@ -342,9 +345,19 @@ bool class_config::execute_ingame_menu()
         } else if (input.p1_input[BTN_DOWN] == 1) {
             //move_cursor(0, 1);
         } else if (input.p1_input[BTN_LEFT] == 1) {
-            //move_cursor(-1, 0);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -1);
+            if (selected_weapon_c != -1) {
+                soundManager.play_sfx(SFX_CURSOR);
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_RIGHT] == 1) {
-            //move_cursor(1, 0);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), 1);
+            if (selected_weapon_c != -1) {
+                soundManager.play_sfx(SFX_CURSOR);
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_R] == 1) {
             if (gameControl.show_config(game_save.stages[gameControl.currentStage]) == true) { // player picked "leave stage" option
                 ingame_menu_active = false;
@@ -353,6 +366,7 @@ bool class_config::execute_ingame_menu()
             }
             draw_ingame_menu();
         }
+        /*
         if (old_pos.x != ingame_menu_pos.x || old_pos.y != ingame_menu_pos.y) {
             //std::cout << ">> old_pos.y: " << old_pos.y << ", ingame_menu_pos.y: " << ingame_menu_pos.y << std::endl;
             if (old_pos.y != 6) {
@@ -370,6 +384,7 @@ bool class_config::execute_ingame_menu()
                 graphLib.draw_menu_item(ingame_menu_pos.x);
             }
         }
+        */
         input.clean();
         //timer.delay(MENU_CHANGE_DELAY);
     }
@@ -416,36 +431,58 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
 }
 
 
-Sint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
+int class_config::find_next_weapon(int current, int move) const
 {
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
             //std::cout << "#0 CONFIG::find_next_weapon - wpnId: " << i << ", save: " << game_save.stages[i] << std::endl;
-            if (game_save.stages[i] == 1) {
+            if (has_weapon(i) == true) {
                 //std::cout << "#0 CONFIG::find_next_weapon - OK[" << i << "]" << std::endl;
                 return i;
             }
         }
         for (int i=0; i<current; i++) { // from start to position
-            if (game_save.stages[i] == 1) {
+            if (has_weapon(i) == true) {
                 return i;
             }
         }
     } else {
         for (int i=current-1; i>=0; i--) { // from position to start
-            if (game_save.stages[i] == 1) {
+            if (has_weapon(i) == true) {
                 //std::cout << ">>#1 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
-            if (game_save.stages[i] == 1) {
+            if (has_weapon(i) == true) {
                 //std::cout << ">>#2 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
     }
     return -1;
+}
+
+bool class_config::has_weapon(int weapon_n) const
+{
+    if (weapon_n <= WEAPON_SEAHORSEBOT) {
+        if (game_save.stages[weapon_n] == 1) {
+            return true;
+        }
+    } else {
+        if (weapon_n == WEAPON_ITEM_COIL && game_save.stages[WEAPON_APEBOT] == 1) {
+            return true;
+        } else if (weapon_n == WEAPON_ITEM_JET && game_save.stages[WEAPON_TECHNOBOT] == 1) {
+            return true;
+        } else if (weapon_n == WEAPON_ITEM_ETANK && game_save.items.energy_tanks > 0) {
+            return true;
+        } else if (weapon_n == WEAPON_ITEM_WTANK && game_save.items.weapon_tanks > 0) {
+            return true;
+        } else if (weapon_n == WEAPON_ITEM_STANK && game_save.items.special_tanks > 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void class_config::disable_ingame_menu()

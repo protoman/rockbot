@@ -60,7 +60,7 @@ public:
      * @brief change the weapon player is using
      * @param weapon_n id of the weapon to be set
      */
-    void set_weapon(short weapon_n, bool show_tooltip_icon);
+    void set_weapon(int weapon_n, bool show_tooltip_icon);
 
     /**
      * @brief get the number of energy a given weapon still has (the number decreases as the weapon is used)
@@ -214,7 +214,7 @@ private:
 
 private:
     int teleporter_n; /**< current teleporter being used, -1 if none */
-    short selected_weapon; /**< current selected weapon */
+    int selected_weapon; /**< current selected weapon */
     CURRENT_FILE_FORMAT::file_weapon_colors weapon_colors[MAX_WEAPON_N]; /**< TODO */
     bool l_key_released; /**< avoid changing weapon continuously if L key is held */
     bool r_key_released;            // < avoid changing weapon continuously if R key is held

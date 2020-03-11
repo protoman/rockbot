@@ -127,7 +127,7 @@ st_float_position character::get_screen_position_from_point(st_float_position po
 void character::charMove() {
 
 
-    if (!is_player()) std::cout << "character::charMove[" << name << "]::START" << std::endl;
+    //if (!is_player()) std::cout << "character::charMove[" << name << "]::START" << std::endl;
 
     int mapLock = 0;
 	bool moved = false;
@@ -137,7 +137,7 @@ void character::charMove() {
     store_previous_position();
 
     if (timer.is_paused() == true) {
-        std::cout << "character::charMove[" << name << "]::LEAVE.PAUSED" << std::endl;
+        //std::cout << "character::charMove[" << name << "]::LEAVE.PAUSED" << std::endl;
         return;
     }
 
@@ -159,7 +159,7 @@ void character::charMove() {
 
 
     if (gameControl.get_current_map_obj() == NULL) {
-        std::cout << "character::charMove[" << name << "]::LEAVE.NO-MAP" << std::endl;
+        //std::cout << "character::charMove[" << name << "]::LEAVE.NO-MAP" << std::endl;
 		return; // error - can't execute this action without an associated map
 	}
 
@@ -199,7 +199,7 @@ void character::charMove() {
 	}
 
 	if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        std::cout << "character::charMove[" << name << "]::LEAVE.TELEPORT" << std::endl;
+        //std::cout << "character::charMove[" << name << "]::LEAVE.TELEPORT" << std::endl;
 		gravity(false);
 		return;
 	}
@@ -508,7 +508,7 @@ void character::charMove() {
 
     if (is_player_type && moved == false && resJump == false && res_slide == false) {
 		//if (state.animation_type != ANIM_TYPE_WALK) {
-         if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+         if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
 			//if (is_player()) std::cout << "********* reset to stand - on_stairs_frame: " << is_in_stairs_frame() << ", state.animation_type: " << state.animation_type << std::endl;
             if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);

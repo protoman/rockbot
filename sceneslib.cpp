@@ -229,8 +229,7 @@ void scenesLib::main_screen()
     if (picked_n == 0) { // NEW GAME //
         game_save.difficulty = select_difficulty();
         std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
-        // demo do not have player selection, only rockbot is playable
-        game_save.selected_player = PLAYER_1;
+        game_save.selected_player = select_player();
         gameControl.save_game();
     }
 }
@@ -552,6 +551,96 @@ short scenesLib::pick_stage(int last_stage)
 
     return pos_n;
 
+}
+
+Uint8 scenesLib::select_player() {
+    std::cout << "scenesLib::select_player::START" << std::endl;
+
+    int selected = 1;
+    graphicsLib_gSurface bg_surface;
+
+    int max_loop = 2;
+    if (game_config.game_finished == true) {
+        max_loop = 4;
+    }
+
+
+    graphLib.blank_screen();
+    std::string filename = FILEPATH + "images/backgrounds/player_selection.png";
+    graphLib.surfaceFromFile(filename, &bg_surface);
+
+    filename = FILEPATH + "images/backgrounds/player_select_p1.png";
+    graphicsLib_gSurface p1_surface;
+    graphLib.surfaceFromFile(filename, &p1_surface);
+
+    filename = FILEPATH + "images/backgrounds/player_select_p2.png";
+    graphicsLib_gSurface p2_surface;
+    graphLib.surfaceFromFile(filename, &p2_surface);
+
+    filename = FILEPATH + "images/backgrounds/player_select_p3.png";
+    graphicsLib_gSurface p3_surface;
+    graphLib.surfaceFromFile(filename, &p3_surface);
+
+    filename = FILEPATH + "images/backgrounds/player_select_p4.png";
+    graphicsLib_gSurface p4_surface;
+    graphLib.surfaceFromFile(filename, &p4_surface);
+
+    graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language));
+    graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language));
+    graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
+    draw_lib.update_screen();
+
+
+    input.clean();
+    timer.delay(100);
+
+    while (true) {
+        input.read_input();
+        if (input.p1_input[BTN_LEFT] == 1 || input.p1_input[BTN_RIGHT] == 1) {
+            soundManager.play_sfx(SFX_CURSOR);
+            if (input.p1_input[BTN_RIGHT] == 1) {
+                selected++;
+            } else {
+                selected--;
+            }
+            // adjust selected/loop
+            if (selected < 1) {
+                selected = max_loop;
+            } else if (selected > max_loop) {
+                selected = 1;
+            }
+            graphLib.clear_area(0, 49, RES_W, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            if (selected == 1) {
+                graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
+            } else if (selected == 2) {
+                graphLib.copyArea(st_position(0, 50), &p2_surface, &graphLib.gameScreen);
+            } else if (selected == 3) {
+                graphLib.copyArea(st_position(0, 50), &p3_surface, &graphLib.gameScreen);
+            } else if (selected == 4) {
+                graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
+            }
+            graphLib.clear_area(60, 168, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name);
+        } else if (input.p1_input[BTN_QUIT] == 1) {
+            dialogs dialogs_obj;
+            if (dialogs_obj.show_leave_game_dialog() == true) {
+                SDL_Quit();
+                exit(0);
+            }
+        } else if (input.p1_input[BTN_START] == 1) {
+            input.clean();
+            draw_lib.update_screen();
+            timer.delay(80);
+            break;
+        }
+        input.clean();
+        timer.delay(10);
+        draw_lib.update_screen();
+    }
+
+    return (selected-1);
 }
 
 

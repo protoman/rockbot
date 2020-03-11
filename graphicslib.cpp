@@ -1137,7 +1137,17 @@ void graphicsLib::load_icons()
     filename = FILEPATH + "images/tilesets/blocks/hardmode.png";
     surfaceFromFile(filename, &_hardmode_block);
 
+    filename = FILEPATH + "images/p1.png";
+    surfaceFromFile(filename, &player_image_big[0]);
 
+    filename = FILEPATH + "images/p2.png";
+    surfaceFromFile(filename, &player_image_big[1]);
+
+    filename = FILEPATH + "images/p3.png";
+    surfaceFromFile(filename, &player_image_big[2]);
+
+    filename = FILEPATH + "images/p4.png";
+    surfaceFromFile(filename, &player_image_big[3]);
 }
 
 
@@ -1245,37 +1255,61 @@ void graphicsLib::erase_menu_item(int x_pos)
     //copyArea(st_position(x, 196), spriteCopy, &gameScreen);
 }
 
-void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame, short max_hp) {
+void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame, short max_hp, short selected_weapon) {
     int icon_size = weapon_icons.at(0).width;
     int spacer_h = icon_size+2;
-    int pos_x = 170;
+    int pos_x = 130;
 
     showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
+
+    showSurfaceAt(&player_image_big[game_save.selected_player], st_position((RES_W-ingame_menu.width)*0.5+5, (RES_H-ingame_menu.height)*0.5+47));
+
 
     int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language).length()+4)*8;
     draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
 
-    draw_text(pos_x, 60, "HEALTH CRYSTALS:");
+
+    draw_text(pos_x, 60, "WEAPON:");
+    // TODO: get weapon name
+
+    std::string weapon_name = game_data.weapons[selected_weapon].name;
+
+    if (selected_weapon == WEAPON_ITEM_COIL) {
+        weapon_name = "FROG COIL";
+    } else if (selected_weapon == WEAPON_ITEM_JET) {
+        weapon_name = "EAGLE JET";
+    } else if (selected_weapon == WEAPON_ITEM_ETANK) {
+        weapon_name = "HP CRYSTAL";
+    } else if (selected_weapon == WEAPON_ITEM_WTANK) {
+        weapon_name = "MP CRYSTAL";
+    } else if (selected_weapon == WEAPON_ITEM_STANK) {
+        weapon_name = "SPECIAL CRYSTAL";
+    }
+
+    draw_text(pos_x+60, 60, weapon_name);
+    draw_text(pos_x-20, RES_H-40, "USE < OR > TO CHANGE WEAPON");
+
+    draw_text(pos_x, 80, "HEALTH CRYSTALS:");
     std::stringstream ss;
     ss.str(std::string());
     ss << "0" << (short)game_save.items.energy_tanks;
-    draw_text(290, 60, ss.str());
+    draw_text(290, 80, ss.str());
 
 
     if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true) {
-        draw_text(pos_x, 80, "BOOTS: ENHANCED");
+        draw_text(pos_x, 100, "BOOTS: ENHANCED");
     } else {
-        draw_text(pos_x, 80, "BOOTS: NORMAL");
+        draw_text(pos_x, 100, "BOOTS: NORMAL");
     }
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
-        draw_text(pos_x, 100, "ARMOR: ENHANCED");
+        draw_text(pos_x, 120, "ARMOR: ENHANCED");
     } else {
-        draw_text(pos_x, 100, "ARMOR: NORMAL");
+        draw_text(pos_x, 120, "ARMOR: NORMAL");
     }
     if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
-        draw_text(pos_x, 120, "BEAM:  ENHANCED");
+        draw_text(pos_x, 140, "BEAM:  ENHANCED");
     } else {
-        draw_text(pos_x, 120, "BEAM:  NORMAL");
+        draw_text(pos_x, 140, "BEAM:  NORMAL");
     }
 
 
@@ -2197,12 +2231,12 @@ void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int
         if ((rotozoom_picture = zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
         //double angle = 360*i;
         //if ((rotozoom_picture = rotozoomSurface(picture.get_surface(), angle, 1.0, smooth)) != NULL) {
-            std::cout << "GRAPHLIB::ZOOM #1 [" << i << "]" << std::endl;
+            //std::cout << "GRAPHLIB::ZOOM #1 [" << i << "]" << std::endl;
             struct st_rectangle origin_rectangle(0, 0, rotozoom_picture->w, rotozoom_picture->h);
 
             st_position dest_zoom(center.x-rotozoom_picture->w/2, center.y-rotozoom_picture->h/2);
-            std::cout << "rotozoom_picture[" << rotozoom_picture->w << "][" << rotozoom_picture->h << "]" << std::endl;
-            std::cout << "dest_zoom[" << dest_zoom.x << "][" << dest_zoom.y << "]" << std::endl;
+            //std::cout << "rotozoom_picture[" << rotozoom_picture->w << "][" << rotozoom_picture->h << "]" << std::endl;
+            //std::cout << "dest_zoom[" << dest_zoom.x << "][" << dest_zoom.y << "]" << std::endl;
 
             // clear area
             clear_area(dest_zoom.x, dest_zoom.y, rotozoom_picture->w, rotozoom_picture->h, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);

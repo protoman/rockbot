@@ -176,7 +176,6 @@ void draw::show_gfx()
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
-    show_weapon_tooltip();
 }
 
 graphicsLib_gSurface *draw::get_input_surface(e_INPUT_IMAGES input)
