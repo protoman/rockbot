@@ -276,7 +276,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "DRAW::show_boss_intro_sprites, id[%d], filename[%s]", boss_id, graph_filename.c_str());
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "DRAW::show_boss_intro_sprites, id[%d], filename[%s]", boss_id, graph_filename.c_str());
 #endif
 
 

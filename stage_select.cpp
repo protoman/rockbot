@@ -45,7 +45,7 @@ stage_select::stage_select(graphicsLib_gSurface stage_ref[STAGE_SELECT_COUNT]) :
     for (i=0; i<STAGE_SELECT_COUNT; i++) {
         STAGE_SELECT_SURFACES[i] = &stage_ref[i];
 	}
-    if (GAMENAME == "RockDroid1") {
+    if (GAMENAME == "RockBot1") {
         // regular stages, rockbot1 order
         stage_select_point_list.push_back(st_position(254, 82));    // KYOTO
         stage_select_point_list.push_back(st_position(177, 118));   // CENTRAL AFRICA

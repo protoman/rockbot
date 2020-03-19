@@ -94,6 +94,8 @@ public:
     void game_unpause();
     void show_ending();
 
+    bool game_started();
+
 
     void draw_explosion(st_position center, bool show_players);
     void show_player();
@@ -299,7 +301,7 @@ private:
 
     std::vector<st_position> map_interstage_points;
 
-
+    bool is_game_started = false;
 
 #ifdef PSP
     psp_ram _ram_counter;

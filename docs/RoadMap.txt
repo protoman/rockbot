@@ -1,4 +1,7 @@
-﻿- música para player andando no final
+﻿- checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
+
+GAME::show_player_telport #2 - pos_x[1799], pos_y[224], player.anim_type[4], ANIM_TELEPORT[4]
+- atualizar ícone de app no android (ver pq após instalar o 2, ficaram ambos com o mesmo ícone tb)
 
 - inimigos param de atirar após um tempo (? feedback de usuário, não consegui entender)
 
@@ -12,13 +15,6 @@
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
-- [2] chefes/sub-chefes tem que ter um tempo entre o dano (está sugando energia ds inimigos muito rápido)
-
-- [PC] trocar ícone na janela do jogo
-
 - criar intro em texto (soldado e blá blá blá), apenas em new game
-
-- adicionar música no final, já que não tem cutscene
-    (adicionar cutscene só texto, hardcoded, ainda que com i18n)
 
 - problemas de audio em alguns aparelhos (?)

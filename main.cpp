@@ -71,20 +71,12 @@ jobject activity_ref;
     #undef main // to build on win32
 #endif
 
-#if defined(DINGUX)
-    std::string EXEC_NAME("rockdroid.dge");
-#elif defined(WIN32)
-    std::string EXEC_NAME = std::string("rockdroid.exe");
-#elif defined(PLAYSTATION2)
-    std::string EXEC_NAME("rockdroid.elf");
-#elif defined(PSP)
-	std::string EXEC_NAME("EBOOT.PBP");
+#if defined(WIN32)
+    std::string EXEC_NAME = std::string("rockbot.exe");
 #elif defined(ANDROID)
     std::string EXEC_NAME("");
-#elif defined(WII)
-    std::string EXEC_NAME("boot.dol");
 #else
-    std::string EXEC_NAME("rockdroid");
+    std::string EXEC_NAME("rockbot");
 #endif
 
 // EXTERNAL GLOBALS
@@ -122,114 +114,7 @@ struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 int current_stage = 0;
 
-#ifdef PLAYSTATION2
-    #include "ports/ps2/modules.h"
 
-
-
-
-
-
-void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
-{
-    FILE *fp_read = fopen(file_in.c_str(), "rb");
-    if (!fp_read) {
-        std::cout << "ERROR: Could not open read file '" << file_in << "'" << std::endl;
-        graphLib.show_debug_msg("ERROR #1");
-        graphLib.show_debug_msg(file_in);
-        return;
-    } else {
-        std::cout << "WARNING: Opened file '" << file_in << "'" << std::endl;
-    }
-    file_out = SAVEPATH + "/" + file_out;
-    FILE *fp_write = fopen(file_out.c_str(), "wb");
-    if (!fp_write) {
-        std::cout << "ERROR: Could not open write file '" << file_out << "'" << std::endl;
-        graphLib.show_debug_msg("ERROR #2");
-        graphLib.show_debug_msg(file_out);
-        return;
-    } else {
-        std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;
-    }
-
-    int a;
-    while(1)
-    {
-        a  =  fgetc(fp_read);
-        if (!feof(fp_read)) {
-            fputc(a, fp_write);
-        } else {
-            break;
-        }
-    }
-
-    fclose(fp_read);
-    fclose(fp_write);
-
-}
-
-void PS2_create_save_icons()
-{
-    // copy save icon files, if they do not exist
-    std::string filename = SAVEPATH + "/icon.sys";
-    FILE *fp = fopen(filename.c_str(), "rb");
-    if (fp == NULL) {
-        std::string filename = FILEPATH + "images/icon.sys";
-        PS2_copy_to_memorycard(filename, "icon.sys");
-        filename = FILEPATH + "images/rockbot_ps2_icon.icn";
-        PS2_copy_to_memorycard(filename, "rockbot_ps2_icon.icn");
-    } else {
-        fclose(fp);
-    }
-}
-
-
-
-#endif
-
-
-#ifdef PSP
-PSP_MODULE_INFO("RockDroid", PSP_MODULE_USER, 1, 0);
-//PSP_HEAP_SIZE_KB(-1024);
-PSP_HEAP_SIZE_MAX();
-
-
-/* Exit callback */
-int exit_callback(int arg1, int arg2, void *common) {
-    sceKernelExitGame();
-    return 0;
-}
-
-/* Callback thread */
-int CallbackThread(SceSize args, void *argp) {
-    int cbid;
-    cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    sceKernelRegisterExitCallback(cbid);
-    sceKernelSleepThreadCB();
-    return 0;
-}
-
-/* Sets up the callback thread and returns its thread id */
-int SetupCallbacks(void) {
-    int thid = 0;
-    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-    if(thid >= 0) {
-        sceKernelStartThread(thid, 0, 0);
-    }
-    return thid;
-}
-
-
-// LINKER PATCH
-/*
-extern "C" {
-void *__dso_handle = NULL;
-}
-*/
-
-// ram counter object
-psp_ram _ram_counter;
-#endif
 
 
 void get_filepath()
@@ -253,7 +138,7 @@ void get_filepath()
     char *res = getcwd(buffer, MAXPATHLEN);
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAIN.DEBUG.res[%s]",res);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "MAIN.DEBUG.res[%s]",res);
 #endif
 
     UNUSED(res);
@@ -262,43 +147,20 @@ void get_filepath()
     }
     FILEPATH += "/";
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAIN.DEBUG.FILEPATH[%s]",FILEPATH.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "MAIN.DEBUG.FILEPATH[%s]",FILEPATH.c_str());
 #endif
 
     delete[] buffer;
 #endif
 
-    #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
-        FILEPATH = "mass:/PS2/RockDroid/";
-    //#elif WII
-        //FILEPATH = "sd:/apps/RockDroid/";
-        //printf("MAIN #D\n");
-    #endif
-    std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
-	#ifdef DREAMCAST
-		FILEPATH = "/cd/";
-	#endif
 
     GAMEPATH = FILEPATH;
 }
 
 
-#ifdef WII
-extern "C" int main(int argc, char *argv[])
-#else
-
-#ifdef DREAMCAST
-	KOS_INIT_FLAGS(INIT_DEFAULT);
-#endif
-
 int main(int argc, char *argv[])
-#endif
 {
 
-#ifdef PSP
-    SetupCallbacks();
-    scePowerSetClockFrequency(333, 333, 166);
-#endif
 
     for (int i=0; i<FLAG_COUNT; i++) {
 		GAME_FLAGS[i] = false;
@@ -306,16 +168,7 @@ int main(int argc, char *argv[])
 	UNUSED(argc);
 
     string argvString = "";
-#ifndef WII
     argvString = string(argv[0]);
-#else
-    if (!fatInitDefault()) {
-        printf("fatInitDefault ERROR #1");
-        std::fflush(stdout);
-        timer.delay(500);
-        exit(-1);
-    }
-#endif
 
 
     fflush(stdout);
@@ -328,40 +181,6 @@ int main(int argc, char *argv[])
     }
     std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl; std::fflush(stdout);
 
-
-
-#ifdef PLAYSTATION2
-    std::cout << "PS2.DEBUG #1" << std::endl; std::fflush(stdout);
-
-    PS2_init();
-
-    // --- DEBUG --- //
-    //FILEPATH = "cdfs:/";
-    // --- DEBUG --- //
-
-    //PS2_load_xio();
-    std::cout << "PS2.DEBUG #2" << std::endl; std::fflush(stdout);
-
-    if (FILEPATH.find("mass:") != std::string::npos) {
-        printf("DEBUG.PS2 #1.4\n");
-        std::cout << "PS2.DEBUG Load USB" << std::endl; std::fflush(stdout);
-        PS2_load_USB();
-    }
-
-    if (FILEPATH.find("cdfs") != std::string::npos || FILEPATH.find("cdrom") != std::string::npos) {
-        printf("DEBUG.PS2 #1.5\n");
-        std::cout << "PS2.DEBUG Load CDROM" << std::endl; std::fflush(stdout);
-        FILEPATH = "cdfs:";
-        PS2_load_CDROM();
-    }
-
-    printf("DEBUG.PS2 #2\n");
-
-
-
-
-    std::cout << "PS2.DEBUG #3" << std::endl; std::fflush(stdout);
-#endif
 
 
 
@@ -418,11 +237,9 @@ int main(int argc, char *argv[])
         mkdir(SAVEPATH.c_str(), 0777);
         //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;
     #elif WIN32
-        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
+        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockbot";
         std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
         _mkdir(SAVEPATH.c_str());
-    #elif DREAMCAST
-        SAVEPATH = "/vmu/a1";
     #else
         SAVEPATH = GAMEPATH;
     #endif
@@ -432,9 +249,7 @@ int main(int argc, char *argv[])
 
     std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
 
-#ifndef PLAYSTATION2
     fio.load_config(game_config);
-#endif
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
@@ -452,7 +267,7 @@ int main(int argc, char *argv[])
 #endif
 
 
-    //GAMENAME = std::string("RockDroid");
+    //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
     std::cout << ">>>>>>>>>>>>>>>>>>>> GAMENAME[" << GAMENAME << "]" << std::endl;
@@ -468,7 +283,7 @@ int main(int argc, char *argv[])
 #endif
 
     // DEBUG PS2 //
-    //GAMENAME = std::string("RockDroid");
+    //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, game_config.selected_language) + std::string(":"));
@@ -493,58 +308,13 @@ int main(int argc, char *argv[])
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();
 
-    // define SAVEPATH
-    #ifdef PLAYSTATION2
-        PS2_load_MC();
-        SAVEPATH = "mc0:RockDroid/";
 
-        if (fioMkdir(SAVEPATH.c_str()) < 0) {
-            std::cout << "main - warning: could not create '" << SAVEPATH << "' folder" << std::endl; std::fflush(stdout);
-            /// @TODO - check if directory exists
-        } else {
-            std::cout << "Folder '" << SAVEPATH << "' created" << std::endl; std::fflush(stdout);
-        }
-
-    #endif
-
-
-    /*
-    #ifndef DEBUG_OUTPUT // redirect output to null
-        std::string cout_file = "/dev/null";
-        std::ofstream out(cout_file.c_str());
-        std::cout.rdbuf(out.rdbuf());
-    #else
-        // --- REDIRECT STDOUT TO A FILE --- //
-        #if defined(PSP) || defined(WII) || defined(ANDROID) || defined(DINGUX) || defined(PLAYSTATION2)
-            //std::string cout_file = SAVEPATH + "/stdout.txt";
-            std::string cout_file = GAMEPATH + "/stdout.txt";
-            std::streambuf *coutbuf = std::cout.rdbuf();
-            std::ofstream out(cout_file.c_str());
-            std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-        #endif
-    #endif
-    */
-
-#ifdef WII
-        ofstream cout("output.txt");
-        ios_base::sync_with_stdio(false);
-        std::cout.rdbuf(cout.rdbuf());
-        /*
-        std::ofstream out("out.txt");
-        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-        */
-#endif
 
 
     graphLib.preload();
 
 
 
-#ifdef PLAYSTATION2
-    fio.load_config(game_config);
-    PS2_create_save_icons();
-#endif
     draw_lib.preload();
 
 
@@ -580,15 +350,7 @@ int main(int argc, char *argv[])
 
 
     while (run_game) {
-        #if !defined(DINGUX)
-            timer.start_ticker();
-        #endif
-
-
-        #ifdef PLAYSTATION2
-            //RotateThreadReadyQueue(_MIXER_THREAD_PRIORITY);
-        #endif
-
+        timer.start_ticker();
         gameControl.show_game(true, true);
         draw_lib.update_screen();
         if (input.p1_input[BTN_QUIT] == 1) {
@@ -600,15 +362,10 @@ int main(int argc, char *argv[])
 
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### Leaving game gracefully ###");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### Leaving game gracefully ###");
 #endif
 
-#ifdef PSP
-    sceKernelExitGame();
-    return 0;
-#else
     SDL_Quit();
-#endif
 	
 	return 1;
 }
@@ -624,9 +381,9 @@ JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIE
     char cwd[1024];
     /*
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", cwd);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", cwd);
     } else {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "cwd is NULL");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "cwd is NULL");
     }
     */
     char *argv[1];
@@ -635,11 +392,11 @@ JNIEXPORT void JNICALL Java_net_upperland_rockdroid_DemoRenderer_nativeInit(JNIE
     main(1, argv);
     /*
     } catch (std::invalid_argument e) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Exception[invalid_argument]");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "Exception[invalid_argument]");
         android_game_services android_services;
         android_services.crash_handler(e.what());
     } catch (std::runtime_error e) {
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "Exception[runtime_error]");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "Exception[runtime_error]");
         android_game_services android_services;
         android_services.crash_handler(e.what());
     }

@@ -45,16 +45,16 @@ _Unwind_Reason_Code exception_manager::unwindCallback(struct _Unwind_Context* co
 }
 
 size_t  exception_manager::captureBacktrace(void** buffer, size_t max) {
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "exception_manager::captureBacktrace #1");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "exception_manager::captureBacktrace #1");
     BacktraceState state = {buffer, buffer + max};
     _Unwind_Backtrace(unwindCallback, &state);
 
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "exception_manager::captureBacktrace #2");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "exception_manager::captureBacktrace #2");
     return state.current - buffer;
 }
 
 void exception_manager::dumpBacktrace(std::ostream& os, void** buffer, size_t count) {
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "exception_manager::dumpBacktrace #1");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "exception_manager::dumpBacktrace #1");
     for (size_t idx = 0; idx < count; ++idx) {
         const void* addr = buffer[idx];
         const char* symbol = "";
@@ -66,7 +66,7 @@ void exception_manager::dumpBacktrace(std::ostream& os, void** buffer, size_t co
 
         os << "  #" << std::setw(2) << idx << ": " << addr << "  " << symbol << "\n";
     }
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "exception_manager::dumpBacktrace #2");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "exception_manager::dumpBacktrace #2");
 }
 
 void exception_manager::getBacktrace(std::ostringstream &oss, const size_t max)

@@ -117,6 +117,7 @@ void game::initGame()
 
     fps_manager.initialize();
 
+    is_game_started = true;
 }
 
 
@@ -300,7 +301,7 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 {
     int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, initial_pos_y, player1.get_size().width, player1.get_size().height);
 
-    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
+    std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
 
     player1.set_position(st_position(initial_pos_x, (first_unlocked_from_bottom+1)*TILESIZE-player1.get_size().height));
     player1.char_update_real_position();
@@ -312,15 +313,14 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 
 void game::show_player_teleport(int pos_x, int pos_y)
 {
-    //std::cout << "GAME::show_player_telport #2" << std::endl;
+    std::cout << "GAME::show_player_telport #2 - pos_x[" << pos_x << "], pos_y[" << pos_y << "], player.anim_type[" << player1.get_anim_type() << "], ANIM_TELEPORT[" << ANIM_TYPE_TELEPORT << "]" << std::endl;
 
     // find ground for player
     set_player_position_teleport_in(pos_x, pos_y);
     long end_time = timer.getTimer() + 1500;
 
-    //std::cout << "GAME::show_player_telport #2" << std::endl;
-
     while (timer.getTimer() < end_time) {
+        //std::cout << "GAME::show_player_telport - LOOP" << std::endl;
         loaded_stage.show_stage();
         loaded_stage.showAbove();
         if (player1.animation_has_restarted()) {
@@ -340,7 +340,7 @@ void game::show_player_teleport(int pos_x, int pos_y)
     //std::cout << "GAME::show_player_telport #4" << std::endl;
 
     show_ready();
-    //std::cout << "GAME::show_player_telport #5" << std::endl;
+    std::cout << "GAME::show_player_telport #5" << std::endl;
     // force stand to avoid gravity not doing it for any reason
     player1.set_animation_type(ANIM_TYPE_STAND);
     loaded_stage.show_stage();
@@ -407,6 +407,7 @@ void game::restart_stage()
         // find teleport stop point
         show_player_teleport(PLAYER_INITIAL_X_POS, -1);
     } else {
+        std::cout << "restart_stage - checkpoint.x[" <<checkpoint.x << "], checkpoint.y[" << checkpoint.y << "]" << std::endl;
         show_player_teleport(checkpoint.x, checkpoint.y);
     }
 
@@ -467,7 +468,7 @@ void game::show_beta_version_warning()
     timer.delay(100);
 
     graphLib.draw_centered_text(30, "-- BETA VERSION WARNING --", graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKDROID,");
+    graphLib.draw_centered_text(60, "THIS IS A TEST VERSION OF ROCKBOT,");
     graphLib.draw_centered_text(75, "IT DOES CONTAIN ERRORS AND IS NOT");
     graphLib.draw_centered_text(90, "COMPLETE MISSING SOME FEATURES.");
 
@@ -1341,7 +1342,7 @@ void game::exit_game()
 
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### GAME::exit_game ###");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### GAME::exit_game ###");
 #endif
 
 
@@ -1368,6 +1369,11 @@ void game::show_ending()
     draw_lib.show_credits(false);
 
     return_to_intro_screen();
+}
+
+bool game::game_started()
+{
+    return is_game_started;
 }
 
 void game::quick_load_game()
@@ -1401,7 +1407,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = CASTLE1_STAGE5;
+    currentStage = STAGE3;
 
 
     // DEBUG //
@@ -1415,6 +1421,14 @@ void game::quick_load_game()
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
     start_stage();
+
+    // UNIT-TEST //
+    //get_first_lock_on_bottom, x_pos[1799], y_pos[178], w[29], h[29]
+    std::cout << "#######################################################################" << std::endl;
+    int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
+    std::cout << "get_first_lock_on_bottom[" << lock_point << "]" << std::endl;
+    std::cout << "#######################################################################" << std::endl;
+
 
     //got_weapon();
 }
@@ -1511,7 +1525,7 @@ void game::set_player_anim_type(ANIM_TYPE anim_type)
 void game::show_player_at(int x, int y)
 {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### GAME::show_player_at[%d, %d] ###", x, y);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### GAME::show_player_at[%d, %d] ###", x, y);
 #endif
     //std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
     player1.show_at(st_position(x, y));

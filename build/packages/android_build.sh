@@ -107,14 +107,14 @@ case $response in
 		
 		# build release
 		sh ./build.sh rockdroid release
-		rm $ROCKDROIDDIR/Rockdroid_Android_$VERSIONNAME$demoName.apk
+		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME$demoName.apk
 		pwd
-		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_Rockdroid_Android_$VERSIONNAME$demoName.apk
+		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
-		zip -d $ROCKDROIDDIR/TEMP_Rockdroid_Android_$VERSIONNAME$demoName.apk META-INF/*
+		zip -d $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk META-INF/*
 		# assina e realinha o APK
-		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_Rockdroid_Android_$VERSIONNAME$demoName.apk alias_name
-		/home/iuri/Programas/android-studio/sdk/build-tools/26.0.2/zipalign -v 4 $ROCKDROIDDIR/TEMP_Rockdroid_Android_$VERSIONNAME$demoName.apk $ROCKDROIDDIR/Rockdroid_Android_$VERSIONNAME$demoName.apk
+		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk alias_name
+		/home/iuri/Programas/android-studio/sdk/build-tools/26.0.2/zipalign -v 4 $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME$demoName.apk
 		# copy mappings.txt so we can use for later debugging
 		#cp ./project/bin/proguard/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME$demoName.txt
 		cp ./project/app/build/outputs/mapping/release/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME$demoName.txt

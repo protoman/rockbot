@@ -434,7 +434,7 @@ namespace format_v4 {
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.read_stage: Could not read stage '%s'] ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.read_stage: Could not read stage '%s'] ###", filename.c_str());
 #endif
 
             fflush(stdout);
@@ -442,7 +442,7 @@ namespace format_v4 {
         }
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### file_io::read_stage, stage_n[%d]] ###", stage_n);
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### file_io::read_stage, stage_n[%d]] ###", stage_n);
 #endif
 
 
@@ -451,7 +451,7 @@ namespace format_v4 {
         if (read_result != 1) {
             std::cout << ">>file_io::read_game - Error reading struct data from stage file, read_result[" << read_result << "], expected[" << sizeof(struct format_v4::file_stage) << "]" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.read_stage:Error reading struct data from stage file ###");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.read_stage:Error reading struct data from stage file ###");
 #endif
             fflush(stdout);
             exit(-1);
@@ -665,121 +665,6 @@ namespace format_v4 {
         return read_directory_list(filename, true);
     }
 
-#ifdef PS2
-    // @TODO
-    /*
-    int file_io::listcdvd(const char *path, entries *FileEntry) {
-        static struct TocEntry TocEntryList[2048];
-        char dir[1025];
-        int i, n, t;
-
-        strcpy(dir, &path[5]);
-        // Directories first...
-
-        CDVD_FlushCache();
-        n = CDVD_GetDir(dir, NULL, CDVD_GET_DIRS_ONLY, TocEntryList, 2048, dir);
-
-        strcpy(FileEntry[0].filename, "..");
-        strcpy(FileEntry[0].displayname, "..");
-             FileEntry[0].dircheck = 1;
-        t = 1;
-
-        for (i=0; i<n; i++) {
-            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
-                continue; //Skip pseudopaths "." and ".."
-            }
-            FileEntry[t].dircheck = 1;
-            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
-            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
-            t++;
-
-            if (t >= 2046) {
-                break;
-            }
-         }
-
-        // Now files only
-
-        CDVD_FlushCache();
-        n = CDVD_GetDir(dir, NULL, CDVD_GET_FILES_ONLY, TocEntryList, 2048, dir);
-
-        for (i=0; i<n; i++) {
-            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
-                continue; //Skip pseudopaths "." and ".."
-            }
-            FileEntry[t].dircheck = 0;
-            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
-            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
-            t++;
-            if (t >= 2046) {
-                break;
-            }
-        }
-        return t;
-    }
-*/
-
-    void file_io::ps2_listfiles(std::string filepath, std::vector<std::string> &res) {
-        int n = 0;
-        entries *FileEntry;
-        iox_dirent_t buf;
-
-        // force because code crashed //
-        res.push_back("RockDroid2");
-        return;
-
-        printf(">>> file_io::ps2_listfiles::START <<<\n");
-
-        int dd = fioDopen(filepath.c_str());
-        if (dd < 0) {
-            printf(">>> file_io::ps2_listfiles::CHECK #1 <<<\n");
-            std::cout << "ps2_listfiles - Could not read directory" << std::endl;
-            return;
-        } else {
-            printf("Directory opened!\n");
-            printf(">>> file_io::ps2_listfiles::CHECK #2 <<<\n");
-
-            /*
-            //adds pseudo folder .. to every folder opened as mass: reported none but mc0: did
-            strcpy(FileEntry[0].filename,"..");
-            strcpy(FileEntry[0].displayname,"..");
-            FileEntry[0].dircheck = 1;
-            n=1;
-            */
-
-            printf(">>> file_io::ps2_listfiles::CHECK #3 <<<\n");
-
-            while (fileXioDread(dd, &buf) > 0) {
-                printf(">>> file_io::ps2_listfiles::CHECK #4 <<<\n");
-                if (buf.stat.mode & FIO_S_IFDIR && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
-                    printf(">>> file_io::ps2_listfiles::CHECK #5 <<<\n");
-                    continue;
-                }
-                printf(">>> file_io::ps2_listfiles::CHECK #6 <<<\n");
-                if (buf.stat.mode & FIO_S_IFDIR) {
-                    printf(">>> file_io::ps2_listfiles::CHECK #7 <<<\n");
-                    FileEntry[n].dircheck = 1;
-                    strcpy(FileEntry[n].filename, buf.name);
-                    res.push_back(std::string(FileEntry[n].filename));
-                    n++;
-                    printf(">>> file_io::ps2_listfiles::CHECK #8 <<<\n");
-                }
-
-                printf(">>> file_io::ps2_listfiles::CHECK #9 <<<\n");
-                if(n > 2046) {
-                    printf(">>> file_io::ps2_listfiles::CHECK #10 <<<\n");
-                    break;
-                }
-            }
-            if (dd >= 0) {
-                printf(">>> file_io::ps2_listfiles::CHECK #11 <<<\n");
-                fioDclose(dd);
-                printf("Directory closed!\n");
-            }
-            printf(">>> file_io::ps2_listfiles::CHECK #12 <<<\n");
-        }
-    }
-#endif
 
     // @TODO: make this work in multiplatform
     // http://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
@@ -792,10 +677,9 @@ namespace format_v4 {
         DIR *dir = opendir(filename.c_str());
 
 
-#ifndef PLAYSTATION2
         struct dirent *entry = readdir(dir);
 
-        while (entry != NULL) {
+        while (entry != nullptr) {
 
             //std::cout << ">>>>>>>>> entry->d_name: " << entry->d_name << std::endl;
 
@@ -805,9 +689,9 @@ namespace format_v4 {
                 std::string child_dir_path = filename + std::string("/") + dir_name;
                 child_dir = opendir (child_dir_path.c_str());
 
-                if (dir_only == true && child_dir != NULL) {
+                if (dir_only == true && child_dir != nullptr) {
                     res.push_back(dir_name);
-                } else if (dir_only == false && child_dir == NULL) {
+                } else if (dir_only == false && child_dir == nullptr) {
                     res.push_back(dir_name);
                 }
             }
@@ -816,17 +700,6 @@ namespace format_v4 {
         }
         closedir(dir);
 
-#else
-        res.push_back(std::string("RockDroid2"));
-        /*
-        if (filename.find("cdfs:") != std::string::npos) {
-            // @TODO
-            //ps2_listcdvd(filename, res);
-        } else {
-            ps2_listfiles(filename, res);
-        }
-        */
-#endif
         return res;
 
     }
@@ -908,6 +781,7 @@ namespace format_v4 {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(numbered_file) + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
 
+        //std::cout << ">>>>>>>>>>>>>>>>>>>> get_save_filename[" << filename << "]" << std::endl;
         return filename;
     }
 

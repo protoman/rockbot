@@ -12,7 +12,7 @@ QT       -= gui
 
 
 CONFIG += linux
-
+#CONFIG += win32
 
 # -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
@@ -26,20 +26,22 @@ CONFIG += linux
 
 CONFIG += console
 CONFIG -= app_bundle
-TARGET = rockdroid
+TARGET = rockbot
 
 linux {
-        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++
-
-        INCLUDES = -I/usr/include/SDL \
-                -I/usr/include \
-                -I. \
-                -I./include \
-                -L/usr/lib
-        QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
-        QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
+    LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++
+    INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+    QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
+    QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
 }
 
+win32 {
+    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\4.8.4\lib
+    INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+    QMAKE_CCFLAGS += -DWIN32 -DPC
+    QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\4.8.4\ -IC:\Qt\4.8.4\include -LC:\Qt\4.8.4\lib
+    CONFIG -= console
+}
 
 
 QMAKE_CXXFLAGS += $${DEFINESLIST}

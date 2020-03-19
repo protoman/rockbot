@@ -995,9 +995,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 
 int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
-
-    //std::cout << "get_first_lock_on_bottom, y_pos[" << y_pos << "]" << std::endl;
-
+    std::cout << "get_first_lock_on_bottom, x_pos[" << x_pos << "], y_pos[" << y_pos << "], w[" << w << "], h[" << h << "]" << std::endl;
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
     if (above_tiles_to_test < 2) { // at least two tiles above even for small npcs
@@ -1014,17 +1012,16 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
     }
 
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
-
-        //std::cout << "get_first_lock_on_bottom, i[" << i << "]" << std::endl;
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
+        std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "],above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
             // found a stop point, now check above tiles
             for (int j=i-1; j>=i-above_tiles_to_test; j--) {
                 for (int k=0; k<right_tiles_to_test; k++) {
                     int map_lock2 = getMapPointLock(st_position(tilex+k, j));
 
-                    //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
+                    std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
                     if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
                         found_bad_point = true;
                         break;
@@ -1035,7 +1032,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
                 }
             }
             if (found_bad_point == false) {
-                //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
+                std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
                 return i-1;
             }
         }
@@ -1053,7 +1050,7 @@ void classMap::drop_item(classnpc* npc_ref)
     srand(static_cast<unsigned int>(timer.getTimer()));
     //int rand_n = rand() % 100;
     int rand_n = static_cast<int> (100.0 * (rand() / (RAND_MAX + 1.0)));
-    std::cout << ">>>>>>> classMap::drop_item() - rand_n: " << rand_n << std::endl;
+    //std::cout << ">>>>>>> classMap::drop_item() - rand_n: " << rand_n << std::endl;
     DROP_ITEMS_LIST obj_type;
 
     // sub-bosses always will drop energy big
@@ -1574,12 +1571,12 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             // to enter platform, player.x+player.h must not be much higher than obj.y
             if (temp_blocked != 0) {
                 if (temp_obj.get_type() == OBJ_CHECKPOINT) {
-                    std::cout << "classMap::collision_char_object - CHECKPOINT" << std::endl;
+                    //std::cout << ">>>>>>>>>>>>>> classMap::collision_char_object - CHECKPOINT" << std::endl;
                     if (temp_obj.is_started() == false) {
                         temp_obj.start();
                     }
-                    checkpoint.x = charObj->getPosition().x;
-                    checkpoint.y = (charObj->getPosition().y+charObj->get_size().height-1);
+                    checkpoint.x = temp_obj.get_position().x;
+                    checkpoint.y = temp_obj.get_position().y + temp_obj.get_size().height + TILESIZE/2;
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
                     return;
@@ -2147,7 +2144,7 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
 {
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "MAP::spawn_map_npc, id[%d]", npc_id);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
 
     //std::cout << "$$$ MAP::SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;

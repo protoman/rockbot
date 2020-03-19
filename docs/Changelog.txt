@@ -1,10 +1,11 @@
-#######################################################################################################################
-- 1 e 2: às vezes, o diálogo de mudança de arma fica abaixo dos tiles (deve estar debaixo do nível 2 de tiles)
-- bug: phantom se teleportou para fora da sala no castelo5 (não deve estar verificando portas)
-- melhoria sprites de caminhada
-- não usar mais sprites de teleporte
-- refeitos sprites de rockbot
-- readicionada seleção de personagem
-- readicionada seleção de armas no menu de jogo
+- fix getting stuck in invalid place after dying and returning to checkpoint (thanks to Pix-el 64)
+- try to fix crash that happens sometimes when you open leave game outside the game (like save selection) and pick no
+- update the SDL version to check if it will fix the audio issue some users reported
+- change weapon menu to use directional icon to show how to change weapons
+- add music for walking player in the ending
+- bosses/sub-bosses need a greater invulnerability time after being hit
+- change android app icons
+- finished tileset change in Kurupira stage
 
-#######################################################################################################################
+
+- [PC] change window icon

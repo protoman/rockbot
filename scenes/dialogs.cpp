@@ -129,7 +129,9 @@ bool dialogs::show_yes_no_dialog(string lines[3])
     timer.delay(200);
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
-    gameControl.game_unpause();
+    if (res == false && gameControl.game_started()) {
+        gameControl.game_unpause();
+    }
 
     return res;
 }

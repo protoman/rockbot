@@ -331,6 +331,11 @@ void scenesLib::show_player_walking_ending()
     float player_speed = -0.2;
     float player_pos = RES_W + TILESIZE;
 
+    soundManager.stop_music();
+    soundManager.load_music("rockbot_end_animation.mod");
+    soundManager.play_music();
+
+
     graphLib.blank_screen();
     std::string filename = FILEPATH + "images/ending/player_walking_layer1.png";
     graphicsLib_gSurface bg1;
@@ -458,7 +463,7 @@ void scenesLib::ending_show_single_enemy(int id, std::string name)
 
     std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
 #endif
 
     int w = GameMediator::get_instance()->get_enemy(id)->frame_size.width;

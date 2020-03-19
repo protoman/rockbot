@@ -25,14 +25,14 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
    if (image->isNull()) {
       printf("DEBUG.Tile - Could not load image file '%s'\n", qPrintable(filename));
    }
-   QRectF target(QPoint(0, 0), image->size());
+   QRectF target(QPoint(0, 0), QSize(image->size().width()*2, image->size().height()*2));
    QRectF source(QPoint(0, 0), image->size());
    painter.drawPixmap(target, *image, source);
-   this->resize(image->size());
+   this->resize(image->size().width()*2, image->size().height()*2);
    myParent->adjustSize();
    // draw the selection marker
    painter.setPen(QColor(255, 0, 0));
-   QRectF select(QPoint((selectedTileX*16), (selectedTileY*16)), QSize(16, 16));
+   QRectF select(QPoint((selectedTileX*tilesize), (selectedTileY*tilesize)), QSize(tilesize, tilesize));
    painter.drawRect(select);
 }
 
@@ -44,8 +44,8 @@ void EditorTilePallete::changeTileSet(const QString &tileset) {
 
 void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
    QPoint pnt = event->pos();
-   selectedTileX = pnt.x()/16;
-   selectedTileY = pnt.y()/16;
+   selectedTileX = pnt.x()/tilesize;
+   selectedTileY = pnt.y()/tilesize;
    Mediator::get_instance()->setPalleteX(selectedTileX);
    Mediator::get_instance()->setPalleteY(selectedTileY);
    printf("DEBUG.EditorTilePallete::mousePressEvent - PalleteX: %d, palleteY: %d\n", selectedTileX, selectedTileY);

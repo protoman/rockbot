@@ -1332,9 +1332,9 @@ void object::start()
 	_started = true;
     _start_timer = timer.getTimer() + INITIAL_ACTIVATION_DELAY;
     _obj_frame_timer = timer.getTimer() + _frame_duration;
-    std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
+    //std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
-        std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
+        //std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
         if (type == OBJ_BOSS_DOOR) {
             _state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
             _teleport_state = 0;

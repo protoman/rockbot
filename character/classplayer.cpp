@@ -617,10 +617,10 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_HIT, 15, playerSpriteSurface, 100);
     addSpriteFrame(ANIM_TYPE_HIT, 16, playerSpriteSurface, 100);
 	// TELEPORT
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 200);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 100);
-    addSpriteFrame(ANIM_TYPE_TELEPORT, 3, playerSpriteSurface, 100);
-	// STAIRS
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 0, playerSpriteSurface, 200);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 1, playerSpriteSurface, 100);
+    addSpriteFrame(ANIM_TYPE_TELEPORT, 2, playerSpriteSurface, 100);
+    // STAIRS
     addSpriteFrame(ANIM_TYPE_STAIRS, 17, playerSpriteSurface, 5000);
 	// stairs semi
     addSpriteFrame(ANIM_TYPE_STAIRS_SEMI, 18, playerSpriteSurface, 5000);
@@ -764,8 +764,8 @@ void classPlayer::execute_projectiles()
 
                     (*it).reflect();        // HITAREA reflect
                     continue;
-                } else {
-                    std::cout << "### HIT-ENEMY VULNERABLE-AREA - enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
+//                } else {
+//                    std::cout << "### HIT-ENEMY VULNERABLE-AREA - enemy.pos.x[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().x << "], enemy.pos.y[" << gameControl.get_current_map_obj()->_npc_list.at(i).getPosition().y << "]";
                 }
 
                 short wpn_id = (*it).get_weapon_id();
@@ -791,7 +791,7 @@ void classPlayer::execute_projectiles()
                         multiplier = 1;
                     }
 
-                    std::cout << ">>>>>> weapon multiplier[" << multiplier << "], damage[" << (int)(*it).get_damage() << "]" << std::endl;
+                    //std::cout << ">>>>>> weapon multiplier[" << multiplier << "], damage[" << (int)(*it).get_damage() << "]" << std::endl;
 
                     gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
                 } else {
@@ -1249,7 +1249,7 @@ void classPlayer::damage_spikes(bool ignore_hit_timer)
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_SPIKESIMMMUNE) {
         std::cout << "################## SPIKES Immunity" << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "####### SPIKES Immunity #######");
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "####### SPIKES Immunity #######");
 #endif
         return;
     }

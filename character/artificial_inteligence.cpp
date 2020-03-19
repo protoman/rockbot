@@ -89,7 +89,7 @@ void artificial_inteligence::execute_ai()
             }
         }
 
-        std::cout << ">> SET INITIAL #2 <<" << std::endl;
+        //std::cout << ">> SET INITIAL #2 <<" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
         define_ai_next_step();
     } else {
@@ -186,7 +186,7 @@ void artificial_inteligence::define_ai_next_step()
         int rand_n = rand() % 100;
 
 
-        std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
+        //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
         int chance_sum = 0;
@@ -194,23 +194,23 @@ void artificial_inteligence::define_ai_next_step()
             //std::cout << "[" << name << "][" << i << "].chance: " << GameMediator::get_instance()->ai_list.at(_number).states[i].chance << ", chance_sum: " << chance_sum << std::endl;
             chance_sum += GameMediator::get_instance()->ai_list.at(_number).states[i].chance;
             if (rand_n < chance_sum) {
-                std::cout << "AI::define_ai_next_step[" << name << "] - FOUND CHANCE at [" << i << "]" << std::endl;
+                //std::cout << "AI::define_ai_next_step[" << name << "] - FOUND CHANCE at [" << i << "]" << std::endl;
                 _ai_chain_n = i;
                 found_chance = true;
                 break;
             }
         }
         if (found_chance == false) {
-            std::cout << "AI::define_ai_next_step[" << name << "] - no chance found, use ZERO as default" << std::endl;
+            //std::cout << "AI::define_ai_next_step[" << name << "] - no chance found, use ZERO as default" << std::endl;
             _ai_chain_n = 0;
         }
     } else {
-        std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
+        //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[BEFORE][" << (int)_ai_chain_n << "]" << std::endl;
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
         //std::cout << "AI::define_ai_next_step FORCE NEXT - _ai_chain_n[AFTER][" << (int)_ai_chain_n << "]" << std::endl;
     }
     _current_ai_type = get_ai_type();
-    std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
+    //std::cout << "AI::define_ai_next_step[" << name << "] _ai_chain_n: " << _ai_chain_n << ", _current_ai_type: " << _current_ai_type << std::endl;
     //std::cout << ">> SET INITIAL #4 <<" << std::endl;
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
 }
@@ -1173,7 +1173,7 @@ void artificial_inteligence::execute_ai_step_fly()
         must_show_dash_effect = false;
         previous_position_list.clear();
         if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
-            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER[INIT]" << std::endl;
+            //std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER[INIT]" << std::endl;
             struct_player_dist dist_players = dist_npc_players();
             _dest_point = dist_players.pObj->getPosition();
             must_show_dash_effect = true;
@@ -1264,7 +1264,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 state.direction = ANIM_DIRECTION_RIGHT;
             }
             _dest_point.x = dist_players.pObj->getPosition().x;
-            std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::x: " << _dest_point.x << std::endl;
+            //std::cout << "AI_ACTION_FLY_OPTION_TO_PLAYER_X::x: " << _dest_point.x << std::endl;
             _dest_point.y = position.y;
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
             struct_player_dist dist_players = dist_npc_players();
@@ -2092,7 +2092,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
             #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "AI::SPAWN, SET NEW BOSS");
+                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::SPAWN, SET NEW BOSS");
             #endif
             std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
             _is_stage_boss = false;
@@ -2103,7 +2103,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
 
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "AI::SPAWN, DONE");
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::SPAWN, DONE");
 #endif
 
 }

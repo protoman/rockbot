@@ -329,7 +329,7 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine4], "%s", "QUALQUER SEMELHANÇA É MERA");
             sprintf(lines[string_intro_engine5], "%s", "COINCIDÊNCIA OU HOMENAGEM");
             sprintf(lines[string_intro_engine6], "%s", "À JOGOS ANTIGOS OU ENGANO.");
-            sprintf(lines[string_intro_engine7], "%s", "ROCKDROID E UPPERLAND NÃO TEM");
+            sprintf(lines[string_intro_engine7], "%s", "ROCKBOT E UPPERLAND NÃO TEM");
             sprintf(lines[string_intro_engine8], "%s", "QUALQUER RELAÇÃO COM OUTRAS EMPRESAS.");
             sprintf(lines[string_intro_engine9], "%s", "ROCKBOT FOI REMOVIDO PELO GOOGLE");
             sprintf(lines[string_intro_engine10], "%s", "USUÁRIOS RELATANDO ELE COMO");
@@ -500,7 +500,7 @@ namespace format_v4 {
             sprintf(lines[string_intro_engine4], "%s", "SCRATCH. ANY SIMILARITIES");
             sprintf(lines[string_intro_engine5], "%s", "ARE A WAY OF TRIBUTE");
             sprintf(lines[string_intro_engine6], "%s", "TO OLD GAMES OR A MISTAKE.");
-            sprintf(lines[string_intro_engine7], "%s", "ROCKDROID AND UPPERLAND ARE NOT");
+            sprintf(lines[string_intro_engine7], "%s", "ROCKBOT AND UPPERLAND ARE NOT");
             sprintf(lines[string_intro_engine8], "%s", "RELATED TO ANY COMPANY OR GAMES.");
             sprintf(lines[string_intro_engine9], "%s", "GOOGLE REMOVED ROCKBOT DUE TO");
             sprintf(lines[string_intro_engine10], "%s", "USERS REPORTING IT AS");
@@ -683,12 +683,12 @@ namespace format_v4 {
         if (!fp.is_open()) {
             std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
 #endif
             return res;
         } else {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file file [%s] loaded. ###", filename.c_str());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file file [%s] loaded. ###", filename.c_str());
 #endif
         }
 
@@ -696,7 +696,7 @@ namespace format_v4 {
 
         while (getline(fp, str)) {
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file::read.str[%s], res.size[%d]. ###", str.c_str(), res.size());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file::read.str[%s], res.size[%d]. ###", str.c_str(), res.size());
 #endif
 
             if (str.length() > 0) {
@@ -708,7 +708,7 @@ namespace format_v4 {
         fp.close();
 
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKDROID2 ###", "### ERROR.fio_strings::get_string_list_from_file res.size[%d]. ###", res.size());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file res.size[%d]. ###", res.size());
 #endif
 
         return res;

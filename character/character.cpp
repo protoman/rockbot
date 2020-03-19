@@ -780,7 +780,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
 
     if (attack_id != -1) {
-        std::cout << "character::attack - attack_id: " << attack_id << std::endl;
+        //std::cout << "character::attack - attack_id: " << attack_id << std::endl;
 
         //if (!is_player()) { std::cout << "CHAR::attack::attack_id: " << attack_id << std::endl; }
         if (attack_id == _charged_shot_projectile_id || attack_id == game_data.semi_charged_projectile_id) {
@@ -1159,7 +1159,7 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
 {
 
     if (frame_n < 0) {
-        std::cout << "ERROR::haracter::get_current_frame_surface - negative frame-n" << std::endl;
+        std::cout << "ERROR::character::get_current_frame_surface - negative frame-n" << std::endl;
         frame_n = 0;
     }
 
@@ -2198,7 +2198,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 /*
 #ifdef ANDROID
         if (is_player() == false) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKDROID2###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
         }
 #endif
 
@@ -3141,7 +3141,7 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
-    //std::cout << "################## CHAR::fall_to_ground START" << std::endl;
+    std::cout << "################## CHAR::fall_to_ground START" << std::endl;
     _obj_jump.finish();
     if (hit_ground() == true) {
         return;
@@ -3150,13 +3150,13 @@ void character::fall_to_ground()
         char_update_real_position();
         position.y++;
         if (position.y >= RES_H/2 && hit_ground() == true) {
-            //std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
+            std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
             return;
         } else {
-            //std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
+            std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
         }
     }
-    //std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
+    std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
 void character::initialize_position_to_ground()

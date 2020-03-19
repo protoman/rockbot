@@ -2,7 +2,7 @@
 #define FILE_MAP_H
 
 #include "../format/st_common.h"
-#include "../defines.h"
+#include "defines.h"
 
 #define MAP_BACKGROUND_COUNT 2
 
