@@ -287,7 +287,7 @@ struct graphicsLib_gSurface {
 
         graphicsLib_gSurface()
         {
-            gSurface = nullptr;
+            gSurface = NULL;
             width = 0;
             height = 0;
             persistent = false;
@@ -301,7 +301,7 @@ struct graphicsLib_gSurface {
         {
 
             if (original.width == 0 || original.height == 0) {
-                gSurface = nullptr;
+                gSurface = NULL;
                 width = 0;
                 height = 0;
                 persistent = false;
@@ -324,7 +324,7 @@ struct graphicsLib_gSurface {
                     // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
-                    gSurface = nullptr;
+                    gSurface = NULL;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
@@ -335,7 +335,7 @@ struct graphicsLib_gSurface {
         {
             SDL_Surface* sdl_surface_ref = original.gSurface;
             if (original.width == 0 || original.height == 0) {
-                gSurface = nullptr;
+                gSurface = NULL;
                 width = 0;
                 height = 0;
                 persistent = false;
@@ -357,7 +357,7 @@ struct graphicsLib_gSurface {
                     // copy surface
                     gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
-                    gSurface = nullptr;
+                    gSurface = NULL;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
@@ -366,7 +366,7 @@ struct graphicsLib_gSurface {
 
         ~graphicsLib_gSurface()
         {
-            setbuf(stdout, nullptr);
+            setbuf(stdout, NULL);
             freeGraphic();
             colorkey1_points.clear();
             colorkey2_points.clear();

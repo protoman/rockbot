@@ -14,6 +14,8 @@ QT       -= gui
 CONFIG += linux
 #CONFIG += win32
 
+#DEFINES+= ANDROID=1
+
 # -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
@@ -42,6 +44,7 @@ win32 {
     QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\4.8.4\ -IC:\Qt\4.8.4\include -LC:\Qt\4.8.4\lib
     CONFIG -= console
 }
+
 
 
 QMAKE_CXXFLAGS += $${DEFINESLIST}

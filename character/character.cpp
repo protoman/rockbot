@@ -2030,7 +2030,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != nullptr) {
+        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
 
             //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
@@ -3255,7 +3255,7 @@ int character::change_position_y(short yinc)
 
 bool character::test_change_position(short xinc, short yinc)
 {
-    if (gameControl.get_current_map_obj() == nullptr) {
+    if (gameControl.get_current_map_obj() == NULL) {
         return false;
     }
     if (yinc < 0 && position.y < 0) {

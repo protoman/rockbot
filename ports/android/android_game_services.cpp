@@ -122,7 +122,7 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_b.w = button_w;
        pos_button_b.h = button_h;
        check_button_size(pos_button_b, original_pos_a);
-       pos_button_b.x = pos_button_a.x - button_w/1.5;
+       pos_button_b.x = pos_button_a.x - button_w*1.0;
        pos_button_b.y = pos_button_a.y;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_1, &pos_button_b);
 
@@ -133,7 +133,7 @@ void android_game_services::set_android_default_buttons_size(int size)
        pos_button_x.h = button_h;
        check_button_size(pos_button_x, original_pos_a);
        pos_button_x.x = pos_button_a.x;
-       pos_button_x.y = pos_button_a.y - button_h/1.5;
+       pos_button_x.y = pos_button_a.y - button_h*1.0;
        SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_2, &pos_button_x);
 
 

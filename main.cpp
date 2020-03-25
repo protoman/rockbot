@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
         mkdir(SAVEPATH.c_str(), 0777);
         //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;
     #elif WIN32
-        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockbot";
+        SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
         std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
         _mkdir(SAVEPATH.c_str());
     #else

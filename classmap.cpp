@@ -1478,7 +1478,7 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
 void classMap::collision_char_object(character* charObj, const float x_inc, const short int y_inc)
 {
     int blocked = 0;
-    object* res_obj = nullptr;
+    object* res_obj = NULL;
 
     //if (y_inc < 0) std::cout << "MAP::collision_player_object - y_inc: " << y_inc << std::endl;
 
@@ -1492,7 +1492,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     //std::cout << ">>>>>>>>> CLASSMAP::collision-player-object, char_rect.y[" << char_rect.y << "]" << std::endl;
 
     /// @TODO: isso aqui deveria mesmo estar aqui?
-    if (charObj->get_platform() == nullptr) {
+    if (charObj->get_platform() == NULL) {
         for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
             object& temp_obj = (*it);
 

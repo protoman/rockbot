@@ -679,7 +679,7 @@ namespace format_v4 {
 
         struct dirent *entry = readdir(dir);
 
-        while (entry != nullptr) {
+        while (entry != NULL) {
 
             //std::cout << ">>>>>>>>> entry->d_name: " << entry->d_name << std::endl;
 
@@ -689,9 +689,9 @@ namespace format_v4 {
                 std::string child_dir_path = filename + std::string("/") + dir_name;
                 child_dir = opendir (child_dir_path.c_str());
 
-                if (dir_only == true && child_dir != nullptr) {
+                if (dir_only == true && child_dir != NULL) {
                     res.push_back(dir_name);
-                } else if (dir_only == false && child_dir == nullptr) {
+                } else if (dir_only == false && child_dir == NULL) {
                     res.push_back(dir_name);
                 }
             }
