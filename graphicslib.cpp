@@ -147,6 +147,7 @@ bool graphicsLib::initGraphics()
 #endif
 
     filename = GAMEPATH + std::string("/fonts/kapel.ttf");
+    filename = StringUtils::clean_filename(filename);
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());

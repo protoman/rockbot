@@ -11,8 +11,8 @@ QT       -= gui
 
 
 
-CONFIG += linux
-#CONFIG += win32
+#CONFIG += linux
+CONFIG += win32
 
 #DEFINES+= ANDROID=1
 
@@ -38,7 +38,8 @@ linux {
 }
 
 win32 {
-    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\4.8.4\lib
+    DEFINES += WIN32
+    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\4.8.4\lib -L/usr/lib -L/usr/lib/x86 -LC:\MinGW\lib -LC:\MinGW\lib\x86
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -DWIN32 -DPC
     QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\4.8.4\ -IC:\Qt\4.8.4\include -LC:\Qt\4.8.4\lib

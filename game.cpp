@@ -68,6 +68,7 @@ extern fps_control fps_manager;
 // ********************************************************************************************** //
 game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
 {
+    is_game_started = false;
     currentStage = INTRO_STAGE;
 	_frame_duration = 1000/80; // each frame must use this share of time
     invencible_old_value = false;

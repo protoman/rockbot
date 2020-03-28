@@ -301,7 +301,7 @@ private:
 
     std::vector<st_position> map_interstage_points;
 
-    bool is_game_started = false;
+    bool is_game_started;
 
 #ifdef PSP
     psp_ram _ram_counter;
