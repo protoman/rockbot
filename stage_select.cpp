@@ -315,38 +315,38 @@ int stage_select::pick_stage(int stage_n)
 
     graphLib.showSurface(&background);
 
-    graphLib.draw_text(22, 12, "[PICK A MISSION]", graphLib.gameScreen);
+    graphLib.draw_text(22, 4, "[PICK A MISSION]", graphLib.gameScreen);
 
     short text_pos_y = 222;
     graphLib.draw_text(26, text_pos_y, "[SELECT]", st_color(250, 250, 250));
     graphLib.draw_text(189, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, game_config.selected_language), st_color(250, 250, 250));
 
+    std::vector<std::string> boss_name_list;
 
     for (int i=INTRO_STAGE; i<=STAGE8; i++) {
         fio.read_stage(temp_stage_data, i);
         std::string stage_name(temp_stage_data.name);
         std::string boss_name(temp_stage_data.boss.name);
+        boss_name_list.push_back(boss_name);
         if (game_save.stages[i] == 0) {
-            graphLib.draw_text(22, 14*i+50, stage_name, st_color(230, 230, 122));
+            graphLib.draw_text(22, 14*i+22, stage_name, st_color(230, 230, 122));
         } else {
-            graphLib.draw_text(22, 14*i+50, stage_name, graphLib.gameScreen);
+            graphLib.draw_text(22, 14*i+22, stage_name, graphLib.gameScreen);
         }
     }
-    if (can_access_castle) {
-        for (int i=CASTLE1_STAGE1; i<=max_stage; i++) {
-            fio.read_stage(temp_stage_data, i);
-            std::string stage_name(temp_stage_data.name);
-            std::string boss_name(temp_stage_data.boss.name);
+    for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
+        fio.read_stage(temp_stage_data, i);
+        std::string stage_name(temp_stage_data.name);
+        std::string boss_name(temp_stage_data.boss.name);
+        boss_name_list.push_back(boss_name);
+        if (can_access_castle && i<= max_stage) {
             if (game_save.stages[i] == 0) {
-                graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, st_color(230, 230, 122));
+                graphLib.draw_text(RES_W/2+22, 14*(i-9)+22, stage_name, st_color(230, 230, 122));
             } else {
-                graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, graphLib.gameScreen);
+                graphLib.draw_text(RES_W/2+22, 14*(i-9)+22, stage_name, graphLib.gameScreen);
             }
         }
     }
-
-    // draw boss info
-    //graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, graphLib.gameScreen);
 
     graphLib.updateScreen();
 
@@ -399,10 +399,18 @@ int stage_select::pick_stage(int stage_n)
         graphLib.showSurfaceRegionAt(&background, st_rectangle(RES_W/2, 0, 20, RES_H), st_position(RES_W/2, 0));
 
 
-        int cursorY = 14*stage_n+50;
+        int cursorY = 14*stage_n+22;
         if (stage_n > STAGE8) {
-            cursorY = 14*(stage_n-9)+50;
+            cursorY = 14*(stage_n-9)+22;
         }
+
+        // draw boss info
+        graphLib.showSurfaceRegionAt(&background, st_rectangle(20, 160, 200, 20), st_position(20, 160));
+        char bossname[512];
+        sprintf(bossname, "BOSS: %s", boss_name_list.at(stage_n).c_str());
+        graphLib.draw_text(22, 165, std::string(bossname), graphLib.gameScreen);
+
+
         graphLib.draw_text(cursorX, cursorY, ">", graphLib.gameScreen);
         graphLib.updateScreen();
     }

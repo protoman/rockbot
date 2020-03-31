@@ -1,6 +1,4 @@
-﻿- relatos que a seleção de player esta mudando para um personagem que não o escolhido (pick beta, goes rock)
-
-- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
+﻿- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
 
 - problemas de audio em alguns aparelhos (?)
     # tentei aumentar tamanho do buffer de audio para 4096

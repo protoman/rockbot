@@ -4,6 +4,10 @@
 - ANDROID: increase spacing for buttons
 - increase audio buffer size
 - removido backgrund de NPC, já que não era usado
+- update 1up icon in RockBot2
+- change prision graphics (it is original, but too close, people might mistake)
+- remove background graphics in NPC that is not used anymore
+- corrigido problema que fazia setar sempre o player 1 ao carregar save
 
 ####################################################################################################################################
 
