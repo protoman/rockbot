@@ -2,8 +2,8 @@
 # Project created by QtCreator 2009-12-03T12:16:29
 # -------------------------------------------------
 
-CONFIG += win32
-#CONFIG += linux
+#CONFIG += win32
+CONFIG += linux
 #CONFIG += macosx
 
 QT += widgets

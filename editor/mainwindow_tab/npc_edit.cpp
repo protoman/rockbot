@@ -42,7 +42,6 @@ void npc_edit::fill_data()
     }
 	_data_loading = true;
     common::fill_files_combo("images/sprites/enemies", ui->npc_edit_tab_graphiccombo);
-    common::fill_files_combo("images/sprites/enemies/backgrounds", ui->backgroundFileComboBox);
 
     common::fill_npc_combo(ui->npc_edit_tab_selectnpccombo);
     common::fill_weapons_names_combo(ui->npc_edit_tab_weakness_list);
@@ -53,7 +52,6 @@ void npc_edit::fill_data()
         ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+std::string(Mediator::get_instance()->enemy_list.at(0).graphic_filename));
         // BACKGROUND //
         std::cout << ">>>>> BACKGROUND[" << Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename << "]" << std::endl;
-        ui->backgroundFileComboBox->setCurrentIndex(ui->backgroundFileComboBox->findText(QString(Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename)));
         ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+std::string(Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename));
         ui->sprite_pos_x->setValue(Mediator::get_instance()->enemy_list.at(0).sprites_pos_bg.x);
         ui->sprite_pos_y->setValue(Mediator::get_instance()->enemy_list.at(0).sprites_pos_bg.y);
@@ -131,11 +129,6 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
         ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(image_filename.c_str())));
     }
 
-    // BACKGROUND FILE //
-    std::string bg_graphic_filename(Mediator::get_instance()->enemy_list.at(index).bg_graphic_filename);
-    if (bg_graphic_filename.length() > 0) {
-        ui->backgroundFileComboBox->setCurrentIndex(ui->backgroundFileComboBox->findText(QString(bg_graphic_filename.c_str())));
-    }
     ui->sprite_pos_x->setValue(Mediator::get_instance()->enemy_list.at(index).sprites_pos_bg.x);
     ui->sprite_pos_y->setValue(Mediator::get_instance()->enemy_list.at(index).sprites_pos_bg.y);
 
@@ -751,13 +744,3 @@ void npc_edit::on_pushButton_2_clicked()
     }
 }
 
-void npc_edit::on_backgroundFileComboBox_currentIndexChanged(const QString &arg1)
-{
-    if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
-        return;
-    }
-    sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).bg_graphic_filename, "%s", arg1.toStdString().c_str());
-    ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+arg1.toStdString());
-    add_frame_one();
-    ui->npc_edit_tab_previewarea->repaint();
-}

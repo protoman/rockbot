@@ -326,16 +326,28 @@ int stage_select::pick_stage(int stage_n)
         fio.read_stage(temp_stage_data, i);
         std::string stage_name(temp_stage_data.name);
         std::string boss_name(temp_stage_data.boss.name);
-        graphLib.draw_text(22, 14*i+50, stage_name, graphLib.gameScreen);
+        if (game_save.stages[i] == 0) {
+            graphLib.draw_text(22, 14*i+50, stage_name, st_color(230, 230, 122));
+        } else {
+            graphLib.draw_text(22, 14*i+50, stage_name, graphLib.gameScreen);
+        }
     }
     if (can_access_castle) {
         for (int i=CASTLE1_STAGE1; i<=max_stage; i++) {
             fio.read_stage(temp_stage_data, i);
             std::string stage_name(temp_stage_data.name);
             std::string boss_name(temp_stage_data.boss.name);
-            graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, graphLib.gameScreen);
+            if (game_save.stages[i] == 0) {
+                graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, st_color(230, 230, 122));
+            } else {
+                graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, graphLib.gameScreen);
+            }
         }
     }
+
+    // draw boss info
+    //graphLib.draw_text(RES_W/2+22, 14*(i-9)+50, stage_name, graphLib.gameScreen);
+
     graphLib.updateScreen();
 
     timer.delay(200);

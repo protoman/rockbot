@@ -37,10 +37,6 @@ private:
     void unload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)
     void unload_stage_select();
 
-
-
-
-    void config_int_value(Uint8 &value_ref, int min, int max);
     Uint8 select_difficulty();
     short select_save(bool is_new_game);
     void draw_save_details(int n, format_v4::st_save save);

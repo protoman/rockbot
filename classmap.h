@@ -256,7 +256,6 @@ private:
     graphicsLib_gSurface* get_dynamic_bg();
 
     graphicsLib_gSurface* get_dynamic_foreground();
-    void set_map_enemy_static_background(std::string filename, st_position pos);
 
 
 

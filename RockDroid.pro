@@ -11,11 +11,11 @@ QT       -= gui
 
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
 #CONFIG += playstation2
-CONFIG += dingux
+#CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast

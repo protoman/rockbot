@@ -406,11 +406,11 @@ void game_menu::show_config_audio()
                 soundManager.disable_sound();
             }
         } else if (selected_option == 1) {
-            config_int_value(game_config.volume_music, 1, 128);
+            game_config.volume_music = config_int_value(game_config.volume_music, 1, 128);
             soundManager.update_volumes();
             fio.save_config(game_config);
         } else if (selected_option == 2) {
-            config_int_value(game_config.volume_sfx, 1, 128);
+            game_config.volume_sfx = config_int_value(game_config.volume_sfx, 1, 128);
             soundManager.update_volumes();
             fio.save_config(game_config);
         }
@@ -590,7 +590,7 @@ void game_menu::show_config_extras()
     }
 }
 
-void game_menu::config_int_value(Uint8 &value_ref, int min, int max)
+int game_menu::config_int_value(int initial_value, int min, int max)
 {
     int config_text_pos_x = graphLib.get_config_menu_pos().x + 24;
     int config_text_pos_y = graphLib.get_config_menu_pos().y + 40;
@@ -605,33 +605,42 @@ void game_menu::config_int_value(Uint8 &value_ref, int min, int max)
     while (true) {
         input.read_input();
 
-        if (value_ref < 10) {
-            sprintf(value, "00%d", value_ref);
-        } else if (value_ref < 100) {
-            sprintf(value, "0%d", value_ref);
+        if (initial_value < 10) {
+            sprintf(value, "00%d", initial_value);
+        } else if (initial_value < 100) {
+            sprintf(value, "0%d", initial_value);
         } else {
-            sprintf(value, "%d", value_ref);
+            sprintf(value, "%d", initial_value);
         }
         graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
+
+        std::cout << "game_menu::config_int_value #1 - value_ref[" << (int)initial_value << "]" << std::endl;
+
         if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
             break;
         } else if (input.p1_input[BTN_LEFT] == 1) {
-            value_ref--;
+            initial_value--;
         } else if (input.p1_input[BTN_RIGHT] == 1) {
-            value_ref++;
+            initial_value++;
         }
-        if (value_ref < min) {
-            value_ref = min;
+
+        std::cout << "game_menu::config_int_value #2 - value_ref[" << (int)initial_value << "]" << std::endl;
+
+        if (initial_value < min) {
+            initial_value = min;
         }
-        if (value_ref > max) {
-            value_ref = max;
+        if (initial_value > max) {
+            initial_value = max;
         }
+
+        std::cout << "game_menu::config_int_value #3 - value_ref[" << (int)initial_value << "]" << std::endl;
+
         input.clean();
         timer.delay(10);
         draw_lib.update_screen();
     }
-
+    return initial_value;
 }
 
 void game_menu::music_player()

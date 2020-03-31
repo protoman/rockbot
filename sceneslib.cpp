@@ -193,8 +193,6 @@ void scenesLib::main_screen()
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
                     fio.read_save(game_save, gameControl.get_current_save_slot());
-                    // FIX to avoid old-save //
-                    game_save.selected_player = PLAYER_1;
                     repeat_menu = false;
                 }
             } else {

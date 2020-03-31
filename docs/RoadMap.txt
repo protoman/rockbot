@@ -1,7 +1,12 @@
-﻿- checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
+﻿- relatos que a seleção de player esta mudando para um personagem que não o escolhido (pick beta, goes rock)
 
-GAME::show_player_telport #2 - pos_x[1799], pos_y[224], player.anim_type[4], ANIM_TELEPORT[4]
-- atualizar ícone de app no android (ver pq após instalar o 2, ficaram ambos com o mesmo ícone tb)
+- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
+
+- problemas de audio em alguns aparelhos (?)
+    # tentei aumentar tamanho do buffer de audio para 4096
+
+- checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
+    # somente plataformas devem colidir com jogador
 
 - inimigos param de atirar após um tempo (? feedback de usuário, não consegui entender)
 
@@ -17,4 +22,9 @@ GAME::show_player_telport #2 - pos_x[1799], pos_y[224], player.anim_type[4], ANI
 
 - criar intro em texto (soldado e blá blá blá), apenas em new game
 
-- problemas de audio em alguns aparelhos (?)
+
+##########################################
+BACKPORT FIREFLY:
+##########################################
+- Audio 44khz/buffer 4096
+- Config integer-value method

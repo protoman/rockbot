@@ -1,3 +1,12 @@
+####################################################################################################################################
+
+- value picker fix for volumes setting
+- ANDROID: increase spacing for buttons
+- increase audio buffer size
+- removido backgrund de NPC, já que não era usado
+
+####################################################################################################################################
+
 - fix getting stuck in invalid place after dying and returning to checkpoint (thanks to Pix-el 64)
 - try to fix crash that happens sometimes when you open leave game outside the game (like save selection) and pick no
 - update the SDL version to check if it will fix the audio issue some users reported

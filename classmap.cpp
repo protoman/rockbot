@@ -565,11 +565,6 @@ void classMap::load_map_npcs()
             }
             new_npc.init_animation();
 
-            std::string static_bg(GameMediator::get_instance()->get_enemy(npc_ic)->bg_graphic_filename);
-            if (new_npc.is_static() && static_bg.length() > 0) {
-                set_map_enemy_static_background(FILEPATH + std::string("images/sprites/enemies/backgrounds/") + static_bg, new_npc.get_bg_position());
-            }
-
             _npc_list.push_back(new_npc); // insert new npc at the list-end
             //std::cout << "(A) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
 
@@ -797,18 +792,6 @@ bool classMap::must_show_static_bg()
     }
     return false;
 }
-
-void classMap::set_map_enemy_static_background(string filename, st_position pos)
-{
-    if (static_bg.is_null() == false) {
-        static_bg.freeGraphic();
-    }
-    if (filename.length() > 0) {
-        graphLib.surfaceFromFile(filename, &static_bg);
-    }
-    static_bg_pos = pos;
-}
-
 
 
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)

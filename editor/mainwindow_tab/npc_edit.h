@@ -17,7 +17,7 @@ public:
     void reload();
 
 private slots:
-	void on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index);
+    void on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index);
 
 	void on_npc_edit_tab_graphiccombo_currentIndexChanged(const QString &arg1);
 
@@ -99,8 +99,6 @@ private slots:
 
     void on_pushButton_2_clicked();
 
-    void on_backgroundFileComboBox_currentIndexChanged(const QString &arg1);
-
 private:
 	void fill_data();
 
@@ -113,7 +111,7 @@ public slots:
 
 private:
     Ui::npc_edit *ui;
-	int _npcedit_tab_selectednpc;
+    unsigned int _npcedit_tab_selectednpc;
 	int _npcedit_tab_selected_weakness_weapon;
 	bool _data_loading; // prevents "on_change" happening while data is being filled in
     bool _ignore_spritelist_row_changed;

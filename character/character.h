@@ -244,7 +244,6 @@ protected:
     void add_graphic();
     virtual void death() = 0;
     bool have_frame_graphics();
-    bool have_background_graphics();
     bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
     bool is_in_stairs_frame() const; // indicates if the character is on some of the STAIRS animation types
     bool is_on_attack_frame();

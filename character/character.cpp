@@ -990,11 +990,6 @@ void character::show_at(st_position pos)
         _is_attack_frame = false;
     }
 
-    // show background, if any
-    if (have_background_graphics() == true) {
-        graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), pos, false);
-    }
-
     // only advance if time for the current frame has finished
     advance_frameset();
 
@@ -2589,17 +2584,6 @@ void character::clean_character_graphics_list()
         graphLib.character_graphics_list.erase(it);
     }
 }
-
-bool character::have_background_graphics()
-{
-    static std::map<std::string, graphicsLib_gSurface>::iterator it;
-    it = graphLib.character_graphics_background_list.find(name);
-    if (it != graphLib.character_graphics_background_list.end()) { // there is no graphic with this key yet, add it
-        return true;
-    }
-    return false;
-}
-
 
 
 
