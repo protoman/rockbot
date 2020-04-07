@@ -196,7 +196,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "ARQUIVO ESTÁ PROTEGIDO PARA GRAVACAO.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2019 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "CONTROLE");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -367,7 +367,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2019 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "INPUT");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");

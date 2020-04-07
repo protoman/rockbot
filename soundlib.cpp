@@ -233,7 +233,7 @@ void soundLib::load_all_sfx() {
 void soundLib::load_music(std::string music_file) {
 	string filename;
 
-	unload_music();
+    unload_music();
     filename = FILEPATH + "music/" + music_file;
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
@@ -281,8 +281,8 @@ void soundLib::load_boss_music(string music_file) {
 void soundLib::unload_music()
 {
 	if (music != NULL) {
-		Mix_HaltMusic();
-		Mix_FreeMusic(music);
+        Mix_HaltMusic();
+        Mix_FreeMusic(music);
 		music = NULL;
 	}
     is_playing_boss_music = false;

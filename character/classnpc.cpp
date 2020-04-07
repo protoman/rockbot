@@ -324,7 +324,7 @@ int classnpc::get_parent_id()
 
 void classnpc::reset_timers()
 {
-    reset_sprite_animation_timer();
+    character::reset_sprite_animation_timer();
 }
 
 bool classnpc::is_static()

@@ -319,7 +319,7 @@ void classPlayer::attack(bool dont_update_colors)
 
         if (game_config.auto_charge_mode) {
             if (moveCommands.attack == 1) {
-                std::cout << "auto-charge-attack" << std::endl;
+                //std::cout << "auto-charge-attack" << std::endl;
                 moveCommands.attack = 0;
                 attack_button_released = true;
             } else {

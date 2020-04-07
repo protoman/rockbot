@@ -1098,7 +1098,18 @@ void character::reset_sprite_animation_timer()
         state.animation_timer = timer.getTimer() + 180;
     } else {
         short direction = ANIM_DIRECTION_RIGHT;
-        int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+
+        int delay = 100;
+        if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
+            if (direction < CHAR_ANIM_DIRECTION_COUNT) {
+                if (state.animation_type < ANIM_TYPE_COUNT) {
+                    if (state.animation_state < ANIM_FRAMES_COUNT) {
+                        delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+                    }
+                }
+            }
+        }
+
         state.animation_timer = timer.getTimer() + delay;
     }
 }

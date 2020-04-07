@@ -9,19 +9,6 @@ then
     exit
 fi
 
-demoName=""
-demoFullName=""
-
-if [ "$version_number" == "2" ]
-then
-    read -r -p "Build demo version (d) or full (f)? " demo_mode
-    if [ "$demo_mode" == "d" ]
-    then
-        demoName="Demo"
-        demoFullName="demo"
-    fi
-fi
-
 VERSIONNAME=`cat version_name_v$version_number.txt`
 
 export ANDROID_SDK_ROOT=$ANDROIDSDK
@@ -46,10 +33,10 @@ case $response in
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
 		cd ./Android/data
-		zip -r ../data_$VERSIONNAME$demoName.zip ./fonts ./games ./shared
+		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
 		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/*.zip
-		cp ./data_$VERSIONNAME$demoName.zip $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/
+		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/
 		#rm $ANDROIDSDK/rockbot_build/project/jni/application/src/libapplication.so
 		#rm $ANDROIDSDK/rockbot_build/project/obj/local/armeabi/libapplication.so
 		#rm $ANDROIDSDK/rockbot_build/project/libs/armeabi/libapplication.so
@@ -87,13 +74,13 @@ case $response in
                     return
 		fi
 		
-		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME$demoName.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
+		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" AndroidAppSettings.cfg > AndroidAppSettings.cfg.temp1
 		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
-		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockdroid$version_number$demoName\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
+		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockdroid$version_number\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
 		if [ "$version_number" == "1" ]; then
                     sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
                 else
-                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number$demoFullName" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
+                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
                 fi
 		
 		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
@@ -103,21 +90,21 @@ case $response in
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
 		sh ./build.sh rockdroid debug
-		#cp ./project/jni/application/rockdroid/libapplication-armeabi.so $ROCKDROIDDIR/libapplication-armeabi_$VERSIONNAME$demoName.so
+		#cp ./project/jni/application/rockdroid/libapplication-armeabi.so $ROCKDROIDDIR/libapplication-armeabi_$VERSIONNAME.so
 		
 		# build release
 		sh ./build.sh rockdroid release
-		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME$demoName.apk
+		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
 		pwd
-		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk
+		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk
 		# remove as assinaturas do Android (caso haja alguma, por engano)
-		zip -d $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk META-INF/*
+		zip -d $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk META-INF/*
 		# assina e realinha o APK
-		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk alias_name
-		/home/iuri/Programas/android-studio/sdk/build-tools/26.0.2/zipalign -v 4 $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME$demoName.apk $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME$demoName.apk
+		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk alias_name
+		/home/iuri/Programas/android-studio/sdk/build-tools/26.0.2/zipalign -v 4 $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
 		# copy mappings.txt so we can use for later debugging
-		#cp ./project/bin/proguard/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME$demoName.txt
-		cp ./project/app/build/outputs/mapping/release/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME$demoName.txt
+		#cp ./project/bin/proguard/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME.txt
+		cp ./project/app/build/outputs/mapping/release/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME.txt
 		;;
 	*)
 		echo "Aborted."

@@ -37,10 +37,10 @@ CONFIG -= app_bundle
 TARGET = rockbot
 
 linux {
-    LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++
+    LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
-    QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
-    QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type
+    QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
+    QMAKE_CXXFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
 }
 
 win32 {

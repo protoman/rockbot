@@ -517,24 +517,32 @@ void game::show_notice()
     graphicsLib_gSurface upperland_surface;
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/upperland.png", &upperland_surface);
 
-    st_position logo_pos(RES_W/2 - (upperland_surface.width/6)/2, RES_H/2 - upperland_surface.height/2);
+    graphicsLib_gSurface jmd_surface;
+    graphLib.surfaceFromFile(GAMEPATH + "/shared/images/jmd_logo.png", &jmd_surface);
+
+    st_position upperland_logo_pos(RES_W/2 - (upperland_surface.width/6)/2, 20);
 
 
-    graphLib.draw_centered_text(logo_pos.y + upperland_surface.height + 7, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
-    graphLib.draw_centered_text(logo_pos.y + upperland_surface.height + 19, strings_map::get_instance()->get_ingame_string(string_intro_presents, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 2, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+
+    graphLib.copyArea(st_rectangle(0, 0, jmd_surface.width, jmd_surface.height), st_position(RES_W/2-(jmd_surface.width/2), 80), &jmd_surface, &graphLib.gameScreen);
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 76, "JMD AMIGA MUSIC", graphLib.gameScreen, st_color(199, 215, 255));
+
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 110, strings_map::get_instance()->get_ingame_string(string_intro_presents, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
 
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
-    graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(220, "HTTP://ROCKBOT.UPPERLAND.NET");
+    graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
+    graphLib.draw_centered_text(206, "HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM");
+    graphLib.draw_centered_text(220, "HTTPS://ROCKBOT.UPPERLAND.NET");
     draw_lib.update_screen();
     input.clean_and_wait_scape_time(400);
     for (int i=1; i<6; i++) {
-        graphLib.copyArea(st_rectangle((upperland_surface.width/6)*i, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle((upperland_surface.width/6)*i, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
         input.wait_scape_time(30);
     }
-    graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), logo_pos, &upperland_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
 
 
     draw_lib.update_screen();

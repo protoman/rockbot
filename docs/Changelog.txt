@@ -1,3 +1,9 @@
+005 - 44Khz
+006 - exit(-1) nos erros de música
+007 - mais buffer
+008 - disable music
+009 - disable volume
+
 ####################################################################################################################################
 
 - value picker fix for volumes setting
@@ -8,6 +14,10 @@
 - change prision graphics (it is original, but too close, people might mistake)
 - remove background graphics in NPC that is not used anymore
 - corrigido problema que fazia setar sempre o player 1 ao carregar save
+- mostra nome do chefe na tela de seleção de fase
+- fix crash in npc reset_timers due to access to non-existing graphic entry (Filiberto Castrodad)
+- update copyright notice to 2020
+- include JDM in Intro
 
 ####################################################################################################################################
 

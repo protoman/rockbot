@@ -1,4 +1,12 @@
-﻿- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
+﻿- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
+
+
+- animated background:
+    # conjunto de tiles animados, tamanho MAP_WxMAP_H (repete-x, se for menor que MAP_W)
+    # é desenhando por cima do BG e faz scroll na mesma velocidade do bg
+        # só mostra em performance high, caso contrário, é desenhado sobre a superfícia BG diretamente, só o primaeiro frame de animação
+
+- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
 
 - problemas de audio em alguns aparelhos (?)
     # tentei aumentar tamanho do buffer de audio para 4096

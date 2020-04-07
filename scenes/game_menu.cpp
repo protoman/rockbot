@@ -406,12 +406,34 @@ void game_menu::show_config_audio()
                 soundManager.disable_sound();
             }
         } else if (selected_option == 1) {
-            game_config.volume_music = config_int_value(game_config.volume_music, 1, 128);
+            int ini_val = game_config.volume_music;
+            int res_adjust = config_int_value(ini_val, 1, 128);
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] - res_adjust[%d]", res_adjust);
+#endif
+            game_config.volume_music = res_adjust;
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #1");
+#endif
             soundManager.update_volumes();
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #2");
+#endif
             fio.save_config(game_config);
         } else if (selected_option == 2) {
-            game_config.volume_sfx = config_int_value(game_config.volume_sfx, 1, 128);
+            int ini_val = game_config.volume_sfx;
+            int res_adjust = config_int_value(ini_val, 1, 128);
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] - res_adjust[%d]", res_adjust);
+#endif
+            game_config.volume_sfx = res_adjust;
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #1");
+#endif
             soundManager.update_volumes();
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #2");
+#endif            soundManager.update_volumes();
             fio.save_config(game_config);
         }
     }
@@ -590,21 +612,23 @@ void game_menu::show_config_extras()
     }
 }
 
-int game_menu::config_int_value(int initial_value, int min, int max)
+int game_menu::config_int_value(int initial_value_int, int min, int max)
 {
+    int initial_value = initial_value_int;
     int config_text_pos_x = graphLib.get_config_menu_pos().x + 24;
     int config_text_pos_y = graphLib.get_config_menu_pos().y + 40;
     graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 300, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     input.clean();
     timer.delay(10);
-    char value[3]; // for now, we handle only 0-999
 
     graphLib.draw_text(config_text_pos_x, config_text_pos_y, "< ");
     graphLib.draw_text(config_text_pos_x+34, config_text_pos_y, " >");
 
-    while (true) {
+    bool keep_going = true;
+    while (keep_going) {
         input.read_input();
 
+        char value[40]; // for now, we handle only 0-999
         if (initial_value < 10) {
             sprintf(value, "00%d", initial_value);
         } else if (initial_value < 100) {
@@ -615,31 +639,32 @@ int game_menu::config_int_value(int initial_value, int min, int max)
         graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
 
-        std::cout << "game_menu::config_int_value #1 - value_ref[" << (int)initial_value << "]" << std::endl;
+        std::cout << "game_menu::config_int_value #1 - initial_value[" << (int)initial_value << "], keep_going[" << keep_going << "]" << std::endl;
+
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::config_int_value - initial_value[%d], keep_going[%d]", initial_value, keep_going);
+#endif
+
 
         if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
-            break;
-        } else if (input.p1_input[BTN_LEFT] == 1) {
+            std::cout << "game_menu::config_int_value FINISH" << std::endl;
+            keep_going = false;
+        } else if (input.p1_input[BTN_LEFT] == 1 && initial_value > min) {
             initial_value--;
-        } else if (input.p1_input[BTN_RIGHT] == 1) {
+        } else if (input.p1_input[BTN_RIGHT] == 1 && initial_value < max) {
             initial_value++;
         }
 
         std::cout << "game_menu::config_int_value #2 - value_ref[" << (int)initial_value << "]" << std::endl;
-
-        if (initial_value < min) {
-            initial_value = min;
-        }
-        if (initial_value > max) {
-            initial_value = max;
-        }
-
-        std::cout << "game_menu::config_int_value #3 - value_ref[" << (int)initial_value << "]" << std::endl;
-
         input.clean();
         timer.delay(10);
         draw_lib.update_screen();
     }
+
+#ifdef ANDROID
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::config_int_value - initial_value[%d]", initial_value);
+#endif
+
     return initial_value;
 }
 
