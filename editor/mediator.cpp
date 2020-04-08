@@ -15,7 +15,7 @@
 #define PROJECTILE_FILE_V3 "data/game_projectile_list_v3.dat"
 
 // Global static pointer used to ensure a single instance of the class.
-Mediator* Mediator::_instance = nullptr;
+Mediator* Mediator::_instance = NULL;
 
 Mediator::Mediator() : stage_data(), stage_extra_data() {
 	palleteX=0;

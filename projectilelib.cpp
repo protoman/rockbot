@@ -395,7 +395,7 @@ void projectile::set_target_position(st_float_position *pos)
 
 
         // calculate angle and set image
-        angle = atan2(abs(dist_y), abs(dist_x));
+        angle = atan2((double)abs(dist_y), (double)abs(dist_x));
         angle = (360*angle)/6.28;
         //std::cout << ">>>>>>>>>>>>> ANGLE[" << angle << "], w[" << get_surface()->width << "]" << std::endl;
         //angle = 55;

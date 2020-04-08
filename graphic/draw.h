@@ -156,7 +156,7 @@ private:
     // used to avoid having multiple copies of same background for all 3 maps in same stage
     std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;
 
-    std::map<e_INPUT_IMAGES, graphicsLib_gSurface> input_images_map;
+    graphicsLib_gSurface input_images_map[INPUT_IMAGES_COUNT];
 };
 
 #endif // DRAW_H

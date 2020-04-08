@@ -75,6 +75,14 @@ jobject activity_ref;
     std::string EXEC_NAME = std::string("rockbot.exe");
 #elif defined(ANDROID)
     std::string EXEC_NAME("");
+#elif defined(PLAYSTATION2)
+    std::string EXEC_NAME("rockbot.elf");
+#elif defined(PSP)
+    std::string EXEC_NAME("EBOOT.PBP");
+#elif defined(WII)
+    std::string EXEC_NAME("boot.dol");
+#elif defined(DINGUX)
+    std::string EXEC_NAME("rockbot.dge");
 #else
     std::string EXEC_NAME("rockbot");
 #endif
@@ -114,7 +122,110 @@ struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 int current_stage = 0;
 
+#ifdef PLAYSTATION2
+    #include "ports/ps2/modules.h"
 
+
+void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
+{
+    FILE *fp_read = fopen(file_in.c_str(), "rb");
+    if (!fp_read) {
+        std::cout << "ERROR: Could not open read file '" << file_in << "'" << std::endl;
+        graphLib.show_debug_msg("ERROR #1");
+        graphLib.show_debug_msg(file_in);
+        return;
+    } else {
+        std::cout << "WARNING: Opened file '" << file_in << "'" << std::endl;
+    }
+    file_out = SAVEPATH + "/" + file_out;
+    FILE *fp_write = fopen(file_out.c_str(), "wb");
+    if (!fp_write) {
+        std::cout << "ERROR: Could not open write file '" << file_out << "'" << std::endl;
+        graphLib.show_debug_msg("ERROR #2");
+        graphLib.show_debug_msg(file_out);
+        return;
+    } else {
+        std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;
+    }
+
+    int a;
+    while(1)
+    {
+        a  =  fgetc(fp_read);
+        if (!feof(fp_read)) {
+            fputc(a, fp_write);
+        } else {
+            break;
+        }
+    }
+
+    fclose(fp_read);
+    fclose(fp_write);
+
+}
+
+void PS2_create_save_icons()
+{
+    // copy save icon files, if they do not exist
+    std::string filename = SAVEPATH + "/icon.sys";
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (fp == NULL) {
+        std::string filename = GAMEPATH + "/shared/images/icon.sys";
+        PS2_copy_to_memorycard(filename, "icon.sys");
+        filename = GAMEPATH + "/shared/images/rockbot_ps2_icon.icn";
+        PS2_copy_to_memorycard(filename, "rockbot_ps2_icon.icn");
+    } else {
+        fclose(fp);
+    }
+}
+
+
+
+#endif
+
+
+#ifdef PSP
+PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
+//PSP_HEAP_SIZE_KB(-1024);
+PSP_HEAP_SIZE_MAX();
+
+
+/* Exit callback */
+int exit_callback(int arg1, int arg2, void *common) {
+    sceKernelExitGame();
+    return 0;
+}
+
+/* Callback thread */
+int CallbackThread(SceSize args, void *argp) {
+    int cbid;
+    cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    sceKernelRegisterExitCallback(cbid);
+    sceKernelSleepThreadCB();
+    return 0;
+}
+
+/* Sets up the callback thread and returns its thread id */
+int SetupCallbacks(void) {
+    int thid = 0;
+    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+    if(thid >= 0) {
+        sceKernelStartThread(thid, 0, 0);
+    }
+    return thid;
+}
+
+
+// LINKER PATCH
+/*
+extern "C" {
+void *__dso_handle = NULL;
+}
+*/
+
+// ram counter object
+psp_ram _ram_counter;
+#endif
 
 
 void get_filepath()
@@ -153,6 +264,16 @@ void get_filepath()
     delete[] buffer;
 #endif
 
+#if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
+    FILEPATH = "mass:/PS2/Rockbot/";
+//#elif WII
+    //FILEPATH = "sd:/apps/Rockbot/";
+    //printf("MAIN #D\n");
+#endif
+std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
+#ifdef DREAMCAST
+    FILEPATH = "/cd/";
+#endif
 
     GAMEPATH = FILEPATH;
 }
@@ -182,6 +303,38 @@ int main(int argc, char *argv[])
     std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl; std::fflush(stdout);
 
 
+#ifdef PLAYSTATION2
+    std::cout << "PS2.DEBUG #1" << std::endl; std::fflush(stdout);
+
+    PS2_init();
+
+    // --- DEBUG --- //
+    //FILEPATH = "cdfs:/";
+    // --- DEBUG --- //
+
+    //PS2_load_xio();
+    std::cout << "PS2.DEBUG #2" << std::endl; std::fflush(stdout);
+
+    if (FILEPATH.find("mass:") != std::string::npos) {
+        printf("DEBUG.PS2 #1.4\n");
+        std::cout << "PS2.DEBUG Load USB" << std::endl; std::fflush(stdout);
+        PS2_load_USB();
+    }
+
+    if (FILEPATH.find("cdfs") != std::string::npos || FILEPATH.find("cdrom") != std::string::npos) {
+        printf("DEBUG.PS2 #1.5\n");
+        std::cout << "PS2.DEBUG Load CDROM" << std::endl; std::fflush(stdout);
+        FILEPATH = "cdfs:";
+        PS2_load_CDROM();
+    }
+
+    printf("DEBUG.PS2 #2\n");
+
+
+
+
+    std::cout << "PS2.DEBUG #3" << std::endl; std::fflush(stdout);
+#endif
 
 
 #ifdef PC
@@ -249,7 +402,9 @@ int main(int argc, char *argv[])
 
     std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
 
+#ifndef PLAYSTATION2
     fio.load_config(game_config);
+#endif
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
@@ -308,12 +463,30 @@ int main(int argc, char *argv[])
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();
 
+    // define SAVEPATH
+#ifdef PLAYSTATION2
+        PS2_load_MC();
+        //SAVEPATH = "mc0:Rockbot/";
+        SAVEPATH = FILEPATH;
 
+        /*
+        if (fioMkdir(SAVEPATH.c_str()) < 0) {
+            std::cout << "main - warning: could not create '" << SAVEPATH << "' folder" << std::endl; std::fflush(stdout);
+            /// @TODO - check if directory exists
+        } else {
+            std::cout << "Folder '" << SAVEPATH << "' created" << std::endl; std::fflush(stdout);
+        }
+        */
+
+#endif
 
 
     graphLib.preload();
 
-
+#ifdef PLAYSTATION2
+    fio.load_config(game_config);
+    PS2_create_save_icons();
+#endif
 
     draw_lib.preload();
 
