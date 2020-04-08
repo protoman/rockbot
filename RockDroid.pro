@@ -37,6 +37,7 @@ CONFIG -= app_bundle
 TARGET = rockbot
 
 linux {
+    DEFINES += LINUX
     LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
@@ -181,6 +182,7 @@ SOURCES += main.cpp \
     graphicslib.cpp \
     inputlib.cpp \
     game.cpp \
+    shareddata.cpp \
     stage.cpp \
     classmap.cpp \
     character/classplayer.cpp \
@@ -225,6 +227,7 @@ HEADERS += \
     defines.h \
     inputlib.h \
     game.h \
+    shareddata.h \
     stage.h \
     classmap.h \
     character/classplayer.h \

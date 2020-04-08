@@ -26,6 +26,8 @@ extern int freeze_weapon_id;
 
 #define LARGE_BEAM_DELAY 20
 
+#include "shareddata.h"
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -44,12 +46,12 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 	_size = get_size();
 
 	/// @TODO _ move this to game load
-    _speed = PROJECTILE_DEFAULT_SPEED;
+    _speed = PROJECTILE_DEFAULT_SPEED * SharedData::get_instance()->get_movement_multiplier();
 	if (_id == -1) {
 		_size.width = 6;
 		_size.height = 6;
     } else if (GameMediator::get_instance()->get_projectile(_id).speed > 0) {
-        _speed = GameMediator::get_instance()->get_projectile(_id).speed;
+        _speed = GameMediator::get_instance()->get_projectile(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     }
 
     _sin_x = 0;

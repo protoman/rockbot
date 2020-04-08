@@ -16,6 +16,11 @@ enum e_PLAYERS {
     PLAYER_COUNT
 };
 
+#if defined(PLAYSTATION2) || defined(DINGUX)
+#define DEFAULT_FPS_MAX 30
+#else
+#define DEFAULT_FPS_MAX 60
+#endif
 #define WALK_FRAME_DELAY 150
 
 // ==================== PHYSICS ==================== //

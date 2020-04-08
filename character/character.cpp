@@ -2,6 +2,7 @@
 #include "../game.h"
 #include "../timerlib.h"
 
+#include "shareddata.h"
 
 extern game gameControl;
 extern timerLib timer;
@@ -43,7 +44,7 @@ static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
 character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false), _platform(NULL), hit_animation_timer(0), hit_moved_back_n(0), jump_button_released(true), attack_button_released(true), dead(false), charging_color_n(0), charging_color_timer(0), shield_type(0), _moving_platform_timer(0), position(), _number(0), _super_jump(false), _force_jump(false), _teleport_minimal_y(0), _is_falling(false), _dead_state(0), slide_type(0), _water_splash(false), _has_background(false), hit_duration(300), _is_boss(false), _is_stage_boss(false), is_ghost(false)
 {
     _was_animation_reset = false;
-    move_speed = 2.0;
+    move_speed = 2.0 * SharedData::get_instance()->get_movement_multiplier();
 
     accel_speed_y = 1;
     gravity_y = 0.25;
@@ -1245,11 +1246,11 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-    int gravity_max_speed = GRAVITY_MAX_SPEED;
+    int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED;
+        gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
     } else if (state.animation_type == ANIM_TYPE_HIT) {
-        gravity_max_speed = 2;
+        gravity_max_speed = 2 * SharedData::get_instance()->get_movement_multiplier();
     }
 
 	// ------------- NPC gravity ------------------ //

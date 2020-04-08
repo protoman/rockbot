@@ -2,6 +2,7 @@
 #define JUMP_H
 
 #include "../../defines.h"
+#include "shareddata.h"
 
 enum E_JUMP_STATE {
     NOJUMP,
@@ -37,6 +38,7 @@ private:
     int JUMP_LIMIT;
     int start_terrain_type;
     bool start_big_jump;
+    double JUMP_INITIAL_SPEED;
 };
 
 #endif // JUMP_H

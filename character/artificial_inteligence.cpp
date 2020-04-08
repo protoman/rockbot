@@ -27,13 +27,14 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 #define JUMP_ROOF_MIN_SPEED 3
 #define MAX_NPC_SPAWN 3
 
+#include "shareddata.h"
 
 std::vector<character*> *artificial_inteligence::player_list=NULL;
 
 
 artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), target(NULL), speed_y(max_speed), acceleration_y(0.05), _ai_timer(0), _ai_chain_n(0), _trajectory_parabola(NULL)
 {
-    max_speed = GRAVITY_MAX_SPEED;
+    max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
     _ghost_move_speed_reducer = 0;
     _did_shot = false;
     _reaction_state = 0;

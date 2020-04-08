@@ -1,4 +1,9 @@
-﻿- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
+﻿- Define para limite de FPS
+    # calcular multiplicador de movimento e guardar em shared-data
+    # usado em ports como Dingoo e PS2
+
+
+- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
 
 
 - animated background:

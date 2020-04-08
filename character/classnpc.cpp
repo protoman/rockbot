@@ -208,7 +208,6 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	realPosition.y = 0;
 
 	max_projectiles = 1;			// hardcoded, fix this in editor
-	//move_speed = 6;					// hardcoded, fix this in editor
 	attack_state = 0;
 	last_execute_time = 0;
 

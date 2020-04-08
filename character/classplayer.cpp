@@ -54,7 +54,7 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
 	shield_type = SHIELD_FRONT; /// @TODO: from editor
 	// load items from save
     selected_weapon = 0;
-    move_speed = PLAYER_MOVE_SPEED;
+    move_speed = PLAYER_MOVE_SPEED * SharedData::get_instance()->get_movement_multiplier();
 
     reset_charging_shot();
 }
@@ -237,7 +237,7 @@ bool classPlayer::shoryuken()
     } else if (state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
         std::cout << ">>>>>>>>>>>>>>>>>>>> SHORYUKEN::EXECUTE" << std::endl;
         _obj_jump.execute(TERRAIN_UNBLOCKED);
-        int jump_speed = _obj_jump.get_speed();
+        float jump_speed = _obj_jump.get_speed();
         bool jump_moved = false;
 
         // check collision

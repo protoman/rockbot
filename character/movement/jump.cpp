@@ -6,15 +6,14 @@
 // if not interrupted, jump takes 700 milisseconds
 // jump max high is 74 px
 
-#define JUMP_INITIAL_SPEED 5.675
-
 #include "../../game.h"
 extern game gameControl;
 
 
 classjump::classjump() : started(false)
 {
-    JUMP_ACCELERATION = 0.25;
+    JUMP_INITIAL_SPEED = 5.675 * SharedData::get_instance()->get_movement_multiplier();
+    JUMP_ACCELERATION = 0.25 * SharedData::get_instance()->get_movement_multiplier();
     JUMP_LIMIT = (TILESIZE*3)-6;
     JUMP_LIMIT = 240;
     state = NOJUMP;
@@ -87,8 +86,8 @@ void classjump::execute(int terrain_type)
             speed = 0;
         }
     } else {
-        if (speed > GRAVITY_MAX_SPEED) { // do not surpass the speed limit
-            speed = GRAVITY_MAX_SPEED;
+        if (speed > GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier()) { // do not surpass the speed limit
+            speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
         }
     }
 }

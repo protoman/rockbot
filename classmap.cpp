@@ -445,8 +445,8 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 
     //std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
 
-    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10;
-    float foreground_layer_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10;
+    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10 * SharedData::get_instance()->get_movement_multiplier();
+    float foreground_layer_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10 * SharedData::get_instance()->get_movement_multiplier();
 
     //std::cout << "MAP::changeScrolling - foreground_layer_speed[" << foreground_layer_speed << "]" << std::endl;
 
@@ -590,7 +590,7 @@ void classMap::draw_dynamic_backgrounds()
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
     }
 
-    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10;
+    float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10 * SharedData::get_instance()->get_movement_multiplier();
     int bg1_scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll;
     // dynamic background won't work in low-end graphics more
     if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
@@ -655,7 +655,7 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 
     if (strlen(GameMediator::get_instance()->map_data[number].backgrounds[1].filename) > 0) {
         //std::cout << "draw_foreground_layer #1" << std::endl;
-        float foreground_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10;
+        float foreground_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10 * SharedData::get_instance()->get_movement_multiplier();
         int scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll;
         // dynamic background won't work in low-end graphics more
         if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {

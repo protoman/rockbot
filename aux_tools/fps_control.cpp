@@ -9,7 +9,7 @@ extern graphicsLib graphLib;
 
 fps_control::fps_control() : fps_timer(0)
 {
-    fps_max = DEFAULT_FPS_MAX;
+    fps_max = SharedData::get_instance()->get_max_fps();
     fps_counter = 0;
     fps_min_fail_count = 0;
     failed_min_fps = false;
@@ -88,9 +88,10 @@ void fps_control::fps_count()
     }
     fps_counter++;
     if (fps_timer <= timer.getTimer()) {
+        int max_fps = SharedData::get_instance()->get_max_fps();
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
-        if (fps_counter <= DEFAULT_FPS_MAX-4) {
-            frame_drop_period = DEFAULT_FPS_MAX/(DEFAULT_FPS_MAX-fps_counter);
+        if (fps_counter <= fps_timer-4) {
+            frame_drop_period = fps_timer/(fps_timer-fps_counter);
             //std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
         } else {
             frame_drop_period = 0;
@@ -99,6 +100,7 @@ void fps_control::fps_count()
         fps_timer = timer.getTimer()+1000;
     }
     if (fps_counter > 1) {
+        /*
         if (fps_counter <= FPS_MINIMAL_LIMIT) {
             fps_min_fail_count++;
         } else {
@@ -107,6 +109,7 @@ void fps_control::fps_count()
         if (fps_min_fail_count >= FPS_MINIMAL_MAX_FAIL) {
             failed_min_fps = true;
         }
+        */
         std::string temp_str(_fps_buffer);
         graphLib.draw_text(12, 2, temp_str);
     }

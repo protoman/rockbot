@@ -47,7 +47,7 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     graphic_filename = GameMediator::get_instance()->object_list.at(_id).graphic_filename;
     type = GameMediator::get_instance()->object_list.at(_id).type;
     obj_timer = GameMediator::get_instance()->object_list.at(_id).timer;
-    speed = GameMediator::get_instance()->object_list.at(_id).speed;
+    speed = GameMediator::get_instance()->object_list.at(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     limit = GameMediator::get_instance()->object_list.at(_id).limit;
 	direction = 0;
 	distance = 0;
@@ -195,7 +195,7 @@ void object::gravity()
     if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
 		return;
 	}
-    for (int i=GRAVITY_SPEED; i>0; i--) {
+    for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
         bool can_fall = test_change_position(0, i);
         //std::cout << "OBJECT::gravity[" << name << "], i[" << i << "], y[" << position.y << "], can_fall[" << can_fall << "]" << std::endl;
         if (can_fall == true) {
@@ -904,7 +904,7 @@ void object::move(bool paused)
         }
 	} else if (type == OBJ_ITEM_FLY && _started == true) {
         if (speed < 1) {
-            speed = 3;
+            speed = 3 * SharedData::get_instance()->get_movement_multiplier();
 		}
         int xinc = speed;
 		int yinc = 0;
