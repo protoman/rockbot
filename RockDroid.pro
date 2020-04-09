@@ -14,8 +14,8 @@ QT       -= gui
 #CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
-CONFIG += playstation2
-#CONFIG += dingux
+#CONFIG += playstation2
+CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
@@ -67,6 +67,7 @@ raspberry {
 }
 
 dingux {
+        DEFINES += DINGUX
         TARGET = rockbot.dge
         DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 

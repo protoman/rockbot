@@ -117,7 +117,9 @@ void game::initGame()
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
 
     fps_manager.initialize();
-
+#if defined(DINGUX) || defined(PLAYSTATION2)
+    fps_manager.set_frameskip(5);
+#endif
     is_game_started = true;
 }
 
@@ -139,6 +141,7 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     }
 
     // must jump a frame
+    /*
     if (fps_manager.get_frame_drop_n() > 0 && fps_manager.get_current_frame_n() > 0) {
         int modulus = fps_manager.get_frame_drop_n() % fps_manager.get_current_frame_n();
         //std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
@@ -148,6 +151,8 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
             return;
         }
     }
+    */
+    bool must_skip_frame = fps_manager.must_skip_frame();
 
 
     if (test_teleport(&player1)) {
@@ -161,7 +166,7 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         loaded_stage.move_objects();
     }
 
-    if (_dark_mode == false) {
+    if (_dark_mode == false && !must_skip_frame) {
         loaded_stage.show_stage();
     }
 
@@ -177,27 +182,29 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         return;
     }
 
-    if (_dark_mode == false) {
-        loaded_stage.show_objects();
-        loaded_stage.show_npcs();
-        player1.show();
-        loaded_stage.show_above_objects();
-        loaded_stage.showAbove();
-    } else {
-        graphLib.blank_screen();
+    if (!must_skip_frame) {
+        if (_dark_mode == false) {
+            loaded_stage.show_objects();
+            loaded_stage.show_npcs();
+            player1.show();
+            loaded_stage.show_above_objects();
+            loaded_stage.showAbove();
+        } else {
+            graphLib.blank_screen();
+        }
+
+
+        //std::cout << "GFX_MODE[" << (int)loaded_stage.get_current_map_gfx_mode() << "]" << std::endl;
+
+        if (loaded_stage.get_current_map_gfx_mode() == SCREEN_GFX_MODE_OVERLAY) {
+            draw_lib.show_gfx();
+        }
+
+        // draw HUD
+        draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
+
+        draw_lib.show_weapon_tooltip();
     }
-
-
-    //std::cout << "GFX_MODE[" << (int)loaded_stage.get_current_map_gfx_mode() << "]" << std::endl;
-
-    if (loaded_stage.get_current_map_gfx_mode() == SCREEN_GFX_MODE_OVERLAY) {
-        draw_lib.show_gfx();
-    }
-
-    // draw HUD
-    draw_lib.show_hud(player1.get_current_hp(), 1, player1.get_selected_weapon(), player1.get_selected_weapon_value());
-
-    draw_lib.show_weapon_tooltip();
 
     if (show_fps_enabled == true) {
         fps_manager.fps_count();

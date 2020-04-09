@@ -1,5 +1,7 @@
 #include "fps_control.h"
 
+#include <algorithm>    // std::find
+
 #include "../timerlib.h"
 extern timerLib timer;
 
@@ -136,5 +138,41 @@ bool fps_control::get_failed_min_fps()
 void fps_control::reset_failed_min_fps()
 {
     failed_min_fps = false;
+}
+
+void fps_control::set_frameskip(int skip_n)
+{
+    frameskip_list.clear();
+    if (skip_n == 1) {
+        frameskip_list.push_back(1);
+    } else if (skip_n == 2) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(6);
+    } else if (skip_n == 3) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(4);
+        frameskip_list.push_back(7);
+    } else if (skip_n == 4) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(3);
+        frameskip_list.push_back(6);
+        frameskip_list.push_back(9);
+    } else if (skip_n == 5) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(3);
+        frameskip_list.push_back(5);
+        frameskip_list.push_back(7);
+        frameskip_list.push_back(9);
+    }
+}
+
+bool fps_control::must_skip_frame()
+{
+    int frame_unit_part = frame_count % 10;
+    if (std::find(frameskip_list.begin(), frameskip_list.end(), frame_unit_part) != frameskip_list.end()) {
+        //std::cout << "Skipt frame[" << frame_count << "], frame_unit_part[" << frame_unit_part << "]" << std::endl;
+        return true;
+    }
+    return false;
 }
 

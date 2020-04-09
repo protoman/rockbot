@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <SDL/SDL.h>
+#include <vector>
 #include "shareddata.h"
 
 // === FPS limiter by Felipe Zacani === //
@@ -31,7 +32,8 @@ public:
     int get_frame_drop_n();
     bool get_failed_min_fps();
     void reset_failed_min_fps();
-
+    void set_frameskip(int skip_n);
+    bool must_skip_frame();
 
 private:
     st_fps_data data;
@@ -58,6 +60,7 @@ private:
     unsigned int fps_min_fail_count; // counts the number of sequential times the FPS is under minumal limit
     bool failed_min_fps;
 
+    std::vector<int> frameskip_list;
 };
 
 #endif // FPS_CONTROL_H
