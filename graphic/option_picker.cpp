@@ -19,7 +19,6 @@ extern timerLib timer;
 
 #include "../strings_map.h"
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 #include "../file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 
@@ -40,7 +39,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     _show_return = show_return;
     if (_show_return == true) {
 
-        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, game_config.selected_language)));
+        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, SharedData::get_instance()->game_config.selected_language)));
     }
 
     _pick_pos = 0;
@@ -71,7 +70,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<stri
     _items = option_list;
     _show_return = show_return;
     if (_show_return == true) {
-        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, game_config.selected_language)));
+        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, SharedData::get_instance()->game_config.selected_language)));
     }
 
     check_input_reset_command = false;
@@ -194,8 +193,8 @@ void option_picker::show_reset_config_dialog()
         } else if (input.is_check_input_reset_command_activated() == true) {
             std::cout << "RESET CONFIG!!!" << std::endl;
             // reset the configuration file //
-            game_config.reset();
-            fio.save_config(game_config);
+            SharedData::get_instance()->game_config.reset();
+            fio.save_config(SharedData::get_instance()->game_config);
             break;
         }
     }

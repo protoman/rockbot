@@ -16,6 +16,7 @@
 #include "file/format/st_common.h"
 #include "file/format.h"
 #include "game_mediator.h"
+#include "shareddata.h"
 
 #ifdef PSP
 #include "ports/psp/psp_ram.h"

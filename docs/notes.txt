@@ -1,3 +1,11 @@
+Globals.VideoLinearFilter - config SDL/Pelya para video VideoLinearFilter
+Globals.AudioBufferConfig - audio buffer size (large if choppy)
+
+12 - buffer 3
+13 - buffer 2
+14 - buffer 1
+
+
 http://www.hardcoregaming101.net/megaman/megaman.htm
 
 

@@ -51,7 +51,6 @@ extern soundLib soundManager;
 
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -343,7 +342,7 @@ void draw::show_ready()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
 
     for (int i=0; i<6; i++) {
-        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, game_config.selected_language));
+        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, SharedData::get_instance()->game_config.selected_language));
         update_screen();
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);

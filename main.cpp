@@ -31,8 +31,7 @@
 // ************** CODE AND DEBUG flags ************** //
 //#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
-//#define PS2LINK 1
-#define DEBUG_OUTPUT 1 // will output all DEBUG_COUT messages, comments this out to disable all console output messages
+#define PS2LINK 1
 
 // GLOBAL/EXTERN VARIABLES
 std::string GAMEPATH; // path without DATA/GAMES
@@ -95,7 +94,6 @@ graphicsLib graphLib;
 draw draw_lib;
 game gameControl;
 CURRENT_FILE_FORMAT::st_save game_save;
-struct CURRENT_FILE_FORMAT::st_game_config game_config;
 bool GAME_FLAGS[FLAG_COUNT];
 #ifdef ANDROID
 android_game_services game_services;
@@ -281,7 +279,7 @@ std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
 
 int main(int argc, char *argv[])
 {
-
+    std::cout << "PS2.DEBUG #0" << std::endl; std::fflush(stdout);
 
     for (int i=0; i<FLAG_COUNT; i++) {
 		GAME_FLAGS[i] = false;
@@ -403,7 +401,7 @@ int main(int argc, char *argv[])
     std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
 
 #ifndef PLAYSTATION2
-    fio.load_config(game_config);
+    fio.load_config(SharedData::get_instance()->game_config);
 #endif
 
     // INIT GRAPHICS
@@ -441,8 +439,8 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
-        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, game_config.selected_language) + std::string(":"));
-        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames, game_config.selected_language));
+        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, SharedData::get_instance()->game_config.selected_language) + std::string(":"));
+        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames, SharedData::get_instance()->game_config.selected_language));
 
         std::string filename = GAMEPATH + "/games/";
         filename = StringUtils::clean_filename(filename);

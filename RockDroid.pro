@@ -11,11 +11,11 @@ QT       -= gui
 
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
 #CONFIG += playstation2
-CONFIG += dingux
+#CONFIG += dingux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
@@ -25,6 +25,7 @@ CONFIG += dingux
 # -m64 problem in android build:
 # NOTE for android build on 64: /usr/share/qt4/mkspecs/default/qmake.conf
 # or, in QT5, /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf
+# or, in a install in home (qt5),
 
 
 ### BETA VERSION ###
@@ -224,6 +225,7 @@ SOURCES += main.cpp \
 HEADERS += \
     aux_tools/fps_control.h \
     character/character.h \
+    file/v4/file_config_old.h \
     graphicslib.h \
     defines.h \
     inputlib.h \

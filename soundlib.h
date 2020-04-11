@@ -6,6 +6,7 @@ using namespace std;
 
 #include <SDL/SDL_mixer.h>
 #include "defines.h"
+#include "shareddata.h"
 
 /**
  * @brief

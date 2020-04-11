@@ -32,8 +32,6 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
-
 extern graphicsLib_gSurface _explosion_surface;
 
 #define DEBUG_MSG_DELAY 5000
@@ -95,7 +93,7 @@ graphicsLib::~graphicsLib()
 bool graphicsLib::initGraphics()
 {
 	string filename;
-    _video_filter = game_config.video_filter;
+    _video_filter = SharedData::get_instance()->game_config.video_filter;
 
     printf(">> WII.DEBUG.INIT_GRAPHICS #1 <<\n");
     fflush(stdout);
@@ -1053,6 +1051,7 @@ void graphicsLib::drawCursor(st_position pos) {
 }
 
 void graphicsLib::eraseCursor(st_position pos) {
+    //clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b)
     clear_area(pos.x, pos.y, CURSOR_SPACING, CURSOR_SPACING, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 }
 
@@ -1108,7 +1107,8 @@ void graphicsLib::load_icons()
 	surfaceFromFile(filename, &tmp);
     int icon_size = tmp.height/2;
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
-		weapon_icons.push_back(graphicsLib_gSurface());
+        graphicsLib_gSurface new_surface = graphicsLib_gSurface();
+        weapon_icons.push_back(new_surface);
         initSurface(st_size(icon_size, icon_size*2), &weapon_icons.at(weapon_icons.size()-1));
         copyArea(st_rectangle(i*icon_size, 0, icon_size, icon_size*2), st_position(0, 0), &tmp, &(weapon_icons.at(weapon_icons.size()-1)));
 	}
@@ -1266,8 +1266,8 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     showSurfaceAt(&player_image_big[game_save.selected_player], st_position((RES_W-ingame_menu.width)*0.5+5, (RES_H-ingame_menu.height)*0.5+47));
 
 
-    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language).length()+4)*8;
-    draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language) + std::string(" (R)"));
+    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language).length()+4)*8;
+    draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language) + std::string(" (R)"));
 
 
     draw_text(pos_x, 60, "WEAPON:");
@@ -1981,7 +1981,7 @@ void graphicsLib::set_video_mode()
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, 16, SDL_SWSURFACE | SDL_DOUBLEBUF );
     _video_filter = VIDEO_FILTER_NOSCALE;
 #elif defined(RASPBERRY)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
@@ -1989,7 +1989,7 @@ void graphicsLib::set_video_mode()
 #else
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
-        if (game_config.video_fullscreen == false) {
+        if (SharedData::get_instance()->game_config.video_fullscreen == false) {
             game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
         } else {
             game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
@@ -1997,7 +1997,7 @@ void graphicsLib::set_video_mode()
         //game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
     } else {
         /// @TODO - do we need scale on fullscreen if no filter?
-        if (game_config.video_fullscreen == false) {
+        if (SharedData::get_instance()->game_config.video_fullscreen == false) {
             game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
         } else {
             game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);

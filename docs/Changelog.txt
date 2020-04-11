@@ -1,3 +1,11 @@
+####################################################################################################################################
+- added frameskip for Dingux and PS2
+- add back PS2 build (still not working)
+- add 30 fps max mode (still under construction)
+- fix crash in number pick (for real this time)
+####################################################################################################################################
+
+
 005 - 44Khz
 006 - exit(-1) nos erros de música
 007 - mais buffer

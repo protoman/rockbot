@@ -19,6 +19,7 @@
 
 #include "format.h"
 #include "fio_common.h"
+#include "file/v4/file_config_old.h"
 
 extern std::string FILEPATH;
 extern std::string SAVEPATH;

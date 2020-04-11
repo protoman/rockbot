@@ -14,7 +14,6 @@ extern graphicsLib graphLib;
 extern std::string FILEPATH;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern bool GAME_FLAGS[FLAG_COUNT];
@@ -118,7 +117,7 @@ void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
 	highlight_pos.y += y_inc;
 
 
-    graphLib.clear_area(1, 11, RES_W, 15, 25, 77, 129);
+    graphLib.clear_area(1, 11, RES_W, 15, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     if (select_pos.x != 1 || select_pos.y != 1) {
         CURRENT_FILE_FORMAT::file_io fio;
         short stage_n = (select_pos.x + select_pos.y*3) + 1;
@@ -128,7 +127,7 @@ void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
         fio.read_stage(temp_stage_data, stage_n);
         std::string stage_name(temp_stage_data.name);
         std::string boss_name(temp_stage_data.boss.name);
-        graphLib.draw_text(3, 12, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, game_config.selected_language) + " " + stage_name, graphLib.gameScreen);
+        graphLib.draw_text(3, 12, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, SharedData::get_instance()->game_config.selected_language) + " " + stage_name, graphLib.gameScreen);
         //graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, graphLib.gameScreen);
     }
 
@@ -217,7 +216,7 @@ void stage_select::show_stage_face(int x, int y, int stage_n)
 
     graphicsLib_gSurface face_surface;
     graphLib.surfaceFromFile(face_filename, &face_surface);
-    graphLib.clear_area(x, y, face_surface.width, face_surface.height, 8, 25, 42);
+    graphLib.clear_area(x, y, face_surface.width, face_surface.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     graphLib.copyArea(st_position(x, y), &face_surface, &graphLib.gameScreen);
 
     if (stage_n <= 8 && game_save.stages[stage_n] != 0) {
@@ -264,21 +263,21 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.initSurface(st_size(RES_W, 18), &bottom_panel);
     graphLib.initSurface(st_size(RES_W, 18), &top_panel_copy);
     graphLib.initSurface(st_size(RES_W, 18), &bottom_panel_copy);
-    graphLib.clear_surface_area(0, 0, top_panel.width, top_panel.height, 8, 25, 42, top_panel);
-    graphLib.clear_surface_area(0, 0, bottom_panel.width, bottom_panel.height, 8, 25, 42, bottom_panel);
-    graphLib.clear_surface_area(0, 0, top_panel_copy.width, top_panel_copy.height, 8, 25, 42, top_panel_copy);
-    graphLib.clear_surface_area(0, 0, bottom_panel_copy.width, bottom_panel_copy.height, 8, 25, 42, bottom_panel_copy);
+    graphLib.clear_surface_area(0, 0, top_panel.width, top_panel.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, top_panel);
+    graphLib.clear_surface_area(0, 0, bottom_panel.width, bottom_panel.height, 8, 25, 42, bottom_panel);	    graphLib.clear_surface_area(0, 0, bottom_panel.width, bottom_panel.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, bottom_panel);
+    graphLib.clear_surface_area(0, 0, top_panel_copy.width, top_panel_copy.height, 8, 25, 42, top_panel_copy);	    graphLib.clear_surface_area(0, 0, top_panel_copy.width, top_panel_copy.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, top_panel_copy);
+    graphLib.clear_surface_area(0, 0, bottom_panel_copy.width, bottom_panel_copy.height, 8, 25, 42, bottom_panel_copy);	    graphLib.clear_surface_area(0, 0, bottom_panel_copy.width, bottom_panel_copy.height, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B, bottom_panel_copy);
     graphLib.copyArea(st_rectangle(0, 8, RES_W, 18), st_position(0, 0), &graphLib.gameScreen, &top_panel_copy);
     graphLib.copyArea(st_position(0, RES_H-top_panel.height-20), &graphLib.gameScreen, &bottom_panel_copy);
 
     // clear panel
-    //graphLib.clear_area(0, 7, RES_W, 18, 8, 25, 42);
-    //graphLib.clear_area(0, RES_H-45, RES_W, 18, 8, 25, 42);
+    //graphLib.clear_area(0, 7, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    //graphLib.clear_area(0, RES_H-45, RES_W, 18, 8, 25, 42);	    //graphLib.clear_area(0, RES_H-45, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
 
     std::string stage_name(temp_stage_data.name);
     std::string boss_name(temp_stage_data.boss.name);
-    graphLib.draw_text(9, 4, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, game_config.selected_language) + " " + stage_name, top_panel);
-    graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, bottom_panel);
+    graphLib.draw_text(9, 4, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, SharedData::get_instance()->game_config.selected_language) + " " + stage_name, top_panel);
+    graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, SharedData::get_instance()->game_config.selected_language) + " " + boss_name, bottom_panel);
 
     // animate
     for (int i=0; i<=RES_W; i+=6) {
@@ -298,7 +297,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.clear_area(21, text_pos_y, 76, 16, 19, 2, 36);
     graphLib.clear_area(184, text_pos_y, 206, 16, 19, 2, 36);
     graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
-    graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, game_config.selected_language), st_color(250, 250, 250));
+    graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, SharedData::get_instance()->game_config.selected_language), st_color(250, 250, 250));
 }
 
 int stage_select::pick_stage(int stage_n)
@@ -319,7 +318,7 @@ int stage_select::pick_stage(int stage_n)
 
     short text_pos_y = 222;
     graphLib.draw_text(26, text_pos_y, "[SELECT]", st_color(250, 250, 250));
-    graphLib.draw_text(189, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, game_config.selected_language), st_color(250, 250, 250));
+    graphLib.draw_text(189, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, SharedData::get_instance()->game_config.selected_language), st_color(250, 250, 250));
 
     std::vector<std::string> boss_name_list;
 

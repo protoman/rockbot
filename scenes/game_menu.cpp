@@ -29,7 +29,6 @@ extern timerLib timer;
 extern android_game_services game_services;
 
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_io fio;
@@ -58,7 +57,7 @@ void game_menu::show_extra_menu()
     int current_player = game_save.selected_player;
 
 
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, SharedData::get_instance()->game_config.selected_language)));
     option_picker cheat_config_picker(false, config_text_pos, options, true);
 
     while (selected_option != -1) {
@@ -87,8 +86,8 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
     input.clean();
     timer.delay(300);
 
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio, game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio, SharedData::get_instance()->game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input, SharedData::get_instance()->game_config.selected_language)));
 #if defined(PC)
     options.push_back(st_menu_option("PC"));
 #elif PSP
@@ -100,19 +99,19 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
 #else
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific, game_config.selected_language), true));
 #endif
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, SharedData::get_instance()->game_config.selected_language)));
 
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config_graphics_performance, SharedData::get_instance()->game_config.selected_language)));
 
-    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_extras, game_config.selected_language));
+    options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_extras, SharedData::get_instance()->game_config.selected_language));
 
     if (called_from_game) {
         if (stage_finished) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, game_config.selected_language)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, SharedData::get_instance()->game_config.selected_language)));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, game_config.selected_language), true));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage, SharedData::get_instance()->game_config.selected_language), true));
         }
-        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame, game_config.selected_language));
+        options.push_back( strings_map::get_instance()->get_ingame_string(strings_ingame_config_quitgame, SharedData::get_instance()->game_config.selected_language));
     }
 
 
@@ -170,7 +169,7 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
                 exit(0);
             }
         }
-        fio.save_config(game_config);
+        fio.save_config(SharedData::get_instance()->game_config);
 
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
@@ -242,33 +241,33 @@ void game_menu::show_config_video()
 
     while (selected_option != -1) {
         std::vector<std::string> options;
-        if (game_config.video_fullscreen == false) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
+        if (SharedData::get_instance()->game_config.video_fullscreen == false) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, SharedData::get_instance()->game_config.selected_language));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, SharedData::get_instance()->game_config.selected_language));
         }
 
-        if (game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale, game_config.selected_language));
-        } else if (game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x, game_config.selected_language));
-        } else if (game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, game_config.selected_language));
+        if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_NOSCALE) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale, SharedData::get_instance()->game_config.selected_language));
+        } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_BITSCALE) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x, SharedData::get_instance()->game_config.selected_language));
+        } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_SCALE2x) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x, SharedData::get_instance()->game_config.selected_language));
         }
 
 
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            game_config.video_fullscreen = !game_config.video_fullscreen;
+            SharedData::get_instance()->game_config.video_fullscreen = !SharedData::get_instance()->game_config.video_fullscreen;
         } else if (selected_option == 1) {
-            game_config.video_filter++;
-            if (game_config.video_filter >= VIDEO_FILTER_COUNT) {
-                game_config.video_filter = 0;
+            SharedData::get_instance()->game_config.video_filter++;
+            if (SharedData::get_instance()->game_config.video_filter >= VIDEO_FILTER_COUNT) {
+                SharedData::get_instance()->game_config.video_filter = 0;
             }
         }
         if (selected_option != -1) {
-            fio.save_config(game_config);
+            fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
             st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
             graphLib.clear_area(menu_pos.x-14, menu_pos.y, RES_W, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
@@ -289,18 +288,18 @@ void game_menu::show_config_video_PSP()
 
     while (selected_option != -1) {
         std::vector<std::string> options;
-        if (game_config.video_fullscreen == true) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, game_config.selected_language));
+        if (SharedData::get_instance()->game_config.video_fullscreen == true) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed, SharedData::get_instance()->game_config.selected_language));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, game_config.selected_language));
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen, SharedData::get_instance()->game_config.selected_language));
         }
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            game_config.video_fullscreen = !game_config.video_fullscreen;
+            SharedData::get_instance()->game_config.video_fullscreen = !SharedData::get_instance()->game_config.video_fullscreen;
         }
         if (selected_option != -1) {
-            fio.save_config(game_config);
+            fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
             main_config_picker.draw();
         }
@@ -318,13 +317,13 @@ void game_menu::show_config_wii()
     short selected_option = 0;
     while (selected_option != -1) {
         std::vector<std::string> options;
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE, game_config.selected_language));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC, game_config.selected_language));
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE, game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_WIIMOTE, SharedData::get_instance()->game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_CLASSIC, SharedData::get_instance()->game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_config_wii_joysticktype_GAMECUBE, SharedData::get_instance()->game_config.selected_language));
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option != -1) {
-            game_config.wii_joystick_type = selected_option;
+            SharedData::get_instance()->game_config.wii_joystick_type = selected_option;
             main_config_picker.draw();
         }
     }
@@ -351,8 +350,8 @@ void game_menu::show_config_PS2()
     while (selected_option != -1) {
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option != -1) {
-            game_config.playstation2_video_mode = selected_option;
-            fio.save_config(game_config);
+            SharedData::get_instance()->game_config.playstation2_video_mode = selected_option;
+            fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
             main_config_picker.draw();
         }
@@ -365,10 +364,10 @@ void game_menu::show_config_ask_restart()
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, SharedData::get_instance()->game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
@@ -384,13 +383,13 @@ void game_menu::show_config_audio()
     timer.delay(300);
 
     std::vector<std::string> options;
-    if (game_config.sound_enabled == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language));
+    if (SharedData::get_instance()->game_config.sound_enabled == true) {
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, SharedData::get_instance()->game_config.selected_language));
     } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, SharedData::get_instance()->game_config.selected_language));
     }
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music, SharedData::get_instance()->game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx, SharedData::get_instance()->game_config.selected_language));
 
 
     short selected_option = 0;
@@ -400,18 +399,18 @@ void game_menu::show_config_audio()
         main_config_picker.draw();
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            if (game_config.sound_enabled == false) {
+            if (SharedData::get_instance()->game_config.sound_enabled == false) {
                 soundManager.enable_sound();
             } else {
                 soundManager.disable_sound();
             }
         } else if (selected_option == 1) {
-            int ini_val = game_config.volume_music;
+            int ini_val = SharedData::get_instance()->game_config.volume_music;
             int res_adjust = config_int_value(ini_val, 1, 128);
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] - res_adjust[%d]", res_adjust);
 #endif
-            game_config.volume_music = res_adjust;
+            SharedData::get_instance()->game_config.volume_music = res_adjust;
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #1");
 #endif
@@ -419,14 +418,14 @@ void game_menu::show_config_audio()
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #2");
 #endif
-            fio.save_config(game_config);
+            fio.save_config(SharedData::get_instance()->game_config);
         } else if (selected_option == 2) {
-            int ini_val = game_config.volume_sfx;
+            int ini_val = SharedData::get_instance()->game_config.volume_sfx;
             int res_adjust = config_int_value(ini_val, 1, 128);
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] - res_adjust[%d]", res_adjust);
 #endif
-            game_config.volume_sfx = res_adjust;
+            SharedData::get_instance()->game_config.volume_sfx = res_adjust;
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #1");
 #endif
@@ -434,7 +433,7 @@ void game_menu::show_config_audio()
 #ifdef ANDROID
             __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #2");
 #endif            soundManager.update_volumes();
-            fio.save_config(game_config);
+            fio.save_config(SharedData::get_instance()->game_config);
         }
     }
 }
@@ -447,25 +446,25 @@ void game_menu::show_config_language()
     input.clean();
     timer.delay(300);
     std::vector<st_menu_option> options;
-    if (game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
+    if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
         options.push_back(st_menu_option("ANGLAIS"));
         options.push_back(st_menu_option("FRANCAIS", true));
         options.push_back(st_menu_option("ESPANOL", true));
         options.push_back(st_menu_option("ITALIEN", true));
         options.push_back(st_menu_option("PORTUGAIS"));
-    } else if (game_config.selected_language == LANGUAGE_SPANISH) {    // SPANISH
+    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_SPANISH) {    // SPANISH
         options.push_back(st_menu_option("INGLES"));
         options.push_back(st_menu_option("FRANCES", true));
         options.push_back(st_menu_option("ESPANOL", true));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTUGUES"));
-    } else if (game_config.selected_language == LANGUAGE_ITALIAN) {    // ITALIAN
+    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_ITALIAN) {    // ITALIAN
         options.push_back(st_menu_option("INGLESE"));
         options.push_back(st_menu_option("FRANCESE", true));
         options.push_back(st_menu_option("SPAGNOLO", true));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTOGHESE"));
-    } else if (game_config.selected_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
+    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
         options.push_back(st_menu_option("INGLES"));
         options.push_back(st_menu_option("FRANCES", true));
         options.push_back(st_menu_option("ESPANHOL", true));
@@ -484,8 +483,8 @@ void game_menu::show_config_language()
     while (selected_option != -1) {
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option != -1) {
-            game_config.selected_language = selected_option;
-            fio.save_config(game_config);
+            SharedData::get_instance()->game_config.selected_language = selected_option;
+            fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
             main_config_picker.draw();
         }
@@ -503,18 +502,18 @@ void game_menu::show_config_performance()
         timer.delay(300);
         std::vector<std::string> options;
 
-        if (game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_low, game_config.selected_language));
-        } else if (game_config.graphics_performance_mode == PERFORMANCE_MODE_NORMAL) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_medium, game_config.selected_language));
+        if (SharedData::get_instance()->game_config.graphics_performance_mode == PERFORMANCE_MODE_LOW) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_low, SharedData::get_instance()->game_config.selected_language));
+        } else if (SharedData::get_instance()->game_config.graphics_performance_mode == PERFORMANCE_MODE_NORMAL) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_medium, SharedData::get_instance()->game_config.selected_language));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_high, game_config.selected_language));
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_high, SharedData::get_instance()->game_config.selected_language));
         }
 
         if (gameControl.get_show_fps_enabled()) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language));
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, SharedData::get_instance()->game_config.selected_language));
         } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language));
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, SharedData::get_instance()->game_config.selected_language));
         }
 
 
@@ -523,9 +522,9 @@ void game_menu::show_config_performance()
 
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            game_config.graphics_performance_mode++;
-            if (game_config.graphics_performance_mode > PERFORMANCE_MODE_HIGH) {
-                game_config.graphics_performance_mode = PERFORMANCE_MODE_LOW;
+            SharedData::get_instance()->game_config.graphics_performance_mode++;
+            if (SharedData::get_instance()->game_config.graphics_performance_mode > PERFORMANCE_MODE_HIGH) {
+                SharedData::get_instance()->game_config.graphics_performance_mode = PERFORMANCE_MODE_LOW;
             }
         } else if (selected_option == 1) {
             gameControl.set_show_fps_enabled(!gameControl.get_show_fps_enabled());
@@ -533,7 +532,7 @@ void game_menu::show_config_performance()
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 
-    fio.save_config(game_config);
+    fio.save_config(SharedData::get_instance()->game_config);
 }
 
 void game_menu::show_config_warning_android_play_services()
@@ -542,11 +541,11 @@ void game_menu::show_config_warning_android_play_services()
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services1, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services2, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services3, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services4, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services1, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services2, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services3, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_play_services4, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, SharedData::get_instance()->game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
@@ -559,11 +558,11 @@ void game_menu::show_config_warning_android_cloud_save()
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save1, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save2, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save3, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save4, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save1, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save2, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save3, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_android_cloud_save4, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+60, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, SharedData::get_instance()->game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
@@ -576,10 +575,10 @@ void game_menu::show_config_warning_android_hide_controls()
     timer.delay(300);
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, game_config.selected_language));
-    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart1, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+10, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart2, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+20, strings_map::get_instance()->get_ingame_string(strings_ingame_config_restart3, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(menu_pos.x, menu_pos.y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart, SharedData::get_instance()->game_config.selected_language));
     draw_lib.update_screen();
     input.wait_keypress();
     graphLib.clear_area(menu_pos.x, menu_pos.y, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
@@ -595,8 +594,8 @@ void game_menu::show_config_extras()
     timer.delay(300);
 
     std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_music_player, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_sound_player, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_music_player, SharedData::get_instance()->game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_sound_player, SharedData::get_instance()->game_config.selected_language));
     //options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_art_gallery, game_config.selected_language));
 
     short selected_option = 0;

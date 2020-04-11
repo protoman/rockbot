@@ -29,9 +29,8 @@ extern std::string GAMENAME;
 extern bool GAME_FLAGS[FLAG_COUNT];
 
 // versioned file for config, so we can force resetting it
-#define CONFIG_FILENAME "/config_v204.sav"
-
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
+#define CONFIG_FILENAME "/config_v205.sav"
+#define CONFIG_FILENAME_OLD "/config_v204.sav"
 
 // ************************************************************************************************************* //
 
@@ -839,21 +838,43 @@ namespace format_v4 {
 
     void file_io::load_config(format_v4::st_game_config& config)
     {
-        FILE *fp;
         std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
-        if (!fp) {
-            std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
-        } else {
-            int read_result = fread(&config, sizeof(struct format_v4::st_game_config), 1, fp);
-            if (read_result  == -1) {
-                printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
-                fflush(stdout);
-                exit(-1);
+
+        std::string filename_old = std::string(SAVEPATH) + CONFIG_FILENAME_OLD;
+        filename_old = StringUtils::clean_filename(filename_old);
+
+
+        if (!file_exists(filename) && file_exists(filename_old)) {
+            FILE *fp_old = fopen(filename_old.c_str(), "rb");
+            if (!fp_old) {
+                std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
+            } else {
+                format_v4_old::st_game_config config_old;
+                int read_result = fread(&config_old, sizeof(struct format_v4_old::st_game_config), 1, fp_old);
+                if (read_result  == -1) {
+                    printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
+                    fflush(stdout);
+                    exit(-1);
+                }
+                fclose(fp_old);
+                config = config_old;
             }
-            fclose(fp);
+        } else {
+            FILE *fp = fopen(filename.c_str(), "rb");
+            if (!fp) {
+                std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
+            } else {
+                int read_result = fread(&config, sizeof(struct format_v4::st_game_config), 1, fp);
+                if (read_result  == -1) {
+                    printf(">>file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
+                    fflush(stdout);
+                    exit(-1);
+                }
+                fclose(fp);
+            }
         }
+
         if (config.get_current_platform() != config.platform) {
             config.reset();
         }
@@ -861,7 +882,9 @@ namespace format_v4 {
         config.video_filter = VIDEO_FILTER_NOSCALE;
         std::cout << "IO::load_config - SET video_filter to " << VIDEO_FILTER_NOSCALE << ", value: " << config.video_filter << std::endl;
 #endif
-
+#ifdef PLAYSTATION2
+        config.reset();
+#endif
         if (config.volume_music == 0) {
             config.volume_music = 128;
         }

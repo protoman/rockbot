@@ -1,0 +1,4 @@
+#ifndef FILE_CONFIG_OLD_H
+#define FILE_CONFIG_OLD_H
+
+#endif // FILE_CONFIG_OLD_H

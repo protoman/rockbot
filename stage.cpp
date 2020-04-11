@@ -10,7 +10,6 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -412,7 +411,7 @@ void stage::check_map_effect()
         return;
     }
     // no map effects unless config is set to high-end performance mode
-    if (game_config.graphics_performance_mode != PERFORMANCE_MODE_HIGH) {
+    if (SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_HIGH) {
         return;
     }
 

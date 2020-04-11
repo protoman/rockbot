@@ -31,7 +31,6 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -317,7 +316,7 @@ void classPlayer::attack(bool dont_update_colors)
     if (selected_weapon == WEAPON_DEFAULT) {
         /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
 
-        if (game_config.auto_charge_mode) {
+        if (SharedData::get_instance()->game_config.auto_charge_mode) {
             if (moveCommands.attack == 1) {
                 //std::cout << "auto-charge-attack" << std::endl;
                 moveCommands.attack = 0;

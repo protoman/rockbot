@@ -31,9 +31,6 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 extern int freeze_weapon_id;
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
-
-
 // initialize static member
 static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
 
@@ -617,7 +614,7 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
     int now_timer = timer.getTimer();
     int time_diff = now_timer - attack_button_pressed_timer;
 
-    if (game_config.turbo_mode == true && moveCommands.attack != 0) {
+    if (SharedData::get_instance()->game_config.turbo_mode == true && moveCommands.attack != 0) {
         if (now_timer < state.attack_timer + TURBO_ATTACK_INTERVAL) {
             return ATTACK_TYPE_NOATTACK;
         } else {
@@ -630,7 +627,7 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
         //std::cout << "CHAR::check_must_attack - ATTACK NORMAL" << std::endl;
         return ATTACK_TYPE_NORMAL;
     // button changed from pressed to released and char can use charged attacks
-    } else if (game_config.turbo_mode == false && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && attack_button_last_state == 1) {
+    } else if (SharedData::get_instance()->game_config.turbo_mode == false && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && attack_button_last_state == 1) {
         // @TODO use super charged time also
         if (time_diff >= CHARGED_SHOT_TIME) {
             return ATTACK_TYPE_FULLYCHARGED;
@@ -648,7 +645,7 @@ void character::check_charging_colors(bool always_charged)
     int now_timer = timer.getTimer();
     int attack_diff_timer = now_timer-attack_button_pressed_timer;
 
-    if (game_config.turbo_mode == true) {
+    if (SharedData::get_instance()->game_config.turbo_mode == true) {
         return;
     }
 

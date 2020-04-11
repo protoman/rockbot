@@ -2,6 +2,7 @@
 #define FILE_CONFIG_301_H
 
 #include "../format/st_common.h"
+#include "file/v4/file_config_old.h"
 
 namespace format_v4 {
 
@@ -29,6 +30,19 @@ namespace format_v4 {
         Uint8 playstation2_video_mode;                      // for playstation 2, define screen resolution setting
         Uint8 graphics_performance_mode;                    // 0 => lowend, 1=> normal, 2 => highend
         bool first_run;
+        Sint8 android_button_spacing = 1;
+        Sint8 android_audio_buffer_size = 0;
+        // FOR FUTURE USAGE
+        Sint8 CONFIG_PLACEHOLDER_001 = 0;
+        Sint8 CONFIG_PLACEHOLDER_002 = 0;
+        Sint8 CONFIG_PLACEHOLDER_003 = 0;
+        Sint8 CONFIG_PLACEHOLDER_004 = 0;
+        Sint8 CONFIG_PLACEHOLDER_005 = 0;
+        Sint8 CONFIG_PLACEHOLDER_006 = 0;
+        Sint8 CONFIG_PLACEHOLDER_007 = 0;
+        Sint8 CONFIG_PLACEHOLDER_008 = 0;
+        Sint8 CONFIG_PLACEHOLDER_009 = 0;
+        Sint8 CONFIG_PLACEHOLDER_010 = 0;
 
         void get_default_keys(int (&keys_codes_copy)[BTN_COUNT]) {
 #ifdef PLAYSTATION2
@@ -141,14 +155,19 @@ namespace format_v4 {
             button_codes_copy[BTN_QUIT].value = -1;
             button_codes_copy[BTN_START].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_START].value = 5;
-            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_LEFT].value = -1; // uses default axis
-            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_RIGHT].value = -1; // uses default axis
-            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_UP].value = -1; // uses default axis
-            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_BUTTON;
-            button_codes_copy[BTN_DOWN].value = -1; // uses default axis
+
+            button_codes_copy[BTN_DOWN].axis_type = 1;
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_BUTTON;	            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_RIGHT].value = -1; // uses default axis	            button_codes_copy[BTN_DOWN].value = 1;
+            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_BUTTON;	            button_codes_copy[BTN_UP].axis_type = -1;
+            button_codes_copy[BTN_UP].value = -1; // uses default axis	            button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_BUTTON;	            button_codes_copy[BTN_UP].value = 1;
+            button_codes_copy[BTN_DOWN].value = -1; // uses default axis	            button_codes_copy[BTN_RIGHT].axis_type = 1;
+            button_codes_copy[BTN_RIGHT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_RIGHT].value = 0;
+            button_codes_copy[BTN_LEFT].axis_type = -1;
+            button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_AXIS;
+            button_codes_copy[BTN_LEFT].value = 0;
 #elif PSP
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_SHIELD].value = 3;
@@ -345,6 +364,18 @@ namespace format_v4 {
             wii_joystick_type = 0;
             playstation2_video_mode = 0;
             graphics_performance_mode = PERFORMANCE_MODE_HIGH;
+            android_button_spacing = 1;
+            android_audio_buffer_size = 0;
+            CONFIG_PLACEHOLDER_001 = 0;
+            CONFIG_PLACEHOLDER_002 = 0;
+            CONFIG_PLACEHOLDER_003 = 0;
+            CONFIG_PLACEHOLDER_004 = 0;
+            CONFIG_PLACEHOLDER_005 = 0;
+            CONFIG_PLACEHOLDER_006 = 0;
+            CONFIG_PLACEHOLDER_007 = 0;
+            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_010 = 0;
         }
 
 
@@ -352,6 +383,46 @@ namespace format_v4 {
             game_finished = false;
             first_run = true;
             reset();
+        }
+
+        format_v4::st_game_config& operator=(const format_v4_old::st_game_config& original) {
+            sound_enabled = original.sound_enabled;
+            video_fullscreen = original.video_fullscreen;
+            video_filter = original.video_filter;
+            input_type = original.input_type;                           // if keyboard or joystick
+            input_mode = original.input_mode;                           // inf directional is joypad-digital, analog sick or hat
+            platform = original.platform;                                // if changed, must reset config to default
+            for (int i=0; i<BTN_COUNT; i++) {
+                keys_codes[i] = original.keys_codes[i];                          // number indicator for the keyboard-keys
+                button_codes[i] = original.button_codes[i];     // number indicator for the joystick-button-keys
+            }
+
+            game_finished = original.game_finished;                                 // stores if game was finished, so we can show more options to player
+            selected_input_device = original.selected_input_device;
+            selected_language = original.selected_language;
+            turbo_mode = original.turbo_mode;
+            auto_charge_mode = original.auto_charge_mode;
+            volume_sfx = original.volume_sfx;
+            volume_music = original.volume_music;
+            android_touch_controls_hide = original.android_touch_controls_hide;                   // define if touch controls must be hidden
+            android_touch_controls_size = original.android_touch_controls_size;                  // for android, size of the on-screen controls 0 = small, 1 = normal, 2 = big
+            wii_joystick_type = original.wii_joystick_type;                            // for wii to define between wiimote, classic, gamecube, etc
+            playstation2_video_mode = original.playstation2_video_mode;                      // for playstation 2, define screen resolution setting
+            graphics_performance_mode = original.graphics_performance_mode;                    // 0 => lowend, 1=> normal, 2 => highend
+            first_run = original.first_run;
+            android_button_spacing = 1;
+            android_audio_buffer_size = 0;
+            CONFIG_PLACEHOLDER_001 = 0;
+            CONFIG_PLACEHOLDER_002 = 0;
+            CONFIG_PLACEHOLDER_003 = 0;
+            CONFIG_PLACEHOLDER_004 = 0;
+            CONFIG_PLACEHOLDER_005 = 0;
+            CONFIG_PLACEHOLDER_006 = 0;
+            CONFIG_PLACEHOLDER_007 = 0;
+            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_010 = 0;
+            return *this;
         }
     };
 

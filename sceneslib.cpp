@@ -46,7 +46,6 @@ extern android_game_services game_services;
 
 #include "scenes/sceneshow.h"
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::file_game game_data;
@@ -119,7 +118,7 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
+    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, SharedData::get_instance()->game_config.selected_language));
     graphLib.draw_centered_text(220, "http://rockbot.upperland.net");
 
 }
@@ -140,14 +139,14 @@ void scenesLib::main_screen()
 	draw_main();
 
     std::vector<st_menu_option> options;
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame, SharedData::get_instance()->game_config.selected_language)));
     if (fio.have_one_save_file() == true) {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language)));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, SharedData::get_instance()->game_config.selected_language)));
     } else {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language), true));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, SharedData::get_instance()->game_config.selected_language), true));
     }
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, SharedData::get_instance()->game_config.selected_language)));
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
@@ -516,8 +515,8 @@ void scenesLib::show_bosses_ending()
 
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
-        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
-        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
+        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, SharedData::get_instance()->game_config.selected_language) + ":";
+        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, SharedData::get_instance()->game_config.selected_language) + ":";
         int delay = 60;
 
 
@@ -563,7 +562,7 @@ Uint8 scenesLib::select_player() {
     graphicsLib_gSurface bg_surface;
 
     int max_loop = 2;
-    if (game_config.game_finished == true) {
+    if (SharedData::get_instance()->game_config.game_finished == true) {
         max_loop = 4;
     }
 
@@ -589,9 +588,9 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, SharedData::get_instance()->game_config.selected_language));
     graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language));
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, SharedData::get_instance()->game_config.selected_language));
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
@@ -659,14 +658,14 @@ Uint8 scenesLib::select_difficulty()
     input.clean();
     timer.delay(300);
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy, SharedData::get_instance()->game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, SharedData::get_instance()->game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, SharedData::get_instance()->game_config.selected_language));
 
     config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
 
-    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, game_config.selected_language).c_str());
+    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, SharedData::get_instance()->game_config.selected_language).c_str());
 
     short selected_option = -2;
     while (selected_option == -2) {

@@ -1,10 +1,4 @@
-﻿- Define para limite de FPS
-    # calcular multiplicador de movimento e guardar em shared-data
-    # usado em ports como Dingoo e PS2
-
-
-- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
-
+﻿- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
 
 - animated background:
     # conjunto de tiles animados, tamanho MAP_WxMAP_H (repete-x, se for menor que MAP_W)

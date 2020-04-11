@@ -22,8 +22,6 @@ extern timerLib timer;
 
 #include "../aux_tools/exception_manager.h"
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
-
 sceneShow::sceneShow()
 {
     _interrupt_scene = false;
@@ -274,7 +272,7 @@ void sceneShow::run_text(int n)
 
 
     std::vector<std::string> text_lines;
-    std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, game_config.selected_language);
+    std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n, SharedData::get_instance()->game_config.selected_language);
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
 
         std::string line = scene_text_list[i];

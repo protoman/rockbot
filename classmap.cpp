@@ -40,7 +40,6 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::st_save game_save;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
 
@@ -593,7 +592,7 @@ void classMap::draw_dynamic_backgrounds()
     float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10 * SharedData::get_instance()->get_movement_multiplier();
     int bg1_scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll;
     // dynamic background won't work in low-end graphics more
-    if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
+    if (SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
         if (bg1_scroll_mode == BG_SCROLL_MODE_LEFT) {
             bg_scroll.x -= bg1_speed;
             adjust_dynamic_background_position();
@@ -658,7 +657,7 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
         float foreground_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10 * SharedData::get_instance()->get_movement_multiplier();
         int scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll;
         // dynamic background won't work in low-end graphics more
-        if (game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
+        if (SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
             //std::cout << "draw_foreground_layer #2" << std::endl;
             if (scroll_mode == BG_SCROLL_MODE_LEFT) {
                 fg_layer_scroll.x -= ((float)1*foreground_speed);
@@ -1309,7 +1308,7 @@ void classMap::create_dynamic_background_surfaces()
         // @NOTE: alpha must be the same for three maps if using same image
         if (draw_lib.get_dynamic_foreground(std::string(GameMediator::get_instance()->map_data[number].backgrounds[1].filename)) == NULL) {
             draw_lib.add_dynamic_background(std::string(GameMediator::get_instance()->map_data[number].backgrounds[1].filename), GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
-            if (GameMediator::get_instance()->map_data[number].backgrounds[1].gfx != 100 && game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
+            if (GameMediator::get_instance()->map_data[number].backgrounds[1].gfx != 100 && SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
                 int fg_alpha = (255 * GameMediator::get_instance()->map_data[number].backgrounds[1].gfx)/100;
                 //std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << number << "][" << fg_alpha << "]" << std::endl;
                 draw_lib.set_dynamic_bg_alpha(GameMediator::get_instance()->map_data[number].backgrounds[1].filename, fg_alpha);
