@@ -27,9 +27,11 @@ public:
 #ifdef ANDROID
     // stores original size before setting a different size
     void init_android_button_size();
-    void set_android_default_buttons_size(int size);
+    void set_android_default_buttons_size(int size, int spacing);
     void set_touch_controls_visible(bool show);
     void crash_handler(std::string log);
+
+    void set_android_audio_buffer_size(int size);
 
 private:
     void check_button_size(SDL_Rect &dest_size, SDL_Rect &default_size);

@@ -41,7 +41,7 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
     cheat_input_is_active = false;
 
 #ifdef ANDROID
-    game_config.get_default_keys(default_keys_codes);
+    SharedData::get_instance()->game_config.get_default_keys(default_keys_codes);
 #endif
 
 }
@@ -142,7 +142,7 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
                     key_config_tmp = default_keys_codes;
                 } else {
                     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING USER-CONFIG ###");
-                    key_config_tmp = game_config.keys_codes;
+                    key_config_tmp = SharedData::get_instance()->game_config.keys_codes;
                 }
 #endif
             }
@@ -555,7 +555,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
     timer.delay(50);
 
     #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button game_config.input_type[%d]", (int)game_config.input_type);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::pick_key_or_button game_config.input_type[%d]", (int)SharedData::get_instance()->game_config.input_type);
     #else
     std::cout << "### INPUT::pick_key_or_button game_config.input_type[" << (int)SharedData::get_instance()->game_config.input_type << "]" << std::endl;
     #endif

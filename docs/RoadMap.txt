@@ -5,11 +5,6 @@
     # é desenhando por cima do BG e faz scroll na mesma velocidade do bg
         # só mostra em performance high, caso contrário, é desenhado sobre a superfícia BG diretamente, só o primaeiro frame de animação
 
-- ANDROID: adicionar opção para 3 tipos de espaçamento entre botões (pequeno, normal, grande)
-
-- problemas de audio em alguns aparelhos (?)
-    # tentei aumentar tamanho do buffer de audio para 4096
-
 - checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
     # somente plataformas devem colidir com jogador
 
@@ -25,11 +20,18 @@
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
-- criar intro em texto (soldado e blá blá blá), apenas em new game
+- criar intro em texto (soldado e blá blá blá)
+    # aparece apenas ao selecionar new game
 
 
 ##########################################
 BACKPORT FIREFLY:
 ##########################################
-- Audio 44khz/buffer 4096
 - Config integer-value method
+- revisar lista de fixes
+
+
+
+8cm largura embaixo
+9cm largura em cima
+3cm altura

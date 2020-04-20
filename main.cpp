@@ -415,8 +415,8 @@ int main(int argc, char *argv[])
 
 #ifdef ANDROID
     game_services.init_android_button_size();
-    game_services.set_android_default_buttons_size(game_config.android_touch_controls_size);
-    game_services.set_touch_controls_visible(!game_config.android_touch_controls_hide);
+    game_services.set_android_default_buttons_size(SharedData::get_instance()->game_config.android_touch_controls_size, SharedData::get_instance()->game_config.android_button_spacing);
+    game_services.set_touch_controls_visible(!SharedData::get_instance()->game_config.android_touch_controls_hide);
 #endif
 
 

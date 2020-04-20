@@ -1160,6 +1160,14 @@ enum E_STRINGS_INGAME {
     STRING_ENDING_CONCEPT,
     STRING_ENDING_DESIGN,
 
+    strings_config_android_screencontrolsspacing,
+    strings_config_android_audiobuffersize,
+    strings_config_android_audiobuffersize_VERY_SMALL,
+    strings_config_android_audiobuffersize_SMALL,
+    strings_config_android_audiobuffersize_MEDIUM,
+    strings_config_android_audiobuffersize_BIG,
+    strings_config_android_audiobuffersize_DESCRIPTION,
+
     strings_ingame_COUNT
 };
 

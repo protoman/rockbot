@@ -352,6 +352,14 @@ namespace format_v4 {
             sprintf(lines[STRING_ENDING_CONCEPT], "%s", "CONCEITO");
             sprintf(lines[STRING_ENDING_DESIGN], "%s", "DESENHO");
 
+            sprintf(lines[strings_config_android_screencontrolsspacing], "%s", "ESPAÇO BOTÕES");
+            sprintf(lines[strings_config_android_audiobuffersize], "%s", "TAMANHO BUFFER ÁUDIO");
+            sprintf(lines[strings_config_android_audiobuffersize_VERY_SMALL], "%s", "MUITO PEQUENO");
+            sprintf(lines[strings_config_android_audiobuffersize_SMALL], "%s", "PEQUENO");
+            sprintf(lines[strings_config_android_audiobuffersize_MEDIUM], "%s", "MÉDIO");
+            sprintf(lines[strings_config_android_audiobuffersize_BIG], "%s", "GRANDE");
+            sprintf(lines[strings_config_android_audiobuffersize_DESCRIPTION], "%s", "AUMENTE VALOR SE ÁUDIO ESTIVER CORTADO");
+
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -524,6 +532,14 @@ namespace format_v4 {
             sprintf(lines[STRING_ENDING_CONCEPT], "%s", "CONCEPT");
             sprintf(lines[STRING_ENDING_DESIGN], "%s", "DESIGN");
 
+
+            sprintf(lines[strings_config_android_screencontrolsspacing], "%s", "BUTTON SPACING");
+            sprintf(lines[strings_config_android_audiobuffersize], "%s", "AUDIO BUFFER SIZE");
+            sprintf(lines[strings_config_android_audiobuffersize_VERY_SMALL], "%s", "VERY SMALL");
+            sprintf(lines[strings_config_android_audiobuffersize_SMALL], "%s", "SMALL");
+            sprintf(lines[strings_config_android_audiobuffersize_MEDIUM], "%s", "MEDIUM");
+            sprintf(lines[strings_config_android_audiobuffersize_BIG], "%s", "BIG");
+            sprintf(lines[strings_config_android_audiobuffersize_DESCRIPTION], "%s", "INCREASE VALUE IF AUDIO IS CHOPPY");
 
         }
 

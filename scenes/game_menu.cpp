@@ -193,37 +193,70 @@ void game_menu::show_config_android()
         options.clear();
 
         // OPTION #0: SHOW/HIDE controls
-        if (game_config.android_touch_controls_hide == false) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, game_config.selected_language)));
+        if (SharedData::get_instance()->game_config.android_touch_controls_hide == false) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled, SharedData::get_instance()->game_config.selected_language)));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, game_config.selected_language)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_hidescreencontrols, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled, SharedData::get_instance()->game_config.selected_language)));
         }
         // OPTION #1: controls size
-        if (game_config.android_touch_controls_size == 0) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL, game_config.selected_language)));
-        } else if (game_config.android_touch_controls_size == 2) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG, game_config.selected_language)));
+        if (SharedData::get_instance()->game_config.android_touch_controls_size == 0) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL, SharedData::get_instance()->game_config.selected_language)));
+        } else if (SharedData::get_instance()->game_config.android_touch_controls_size == 2) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG, SharedData::get_instance()->game_config.selected_language)));
         } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM, game_config.selected_language)));
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM, SharedData::get_instance()->game_config.selected_language)));
+        }
+
+        // OPTION #2 controls spacing
+        if (SharedData::get_instance()->game_config.android_button_spacing == 0) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolsspacing, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_SMALL, SharedData::get_instance()->game_config.selected_language)));
+        } else if (SharedData::get_instance()->game_config.android_button_spacing == 2) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolsspacing, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_BIG, SharedData::get_instance()->game_config.selected_language)));
+        } else {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolsspacing, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM, SharedData::get_instance()->game_config.selected_language)));
+        }
+
+        // OPTION #3 audio buffer size
+        if (SharedData::get_instance()->game_config.android_audio_buffer_size == 0) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_VERY_SMALL, SharedData::get_instance()->game_config.selected_language)));
+        } else if (SharedData::get_instance()->game_config.android_audio_buffer_size == 1) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_SMALL, SharedData::get_instance()->game_config.selected_language)));
+        } else if (SharedData::get_instance()->game_config.android_audio_buffer_size == 2) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_MEDIUM, SharedData::get_instance()->game_config.selected_language)));
+        } else {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize, SharedData::get_instance()->game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_BIG, SharedData::get_instance()->game_config.selected_language)));
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            game_config.android_touch_controls_hide = !game_config.android_touch_controls_hide;
-            game_services.set_touch_controls_visible(!game_config.android_touch_controls_hide);
+            SharedData::get_instance()->game_config.android_touch_controls_hide = !SharedData::get_instance()->game_config.android_touch_controls_hide;
+            game_services.set_touch_controls_visible(!SharedData::get_instance()->game_config.android_touch_controls_hide);
             // @TODO: show warning about emergency reset
         } else if (selected_option == 1) {
-            game_config.android_touch_controls_size++;
-            if (game_config.android_touch_controls_size > 2) {
-                game_config.android_touch_controls_size = 0;
+            SharedData::get_instance()->game_config.android_touch_controls_size++;
+            if (SharedData::get_instance()->game_config.android_touch_controls_size > 2) {
+                SharedData::get_instance()->game_config.android_touch_controls_size = 0;
             }
-            game_services.set_android_default_buttons_size(game_config.android_touch_controls_size);
+            game_services.set_android_default_buttons_size(SharedData::get_instance()->game_config.android_touch_controls_size, SharedData::get_instance()->game_config.android_button_spacing);
+        } else if (selected_option == 2) {
+            SharedData::get_instance()->game_config.android_button_spacing++;
+            if (SharedData::get_instance()->game_config.android_button_spacing > 2) {
+                SharedData::get_instance()->game_config.android_button_spacing = 0;
+            }
+            game_services.set_android_default_buttons_size(SharedData::get_instance()->game_config.android_touch_controls_size, SharedData::get_instance()->game_config.android_button_spacing);
+        } else if (selected_option == 3) {
+            SharedData::get_instance()->game_config.android_audio_buffer_size++;
+            if (SharedData::get_instance()->game_config.android_audio_buffer_size > 3) {
+                SharedData::get_instance()->game_config.android_audio_buffer_size = 0;
+            }
+            game_services.set_android_audio_buffer_size(SharedData::get_instance()->game_config.android_audio_buffer_size);
+            show_config_ask_restart(); // ask to restart game //
         }
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.updateScreen();
     }
-    fio.save_config(game_config);
+    fio.save_config(SharedData::get_instance()->game_config);
 #endif
 }
 
@@ -406,33 +439,15 @@ void game_menu::show_config_audio()
             }
         } else if (selected_option == 1) {
             int ini_val = SharedData::get_instance()->game_config.volume_music;
-            int res_adjust = config_int_value(ini_val, 1, 128);
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] - res_adjust[%d]", res_adjust);
-#endif
+            int res_adjust = config_int_value(ini_val, 1, 128, strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music, SharedData::get_instance()->game_config.selected_language));
             SharedData::get_instance()->game_config.volume_music = res_adjust;
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #1");
-#endif
             soundManager.update_volumes();
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[MUSIC] DEBUG #2");
-#endif
             fio.save_config(SharedData::get_instance()->game_config);
         } else if (selected_option == 2) {
             int ini_val = SharedData::get_instance()->game_config.volume_sfx;
-            int res_adjust = config_int_value(ini_val, 1, 128);
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] - res_adjust[%d]", res_adjust);
-#endif
+            int res_adjust = config_int_value(ini_val, 1, 128, strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx, SharedData::get_instance()->game_config.selected_language));
             SharedData::get_instance()->game_config.volume_sfx = res_adjust;
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #1");
-#endif
             soundManager.update_volumes();
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::show_config_audio[SFX] DEBUG #2");
-#endif            soundManager.update_volumes();
             fio.save_config(SharedData::get_instance()->game_config);
         }
     }
@@ -611,7 +626,7 @@ void game_menu::show_config_extras()
     }
 }
 
-int game_menu::config_int_value(int initial_value_int, int min, int max)
+int game_menu::config_int_value(int initial_value_int, int min, int max, std::string title)
 {
     int initial_value = initial_value_int;
     int config_text_pos_x = graphLib.get_config_menu_pos().x + 24;

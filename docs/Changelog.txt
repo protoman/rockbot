@@ -3,6 +3,8 @@
 - add back PS2 build (still not working)
 - add 30 fps max mode (still under construction)
 - fix crash in number pick (for real this time)
+- added option to set on-screen buttons spacing
+- added option to set audio buffer size (should fix issue with choppy sound, but adds delay)
 ####################################################################################################################################
 
 
