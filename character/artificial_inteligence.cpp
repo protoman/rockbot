@@ -1321,12 +1321,13 @@ void artificial_inteligence::execute_ai_step_fly()
                 state.animation_timer = timer.getTimer() + 200;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_UP) {
-			//std::cout << "artificial_inteligence::execute_ai_step_fly - UP" << std::endl;
+            std::cout << "artificial_inteligence::execute_ai_step_fly - UP - is_ghost[" << is_ghost << "], x[" << position.x << "], move_speed[" << move_speed << "]" << std::endl;
             if (move_to_point(_dest_point, 0, move_speed, is_ghost) == true) {
+                std::cout << "artificial_inteligence::execute_ai_step_fly - FINISHED" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
-            //std::cout << "artificial_inteligence::execute_ai_step_fly - DOWN - dest_point.y: " << _dest_point.y << std::endl;
+            std::cout << "artificial_inteligence::execute_ai_step_fly - DOWN - dest_point.y: " << _dest_point.y << std::endl;
             if (move_to_point(_dest_point, 0, move_speed, is_ghost) == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -1675,8 +1676,8 @@ void artificial_inteligence::execute_ai_wait_random_time()
 // returns false if can ove and true if blocked
 bool artificial_inteligence::move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls)
 {
-
     can_move_struct move_inc = check_can_move_to_point(dest_point, speed_x, speed_y, can_pass_walls);
+    std::cout << "artificial_inteligence::move_to_point[" << name << "], speed_y[" << speed_y << "], can_pass_walls[" << can_pass_walls << "],move_inc.result[" << move_inc.result << "]" << std::endl;
 
     if (move_inc.result == CAN_MOVE_LEAVE_TRUE) {
         return true;

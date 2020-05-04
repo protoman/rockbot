@@ -56,6 +56,7 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_friend(false) // map-loaded npc
 {
+    is_ghost = false;
     build_basic_npc(stage_id, map_id, main_id);
     facing = GameMediator::get_instance()->map_npc_data[id].direction;
     state.direction = facing;
@@ -78,7 +79,6 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     _screen_blinked = false;
     _parent_id = -1;
 
-    is_ghost = false;
 
     if (is_static()) {
         can_fly = true;
@@ -87,6 +87,8 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend) // spawned npc
 {
+    is_ghost = false;
+
     build_basic_npc(stage_id, map_id, main_id);
     _is_player_friend = player_friend;
     facing = direction;
@@ -101,7 +103,6 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     _screen_blinked = false;
     _parent_id = -1;
 
-    is_ghost = false;
     if (is_static()) {
         can_fly = true;
     }
@@ -192,6 +193,9 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 
     frameSize.width = GameMediator::get_instance()->get_enemy(main_id)->frame_size.width;
     frameSize.height = GameMediator::get_instance()->get_enemy(main_id)->frame_size.height;
+
+    if (name == "JUMPINNER GHOST") std::cout << "###################### classnpc::build_basic_npc - main_id[" << main_id << "], name[" << GameMediator::get_instance()->get_enemy(main_id)->name << "], is_ghost[" << GameMediator::get_instance()->get_enemy(main_id)->is_ghost << "]" << std::endl;
+
     is_ghost = (GameMediator::get_instance()->get_enemy(main_id)->is_ghost != 0);
     shield_type = GameMediator::get_instance()->get_enemy(main_id)->shield_type;
 	_is_boss = false;
@@ -238,6 +242,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 
     // can't have ghosts that don't fly
     if (is_ghost == true && can_fly == false) {
+        std::cout << "###################### classnpc::build_basic_npc - RESET GHOST BECAUSE FLY FLAG IS OFF - main_id[" << main_id << "], name[" << GameMediator::get_instance()->get_enemy(main_id)->name << "], is_ghost[" << GameMediator::get_instance()->get_enemy(main_id)->is_ghost << "]" << std::endl;
         is_ghost = false;
     }
     if (is_static()) {

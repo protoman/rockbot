@@ -402,6 +402,13 @@ void Mediator::load_game() {
         }
     }
 
+    // fix invalid ghost values
+    for (int i=0; i<enemy_list.size(); i++) {
+        if (enemy_list.at(i).is_ghost > 1) {
+            enemy_list.at(i).is_ghost = 0;
+        }
+    }
+
     object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat");
     if (object_list.size() == 0) { // add one first item to avoid errors
         object_list.push_back(CURRENT_FILE_FORMAT::file_object());
