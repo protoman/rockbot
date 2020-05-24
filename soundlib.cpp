@@ -10,6 +10,7 @@ extern string FILEPATH;
 extern string GAMEPATH;
 
 #include "file/format.h"
+#include "aux_tools/stringutils.h"
 
 soundLib::soundLib() : _repeated_sfx_channel(-1), _repeated_sfx(-1)
 {
@@ -234,6 +235,7 @@ void soundLib::load_music(std::string music_file) {
 
     unload_music();
     filename = FILEPATH + "music/" + music_file;
+    filename = get_filename_for_music(filename);
 	music = Mix_LoadMUS(filename.c_str());
 	if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
@@ -249,6 +251,7 @@ void soundLib::load_shared_music(string music_file)
 
     unload_music();
     filename = GAMEPATH + "/shared/music/" + music_file;
+    filename = get_filename_for_music(filename);
     music = Mix_LoadMUS(filename.c_str());
     if (!music) {
         std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
@@ -267,7 +270,8 @@ void soundLib::load_boss_music(string music_file) {
         boss_music = NULL;
 	}
     filename = FILEPATH + "music/" + music_file;
-	//std::cout << "soundLib::load_boss_music - filename: " << filename << std::endl;
+    filename = get_filename_for_music(filename);
+    std::cout << "soundLib::load_boss_music - filename: " << filename << std::endl;
 	boss_music = Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
         std::cout << "Error in soundLib::load_boss_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
@@ -358,7 +362,7 @@ void soundLib::play_boss_music() {
 
 void soundLib::load_stage_music(std::string filename) {
     is_playing_boss_music = false;
-    //std::cout << "soundLib::load_stage_music - filename: " << filename << std::endl;
+    std::cout << "soundLib::load_stage_music - filename: " << filename << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_stage_music[%s] ###", filename.c_str());
 #endif
@@ -414,6 +418,15 @@ void soundLib::enable_sound()
     play_music();
 }
 
+string soundLib::get_filename_for_music(string filename)
+{
+    filename = StringUtils::clean_filename(filename);
+#ifdef ANDROID
+    filename = filename + ".ogg";
+#endif
+    return filename;
+}
+
 void soundLib::update_volumes()
 {
     Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
@@ -425,7 +438,8 @@ void soundLib::play_sfx_from_file(string filename, int repeat_n)
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_sfx_from_file[%s] ###", filename.c_str());
 #endif
-    filename = FILEPATH + "sfx/" + filename;
+    filename = FILEPATH + "/sfx/" + filename;
+    filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
 
     if (!sfx) {
@@ -442,7 +456,8 @@ void soundLib::play_sfx_from_file(string filename, int repeat_n)
 
 void soundLib::play_shared_sfx(string filename)
 {
-    filename = GAMEPATH + "shared/sfx/" + filename;
+    filename = GAMEPATH + "/shared/sfx/" + filename;
+    filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
 
     if (!sfx) {
@@ -475,7 +490,8 @@ Mix_Chunk* soundLib::sfx_from_file(string filename)
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::sfx_from_file[%s] ###", filename.c_str());
 #endif
     Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
-    filename = FILEPATH + "sfx/" + filename;
+    filename = FILEPATH + "/sfx/" + filename;
+    filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
     return sfx;
 }

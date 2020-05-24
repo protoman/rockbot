@@ -77,7 +77,7 @@ scenesLib::scenesLib() : _timer(0), _state(0)
 // ********************************************************************************************** //
 void scenesLib::preloadScenes()
 {
-    game_scenes_map = fio_scn.load_game_scenes();
+    //game_scenes_map = fio_scn.load_game_scenes();
     soundManager.load_boss_music(game_data.boss_music_filename);
 }
 

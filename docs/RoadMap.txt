@@ -1,4 +1,6 @@
-﻿- boss music não está tocando
+﻿- recreate intro (use new drawings, create a different story)
+
+- boss music não está tocando
 
 - (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
 
@@ -24,6 +26,8 @@
 
 - criar intro em texto (soldado e blá blá blá)
     # aparece apenas ao selecionar new game
+
+- ghosts devem aparecer abaixo do cenário
 
 
 ##########################################

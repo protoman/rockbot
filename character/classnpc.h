@@ -64,7 +64,7 @@ public:
     int get_parent_id();
     void reset_timers();
     bool is_static();
-
+    bool npc_is_ghost();
 
 
 

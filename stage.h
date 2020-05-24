@@ -43,6 +43,7 @@ public:
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
     void move_npcs();
     void show_npcs();
+    void show_ghost_npcs();
     void show_npcs_to_left(int x);
     void move_objects(bool paused=false);
     void show_objects(int adjust=0);

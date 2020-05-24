@@ -203,6 +203,9 @@ void classMap::show_map()
     if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
         draw_lib.show_gfx();
     }
+    // TODO: optimization, build a list of visible enemies and one for ghost and other for non-ghost,
+    // and use those instead in the show-loop
+    show_ghost_npcs();
 
     // redraw screen, if needed
     if (_show_map_pos_x == -1 || abs(_show_map_pos_x - scroll.x) > TILESIZE) {
@@ -219,6 +222,8 @@ void classMap::show_map()
         draw_lib.show_gfx();
     }
 
+    show_objects();
+    show_npcs();
 
 }
 
@@ -2293,10 +2298,36 @@ void classMap::show_npcs() /// @TODO - check out of screen
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
+        if (npc_ref->npc_is_ghost()) {
+            continue;
+        }
         if (gameControl.must_show_boss_hp() && npc_ref->is_boss() && npc_ref->is_on_visible_screen() == true) {
             has_boss = true;
             draw_lib.set_boss_hp(npc_ref->get_current_hp());
 		}
+        if (npc_ref->is_dead() == false) {
+            npc_ref->show();
+        }
+        npc_ref->show_projectiles();
+    }
+    if (has_boss == false) {
+        draw_lib.set_boss_hp(-99);
+    }
+}
+
+void classMap::show_ghost_npcs()
+{
+    bool has_boss = false;
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        if (!npc_ref->npc_is_ghost()) {
+            continue;
+        }
+        if (gameControl.must_show_boss_hp() && npc_ref->is_boss() && npc_ref->is_on_visible_screen() == true) {
+            has_boss = true;
+            draw_lib.set_boss_hp(npc_ref->get_current_hp());
+        }
         if (npc_ref->is_dead() == false) {
             npc_ref->show();
         }

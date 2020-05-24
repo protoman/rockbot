@@ -261,6 +261,11 @@ void stage::show_npcs()
     get_current_map()->show_npcs();
 }
 
+void stage::show_ghost_npcs()
+{
+    get_current_map()->show_ghost_npcs();
+}
+
 void stage::show_npcs_to_left(int x)
 {
     get_current_map()->show_npcs_to_left(x);

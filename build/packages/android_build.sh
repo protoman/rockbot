@@ -30,6 +30,9 @@ case $response in
 		rsync -r --exclude=.svn ../fonts ./Android/data
 		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
 		rsync -r --exclude=.svn ../shared ./Android/data
+		export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
+		#cp ./music/RockDroid$version_number/*.ogg ./Android/data/games/RockDroid$version_number/music
+		#cp ./music/shared/*.ogg ./Android/data/shared/music
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
 		cd ./Android/data

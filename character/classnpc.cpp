@@ -339,6 +339,11 @@ bool classnpc::is_static()
     return false;
 }
 
+bool classnpc::npc_is_ghost()
+{
+    return is_ghost;
+}
+
 void classnpc::npc_set_hp(st_hit_points new_hp)
 {
     hitPoints = new_hp;

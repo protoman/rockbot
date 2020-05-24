@@ -43,6 +43,7 @@ public:
     void sound_loop();
     void disable_sound() const;
     void enable_sound();
+    std::string get_filename_for_music(std::string filename);
 
     void update_volumes();
 

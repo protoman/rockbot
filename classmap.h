@@ -168,6 +168,7 @@ public:
     void move_npcs();
 
     void show_npcs();
+    void show_ghost_npcs();
     void show_npcs_to_left(int x);
 
     void move_objects(bool paused);

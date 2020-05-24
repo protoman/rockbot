@@ -183,8 +183,6 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
 
     if (!must_skip_frame) {
         if (_dark_mode == false) {
-            loaded_stage.show_objects();
-            loaded_stage.show_npcs();
             player1.show();
             loaded_stage.show_above_objects();
             loaded_stage.showAbove();
@@ -449,6 +447,7 @@ bool game::show_game_intro()
 
     currentStage = INTRO_STAGE;
 
+    scenes.preloadScenes();
     scenes.main_screen();
 	initGame();
 
@@ -1152,7 +1151,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
     if (scroll_move.x < 0) {
         player_move_x = player_move_x * -1;
     }
-    int static_scroll_x = loaded_stage.getMapScrolling().x;
 
 
     std::cout << "player_move_x[" << player_move_x << "], move_limit[" << move_limit << "]" << std::endl;
@@ -1160,11 +1158,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         //loaded_stage.changeScrolling(scroll_move, false);
         loaded_stage.change_map_scroll(scroll_move, false, true);
         loaded_stage.show_stage();
-        if (loaded_stage.must_show_static_bg() == false) {
-            loaded_stage.show_npcs();
-        } else {
-            loaded_stage.show_npcs_to_left(static_scroll_x+RES_W);
-        }
         player1.show();
         loaded_stage.showAbove();
         loaded_stage.show_above_objects();
@@ -1418,11 +1411,11 @@ void game::quick_load_game()
     }
 
 
-    //scenes.preloadScenes();
+    scenes.preloadScenes();
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = STAGE4;
+    currentStage = STAGE5;
 
 
     // DEBUG //
@@ -1568,10 +1561,9 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
         char_obj->set_animation_type(ANIM_TYPE_WALK);
 		char_obj->set_direction(ANIM_DIRECTION_LEFT);
 		while (char_obj->get_real_position().x+char_obj->get_size().width/2 > pos_x) {
-			char_obj->set_position(st_position(char_obj->getPosition().x-2, char_obj->getPosition().y));
+            char_obj->set_position(st_position(char_obj->getPosition().x-2, char_obj->getPosition().y));
             loaded_stage.show_stage();
             loaded_stage.showAbove();
-            loaded_stage.show_npcs();
             player1.show();
             draw_lib.update_screen();
 			timer.delay(20);
@@ -1580,10 +1572,9 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
 		char_obj->set_direction(ANIM_DIRECTION_RIGHT);
         char_obj->set_animation_type(ANIM_TYPE_WALK);
 		while (char_obj->get_real_position().x+char_obj->get_size().width/2 < pos_x) {
-			char_obj->set_position(st_position(char_obj->getPosition().x+2, char_obj->getPosition().y));
+            char_obj->set_position(st_position(char_obj->getPosition().x+2, char_obj->getPosition().y));
             loaded_stage.show_stage();
             loaded_stage.showAbove();
-            loaded_stage.show_npcs();
             player1.show();
             draw_lib.update_screen();
 			timer.delay(20);
@@ -1789,7 +1780,6 @@ void game::show_stage(int wait_time, bool move_npcs)
         loaded_stage.move_npcs();
 	}
     if (_dark_mode == false) {
-        loaded_stage.show_npcs();
         player1.show();
         loaded_stage.showAbove();
     }

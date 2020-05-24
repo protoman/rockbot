@@ -50,11 +50,11 @@ void android_game_services::set_android_default_buttons_size(int size, int spaci
         screen_height = atoi(env_h);
     }
 
-    double spacing_multi = 0.7;
+    double spacing_multi = 0.8;
     if (spacing == 1) {
-        spacing_multi = 0.9;
+        spacing_multi = 1.0;
     } else if (spacing == 2) {
-        spacing_multi = 1.1;
+        spacing_multi = 1.2;
     }
 
     // @TODO: if screen_width or screen_height are too small, we'll use buttons position as clue for the resolution
