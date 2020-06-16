@@ -235,7 +235,13 @@ st_size projectile::get_size() const
 
 void projectile::move_ahead(st_size &moved)
 {
-    if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
+    if (direction == ANIM_DIRECTION_UP) {
+        position.y -= get_speed();
+        moved.height -= get_speed();
+    } else if (direction == ANIM_DIRECTION_DOWN) {
+        position.y += get_speed();
+        moved.height += get_speed();
+    } else if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
         position.x -= get_speed();
         moved.width -= get_speed();
     } else {
@@ -491,16 +497,13 @@ st_float_position projectile::get_position()
 st_size projectile::move() {
 	st_size moved;
 
-	//std::cout << "projectile::move - TRAJECTORY: " << _move_type << ", x: " << position.x << ", y: " << position.y << ", direction: " << direction << std::endl;
+    std::cout << "projectile::move - TRAJECTORY: " << (int)_move_type << ", x: " << position.x << ", y: " << position.y << ", direction: " << (int)direction << std::endl;
 
 	if (move_timer >= timer.getTimer()) {
 		//std::cout << "projectile::projectile - return #1" << std::endl;
 		return st_size(0, 0);
 	}
     move_timer = timer.getTimer()+ move_delay;
-
-
-
 
     if (_move_type == TRAJECTORY_LINEAR || _move_type == TRAJECTORY_DIAGONAL_UP || _move_type == TRAJECTORY_DIAGONAL_DOWN || _move_type == TRAJECTORY_RING) {
         move_ahead(moved);
@@ -898,6 +901,9 @@ st_size projectile::move() {
 			is_finished = true;
 		}
 	}
+
+    std::cout << "PROJECTILE::move - direction[" << (int)direction << "], moved.w[" << moved.width << ", moved.h[" << moved.height << "]" << std::endl;
+
 	return moved;
 }
 

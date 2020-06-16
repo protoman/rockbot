@@ -423,17 +423,17 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
  *
  */
 enum PROJECTILE_TRAJECTORIES {
-	TRAJECTORY_LINEAR,
-	TRAJECTORY_ARC,
-	TRAJECTORY_SIN,
-	TRAJECTORY_CHAIN,
-	TRAJECTORY_QUAKE,
-	TRAJECTORY_BOMB,
+    TRAJECTORY_LINEAR,
+    TRAJECTORY_ARC,
+    TRAJECTORY_SIN,
+    TRAJECTORY_CHAIN,
+    TRAJECTORY_QUAKE,
+    TRAJECTORY_BOMB,
     TRAJECTORY_FOLLOW,                          // follow enemy
-	TRAJECTORY_PROGRESSIVE,
-	TRAJECTORY_FREEZE,
-	TRAJECTORY_DIAGONAL_UP,
-	TRAJECTORY_DIAGONAL_DOWN,
+    TRAJECTORY_PROGRESSIVE,
+    TRAJECTORY_FREEZE,
+    TRAJECTORY_DIAGONAL_UP,
+    TRAJECTORY_DIAGONAL_DOWN,
     TRAJECTORY_CENTERED,                        // centered around character
     TRAJECTORY_ZIGZAG,                          // linear until reach a wall, then return (repeat until reflection number = 3)
     TRAJECTORY_TARGET_DIRECTION,                // adjust to linear, diagonal up or diagonal down depending on player position when shoot
@@ -454,7 +454,10 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_LARGE_BEAM,
     TRAJECTORY_PULL,                            // pull player or enemies into shooter
     TRAJECTORY_SLASH,                           // stay in place, runs until animation finishes
-	PROJECTILE_TRAJECTORIES_COUNT };
+    TRAJECTORY_UP,
+    TRAJECTORY_DOWN,
+    PROJECTILE_TRAJECTORIES_COUNT
+};
 
 
 /**

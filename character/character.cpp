@@ -2025,6 +2025,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     int map_block = BLOCK_UNBLOCKED;
 
     if (gameControl.get_current_map_obj() == NULL) {
+        //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #1" << std::endl; }
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
@@ -2156,6 +2157,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     }
 
 
+    //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #2 - px_left[" << px_left << "], px_left[" << px_left << "], px_right[" << px_right << "], py_bottom[" << py_bottom << "]" << std::endl; }
     //std::cout << "py_bottom: " << py_bottom << std::endl;
 
 	st_position map_point;
@@ -2199,21 +2201,16 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 	} else if (incy > 0) {
 		map_point.y = py_bottom/TILESIZE;
 	}
-/*
-#ifdef ANDROID
-        if (is_player() == false) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "CHAR::MAP_COLLISION[%s], map_point.y[%d]", name.c_str(), map_point.y);
-        }
-#endif
 
-    if (is_player() == false) std::cout << "CHAR::MAP_COLLISION[" << name << "], map_point.y: " << map_point.y << std::endl;
-*/
-	if (incy != 0) {
+    if (incy != 0) {
 		for (int i=0; i<3; i++) {
             map_point.x = map_x_points[i];
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
             check_map_collision_point(map_block, new_map_lock, 1, map_point);
+
+            //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #3 - new_map_lock[" << new_map_lock << "], map_point.x[" << map_point.x << "], map_point.y[" << map_point.y << "]" << std::endl; }
+
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
             }
@@ -2221,6 +2218,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
+
 			// STAIRS
 			if ((map_block == BLOCK_UNBLOCKED || map_block == BLOCK_X || map_block == BLOCK_WATER) && incy > 0 && new_map_lock == TERRAIN_STAIR) { // stairs special case
                 int middle_y_point_lock = TERRAIN_UNBLOCKED;
@@ -2489,11 +2487,11 @@ st_rectangle character::get_hitbox(int anim_type)
         h = col_rect.h;
         if (w <= 0 || h <= 0) {
             CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_number);
-            std::cout << "#### CHAR::GET_HITBOX name[" << name << "], x[" << x << "], y[" << y << "], w[" << w << "], h[" << h << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
+            //std::cout << "#### CHAR::GET_HITBOX name[" << name << "], x[" << x << "], y[" << y << "], w[" << w << "], h[" << h << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
             if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].used == true) {
-                std::cout << "###### using sprite collision rect" << std::endl;
+                //std::cout << "###### using sprite collision rect" << std::endl;
             } else {
-                std::cout << "###### using npc basic info for rect" << std::endl;
+                //std::cout << "###### using npc basic info for rect" << std::endl;
             }
         }
     }
@@ -3249,19 +3247,24 @@ int character::change_position_y(short yinc)
 bool character::test_change_position(short xinc, short yinc)
 {
     if (gameControl.get_current_map_obj() == NULL) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #1" << std::endl; }
         return false;
     }
     if (yinc < 0 && position.y < 0) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #2" << std::endl; }
 		return false;
 	}
     if (yinc > 0 && position.y > RES_H) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #3" << std::endl; }
         return true;
 	}
     if (xinc < 0 && position.x <= 0) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #4" << std::endl; }
         return false;
     }
 
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #5" << std::endl; }
         return false;
     }
 
@@ -3270,6 +3273,7 @@ bool character::test_change_position(short xinc, short yinc)
         short int mapLock = map_col.block;
 
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
+            if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #6" << std::endl; }
             return false;
         }
     }
@@ -3279,6 +3283,7 @@ bool character::test_change_position(short xinc, short yinc)
     bool map_wall = gameControl.get_current_map_obj()->get_map_point_wall_lock(map_x_point);
 
     if (map_wall == true) {
+        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #7" << std::endl; }
         return false;
     }
 

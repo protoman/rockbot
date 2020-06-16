@@ -1,13 +1,13 @@
-﻿- recreate intro (use new drawings, create a different story)
+﻿- novos inimigos (https://www.youtube.com/watch?v=U8fQ-k2p5Q8&list=WL&index=2&t=514s):
+    # jumper (from hole) that fires 4 shots in arc
+    # marreta: bata-estacas vindo do teto (não letal ao contrário dos raios da morte)
 
-- boss music não está tocando
+
+- parece que o tank de HP não esta funcionando
+
+- recreate intro (use new drawings, create a different story)
 
 - (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
-
-- animated background:
-    # conjunto de tiles animados, tamanho MAP_WxMAP_H (repete-x, se for menor que MAP_W)
-    # é desenhando por cima do BG e faz scroll na mesma velocidade do bg
-        # só mostra em performance high, caso contrário, é desenhado sobre a superfícia BG diretamente, só o primaeiro frame de animação
 
 - checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
     # somente plataformas devem colidir com jogador

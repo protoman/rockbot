@@ -27,6 +27,8 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 #define JUMP_ROOF_MIN_SPEED 3
 #define MAX_NPC_SPAWN 3
 
+#define SHOOTER_DELAY 1000
+
 #include "shareddata.h"
 
 std::vector<character*> *artificial_inteligence::player_list=NULL;
@@ -186,7 +188,15 @@ void artificial_inteligence::define_ai_next_step()
         _initialized = 1;
         int rand_n = rand() % 100;
 
-
+        if (name.find("WALLSHOOTER") != std::string::npos) {
+            is_shooter = true;
+            shoot_direction = state.direction;
+            if (name.find("WALLSHOOTER TOP") != std::string::npos) {
+                shoot_direction = ANIM_DIRECTION_DOWN;
+            } else if (name.find("WALLSHOOTER BOTTOM") != std::string::npos) {
+                shoot_direction = ANIM_DIRECTION_UP;
+            }
+        }
         //std::cout << "AI::define_ai_next_step - CHANCE - rand_n: " << rand_n << std::endl;
 
         bool found_chance = false;
@@ -296,6 +306,13 @@ void artificial_inteligence::execute_ai_step()
     } else {
         //std::cout << "AI_ACTION_JUMP_ATTACK_UP: " << (int)AI_ACTION_JUMP_ATTACK_UP << std::endl;
         std::cout << "********** AI::UNKNOWN - number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+    }
+
+    if (is_shooter) {
+        if (shooter_timer < timer.getTimer()) {
+            throw_projectile(0, false);
+            shooter_timer = timer.getTimer() + SHOOTER_DELAY;
+        }
     }
 }
 
@@ -1143,6 +1160,11 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
         proj_direction = !proj_direction;
     }
 
+    if (is_shooter) {
+        proj_direction = shoot_direction;
+        std::cout << ">>>>>>>> name[" << name << "], projectile_type[" << projectile_type << "], direction[" << proj_direction << "]" << std::endl;
+    }
+
     projectile_list.push_back(projectile(projectile_type, proj_direction, get_attack_position(), is_player()));
     projectile &temp_proj = projectile_list.back();
     temp_proj.play_sfx(true);
@@ -1329,6 +1351,7 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
             std::cout << "artificial_inteligence::execute_ai_step_fly - DOWN - dest_point.y: " << _dest_point.y << std::endl;
             if (move_to_point(_dest_point, 0, move_speed, is_ghost) == true) {
+                std::cout << "artificial_inteligence::execute_ai_step_fly - DOWN - CAN'T MOVE, FINISH" << std::endl;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
@@ -1677,7 +1700,7 @@ void artificial_inteligence::execute_ai_wait_random_time()
 bool artificial_inteligence::move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls)
 {
     can_move_struct move_inc = check_can_move_to_point(dest_point, speed_x, speed_y, can_pass_walls);
-    std::cout << "artificial_inteligence::move_to_point[" << name << "], speed_y[" << speed_y << "], can_pass_walls[" << can_pass_walls << "],move_inc.result[" << move_inc.result << "]" << std::endl;
+    //std::cout << ">>>>> artificial_inteligence::move_to_point[" << name << "], speed_y[" << speed_y << "], can_pass_walls[" << can_pass_walls << "], move_inc.result[" << move_inc.result << "]" << std::endl;
 
     if (move_inc.result == CAN_MOVE_LEAVE_TRUE) {
         return true;
@@ -1780,7 +1803,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
         yinc = -speed_y;
     }
 
-    //if (name == "KURUPIRA BOT") std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
+    //if (name == "WALLSHOOTER V") std::cout << ">> AI::move_to_point - xinc: " << xinc << ", yinc: " << yinc << std::endl;
 
     // checking
     bool can_move_x = true;
@@ -1788,7 +1811,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
 
-    //if (name == "SHIELD GROUND") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
+    //if (name == "WALLSHOOTER V") std::cout << ">> AI::move_to_point - can_move_x: " << can_move_x << ", can_move_y: " << can_move_y << std::endl;
 
     if (xinc == 0 && yinc == 0) {
         return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
@@ -1807,7 +1830,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
             //if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
-                //if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
+                if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
                 return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
             }
         }
@@ -1825,7 +1848,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
 
 
 
-        if (name == "KURUPIRA BOT") std::cout << "pos.x/TILESIZE: " << (position.x/TILESIZE) << ", map_point_ahead.x: " << map_point_ahead.x << ", map_point_ahead.y: " << map_point_ahead.y << ", map_lock_ahead: " << map_lock_ahead << ", map_lock_top: " << map_lock_top << std::endl;
+        if (name == "WALLSHOOTER V") std::cout << "pos.x/TILESIZE: " << (position.x/TILESIZE) << ", map_point_ahead.x: " << map_point_ahead.x << ", map_point_ahead.y: " << map_point_ahead.y << ", map_lock_ahead: " << map_lock_ahead << ", map_lock_top: " << map_lock_top << std::endl;
         if (hit_ground() == true && speed_y == 0 && speed_x != 0) { // check if is trying to move on X axis only
             if ((map_lock_ahead != TERRAIN_WATER && map_lock_ahead != TERRAIN_UNBLOCKED) && (map_lock_top == TERRAIN_WATER || map_lock_top == TERRAIN_UNBLOCKED)) { // check that the terrain over the block is free
                 //std::cout << ">> AI::move_to_point - TRY TO JUMP <<" << std::endl;

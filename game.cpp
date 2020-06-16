@@ -1415,7 +1415,7 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = STAGE5;
+    currentStage = INTRO_STAGE;
 
 
     // DEBUG //
