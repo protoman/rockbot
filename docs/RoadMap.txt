@@ -1,7 +1,9 @@
-﻿- novos inimigos (https://www.youtube.com/watch?v=U8fQ-k2p5Q8&list=WL&index=2&t=514s):
+﻿- PocketGo Port
+    # audio delay
+
+- novos inimigos (https://www.youtube.com/watch?v=U8fQ-k2p5Q8&list=WL&index=2&t=514s):
     # jumper (from hole) that fires 4 shots in arc
     # marreta: bata-estacas vindo do teto (não letal ao contrário dos raios da morte)
-
 
 - parece que o tank de HP não esta funcionando
 

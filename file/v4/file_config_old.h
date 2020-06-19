@@ -298,6 +298,9 @@ namespace format_v4_old {
 #elif DINGUX
             input_type = INPUT_TYPE_KEYBOARD;
             input_mode = INPUT_MODE_DIGITAL;
+#elif POCKETGO
+            input_type = INPUT_TYPE_KEYBOARD;
+            input_mode = INPUT_MODE_DIGITAL;
 #elif OPEN_PANDORA
             input_type = INPUT_TYPE_KEYBOARD;
             input_mode = INPUT_MODE_DIGITAL;
@@ -325,6 +328,8 @@ namespace format_v4_old {
             return PLATFORM_DREAMCAST;
     #elif RASPBERRY
             return PLATFORM_RASPBERRY;
+    #elif POCKETGO
+            return PLATFORM_POCKETGO;
     #else
             return PLATFORM_WINDOWS;
     #endif

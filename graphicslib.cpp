@@ -167,7 +167,7 @@ bool graphicsLib::initGraphics()
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
         // outline-font
         outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
-#if !defined(DINGUX) && !defined(PSP)
+#if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
         TTF_SetFontOutline(outline_font, 1);
 #endif
     }
@@ -996,7 +996,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, gra
         // handle error
     }
 
-#if !defined(DINGUX) && !defined(PSP)
+#if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
     if (outline_font) {
         SDL_Color black = {0, 0, 0};
         SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
@@ -1961,6 +1961,8 @@ void graphicsLib::anim_stars() {
 void graphicsLib::set_video_mode()
 {
 #ifdef DINGUX
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
+#elif POCKETGO
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(OPEN_PANDORA)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);

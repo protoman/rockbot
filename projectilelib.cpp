@@ -370,7 +370,7 @@ void projectile::set_target_position(st_float_position *pos)
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_DIRECTION) { // change type to be the best one to hit player
         // three position (diagonal up, left/right or diagonal down)
-        std::cout << ">> _target_position->y: " << _target_position->y << ", pos.y: " << position.y << std::endl;
+        //std::cout << ">> _target_position->y: " << _target_position->y << ", pos.y: " << position.y << std::endl;
 		if (_target_position->y < position.y-TILESIZE*2) {
 			_move_type = TRAJECTORY_DIAGONAL_UP;
 		} else if (_target_position->y > position.y+TILESIZE*2) {
@@ -497,7 +497,7 @@ st_float_position projectile::get_position()
 st_size projectile::move() {
 	st_size moved;
 
-    std::cout << "projectile::move - TRAJECTORY: " << (int)_move_type << ", x: " << position.x << ", y: " << position.y << ", direction: " << (int)direction << std::endl;
+    //std::cout << "projectile::move - TRAJECTORY: " << (int)_move_type << ", x: " << position.x << ", y: " << position.y << ", direction: " << (int)direction << std::endl;
 
 	if (move_timer >= timer.getTimer()) {
 		//std::cout << "projectile::projectile - return #1" << std::endl;
@@ -727,7 +727,7 @@ st_size projectile::move() {
         bool collisionX = check_map_collision(st_position(moved.width, 0));
         bool collisionY = check_map_collision(st_position(moved.width, moved.height));
 
-        std::cout << ">>>> collisionX: " << collisionX << ", collisionY: " << collisionY << ", moved.width: " << moved.width << ", moved.height: " << moved.height << std::endl;
+        //std::cout << ">>>> collisionX: " << collisionX << ", collisionY: " << collisionY << ", moved.width: " << moved.width << ", moved.height: " << moved.height << std::endl;
 
         if (collisionX == true || collisionY == true) {
             if (_effect_n == 5) { // destroy if rebouncing for the fourth time
@@ -861,7 +861,7 @@ st_size projectile::move() {
             if (direction == ANIM_DIRECTION_LEFT) {
                 new_proj_pos.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x;
             }
-            std::cout << "TRAJECTORY_BOMB_RAIN::ADD - new_proj_pos.x[" << new_proj_pos.x << "]" << std::endl;
+            //std::cout << "TRAJECTORY_BOMB_RAIN::ADD - new_proj_pos.x[" << new_proj_pos.x << "]" << std::endl;
             // adds same type to get properties and graphics, but chances trajectory for a different type
             owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
             status_timer = timer.getTimer() + BOMB_RAIN_DELAY;
@@ -902,7 +902,7 @@ st_size projectile::move() {
 		}
 	}
 
-    std::cout << "PROJECTILE::move - direction[" << (int)direction << "], moved.w[" << moved.width << ", moved.h[" << moved.height << "]" << std::endl;
+    //std::cout << "PROJECTILE::move - direction[" << (int)direction << "], moved.w[" << moved.width << ", moved.h[" << moved.height << "]" << std::endl;
 
 	return moved;
 }

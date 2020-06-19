@@ -97,7 +97,7 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
 #elif ANDROID
     options.push_back(st_menu_option("ANDROID"));
 #else
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific, game_config.selected_language), true));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_wii_platformspecific, SharedData::get_instance()->game_config.selected_language), true));
 #endif
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_language, SharedData::get_instance()->game_config.selected_language)));
 

@@ -421,7 +421,7 @@ void soundLib::enable_sound()
 string soundLib::get_filename_for_music(string filename)
 {
     filename = StringUtils::clean_filename(filename);
-#ifdef ANDROID
+#if defined(ANDROID) || defined(POCKETGO)
     filename = filename + ".ogg";
 #endif
     return filename;

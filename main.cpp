@@ -63,7 +63,7 @@ jobject activity_ref;
     #include <sys/stat.h>
     #include <unistd.h>
     #include <sys/param.h>
-#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII)
+#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO)
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
@@ -82,6 +82,8 @@ jobject activity_ref;
     std::string EXEC_NAME("boot.dol");
 #elif defined(DINGUX)
     std::string EXEC_NAME("rockbot.dge");
+#elif defined(POCKETGO)
+    std::string EXEC_NAME("rockbot_pocketgo");
 #else
     std::string EXEC_NAME("rockbot");
 #endif

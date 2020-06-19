@@ -11,7 +11,7 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
 #CONFIG += playstation2
@@ -19,6 +19,7 @@ CONFIG += linux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
+CONFIG += pocketgo
 
 #DEFINES+= ANDROID=1
 
@@ -55,108 +56,120 @@ win32 {
 }
 
 raspberry {
-        DEFINES+= RASPBERRY=1
-        LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
-
-        INCLUDES = -I/usr/include/SDL \
-                -I/usr/include \
-                -I. \
-                -I./include \
-                -L/usr/lib
-        QMAKE_CCFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
-        QMAKE_CXXFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
+    DEFINES+= RASPBERRY=1
+    LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
+    INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+    QMAKE_CCFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
+    QMAKE_CXXFLAGS += -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
 }
 
 dingux {
-        DEFINES += DINGUX
-        TARGET = rockbot.dge
-        DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
+    DEFINES += DINGUX
+    TARGET = rockbot.dge
+    DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 
+    QMAKE_CC = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-gcc
+    QMAKE_CXX = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
+    QMAKE_LINK = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
 
-        QMAKE_CC = mipsel-linux-gcc
-        QMAKE_CXX = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
-        QMAKE_LINK = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
+    QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
+    QMAKE_CXXFLAGS += -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
 
-        QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
-        QMAKE_CXXFLAGS += -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD
+    LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
 
-        LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
+    INCLUDES = -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -I. -I../include -I.
 
-        INCLUDES = -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -I. -I../include -I.
+    #QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
+}
 
-        #QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
+pocketgo {
+    DEFINES += POCKETGO
+    DEFINES += HAVE_STDINT_H
+    DEFINES += VERSION_BITTBOY
+    TARGET = rockbot_pocketgo
+
+    QMAKE_CC = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-gcc
+    QMAKE_CXX = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-g++
+    QMAKE_LINK = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-g++
+
+    QMAKE_CFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
+    QMAKE_CXXFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu++11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
+
+    LIBS = -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/lib -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/lib -L/opt/bittboy-toolchain/lib -L/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -logg -lvorbisidec -lmikmod -lmodplug -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
+
+    INCLUDES = -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/include -I/opt/bittboy-toolchain/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
+
 }
 
 playstation2 {
-        QMAKESPEC=./ports/ps2/g++-ps2.conf
-        DEFINES+= PLAYSTATION2=1
-        TARGET = rockbot.elf
+    QMAKESPEC=./ports/ps2/g++-ps2.conf
+    DEFINES+= PLAYSTATION2=1
+    TARGET = rockbot.elf
 
-        # pre-build commands
-        SJPCM.target = SJPCM.s
-        SJPCM.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/SJPCM.irx ../ports/ps2/SJPCM.s SJPCM
-        cdvd.target = cdvd.s
-        cdvd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/cdvd.irx ../ports/ps2/cdvd.s cdvd
-        usbd.target = usbd.s
-        usbd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbd.irx ../ports/ps2/usbd.s usbd
-        usbhdfsd.target = usbhdfsd.s
-        usbhdfsd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbhdfsd.irx ../ports/ps2/usbhdfsd.s usbhdfsd
-        QMAKE_EXTRA_TARGETS += SJPCM cdvd usbd usbhdfsd
-        PRE_TARGETDEPS += SJPCM.s
-        PRE_TARGETDEPS += cdvd.s
-        PRE_TARGETDEPS += usbd.s
-        PRE_TARGETDEPS += usbhdfsd.s
+    # pre-build commands
+    SJPCM.target = SJPCM.s
+    SJPCM.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/SJPCM.irx ../ports/ps2/SJPCM.s SJPCM
+    cdvd.target = cdvd.s
+    cdvd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/cdvd.irx ../ports/ps2/cdvd.s cdvd
+    usbd.target = usbd.s
+    usbd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbd.irx ../ports/ps2/usbd.s usbd
+    usbhdfsd.target = usbhdfsd.s
+    usbhdfsd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbhdfsd.irx ../ports/ps2/usbhdfsd.s usbhdfsd
+    QMAKE_EXTRA_TARGETS += SJPCM cdvd usbd usbhdfsd
+    PRE_TARGETDEPS += SJPCM.s
+    PRE_TARGETDEPS += cdvd.s
+    PRE_TARGETDEPS += usbd.s
+    PRE_TARGETDEPS += usbhdfsd.s
 
+    SOURCES += ports/ps2/cdvd_rpc.c
+    QMAKE_CC = ee-gcc
+    QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -I$(PS2SDK)/ee/ee/include/sys -w
 
-        SOURCES += ports/ps2/cdvd_rpc.c
-        QMAKE_CC = ee-gcc
-        QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -I$(PS2SDK)/ee/ee/include/sys -w
+    QMAKE_CXX = ee-g++
+    QMAKE_LINK = ee-g++
+    QMAKE_CXXFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -w
 
-        QMAKE_CXX = ee-g++
-        QMAKE_LINK = ee-g++
-        QMAKE_CXXFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -w
+    QMAKE_CFLAGS -= -m64
+    QMAKE_CFLAGS -= -std=gnu++11
+    QMAKE_CXXFLAGS -= -m64
+    QMAKE_CXXFLAGS -= -std=gnu++11
+    QMAKE_LFLAGS -= -m64
 
-        QMAKE_CFLAGS -= -m64
-        QMAKE_CFLAGS -= -std=gnu++11
-        QMAKE_CXXFLAGS -= -m64
-        QMAKE_CXXFLAGS -= -std=gnu++11
-        QMAKE_LFLAGS -= -m64
-
-        INCLUDES = -D_EE -O2 -G0 -Wall -O6 -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common I$(PS2SDK)/ee/include
-        LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$(PS2SDK)/ports/lib -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc
-        LIBS +=  -lstdc++  -Wl,--whole-archive $(PS2SDK)/ee/lib/libc.a -Wl,--no-whole-archive $(PS2DEV)/ee/ee/lib/libc.a -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
-        #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
+    INCLUDES = -D_EE -O2 -G0 -Wall -O6 -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common I$(PS2SDK)/ee/include
+    LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$(PS2SDK)/ports/lib -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc
+    LIBS +=  -lstdc++  -Wl,--whole-archive $(PS2SDK)/ee/lib/libc.a -Wl,--no-whole-archive $(PS2DEV)/ee/ee/lib/libc.a -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
+    #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
 }
 
 
 open_pandora {
-        TARGET = rockbot_pandora
+    TARGET = rockbot_pandora
 
-        QMAKE_CXX = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
-        QMAKE_LINK = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
+    QMAKE_CXX = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
+    QMAKE_LINK = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
 
-        QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DOPEN_PANDORA -DHANDHELD -I$(PANDORAROOTDIR)/usr/include
+    QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DOPEN_PANDORA -DHANDHELD -I$(PANDORAROOTDIR)/usr/include
 
-        LIBS = $(SUBLIBS) -L$(PANDORAROOTDIR)/lib -L$(PANDORAROOTDIR)/usr/lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(PANDORAROOTDIR)/usr/bin/sdl-config --libs` -lpthread
+    LIBS = $(SUBLIBS) -L$(PANDORAROOTDIR)/lib -L$(PANDORAROOTDIR)/usr/lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(PANDORAROOTDIR)/usr/bin/sdl-config --libs` -lpthread
 
-        INCLUDES = -I. -I../include -I.
+    INCLUDES = -I. -I../include -I.
 
-        #QMAKE_POST_LINK += $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-strip --strip-all rockbot_pandora
+    #QMAKE_POST_LINK += $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-strip --strip-all rockbot_pandora
 }
 
 
 wii {
     TARGET = rockbot.elf
-        QMAKE_CC = $(DEVKITPPC)/bin/powerpc-eabi-gcc
-        QMAKE_CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++
-        QMAKE_LINK = $(DEVKITPPC)/bin/powerpc-eabi-g++
+    QMAKE_CC = $(DEVKITPPC)/bin/powerpc-eabi-gcc
+    QMAKE_CXX = $(DEVKITPPC)/bin/powerpc-eabi-g++
+    QMAKE_LINK = $(DEVKITPPC)/bin/powerpc-eabi-g++
 
-        QMAKE_CXXFLAGS += -Dmain=SDL_main -fexceptions -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-rtti -g
-        LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../portlibs/ppc/lib -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_gfx -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
+    QMAKE_CXXFLAGS += -Dmain=SDL_main -fexceptions -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-rtti -g
+    LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../portlibs/ppc/lib -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_gfx -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
 
-        INCLUDES = -I$(DEVKITPPC)/libogc/include/ -I$(DEVKITPPC)/devkitPPC/include/ -I. -I../include -I.
+    INCLUDES = -I$(DEVKITPPC)/libogc/include/ -I$(DEVKITPPC)/devkitPPC/include/ -I. -I../include -I.
 
-        QMAKE_POST_LINK += $(DEVKITPPC)/bin/elf2dol rockbot.elf boot.dol
+    QMAKE_POST_LINK += $(DEVKITPPC)/bin/elf2dol rockbot.elf boot.dol
 }
 
 dreamcast {
@@ -169,7 +182,7 @@ dreamcast {
     LIBS = $(KOS_LIBS) $(KOS_LDFLAGS) -L. -L/home/iuri/devel/SDK/Dreamcast/kos/addons/lib/dreamcast/ -lc -lstdc++ -lc -lSDL_gfx -lSDL_ttf -lSDL_mixer_126 -lSDL_image_124 -lSDL_1213 -ljpeg -lpng -lfreetype -lz_123 $(OBJEXTRA) $(KOS_LIBS) -lm -lgcc -lc
 
     INCLUDES = -I/home/iuri/devel/SDK/Dreamcast/kos-ports/include -I$(KOS_BASE)/addons/include -I$(KOS_BASE)/addons/include/SDL $(OPTFLAGS) -I/opt/toolchains/dc/sh-elf/include -I. -I../include -I.
-#$KOS_OBJCOPY -R .stack -O binary rockbot_dreamcast.elf rockbot_dreamcast.bin
+    #$KOS_OBJCOPY -R .stack -O binary rockbot_dreamcast.elf rockbot_dreamcast.bin
 }
 
 
