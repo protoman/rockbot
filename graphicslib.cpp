@@ -985,13 +985,13 @@ void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface 
 
 void graphicsLib::render_text(short x, short y, string text, st_color color, graphicsLib_gSurface &surface, bool centered)
 {
-    SDL_Rect text_pos={x, y, 0, 0};
     SDL_Color font_color = SDL_Color();
     font_color.r = color.r;
     font_color.g = color.g;
     font_color.b = color.b;
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
+    SDL_Rect text_pos={x, y, 0, 0};
 
     if (!font) {
         printf("graphicsLib::draw_text - TTF_OpenFont: %s\n", TTF_GetError());
@@ -1018,7 +1018,9 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, gra
             }
         }
     }
+    text_pos={x, y, 0, 0};
 #endif
+
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
     if (centered == true && text.size() > 0) {
         text_pos.x = RES_W/2 - textSF->w/2;
@@ -1033,6 +1035,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, gra
     if (!textSF_format) {
         return;
     }
+
     SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
     SDL_FreeSurface(textSF_format);
 }

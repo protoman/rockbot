@@ -436,30 +436,13 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
         // @TODO: calculate min and max to trestrain loop number
         for (unsigned int i=0; i<credit_text.size(); i++) {
-            int text_pos = posY+12*i;
-
-            if (text_pos >= -12 && text_pos <= RES_H+12) {
-                std::size_t found_title_blue = credit_text.at(i).find("- ");
-                std::size_t found_title_red = credit_text.at(i).find("# ");
-                if (credit_text.at(i)[0] == '@') { // section
-                    std::string text_out = credit_text.at(i);
-                    text_out = text_out.substr(1, text_out.length()-1);
-                    graphLib.draw_centered_text(text_pos, text_out, graphLib.gameScreen, st_color(102, 255, 181));
-                } else if (found_title_red != std::string::npos) { // main title
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(249, 98, 98));
-                } else if (found_title_blue != std::string::npos) { // sub-title
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
-                } else {
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i));
-                }
-                //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
-            }
+            draw_credits_line(i, credit_text, posY);
         }
 
 
         if (can_leave) {
             input.read_input();
-            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
+            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_JUMP] == 1) {
                 return 1;
             }
         } else {
@@ -480,8 +463,73 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
         }
         update_screen();
     }
+
+    // keep showing stars and text until user press a key
+    timer.delay(50);
+    input.clean();
+    if (can_leave == false) {
+        bool keep_running = true;
+        while (keep_running) {
+            graphLib.blank_screen();
+            graphLib.copyArea(st_position(0, bg1_pos), &bg1, &graphLib.gameScreen);
+            if (bg1_pos > 0) {
+                graphLib.copyArea(st_rectangle(0, RES_H-bg1_pos, RES_W, bg1_pos), st_position(0, 0), &bg1, &graphLib.gameScreen);
+            }
+            graphLib.copyArea(st_position(0, bg2_pos), &bg2, &graphLib.gameScreen);
+            if (bg2_pos > 0) {
+                graphLib.copyArea(st_rectangle(0, RES_H-bg2_pos, RES_W, bg2_pos), st_position(0, 0), &bg2, &graphLib.gameScreen);
+            }
+            bg1_pos += bg1_speed;
+            bg2_pos += bg2_speed;
+            if (bg1_pos >= RES_H) {
+                bg1_pos = 0;
+            }
+            if (bg2_pos >= RES_H) {
+                bg2_pos = 0;
+            }
+
+            graphLib.draw_centered_text(RES_H-34, "NEW CHARACTERS AVAILABLE");
+            graphLib.draw_centered_text(RES_H-22, "PRESS    TO CONTINUE");
+            graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(134, RES_H-20), false);
+
+            draw_credits_line(credit_text.size()-2, credit_text, -300);
+            draw_credits_line(credit_text.size()-1, credit_text, -300);
+
+            if (input.wait_scape_time(STARS_DELAY/2) == 1 || input.p1_input[BTN_JUMP] == 1) {
+                keep_running = false;
+                return 1;
+            }
+
+            update_screen();
+        }
+
+    }
+
     update_screen();
     return 0;
+}
+
+void draw::draw_credits_line(int i, std::vector<string> credit_text, int posY)
+{
+    int text_pos = posY+12*i;
+
+    if (text_pos >= -12 && text_pos <= RES_H+12) {
+        std::cout << "######### draw::draw_credits_line - draw line[" << i << "][" << credit_text.at(i) << "], text_pos[" << text_pos << "], posY[" << posY << "]" << std::endl;
+        std::size_t found_title_blue = credit_text.at(i).find("- ");
+        std::size_t found_title_red = credit_text.at(i).find("# ");
+        if (credit_text.at(i)[0] == '@') { // section
+            std::string text_out = credit_text.at(i);
+            text_out = text_out.substr(1, text_out.length()-1);
+            graphLib.draw_centered_text(text_pos, text_out, graphLib.gameScreen, st_color(102, 255, 181));
+        } else if (found_title_red != std::string::npos) { // main title
+            graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(249, 98, 98));
+        } else if (found_title_blue != std::string::npos) { // sub-title
+            graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
+        } else {
+            graphLib.draw_centered_text(text_pos, credit_text.at(i));
+        }
+        //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
+    }
 }
 
 int draw::show_credits(bool can_leave)
@@ -489,7 +537,9 @@ int draw::show_credits(bool can_leave)
     soundManager.stop_music();
     soundManager.load_music("rockbot_endcredits.mod");
     soundManager.play_music();
+
     int res = show_credits_text(can_leave, create_engine_credits_text());
+
     if (res == 1) {
         soundManager.stop_music();
         soundManager.load_music(game_data.game_start_screen_music_filename);
@@ -505,23 +555,20 @@ int draw::show_credits(bool can_leave)
     return 0;
 }
 
-void draw::show_unlocked_charsMsg()
-{
-
-}
 
 std::vector<string> draw::create_engine_credits_text()
 {
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    std::vector<string> credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
+    std::vector<string> credits_list;
+    //credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {
             credits_list.push_back("");
         }
     }
-
+    /*
     credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
     credits_list.push_back("");
     credits_list.push_back("");
@@ -588,7 +635,6 @@ std::vector<string> draw::create_engine_credits_text()
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
-
     credits_list.push_back("- MUSIC COMPOSER -");
     credits_list.push_back("MODARCHIVE.ORG");
     credits_list.push_back("FIREAGE");
@@ -651,6 +697,7 @@ std::vector<string> draw::create_engine_credits_text()
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
+*/
 
     credits_list.push_back("- DEVELOPMENT TOOLS -");
     credits_list.push_back("LIBSDL");

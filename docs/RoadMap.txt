@@ -1,6 +1,7 @@
 ﻿- Rockbot1:
     # Entrou cutscene intro antes dos créditos
     # Ao terminar o jogo não apareceu msg de liberar personagens e estrelas pararam de se mover
+    # tipo (linha mais de cima) não esta saindo da tela, fica parada no topo
 
 
 - Rockbot2:

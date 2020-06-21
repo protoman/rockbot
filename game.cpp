@@ -1367,9 +1367,9 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    scenes.show_player_walking_ending();
+    //scenes.show_player_walking_ending();
 
-    scenes.show_enemies_ending();
+    //scenes.show_enemies_ending();
 
     draw_lib.show_credits(false);
 
@@ -1422,7 +1422,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    //show_ending();
+    show_ending();
 
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 

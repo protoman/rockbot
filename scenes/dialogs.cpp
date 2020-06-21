@@ -217,3 +217,29 @@ void dialogs::showGotArmorDialog(e_ARMOR_PIECES armor_type)
     std::string lines[] = {type_str, strings_map::get_instance()->get_ingame_string(strings_ingame_gotarmor_type_ability, SharedData::get_instance()->game_config.selected_language), ability_str};
     show_dialog("canotus_face.png", true, lines, true);
 }
+
+void dialogs::show_centered_dialog(std::vector<string> lines)
+{
+    draw_dialog_bg();
+    draw_lib.update_screen();
+    st_position dialog_pos = graphLib.get_dialog_pos();
+    draw_lib.update_screen();
+
+    /// @TODO: usar show_config_bg e hide_config_bg da graphLib - modificar para aceitar centered (que é o atual) ou top ou bottom
+    for (int i=0; i<FS_DIALOG_LINES; i++) {
+        std::string line = lines[i];
+        graphLib.draw_text(dialog_pos.x+52, i*11+(dialog_pos.y+16), line);
+
+
+        draw_lib.update_screen();
+        timer.delay(50);
+    }
+
+    graphLib.show_dialog_button(1);
+    draw_lib.update_screen();
+
+
+    input.clean_confirm_button();
+    input.wait_keypress();
+    gameControl.game_unpause();
+}

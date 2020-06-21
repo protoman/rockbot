@@ -22,6 +22,8 @@ public:
 
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
 
+    void show_centered_dialog(std::vector<std::string> lines);
+
 private:
     void draw_dialog_bg();
 
