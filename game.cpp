@@ -306,7 +306,7 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 {
     int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, initial_pos_y, player1.get_size().width, player1.get_size().height);
 
-    std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
+    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
 
     player1.set_position(st_position(initial_pos_x, (first_unlocked_from_bottom+1)*TILESIZE-player1.get_size().height));
     player1.char_update_real_position();
@@ -318,8 +318,6 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 
 void game::show_player_teleport(int pos_x, int pos_y)
 {
-    std::cout << "GAME::show_player_telport #2 - pos_x[" << pos_x << "], pos_y[" << pos_y << "], player.anim_type[" << player1.get_anim_type() << "], ANIM_TELEPORT[" << ANIM_TYPE_TELEPORT << "]" << std::endl;
-
     // find ground for player
     set_player_position_teleport_in(pos_x, pos_y);
     long end_time = timer.getTimer() + 1500;
@@ -345,7 +343,6 @@ void game::show_player_teleport(int pos_x, int pos_y)
     //std::cout << "GAME::show_player_telport #4" << std::endl;
 
     show_ready();
-    std::cout << "GAME::show_player_telport #5" << std::endl;
     // force stand to avoid gravity not doing it for any reason
     player1.set_animation_type(ANIM_TYPE_STAND);
     loaded_stage.show_stage();
@@ -1433,10 +1430,10 @@ void game::quick_load_game()
 
     // UNIT-TEST //
     //get_first_lock_on_bottom, x_pos[1799], y_pos[178], w[29], h[29]
-    std::cout << "#######################################################################" << std::endl;
+    //std::cout << "#######################################################################" << std::endl;
     int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
-    std::cout << "get_first_lock_on_bottom[" << lock_point << "]" << std::endl;
-    std::cout << "#######################################################################" << std::endl;
+    //std::cout << "get_first_lock_on_bottom[" << lock_point << "]" << std::endl;
+    //std::cout << "#######################################################################" << std::endl;
 
 
     //got_weapon();
@@ -1609,7 +1606,7 @@ unsigned short game::get_next_stage()
 {
     unsigned short pos_n = INTRO_STAGE;
     for (unsigned short i=INTRO_STAGE; i<=CASTLE1_STAGE5; i++) {
-        std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        //std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
@@ -1628,13 +1625,13 @@ short game::get_last_castle_stage()
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
-        std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
+        //std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
         pos_n = i+1;
     }
-    std::cout << "game::get_last_castle_stage[" << pos_n << "]" << std::endl;
+    //std::cout << "game::get_last_castle_stage[" << pos_n << "]" << std::endl;
     if (pos_n > CASTLE1_STAGE5) {
         pos_n = CASTLE1_STAGE5;
     }

@@ -93,7 +93,6 @@ protected:
 
 protected:
 	// W A R N I N G -----------------> new members must be reflected in copy() method
-    short int facing;									// defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
     std::string graphic_filename;						// graphic file used on it /**< TODO */
     bool first_run; /**< TODO */
     bool _is_player_friend;								// player spawned npcs must not hit him, but other npcs instead /**< TODO */

@@ -997,7 +997,7 @@ void classPlayer::death()
     _inertia_obj.stop();
     clear_move_commands();
 	input.clean();
-	state.direction = ANIM_DIRECTION_RIGHT;
+    set_direction(ANIM_DIRECTION_RIGHT);
     gameControl.remove_current_teleporter_from_list();
 
     //draw_lib.add_fade_out_effect(171, 0, 19);

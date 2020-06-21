@@ -377,6 +377,8 @@ protected:
     std::vector<st_float_position> previous_position_list;
     bool must_show_dash_effect;
     graphicsLib_gSurface dash_effect_shadow_surface_frame;
+    short int facing = ANIM_DIRECTION_LEFT;					    // defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
+
 };
 
 #endif // CHARACTER_H

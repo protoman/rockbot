@@ -271,7 +271,6 @@ void soundLib::load_boss_music(string music_file) {
 	}
     filename = FILEPATH + "music/" + music_file;
     filename = get_filename_for_music(filename);
-    std::cout << "soundLib::load_boss_music - filename: " << filename << std::endl;
 	boss_music = Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
         std::cout << "Error in soundLib::load_boss_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
@@ -362,7 +361,6 @@ void soundLib::play_boss_music() {
 
 void soundLib::load_stage_music(std::string filename) {
     is_playing_boss_music = false;
-    std::cout << "soundLib::load_stage_music - filename: " << filename << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_stage_music[%s] ###", filename.c_str());
 #endif

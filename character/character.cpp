@@ -235,7 +235,7 @@ void character::charMove() {
 	if (moveCommands.left == 1 && position.x > 0 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         // check inverting direction
         if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_LEFT) {
-            state.direction = ANIM_DIRECTION_LEFT;
+            set_direction(ANIM_DIRECTION_LEFT);
             return;
         }
 
@@ -255,7 +255,7 @@ void character::charMove() {
                     if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
                         position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
                     }
-					state.direction = ANIM_DIRECTION_LEFT;
+                    set_direction(ANIM_DIRECTION_LEFT);
 				} else {
                     gravity(false);
                     return;
@@ -275,12 +275,12 @@ void character::charMove() {
         if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
             position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
         }
-        state.direction = ANIM_DIRECTION_LEFT;
+        set_direction(ANIM_DIRECTION_LEFT);
     }
 
     if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_RIGHT) {
-            state.direction = ANIM_DIRECTION_RIGHT;
+            set_direction(ANIM_DIRECTION_RIGHT);
             return;
         }
         for (float i=temp_move_speed; i>=0.1; i--) {
@@ -303,7 +303,7 @@ void character::charMove() {
                         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
                             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
                         }
-                        state.direction = ANIM_DIRECTION_RIGHT;
+                        set_direction(ANIM_DIRECTION_RIGHT);
                     } else {
                         gravity(false);
                         return;
@@ -324,7 +324,7 @@ void character::charMove() {
         if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
         }
-        state.direction = ANIM_DIRECTION_RIGHT;
+        set_direction(ANIM_DIRECTION_RIGHT);
     }
 
     // Ice inertia
@@ -632,7 +632,6 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
         if (time_diff >= CHARGED_SHOT_TIME) {
             return ATTACK_TYPE_FULLYCHARGED;
         } else if (time_diff >= CHARGED_SHOT_INITIAL_TIME) {
-            std::cout << "time_diff: " << time_diff << std::endl;
             return ATTACK_TYPE_SEMICHARGED;
         }
     }
@@ -874,7 +873,7 @@ void character::advance_frameset()
     //[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
         //if (is_player()) std::cout << "WARNING - character::show - (" << name << ") error, direction value " << state.direction << " is invalid" << std::endl;
-		state.direction = ANIM_DIRECTION_LEFT;
+        set_direction(ANIM_DIRECTION_LEFT);
 		return;
 	}
     if (state.animation_type > ANIM_TYPE_COUNT) {
@@ -1056,9 +1055,9 @@ void character::show_sprite()
         } else {
             if (state.animation_type == ANIM_TYPE_VERTICAL_TURN) {
 				if (state.direction == ANIM_DIRECTION_LEFT) {
-					state.direction = ANIM_DIRECTION_RIGHT;
+                    set_direction(ANIM_DIRECTION_RIGHT);
 				} else {
-					state.direction = ANIM_DIRECTION_LEFT;
+                    set_direction(ANIM_DIRECTION_LEFT);
 				}
                 if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #F" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
@@ -1173,16 +1172,21 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
         std::cout << "ERROR: #1 character::show_sprite_graphic - Could not find graphic for NPC [" << name << "]" << std::endl;
         return NULL;
     }
+    // for non left-right directions, use the original facing direction for NPCs
+    if (is_player() == false && direction != ANIM_DIRECTION_LEFT && direction != ANIM_DIRECTION_RIGHT) {
+        std::cout << "%%%% character::show_sprite_graphic(" << name << ") invalid sprite direction[" << direction << "], use[" << facing << "] instead" << std::endl;
+        direction = facing;
+    }
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
         if (frame_n == 0) {
-            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
+            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for direction[" << direction << "], type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
             if (type == ANIM_TYPE_TELEPORT) {
                 type = ANIM_TYPE_JUMP;
             } else {
                 type = ANIM_TYPE_STAND;
             }
         } else {
-            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
+            //std::cout << ">> character::show_sprite_graphic(" << name << ") #2 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
             frame_n = 0;
             state.animation_state = 0;
             _was_animation_reset = true;
@@ -1748,7 +1752,6 @@ bool character::slide(st_float_position mapScrolling)
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
     } else {
-        std::cout << "SLIDE::BLOCKED" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -2025,7 +2028,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     int map_block = BLOCK_UNBLOCKED;
 
     if (gameControl.get_current_map_obj() == NULL) {
-        //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #1" << std::endl; }
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
@@ -2042,25 +2044,25 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 std::cout << "FINAL_BOSS_TELEPORTER::STARTED" << std::endl;
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
-                    state.direction = ANIM_DIRECTION_RIGHT;
+                    set_direction(ANIM_DIRECTION_RIGHT);
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), true);
                 }
             } else if (res_collision_object._object->get_type() == OBJ_STAGE_BOSS_TELEPORTER) {
                 std::cout << "character::map_collision - OBJ_STAGE_BOSS_TELEPORTER" << std::endl;
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
-                    state.direction = ANIM_DIRECTION_RIGHT;
+                    set_direction(ANIM_DIRECTION_RIGHT);
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
                 }
             // platform teleporter is just a base where player can step in to teleport
             } else if (res_collision_object._object->get_type() == OBJ_PLATFORM_TELEPORTER && is_on_teleport_platform(res_collision_object._object) == true) {
-                state.direction = ANIM_DIRECTION_RIGHT;
+                set_direction(ANIM_DIRECTION_RIGHT);
                 soundManager.play_sfx(SFX_TELEPORT);
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
                 std::cout << "FINAL_BOSS_TELEPORTER::ACTIVATE" << std::endl;
                 // acho que era para ver se todos os inimigos estão mortos, mas não completei o código, então vamos fazer como um boss-teleproter
-                state.direction = ANIM_DIRECTION_RIGHT;
+                set_direction(ANIM_DIRECTION_RIGHT);
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             } else if (!get_item(res_collision_object)) {
                 map_block = res_collision_object._block;
@@ -2114,7 +2116,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 	if (incx == 0 && incy == 0) {
         return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
-	}
+    }
 
     if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
         if (map_block == BLOCK_UNBLOCKED) {
@@ -2157,7 +2159,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     }
 
 
-    //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #2 - px_left[" << px_left << "], px_left[" << px_left << "], px_right[" << px_right << "], py_bottom[" << py_bottom << "]" << std::endl; }
     //std::cout << "py_bottom: " << py_bottom << std::endl;
 
 	st_position map_point;
@@ -2170,6 +2171,10 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 	/// @TODO - use a array-of-array for poijts in order to having a cleaner code
 
 	int map_x_points[3];
+    if (incx == 0 && incy != 0) {
+        px_left++;
+        px_right--;
+    }
 	map_x_points[0] = px_left/TILESIZE;
 	map_x_points[1] = px_center/TILESIZE;
 	map_x_points[2] = px_right/TILESIZE;
@@ -2208,8 +2213,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
             check_map_collision_point(map_block, new_map_lock, 1, map_point);
-
-            //if (name == "WALLSHOOTER V") { std::cout << "++++ character::map_collision #3 - new_map_lock[" << new_map_lock << "], map_point.x[" << map_point.x << "], map_point.y[" << map_point.y << "]" << std::endl; }
 
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
@@ -2268,7 +2271,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     //if (is_player()) std::cout << "character::map_collision_v2 - map_block: " << map_block << std::endl;
 
-
     return st_map_collision(map_block, terrain_type);
 
 }
@@ -2284,7 +2286,7 @@ bool character::is_on_teleporter_capsulse(object *object)
         int limit_min = object->get_position().x + obj_center_diff;
         int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
         int px = position.x + frameSize.width/2;
-        std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
+        //std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
         if (px > limit_min && px < limit_max) {
             return true;
         }
@@ -2304,7 +2306,7 @@ bool character::is_on_teleport_platform(object *object)
         int limit_min = object->get_position().x + obj_center_diff;
         int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
         int px = position.x + frameSize.width/2;
-        std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
+        //std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
         if (px > limit_min && px < limit_max) {
             return true;
         }
@@ -2477,10 +2479,14 @@ st_rectangle character::get_hitbox(int anim_type)
                                     GameMediator::get_instance()->get_enemy(_number)->frame_size.height);
         }
 
+        // IURI: removed this adjust because it was blocking enemies when it should not, like moving up/down
+        // I don't know the original reason for this anymore, let's look for it and test if removing is OK
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            x = position.x - (frameSize.width - col_rect.w) + col_rect.x + 2;
+            //x = position.x - (frameSize.width - col_rect.w) + col_rect.x + 2;
+            x = position.x - (frameSize.width - col_rect.w) + col_rect.x;
         } else {
-            x += col_rect.x - 2;
+            //x += col_rect.x - 2;
+            x += col_rect.x;
         }
         y += col_rect.y;
         w = col_rect.w - 4;
@@ -2895,7 +2901,7 @@ int character::get_direction() const
 
 void character::set_direction(int direction)
 {
-	state.direction = direction;
+    state.direction = direction;
 }
 
 void character::clean_projectiles()
@@ -3202,7 +3208,7 @@ void character::change_position_x(short xinc)
                 position.x += i*WATER_SPEED_MULT - gameControl.get_current_map_obj()->get_last_scrolled().x;
             }
             if (state.animation_type != ANIM_TYPE_HIT) {
-                state.direction = ANIM_DIRECTION_RIGHT;
+                set_direction(ANIM_DIRECTION_RIGHT);
             } else {
                 gravity(false);
                 return;
@@ -3426,7 +3432,7 @@ void character::set_animation_type(ANIM_TYPE type)
         //std::cout << "set_animation_type::state.animation_state[" << state.animation_state << "]" << std::endl;
 
         if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
-            state.direction = 0;
+            set_direction(0);
         }
         if (state.animation_type >= ANIM_TYPE_COUNT) {
             state.animation_type = 0;

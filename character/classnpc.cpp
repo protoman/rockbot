@@ -59,7 +59,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     is_ghost = false;
     build_basic_npc(stage_id, map_id, main_id);
     facing = GameMediator::get_instance()->map_npc_data[id].direction;
-    state.direction = facing;
+    set_direction(facing);
 
     fflush(stdout);
 
@@ -92,7 +92,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     build_basic_npc(stage_id, map_id, main_id);
     _is_player_friend = player_friend;
     facing = direction;
-    state.direction = direction;
+    set_direction(direction);
     start_point.x = npc_pos.x;
     start_point.y = npc_pos.y;
     static_bg_pos = st_position(npc_pos.x * TILESIZE, npc_pos.y * TILESIZE);
@@ -177,7 +177,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	hitPoints.current = hitPoints.total;
 
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
-		state.direction = ANIM_DIRECTION_RIGHT;
+        set_direction(ANIM_DIRECTION_RIGHT);
 	}
 
     move_speed = GameMediator::get_instance()->get_enemy(main_id)->speed;
@@ -308,7 +308,7 @@ void classnpc::npc_set_position(st_float_position pos)
 
 void classnpc::npc_set_direction(short dir)
 {
-    state.direction = dir;
+    set_direction(dir);
 }
 
 void classnpc::npc_set_initialized(short init)
@@ -577,7 +577,7 @@ void classnpc::show_projectiles()
 // executes the NPC sub-IA behavior
 void classnpc::move() {
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT-1) {
-        state.direction = ANIM_DIRECTION_LEFT;
+        set_direction(ANIM_DIRECTION_LEFT);
     }
 
 	/// @TODO: this check must be placed in game.cpp and npc must have a set_frozen() method, for individual effect
@@ -717,9 +717,9 @@ void classnpc::revive()
 void classnpc::invert_direction()
 {
 	if (state.direction == ANIM_DIRECTION_LEFT) {
-		state.direction = ANIM_DIRECTION_RIGHT;
+        set_direction(ANIM_DIRECTION_RIGHT);
 	} else {
-		state.direction = ANIM_DIRECTION_LEFT;
+        set_direction(ANIM_DIRECTION_LEFT);
 	}
     _ai_state.main_status = IA_STAND;
 }

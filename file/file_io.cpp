@@ -993,8 +993,6 @@ namespace format_v4 {
 
         fclose(fp);
 
-        std::cout << "############# file_io::read_save - player[" << data_out.selected_player << "]" << std::endl;
-
         return true;
     }
 
@@ -1016,8 +1014,6 @@ namespace format_v4 {
 
         fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp);
         fclose(fp);
-
-        std::cout << "############# file_io::write_save - player[" << data_in.selected_player << "]" << std::endl;
 
         return true;
     }

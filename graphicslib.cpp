@@ -94,8 +94,9 @@ bool graphicsLib::initGraphics()
 {
 	string filename;
     _video_filter = SharedData::get_instance()->game_config.video_filter;
-
+#ifdef WII
     printf(">> WII.DEBUG.INIT_GRAPHICS #1 <<\n");
+#endif
     fflush(stdout);
 
 
@@ -133,8 +134,9 @@ bool graphicsLib::initGraphics()
 #endif
 	input.init_joystick();
 
-
+#ifdef WII
     printf(">> WII.DEBUG.INIT_GRAPHICS #2 <<\n");
+#endif
     fflush(stdout);
 
     // FONT
@@ -173,8 +175,9 @@ bool graphicsLib::initGraphics()
     }
     delete[] buffer;
 
-
+#ifdef WII
     printf(">> WII.DEBUG.INIT_GRAPHICS #3 <<\n");
+#endif
     fflush(stdout);
 
 
@@ -197,8 +200,9 @@ bool graphicsLib::initGraphics()
     }
 #endif
 	// other loading methods
-
+#ifdef WII
     printf(">> WII.DEBUG.INIT_GRAPHICS.END <<\n");
+#endif
     fflush(stdout);
 
     load_shared_graphics();

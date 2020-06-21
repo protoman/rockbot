@@ -1,4 +1,27 @@
-﻿- PocketGo Port
+﻿- Rockbot1:
+    # Entrou cutscene intro antes dos créditos
+    # Ao terminar o jogo não apareceu msg de liberar personagens e estrelas pararam de se mover
+
+
+- Rockbot2:
+    # sem saída parte armor gear stage
+    # gear deve só pular, não andar. Pulo deve ser bem longo e lento, algo como o hardman de mm3
+    # Frog cool não alcança energia e tem uma de teste no início da fase valkyrie
+    # Kurupura: shooter teto não para direita até muro. Colocar checkpoint ao voltar para parte aberta. AI do Kurupira está ridícula.
+    # armadura em duas fases diferentes
+    # Haunted mansion música demora tocar e não tinha trocado ela?
+    # Projétil da escavadeira se perde com scroll.
+    # Escudo da escavadeira está impenetrável pela esquerda.
+    # Eu tirei o bg de inimigos e polvo ficou sem, devo readicionar o bg, se possível.
+    # Snow ficou preso na porta na fase do castelo (dash/girando)
+    # Destrin machine deve mudar sprite para indicar direção que está empurrando ou puxando
+
+- esta travando ainda no Dingoo e PocketGo, pode ser algum loop que fica infinito
+    # game.cpp - criar lista de projéteis, objetos e inimigos on-screen e armazenar em shared (singleton)
+    # todos os loops que passam por projéteis, inimigos e objetos devem passar a usar essas listas
+
+
+- PocketGo Port
     # audio delay
 
 - novos inimigos (https://www.youtube.com/watch?v=U8fQ-k2p5Q8&list=WL&index=2&t=514s):

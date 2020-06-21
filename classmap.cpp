@@ -115,8 +115,6 @@ void classMap::setMapNumber(int setMapN) {
 void classMap::loadMap()
 {
 
-    std::cout << "classMap::loadMap, stage_number[" << stage_number << "]" << std::endl;
-
 	if (stage_number == -1) {
         graphLib.show_debug_msg("ERROR::loadStage invalid number[-1]");
 		cout << "ERROR::map::loadMap - stage number was not set, can't load it before setting the number.\n";
@@ -158,7 +156,6 @@ void classMap::loadMap()
 
     load_map_objects();
 
-    std::cout << "check-map-scroll-lock, object_list.size[" << object_list.size() << "]" << std::endl;
     bool column_locked = true;
     for (int i=0; i<MAP_W; i++) {
         column_locked = true;
@@ -982,7 +979,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 
 int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
-    std::cout << "get_first_lock_on_bottom, x_pos[" << x_pos << "], y_pos[" << y_pos << "], w[" << w << "], h[" << h << "]" << std::endl;
+    //std::cout << "get_first_lock_on_bottom, x_pos[" << x_pos << "], y_pos[" << y_pos << "], w[" << w << "], h[" << h << "]" << std::endl;
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
     if (above_tiles_to_test < 2) { // at least two tiles above even for small npcs
@@ -1001,14 +998,14 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
-        std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "],above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
+        //std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "],above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
             // found a stop point, now check above tiles
             for (int j=i-1; j>=i-above_tiles_to_test; j--) {
                 for (int k=0; k<right_tiles_to_test; k++) {
                     int map_lock2 = getMapPointLock(st_position(tilex+k, j));
 
-                    std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
+                    //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
                     if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
                         found_bad_point = true;
                         break;
@@ -1019,7 +1016,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
                 }
             }
             if (found_bad_point == false) {
-                std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
+                //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
                 return i-1;
             }
         }
@@ -1274,7 +1271,6 @@ void classMap::load_map_objects() {
 			object_list.push_back(temp_obj);
 		}
 	}
-    std::cout << "classMap::load_map_objects, count[" << object_list.size() << "]" << std::endl;
 }
 
 

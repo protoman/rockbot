@@ -368,7 +368,6 @@ int stage_select::pick_stage(int stage_n)
 #endif
         } else if (input.p1_input[BTN_JUMP] || input.p1_input[BTN_START]) {
             soundManager.stop_music();
-            std::cout << "stage_select::pick_stage[" << stage_n << "]" << std::endl;
             return stage_n;
         } else if (input.p1_input[BTN_UP]) {
             moved = true;

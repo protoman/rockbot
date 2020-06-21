@@ -90,7 +90,6 @@ void fps_control::fps_count()
     }
     fps_counter++;
     if (fps_timer <= timer.getTimer()) {
-        int max_fps = SharedData::get_instance()->get_max_fps();
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
         if (fps_counter <= fps_timer-4) {
             frame_drop_period = fps_timer/(fps_timer-fps_counter);
