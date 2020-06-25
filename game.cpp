@@ -493,20 +493,20 @@ void game::show_free_version_warning()
     input.clean();
     timer.delay(100);
 
-    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, SharedData::get_instance()->game_config.selected_language), graphLib.gameScreen, st_color(255, 130, 0));
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(45, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(75, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(105, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(145, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(160, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(175, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title), graphLib.gameScreen, st_color(255, 130, 0));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1));
+    graphLib.draw_centered_text(45, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2));
+    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3));
+    graphLib.draw_centered_text(75, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4));
+    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5));
+    graphLib.draw_centered_text(105, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6));
+    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7));
+    graphLib.draw_centered_text(145, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8));
+    graphLib.draw_centered_text(160, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9));
+    graphLib.draw_centered_text(175, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10));
 
-    graphLib.draw_centered_text(205, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning11, SharedData::get_instance()->game_config.selected_language));
-    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_press_key_or_button, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_centered_text(205, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning11));
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_press_key_or_button));
     draw_lib.update_screen();
     input.wait_keypress();
 }
@@ -525,12 +525,12 @@ void game::show_notice()
     st_position upperland_logo_pos(RES_W/2 - (upperland_surface.width/6)/2, 20);
 
 
-    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 2, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios, SharedData::get_instance()->game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 2, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios), graphLib.gameScreen, st_color(199, 215, 255));
 
     graphLib.copyArea(st_rectangle(0, 0, jmd_surface.width, jmd_surface.height), st_position(RES_W/2-(jmd_surface.width/2), 80), &jmd_surface, &graphLib.gameScreen);
     graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 76, "JMD AMIGA MUSIC", graphLib.gameScreen, st_color(199, 215, 255));
 
-    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 110, strings_map::get_instance()->get_ingame_string(string_intro_presents, SharedData::get_instance()->game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 110, strings_map::get_instance()->get_ingame_string(string_intro_presents), graphLib.gameScreen, st_color(199, 215, 255));
 
 
     //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
@@ -1367,9 +1367,9 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-    //scenes.show_player_walking_ending();
+    scenes.show_player_walking_ending();
 
-    //scenes.show_enemies_ending();
+    scenes.show_enemies_ending();
 
     draw_lib.show_credits(false);
 
@@ -1388,7 +1388,7 @@ void game::quick_load_game()
     }
 
     game_save.difficulty = DIFFICULTY_NORMAL;
-    game_save.selected_player = PLAYER_1;
+    //game_save.selected_player = PLAYER_1;
 
     /*
     // DEBUG //
@@ -1396,17 +1396,6 @@ void game::quick_load_game()
     game_save.armor_pieces[ARMOR_BODY] = true;
     game_save.armor_pieces[ARMOR_LEGS] = true;
     */
-
-    if (GAME_FLAGS[FLAG_PLAYER1]) {
-        game_save.selected_player = PLAYER_1;
-    } else if (GAME_FLAGS[FLAG_PLAYER2]) {
-        game_save.selected_player = PLAYER_2;
-    } else if (GAME_FLAGS[FLAG_PLAYER3]) {
-        game_save.selected_player = PLAYER_3;
-    } else if (GAME_FLAGS[FLAG_PLAYER4]) {
-        game_save.selected_player = PLAYER_4;
-    }
-
 
     scenes.preloadScenes();
 
@@ -1853,9 +1842,9 @@ bool game::show_config(short finished_stage)
 void game::show_savegame_error()
 {
     std::vector<std::string> msgs;
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror1, SharedData::get_instance()->game_config.selected_language));
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror2, SharedData::get_instance()->game_config.selected_language));
-    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror3, SharedData::get_instance()->game_config.selected_language));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror1));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror2));
+    msgs.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_savegameerror3));
     draw_lib.show_ingame_warning(msgs);
 }
 

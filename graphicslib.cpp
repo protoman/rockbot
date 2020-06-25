@@ -1273,8 +1273,8 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     showSurfaceAt(&player_image_big[game_save.selected_player], st_position((RES_W-ingame_menu.width)*0.5+5, (RES_H-ingame_menu.height)*0.5+47));
 
 
-    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language).length()+4)*8;
-    draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language) + std::string(" (R)"));
+    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config).length()+4)*8;
+    draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" (R)"));
 
 
     draw_text(pos_x, 60, "WEAPON:");

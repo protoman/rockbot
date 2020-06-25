@@ -8,6 +8,7 @@
 #include "../defines.h"
 #include "../aux_tools/stringutils.h"
 #include "fio_common.h"
+#include "shareddata.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -360,6 +361,17 @@ namespace format_v4 {
             sprintf(lines[strings_config_android_audiobuffersize_BIG], "%s", "GRANDE");
             sprintf(lines[strings_config_android_audiobuffersize_DESCRIPTION], "%s", "AUMENTE VALOR SE ÁUDIO ESTIVER CORTADO");
 
+            sprintf(lines[strings_menu_item_CHEATS], "%s", "TRAPAÇAS");
+            sprintf(lines[strings_menu_item_CHEATS_INVENCIBLE], "%s", "INVENCÍVEL");
+            sprintf(lines[strings_menu_item_CHEATS_ALLBEATEN], "%s", "TUDO DERROTADO");
+            sprintf(lines[strings_menu_item_CHEATS_CHARACTER], "%s", "PERSONAGEM");
+
+            sprintf(lines[strings_menu_pick_save_slot_PICK_OPTION], "%s", "ESCOLHA UM ESPAÇO DE SAVE");
+            sprintf(lines[strings_menu_pick_save_slot_NEW_GAME], "%s", "CRIAR NOVO JOGO");
+            sprintf(lines[strings_menu_pick_save_slot_LOAD_GAME], "%s", "CARREGAR ARQUIVO");
+            sprintf(lines[strings_menu_pick_save_slot_NO_SAVE], "%s", "- SEM ARQUIVO -");
+
+
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -541,6 +553,15 @@ namespace format_v4 {
             sprintf(lines[strings_config_android_audiobuffersize_BIG], "%s", "BIG");
             sprintf(lines[strings_config_android_audiobuffersize_DESCRIPTION], "%s", "INCREASE VALUE IF AUDIO IS CHOPPY");
 
+            sprintf(lines[strings_menu_item_CHEATS], "%s", "CHEATS");
+            sprintf(lines[strings_menu_item_CHEATS_INVENCIBLE], "%s", "INVENCIBLE");
+            sprintf(lines[strings_menu_item_CHEATS_ALLBEATEN], "%s", "ALL BEATEN");
+            sprintf(lines[strings_menu_item_CHEATS_CHARACTER], "%s", "CHARACTER");
+
+            sprintf(lines[strings_menu_pick_save_slot_PICK_OPTION], "%s", "PLEASE SELECT SAVE SLOT");
+            sprintf(lines[strings_menu_pick_save_slot_NEW_GAME], "%s", "CREATE NEW GAME");
+            sprintf(lines[strings_menu_pick_save_slot_LOAD_GAME], "%s", "LOAD GAME FILE");
+            sprintf(lines[strings_menu_pick_save_slot_NO_SAVE], "%s", "- NO SAVE FILE -");
         }
 
 
@@ -732,7 +753,7 @@ namespace format_v4 {
 
 
 
-    std::vector<std::string> fio_strings::get_string_list_from_scene_text_file(int text_scene_n, int language)
+    std::vector<std::string> fio_strings::get_string_list_from_scene_text_file(int text_scene_n)
     {
         std::vector<std::string> text_list;
         char file_chr[255];
@@ -775,10 +796,10 @@ namespace format_v4 {
 
 
         sprintf(file_chr, "%d.txt", text_scene_n);
-        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
+        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->game_config.selected_language) + "/" + std::string(file_chr);
         filename = StringUtils::clean_filename(filename);
         // if does not have language, try default english
-        if (!file_exists(filename) && language != LANGUAGE_ENGLISH) {
+        if (!file_exists(filename) && SharedData::get_instance()->game_config.selected_language != LANGUAGE_ENGLISH) {
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>> try another language" << std::endl;
             filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(LANGUAGE_ENGLISH) + "/" + std::string(file_chr);
             filename = StringUtils::clean_filename(filename);

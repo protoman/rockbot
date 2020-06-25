@@ -160,6 +160,25 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 Mediator::get_instance()->maps_data_npc_list[i].id_npc = -1;
                 continue;
             }
+
+
+
+            std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
+            if (npc_bg_file.length() > 0) {
+                std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
+                QPixmap bg_image(_bg_graphic_filename.c_str());
+
+                // calculate total image size of background exists
+                if (!bg_image.isNull()) {
+                    int total_w = bg_image.width();
+                    int total_h = bg_image.height();
+                    QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                    bg_image.setMask(enemy_bg_mask);
+                    QRectF bg_target(QPoint(Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w*Mediator::get_instance()->zoom, total_h*Mediator::get_instance()->zoom));
+                    QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
+                    painter.drawPixmap(bg_target, bg_image, bg_source);
+                }
+            }
         }
     }
 

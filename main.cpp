@@ -441,8 +441,8 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
-        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror, SharedData::get_instance()->game_config.selected_language) + std::string(":"));
-        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames, SharedData::get_instance()->game_config.selected_language));
+        graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
+        graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
 
         std::string filename = GAMEPATH + "/games/";
         filename = StringUtils::clean_filename(filename);

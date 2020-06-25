@@ -342,7 +342,7 @@ void draw::show_ready()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
 
     for (int i=0; i<6; i++) {
-        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, SharedData::get_instance()->game_config.selected_language));
+        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message));
         update_screen();
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
@@ -561,14 +561,13 @@ std::vector<string> draw::create_engine_credits_text()
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
     std::vector<string> credits_list;
-    //credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
+    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {
             credits_list.push_back("");
         }
     }
-    /*
     credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
     credits_list.push_back("");
     credits_list.push_back("");
@@ -697,7 +696,6 @@ std::vector<string> draw::create_engine_credits_text()
     credits_list.push_back("");
     credits_list.push_back("");
     credits_list.push_back("");
-*/
 
     credits_list.push_back("- DEVELOPMENT TOOLS -");
     credits_list.push_back("LIBSDL");

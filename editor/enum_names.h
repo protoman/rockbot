@@ -2,6 +2,7 @@
 #define ENUM_NAMES_H
 
 #include <vector>
+#include <string>
 
 std::vector<std::string> PROJECTILE_TRAJECTORIES_NAMES;
 std::vector<std::string> AI_ACTION_NAMES;
@@ -47,6 +48,8 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("LARGE BEAM");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("PULL");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("SLASH");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("UP");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("DOWN");
 
 
     // -------------------------------------------------------------- //

@@ -47,7 +47,7 @@ public:
 
 
     // === scenes string files === //
-    std::vector<std::string> get_string_list_from_scene_text_file(int text_scene_n, int language);
+    std::vector<std::string> get_string_list_from_scene_text_file(int text_scene_n);
     void write_scene_text_file(int text_scene_n, std::vector<std::string> list, int language);
 
     std::string get_language_filename_prefix(int language);

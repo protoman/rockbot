@@ -1173,6 +1173,17 @@ enum E_STRINGS_INGAME {
     strings_config_android_audiobuffersize_BIG,
     strings_config_android_audiobuffersize_DESCRIPTION,
 
+    strings_menu_item_CHEATS,
+
+    strings_menu_item_CHEATS_INVENCIBLE,
+    strings_menu_item_CHEATS_ALLBEATEN,
+    strings_menu_item_CHEATS_CHARACTER,
+
+    strings_menu_pick_save_slot_PICK_OPTION,
+    strings_menu_pick_save_slot_NEW_GAME,
+    strings_menu_pick_save_slot_LOAD_GAME,
+    strings_menu_pick_save_slot_NO_SAVE,
+
     strings_ingame_COUNT
 };
 

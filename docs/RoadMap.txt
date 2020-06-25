@@ -1,21 +1,26 @@
-﻿- Rockbot1:
-    # Entrou cutscene intro antes dos créditos
-    # Ao terminar o jogo não apareceu msg de liberar personagens e estrelas pararam de se mover
-    # tipo (linha mais de cima) não esta saindo da tela, fica parada no topo
+﻿- traduzir strings novas que estao só em ingles
 
+
+
+- usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)
+
+
+- opção para usar músicas antigas
+    # tem que criar algo na config (já deixar uns tempos a mais sobrando lá, para o futuro)
+    # usar mesmos nomes, só colocar em uma pasta old
+    # todos devem ter extensão .mod
+
+
+- Rockbot1:
+    # Entrou cutscene intro antes dos créditos ???????
 
 - Rockbot2:
-    # sem saída parte armor gear stage
-    # gear deve só pular, não andar. Pulo deve ser bem longo e lento, algo como o hardman de mm3
-    # Frog cool não alcança energia e tem uma de teste no início da fase valkyrie
     # Kurupura: shooter teto não para direita até muro. Colocar checkpoint ao voltar para parte aberta. AI do Kurupira está ridícula.
-    # armadura em duas fases diferentes
     # Haunted mansion música demora tocar e não tinha trocado ela?
     # Projétil da escavadeira se perde com scroll.
     # Escudo da escavadeira está impenetrável pela esquerda.
-    # Eu tirei o bg de inimigos e polvo ficou sem, devo readicionar o bg, se possível.
     # Snow ficou preso na porta na fase do castelo (dash/girando)
-    # Destrin machine deve mudar sprite para indicar direção que está empurrando ou puxando
+    # pegar músicas do JMD
 
 - esta travando ainda no Dingoo e PocketGo, pode ser algum loop que fica infinito
     # game.cpp - criar lista de projéteis, objetos e inimigos on-screen e armazenar em shared (singleton)

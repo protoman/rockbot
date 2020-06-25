@@ -987,6 +987,13 @@ void character::show_at(st_position pos)
         _is_attack_frame = false;
     }
 
+    // show background, if any
+    if (is_player() == false && have_background_graphics() == true) {
+        st_position bg_pos = st_position(pos.x-background_pos.x, pos.y-background_pos.y);
+        if (is_player() == false) std::cout << "character::show_at[" << name << "] - pos[" << pos.x << "][" << pos.y << "], background_pos[" << background_pos.x << "][" << background_pos.y << "], bg_pos[" << bg_pos.x << "][" << bg_pos.y << "]" << std::endl;
+        graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), bg_pos, false);
+    }
+
     // only advance if time for the current frame has finished
     advance_frameset();
 
@@ -1493,7 +1500,7 @@ bool character::is_on_screen()
             }
         }
         if (found_lock == false) {
-            std::cout << "CHAR::is_on_screen[" << name << "], x[" << position.x << "], map_point_start[" << map_point_start << "], map_point_end[" << map_point_end << "]" << std::endl;
+            //std::cout << "CHAR::is_on_screen[" << name << "], x[" << position.x << "], map_point_start[" << map_point_start << "], map_point_end[" << map_point_end << "]" << std::endl;
             return true;
         }
         if (name == "Dynamite Bot") std::cout << ">>>> character::is_on_screen - right <<<<" << std::endl;
@@ -2598,6 +2605,15 @@ void character::clean_character_graphics_list()
     }
 }
 
+bool character::have_background_graphics()
+{
+    static std::map<std::string, graphicsLib_gSurface>::iterator it;
+    it = graphLib.character_graphics_background_list.find(name);
+    if (it != graphLib.character_graphics_background_list.end()) { // there is no graphic with this key yet, add it
+        return true;
+    }
+    return false;
+}
 
 
 int character::frames_count()
@@ -3138,7 +3154,7 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
-    std::cout << "################## CHAR::fall_to_ground START" << std::endl;
+    //std::cout << "################## CHAR::fall_to_ground START" << std::endl;
     _obj_jump.finish();
     if (hit_ground() == true) {
         return;
@@ -3147,13 +3163,13 @@ void character::fall_to_ground()
         char_update_real_position();
         position.y++;
         if (position.y >= RES_H/2 && hit_ground() == true) {
-            std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
+            //std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
             return;
         } else {
-            std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
+            //std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
         }
     }
-    std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
+    //std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
 void character::initialize_position_to_ground()
@@ -3384,13 +3400,14 @@ void character::inc_effect_weapon_status()
 
 void character::set_animation_type(ANIM_TYPE type)
 {
+
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
     }
 
-    if (name == "MUMMY BOT" && type == ANIM_TYPE_ATTACK) {
-        std::cout << "DBUG" << std::endl;
+    if (name == "DESTRIN MACHINE" && type == ANIM_TYPE_STAND) {
+        std::cout << "character::set_animation_type[" << (int)type << "]" << std::endl;
     }
 
     if (type != state.animation_type) {

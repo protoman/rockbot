@@ -90,6 +90,7 @@ void artificial_inteligence::execute_ai()
             } else {
                 _ai_timer = timer.getTimer() + 200;
             }
+            started_action_timer = _ai_timer;
         }
 
         //std::cout << ">> SET INITIAL #2 <<" << std::endl;
@@ -184,7 +185,9 @@ void artificial_inteligence::check_ai_reaction()
 
 void artificial_inteligence::define_ai_next_step()
 {
-    if (_initialized == 0 || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
+    // could not execute shot, ignore next step
+    bool must_ignore_next = (shot_success == false && _current_ai_type == AI_ACTION_SHOT_PROJECTILE_AHEAD);
+    if (must_ignore_next == false && (_initialized == 0 || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE)) { // CHANCE
         _initialized = 1;
         int rand_n = rand() % 100;
 
@@ -1108,19 +1111,20 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
         _did_shot = false;
 	} else {
         if (_was_animation_reset == true && _did_shot == true) {
-            //std::cout << "AI::execute_ai_action_trow_projectile - FINISH" << std::endl;
-			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            std::cout << "AI::execute_ai_action_trow_projectile - FINISH" << std::endl;
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _did_shot = false;
             if (state.animation_type == ANIM_TYPE_WALK_AIR || state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
                 set_animation_type(ANIM_TYPE_JUMP);
             } else {
-                if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #8" << std::endl;
+                //if (_show_reset_stand) std::cout << "AI::RESET_TO_STAND #8" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
             }
         } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
             //std::cout << "AI::execute_ai_action_trow_projectile - SHHHHHHHHHHHOOOOOOOOOOOT" << std::endl;
-            throw_projectile(_parameter, invert_direction);
+            shot_success = throw_projectile(_parameter, invert_direction);
             _did_shot = true;
+            shot_timer = timer.getTimer();
         }
     }
 }
@@ -1653,14 +1657,17 @@ void artificial_inteligence::execute_ai_step_dash()
 void artificial_inteligence::execute_ai_step_change_animation_type()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][INIT]" << std::endl;
+        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][" << (int)_parameter << "][INIT]" << std::endl;
         set_animation_type(static_cast<ANIM_TYPE>(_parameter));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][EXEC]" << std::endl;
-        if (_is_last_frame == true) {
-            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][FINISH]" << std::endl;
+        // some attacks keep enemy in current animation until it's effect is finished, so we check against the next.delay
+        //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][" << (int)_parameter << "][EXEC]" << std::endl;
+        if (started_action_timer <= timer.getTimer()) {
+            if (_is_last_frame == true) {
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+                //std::cout << "$$$$$$$$ execute_ai_step_change_animation_type[" << name << "][" << (int)_parameter << "][FINISH]" << std::endl;
+            }
         }
     }
 }

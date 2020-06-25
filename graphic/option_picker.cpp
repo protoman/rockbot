@@ -39,7 +39,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<st_m
     _show_return = show_return;
     if (_show_return == true) {
 
-        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, SharedData::get_instance()->game_config.selected_language)));
+        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return)));
     }
 
     _pick_pos = 0;
@@ -70,7 +70,7 @@ option_picker::option_picker(bool draw_border, st_position pos, std::vector<stri
     _items = option_list;
     _show_return = show_return;
     if (_show_return == true) {
-        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return, SharedData::get_instance()->game_config.selected_language)));
+        _items.insert(_items.begin(), st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_return)));
     }
 
     check_input_reset_command = false;

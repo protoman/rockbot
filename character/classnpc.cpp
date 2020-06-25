@@ -49,6 +49,11 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
     _screen_blinked = false;
     _parent_id = -1;
     is_ghost = false;
+
+    if (name == "OCTOPUS") {
+        std::cout << ">>>>>>>>> classnpc::classnpc#1 - NPC[" << name << "] - background_pos[" << background_pos.x << "][" << background_pos.y << "]" << std::endl;
+    }
+
 }
 
 
@@ -56,6 +61,9 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_friend(false) // map-loaded npc
 {
+    background_pos.x = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.x;
+    background_pos.y = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.y;
+
     is_ghost = false;
     build_basic_npc(stage_id, map_id, main_id);
     facing = GameMediator::get_instance()->map_npc_data[id].direction;
@@ -72,7 +80,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     position.x = start_point.x;
     position.y = start_point.y;
     if (name == "OCTOPUS") {
-        std::cout << "NPC[" << name << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
+        std::cout << ">>>>>>>>> classnpc::classnpc#2 - NPC[" << name << "] - background_pos[" << background_pos.x << "][" << background_pos.y << "]" << std::endl;
     }
     _is_spawn = false;
     _initialized = 0;
@@ -87,6 +95,9 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
 
 classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend) // spawned npc
 {
+    background_pos.x = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.x;
+    background_pos.y = GameMediator::get_instance()->get_enemy(main_id)->sprites_pos_bg.y;
+
     is_ghost = false;
 
     build_basic_npc(stage_id, map_id, main_id);
@@ -106,6 +117,11 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     if (is_static()) {
         can_fly = true;
     }
+
+    if (name == "OCTOPUS") {
+        std::cout << ">>>>>>>>> classnpc::classnpc#3 - NPC[" << name << "] - background_pos[" << background_pos.x << "][" << background_pos.y << "]" << std::endl;
+    }
+
 }
 
 
@@ -126,6 +142,11 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
     _parent_id = -1;
 
     is_ghost = false;
+
+    if (name == "OCTOPUS") {
+        std::cout << ">>>>>>>>> classnpc::classnpc#4 - NPC[" << name << "] - background_pos[" << background_pos.x << "][" << background_pos.y << "]" << std::endl;
+    }
+
 }
 
 
@@ -239,6 +260,22 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         }
     }
 
+    if (have_background_graphics() == false) {
+        graphicsLib_gSurface bg_surface;
+        std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
+        //std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: '" << bg_filename << "', length: " << bg_filename.length() << ", size: " << bg_filename.size() << std::endl;
+        if (bg_filename.size() > 0) {
+            std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
+            graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
+            if (bg_surface.get_surface() == NULL) {
+                std::cout << "initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
+                return;
+            }
+            graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
+            std::cout << ">>>>>>>>> NPC[" << name << "].bg_filename: " << bg_filename << ", background_pos[" << background_pos.x << "][" << background_pos.y << "]" << std::endl;
+            _has_background = true;
+        }
+    }
 
     // can't have ghosts that don't fly
     if (is_ghost == true && can_fly == false) {
@@ -413,21 +450,19 @@ void classnpc::boss_move()
     bool is_static_boss = is_static();
 
     if (is_entirely_on_screen() == true && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
-        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::TELEPORT" << std::endl;
+        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::TELEPORT" << std::endl;
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss);
         // set temp-background in map
         return;
     } else if (is_entirely_on_screen() == false && is_on_screen() == true &&  _initialized == 0 && _is_boss == true) {
-        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::FALL" << std::endl;
+        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::FALL" << std::endl;
         fall_to_ground();
         _initialized = 1;
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "NPC::boss_move::GRAVITY #1, position.x[%f]", position.x);
-#endif
+        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::GRAVITY" << std::endl;
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;
         }
@@ -436,6 +471,7 @@ void classnpc::boss_move()
 
     if (first_run == 0) {
         first_run = 1;
+        _ai_timer = timer.getTimer() + 1500; // add an initial delay to the boss, until player gets the hang of it
     }
 
     if (_ai_timer > timer.getTimer()) {
@@ -443,7 +479,7 @@ void classnpc::boss_move()
         return;
     }
 
-    //std::cout << "NPC::boss_move[" << name << "]::EXECUTE-AI-CALL" << std::endl;
+    std::cout << "NPC::boss_move[" << name << "]::EXECUTE-AI-CALL" << std::endl;
     execute_ai();
     gravity(false);
 }
@@ -477,6 +513,10 @@ void classnpc::copy(classnpc *from)
     attack_state = 0;
 	state = from->state;
 
+    _has_background = from->_has_background;
+
+    background_pos.x = from->background_pos.x;
+    background_pos.y = from->background_pos.y;
 }
 
 

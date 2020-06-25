@@ -127,7 +127,7 @@ void stage_select::move_highlight(Sint8 x_inc, Sint8 y_inc) {
         fio.read_stage(temp_stage_data, stage_n);
         std::string stage_name(temp_stage_data.name);
         std::string boss_name(temp_stage_data.boss.name);
-        graphLib.draw_text(3, 12, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, SharedData::get_instance()->game_config.selected_language) + " " + stage_name, graphLib.gameScreen);
+        graphLib.draw_text(3, 12, strings_map::get_instance()->get_ingame_string(string_stage_select_stage) + " " + stage_name, graphLib.gameScreen);
         //graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, game_config.selected_language) + " " + boss_name, graphLib.gameScreen);
     }
 
@@ -276,8 +276,8 @@ void stage_select::draw_stage_select_text_info(int stage_n)
 
     std::string stage_name(temp_stage_data.name);
     std::string boss_name(temp_stage_data.boss.name);
-    graphLib.draw_text(9, 4, strings_map::get_instance()->get_ingame_string(string_stage_select_stage, SharedData::get_instance()->game_config.selected_language) + " " + stage_name, top_panel);
-    graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of, SharedData::get_instance()->game_config.selected_language) + " " + boss_name, bottom_panel);
+    graphLib.draw_text(9, 4, strings_map::get_instance()->get_ingame_string(string_stage_select_stage) + " " + stage_name, top_panel);
+    graphLib.draw_text(9, 5, strings_map::get_instance()->get_ingame_string(string_stage_select_lair_of) + " " + boss_name, bottom_panel);
 
     // animate
     for (int i=0; i<=RES_W; i+=6) {
@@ -297,7 +297,7 @@ void stage_select::draw_stage_select_text_info(int stage_n)
     graphLib.clear_area(21, text_pos_y, 76, 16, 19, 2, 36);
     graphLib.clear_area(184, text_pos_y, 206, 16, 19, 2, 36);
     graphLib.draw_text(21, text_pos_y, "[SELECT]", st_color(250, 250, 250));
-    graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, SharedData::get_instance()->game_config.selected_language), st_color(250, 250, 250));
+    graphLib.draw_text(184, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage), st_color(250, 250, 250));
 }
 
 int stage_select::pick_stage(int stage_n)
@@ -318,7 +318,7 @@ int stage_select::pick_stage(int stage_n)
 
     short text_pos_y = 222;
     graphLib.draw_text(26, text_pos_y, "[SELECT]", st_color(250, 250, 250));
-    graphLib.draw_text(189, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage, SharedData::get_instance()->game_config.selected_language), st_color(250, 250, 250));
+    graphLib.draw_text(189, text_pos_y, strings_map::get_instance()->get_ingame_string(string_stage_select_enter_stage), st_color(250, 250, 250));
 
     std::vector<std::string> boss_name_list;
 

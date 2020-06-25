@@ -1,7 +1,30 @@
 ####################################################################################################################################
-Corrigida música dos chefes
-NPC preso parede fase das pilhas castelo
-Sem solid no teto da sala de itens do mummy
+.0.31
+####################################################################################################################################
+Fix setting player to Rockbot when loading game
+Fix ending being incomplete
+
+####################################################################################################################################
+.0.30
+####################################################################################################################################
+Common:
+    Add initial delay for bossses start moving
+    Fix boss music not playing.
+    Show "new characters available" message on ending credits
+    PocketGo port
+    Added back enemy background with fixes in positon
+
+Rockbot1:
+    Fix some issues in stage and enemy placing.
+    Fix ending stopping stars animation while waits for keypress
+
+Rockbot2:
+    Kurupira: remove armor-piece from stage, as we already have it on Gear stage
+    Gear: add teleport after armor piece in stage to return to regular path. Gear should not walk/dash, but jump, as he is too big to jump over.
+    Valkyrie: remove debug items and adjust tank position so you can reach it with coil
+    Castle5: Destrin should change frame to indicate if is pushing or pulling.
+
+
 
 ####################################################################################################################################
 - título

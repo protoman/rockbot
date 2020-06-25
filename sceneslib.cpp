@@ -118,7 +118,7 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
     graphLib.draw_centered_text(220, "http://rockbot.upperland.net");
 
 }
@@ -139,14 +139,14 @@ void scenesLib::main_screen()
 	draw_main();
 
     std::vector<st_menu_option> options;
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame, SharedData::get_instance()->game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame)));
     if (fio.have_one_save_file() == true) {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, SharedData::get_instance()->game_config.selected_language)));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame)));
     } else {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, SharedData::get_instance()->game_config.selected_language), true));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame), true));
     }
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, SharedData::get_instance()->game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, SharedData::get_instance()->game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
@@ -216,7 +216,7 @@ void scenesLib::main_screen()
             main_picker.draw();
         } else if (picked_n == MAIN_MENU_CHEAT_RETURN) { // LEAVING CHEATS MENU ITEM //
             picked_n = 5;
-            main_picker.add_option_item(st_menu_option("CHEATS"));
+            main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
             draw_main();
             main_picker.draw();
         }
@@ -251,23 +251,21 @@ void scenesLib::show_cheats_menu()
 
         options.clear();
 
-
-
-        std::string invencibleStr = "OFF";
+        std::string invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
         if (GAME_FLAGS[FLAG_INVENCIBLE]) {
-            invencibleStr = "ON";
+            invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
-        options.push_back(st_menu_option("INVENCIBLE: " + invencibleStr));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_INVENCIBLE) + ": " + invencibleStr));
 
-        std::string allStagesStr = "OFF";
+        std::string allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
         if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
-            allStagesStr = "ON";
+            allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
-        options.push_back(st_menu_option("ALL BEATEN: " + allStagesStr));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_ALLBEATEN) + ": " + allStagesStr));
 
         char char_n[50];
         sprintf(char_n, "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
-        options.push_back(st_menu_option("CHARACTER: " + std::string(char_n)));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_CHARACTER) + ": " + std::string(char_n)));
 
         option_picker cheat_config_picker(false, config_text_pos, options, true);
         graphLib.show_config_bg();
@@ -422,23 +420,17 @@ void scenesLib::show_enemies_ending()
         int boss_id = stage_data_obj.boss.id_npc;
         if (boss_id != -1) {
             std::pair<int, std::string> temp_data(boss_id, std::string(stage_data_obj.boss.name));
-            std::cout << "############ stage[" << i << "].boss_id[" << boss_id << "].name[" << std::string(stage_data_obj.boss.name) << "]" << std::endl;
             stage_boss_id_list.insert(temp_data);
         }
     }
     //std::cout << "GameMediator::get_instance()->get_enemy_list_size[" << GameMediator::get_instance()->get_enemy_list_size() << "]" << std::endl;
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
-
-        std::cout << "i[" << i << "].name[" << GameMediator::get_instance()->get_enemy(i)->name << "], game_data.final_boss_id[" << (int)game_data.final_boss_id << "]" << std::endl;
-
         if (stage_boss_id_list.find(i) != stage_boss_id_list.end()) {
             continue;
         }
         // final boss
         std::string name = std::string(GameMediator::get_instance()->get_enemy(i)->name);
-
         ending_show_single_enemy(i, name);
-
     }
 
     show_bosses_ending();
@@ -457,22 +449,12 @@ void scenesLib::show_enemies_ending()
 
 void scenesLib::ending_show_single_enemy(int id, std::string name)
 {
-
-    std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
-#endif
-
-    int w = GameMediator::get_instance()->get_enemy(id)->frame_size.width;
-    int h = GameMediator::get_instance()->get_enemy(id)->frame_size.height;
-
     std::string temp_filename = FILEPATH + "images/sprites/enemies/" + GameMediator::get_instance()->get_enemy(id)->graphic_filename;
     graphicsLib_gSurface npc_sprite_surface;
     graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
 
     draw_lib.show_boss_intro_bg();
     draw_lib.show_boss_intro_sprites(id, false);
-    //graphLib.draw_progressive_text(120, RES_H/2, name, false);
     graphLib.draw_centered_text(BOSS_INTRO_BG_TEXT_Y, name);
     draw_lib.update_screen();
     timer.delay(3000);
@@ -515,8 +497,8 @@ void scenesLib::show_bosses_ending()
 
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
-        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, SharedData::get_instance()->game_config.selected_language) + ":";
-        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, SharedData::get_instance()->game_config.selected_language) + ":";
+        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT) + ":";
+        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN) + ":";
         int delay = 60;
 
 
@@ -556,8 +538,6 @@ short scenesLib::pick_stage(int last_stage)
 }
 
 Uint8 scenesLib::select_player() {
-    std::cout << "scenesLib::select_player::START" << std::endl;
-
     int selected = 1;
     graphicsLib_gSurface bg_surface;
 
@@ -588,9 +568,9 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player));
     graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, SharedData::get_instance()->game_config.selected_language));
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select));
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
@@ -658,14 +638,14 @@ Uint8 scenesLib::select_difficulty()
     input.clean();
     timer.delay(300);
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy, SharedData::get_instance()->game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, SharedData::get_instance()->game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, SharedData::get_instance()->game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard));
 
     config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
 
-    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, SharedData::get_instance()->game_config.selected_language).c_str());
+    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select).c_str());
 
     short selected_option = -2;
     while (selected_option == -2) {
@@ -680,7 +660,6 @@ Uint8 scenesLib::select_difficulty()
         } else {
             res = selected_option;
         }
-        std::cout << "############ select_difficulty.selected_option[" << selected_option << "]" << std::endl;
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
     }
@@ -719,17 +698,18 @@ short scenesLib::select_save(bool is_new_game)
             save_slot_exists[i] = false;
         } else {
             fio.read_save(save_detail_array[i], i);
-            game_save.selected_player = PLAYER_1; // fix to avoid old player selection //
             save_slot_exists[i] = true;
         }
     }
 
+
+    strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION)
     if (is_new_game == true) {
-        graphLib.draw_text(10, 10, "CREATE NEW GAME");
+        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NEW_GAME);
     } else {
-        graphLib.draw_text(10, 10, "LOAD GAME FILE");
+        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_LOAD_GAME));
     }
-    graphLib.draw_text(10, RES_H-12, "PLEASE SELECT SAVE SLOT");
+    graphLib.draw_text(10, RES_H-12, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION));
 
     while (finished == false) {
         // draw screen
@@ -744,7 +724,7 @@ short scenesLib::select_save(bool is_new_game)
             if (save_slot_exists[i] == true) {
                 draw_save_details(i, save_detail_array[i]);
             } else {
-                graphLib.draw_text(10, i*40+34, "- NO SAVE FILE -");
+                graphLib.draw_text(10, i*40+34, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NO_SAVE);
             }
         }
 

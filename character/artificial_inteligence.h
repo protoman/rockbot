@@ -291,13 +291,15 @@ protected:
 	// "external" members
     static std::vector<character*> *player_list;					// reference to the players list /**< TODO */
     unsigned int _ai_timer;										// used to not execute AI before a while /**< TODO */
+    double started_action_timer = 0;
     short _ai_chain_n;							// indicates witch one of the four AI actions is the NPC on /**< TODO */
     short _ghost_move_speed_reducer;           // some NPCs walk slowly when throught walls
-    struct st_position start_point; /**< TODO */
+    struct st_position start_point;
     unsigned int _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
 
     trajectory_parabola *_trajectory_parabola;          // used for jumping to a specific point
     bool _did_shot;                                         // used to avoid shooting multiple times
+    double shot_timer = 0;                              // used to check if we need to keep the enemy in animation for a given period
     st_float_position _diagonal_speed;
     float _sin_x;                                       // used for sinoidal movement
     int _reaction_state;                                // used to control reaction so it won't execute two times or over an executing state
@@ -318,6 +320,7 @@ protected:
     bool is_shooter = false;
     double shooter_timer = 0;
     short shoot_direction = ANIM_DIRECTION_LEFT;
+    bool shot_success = false;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H
