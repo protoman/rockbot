@@ -1184,6 +1184,9 @@ enum E_STRINGS_INGAME {
     strings_menu_pick_save_slot_LOAD_GAME,
     strings_menu_pick_save_slot_NO_SAVE,
 
+    strings_ending_NEW_CHARACTERS_AVAILABLE,
+    strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE,
+
     strings_ingame_COUNT
 };
 

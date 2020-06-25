@@ -105,7 +105,7 @@ private:
     graphicsLib_gSurface _teleport_small_gfx;
     int teleport_small_frame_count;
     int teleport_small_frame;
-    long teleport_small_frame_timer;
+    unsigned long teleport_small_frame_timer;
 
     // GRAPHICS LISTS
     std::map<unsigned int, graphicsLib_gSurface> objects_sprite_list; // object_id, graphic

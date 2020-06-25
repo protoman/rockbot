@@ -371,6 +371,9 @@ namespace format_v4 {
             sprintf(lines[strings_menu_pick_save_slot_LOAD_GAME], "%s", "CARREGAR ARQUIVO");
             sprintf(lines[strings_menu_pick_save_slot_NO_SAVE], "%s", "- SEM ARQUIVO -");
 
+            sprintf(lines[strings_ending_NEW_CHARACTERS_AVAILABLE], "%s", "NOVOS PERSONAGENS DISPONPIVEIS");
+            sprintf(lines[strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE], "%s", "USE      PARA CONTINUAR");
+
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -562,6 +565,11 @@ namespace format_v4 {
             sprintf(lines[strings_menu_pick_save_slot_NEW_GAME], "%s", "CREATE NEW GAME");
             sprintf(lines[strings_menu_pick_save_slot_LOAD_GAME], "%s", "LOAD GAME FILE");
             sprintf(lines[strings_menu_pick_save_slot_NO_SAVE], "%s", "- NO SAVE FILE -");
+
+            sprintf(lines[strings_ending_NEW_CHARACTERS_AVAILABLE], "%s", "NEW CHARACTERS AVAILABLE");
+            sprintf(lines[strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE], "%s", "PRESS    TO CONTINUE");
+
+
         }
 
 
@@ -647,6 +655,231 @@ namespace format_v4 {
             }
         }
         return text;
+    }
+
+    std::vector<std::string> fio_strings::get_game_engine_credits()
+    {
+        std::vector<std::string> credits_list;
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- CRÉDITOS DO MOTOR DE JOGO -");
+        } else {
+            credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
+        }
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- PLANEJAMENTO -");
+        } else {
+            credits_list.push_back("- PLANNER -");
+        }
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- AUXILIARES -");
+        } else {
+            credits_list.push_back("- HELPER -");
+        }
+        credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
+        credits_list.push_back("NELSON ROSENBERG");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- DESIGN DE PERSONAGEM -");
+        } else {
+            credits_list.push_back("- CHARACTER DESIGNER -");
+        }
+        credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
+        credits_list.push_back("BOBERATU");
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("NELSON ROSENBERG");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- DESIGN DE OBJETO -");
+        } else {
+            credits_list.push_back("- OBJECT DESIGNER -");
+        }
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- DESIGNER GRÁFICO -");
+        } else {
+            credits_list.push_back("- GRAPHICS DESIGNER -");
+        }
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("BOBERATU");
+        credits_list.push_back("HFBN2");
+        credits_list.push_back("CAPT. CHRIS AND KB");
+        credits_list.push_back("SURT.OPENGAMEART");
+        credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
+        credits_list.push_back("FUNKY96.DEVIANTART");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- COMPOSITOR DE DIÁLOGOS -");
+        } else {
+            credits_list.push_back("- DIALOGS COMPOSING -");
+        }
+        credits_list.push_back("NELSON ROSENBERG");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- JOGADOR DE TESTES -");
+        } else {
+            credits_list.push_back("- TEST PLAYER -");
+        }
+        credits_list.push_back("NELSON ROSENBERG");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- ILUSTRAÇÕES -");
+        } else {
+            credits_list.push_back("- ILLUSTRATION DESIGNER -");
+        }
+        credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- COMPOSIÇÃO MUSICAL -");
+        } else {
+            credits_list.push_back("- MUSIC COMPOSER -");
+        }
+        credits_list.push_back("MODARCHIVE.ORG");
+        credits_list.push_back("FIREAGE");
+        credits_list.push_back("SOLARIS");
+        credits_list.push_back("LEON/EXCESS");
+        credits_list.push_back("DIOMATIC");
+        credits_list.push_back("JASON");
+        credits_list.push_back("DEADLOCK/EXLSD");
+        credits_list.push_back("4MAT");
+        credits_list.push_back("ZANAZAC");
+        credits_list.push_back("AMEGA INDUSTRIESQ");
+        credits_list.push_back("DEATH ADDR");
+        credits_list.push_back("TOBBX");
+        credits_list.push_back("HYOCHAN");
+        credits_list.push_back("DR.BULLY/MAJIC12");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- DESIGN DE EFEITOS SONOROS -");
+        } else {
+            credits_list.push_back("- SFX DESIGNER -");
+        }
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- PROGRAMAÇÃO -");
+        } else {
+            credits_list.push_back("- PROGRAMMER -");
+        }
+        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("FARLEY KNIGHT");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- AUXÍLIO PLATAFORMAS -");
+        } else {
+            credits_list.push_back("- PORTING HELPER -");
+        }
+        credits_list.push_back("DINGUX: SHIN-NIL");
+        credits_list.push_back("PANDORA: SIGMA NL");
+        credits_list.push_back("PS2: RAGNAROK2040");
+        credits_list.push_back("PS2: WOON-YUNG LIU");
+        credits_list.push_back("PS2: SP193");
+        credits_list.push_back("ANDROID: PELYA");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- REVISÃO E TESTES -");
+        } else {
+            credits_list.push_back("- REVIEW & TESTING -");
+        }
+        credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
+        credits_list.push_back("NELSON ROSENBERG");
+        credits_list.push_back("ANDREW PRZELUCKI");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- AGRADECIMENTOS ESPECIAIS -");
+        } else {
+            credits_list.push_back("- SPECIAL THANKS -");
+        }
+        credits_list.push_back("FELIPE ZACANI (FPS)");
+        credits_list.push_back("FREE SDK DEVELOPERS");
+        credits_list.push_back("DEVIANTART.COM");
+        credits_list.push_back("PIXELJOINT.COM");
+        credits_list.push_back("OPENGAMEART.ORG");
+        credits_list.push_back("VENOM");
+        credits_list.push_back("JERONIMO");
+        credits_list.push_back("");
+        credits_list.push_back("");
+        credits_list.push_back("");
+
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- FERRAMENTAS DE DESENVOLVIMENTO -");
+        } else {
+            credits_list.push_back("- DEVELOPMENT TOOLS -");
+        }
+        credits_list.push_back("LIBSDL");
+        credits_list.push_back("DIGIA QT");
+        credits_list.push_back("GCC G+");
+        credits_list.push_back("UBUNTU LINUX");
+        credits_list.push_back("MINT LINUX");
+        credits_list.push_back("GIMP EDITOR");
+        credits_list.push_back("PAINT TOOL SAI");
+        credits_list.push_back("COREL DRAW");
+        credits_list.push_back("SIMPLE SCREEN RECORD");
+        credits_list.push_back("AUDACIOUS PLAYER");
+        credits_list.push_back("AUDACITY EDITOR");
+        credits_list.push_back("BFXR.NET");
+
+        for (int i=0; i<20; i++) {
+            credits_list.push_back("");
+        }
+        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+            credits_list.push_back("- APRESENTADO POR -");
+            credits_list.push_back("UPPERLAND STUDIOS");
+        } else {
+            credits_list.push_back("- PRESENTED BY -");
+            credits_list.push_back("UPPERLAND STUDIOS");
+        }
+
+        return credits_list;
     }
 
     void fio_strings::create_default_common_strings()

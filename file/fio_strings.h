@@ -52,6 +52,7 @@ public:
 
     std::string get_language_filename_prefix(int language);
 
+    std::vector<std::string> get_game_engine_credits();
 
 private:
     // === GAME STRINGS === //

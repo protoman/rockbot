@@ -168,8 +168,6 @@ void draw::show_gfx()
         show_shadow_top_effect();
     } else if (screen_gfx == SCREEN_GFX_INFERNO) {
         show_inferno_effect();
-    } else if (screen_gfx != SCREEN_GFX_NONE) {
-        std::cout << "screen_gfx[" << (int)screen_gfx << "] UNKNOWN" << std::endl;
     }
 
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
@@ -242,7 +240,6 @@ void draw::show_rain()
             _rain_pos = 0;
         }
         _effect_timer = timer.getTimer() + RAIN_DELAY;
-        std::cout << "## DRAW::SHOW_RAIN::SET-EFFECT-TIMER: " << _effect_timer << std::endl;
     }
 }
 
@@ -273,11 +270,6 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     graphicsLib_gSurface bgCopy, boss_graphics;
 
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "DRAW::show_boss_intro_sprites, id[%d], filename[%s]", boss_id, graph_filename.c_str());
-#endif
-
 
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
@@ -387,7 +379,6 @@ void draw::show_teleport_small(int x, int y)
 
 int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text)
 {
-    int line_n=0;
     unsigned int scrolled = 0;
     int posY = RES_H;
     st_rectangle dest;
@@ -403,9 +394,6 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
     graphLib.blank_screen();
 
-
-    std::cout << "draw::show_credits_text::START" << std::endl;
-
     // add the initial lines to screen
     create_engine_credits_text();
 
@@ -416,7 +404,7 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     update_screen();
 
     // scroll the lines
-    int limit = (credit_text.size()*12)+RES_H/2;
+    unsigned int limit = (credit_text.size()*12)+RES_H/2;
     std::cout << "credit_text.size[" << credit_text.size() << "]" << std::endl;
     while (scrolled < limit) {
 
@@ -488,8 +476,8 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
                 bg2_pos = 0;
             }
 
-            graphLib.draw_centered_text(RES_H-34, "NEW CHARACTERS AVAILABLE");
-            graphLib.draw_centered_text(RES_H-22, "PRESS    TO CONTINUE");
+            graphLib.draw_centered_text(RES_H-34, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_AVAILABLE));
+            graphLib.draw_centered_text(RES_H-22, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE));
             graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(134, RES_H-20), false);
 
             draw_credits_line(credit_text.size()-2, credit_text, -300);
@@ -514,7 +502,6 @@ void draw::draw_credits_line(int i, std::vector<string> credit_text, int posY)
     int text_pos = posY+12*i;
 
     if (text_pos >= -12 && text_pos <= RES_H+12) {
-        std::cout << "######### draw::draw_credits_line - draw line[" << i << "][" << credit_text.at(i) << "], text_pos[" << text_pos << "], posY[" << posY << "]" << std::endl;
         std::size_t found_title_blue = credit_text.at(i).find("- ");
         std::size_t found_title_red = credit_text.at(i).find("# ");
         if (credit_text.at(i)[0] == '@') { // section
@@ -568,154 +555,7 @@ std::vector<string> draw::create_engine_credits_text()
             credits_list.push_back("");
         }
     }
-    credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- PLANNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- HELPER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- CHARACTER DESIGNER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("BOBERATU");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- OBJECT DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- GRAPHICS DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("BOBERATU");
-    credits_list.push_back("HFBN2");
-    credits_list.push_back("CAPT. CHRIS AND KB");
-    credits_list.push_back("SURT.OPENGAMEART");
-    credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
-    credits_list.push_back("FUNKY96.DEVIANTART");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- DIALOGS EDITOR -");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- TEST PLAYER -");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- ILLUSTRATION DESIGNER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("- MUSIC COMPOSER -");
-    credits_list.push_back("MODARCHIVE.ORG");
-    credits_list.push_back("FIREAGE");
-    credits_list.push_back("SOLARIS");
-    credits_list.push_back("LEON/EXCESS");
-    credits_list.push_back("DIOMATIC");
-    credits_list.push_back("JASON");
-    credits_list.push_back("DEADLOCK/EXLSD");
-    credits_list.push_back("4MAT");
-    credits_list.push_back("ZANAZAC");
-    credits_list.push_back("AMEGA INDUSTRIESQ");
-    credits_list.push_back("DEATH ADDR");
-    credits_list.push_back("TOBBX");
-    credits_list.push_back("HYOCHAN");
-    credits_list.push_back("DR.BULLY/MAJIC12");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- SFX DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- PROGRAMMER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("FARLEY KNIGHT");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- PORTING HELPER -");
-    credits_list.push_back("DINGUX: SHIN-NIL");
-    credits_list.push_back("PANDORA: SIGMA NL");
-    credits_list.push_back("PS2: RAGNAROK2040");
-    credits_list.push_back("PS2: WOON-YUNG LIU");
-    credits_list.push_back("PS2: SP193");
-    credits_list.push_back("ANDROID: PELYA");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- REVIEW & TESTING -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("ANDREW PRZELUCKI");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- SPECIAL THANKS -");
-    credits_list.push_back("FELIPE ZACANI (FPS)");
-    credits_list.push_back("FREE SDK DEVELOPERS");
-    credits_list.push_back("DEVIANTART.COM");
-    credits_list.push_back("PIXELJOINT.COM");
-    credits_list.push_back("OPENGAMEART.ORG");
-    credits_list.push_back("VENOM");
-    credits_list.push_back("JERONIMO");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- DEVELOPMENT TOOLS -");
-    credits_list.push_back("LIBSDL");
-    credits_list.push_back("DIGIA QT");
-    credits_list.push_back("GCC G+");
-    credits_list.push_back("UBUNTU LINUX");
-    credits_list.push_back("MINT LINUX");
-    credits_list.push_back("GIMP EDITOR");
-    credits_list.push_back("PAINT TOOL SAI");
-    credits_list.push_back("COREL DRAW");
-    credits_list.push_back("SIMPLE SCREEN RECORD");
-    credits_list.push_back("AUDACIOUS PLAYER");
-    credits_list.push_back("AUDACITY EDITOR");
-    credits_list.push_back("BFXR.NET");
-
-    for (int i=0; i<20; i++) {
-        credits_list.push_back("");
-    }
-    credits_list.push_back("- PRESENTED BY -");
-    credits_list.push_back("UPPERLAND STUDIOS");
+    fio_str.get_game_engine_credits();
 
     return credits_list;
 }
@@ -724,7 +564,6 @@ std::vector<string> draw::create_engine_credits_text()
 void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,std::vector<std::string> credit_text)
 {
     if (initial_line < credit_text.size()) {
-        std::cout << "draw::draw_credit_line - text[" << credit_text.at(initial_line) << "]" << std::endl;
         std::size_t found = credit_text.at(initial_line).find("- ");
         if (found != std::string::npos) {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(95, 151, 255));
