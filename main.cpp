@@ -425,17 +425,9 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
-    std::cout << ">>>>>>>>>>>>>>>>>>>> GAMENAME[" << GAMENAME << "]" << std::endl;
 
     fflush(stdout);
 
-#ifdef ANDROID
-    /*
-    if (game_config.android_use_play_services == true) {
-        game_services.connect();
-    }
-    */
-#endif
 
     // DEBUG PS2 //
     //GAMENAME = std::string("RockBot");
@@ -456,9 +448,6 @@ int main(int argc, char *argv[])
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
 
 	fio.read_game(game_data);
-
-    //GAME_FLAGS[FLAG_INFINITE_HP] = true; // DEBUG
-
 
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();
@@ -533,10 +522,6 @@ int main(int argc, char *argv[])
 
     }
 
-
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### Leaving game gracefully ###");
-#endif
 
     SDL_Quit();
 	

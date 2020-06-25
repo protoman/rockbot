@@ -100,7 +100,6 @@ Sint8 option_picker::pick(int initial_pick_pos)
     while (finished == false) {
         input.read_input(check_input_reset_command, check_input_cheat_command);
         if (check_input_reset_command == true && input.is_check_input_reset_command_activated()) {
-            std::cout << "RESET ACTIVE!!" << std::endl;
             show_reset_config_dialog();
         } else if (check_input_cheat_command == true && input.is_check_input_cheat_command_activated()) {
             input.reset_cheat_input();
@@ -178,7 +177,7 @@ void option_picker::show_reset_config_dialog()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
     wait_release_reset_config();
     graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
-    graphLib.draw_text(20, 20, "NOW PRESS TWO BUTTONS TOGETHER");
+    graphLib.draw_text(20, 20, "NOW PRESS TWO BUTTONS TOGETHER"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.draw_text(20, 32, "AND HOLD IT FOR 5 SECONDS");
     graphLib.draw_text(20, 44, "TO RESET CONFIGURATION.");
     graphLib.draw_text(20, 60, "OR WAIT 10 SECONDS TO");
@@ -207,7 +206,7 @@ void option_picker::show_reset_config_dialog()
 void option_picker::wait_release_reset_config()
 {
     graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
-    graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS");
+    graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.updateScreen();
     while (input.is_check_input_reset_command_activated() == true) {
         input.read_input(true, false);

@@ -90,12 +90,10 @@ void sceneShow::show_scene(int n)
             break;
         }
     }
-    std::cout << "show_scene::DONE" << std::endl;
 }
 
 void sceneShow::show_image(int n)
 {
-    std::cout << "sceneShow::show_image::START" << std::endl;
     if (image_scenes.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.0");
@@ -137,7 +135,6 @@ void sceneShow::show_image(int n)
 // That way we can move the run_XXX methods into threads to run in paralel
 void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image)
 {
-    std::cout << "** sceneShow::run_image_scene::START" << std::endl;
     float x = scene_image.ini_x;
     float y = scene_image.ini_y;
     graphicsLib_gSurface image;
@@ -145,8 +142,6 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
     graphLib.initSurface(st_size(RES_W, RES_H), &bg_image);
     graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &bg_image);
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + scene_image.filename, &image);
-
-    std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
 
     while (total_dist > 0) {
         input.read_input();
@@ -167,10 +162,8 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
 
 void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoint viewpoint)
 {
-    std::cout << "** sceneShow::run_image_scene::START" << std::endl;
     float x = viewpoint.ini_x;
     float y = viewpoint.ini_y;
-
 
     graphicsLib_gSurface image;
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + viewpoint.filename, &image);
@@ -179,11 +172,8 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
 
     while (total_dist > 0) {
         input.read_input();
-        //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(viewpoint.move_delay);
-        std::cout << "rect - x[" << x << "], .y[" << y << "], w[" << viewpoint.w << "], h[" << viewpoint.h << "]" << std::endl;
 
-        //void graphicsLib::showSurfacePortion(graphicsLib_gSurface *surfaceOrigin, const st_rectangle origin_rect, st_rectangle destiny_rect)
         graphLib.showSurfacePortion(&image, st_rectangle(x, y, viewpoint.w, viewpoint.h), st_rectangle(viewpoint.pos_x, viewpoint.pos_y, viewpoint.w, viewpoint.h));
 
         graphLib.updateScreen();
@@ -348,14 +338,12 @@ void sceneShow::run_text(int n)
             break;
         }
     }
-    std::cout << "run_text::DONE" << std::endl;
 }
 
 
 
 void sceneShow::show_viewpoint(int n)
 {
-    std::cout << "sceneShow::show_image::START" << std::endl;
     if (viewpoint_list.size() <= n) {
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << viewpoint_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.5");
@@ -387,7 +375,6 @@ void sceneShow::show_viewpoint(int n)
     } else {
         total_dist = diff_y;
     }
-    std::cout << "SCENE::VIEWPOINT - speed_y[" << speed_y << "], speed_x[" << speed_x << "]" << std::endl;
     run_viewpoint_scene(viewpoint);
 }
 
@@ -407,9 +394,6 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
     graphLib.initSurface(st_size(scene.frame_w, scene.frame_h), &bg_image);
     graphLib.copy_gamescreen_area(st_rectangle(scene.x, scene.y, scene.frame_w, scene.frame_h), st_position(0, 0), &bg_image);
 
-
-    std::cout << "max_frames[" << max_frames << "], image.w[" << image.width << "], scene.frame_w[" << scene.frame_w << "]" << std::endl;
-
     while (true) {
         input.read_input();
         int x = frame_n*scene.frame_w;
@@ -417,17 +401,14 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 
         // stop condition
         if (repeat_times > 0 && repeat_n <= 1) {
-            std::cout << "sceneShow::show_animation::LEAVE#1" << std::endl;
             break;
         } else {
             if (repeat_mode == 0) { // time-mode
                 if ((timer.getTimer() - started_timer) > repeat_n) {
-                    std::cout << "sceneShow::show_animation::LEAVE#2" << std::endl;
                     break;
                 }
             } else { // repeat number mode
                 if (repeat_times > repeat_n) {
-                    std::cout << "sceneShow::show_animation::LEAVE#3" << std::endl;
                     break;
                 }
             }
