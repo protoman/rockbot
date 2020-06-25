@@ -41,7 +41,6 @@ game_menu::game_menu()
 
 void game_menu::show_extra_menu()
 {
-    short res = 0;
     st_position config_text_pos;
     std::vector<st_menu_option> options;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 20;
@@ -54,8 +53,6 @@ void game_menu::show_extra_menu()
 
 
     short selected_option = 0;
-    int current_player = game_save.selected_player;
-
 
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
     option_picker cheat_config_picker(false, config_text_pos, options, true);
@@ -480,11 +477,11 @@ void game_menu::show_config_language()
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTOGHESE"));
     } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
-        options.push_back(st_menu_option("INGLES"));
+        options.push_back(st_menu_option("INGLÊS"));
         options.push_back(st_menu_option("FRANCES", true));
         options.push_back(st_menu_option("ESPANHOL", true));
         options.push_back(st_menu_option("ITALIANO", true));
-        options.push_back(st_menu_option("PORTUGUES"));
+        options.push_back(st_menu_option("PORTUGUÊS"));
     } else {                                            // ENGLISH
         options.push_back(st_menu_option("ENGLISH"));
         options.push_back(st_menu_option("FRENCH", true));
@@ -653,13 +650,6 @@ int game_menu::config_int_value(int initial_value_int, int min, int max, std::st
         graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
 
-        std::cout << "game_menu::config_int_value #1 - initial_value[" << (int)initial_value << "], keep_going[" << keep_going << "]" << std::endl;
-
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::config_int_value - initial_value[%d], keep_going[%d]", initial_value, keep_going);
-#endif
-
-
         if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
             std::cout << "game_menu::config_int_value FINISH" << std::endl;
             keep_going = false;
@@ -669,15 +659,10 @@ int game_menu::config_int_value(int initial_value_int, int min, int max, std::st
             initial_value++;
         }
 
-        std::cout << "game_menu::config_int_value #2 - value_ref[" << (int)initial_value << "]" << std::endl;
         input.clean();
         timer.delay(10);
         draw_lib.update_screen();
     }
-
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::config_int_value - initial_value[%d]", initial_value);
-#endif
 
     return initial_value;
 }
@@ -699,9 +684,6 @@ void game_menu::music_player()
     int max = CASTLE1_STAGE5;
     // check stages that have music for max-value, default is castle 1.5
     for (int i=0; i<FS_MAX_STAGES; i++) {
-#ifdef ANDROID
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "game_menu::music_player - stage[%d], music[%s]", i, stages_data.stages[i].bgmusic_filename);
-#endif
         std::string filename(stages_data.stages[i].bgmusic_filename);
         std::cout << "stage[" << i << "].music[" << filename << "]" << std::endl;
         if (filename.length() == 0) {

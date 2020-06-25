@@ -703,9 +703,9 @@ short scenesLib::select_save(bool is_new_game)
     }
 
 
-    strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION)
+    strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION);
     if (is_new_game == true) {
-        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NEW_GAME);
+        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NEW_GAME));
     } else {
         graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_LOAD_GAME));
     }
@@ -724,7 +724,7 @@ short scenesLib::select_save(bool is_new_game)
             if (save_slot_exists[i] == true) {
                 draw_save_details(i, save_detail_array[i]);
             } else {
-                graphLib.draw_text(10, i*40+34, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NO_SAVE);
+                graphLib.draw_text(10, i*40+34, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NO_SAVE));
             }
         }
 

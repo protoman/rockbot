@@ -1411,7 +1411,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 

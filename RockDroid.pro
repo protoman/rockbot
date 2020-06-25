@@ -11,7 +11,7 @@ QT       -= gui
 
 
 
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
 #CONFIG += playstation2
@@ -19,7 +19,7 @@ QT       -= gui
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
-CONFIG += pocketgo
+#CONFIG += pocketgo
 
 #DEFINES+= ANDROID=1
 
