@@ -73,8 +73,6 @@ void key_map::draw_screen()
                 graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_pressnew)); //input code (number)
                 draw_lib.update_screen();
                 graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-                ///@TODO - key_config[_pick_pos].key_type = new_key.key_type;
-                ///@TODO - key_config[_pick_pos].key_number = new_key.key_number;
                 redraw_line(_pick_pos);
                 draw_lib.update_screen();
             }
@@ -108,15 +106,11 @@ void key_map::draw_screen()
 
 void key_map::redraw_line(short line) const
 {
-    std::cout << "******* key_map::redraw_line - line: " << line << std::endl;
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     graphLib.clear_area(config_text_pos.x+70-1, config_text_pos.y-1 + line*CURSOR_SPACING, 110,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-
     std::stringstream key_n_ss;
-    ///@TODO - key_n_ss << key_config[line].key_number;
-
     graphLib.draw_text(config_text_pos.x + 140, config_text_pos.y + line*CURSOR_SPACING, key_n_ss.str()); //input code (number)
 }
 
@@ -142,7 +136,6 @@ Sint8 key_map::draw_config_input(short current_selection) const
     char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
     sprintf(temp_char, "%d", (SharedData::get_instance()->game_config.selected_input_device+1)); // +1 because count start in zero
     std::string selected_joystick_str(temp_char);
-
 
     sprintf(temp_char, "%d", input.get_joysticks_number());
     std::string max_joystick_str(temp_char);
@@ -362,14 +355,7 @@ void key_map::config_buttons()
         // check if jump/attack/start are set, can't leave if one of those is unset
         if (selected_option == -1) {
 
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @1 ###");
-#else
-std::cout << "### INPUT::config_buttons::FINISHED @1 ###" << std::endl;
-#endif
-timer.delay(200);
-
-
+            timer.delay(200);
 
             if (is_key_set(BTN_JUMP, game_config_copy) == false) {
                 std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" JUMP KEY");
@@ -395,12 +381,7 @@ timer.delay(200);
             }
         }
 
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @2 ###");
-#else
-std::cout << "### INPUT::config_buttons::FINISHED @2 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
 
 
     }
@@ -411,39 +392,16 @@ timer.delay(200);
 
 bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
-
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @1 ###");
-#else
-std::cout << "### INPUT::is_key_set @1 ###" << std::endl;
-#endif
-timer.delay(200);
-
     bool have_joystick = false;
     if (input.get_joysticks_number() > 0 && game_config_copy.selected_input_device < input.get_joysticks_number()) {
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @2 ###");
-#else
-std::cout << "### INPUT::is_key_set @2 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
         have_joystick = true;
     }
     if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key].value == -1))) {
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @3 ###");
-#else
-std::cout << "### INPUT::is_key_set @3 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
         return false;
     }
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @4 ###");
-#else
-std::cout << "### INPUT::is_key_set @4 ###" << std::endl;
-#endif
-timer.delay(200);
+    timer.delay(200);
     return true;
 }
 
@@ -452,9 +410,6 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
 {
     int default_keys_codes[BTN_COUNT];
     st_input_button_config default_button_codes[BTN_COUNT];
-
-    //std::cout << "KEYMAP::CHECK_DUPLICATES - is_joystick: " << is_joystick << ", set_key: " << (int)set_key << std::endl;
-
     game_config_copy.get_default_keys(default_keys_codes);
     game_config_copy.get_default_buttons(default_button_codes);
 
@@ -462,19 +417,9 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
         if (is_joystick == false) {
             if (i != set_key && game_config_copy.keys_codes[i] == game_config_copy.keys_codes[set_key]) { // found duplicate
                 game_config_copy.keys_codes[i] = -1; // disable key
-                #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::check_key_duplicates RESET[#1]BUTTON[%d] ###", i);
-                #else
-                std::cout << "### INPUT::check_key_duplicates RESET[KEY-CODE][" << i << "]" << std::endl;
-                #endif
             }
         } else {
             if (i != set_key && game_config_copy.button_codes[i].type == game_config_copy.button_codes[set_key].type && game_config_copy.button_codes[i].value == game_config_copy.button_codes[set_key].value && game_config_copy.button_codes[i].axis_type == game_config_copy.button_codes[set_key].axis_type) { // found duplicate
-                #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::check_key_duplicates RESET[#2]BUTTON[%d] ###", i);
-                #else
-                //std::cout << "### INPUT::check_key_duplicates RESET[JOY-BUTTON][" << i << "]" << std::endl;
-                #endif
                 game_config_copy.button_codes[i].value = -1; // disable key
                 game_config_copy.button_codes[i].type = JOYSTICK_INPUT_TYPE_NONE;
                 game_config_copy.button_codes[i].axis_type = 0;
@@ -485,41 +430,8 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
 
 void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
-    #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
-    #else
-    //std::cout << "######################## OLD #########################" << std::endl;
-    #endif
-    for (int i=0; i<BTN_COUNT; i++) {
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, SharedData::get_instance()->game_config.button_codes[i].value, SharedData::get_instance()->game_config.button_codes[i].type, SharedData::get_instance()->game_config.button_codes[i].axis_type);
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, SharedData::get_instance()->game_config.keys_codes[i]);
-        #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[old][" << i << "].value[" << SharedData::get_instance()->game_config.button_codes[i].value << "].type[" << SharedData::get_instance()->game_config.button_codes[i].type << "].axis_type[" << SharedData::get_instance()->game_config.button_codes[i].axis_type << "] ###" << std::endl;
-        #endif
-    }
-    #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
-    #else
-    //std::cout << "######################## NEW #########################" << std::endl;
-    #endif
-    for (int i=0; i<BTN_COUNT; i++) {
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, game_config_copy.button_codes[i].value, game_config_copy.button_codes[i].type, game_config_copy.button_codes[i].axis_type);
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, SharedData::get_instance()->game_config.keys_codes[i]);
-        #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[new][" << i << "].value[" << game_config_copy.button_codes[i].value << "].type[" << game_config_copy.button_codes[i].type << "].axis_type[" << game_config_copy.button_codes[i].axis_type << "] ###" << std::endl;
-        #endif
-    }
-
-
     for (int i=0; i<BTN_COUNT; i++) {
         SharedData::get_instance()->game_config.keys_codes[i] = game_config_copy.keys_codes[i];
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes old_config.btn[%d][%d], new_config_btn[%d]", i, SharedData::get_instance()->game_config.button_codes[i].value, game_config_copy.button_codes[i].value);
-        #else
-        //std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i].value << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i].value << "]" << std::endl;
-        #endif
         SharedData::get_instance()->game_config.button_codes[i].value = game_config_copy.button_codes[i].value;
         SharedData::get_instance()->game_config.button_codes[i].type = game_config_copy.button_codes[i].type;
         SharedData::get_instance()->game_config.button_codes[i].axis_type = game_config_copy.button_codes[i].axis_type;
