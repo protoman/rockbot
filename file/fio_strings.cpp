@@ -374,6 +374,21 @@ namespace format_v4 {
             sprintf(lines[strings_ending_NEW_CHARACTERS_AVAILABLE], "%s", "NOVOS PERSONAGENS DISPONPIVEIS");
             sprintf(lines[strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE], "%s", "USE      PARA CONTINUAR");
 
+            sprintf(lines[strings_weapon_name_COIL], "%s", "SAPO-MOLA");
+            sprintf(lines[strings_weapon_name_JET], "%s", "ÁGUIA-JATO");
+            sprintf(lines[strings_weapon_name_ETANK], "%s", "CRISTAL HP");
+            sprintf(lines[strings_weapon_name_WTANK], "%s", "CRISTAL MP");
+            sprintf(lines[strings_weapon_name_STANK], "%s", "CRISTAL ESPECIAL");
+
+            sprintf(lines[strings_weapon_menu_CHANGE_WEAPON], "%s", "MUDAR ARMA/ITEM");
+            sprintf(lines[strings_weapon_menu_TANKS], "%s", "CRISTAIS DE ENERGIA");
+            sprintf(lines[strings_weapon_menu_BOOTS], "%s", "BOTAS");
+            sprintf(lines[strings_weapon_menu_ARMOR], "%s", "ARMADURA");
+            sprintf(lines[strings_weapon_menu_WEAPON], "%s", "TIRO");
+            sprintf(lines[strings_weapon_menu_PART_NORMAL], "%s", "NORMAL");
+            sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "MELHORADO");
+
+
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -569,6 +584,20 @@ namespace format_v4 {
             sprintf(lines[strings_ending_NEW_CHARACTERS_AVAILABLE], "%s", "NEW CHARACTERS AVAILABLE");
             sprintf(lines[strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE], "%s", "PRESS    TO CONTINUE");
 
+
+            sprintf(lines[strings_weapon_name_COIL], "%s", "FROG COIL");
+            sprintf(lines[strings_weapon_name_JET], "%s", "EAGLE JET");
+            sprintf(lines[strings_weapon_name_ETANK], "%s", "HP CRYSTAL");
+            sprintf(lines[strings_weapon_name_WTANK], "%s", "MP CRYSTAL");
+            sprintf(lines[strings_weapon_name_STANK], "%s", "SPECIAL CRYSTAL");
+
+            sprintf(lines[strings_weapon_menu_CHANGE_WEAPON], "%s", "CHANGE WEAPON/ITEM");
+            sprintf(lines[strings_weapon_menu_TANKS], "%s", "HEALTH CRYSTALS");
+            sprintf(lines[strings_weapon_menu_BOOTS], "%s", "BOOTS");
+            sprintf(lines[strings_weapon_menu_ARMOR], "%s", "ARMOR");
+            sprintf(lines[strings_weapon_menu_WEAPON], "%s", "BEAM");
+            sprintf(lines[strings_weapon_menu_PART_NORMAL], "%s", "NORMAL");
+            sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "IMPROVED");
 
         }
 

@@ -1187,6 +1187,20 @@ enum E_STRINGS_INGAME {
     strings_ending_NEW_CHARACTERS_AVAILABLE,
     strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE,
 
+    strings_weapon_name_COIL,
+    strings_weapon_name_JET,
+    strings_weapon_name_ETANK,
+    strings_weapon_name_WTANK,
+    strings_weapon_name_STANK,
+
+    strings_weapon_menu_CHANGE_WEAPON,
+    strings_weapon_menu_TANKS,
+    strings_weapon_menu_BOOTS,
+    strings_weapon_menu_ARMOR,
+    strings_weapon_menu_WEAPON,
+    strings_weapon_menu_PART_NORMAL,
+    strings_weapon_menu_PART_ENHANCED,
+
     strings_ingame_COUNT
 };
 

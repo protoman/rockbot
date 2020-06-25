@@ -142,10 +142,6 @@ bool graphicsLib::initGraphics()
     // FONT
     TTF_Init();
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "LOAD.FONT.DEBUG GAMEPATH[%s]", GAMEPATH.c_str());
-#endif
-
     filename = GAMEPATH + std::string("/fonts/kapel.ttf");
     filename = StringUtils::clean_filename(filename);
 
@@ -153,11 +149,6 @@ bool graphicsLib::initGraphics()
 	std::strcpy(buffer, filename.c_str());
     SDL_RWops *fileRW = SDL_RWFromFile(buffer, "rb");
     SDL_RWops *fileOutlineRW = SDL_RWFromFile(buffer, "rb");
-
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "LOAD.FONT.DEBUG file[%s]", filename.c_str());
-#endif
-
 
     if (!fileRW || !fileOutlineRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
@@ -196,7 +187,7 @@ bool graphicsLib::initGraphics()
             SDL_WM_SetIcon(icon_img, NULL);
         }
     } else {
-        std::cout << "graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
+        std::cout << "ERROR::graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
     }
 #endif
 	// other loading methods
@@ -289,12 +280,12 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     rwop = SDL_RWFromFile(filename.c_str(), "rb");
 
     if (!rwop) {
-        std::cout << "DEBUG.SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
-            return NULL;
+        std::cout << "ERROR::SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
+        return NULL;
     }
     spriteCopy = IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
-        std::cout << "[graphicsLib::SDLSurfaceFromFile] Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
+        std::cout << "ERROR::::SDLSurfaceFromFile - Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
     }
     if (game_screen == NULL || game_screen->format == NULL) {
         return NULL;
@@ -322,7 +313,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         }
     }
     if (res->get_surface() == NULL) {
-        std::cout << "surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
+        std::cout << "ERROR::surfaceFromFile - surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
         _debug_msg_pos = 1;
         show_debug_msg(filename);
         _debug_msg_pos = 0;
@@ -754,10 +745,6 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 {
     if (surface.width <= 0 || surface.get_surface() == NULL) {
-        //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring" << std::endl;
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
-#endif
         return;
     }
     if (surface.is_rle_enabled == false) {
@@ -770,10 +757,6 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 {
     if (surface->width <= 0 || surface->get_surface() == NULL) {
-        //std::cout << "[WARNING] GRAPHLIB::set_surface_alpha[*] - invalid surface, ignoring" << std::endl;
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "[WARNING] GRAPHLIB::set_surface_alpha[&] - invalid surface, ignoring");
-#endif
         return;
     }
     if (surface->is_rle_enabled == false) {
@@ -1206,20 +1189,20 @@ void graphicsLib::draw_weapon_changed_tooltip(short weapon_n)
     draw_weapon_tooltip_icon(weapon_n, st_position(14, RES_H-22), true);
     std::string weapon_name(game_data.weapons[weapon_n].name);
     if (weapon_n == WEAPON_ITEM_COIL) {
-        weapon_name = "FROG COIL";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
     } else if (weapon_n == WEAPON_ITEM_JET) {
-        weapon_name = "EAGLE JET";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
     } else if (weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "HP CRYSTAL [%d]", game_save.items.energy_tanks);
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_WTANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "MP CRYSTAL [%d]", game_save.items.weapon_tanks);
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_STANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "SPECIAL CRYSTAL [%d]", game_save.items.special_tanks);
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
         weapon_name = std::string(crystal_msg);
     }
     graphLib.draw_text(34, RES_H-22, weapon_name);
@@ -1283,21 +1266,21 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     std::string weapon_name = game_data.weapons[selected_weapon].name;
 
     if (selected_weapon == WEAPON_ITEM_COIL) {
-        weapon_name = "FROG COIL";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
     } else if (selected_weapon == WEAPON_ITEM_JET) {
-        weapon_name = "EAGLE JET";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
     } else if (selected_weapon == WEAPON_ITEM_ETANK) {
-        weapon_name = "HP CRYSTAL";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK);
     } else if (selected_weapon == WEAPON_ITEM_WTANK) {
-        weapon_name = "MP CRYSTAL";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK);
     } else if (selected_weapon == WEAPON_ITEM_STANK) {
-        weapon_name = "SPECIAL CRYSTAL";
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK);
     }
 
     draw_text(pos_x+60, 60, weapon_name);
-    draw_text(pos_x-20, RES_H-40, "CHANGE WEAPON/ITEM");
+    draw_text(pos_x-20, RES_H-40,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_CHANGE_WEAPON));
 
-    draw_text(pos_x, 80, "HEALTH CRYSTALS:");
+    draw_text(pos_x, 80,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_TANKS)+":");
     std::stringstream ss;
     ss.str(std::string());
     ss << "0" << (short)game_save.items.energy_tanks;
@@ -1305,19 +1288,19 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
 
 
     if (game_save.armor_pieces[ARMOR_TYPE_LEGS] == true) {
-        draw_text(pos_x, 100, "BOOTS: ENHANCED");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_BOOTS) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
     } else {
-        draw_text(pos_x, 100, "BOOTS: NORMAL");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_BOOTS) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
-        draw_text(pos_x, 120, "ARMOR: ENHANCED");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
     } else {
-        draw_text(pos_x, 120, "ARMOR: NORMAL");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
     if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
-        draw_text(pos_x, 140, "BEAM:  ENHANCED");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
     } else {
-        draw_text(pos_x, 140, "BEAM:  NORMAL");
+        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
 
 
