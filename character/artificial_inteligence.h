@@ -240,6 +240,8 @@ protected:
 
     void execute_ai_wait_random_time();
 
+    void execute_ai_wall_walk();
+
     /**
      * @brief moves to a point, returns true when point was reached or can't reach the target
      * @param dest_point point of destiny
@@ -248,9 +250,10 @@ protected:
      * @param can_pass_walls the NPC can cross walls like a ghost or not
      * @return bool true -> point reached
      */
-    bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
+    bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
 
-    can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
+    can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
+    bool check_moving_along_wall(int xinc, int yinc);
 
 
     void randomize_x_point(int max_adjust);

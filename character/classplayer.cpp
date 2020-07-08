@@ -1132,7 +1132,10 @@ void classPlayer::add_coil_object()
 
         object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
 
-        int first_unlocked_from_bottom = gameControl.get_current_map_obj()->get_first_lock_on_bottom(obj_pos.x, getPosition().y+get_size().height, temp_obj.get_size().width, temp_obj.get_size().height);
+        int first_unlocked_from_bottom = gameControl.get_current_map_obj()->get_first_lock_on_bottom(obj_pos.x, getPosition().y+frameSize.height+4, temp_obj.get_size().width, temp_obj.get_size().height);
+
+        //std::cout << "######## classPlayer::add_coil_object::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
+
         obj_pos.y = (first_unlocked_from_bottom+1)*TILESIZE - temp_obj.get_size().height;
 
         temp_obj.set_precise_position(obj_pos, state.direction);

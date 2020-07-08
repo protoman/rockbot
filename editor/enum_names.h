@@ -9,6 +9,7 @@ std::vector<std::string> AI_ACTION_NAMES;
 std::vector<std::string> AI_ACTION_SHOT_OPTIONS;
 std::vector<std::string> AI_ACTION_WALK_OPTIONS;
 std::vector<std::string> AI_ACTION_FLY_OPTIONS;
+std::vector<std::string> AI_ACTION_WALL_WALK_OPTIONS;
 std::vector<std::string> AI_ACTION_JUMP_OPTIONS;
 std::vector<std::string> AI_ACTION_AIR_WALK_OPTIONS;
 std::vector<std::string> AI_ACTION_TELEPORT_OPTIONS;
@@ -76,6 +77,8 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("WAIT TIME [RANDOM]");
     AI_ACTION_NAMES.push_back("MORPH INTO");
     AI_ACTION_NAMES.push_back("PLAY SOUND EFFECT");
+    AI_ACTION_NAMES.push_back("WALL-WALK");
+    AI_ACTION_NAMES.push_back("WALL-WALK-SHOOT");
 
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
@@ -113,6 +116,14 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("AIR-DASH TO PLAYER");
 
     // -------------------------------------------------------------- //
+
+    AI_ACTION_WALL_WALK_OPTIONS.push_back("LEFT");
+    AI_ACTION_WALL_WALK_OPTIONS.push_back("RIGHT");
+    AI_ACTION_WALL_WALK_OPTIONS.push_back("UP");
+    AI_ACTION_WALL_WALK_OPTIONS.push_back("DOWN");
+
+    // -------------------------------------------------------------- //
+
     AI_ACTION_JUMP_OPTIONS.push_back("AHEAD");
     AI_ACTION_JUMP_OPTIONS.push_back("TO RANDOM POINT");
     AI_ACTION_JUMP_OPTIONS.push_back("UP");

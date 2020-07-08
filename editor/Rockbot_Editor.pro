@@ -56,6 +56,7 @@ win32 {
 TARGET = ../build/editor
 TEMPLATE = app
 SOURCES += main.cpp \
+    ../shareddata.cpp \
     mainwindow.cpp \
     editorarea.cpp \
     editortilepallete.cpp \
@@ -121,6 +122,7 @@ SOURCES += main.cpp \
     mainwindow_tab/castle_points_editorarea.cpp
 
 HEADERS += mainwindow.h \
+    ../shareddata.h \
     editorarea.h \
     editortilepallete.h \
     mediator.h \

@@ -388,6 +388,7 @@ namespace format_v4 {
             sprintf(lines[strings_weapon_menu_PART_NORMAL], "%s", "NORMAL");
             sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "MELHORADO");
 
+            sprintf(lines[strings_ingame_config_audio_use_old_music], "%s", "USAR MÚSICA ANTIGA");
 
 
         } else {
@@ -598,6 +599,9 @@ namespace format_v4 {
             sprintf(lines[strings_weapon_menu_WEAPON], "%s", "BEAM");
             sprintf(lines[strings_weapon_menu_PART_NORMAL], "%s", "NORMAL");
             sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "IMPROVED");
+
+            sprintf(lines[strings_ingame_config_audio_use_old_music], "%s", "USE OLD MUSIC");
+
 
         }
 

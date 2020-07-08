@@ -69,7 +69,7 @@ void TabText::fill_data()
 
 void TabText::set_fields(int index)
 {
-    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index, currentLanguage);
+    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index);
     for (int i=0; i<text_list.size(); i++) {
         scene_text_list[i] = text_list.at(i);
     }

@@ -555,7 +555,10 @@ std::vector<string> draw::create_engine_credits_text()
             credits_list.push_back("");
         }
     }
-    fio_str.get_game_engine_credits();
+    std::vector<string> credits_engine = fio_str.get_game_engine_credits();
+    for (unsigned int i=0; i<credits_engine.size(); i++) {
+        credits_list.push_back(credits_engine.at(i));
+    }
 
     return credits_list;
 }

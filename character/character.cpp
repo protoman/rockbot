@@ -3274,7 +3274,7 @@ bool character::test_change_position(short xinc, short yinc)
     }
     if (yinc < 0 && position.y < 0) {
         if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #2" << std::endl; }
-		return false;
+        return false;
 	}
     if (yinc > 0 && position.y > RES_H) {
         if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #3" << std::endl; }

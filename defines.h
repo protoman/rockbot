@@ -689,6 +689,8 @@ enum AI_ACTION_LIST {
     AI_ACTION_WAIT_RANDOM_TIME,
     AI_ACTION_MORPH_INTO_NPC,                       // instead of a new enemy with full hp and such, just morph into a new one
     AI_ACTION_PLAY_SFX,                             // play a sound-effect
+    AI_ACTION_WALL_WALK,
+    AI_ACTION_WALL_WALK_SHOOT,
     AI_ACTION_LIST_SIZE
 };
 
@@ -821,6 +823,14 @@ enum AI_ACTION_DASH_OPTION_LIST {
 enum AI_ACTION_GRAB_WALL_OPTION_LIST {
     AI_ACTION_GRAB_WALL_OPTION_LEFT,
     AI_ACTION_GRAB_WALL_OPTION_RIGHT
+};
+
+enum AI_ACTION_WALL_WALK_OPTION_LIST {
+    AI_ACTION_WALL_WALK_OPTION_LEFT,
+    AI_ACTION_WALL_WALK_OPTION_RIGHT,
+    AI_ACTION_WALL_WALK_OPTION_UP,
+    AI_ACTION_WALL_WALK_OPTION_DOWN,
+    AI_ACTION_WALL_WALK_OPTION_COUNT
 };
 
 /**
@@ -1200,6 +1210,8 @@ enum E_STRINGS_INGAME {
     strings_weapon_menu_WEAPON,
     strings_weapon_menu_PART_NORMAL,
     strings_weapon_menu_PART_ENHANCED,
+
+    strings_ingame_config_audio_use_old_music,
 
     strings_ingame_COUNT
 };

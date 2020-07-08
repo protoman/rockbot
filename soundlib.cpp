@@ -40,18 +40,13 @@ void soundLib::init_audio_system()
 
 
 void soundLib::play_sfx(Uint8 sfx) {
-    //std::cout << "soundLib::play_sfx::START::VOLUME: " << (int)game_config.volume_sfx << std::endl;
     if (SharedData::get_instance()->game_config.sound_enabled == false) {
-        //std::cout << "soundLib::play_sfx::SOUND_DISABLED" << std::endl;
         return;
 	}
 
 	if (sfx_list[sfx] != NULL) {
-        //std::cout << "soundLib::play_sfx::PLAY" << std::endl;
         Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
         Mix_PlayChannel(-1, sfx_list[sfx], 0);
-    //} else {
-        //std::cout << "soundLib::play_sfx::NULL_SFX" << std::endl;
 	}
 }
 
@@ -74,7 +69,6 @@ void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 
 void soundLib::stop_repeated_sfx()
 {
-    //std::cout << ">>>>>> soundLib::stop_repeated_sfx._repeated_sfx_channel: " << _repeated_sfx_channel << std::endl;
     if (_repeated_sfx_channel == -1) {
         return;
     }
@@ -218,14 +212,6 @@ void soundLib::load_all_sfx() {
     filename = FILEPATH + "sfx/recharge.wav";
     sfx_list[SFX_GOT_ENERGY_BIG] = Mix_LoadWAV(filename.c_str());
     i++;
-    /*
-    for (int j=0; j<i; j++) {
-        Mix_VolumeChunk(sfx_list[j], MIX_MAX_VOLUME);
-    }
-    */
-
-
-    // preload boss music
 }
 
 
@@ -418,10 +404,18 @@ void soundLib::enable_sound()
 
 string soundLib::get_filename_for_music(string filename)
 {
-    filename = StringUtils::clean_filename(filename);
+    if (SharedData::get_instance()->game_config.old_old_style_music == 1) {
+        std::size_t found = filename.find_last_of("/");
+        if (found != std::string::npos) {
+            filename = filename.substr(0,found) + "/old/" + filename.substr(found+1);
+            std::cout << ">>>>>>>>>>>>>> old.music[" << filename << "]" << std::endl;
+        }
+    } else {
 #if defined(ANDROID) || defined(POCKETGO)
-    filename = filename + ".ogg";
+        filename = filename + ".ogg";
 #endif
+    }
+    filename = StringUtils::clean_filename(filename);
     return filename;
 }
 

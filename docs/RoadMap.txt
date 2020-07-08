@@ -1,5 +1,11 @@
-﻿- traduzir strings novas que estao só em ingles
+﻿- sapo-mola parando no teto (só pode parar a partir de player.y)
 
+- fazer nova AI action, wall-walk:
+    # up, down, left, right. Termina (finish) se não tem mais parede ou esta saindo da tela.
+
+
+- traduzir strings novas que estao só em ingles
+    # dar uma re-testada após as últimas mudanças
 
 
 - usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)

@@ -6,6 +6,7 @@ extern std::vector<std::string> AI_ACTION_WALK_OPTIONS;
 extern std::vector<std::string> AI_ACTION_SHOT_OPTIONS;
 extern std::vector<std::string> AI_ACTION_FLY_OPTIONS;
 extern std::vector<std::string> AI_ACTION_JUMP_OPTIONS;
+extern std::vector<std::string> AI_ACTION_WALL_WALK_OPTIONS;
 extern std::vector<std::string> AI_ACTION_AIR_WALK_OPTIONS;
 extern std::vector<std::string> AI_ACTION_TELEPORT_OPTIONS;
 extern std::vector<std::string> AI_ACTION_DASH_OPTIONS;
@@ -237,6 +238,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 		list = AI_ACTION_WALK_OPTIONS;
 	} else if (action == AI_ACTION_FLY) {
 		list = AI_ACTION_FLY_OPTIONS;
+    } else if (action == AI_ACTION_WALL_WALK || action == AI_ACTION_WALL_WALK_SHOOT) {
+        list = AI_ACTION_WALL_WALK_OPTIONS;
 	} else if (action == AI_ACTION_JUMP) {
 		list = AI_ACTION_JUMP_OPTIONS;
 	} else if (action == AI_ACTION_AIR_WALK) {

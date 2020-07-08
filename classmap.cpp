@@ -998,7 +998,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
-        //std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "],above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
+        //std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "], above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
             // found a stop point, now check above tiles
             for (int j=i-1; j>=i-above_tiles_to_test; j--) {
