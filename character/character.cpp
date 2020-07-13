@@ -1896,12 +1896,13 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
 
 
-void character::check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
+void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
 {
     UNUSED(map_pos);
 
-    int old_map_lock = gameControl.getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+frameSize.height/2)/TILESIZE));
+    //if (name == "SHIELD GROUND" && map_block != 2) std::cout << "CHAR::check_map_collision_point map_block[" << map_block << "], new_map_lock[" << new_map_lock << "]" << std::endl;
 
+    //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1 - mode_xy[" << mode_xy << "]" << std::endl;
     if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_WATER) {
         map_block = BLOCK_WATER;
     }
@@ -1910,15 +1911,20 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
 
     if (old_map_lock != new_map_lock) {
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
+            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1" << std::endl;
             must_block = true;
         } else if (is_player() == false && _is_boss == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // non-boss NPCs must not enter water
+            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #2 - old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "], map.pos[" << (int)(position.x+frameSize.width/2)/TILESIZE << "][" << (int)(position.y+frameSize.height/2)/TILESIZE << "]" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
+            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #3" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_DOOR) {
+            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #4" << std::endl;
             must_block = true;
         } else if (new_map_lock == TERRAIN_EASYMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_EASY) {
+                if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #5" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
@@ -1927,13 +1933,16 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
                     //std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
                     damage_spikes(true);
                 }
+                if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #6" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
+            //if (name == "SHIELD GROUND" && map_block != 2) std::cout << "CHAR::check_map_collision_point BLOCK #7, new_map_lock[" << new_map_lock << "]" << std::endl;
             must_block = true;
         }
 
     } else if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_SOLID) {
+        if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #8" << std::endl;
         must_block = true;
     }
 
@@ -2038,7 +2047,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
-    //std::cout << "CHAR::map_collision, y_inc[" << incy << "]" << std::endl;
+    if (name == "SHIELD GROUND" && incx != 0) std::cout << "CHAR::map_collision[" << name << "], incx[" << incx << "], incy[" << incy << "]" << std::endl;
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
@@ -2127,6 +2136,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
         if (map_block == BLOCK_UNBLOCKED) {
+            if (name == "SHIELD GROUND" && incx != 0) std::cout << "map_collision[" << name << "], BLOCK-X #1" << std::endl;
             map_block = BLOCK_X;
         } else {
             map_block = BLOCK_XY;
@@ -2149,7 +2159,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 	/// @TODO - use collision rect for the current frame. Until there, use 3 points check
 	int py_top, py_middle, py_bottom;
-	int px_left, px_center, px_right;
+    int px_left, px_center, px_right;
+    int old_px_left, old_px_center, old_px_right;
+
     st_rectangle rect_hitbox = get_hitbox(hitbox_anim_type);
 
     py_top = rect_hitbox.y + incy + py_adjust;
@@ -2161,6 +2173,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     px_left = rect_hitbox.x + incx;
     px_right = rect_hitbox.x + incx + rect_hitbox.w;
 
+    old_px_left = rect_hitbox.x;
+    old_px_right = rect_hitbox.x + rect_hitbox.w;
+
     if (incx == 0 && incy != 0) {
         px_right--;
     }
@@ -2169,15 +2184,19 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     //std::cout << "py_bottom: " << py_bottom << std::endl;
 
 	st_position map_point;
+    st_position old_map_point;
 	map_point.x = px_left/TILESIZE;
+    old_map_point.x = old_px_left/TILESIZE;
 	int new_map_lock = TERRAIN_UNBLOCKED;
+    int old_map_lock = TERRAIN_UNBLOCKED;
 	if (incx > 0) {
 		map_point.x = px_right/TILESIZE;
+        old_map_point.x = old_px_right/TILESIZE;
 	}
 
 	/// @TODO - use a array-of-array for poijts in order to having a cleaner code
 
-	int map_x_points[3];
+    int map_x_points[3];
     if (incx == 0 && incy != 0) {
         px_left++;
         px_right--;
@@ -2199,8 +2218,11 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             } else {
                 map_point.y = map_y_points[i];
             }
+            old_map_point.y = map_point.y;
+            old_map_lock = gameControl.getMapPointLock(old_map_point);
             new_map_lock = gameControl.getMapPointLock(map_point);
-            check_map_collision_point(map_block, new_map_lock, 0, map_point);
+            check_map_collision_point(map_block, new_map_lock, old_map_lock, 0, map_point);
+            if (name == "SHIELD GROUND") std::cout << "map_collision[" << name << "], X-POINT[" << i << "] - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << new_map_lock << "], map_block[" << map_block << "]" << std::endl;
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -2217,9 +2239,12 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     if (incy != 0) {
 		for (int i=0; i<3; i++) {
             map_point.x = map_x_points[i];
+            old_map_point.x = map_x_points[i];
+
+            old_map_lock = gameControl.getMapPointLock(old_map_point);
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
-            check_map_collision_point(map_block, new_map_lock, 1, map_point);
+            check_map_collision_point(map_block, new_map_lock, old_map_lock, 1, map_point);
 
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;
@@ -3269,24 +3294,24 @@ int character::change_position_y(short yinc)
 bool character::test_change_position(short xinc, short yinc)
 {
     if (gameControl.get_current_map_obj() == NULL) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #1" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #1" << std::endl; }
         return false;
     }
     if (yinc < 0 && position.y < 0) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #2" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #2" << std::endl; }
         return false;
 	}
     if (yinc > 0 && position.y > RES_H) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #3" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #3" << std::endl; }
         return true;
 	}
     if (xinc < 0 && position.x <= 0) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #4" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #4" << std::endl; }
         return false;
     }
 
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #5" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #5" << std::endl; }
         return false;
     }
 
@@ -3295,7 +3320,7 @@ bool character::test_change_position(short xinc, short yinc)
         short int mapLock = map_col.block;
 
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
-            if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #6" << std::endl; }
+            if (name == "SHIELD GROUND" && xinc != 0) { std::cout << "++++ character::test_change_position #6, xinc[" << xinc << "], yinc[" << yinc << "], mapLock[" << mapLock << "]" << std::endl; }
             return false;
         }
     }
@@ -3305,7 +3330,7 @@ bool character::test_change_position(short xinc, short yinc)
     bool map_wall = gameControl.get_current_map_obj()->get_map_point_wall_lock(map_x_point);
 
     if (map_wall == true) {
-        if (name == "WALLSHOOTER V") { std::cout << "++++ character::test_change_position #7" << std::endl; }
+        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #7" << std::endl; }
         return false;
     }
 

@@ -1,4 +1,6 @@
-﻿- sapo-mola parando no teto (só pode parar a partir de player.y)
+﻿- slide esta saindo mesmo quando debaixo de um bloco
+- #2: usar mais tiles animados (lava, cascatas, neve, areia)
+
 
 - fazer nova AI action, wall-walk:
     # up, down, left, right. Termina (finish) se não tem mais parede ou esta saindo da tela.

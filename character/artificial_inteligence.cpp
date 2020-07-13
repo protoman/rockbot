@@ -1052,7 +1052,7 @@ void artificial_inteligence::execute_ai_step_walk()
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         } else {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                if (name == "KURUPIRA BOT") std::cout << "AI::execute_ai_step_walk::exec - reached point or is blocked" << std::endl;
+                std::cout << "AI::execute_ai_step_walk::exec[" << name << "] - reached point or is blocked" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -1803,7 +1803,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     float yinc = 0;
 
 
-    std::cout << "artificial_inteligence::check_can_move_to_point #1 - speed_y[" << speed_y << "]" << std::endl;
+    //std::cout << "artificial_inteligence::check_can_move_to_point #1 - speed_y[" << speed_y << "]" << std::endl;
 
     // invert direction if needed
     if (xinc != 0 && position.x > dest_point.x && state.direction != ANIM_DIRECTION_LEFT) {
@@ -1820,7 +1820,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
         speed_y = abs(dest_point.y - position.y);
     }
 
-    std::cout << "artificial_inteligence::check_can_move_to_point #2 - speed_y[" << speed_y << "]" << std::endl;
+    //std::cout << "artificial_inteligence::check_can_move_to_point #2 - speed_y[" << speed_y << "]" << std::endl;
 
     float block_speed_x = speed_x;
     float block_speed_y = speed_y;
@@ -1840,7 +1840,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
         if (_ghost_move_speed_reducer > 0 && speed_y != 0) {
             block_speed_y = (int)(speed_y/_ghost_move_speed_reducer);
 
-            std::cout << "AI::move_to_point - _ghost_move_speed_reducer[" << _ghost_move_speed_reducer << "], speed_y[" << speed_y << "], block_speed_y[" << block_speed_y << "]" << std::endl;
+            //std::cout << "AI::move_to_point - _ghost_move_speed_reducer[" << _ghost_move_speed_reducer << "], speed_y[" << speed_y << "], block_speed_y[" << block_speed_y << "]" << std::endl;
 
             if (block_speed_y == 0) {
                 if (speed_y > 0) {
@@ -1857,13 +1857,13 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
         bool test_x_move = test_change_position(block_speed_x, 0);
         bool test_y_move = test_change_position(0, block_speed_y);
 
-        std::cout << "AI::move_to_point - GHOST.test_x_move[" << test_x_move << "], test_y_move[" << test_y_move << "]" << std::endl;
+        //std::cout << "AI::move_to_point - GHOST.test_x_move[" << test_x_move << "], test_y_move[" << test_y_move << "]" << std::endl;
 
         if (!test_x_move) {
             speed_x = block_speed_x;
         }
         if (!test_y_move) {
-            std::cout << "AI::move_to_point - GHOST, REDUCE::Y" << std::endl;
+            //std::cout << "AI::move_to_point - GHOST, REDUCE::Y" << std::endl;
             speed_y = block_speed_y;
         }
     }
@@ -1888,16 +1888,15 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     can_move_y = test_change_position(0, yinc);
 
     if (must_walk_along_wall == true) {
-        std::cout << "########## AI::check_can_move_to_point[" << name << "] - must_walk_along_wall, speed_x[" << speed_x << "], speed_y[" << speed_y << "], xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
+        //std::cout << "########## AI::check_can_move_to_point[" << name << "] - must_walk_along_wall, speed_x[" << speed_x << "], speed_y[" << speed_y << "], xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
         if (check_moving_along_wall(xinc, yinc) == false) {
-             std::cout << "######### AI::check_can_move_to_point[" << name << "] - must_walk_along_wall FALSE" << std::endl;
+            std::cout << "######### AI::check_can_move_to_point[" << name << "] - must_walk_along_wall FALSE" << std::endl;
             return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
         }
     }
 
-    // TODO check must_walk_along_wall flag //
-
     if (xinc == 0 && yinc == 0) {
+        std::cout << "AI::move_to_point[" << name << "] - LEAVE #1" << std::endl;
         return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
     }
 
@@ -1912,9 +1911,9 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
                 map_point.x = (position.x + frameSize.width)/TILESIZE;
             }
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
-            //if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
+            std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
-                if (!is_player()) std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
+                std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
                 return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
             }
         }
@@ -1940,12 +1939,13 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
                 _parameter = AI_ACTION_JUMP_OPTION_ONCE;
                 _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
                 _ai_state.main_status = 0;
-                //std::cout << "SET JUMP >>>>> artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
+                std::cout << "SET JUMP >>>>> artificial_inteligence::execute_ai_step[" << name << "] - _number: " << _number << ", _current_ai_type: " << _current_ai_type << std::endl;
                 return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_FALSE);
             }
         }
     }
 
+    std::cout << "AI::move_to_point[" << name << "] - xinc[" << xinc << "], can_move_x[" << can_move_x << "]" << std::endl;
     return can_move_struct(xinc, yinc, can_move_x, can_move_y, CAN_MOVE_SUCESS);
 }
 
