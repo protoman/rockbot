@@ -1896,10 +1896,8 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
 
 
-void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy, st_position map_pos) // mode_xy 0 is x, 1 is y
+void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy) // mode_xy 0 is x, 1 is y
 {
-    UNUSED(map_pos);
-
     //if (name == "SHIELD GROUND" && map_block != 2) std::cout << "CHAR::check_map_collision_point map_block[" << map_block << "], new_map_lock[" << new_map_lock << "]" << std::endl;
 
     //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1 - mode_xy[" << mode_xy << "]" << std::endl;
@@ -1914,7 +1912,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
             if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1" << std::endl;
             must_block = true;
         } else if (is_player() == false && _is_boss == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // non-boss NPCs must not enter water
-            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #2 - old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "], map.pos[" << (int)(position.x+frameSize.width/2)/TILESIZE << "][" << (int)(position.y+frameSize.height/2)/TILESIZE << "]" << std::endl;
+            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #2 - old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "], map.pos[" << (int)(position.x+frameSize.width/2)/TILESIZE << "][" << (int)(position.y+frameSize.height/2)/TILESIZE << "]" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
             if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #3" << std::endl;
@@ -2221,8 +2219,11 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             old_map_point.y = map_point.y;
             old_map_lock = gameControl.getMapPointLock(old_map_point);
             new_map_lock = gameControl.getMapPointLock(map_point);
-            check_map_collision_point(map_block, new_map_lock, old_map_lock, 0, map_point);
+            check_map_collision_point(map_block, new_map_lock, old_map_lock, 0);
+
             if (name == "SHIELD GROUND") std::cout << "map_collision[" << name << "], X-POINT[" << i << "] - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << new_map_lock << "], map_block[" << map_block << "]" << std::endl;
+
+
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -2244,7 +2245,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             old_map_lock = gameControl.getMapPointLock(old_map_point);
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
-            check_map_collision_point(map_block, new_map_lock, old_map_lock, 1, map_point);
+            check_map_collision_point(map_block, new_map_lock, old_map_lock, 1);
 
             if (new_map_lock != TERRAIN_UNBLOCKED) {
                 terrain_type = new_map_lock;

@@ -1910,11 +1910,18 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
             if (state.direction == ANIM_DIRECTION_RIGHT) {
                 map_point.x = (position.x + frameSize.width)/TILESIZE;
             }
+            st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
-            std::cout << "AI::move_to_point[" << name << "] - HOLE check: " << map_lock << " - direction: " << (int)state.direction << std::endl;
-            if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
-                std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
-                return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
+            int current_map_lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
+
+
+            std::cout << "AI::move_to_point[" << name << "] - map_lock[" << map_lock << "], current_map_lock[" << current_map_lock << "], direction: " << (int)state.direction << std::endl;
+
+            if (map_lock != current_map_lock) {
+                if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
+                    std::cout << "AI::move_to_point[" << name << "] - HOLE AHEAD - direction: " << (int)state.direction << std::endl;
+                    return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
+                }
             }
         }
     // always ahead will try to jump over obstables checking them a whole TILE ahead of time

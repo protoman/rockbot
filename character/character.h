@@ -239,7 +239,7 @@ protected:
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
     bool is_on_teleporter_capsulse(object* object);
     bool is_on_teleport_platform(object* object);
-    void check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy, st_position map_pos);
+    void check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy);
     bool process_special_map_points(int map_lock, int incx, int incy, st_position map_pos);
     void check_platform_move(short map_lock);
     void add_graphic();
