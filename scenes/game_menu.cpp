@@ -412,25 +412,25 @@ void game_menu::show_config_audio()
     input.clean();
     timer.delay(300);
 
-    std::vector<std::string> options;
-    if (SharedData::get_instance()->game_config.sound_enabled == true) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
-    } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
-    }
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));
-    if (SharedData::get_instance()->game_config.old_old_style_music == 0) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_use_old_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off));
-    } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_use_old_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off));
-    }
 
 
     short selected_option = 0;
-    option_picker main_config_picker(false, config_text_pos, options, true);
-    selected_option = 0;
     while (selected_option != -1) {
+        std::vector<std::string> options;
+        if (SharedData::get_instance()->game_config.sound_enabled == true) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_enabled));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_disabled));
+        }
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_music));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_volume_sfx));
+        if (SharedData::get_instance()->game_config.old_old_style_music == 0) {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_use_old_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off));
+        } else {
+            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_audio_use_old_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on));
+        }
+        option_picker main_config_picker(false, config_text_pos, options, true);
+
         main_config_picker.draw();
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
@@ -458,6 +458,7 @@ void game_menu::show_config_audio()
                 SharedData::get_instance()->game_config.old_old_style_music = 0;
             }
             soundManager.stop_music();
+            fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
         }
     }
