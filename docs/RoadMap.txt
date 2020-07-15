@@ -12,7 +12,8 @@
     # tem que criar algo na config (já deixar uns tempos a mais sobrando lá, para o futuro)
     # usar mesmos nomes, só colocar em uma pasta old
     # todos devem ter extensão .mod
-    # separar músicas ogg em pasta, para não aparecerem no editor
+    # separate ogg files into its own folder
+    # use current version if ogg or old-file do not exists
 
 
 - Rockbot1:

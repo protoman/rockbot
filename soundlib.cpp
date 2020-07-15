@@ -407,12 +407,22 @@ string soundLib::get_filename_for_music(string filename)
     if (SharedData::get_instance()->game_config.old_old_style_music == 1) {
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
-            filename = filename.substr(0,found) + "/old/" + filename.substr(found+1);
+            std::string old_filename = filename.substr(0,found) + "/old/" + filename.substr(found+1);
             std::cout << ">>>>>>>>>>>>>> old.music[" << filename << "]" << std::endl;
+            if (fio.file_exists(old_filename)) {
+                filename = old_filename;
+            }
         }
     } else {
 #if defined(ANDROID) || defined(POCKETGO)
-        filename = filename + ".ogg";
+        std::size_t found = filename.find_last_of("/");
+        if (found != std::string::npos) {
+            std::string ogg_filename = filename.substr(0,found) + "/ogg/" + filename.substr(found+1) + ".ogg";
+            std::cout << ">>>>>>>>>>>>>> ogg.music[" << filename << "]" << std::endl;
+            if (fio.file_exists(ogg_filename)) {
+                filename = ogg_filename;
+            }
+        }
 #endif
     }
     filename = StringUtils::clean_filename(filename);
