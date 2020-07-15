@@ -1,9 +1,5 @@
-﻿- slide esta saindo mesmo quando debaixo de um bloco
+﻿
 - #2: usar mais tiles animados (lava, cascatas, neve, areia)
-
-
-- fazer nova AI action, wall-walk:
-    # up, down, left, right. Termina (finish) se não tem mais parede ou esta saindo da tela.
 
 
 - traduzir strings novas que estao só em ingles
@@ -12,11 +8,11 @@
 
 - usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)
 
-
 - opção para usar músicas antigas
     # tem que criar algo na config (já deixar uns tempos a mais sobrando lá, para o futuro)
     # usar mesmos nomes, só colocar em uma pasta old
     # todos devem ter extensão .mod
+    # separar músicas ogg em pasta, para não aparecerem no editor
 
 
 - Rockbot1:

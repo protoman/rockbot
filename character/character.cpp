@@ -50,7 +50,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     can_fly = false;
 	attack_state = ATTACK_NOT;
 	max_projectiles = 1;
-    _debug_char_name = "MUMMY BOT";
+    _debug_char_name = "PLAYER_0";
     _stairs_stopped_count = 0;
     _charged_shot_projectile_id = -1;
     _normal_shot_projectile_id = 0;
@@ -226,7 +226,7 @@ void character::charMove() {
             }
 
         } else {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Z" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Z" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			hit_moved_back_n = 0;
 		}
@@ -445,11 +445,11 @@ void character::charMove() {
             // if bottom point is not stairs, leave it
             if (bottom_point_lock != TERRAIN_STAIR) {
                 if (stairs_pos_center.x == -1 && (bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_WATER)) {
-                    if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #A" << std::endl;
+                    //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #A" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
                 }
                 if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
-                    if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #B, bottom_point_lock[" << bottom_point_lock << "]" << std::endl;
+                    //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #B, bottom_point_lock[" << bottom_point_lock << "]" << std::endl;
                     set_animation_type(ANIM_TYPE_STAND);
                 }
             }
@@ -508,13 +508,13 @@ void character::charMove() {
 		//if (state.animation_type != ANIM_TYPE_WALK) {
          if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
 			//if (is_player()) std::cout << "********* reset to stand - on_stairs_frame: " << is_in_stairs_frame() << ", state.animation_type: " << state.animation_type << std::endl;
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
+            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 		}
 		//std::cout << "charMove - ANIM_TYPE_HIT: " << ANIM_TYPE_HIT << ", animation_type: " << state.animation_type << ", timer.getTimer(): " << timer.getTimer() << ", hit_duration+last_hit_time: " << hit_duration+last_hit_time << std::endl;
 		if (state.animation_type == ANIM_TYPE_HIT && timer.getTimer() > hit_duration/2+last_hit_time) { // finished hit time
 			//if (is_player()) std::cout << "state.animation_type SET to STAND " << std::endl;
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #E" << std::endl;
+            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #E" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 		}
 	}
@@ -1047,7 +1047,7 @@ void character::show_sprite()
 		int frame_inc = 1;
 		if (state.animation_inverse == true) {
             frame_inc = frame_inc * -1;
-            std::cout << "show_sprite, INVERSE, inc: " << frame_inc << std::endl;
+            //std::cout << "show_sprite, INVERSE, inc: " << frame_inc << std::endl;
 		}
         int new_frame = (state.animation_state + frame_inc);
         if (have_frame_graphic(state.direction, state.animation_type, new_frame)) {
@@ -1066,7 +1066,7 @@ void character::show_sprite()
 				} else {
                     set_direction(ANIM_DIRECTION_LEFT);
 				}
-                if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #F" << std::endl;
+                //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #F" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
 			}
 			if (state.animation_inverse == false) {
@@ -1205,7 +1205,7 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
 
         //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
+            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             type = ANIM_TYPE_STAND;
             if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic at all
@@ -1372,7 +1372,7 @@ bool character::gravity(bool boss_demo_mode=false)
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    //std::cout << "LEAVE STAIRS - GRAVITY #1, current-anim-type[" << state.animation_type << "]" << std::endl;
+                    //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.1" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
 				}
 				was_moved = true;
@@ -1388,7 +1388,7 @@ bool character::gravity(bool boss_demo_mode=false)
 		}
 
 		if (was_moved == false && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && state.animation_type != ANIM_TYPE_SLIDE) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #H" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND[" << name << "] - #H - state.animation_type[" << state.animation_type << "]" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		} else if (was_moved == false && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
@@ -1399,7 +1399,7 @@ bool character::gravity(bool boss_demo_mode=false)
         if (was_moved == false && _is_falling == true) {
             _is_falling = false;
             if (is_player()) {
-                if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.1" << std::endl;
+                //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 //std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
                 soundManager.play_sfx(SFX_PLAYER_JUMP);
@@ -1628,6 +1628,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     if (position.x <= 0 && state.direction == ANIM_DIRECTION_LEFT) {
+        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.2" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -1639,6 +1640,7 @@ bool character::slide(st_float_position mapScrolling)
     if (slide_type == 1) { // if is slide-type, use greater adjust
         adjust = -TILESIZE;
     }
+    //st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling, int hitbox_anim_type)
     st_map_collision map_col = map_collision(0, adjust, gameControl.get_current_map_obj()->getMapScrolling(), ANIM_TYPE_SLIDE); // slide_adjust is used because of adjustments in slide collision
     int map_lock =  map_col.block;
 
@@ -1650,12 +1652,17 @@ bool character::slide(st_float_position mapScrolling)
     }
 
 
+    int map_lock_above = gameControl.getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y)/TILESIZE));
+    bool is_blocked_above = !(map_lock_above == TERRAIN_UNBLOCKED || map_lock_above == TERRAIN_WATER);
+    //std::cout << "CHAR::slide[" << name << "] - map_lock_above[" << map_lock_above << "], is_blocked_above[" << is_blocked_above << "]" << std::endl;
+
     // releasing down (or dash button) interrupts the slide
-    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
+    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) && !is_blocked_above) {
         if (did_hit_ground) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.2" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.2" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
+            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.3" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
         return false;
@@ -1664,9 +1671,10 @@ bool character::slide(st_float_position mapScrolling)
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (did_hit_ground == true) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.3" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND[" << name << "] - #Y.3" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
+            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.4" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
@@ -1704,6 +1712,7 @@ bool character::slide(st_float_position mapScrolling)
     //std::cout << "character::slide - fall_map_lock: " << fall_map_lock << std::endl;
 
     if (can_air_dash() == false && (fall_map_lock == BLOCK_UNBLOCKED || fall_map_lock == BLOCK_WATER)) {
+        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.5" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
 		state.slide_distance = 0;
 		return false;
@@ -1758,7 +1767,8 @@ bool character::slide(st_float_position mapScrolling)
     if (res_move_x != 0 && (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER)) {
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
-    } else {
+    } else if (!is_blocked_above) {
+        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.6" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -1793,6 +1803,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
         if (is_in_stairs_frame()) {
             if (_obj_jump.is_started() == false) {
+                //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.7" << std::endl;
                 set_animation_type(ANIM_TYPE_JUMP);
                 _is_falling = true;
                 _stairs_falling_timer = timer.getTimer() + STAIRS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
@@ -1817,6 +1828,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
                 }
+                //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.8" << std::endl;
                 set_animation_type(ANIM_TYPE_JUMP);
                 jump_button_released = false;
             }
@@ -1909,20 +1921,20 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
 
     if (old_map_lock != new_map_lock) {
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
-            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1" << std::endl;
+            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1" << std::endl;
             must_block = true;
         } else if (is_player() == false && _is_boss == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // non-boss NPCs must not enter water
             //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #2 - old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "], map.pos[" << (int)(position.x+frameSize.width/2)/TILESIZE << "][" << (int)(position.y+frameSize.height/2)/TILESIZE << "]" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
-            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #3" << std::endl;
+            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #3" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_DOOR) {
-            if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #4" << std::endl;
+            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #4" << std::endl;
             must_block = true;
         } else if (new_map_lock == TERRAIN_EASYMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_EASY) {
-                if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #5" << std::endl;
+                //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #5" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
@@ -1931,7 +1943,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
                     //std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
                     damage_spikes(true);
                 }
-                if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #6" << std::endl;
+                //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #6" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
@@ -1940,7 +1952,7 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
         }
 
     } else if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_SOLID) {
-        if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #8" << std::endl;
+        //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #8" << std::endl;
         must_block = true;
     }
 
@@ -2045,7 +2057,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
-    if (name == "SHIELD GROUND" && incx != 0) std::cout << "CHAR::map_collision[" << name << "], incx[" << incx << "], incy[" << incy << "]" << std::endl;
+    //if (name == "SHIELD GROUND" && incx != 0) std::cout << "CHAR::map_collision[" << name << "], incx[" << incx << "], incy[" << incy << "]" << std::endl;
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
@@ -2134,7 +2146,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
         if (map_block == BLOCK_UNBLOCKED) {
-            if (name == "SHIELD GROUND" && incx != 0) std::cout << "map_collision[" << name << "], BLOCK-X #1" << std::endl;
+            //if (name == "SHIELD GROUND" && incx != 0) std::cout << "map_collision[" << name << "], BLOCK-X #1" << std::endl;
             map_block = BLOCK_X;
         } else {
             map_block = BLOCK_XY;
@@ -2221,7 +2233,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, old_map_lock, 0);
 
-            if (name == "SHIELD GROUND") std::cout << "map_collision[" << name << "], X-POINT[" << i << "] - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << new_map_lock << "], map_block[" << map_block << "]" << std::endl;
+            //if (name == "SHIELD GROUND") std::cout << "map_collision[" << name << "], X-POINT[" << i << "] - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << new_map_lock << "], map_block[" << map_block << "]" << std::endl;
 
 
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
@@ -2870,7 +2882,7 @@ void character::check_reset_stand()
     // is walking without moving, reset to stand
     if (moveCommands.left == 0 && moveCommands.right == 0) {
         if (state.animation_type == ANIM_TYPE_WALK) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #C" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #C" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
@@ -2917,14 +2929,14 @@ void character::set_platform(object* obj)
 {
 	if (obj != NULL) {
 		if (state.animation_type == ANIM_TYPE_JUMP) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #O" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #O" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             _obj_jump.interrupt();
         } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
             _obj_jump.interrupt();
         }
-        if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #P" << std::endl;
+        //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #P" << std::endl;
         set_animation_type(ANIM_TYPE_STAND);
 	}
 	_platform = obj;
@@ -3295,24 +3307,24 @@ int character::change_position_y(short yinc)
 bool character::test_change_position(short xinc, short yinc)
 {
     if (gameControl.get_current_map_obj() == NULL) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #1" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #1" << std::endl; }
         return false;
     }
     if (yinc < 0 && position.y < 0) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #2" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #2" << std::endl; }
         return false;
 	}
     if (yinc > 0 && position.y > RES_H) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #3" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #3" << std::endl; }
         return true;
 	}
     if (xinc < 0 && position.x <= 0) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #4" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #4" << std::endl; }
         return false;
     }
 
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #5" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #5" << std::endl; }
         return false;
     }
 
@@ -3321,7 +3333,7 @@ bool character::test_change_position(short xinc, short yinc)
         short int mapLock = map_col.block;
 
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
-            if (name == "SHIELD GROUND" && xinc != 0) { std::cout << "++++ character::test_change_position #6, xinc[" << xinc << "], yinc[" << yinc << "], mapLock[" << mapLock << "]" << std::endl; }
+            //if (name == "SHIELD GROUND" && xinc != 0) { std::cout << "++++ character::test_change_position #6, xinc[" << xinc << "], yinc[" << yinc << "], mapLock[" << mapLock << "]" << std::endl; }
             return false;
         }
     }
@@ -3331,7 +3343,7 @@ bool character::test_change_position(short xinc, short yinc)
     bool map_wall = gameControl.get_current_map_obj()->get_map_point_wall_lock(map_x_point);
 
     if (map_wall == true) {
-        if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #7" << std::endl; }
+        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #7" << std::endl; }
         return false;
     }
 
@@ -3426,14 +3438,16 @@ void character::inc_effect_weapon_status()
 
 void character::set_animation_type(ANIM_TYPE type)
 {
-
+    if (name == _debug_char_name) {
+        if (type == ANIM_TYPE_STAND) {
+            //std::cout << "CHAR::set_animation_type[" << name << "] - reset to STAND" << std::endl;
+        } else if (type == ANIM_TYPE_JUMP) {
+            //std::cout << "CHAR::set_animation_type[" << name << "] - reset to JUMP" << std::endl;
+        }
+    }
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
-    }
-
-    if (name == "DESTRIN MACHINE" && type == ANIM_TYPE_STAND) {
-        std::cout << "character::set_animation_type[" << (int)type << "]" << std::endl;
     }
 
     if (type != state.animation_type) {
@@ -3536,12 +3550,14 @@ bool character::can_air_dash()
 
 void character::cancel_slide()
 {
+    //std::cout << "CHAR::cancel_slide[" << name << "]" << std::endl;
     state.slide_distance = 999;
     if (state.animation_type == ANIM_TYPE_SLIDE) {
         if (hit_ground() == true) {
-            if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.4" << std::endl;
+            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.4" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
+            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.9" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
     }

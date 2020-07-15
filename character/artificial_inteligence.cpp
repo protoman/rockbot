@@ -1052,7 +1052,7 @@ void artificial_inteligence::execute_ai_step_walk()
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         } else {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                std::cout << "AI::execute_ai_step_walk::exec[" << name << "] - reached point or is blocked" << std::endl;
+                //std::cout << "AI::execute_ai_step_walk::exec[" << name << "] - reached point or is blocked" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -1913,9 +1913,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
             st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
             int current_map_lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
-
-
-            std::cout << "AI::move_to_point[" << name << "] - map_lock[" << map_lock << "], current_map_lock[" << current_map_lock << "], direction: " << (int)state.direction << std::endl;
+            //std::cout << "AI::move_to_point[" << name << "] - map_lock[" << map_lock << "], current_map_lock[" << current_map_lock << "], direction: " << (int)state.direction << std::endl;
 
             if (map_lock != current_map_lock) {
                 if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
@@ -1952,13 +1950,13 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
         }
     }
 
-    std::cout << "AI::move_to_point[" << name << "] - xinc[" << xinc << "], can_move_x[" << can_move_x << "]" << std::endl;
+    //std::cout << "AI::move_to_point[" << name << "] - xinc[" << xinc << "], can_move_x[" << can_move_x << "]" << std::endl;
     return can_move_struct(xinc, yinc, can_move_x, can_move_y, CAN_MOVE_SUCESS);
 }
 
 bool artificial_inteligence::check_moving_along_wall(int xinc, int yinc)
 {
-    std::cout << "AI::check_moving_along_wall - xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
+    //std::cout << "AI::check_moving_along_wall - xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
     if (xinc != 0) {
         st_position check_point_top;
         st_position check_point_bottom;
