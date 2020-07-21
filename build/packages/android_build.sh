@@ -31,8 +31,9 @@ case $response in
 		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
 		rsync -r --exclude=.svn ../shared ./Android/data
 		export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
-		cp ./music/RockDroid$version_number/*.ogg ./Android/data/games/RockDroid$version_number/music
-		cp ./music/shared/*.ogg ./Android/data/shared/music
+		cp ./music/RockDroid$version_number/*.ogg ./Android/data/games/RockDroid$version_number/music/ogg/
+		mkdir ./Android/data/shared/music/ogg/
+		cp ./music/shared/*.ogg ./Android/data/shared/music/ogg/
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
 		cd ./Android/data
