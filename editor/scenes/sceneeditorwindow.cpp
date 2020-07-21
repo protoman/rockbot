@@ -34,6 +34,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     animation_tab = new TabAnimation();
     ui->tabAnimation_scrollArea->setWidget(animation_tab);
+
+    parallax_tab = new tab_parallax();
+    ui->parallax_scrollArea->setWidget(parallax_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()
@@ -57,6 +60,7 @@ void SceneEditorWindow::closeEvent(QCloseEvent *event)
 void SceneEditorWindow::reload()
 {
     image_tab->reload();
+    parallax_tab->reload();
     viewpoint_tab->reload();
     text_tab->reload();
     scenes_tab->reload();
@@ -81,6 +85,7 @@ void SceneEditorWindow::save()
     music_tab->save_data();
     cleararea_tab->save_data();
     animation_tab->save_data();
+    parallax_tab->save_data();
 }
 
 

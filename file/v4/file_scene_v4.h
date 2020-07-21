@@ -8,7 +8,34 @@
 #define SCENE_TEXT_LINES_N 6
 #define SCENE_OBJECTS_MAX 20
 
+#define PARALLAX_LAYERS_MAX 10
+
 namespace format_v4 {
+
+    enum e_SCENETYPE {
+        SCENETYPE_CLEAR_SCREEN,
+        SCENETYPE_CLEAR_AREA,
+        SCENETYPE_MOVE_IMAGE,                   // shows an image that moves from point "place" to point destiny
+        SCENETYPE_MOVE_VIEWPOINT,
+        SCENETYPE_SHOW_ANIMATION,                // shows an animation sequence
+        SCENETYPE_PLAY_SFX,
+        SCENETYPE_PLAY_MUSIC,
+        SCENETYPE_STOP_MUSIC,
+        SCENETYPE_SHOW_TEXT,
+        SCENETYPE_SUBSCENE,                      // you can add another scene to the scene, to it is possible to repeat
+        SCENETYPE_PARALLAX,
+        SCENETYPE_COUNT
+    };
+
+
+    enum e_text_position_type {
+        text_position_type_dialogbottom,
+        text_position_type_dialogtop,
+        text_position_type_centered,
+        text_position_type_center_x,
+        text_position_type_center_y,
+        text_position_type_user_defined
+    };
 
     struct st_scene_area {
         int x;
@@ -29,29 +56,7 @@ namespace format_v4 {
         }
     };
 
-    enum e_SCENETYPE {
-        SCENETYPE_CLEAR_SCREEN,
-        SCENETYPE_CLEAR_AREA,
-        SCENETYPE_MOVE_IMAGE,                   // shows an image that moves from point "place" to point destiny
-        SCENETYPE_MOVE_VIEWPOINT,
-        SCENETYPE_SHOW_ANIMATION,                // shows an animation sequence
-        SCENETYPE_PLAY_SFX,
-        SCENETYPE_PLAY_MUSIC,
-        SCENETYPE_STOP_MUSIC,
-        SCENETYPE_SHOW_TEXT,
-        SCENETYPE_SUBSCENE                      // you can add another scene to the scene, to it is possible to repeat
-        //SCENETYPE_REPEAT_SCROLLBG,              // keeps scrolling a background (like ninja gaiden's opening's grass)
-    };
 
-
-    enum e_text_position_type {
-        text_position_type_dialogbottom,
-        text_position_type_dialogtop,
-        text_position_type_centered,
-        text_position_type_center_x,
-        text_position_type_center_y,
-        text_position_type_user_defined
-    };
 
     /// @TODO - convert some int to uint8/short
 
@@ -201,9 +206,37 @@ namespace format_v4 {
         }
     };
 
-    enum e_scene_repeat_types {
-        scene_repeat_time,
-        scene_repeat_number
+
+
+    struct file_scene_show_parallax {
+        char name[FS_NAME_SIZE];
+        int frame_delay;
+        int loop_mode;
+        int move_direction;                              // direction
+        int total_duration;
+        int TBD2;
+        char filename[PARALLAX_LAYERS_MAX][FS_CHAR_FILENAME_SIZE];
+        int layer_speed[PARALLAX_LAYERS_MAX];
+        int adjust_y[PARALLAX_LAYERS_MAX];
+        int adjust_h[PARALLAX_LAYERS_MAX];
+        int TBD3[PARALLAX_LAYERS_MAX];
+        int TBD4[PARALLAX_LAYERS_MAX];
+        file_scene_show_parallax() {
+            name[0] = '\0';
+            for (int i=0; i<PARALLAX_LAYERS_MAX; i++) {
+                filename[i][0] = '\0';
+                layer_speed[i] = i;
+                adjust_y[i] = 0;
+                adjust_h[i] = 0;
+                TBD3[i] = 0;
+                TBD4[i] = 0;
+            }
+            frame_delay = 100;
+            loop_mode = 0;
+            move_direction = ANIM_DIRECTION_LEFT;
+            total_duration = 3000;
+            TBD2 = 0;
+        }
     };
 
 
@@ -236,22 +269,6 @@ namespace format_v4 {
             name[0] = '\0';
         }
     };
-
-
-
-    enum e_scenes_types {
-        scenetype_clear_screen,
-        scenetype_clear_area,
-        scenetype_show_image,
-        scenetype_play_sfx,
-        scenetype_play_music,
-        scenetype_stop_music,
-        scenetype_repeat_scrollbg,              // keeps scrolling a background (like ninja gaiden's opening's grass)
-        scenetype_show_text,
-        scenetype_move_image,                   // shows an image that moves from point "place" to point destiny
-        scenetype_show_animation                // shows an animation sequence
-    };
-
 
 
 }

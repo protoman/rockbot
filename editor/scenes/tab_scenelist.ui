@@ -227,6 +227,11 @@
          <string>Sub-Scene</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Parallax</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -247,6 +252,8 @@
   </layout>
  </widget>
  <resources>
+  <include location="../resources/icons/icons.qrc"/>
+  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>
  <connections/>

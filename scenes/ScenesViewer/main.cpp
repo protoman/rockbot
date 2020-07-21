@@ -35,6 +35,13 @@ CURRENT_FILE_FORMAT::file_game game_data;
 CURRENT_FILE_FORMAT::file_stage stage_data;
 SDL_Event event;
 
+enum e_EXEC_TYPE {
+    e_EXEC_TYPE_NORMAL,
+    e_EXEC_TYPE_PARALLAX,
+    e_EXEC_TYPE_IMAGE,
+    e_EXEC_TYPE_COUNT
+};
+
 std::string FILEPATH;
 std::string SAVEPATH;
 std::string GAMEPATH;
@@ -43,7 +50,8 @@ std::string GAMENAME;
 bool leave_game = false;
 bool GAME_FLAGS[FLAG_COUNT];
 int animation_n = 0;
-
+e_EXEC_TYPE exec_type = e_EXEC_TYPE_NORMAL;
+int param_number = 0;
 
 void get_filepath()
 {
@@ -67,6 +75,8 @@ void get_filepath()
 
     std::cout << "get_filepath - GAMEPATH:" << GAMEPATH << std::endl;
 }
+
+
 
 bool check_parameters(int argc, char *argv[]) {
     if (argc < 2) {
@@ -96,6 +106,18 @@ bool check_parameters(int argc, char *argv[]) {
                     return false;
                 }
             }
+        } else if (temp_argv == "--parallax") {
+            if (argc <= i+1) {
+                std::cout << "ERROR: no [NUMBER] informed for --parallax flag." << std::endl;
+                return false;
+            } else {
+                istringstream ss(argv[i+1]);
+                exec_type = e_EXEC_TYPE_PARALLAX;
+                if (!(ss >> animation_n)) {
+                    std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --scenenumber flag." << std::endl;
+                    return false;
+                }
+            }
         }
     }
     FILEPATH = GAMEPATH + std::string("/games/") + GAMENAME + std::string("/");
@@ -120,7 +142,11 @@ int main(int argc, char *argv[])
     }
 
     sceneShow show;
-    show.show_scene(animation_n);
+    if (exec_type == e_EXEC_TYPE_PARALLAX) {
+        show.show_parallax(animation_n);
+    } else {
+        show.show_scene(animation_n);
+    }
 
     int BORDER_SIZE = 4;
     // horizontal lines

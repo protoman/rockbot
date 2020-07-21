@@ -410,6 +410,15 @@ void common::fill_numbered_combo(QComboBox *combo, int start, int end)
     }
 }
 
+void common::fill_direction_combo(QComboBox *combo)
+{
+    combo->clear();
+    combo->addItem(QString("LEFT"));
+    combo->addItem(QString("RIGHT"));
+    combo->addItem(QString("UP"));
+    combo->addItem(QString("DOWN"));
+}
+
 std::vector<std::string> common::get_npc_names_list()
 {
     std::vector<std::string> res;

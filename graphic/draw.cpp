@@ -125,9 +125,6 @@ void draw::preload()
     filename = FILEPATH + "/images/1up_icons.png";
     graphLib.surfaceFromFile(filename, &hud_player_1up);
 
-    filename = FILEPATH + "images/backgrounds/castle_point.png";
-    graphLib.surfaceFromFile(filename, &castle_point);
-
     filename = GAMEPATH + "/shared/images/buttons/d_pad.png";
 
     for (int i=0; i<INPUT_IMAGES_COUNT; i++) {
@@ -148,9 +145,6 @@ void draw::preload()
     filename = GAMEPATH + "/shared/images/buttons/btn_y.png";
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_Y]);
 
-
-    filename = FILEPATH + "images/backgrounds/map.png";
-    graphLib.surfaceFromFile(filename, &interstage_map);
 }
 
 void draw::show_gfx()
@@ -542,6 +536,32 @@ int draw::show_credits(bool can_leave)
     return 0;
 }
 
+void draw::show_about()
+{
+    // show informations about the gameproject
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(strings_about_site), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(22, "http://rockdot.upperland.net", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(strings_about_bugs), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(72, "bugs@upperland.net", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(strings_about_twitter), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(122, "@RockbotGame", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(160, strings_map::get_instance()->get_ingame_string(strings_about_facebook), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(172, "facebook.com/rockbotgame", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.updateScreen();
+    timer.delay(1000);
+
+    input.clean();
+    timer.delay(100);
+    input.wait_keypress();
+}
+
 
 std::vector<string> draw::create_engine_credits_text()
 {
@@ -777,102 +797,6 @@ st_float_position draw::get_radius_point(st_position center_point, int radius, f
     return res;
 }
 
-void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
-{
-    if (initial_point.x == 0 && initial_point.y == 0 && final_point.x == 0 && final_point.x == 0) {
-        return;
-    }
-    int dist_x = initial_point.x - final_point.x;
-    int dist_y = initial_point.y - final_point.y;
-    int duration = CASTLE_PATH_DURATION;
-    int step_delay = duration / (abs(dist_x) + abs(dist_y));
-    if (instant == true) {
-        duration = 0;
-        step_delay = 0;
-    }
-
-    std::cout << "step_delay[" << step_delay << "]" << std::endl;
-
-    draw_castle_point(initial_point.x, initial_point.y);
-    draw_castle_point(final_point.x, final_point.y);
-    graphLib.updateScreen();
-
-    int pos_y = initial_point.y - 1;
-    int pos_x = initial_point.x + 2;
-
-    // first, move Y axis
-    if (dist_y < 0) {
-        pos_y += castle_point.height + 1;
-    }
-    std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
-    if (dist_y != 0) {
-        for (int i=0; i<abs(dist_y)-2; i++) {
-            // border left
-            graphLib.clear_area(pos_x-1, pos_y, 1, 1, 19, 19, 19);
-            // middle
-            graphLib.clear_area(pos_x, pos_y, 4, 1, 220, 220, 220);
-            // border right
-            graphLib.clear_area(pos_x+4, pos_y, 1, 1, 19, 19, 19);
-
-            if (dist_y > 0) {
-                pos_y--;
-            } else {
-                pos_y++;
-            }
-            if (step_delay > 0) {
-                timer.delay(step_delay);
-                graphLib.updateScreen();
-            }
-        }
-    }
-    // remove extra bit
-    if (dist_y > 0) {
-        pos_y++;
-    } else {
-        pos_y -= 4;
-    }
-
-    int temp_pos_x = pos_x;
-    int max_dist_x = abs(dist_x)-2;
-    if (dist_x > 0) {
-        temp_pos_x -= 1;
-        max_dist_x -= 4;
-    } else if (dist_x < 0) {
-        temp_pos_x += 4;
-        max_dist_x -= 4;
-    }
-
-    // secondly, move x axis
-    if (dist_x > 0) {
-        pos_x += 3;
-    }
-    std::cout << "ini.x[" << initial_point.x << "], end.x[" << final_point.x << "], dist_x[" << dist_x << "]" << std::endl;
-    if (dist_x != 0) {
-        for (int i=0; i<max_dist_x; i++) {
-            // top
-            graphLib.clear_area(temp_pos_x, pos_y-1, 1, 1, 19, 19, 19);
-            // middle
-            graphLib.clear_area(temp_pos_x, pos_y, 1, 4, 220, 220, 220);
-            // bottom
-            graphLib.clear_area(temp_pos_x, pos_y+4, 1, 1, 19, 19, 19);
-            if (dist_x > 0) {
-                temp_pos_x--;
-            } else {
-                temp_pos_x++;
-            }
-            if (step_delay > 0) {
-                timer.delay(step_delay);
-                graphLib.updateScreen();
-            }
-        }
-    }
-
-}
-
-void draw::draw_castle_point(int x, int y)
-{
-    graphLib.copyArea(st_position(x, y), &castle_point, &graphLib.gameScreen);
-}
 
 void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
 {

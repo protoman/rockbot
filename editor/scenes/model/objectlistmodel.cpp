@@ -69,6 +69,8 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
                 name = "[SUB-SCENE] " + std::string(ScenesMediator::get_instance()->scenes_list.at(seek_n).name);
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_SCREEN) {
                 name = "[CLEAR-SCREEN] " + std::string("CLEAR-SCREEN");
+            } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PARALLAX) {
+                name = "[PARALLAX] " + std::string(ScenesMediator::get_instance()->parallax_list.at(seek_n).name);
             }
             return QString(name.c_str());
         } else if (col == 1) {

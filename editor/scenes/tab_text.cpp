@@ -2,6 +2,7 @@
 #include "ui_tab_text.h"
 #include "../file/format.h"
 #include "common.h"
+#include "shareddata.h"
 
 TabText::TabText(QWidget *parent) :
     QDialog(parent),
@@ -9,7 +10,7 @@ TabText::TabText(QWidget *parent) :
 {
     dataLoading = true;
     currentIndex = -1;
-    currentLanguage = LANGUAGE_ENGLISH;
+    SharedData::get_instance()->game_config.selected_language = LANGUAGE_ENGLISH;
 
     ui->setupUi(this);
 
@@ -37,7 +38,7 @@ void TabText::save_data(int n)
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         text_list.push_back(scene_text_list[i]);
     }
-    fio_str.write_scene_text_file(currentIndex, text_list, currentLanguage);
+    fio_str.write_scene_text_file(currentIndex, text_list, SharedData::get_instance()->game_config.selected_language);
 }
 
 void TabText::reload()
@@ -246,6 +247,6 @@ void TabText::on_languageComboBox_currentIndexChanged(int index)
         return;
     }
     save_data();
-    currentLanguage = index;
+    SharedData::get_instance()->game_config.selected_language = index;
     set_fields(currentIndex);
 }

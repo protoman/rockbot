@@ -390,6 +390,10 @@ namespace format_v4 {
 
             sprintf(lines[strings_ingame_config_audio_use_old_music], "%s", "USAR MÚSICA ANTIGA");
 
+            sprintf(lines[strings_about_site], "%s", "- SITE -");
+            sprintf(lines[strings_about_bugs], "%s", "- SUPORTE -");
+            sprintf(lines[strings_about_twitter], "%s", "- TWITTER -");
+            sprintf(lines[strings_about_facebook], "%s", "- FACEBOOK -");
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -601,6 +605,11 @@ namespace format_v4 {
             sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "IMPROVED");
 
             sprintf(lines[strings_ingame_config_audio_use_old_music], "%s", "USE OLD MUSIC");
+
+            sprintf(lines[strings_about_site], "%s", "- SITE -");
+            sprintf(lines[strings_about_bugs], "%s", "- SUPPORT -");
+            sprintf(lines[strings_about_twitter], "%s", "- TWITTER -");
+            sprintf(lines[strings_about_facebook], "%s", "- FACEBOOK -");
 
 
         }
@@ -1110,6 +1119,7 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
+        std::cout << ">>> fio_strings::write_scene_text_file.filename[" << filename << "]" << std::endl;
         // fill empty spaces
         if (list.size() < SCENE_TEXT_LINES_N) {
             for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {

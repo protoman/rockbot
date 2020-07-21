@@ -41,6 +41,11 @@ namespace format_v4 {
         return load_from_disk<file_scene_show_image>("scenes_show_image.dat");
     }
 
+    std::vector<file_scene_show_parallax> fio_scenes::load_scenes_parallax()
+    {
+        return load_from_disk<file_scene_show_parallax>("scenes_parallax.dat");
+    }
+
     std::vector<file_scene_show_viewpoint> fio_scenes::load_scenes_show_viewpoint()
     {
         return load_from_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat");
@@ -64,6 +69,11 @@ namespace format_v4 {
     void fio_scenes::save_scenes_show_image(std::vector<file_scene_show_image> data)
     {
         save_data_to_disk<file_scene_show_image>("scenes_show_image.dat", data);
+    }
+
+    void fio_scenes::save_scenes_parallax(std::vector<file_scene_show_parallax> data)
+    {
+        save_data_to_disk<file_scene_show_parallax>("scenes_parallax.dat", data);
     }
 
     void fio_scenes::save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data)
@@ -113,6 +123,7 @@ namespace format_v4 {
     void fio_scenes::generate_files()
     {
         save_scenes_show_image(std::vector<file_scene_show_image>());
+        save_scenes_parallax(std::vector<file_scene_show_parallax>());
         save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint>());
         save_scenes_show_text(std::vector<file_scene_show_text>());
         save_scenes_show_animation(std::vector<file_scene_show_animation>());

@@ -1,4 +1,12 @@
-﻿
+﻿- readicionar intro de boss ao entrar na fase
+    # usar versões chibi deles
+- refatorar seleção de fase (no topo mostrar foto do chefe)
+
+- colocar lista de nomes de chefes e estagios no shared-data
+
+- tentar usar outro formato de arquivo para músicas que não ogg, ou reduzir qualidade para ficar menor
+    # quem sabe oferecer um app alternativo para quem tem problemas?
+
 - #2: usar mais tiles animados (lava, cascatas, neve, areia)
 
 
@@ -7,13 +15,6 @@
 
 
 - usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)
-
-- opção para usar músicas antigas
-    # tem que criar algo na config (já deixar uns tempos a mais sobrando lá, para o futuro)
-    # usar mesmos nomes, só colocar em uma pasta old
-    # todos devem ter extensão .mod
-    # separate ogg files into its own folder
-    # use current version if ogg or old-file do not exists
 
 
 - Rockbot1:
@@ -44,6 +45,7 @@
 - recreate intro (use new drawings, create a different story)
 
 - (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
+    # isso pode ter sido corrigido pelo fix do coil que ficava tb no teto; verificar.
 
 - checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
     # somente plataformas devem colidir com jogador
@@ -62,9 +64,6 @@
 
 - criar intro em texto (soldado e blá blá blá)
     # aparece apenas ao selecionar new game
-
-- ghosts devem aparecer abaixo do cenário
-
 
 ##########################################
 BACKPORT FIREFLY:

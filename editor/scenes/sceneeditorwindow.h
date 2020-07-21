@@ -15,6 +15,7 @@
 #include "scenes/tab_music.h"
 #include "scenes/tab_cleararea.h"
 #include "scenes/tab_animation.h"
+#include "scenes/tab_parallax.h"
 
 namespace Ui {
 class SceneEditorWindow;
@@ -52,6 +53,7 @@ private:
     TabMusic* music_tab;
     TabClearArea* cleararea_tab;
     TabAnimation* animation_tab;
+    tab_parallax* parallax_tab;
     QProcess process;
 };
 

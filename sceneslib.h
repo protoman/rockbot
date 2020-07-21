@@ -30,6 +30,8 @@ public:
     void show_bosses_ending();
     short pick_stage(int last_stage);
     Uint8 select_player();
+    void boss_intro(short stage_n);
+    void game_scenes_show_unbeaten_intro();
 
 private:
     // preload/unload

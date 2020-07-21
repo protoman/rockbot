@@ -49,6 +49,7 @@ public:
     int show_credits_text(bool can_leave, std::vector<string> credit_text);
     void draw_credits_line(int i, std::vector<string> credit_text, int posY);
     int show_credits(bool can_leave);
+    void show_about();
     std::vector<string> create_engine_credits_text();
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);
@@ -70,8 +71,6 @@ public:
     void set_boss_hp(int hp);
     void show_boss_intro_bg();
     void draw_explosion(st_position center_point, int radius, int angle_inc);
-    void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
-    void draw_castle_point(int x, int y);
     void show_weapon_tooltip();
 
 private:
@@ -148,9 +147,6 @@ private:
     int current_alpha;                                  // used for fade effect that runs each time update-screen is called
     st_color current_alpha_color;
     graphicsLib_gSurface current_alpha_surface;
-    graphicsLib_gSurface castle_point;
-
-    graphicsLib_gSurface interstage_map;
 
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage

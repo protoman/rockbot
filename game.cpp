@@ -445,6 +445,9 @@ bool game::show_game_intro()
     currentStage = INTRO_STAGE;
 
     scenes.preloadScenes();
+
+    scenes.game_scenes_show_unbeaten_intro();
+
     scenes.main_screen();
 	initGame();
 
@@ -457,6 +460,7 @@ bool game::show_game_intro()
         loaded_stage = stage(currentStage, &player1);
         // show boss intro with stars, if needed
         soundManager.stop_music();
+        scenes.boss_intro(currentStage);
 		start_stage();
 	}
 
@@ -1276,6 +1280,7 @@ void game::leave_stage()
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed
     soundManager.stop_music();
+    scenes.boss_intro(currentStage);
     checkpoint.map = 0;
     checkpoint.map_scroll_x = 0;
     checkpoint.reset();

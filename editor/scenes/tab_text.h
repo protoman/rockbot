@@ -65,7 +65,6 @@ private:
     bool data_loading;
     std::string scene_text_list[SCENE_TEXT_LINES_N];
     int currentIndex;
-    int currentLanguage;
     bool dataLoading;
 };
 

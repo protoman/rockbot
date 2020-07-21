@@ -64,6 +64,7 @@ win32 {
 SOURCES += main.cpp \
     ../../graphicslib.cpp \
     ../../inputlib.cpp \
+    ../../shareddata.cpp \
     ../../soundlib.cpp \
     ../../timerlib.cpp \
     ../../file/file_io.cpp \
@@ -80,6 +81,7 @@ SOURCES += main.cpp \
 HEADERS += \
     ../../graphicslib.h \
     ../../inputlib.h \
+    ../../shareddata.h \
     ../../soundlib.h \
     ../../timerlib.h \
     ../../file/file_io.h \

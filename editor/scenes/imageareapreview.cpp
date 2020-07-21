@@ -148,7 +148,7 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
     // destiny rectangle
     painter.setPen(QColor(0, 255, 0));
 
-    std::cout << "dest_x: " << dest_x << ", dest_y: " << dest_y << std::endl;
+    //std::cout << "dest_x: " << dest_x << ", dest_y: " << dest_y << std::endl;
 
     // linha topo
     line = QLineF((x+dest_x), (y+dest_y), (x+dest_x+w), (y+dest_y));

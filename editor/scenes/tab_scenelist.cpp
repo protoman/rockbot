@@ -135,6 +135,10 @@ void TabScenelist::on_sceneTypeSelector_currentIndexChanged(int index)
                 list.append(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
             //}
         }
+    } else if (index == CURRENT_FILE_FORMAT::SCENETYPE_PARALLAX) {
+        for (unsigned int i=0; i<ScenesMediator::get_instance()->parallax_list.size(); i++) {
+            list.append(QString(ScenesMediator::get_instance()->parallax_list.at(i).name));
+        }
     }
     model_objects.setStringList(list);
 }

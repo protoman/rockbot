@@ -73,11 +73,13 @@ namespace format_v4 {
         std::vector<file_scene_play_sfx> load_scenes_play_sfx();
         std::vector<file_scene_show_animation> load_scenes_show_animation();
         std::vector<file_scene_show_image> load_scenes_show_image();
+        std::vector<file_scene_show_parallax> load_scenes_parallax();
         std::vector<file_scene_show_viewpoint> load_scenes_show_viewpoint();
         std::vector<file_scene_show_text> load_scenes_show_text();
         std::map<Uint8, Uint8> load_game_scenes();
 
         void save_scenes_show_image(std::vector<file_scene_show_image> data);
+        void save_scenes_parallax(std::vector<file_scene_show_parallax> data);
         void save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data);
         void save_scenes_show_text(std::vector<file_scene_show_text> data);
         void save_scenes(std::vector<file_scene_list> data);

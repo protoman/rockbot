@@ -27,6 +27,7 @@ sceneShow::sceneShow()
     _interrupt_scene = false;
     scene_list = fio_scn.load_scenes();
     image_scenes = fio_scn.load_scenes_show_image();
+    parallax_scenes = fio_scn.load_scenes_parallax();
     text_list = fio_scn.load_scenes_show_text();
     cleararea_list = fio_scn.load_scenes_clear_area();
     playsfx_list = fio_scn.load_scenes_play_sfx();
@@ -34,6 +35,8 @@ sceneShow::sceneShow()
     viewpoint_list = fio_scn.load_scenes_show_viewpoint();
     animation_list = fio_scn.load_scenes_show_animation();
 }
+
+
 
 void sceneShow::show_scene(int n)
 {
@@ -79,6 +82,8 @@ void sceneShow::show_scene(int n)
                 soundManager.stop_music();
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
                 show_scene(scene_seek_n);
+            } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PARALLAX) {
+                show_parallax(scene_seek_n);
             } else {
                 std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
@@ -129,6 +134,20 @@ void sceneShow::show_image(int n)
 
 }
 
+void sceneShow::show_parallax(int n)
+{
+    if (parallax_scenes.size() <= n) {
+        std::cout << "ERROR: Scene parallax[" << n << "] invalid. List size is " << parallax_scenes.size() << "." << std::endl;
+        graphLib.show_debug_msg("EXIT #42.0");
+        char number_str[20];
+        sprintf(number_str, "%d", parallax_scenes.size());
+        exception_manager::throw_general_exception(std::string("sceneShow::show_parallax - Invalid list position."), std::string(number_str));
+    }
+
+    CURRENT_FILE_FORMAT::file_scene_show_parallax current_scene_parallax = parallax_scenes.at(n);
+    run_parallax_scene(current_scene_parallax);
+}
+
 
 
 // @TODO - this should only set some variables in a global and the drawinbg should be handled my show_scene()
@@ -143,19 +162,28 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
     graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &bg_image);
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + scene_image.filename, &image);
 
+    int w = scene_image.copy_area.w;
+    if (w == 0) {
+        w = image.width;
+    }
+    int h = scene_image.copy_area.h;
+    if (h == 0) {
+        h = image.height;
+    }
+
     while (total_dist > 0) {
         input.read_input();
         //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(scene_image.move_delay);
         // @TODO - copy background, but should be done in a smarter way as there can be several moving elements
         graphLib.showSurfaceAt(&bg_image, st_position(0, 0), false);
-        graphLib.showSurfaceAt(&image, st_position(x, y), false);
+        graphLib.showSurfaceRegionAt(&image, st_rectangle(scene_image.copy_area.x, scene_image.copy_area.y, w, h), st_position(x, y));
         graphLib.updateScreen();
         x += speed_x;
         y += speed_y;
         total_dist--;
     }
-    graphLib.showSurfaceAt(&image, st_position(x, y), false);
+    graphLib.showSurfaceRegionAt(&image, st_rectangle(scene_image.copy_area.x, scene_image.copy_area.y, w, h), st_position(x, y));
     graphLib.updateScreen();
 }
 
@@ -185,6 +213,53 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
     timer.delay(viewpoint.move_delay);
 
     graphLib.updateScreen();
+}
+
+
+
+void sceneShow::run_parallax_scene(format_v4::file_scene_show_parallax parallax)
+{
+    std::vector<parallax_run_obj> run_list;
+
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    for (int i=0; i<PARALLAX_LAYERS_MAX; i++) {
+        std::string parallax_filename = std::string(parallax.filename[i]);
+        if (parallax_filename.length() > 0) {
+            std::string filename = FILEPATH + "/images/scenes/" + parallax_filename;
+            run_list.push_back(parallax_run_obj());
+            graphLib.surfaceFromFile(filename, &run_list.at(run_list.size()-1).image);
+            run_list.at(run_list.size()-1).pos_y = parallax.adjust_y[i];
+            run_list.at(run_list.size()-1).h = parallax.adjust_h[i];
+            run_list.at(run_list.size()-1).speed = parallax.layer_speed[i];
+        }
+    }
+    int total_time = parallax.total_duration;
+    int frames_n = total_time / parallax.frame_delay;
+    for (int i =0; i<frames_n; i++) {
+        for (unsigned int img_n=0; img_n<run_list.size(); img_n++) {
+            graphLib.showSurfaceRegionAt(&run_list.at(img_n).image, st_rectangle(0, 0, run_list.at(img_n).image.width, run_list.at(img_n).image.height), st_position(run_list.at(img_n).current_pos, run_list.at(img_n).pos_y));
+            // show image-repeat, if needed
+            if (parallax.move_direction == ANIM_DIRECTION_LEFT) {
+                if ((run_list.at(img_n).current_pos + run_list.at(img_n).image.width)  < RES_W) {
+                    graphLib.showSurfaceRegionAt(&run_list.at(img_n).image, st_rectangle(0, 0, run_list.at(img_n).image.width, run_list.at(img_n).image.height), st_position(run_list.at(img_n).current_pos + run_list.at(img_n).image.width, run_list.at(img_n).pos_y));
+                }
+                run_list.at(img_n).current_pos -= run_list.at(img_n).speed;
+                if (run_list.at(img_n).current_pos < -run_list.at(img_n).image.width) {
+                    run_list.at(img_n).current_pos = 0;
+                }
+            } else {
+                if (run_list.at(img_n).current_pos > 0) {
+                    graphLib.showSurfaceRegionAt(&run_list.at(img_n).image, st_rectangle(0, 0, run_list.at(img_n).image.width, run_list.at(img_n).image.height), st_position(run_list.at(img_n).current_pos - run_list.at(img_n).image.width, run_list.at(img_n).pos_y));
+                }
+                run_list.at(img_n).current_pos += run_list.at(img_n).speed;
+                if (run_list.at(img_n).current_pos > run_list.at(img_n).image.width) {
+                    run_list.at(img_n).current_pos = 0;
+                }
+            }
+        }
+        graphLib.updateScreen();
+        timer.delay(parallax.frame_delay);
+    }
 }
 
 
@@ -255,7 +330,7 @@ void sceneShow::run_text(int n)
 {
 
     int lines_n = 0;
-    int max_line_w = 0;
+    unsigned int max_line_w = 0;
 
     // this part is used to calculate text/lines size for positioning
     /// @TODO: optimize using a vector
@@ -263,10 +338,10 @@ void sceneShow::run_text(int n)
 
     std::vector<std::string> text_lines;
     std::vector<std::string> scene_text_list = fio_str.get_string_list_from_scene_text_file(n);
+
+    // search for the line with greatest width
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
-
         std::string line = scene_text_list[i];
-
         if (line.size() > 0) {
             text_lines.push_back(line);
             if (line.size() > max_line_w) {
@@ -279,8 +354,13 @@ void sceneShow::run_text(int n)
         }
     }
 
-    int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
+    int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
+
+
+    std::cout << "center_x[" << center_x << "], max_line_w[" << max_line_w << "], FONT_SIZE[" << FONT_SIZE << "]" << std::endl;
+    // -48, 26, 16
+
     int pos_x = 0;
     int pos_y = 0;
 
@@ -293,7 +373,6 @@ void sceneShow::run_text(int n)
     } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_centered) {
         pos_x = center_x;
         pos_y = center_y;
-
     } else if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_center_x) {
         pos_x = center_x;
         pos_y = text_list.at(n).y;

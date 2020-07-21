@@ -1212,6 +1212,10 @@ enum E_STRINGS_INGAME {
     strings_weapon_menu_PART_ENHANCED,
 
     strings_ingame_config_audio_use_old_music,
+    strings_about_site,
+    strings_about_bugs,
+    strings_about_twitter,
+    strings_about_facebook,
 
     strings_ingame_COUNT
 };

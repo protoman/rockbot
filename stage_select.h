@@ -40,16 +40,9 @@ public:
     int pick_stage(int stage_n);
 
 private:
-    void move_highlight(Sint8 x_inc, Sint8 y_inc);
-    void show_highlight();
     void place_face(std::string face_file, std::string botname, st_position pos) const;
-    void animate_highlight();
-    void draw_eyes(Uint8 x, Uint8 y, bool erase_eyes);
 
 private:
-    graphicsLib_gSurface s_light;
-    graphicsLib_gSurface s_dark;
-    graphicsLib_gSurface eyes_surface;
     graphicsLib_gSurface background;
     struct st_position highlight_pos;
     struct st_position select_pos;
