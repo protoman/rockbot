@@ -354,7 +354,8 @@ void sceneShow::run_text(int n)
         }
     }
 
-    int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
+    //int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
+    int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 

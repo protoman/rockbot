@@ -395,6 +395,11 @@ namespace format_v4 {
             sprintf(lines[strings_about_twitter], "%s", "- TWITTER -");
             sprintf(lines[strings_about_facebook], "%s", "- FACEBOOK -");
 
+            sprintf(lines[strings_stage_select_pick_mission], "%s", "ESCOLHA UMA MISSÃO");
+            sprintf(lines[strings_stage_select_boss], "%s", "CHEFE:");
+            sprintf(lines[strings_stage_select_select], "%s", "SELECIONAR");
+
+
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
             sprintf(lines[strings_ingame_loadgame], "%s", "LOAD GAME");
@@ -610,6 +615,12 @@ namespace format_v4 {
             sprintf(lines[strings_about_bugs], "%s", "- SUPPORT -");
             sprintf(lines[strings_about_twitter], "%s", "- TWITTER -");
             sprintf(lines[strings_about_facebook], "%s", "- FACEBOOK -");
+
+            sprintf(lines[strings_stage_select_pick_mission], "%s", "PICK A MISSION");
+            sprintf(lines[strings_stage_select_boss], "%s", "BOSS:");
+            sprintf(lines[strings_stage_select_select], "%s", "SELECT");
+
+
 
 
         }

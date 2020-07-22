@@ -860,7 +860,7 @@ enum collision_modes {
 };
 
 
-#define FONT_SIZE 16
+#define FONT_SIZE 8
 #define FONT_SIZE_SMALL 12
 
 #define MENU_CHANGE_DELAY 100
@@ -1216,6 +1216,10 @@ enum E_STRINGS_INGAME {
     strings_about_bugs,
     strings_about_twitter,
     strings_about_facebook,
+
+    strings_stage_select_pick_mission,
+    strings_stage_select_boss,
+    strings_stage_select_select,
 
     strings_ingame_COUNT
 };

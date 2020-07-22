@@ -142,7 +142,7 @@ bool graphicsLib::initGraphics()
     // FONT
     TTF_Init();
 
-    filename = GAMEPATH + std::string("/fonts/kapel.ttf");
+    filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
     filename = StringUtils::clean_filename(filename);
 
 	char *buffer = new char[filename.size()+1];

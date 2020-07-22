@@ -14,7 +14,7 @@ extern std::string GAMEPATH;
 TextPreviewArea::TextPreviewArea(QWidget *parent) : QWidget(parent)
 {
     selected_n = 0;
-    const QString font_filename = QString(GAMEPATH.c_str()) + QString("/fonts/kapel.ttf");
+    const QString font_filename = QString(GAMEPATH.c_str()) + QString("/fonts/pressstart2p.ttf");
     int id = QFontDatabase::addApplicationFont(font_filename);
     QString font_family = QFontDatabase::applicationFontFamilies(id).at(0);
     monospace = QFont(font_family);
@@ -72,8 +72,8 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
         }
     }
 
-    //int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
-    int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
+    int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
+    //int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 

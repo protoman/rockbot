@@ -1,6 +1,8 @@
 ﻿- readicionar intro de boss ao entrar na fase
     # usar versões chibi deles
 - refatorar seleção de fase (no topo mostrar foto do chefe)
+- mudar fonte novamente para pressstart2p
+    # tem um item no menu in-game por cima do outro (última linha)
 
 - colocar lista de nomes de chefes e estagios no shared-data
 
