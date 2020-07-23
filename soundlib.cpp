@@ -417,7 +417,7 @@ string soundLib::get_filename_for_music(string filename)
 #if defined(ANDROID) || defined(POCKETGO)
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
-            std::string ogg_filename = filename.substr(0,found) + "/ogg/" + filename.substr(found+1) + ".ogg";
+            std::string ogg_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
             std::cout << ">>>>>>>>>>>>>> ogg.music[" << filename << "]" << std::endl;
             if (fio.file_exists(ogg_filename)) {
                 filename = ogg_filename;

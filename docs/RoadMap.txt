@@ -1,4 +1,15 @@
-﻿- readicionar intro de boss ao entrar na fase
+﻿- testar formato música:
+    # tela intro
+    # intro stage
+    # titanium
+    # dragon
+    # snow
+    # kurupira (ogg)
+
+
+- no celular do zacani, os botoes estao saindo fora da tela (tem que checar para o x+w não passe res-w)
+
+- readicionar intro de boss ao entrar na fase
     # usar versões chibi deles
 - refatorar seleção de fase (no topo mostrar foto do chefe)
 - mudar fonte novamente para pressstart2p

@@ -95,7 +95,7 @@ pocketgo {
     QMAKE_CFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
     QMAKE_CXXFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu++11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
 
-    LIBS = -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/lib -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/lib -L/opt/bittboy-toolchain/lib -L/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -logg -lvorbisidec -lmikmod -lmodplug -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
+    LIBS = -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/lib -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/lib -L/opt/bittboy-toolchain/lib -L/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -logg -lvorbisidec -lmikmod -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
 
     INCLUDES = -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/include -I/opt/bittboy-toolchain/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
 
