@@ -213,15 +213,11 @@ void game_menu::show_config_android()
             options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolsspacing) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_screencontrolssize_MEDIUM)));
         }
 
-        // OPTION #3 audio buffer size
-        if (SharedData::get_instance()->game_config.android_audio_buffer_size == 0) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_VERY_SMALL)));
-        } else if (SharedData::get_instance()->game_config.android_audio_buffer_size == 1) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_SMALL)));
-        } else if (SharedData::get_instance()->game_config.android_audio_buffer_size == 2) {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_MEDIUM)));
-        } else {
-            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_config_android_audiobuffersize_BIG)));
+        // OPTION #3 use MOD music instead of mp3
+        if (SharedData::get_instance()->game_config.android_use_mod_music == 0) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_use_mod_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off)));
+        } else if (SharedData::get_instance()->game_config.android_use_mod_music == 1) {
+            options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_config_android_use_mod_music) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on)));
         }
 
         option_picker main_config_picker(false, config_text_pos, options, true);
@@ -243,11 +239,7 @@ void game_menu::show_config_android()
             }
             game_services.set_android_default_buttons_size(SharedData::get_instance()->game_config.android_touch_controls_size, SharedData::get_instance()->game_config.android_button_spacing);
         } else if (selected_option == 3) {
-            SharedData::get_instance()->game_config.android_audio_buffer_size++;
-            if (SharedData::get_instance()->game_config.android_audio_buffer_size > 3) {
-                SharedData::get_instance()->game_config.android_audio_buffer_size = 0;
-            }
-            game_services.set_android_audio_buffer_size(SharedData::get_instance()->game_config.android_audio_buffer_size);
+            SharedData::get_instance()->game_config.android_use_mod_music = !SharedData::get_instance()->game_config.android_use_mod_music;
             show_config_ask_restart(); // ask to restart game //
         }
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);

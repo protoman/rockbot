@@ -11,7 +11,7 @@ QT       -= gui
 
 
 
-CONFIG += linux
+#CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
 #CONFIG += playstation2
@@ -19,7 +19,7 @@ CONFIG += linux
 #CONFIG += open_pandora
 #CONFIG += wii
 #CONFIG += dreamcast
-#CONFIG += pocketgo
+CONFIG += pocketgo
 
 #DEFINES+= ANDROID=1
 
@@ -75,7 +75,7 @@ dingux {
     QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
     QMAKE_CXXFLAGS += -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
 
-    LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
+    LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lsmpeg -lSDL_image -lSDL_ttf -lSDL_gfx `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
 
     INCLUDES = -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -I. -I../include -I.
 
@@ -87,17 +87,18 @@ pocketgo {
     DEFINES += HAVE_STDINT_H
     DEFINES += VERSION_BITTBOY
     TARGET = rockbot_pocketgo
+    POCKETGO_SDK = /media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host
 
-    QMAKE_CC = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-gcc
-    QMAKE_CXX = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-g++
-    QMAKE_LINK = /opt/bittboy-toolchain/bin/arm-buildroot-linux-musleabi-g++
+    QMAKE_CC = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-gcc
+    QMAKE_CXX = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-g++
+    QMAKE_LINK = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-g++
 
     QMAKE_CFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
     QMAKE_CXXFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=gnu++11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
 
-    LIBS = -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/lib -L/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/lib -L/opt/bittboy-toolchain/lib -L/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -logg -lvorbisidec -lmikmod -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
+    LIBS = -L$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -lmikmod -logg -lvorbis -lvorbisfile -lmad -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
 
-    INCLUDES = -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I/opt/bittboy-toolchain/arm-buildroot-linux-musleabi/sysroot/include -I/opt/bittboy-toolchain/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
+    INCLUDES = -I$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/include -I$${POCKETGO_SDK}/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
 
 }
 
@@ -165,7 +166,7 @@ wii {
     QMAKE_LINK = $(DEVKITPPC)/bin/powerpc-eabi-g++
 
     QMAKE_CXXFLAGS += -Dmain=SDL_main -fexceptions -G0 -Wall -O2 -DWII -DHANDHELD -g -I. -I$(DEVKITPPC)/../libogc/include/  -I$(DEVKITPPC)/../libogc/include/ogc/ -I$(DEVKITPPC)/devkitPPC/include/ -G0 -Wall -O2 -DWII -g -fno-rtti -g
-    LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../portlibs/ppc/lib -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_gfx -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lvorbisidec -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
+    LIBS = -Dmain=SDL_main -L. -L$(DEVKITPPC)/../portlibs/ppc/lib -L$(DEVKITPPC)/../libogc/lib/wii/ -L$(DEVKITPPC)/../libogc/lib/ -L$(DEVKITPPC)/devkitPPC/lib/ -lSDL_gfx -lSDL_ttf -lSDL_mixer -lSDL_image -lsmpeg -lSDL -ljpeg -lpng -lfreetype -lz -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm -mrvl
 
     INCLUDES = -I$(DEVKITPPC)/libogc/include/ -I$(DEVKITPPC)/devkitPPC/include/ -I. -I../include -I.
 

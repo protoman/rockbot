@@ -1260,7 +1260,7 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" (R)"));
 
 
-    draw_text(pos_x, 60, "WEAPON:");
+    draw_text(pos_x, 60, strings_map::get_instance()->get_ingame_string(strings_weapon_selected)+":");
     // TODO: get weapon name
 
     std::string weapon_name = game_data.weapons[selected_weapon].name;
@@ -1293,14 +1293,14 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
         draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_BOOTS) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true) {
-        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
+        draw_text(pos_x, 120, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
     } else {
-        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
+        draw_text(pos_x, 120, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_ARMOR) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
     if (game_save.armor_pieces[ARMOR_TYPE_ARMS] == true) {
-        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
+        draw_text(pos_x, 140, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_ENHANCED));
     } else {
-        draw_text(pos_x, 100, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
+        draw_text(pos_x, 140, strings_map::get_instance()->get_ingame_string(strings_weapon_menu_WEAPON) + ": " + strings_map::get_instance()->get_ingame_string(strings_weapon_menu_PART_NORMAL));
     }
 
 

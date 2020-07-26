@@ -1,21 +1,24 @@
-﻿- testar formato música:
-    # tela intro
-    # intro stage
-    # titanium
-    # dragon
-    # snow
-    # kurupira (ogg)
+﻿###########################################################################################################################
+v 0.33
+###########################################################################################################################
+- história:
+    # em um futuro distance, a engenharia genetica e cibernética criou uma raça
+    # mista, chamadas de "Bots". Eles se parecem com crianças, mas na verdade não envelhecem
+    # e são muito mais fortes e resistentes que os humanos.
+    # Um dia, um cientista chamado Destrin hackeou o sistema de gestação
+    # dos bots, colocando em alguns deles, uma porta dos fundos pelo qual ele pode enviar comandos,
+    # ordenando eles que tomem locais de obtenção de uma fonte energética utilizada
+    # nas câmaras de gestação. Estaria ele tentando criar uma fábrica de bots
+    # leais a ele para dominar o mundo?
 
-
-- no celular do zacani, os botoes estao saindo fora da tela (tem que checar para o x+w não passe res-w)
 
 - readicionar intro de boss ao entrar na fase
     # usar versões chibi deles
-- refatorar seleção de fase (no topo mostrar foto do chefe)
 - mudar fonte novamente para pressstart2p
     # tem um item no menu in-game por cima do outro (última linha)
 
 - colocar lista de nomes de chefes e estagios no shared-data
+- tradução de nomes de chefes
 
 - tentar usar outro formato de arquivo para músicas que não ogg, ou reduzir qualidade para ficar menor
     # quem sabe oferecer um app alternativo para quem tem problemas?
@@ -26,6 +29,7 @@
 - traduzir strings novas que estao só em ingles
     # dar uma re-testada após as últimas mudanças
 
+###########################################################################################################################
 
 - usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)
 

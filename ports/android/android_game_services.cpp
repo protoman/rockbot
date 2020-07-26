@@ -112,7 +112,7 @@ void android_game_services::set_android_default_buttons_size(int size, int spaci
     r5_pos.w = button_w;
     r5_pos.h = button_h;
     check_button_size(r5_pos, original_pos_a);
-    r5_pos.x = screen_width-r5_pos.w;
+    r5_pos.x = screen_width - r5_pos.w;
     r5_pos.y = -spacer_h;
 
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", ">>>>> set_android_default_buttons_size::R(5): x[%d], w[%d], h[%d]", r5_pos.x, r5_pos.w, r5_pos.h);
@@ -127,8 +127,8 @@ void android_game_services::set_android_default_buttons_size(int size, int spaci
     pos_button_a.w = button_w;
     pos_button_a.h = button_h;
     check_button_size(pos_button_a, original_pos_a);
-    pos_button_a.x = screen_width-pos_button_a.w + spacer_w;
-    pos_button_a.y = screen_height-pos_button_a.h + spacer_h;
+    pos_button_a.x = r5_pos.x;
+    pos_button_a.y = screen_height - pos_button_a.h + spacer_h;
     SDL_ANDROID_SetScreenKeyboardButtonPos(SDL_ANDROID_SCREENKEYBOARD_BUTTON_0, &pos_button_a);
 
     // button 1 (B)

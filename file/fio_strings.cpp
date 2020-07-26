@@ -399,6 +399,12 @@ namespace format_v4 {
             sprintf(lines[strings_stage_select_boss], "%s", "CHEFE:");
             sprintf(lines[strings_stage_select_select], "%s", "SELECIONAR");
 
+            sprintf(lines[strings_config_android_use_mod_music], "%s", "USAR MÚSICA CHIPTUNE");
+            sprintf(lines[strings_config_android_use_mod_music_warning], "%s", "PODE CAUSAR PROBLEMAS DE ÁUDIO");
+
+            sprintf(lines[strings_weapon_selected], "%s", "ARMA");
+
+
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -620,8 +626,10 @@ namespace format_v4 {
             sprintf(lines[strings_stage_select_boss], "%s", "BOSS:");
             sprintf(lines[strings_stage_select_select], "%s", "SELECT");
 
+            sprintf(lines[strings_config_android_use_mod_music], "%s", "USE CHIPTUNE MUSIC");
+            sprintf(lines[strings_config_android_use_mod_music_warning], "%s", "MAY CAUSE AUDIO ISSUES");
 
-
+            sprintf(lines[strings_weapon_selected], "%s", "WEAPON");
 
         }
 

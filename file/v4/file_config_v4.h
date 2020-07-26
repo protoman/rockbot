@@ -34,7 +34,7 @@ namespace format_v4 {
         Sint8 android_audio_buffer_size = 0;
         // FOR FUTURE USAGE
         Sint8 old_old_style_music = 0;
-        Sint8 CONFIG_PLACEHOLDER_002 = 0;
+        Sint8 android_use_mod_music = 0;
         Sint8 CONFIG_PLACEHOLDER_003 = 0;
         Sint8 CONFIG_PLACEHOLDER_004 = 0;
         Sint8 CONFIG_PLACEHOLDER_005 = 0;
@@ -405,7 +405,7 @@ namespace format_v4 {
             android_button_spacing = 1;
             android_audio_buffer_size = 0;
             old_old_style_music = 0;
-            CONFIG_PLACEHOLDER_002 = 0;
+            android_use_mod_music = 0;
             CONFIG_PLACEHOLDER_003 = 0;
             CONFIG_PLACEHOLDER_004 = 0;
             CONFIG_PLACEHOLDER_005 = 0;
@@ -451,7 +451,7 @@ namespace format_v4 {
             android_button_spacing = 1;
             android_audio_buffer_size = 0;
             old_old_style_music = 0;
-            CONFIG_PLACEHOLDER_002 = 0;
+            android_use_mod_music = 0;
             CONFIG_PLACEHOLDER_003 = 0;
             CONFIG_PLACEHOLDER_004 = 0;
             CONFIG_PLACEHOLDER_005 = 0;

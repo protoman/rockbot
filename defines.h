@@ -1221,6 +1221,11 @@ enum E_STRINGS_INGAME {
     strings_stage_select_boss,
     strings_stage_select_select,
 
+    strings_config_android_use_mod_music,
+    strings_config_android_use_mod_music_warning,
+
+    strings_weapon_selected,
+
     strings_ingame_COUNT
 };
 

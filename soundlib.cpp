@@ -29,7 +29,13 @@ soundLib::~soundLib()
 
 void soundLib::init_audio_system()
 {
-    if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) < 0) {
+    int bitrate = MIX_DEFAULT_FREQUENCY;
+    int channels = 2;
+#if defined(ANDROID) || defined(POCKETGO)
+    //bitrate = 11000;
+    //channels = 1;
+#endif
+    if (Mix_OpenAudio(bitrate, MIX_DEFAULT_FORMAT, channels, 4096) < 0) {
         std::cout << "Couldn't open audio. Error: " << SDL_GetError() << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB[Couldn't open audio.] ###");
@@ -414,13 +420,13 @@ string soundLib::get_filename_for_music(string filename)
             }
         }
     } else {
-#if defined(ANDROID) || defined(POCKETGO)
+#if defined(ANDROID)
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
-            std::string ogg_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
-            std::cout << ">>>>>>>>>>>>>> ogg.music[" << filename << "]" << std::endl;
-            if (fio.file_exists(ogg_filename)) {
-                filename = ogg_filename;
+            std::string mp3_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
+            std::cout << ">>>>>>>>>>>>>> mp3.music[" << filename << "]" << std::endl;
+            if (fio.file_exists(mp3_filename)) {
+                filename = mp3_filename;
             }
         }
 #endif
