@@ -1392,15 +1392,13 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
+    game_save.selected_player = PLAYER_4;
     game_save.difficulty = DIFFICULTY_NORMAL;
-    //game_save.selected_player = PLAYER_1;
 
-    /*
     // DEBUG //
-    game_save.armor_pieces[ARMOR_ARMS] = true;
-    game_save.armor_pieces[ARMOR_BODY] = true;
-    game_save.armor_pieces[ARMOR_LEGS] = true;
-    */
+    game_save.armor_pieces[ARMOR_TYPE_ARMS] = true;
+    game_save.armor_pieces[ARMOR_TYPE_BODY] = true;
+    game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
     scenes.preloadScenes();
 
@@ -1418,9 +1416,9 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-    //game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
-
+    game_save.selected_player = PLAYER_4;
     start_stage();
+    game_save.selected_player = PLAYER_4;
 
     // UNIT-TEST //
     //get_first_lock_on_bottom, x_pos[1799], y_pos[178], w[29], h[29]

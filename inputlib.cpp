@@ -127,6 +127,12 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 
     while (SDL_PollEvent(&event)) {
 
+        if (event.type == SDL_VIDEORESIZE) {
+            SharedData::get_instance()->scaleX = event.resize.w / RES_W;
+            SharedData::get_instance()->scaleY = event.resize.h / RES_H;
+            SharedData::get_instance()->changed_window_size = true;
+        }
+
 
         if (_show_btn_debug == false) {
             _show_btn_debug = true;

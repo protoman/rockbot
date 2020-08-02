@@ -206,7 +206,7 @@ private:
 
     bool have_shoryuken();
 
-    bool shoryuken();
+    bool shouryuken();
 
     void consume_weapon(int value);
 

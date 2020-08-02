@@ -41,6 +41,8 @@ void soundLib::init_audio_system()
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB[Couldn't open audio.] ###");
 #endif
     }
+    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
+    Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	load_all_sfx();
 }
 
@@ -51,7 +53,6 @@ void soundLib::play_sfx(Uint8 sfx) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
-        Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
         Mix_PlayChannel(-1, sfx_list[sfx], 0);
 	}
 }
@@ -66,7 +67,6 @@ void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 			stop_repeated_sfx();
 		}
 		_repeated_sfx = sfx;
-        Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
 		_repeated_sfx_channel = Mix_PlayChannel(-1, sfx_list[sfx], loops);
     } else {
         cout << "Error: soundLib::play_sfx - null sfx\n";
@@ -103,7 +103,6 @@ void soundLib::play_timed_sfx(Uint8 sfx, int time) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
-        Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
 		Mix_PlayChannelTimed(-1, sfx_list[sfx], -1 , time);
 	}
 }
@@ -443,22 +442,12 @@ void soundLib::update_volumes()
 
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
 {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_sfx_from_file[%s] ###", filename.c_str());
-#endif
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
-
     if (!sfx) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_sfx_from_file - error loading [%s] ###", filename.c_str());
-#endif
         return;
     }
-
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
-
     Mix_PlayChannel(-1, sfx, repeat_n-1);
 }
 
@@ -475,8 +464,6 @@ void soundLib::play_shared_sfx(string filename)
         return;
     }
 
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
-
     Mix_PlayChannel(-1, sfx, 0);
 }
 
@@ -488,7 +475,6 @@ void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
 #endif
         return;
     }
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
     Mix_PlayChannel(-1, chunk, repeat_n-1);
 }
 
@@ -497,7 +483,6 @@ Mix_Chunk* soundLib::sfx_from_file(string filename)
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::sfx_from_file[%s] ###", filename.c_str());
 #endif
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());

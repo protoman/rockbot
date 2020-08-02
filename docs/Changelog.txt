@@ -6,6 +6,7 @@
 - added option to force playing the MOD music instead of mp3, for higher quality
 - new "about" screen
 - adjust for button A/X position
+- fix shouryuken animation sprite missing and being able to air-dash afterwards
 
 ####################################################################################################################################
 .0.32

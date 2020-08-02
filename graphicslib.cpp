@@ -256,10 +256,46 @@ void graphicsLib::updateScreen()
         SDL_Flip(game_screen);
     } else {
         //std::cout << "GRAPH::updateScreen SCALE, _video_filter: " << (int)_video_filter << std::endl;
+        /*
+        double scale = SharedData::get_instance()->scaleX;
+        if (SharedData::get_instance()->scaleY > scale) {
+            scale = SharedData::get_instance()->scaleY;
+        }
+        scale = (int)scale;
+        if (scale < 1) {
+            scale = 1;
+        }
+        SDL_Surface *scaled = zoomSurface(game_screen, scale, scale, false);
+        if (SharedData::get_instance()->changed_window_size == true) {
+            game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+            SharedData::get_instance()->changed_window_size = false;
+        }
+        if (scaled != NULL) {
+            copySDLArea(st_rectangle(0, 0, RES_W*scale, RES_H*scale), st_position(0, 0), scaled, game_screen_scaled, true);
+        }
+        */
+
+
+
+        double scale = SharedData::get_instance()->scaleX;
+        if (SharedData::get_instance()->scaleY > scale) {
+            scale = SharedData::get_instance()->scaleY;
+        }
+        int scale_int = (int)scale;
+        if (scale_int < 1) {
+            scale_int = 1;
+        }
+        if (SharedData::get_instance()->changed_window_size == true) {
+            game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+            SharedData::get_instance()->changed_window_size = false;
+        }
         if (_video_filter == VIDEO_FILTER_BITSCALE) {
-            scale2x(game_screen, game_screen_scaled, false);
-        } else if (_video_filter == VIDEO_FILTER_SCALE2x) {
-            scale2x(game_screen, game_screen_scaled, true);
+            //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
+            SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
+            Uint16 scalex_int = RES_W*scale_int;
+            Uint16 scaley_int = RES_H*scale_int;
+            SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
+            SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
         } else {
             copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
         }
@@ -1308,24 +1344,22 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
 }
 
 
-void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_scale) const
+void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_scale, int scale) const
 {
     register int i, j;
-	int b, h;
-	int bpp = surface->format->BytesPerPixel;
-	if (SDL_MUSTLOCK(dest) != 0)
-	{
-	 if (SDL_LockSurface(dest) < 0)
-	 {
-	   fprintf(stderr, "dest locking failedn");
-	   return;
-	 }
-	}
+    int b, h;
+    int bpp = surface->format->BytesPerPixel;
+    if (SDL_MUSTLOCK(dest) != 0) {
+        if (SDL_LockSurface(dest) < 0) {
+            fprintf(stderr, "dest locking failedn");
+            return;
+        }
+    }
 
-    //std::cout << "scale2x::smooth_scale: " << smooth_scale << ", bpp: " << bpp << std::endl;
+    std::cout << "scale2x::smooth_scale: " << smooth_scale << ", bpp: " << bpp << std::endl;
 
-	const int wd = ((dest->w / 2) < (surface->w)) ? (dest->w / 2) : (surface->w);
-	const int hg = ((dest->h) < (surface->h*2)) ? (dest->h / 2) : (surface->h);
+        const int wd = ((dest->w / scale) < (surface->w)) ? (dest->w / scale) : (surface->w);
+        const int hg = ((dest->h) < (surface->h*scale)) ? (dest->h / scale) : (surface->h);
 
 	switch (bpp)
 	{
@@ -1362,7 +1396,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 					E3 = E;
 				}
 			}
-			tp += 2*tpitch;
+                        tp += scale*tpitch;
 			sp += spitch;
 		}
 
@@ -1371,8 +1405,8 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 
 	 case 2:
 	 {
-	   int tpitch = dest->pitch / 2;
-	   int spitch = surface->pitch / 2;
+           int tpitch = dest->pitch / scale;
+           int spitch = surface->pitch / scale;
 	   Uint16* tp = (Uint16*) dest->pixels;
 	   Uint16* sp = (Uint16*) surface->pixels;
 
@@ -1414,11 +1448,11 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
         int tpitch = dest->pitch;
                int spitch = surface->pitch;
 
-               const int wd = ((dest->w / 2) < (surface->w))
-                   ? (dest->w / 2) : (surface->w);
+               const int wd = ((dest->w / scale) < (surface->w))
+                   ? (dest->w / scale) : (surface->w);
 
-               const int hg = ((dest->h) < (surface->h*2))
-                   ? (dest->h) : (surface->h*2);
+               const int hg = ((dest->h) < (surface->h*scale))
+                   ? (dest->h) : (surface->h*scale);
 
                Uint8* tp = (Uint8*) dest->pixels;
                Uint8* sp = (Uint8*) surface->pixels;
@@ -1427,7 +1461,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
                {
                  for (i = 0; i < 3 * wd; i += 3)
                  {
-                   int i2 = i * 2;
+                   int i2 = i * scale;
                    tp[i2 + 0] = sp[i];
                    tp[i2 + 1] = sp[i + 1];
                    tp[i2 + 2] = sp[i + 2];
@@ -1436,7 +1470,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
                    tp[i2 + 5] = sp[i + 2];
                  }
                  tp += tpitch;
-                 if (j % 2 != 0)  sp += spitch;
+                 if (j % scale != 0)  sp += spitch;
                }
 
                break;
@@ -1476,7 +1510,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
                    E3 = E;
                }
            }
-           tp += 2*tpitch;
+           tp += scale*tpitch;
            sp += spitch;
        }
 
@@ -1982,15 +2016,15 @@ void graphicsLib::set_video_mode()
 
     if (_video_filter == VIDEO_FILTER_NOSCALE) {
         if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         } else {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN | SDL_RESIZABLE);
         }
         //game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
     } else {
         /// @TODO - do we need scale on fullscreen if no filter?
         if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         } else {
             game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
         }
@@ -2246,6 +2280,12 @@ void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int
 
     /* Pause for a sec */
     SDL_Delay(100);
+}
+
+SDL_Surface* graphicsLib::zoom_screen(int scale, SDL_Surface *origin)
+{
+    SDL_Surface *rotozoom_picture = zoomSurface(origin, scale, scale, false);
+    return rotozoom_picture;
 }
 
 void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)

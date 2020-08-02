@@ -248,6 +248,7 @@ public:
 #endif
 
     void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
+    SDL_Surface *zoom_screen(int scale, SDL_Surface *origin);
     void rotate_image(graphicsLib_gSurface& picture, double angle);
     void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
     graphicsLib_gSurface* get_preloaded_image(e_PRELOADED_IMAGES image_n);
@@ -256,7 +257,7 @@ private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
-    void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale) const;
+    void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_star(short int x, short int y, int size);
     void erase_star(short int x, short int y, int size);

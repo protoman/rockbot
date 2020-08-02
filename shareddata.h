@@ -25,9 +25,15 @@ private:
     static double fps_movement_multiplier;
 
 
+
+
 public:
     struct CURRENT_FILE_FORMAT::st_game_config game_config;
     std::vector<object*> active_object_list; // contains all on-screen and active objects
+    double scaleX;
+    double scaleY;
+    bool changed_window_size;
+
 
 
 };

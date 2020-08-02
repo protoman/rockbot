@@ -220,7 +220,7 @@ void classPlayer::recharge(e_energy_types _en_type, int value)
 }
 
 
-bool classPlayer::shoryuken()
+bool classPlayer::shouryuken()
 {
     // trying to start command (can only start if standing)
 
@@ -229,6 +229,7 @@ bool classPlayer::shoryuken()
     if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND)  {
         state.animation_type = ANIM_TYPE_SPECIAL_ATTACK;
         std::cout << ">>>>>>>>>>>>>>>>>>>> SHORYUKEN::START" << std::endl;
+        _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
         _obj_jump.start(true, TERRAIN_UNBLOCKED);
         return true;
@@ -650,6 +651,9 @@ void classPlayer::initFrames()
     addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 26, playerSpriteSurface, 200);
     addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 27, playerSpriteSurface, 200);
 
+    addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 29, playerSpriteSurface, 200);
+
+
     playerSpriteSurface.freeGraphic();
 
     change_player_color(true);
@@ -665,7 +669,7 @@ void classPlayer::execute()
         clear_move_commands();
         input.clean();
     }
-    if (have_shoryuken() == true && shoryuken() == true) { // while doing shoryuken won't move
+    if (have_shoryuken() == true && shouryuken() == true) { // while doing shoryuken won't move
         return;
     }
 
