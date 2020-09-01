@@ -277,15 +277,15 @@ void graphicsLib::updateScreen()
 
 
 
-        double scale = SharedData::get_instance()->scaleX;
-        if (SharedData::get_instance()->scaleY > scale) {
-            scale = SharedData::get_instance()->scaleY;
-        }
-        int scale_int = (int)scale;
-        if (scale_int < 1) {
-            scale_int = 1;
-        }
         if (SharedData::get_instance()->changed_window_size == true) {
+            double scale = SharedData::get_instance()->scaleX;
+            if (SharedData::get_instance()->scaleY < scale) {
+                scale = SharedData::get_instance()->scaleY;
+            }
+            scale_int = (int)scale;
+            if (scale_int < 1) {
+                scale_int = 1;
+            }
             game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
             SharedData::get_instance()->changed_window_size = false;
         }

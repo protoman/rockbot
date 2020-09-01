@@ -451,18 +451,13 @@ bool game::show_game_intro()
     scenes.main_screen();
 	initGame();
 
-    if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
-        input.clean();
-		start_stage();
-	} else {
-        //currentStage = get_next_stage();
-        currentStage = scenes.pick_stage(INTRO_STAGE);
-        loaded_stage = stage(currentStage, &player1);
-        // show boss intro with stars, if needed
-        soundManager.stop_music();
-        scenes.boss_intro(currentStage);
-		start_stage();
-	}
+    //currentStage = get_next_stage();
+    currentStage = scenes.pick_stage(INTRO_STAGE);
+    loaded_stage = stage(currentStage, &player1);
+    // show boss intro with stars, if needed
+    soundManager.stop_music();
+    scenes.boss_intro(currentStage);
+    start_stage();
 
     return true;
 }

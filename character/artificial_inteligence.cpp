@@ -2491,6 +2491,20 @@ void artificial_inteligence::ia_action_teleport()
 int artificial_inteligence::get_ai_type() {
     int type = -1;
 
+    // check for error
+    if (_number < 0 || _number >= GameMediator::get_instance()->ai_list.size()) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid number[%d]", _number);
+#endif
+        return 0;
+    }
+    if (_reaction_type < 0 || _reaction_type >= MAX_AI_REACTIONS) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid reaction_type[%d]", _reaction_type);
+#endif
+        return 0;
+    }
+
     if (_reaction_state == 0 || GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action == -1) {
         type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
         _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;

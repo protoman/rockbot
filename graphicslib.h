@@ -357,6 +357,9 @@ private:
 
     graphicsLib_gSurface preloaded_images[PRELOADED_IMAGES_COUNT];
 
+    int scale_int = 1;
+    int scale_adjust_x = 0;
+
 
 
 #ifdef PSP

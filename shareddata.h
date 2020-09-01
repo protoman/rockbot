@@ -32,6 +32,7 @@ public:
     std::vector<object*> active_object_list; // contains all on-screen and active objects
     double scaleX;
     double scaleY;
+    st_size scale_window_size;
     bool changed_window_size;
 
 
