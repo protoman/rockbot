@@ -1,93 +1,12 @@
 ﻿###########################################################################################################################
 v 0.33
 ###########################################################################################################################
-#00  pc 0000000000076d03  /data/app/net.upperland.rockdroid-6_8twbv6RTl8NvwlWThpGQ==/lib/arm/libapplication.so (std::__ndk1::vector<st_menu_option, std::__ndk1::allocator<st_menu_option>>::at(unsigned int)+22)
-#00  pc 0000000000076dbf  /data/app/net.upperland.rockdroid-6_8twbv6RTl8NvwlWThpGQ==/lib/arm/libapplication.so (option_picker::pick(int)+182)
-#00  pc 0000000000050259  /data/app/net.upperland.rockdroid-6_8twbv6RTl8NvwlWThpGQ==/lib/arm/libapplication.so (scenesLib::main_screen()+456)
-#00  pc 000000000003eebd  /data/app/net.upperland.rockdroid-6_8twbv6RTl8NvwlWThpGQ==/lib/arm/libapplication.so (game::show_game_intro()+52)
-#00  pc 000000000004d7b3  /data/app/net.upperland.rockdroid-6_8twbv6RTl8NvwlWThpGQ==/lib/arm/libapplication.so (SDL_main+934)
-
-
-
-#00  pc 0000000000083134  /apex/com.android.runtime/lib64/bionic/libc.so (abort+160)
-  #00  pc 0000000000093394  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (std::__ndk1::vector<st_menu_option, std::__ndk1::allocator<st_menu_option>>::at(unsigned long)+32)
-  #00  pc 000000000009349c  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (option_picker::pick(int)+260)
-  #00  pc 0000000000064934  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (scenesLib::main_screen()+556)
-  #00  pc 000000000004e120  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (game::show_game_intro()+56)
-  #00  pc 00000000000619dc  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (SDL_main+1212)
-  #00  pc 0000000000061aec  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/lib/arm64/libapplication.so (Java_net_upperland_rockdroid_DemoRenderer_nativeInit+56)
-  #00  pc 0000000000004854  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/oat/arm64/base.odex (art_jni_trampoline+196)
-  #00  pc 0000000000137334  /apex/com.android.runtime/lib64/libart.so (art_quick_invoke_stub+548)
-  #00  pc 000000000014606c  /apex/com.android.runtime/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+244)
-  #00  pc 00000000002e0c94  /apex/com.android.runtime/lib64/libart.so (art::interpreter::ArtInterpreterToCompiledCodeBridge(art::Thread*, art::ArtMethod*, art::ShadowFrame*, unsigned short, art::JValue*)+384)
-  #00  pc 00000000002dbf74  /apex/com.android.runtime/lib64/libart.so (bool art::interpreter::DoCall<false, false>(art::ArtMethod*, art::Thread*, art::ShadowFrame&, art::Instruction const*, unsigned short, art::JValue*)+912)
-  #00  pc 000000000059c444  /apex/com.android.runtime/lib64/libart.so (MterpInvokeDirect+400)
-  #00  pc 0000000000131914  /apex/com.android.runtime/lib64/libart.so (mterp_op_invoke_direct+20)
-  #00  pc 000000000001136e  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/oat/arm64/base.vdex (net.upperland.rockdroid.DemoRenderer.onDrawFrame+438)
-  #00  pc 00000000005a05d4  /apex/com.android.runtime/lib64/libart.so (MterpInvokeVirtualQuick+1368)
-  #00  pc 0000000000135594  /apex/com.android.runtime/lib64/libart.so (mterp_op_invoke_virtual_quick+20)
-  #00  pc 0000000000014f2e  /data/app/net.upperland.rockdroid-VzpxTJsGF1wy0h8h6T4t8g==/oat/arm64/base.vdex (net.upperland.rockdroid.GLSurfaceView_SDL$GLThread.run+62)
-  #00  pc 00000000002b18e0  /apex/com.android.runtime/lib64/libart.so (art::interpreter::Execute(art::Thread*, art::CodeItemDataAccessor const&, art::ShadowFrame&, art::JValue, bool, bool) (.llvm.18252570399552585066)+240)
-  #00  pc 000000000058b6ac  /apex/com.android.runtime/lib64/libart.so (artQuickToInterpreterBridge+1012)
-  #00  pc 0000000000140468  /apex/com.android.runtime/lib64/libart.so (art_quick_to_interpreter_bridge+88)
-  #00  pc 0000000000137334  /apex/com.android.runtime/lib64/libart.so (art_quick_invoke_stub+548)
-  #00  pc 000000000014606c  /apex/com.android.runtime/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+244)
-  #00  pc 00000000004ab6f0  /apex/com.android.runtime/lib64/libart.so (art::(anonymous namespace)::InvokeWithArgArray(art::ScopedObjectAccessAlreadyRunnable const&, art::ArtMethod*, art::(anonymous namespace)::ArgArray*, art::JValue*, char const*)+104)
-  #00  pc 00000000004ac784  /apex/com.android.runtime/lib64/libart.so (art::InvokeVirtualOrInterfaceWithJValues(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, jvalue const*)+416)
-  #00  pc 00000000004ecac4  /apex/com.android.runtime/lib64/libart.so (art::Thread::CreateCallback(void*)+1176)
-  #00  pc 00000000000e28c0  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+36)
-  #00  pc 000000000008503c  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64)
-
-
-
-#00  pc 000000000006f06c  /apex/com.android.runtime/lib64/bionic/libc.so (abort+160)
-  #00  pc 00000000000500fc  /system/lib64/libc++.so (abort_message+232)
-  #00  pc 0000000000050218  /system/lib64/libc++.so (demangling_terminate_handler()+44)
-  #00  pc 00000000000646c4  /system/lib64/libc++.so (std::__terminate(void (*)())+12)
-  #00  pc 000000000006466c  /system/lib64/libc++.so (std::terminate()+52)
-  #00  pc 00000000000bb150  /system/lib64/libc++.so (std::__1::thread::~thread()+20)
-  #00  pc 00000000000d0f68  /apex/com.android.runtime/lib64/bionic/libc.so (__cxa_finalize+212)
-  #00  pc 00000000000cc950  /apex/com.android.runtime/lib64/bionic/libc.so (exit+24)
-  #00  pc 0000000000064bac  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/lib/arm64/libapplication.so (scenesLib::main_screen()+1188)
-  #00  pc 000000000004e120  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/lib/arm64/libapplication.so (game::show_game_intro()+56)
-  #00  pc 00000000000619dc  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/lib/arm64/libapplication.so (SDL_main+1212)
-  #00  pc 0000000000061aec  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/lib/arm64/libapplication.so (Java_net_upperland_rockdroid_DemoRenderer_nativeInit+56)
-  #00  pc 000000000000e854  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/oat/arm64/base.odex (art_jni_trampoline+196)
-  #00  pc 0000000000028ebc  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/oat/arm64/base.odex (net.upperland.rockdroid.DemoRenderer.onDrawFrame+1564)
-  #00  pc 000000000002b3d8  /data/app/net.upperland.rockdroid--P7uheA5x5dLMn0ec7n6iw==/oat/arm64/base.odex (net.upperland.rockdroid.GLSurfaceView_SDL$GLThread.run+296)
-  #00  pc 0000000000144334  /apex/com.android.runtime/lib64/libart.so (art_quick_invoke_stub+548)
-  #00  pc 00000000001531a4  /apex/com.android.runtime/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+252)
-  #00  pc 00000000004c6d18  /apex/com.android.runtime/lib64/libart.so (art::(anonymous namespace)::InvokeWithArgArray(art::ScopedObjectAccessAlreadyRunnable const&, art::ArtMethod*, art::(anonymous namespace)::ArgArray*, art::JValue*, char const*)+104)
-  #00  pc 00000000004c7dac  /apex/com.android.runtime/lib64/libart.so (art::InvokeVirtualOrInterfaceWithJValues(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, jvalue const*)+416)
-  #00  pc 0000000000507d7c  /apex/com.android.runtime/lib64/libart.so (art::Thread::CreateCallback(void*)+1176)
-  #00  pc 00000000000ce1b0  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+36)
-  #00  pc 0000000000070ba8  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64)
-
-
-#00  pc 000000000006d770  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (artificial_inteligence::get_ai_type()+120)
-#00  pc 000000000006d238  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (artificial_inteligence::define_ai_next_step()+260)
-#00  pc 000000000006cdac  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (artificial_inteligence::execute_ai()+240)
-#00  pc 0000000000048ed8  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (classMap::move_npcs()+392)
-#00  pc 000000000004d458  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (game::show_game(bool, bool)+228)
-#00  pc 0000000000061a2c  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (SDL_main+1292)
-#00  pc 0000000000061aec  /data/app/net.upperland.rockdroid-1/lib/arm64/libapplication.so (Java_net_upperland_rockdroid_DemoRenderer_nativeInit+56)
-#00  pc 00000000000920c4  /data/app/net.upperland.rockdroid-1/oat/arm64/base.odex (offset 0x59000)
-
-
+-09-02 18:16:56.938 32663   458 I SDL     : libSDL: setting envvar LANGUAGE to 'pt_BR'
 
 - bugs no github: https://github.com/protoman/rockbot/issues
 
-- limitar distancia do tiro do beta (RES_W/2)
-
-- Também a um bug que quando e feito o Dash aéreo em uma parede acaba que o personagem fica preso na parede
-
-- retirar opção de upscale no PC, deixar redimensionar janela, salvar na opção o scale usado da última vez
-
-- ver se em new game dá para selecionar beta
-
 BUGS: crash na tela inicial quando se aperta A + B ao mesmo tempo
 - mostrar intro de chefe mesmo que fase já esteja completa (por causa da música)
-- poder enfrentar o chefe mesmo se já derrotado
 - crash em artificial_inteligence::get_ai_type()+132, called from artificial_inteligence::define_ai_next_step()+202
     # provavelmente fora do array/ponteiro-inválido
 - usar uma lib de logs, se for android usa o do próprio
@@ -100,6 +19,7 @@ Na fase do Kurupira Bot tem uma plataforma roxa com espinhos próximos a ela, ap
 na fase do Snow Bot você "sofre" disso também, só que você atravessa os blocos
 
 
+- fullscreen keep aspect ratio
 
 
 - história:

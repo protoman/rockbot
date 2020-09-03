@@ -34,6 +34,8 @@ extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern graphicsLib_gSurface _explosion_surface;
 
+extern CURRENT_FILE_FORMAT::file_io fio;
+
 #define DEBUG_MSG_DELAY 5000
 
 #include "file/file_io.h"
@@ -250,57 +252,36 @@ void graphicsLib::updateScreen()
         copyArea(st_position(-_screen_resolution_adjust.x, -_screen_resolution_adjust.y), &_screen_border, &gameScreen);
     }
 
-
-    if (_video_filter == VIDEO_FILTER_NOSCALE) {
-        //std::cout << "GRAPH::updateScreen NO SCALE" << std::endl;
-        SDL_Flip(game_screen);
-    } else {
-        //std::cout << "GRAPH::updateScreen SCALE, _video_filter: " << (int)_video_filter << std::endl;
-        /*
+#ifdef PC
+    if (SharedData::get_instance()->changed_window_size == true && !SharedData::get_instance()->game_config.video_fullscreen) {
         double scale = SharedData::get_instance()->scaleX;
-        if (SharedData::get_instance()->scaleY > scale) {
+        if (SharedData::get_instance()->scaleY < scale) {
             scale = SharedData::get_instance()->scaleY;
         }
-        scale = (int)scale;
-        if (scale < 1) {
-            scale = 1;
+        scale_int = (int)scale;
+        if (scale_int < 1) {
+            scale_int = 1;
         }
-        SDL_Surface *scaled = zoomSurface(game_screen, scale, scale, false);
-        if (SharedData::get_instance()->changed_window_size == true) {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-            SharedData::get_instance()->changed_window_size = false;
-        }
-        if (scaled != NULL) {
-            copySDLArea(st_rectangle(0, 0, RES_W*scale, RES_H*scale), st_position(0, 0), scaled, game_screen_scaled, true);
-        }
-        */
-
-
-
-        if (SharedData::get_instance()->changed_window_size == true) {
-            double scale = SharedData::get_instance()->scaleX;
-            if (SharedData::get_instance()->scaleY < scale) {
-                scale = SharedData::get_instance()->scaleY;
-            }
-            scale_int = (int)scale;
-            if (scale_int < 1) {
-                scale_int = 1;
-            }
-            game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-            SharedData::get_instance()->changed_window_size = false;
-        }
-        if (_video_filter == VIDEO_FILTER_BITSCALE) {
-            //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
-            SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
-            Uint16 scalex_int = RES_W*scale_int;
-            Uint16 scaley_int = RES_H*scale_int;
-            SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
-            SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
-        } else {
-            copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
-        }
-        SDL_Flip(game_screen_scaled);
+        SharedData::get_instance()->game_config.scale_int = scale_int;
+        fio.save_config(SharedData::get_instance()->game_config);
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        SharedData::get_instance()->changed_window_size = false;
     }
+    if (scale_int != 1) {
+        //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
+        SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
+        Uint16 scalex_int = RES_W*scale_int;
+        Uint16 scaley_int = RES_H*scale_int;
+        SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
+        SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+    } else {
+        copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
+    }
+    SDL_Flip(game_screen_scaled);
+#else
+    SDL_Flip(game_screen);
+#endif
+
 }
 
 
@@ -2014,27 +1995,39 @@ void graphicsLib::set_video_mode()
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 
-    if (_video_filter == VIDEO_FILTER_NOSCALE) {
-        if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-        } else {
-            game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN | SDL_RESIZABLE);
+    /// @TODO - do we need scale on fullscreen if no filter?
+    if (SharedData::get_instance()->game_config.video_fullscreen == false) {
+        scale_int = SharedData::get_instance()->game_config.scale_int;
+        if (scale_int < 1) {
+            scale_int = 1;
         }
-        //game_screen = SDL_SetVideoMode(480, 272, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF); // used for testing centered screen
+        std::cout << "################ WINDOWED.scale[" << scale_int << "]" << std::endl;
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
-        /// @TODO - do we need scale on fullscreen if no filter?
-        if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-            game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-        } else {
-            game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        const SDL_VideoInfo* info = SDL_GetVideoInfo();
+
+        SharedData::get_instance()->scaleX = info->current_w / RES_W;
+        SharedData::get_instance()->scaleY = info->current_h / RES_H;
+        SharedData::get_instance()->scale_window_size.width = info->current_w;
+        SharedData::get_instance()->scale_window_size.height = info->current_h;
+
+        double scale = SharedData::get_instance()->scaleX;
+        if (SharedData::get_instance()->scaleY < scale) {
+            scale = SharedData::get_instance()->scaleY;
         }
-        if (game_screen != NULL) {
-            SDL_FreeSurface(game_screen);
+        scale_int = (int)scale;
+        if (scale_int < 1) {
+            scale_int = 1;
         }
-        SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
-        game_screen = SDL_DisplayFormat(temp_screen);
-        SDL_FreeSurface(temp_screen);
+        std::cout << "################ FULLSCREEN.scale[" << scale_int << "]" << std::endl;
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
+    if (game_screen != NULL) {
+        SDL_FreeSurface(game_screen);
+    }
+    SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    game_screen = SDL_DisplayFormat(temp_screen);
+    SDL_FreeSurface(temp_screen);
 #endif
 
 	if (!game_screen) {
@@ -2055,12 +2048,10 @@ void graphicsLib::set_video_mode()
         initSurface(st_size(game_screen->w, game_screen->h), &_screen_border);
         clear_surface_area_no_adjust(0, 0, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0, _screen_border);
         clear_surface_area_no_adjust(0, game_screen->h-_screen_resolution_adjust.y, game_screen->w, _screen_resolution_adjust.y, 0, 0, 0, _screen_border);
-
-
         clear_surface_area_no_adjust(0, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0, _screen_border);
         clear_surface_area_no_adjust(game_screen->w-_screen_resolution_adjust.x, 0, _screen_resolution_adjust.x, game_screen->h, 0, 0, 0, _screen_border);
-
     }
+
 
 }
 

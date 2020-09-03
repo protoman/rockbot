@@ -21,7 +21,7 @@ strings_map *strings_map::get_instance()
 
 std::string strings_map::get_ingame_string(int n)
 {
-    std::string str_out = fio_str.get_ingame_string(n, SharedData::get_instance()->game_config.selected_language, true);
+    std::string str_out = fio_str.get_ingame_string(n, SharedData::get_instance()->current_language, true);
     return str_out;
 }
 

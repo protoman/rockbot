@@ -553,17 +553,17 @@ void game::show_notice()
 
     graphLib.blank_screen();
 /*
-    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_engine1, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine2, game_config.selected_language));
-    graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_engine3, game_config.selected_language));
-    graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_engine4, game_config.selected_language));
-    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_engine5, game_config.selected_language));
-    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_engine6, game_config.selected_language));
-    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_engine7, game_config.selected_language));
-    graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_engine8, game_config.selected_language));
-    graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_engine9, game_config.selected_language));
-    graphLib.draw_centered_text(190, strings_map::get_instance()->get_ingame_string(string_intro_engine10, game_config.selected_language));
-    graphLib.draw_centered_text(210, strings_map::get_instance()->get_ingame_string(string_intro_engine11, game_config.selected_language));
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_engine1, current_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine2, current_language));
+    graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_engine3, current_language));
+    graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_engine4, current_language));
+    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_engine5, current_language));
+    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_engine6, current_language));
+    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_engine7, current_language));
+    graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_engine8, current_language));
+    graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_engine9, current_language));
+    graphLib.draw_centered_text(190, strings_map::get_instance()->get_ingame_string(string_intro_engine10, current_language));
+    graphLib.draw_centered_text(210, strings_map::get_instance()->get_ingame_string(string_intro_engine11, current_language));
 
     draw_lib.update_screen();
 
@@ -571,17 +571,17 @@ void game::show_notice()
 
     graphLib.blank_screen();
 
-    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, game_config.selected_language), graphLib.gameScreen, st_color(199, 215, 255));
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, game_config.selected_language));
-    graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, game_config.selected_language));
-    graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, game_config.selected_language));
-    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, game_config.selected_language));
-    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, game_config.selected_language));
-    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, game_config.selected_language));
-    graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, game_config.selected_language));
-    graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, game_config.selected_language));
-    graphLib.draw_centered_text(200, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, game_config.selected_language));
-    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, game_config.selected_language));
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, current_language), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, current_language));
+    graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, current_language));
+    graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, current_language));
+    graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, current_language));
+    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, current_language));
+    graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, current_language));
+    graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, current_language));
+    graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, current_language));
+    graphLib.draw_centered_text(200, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, current_language));
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, current_language));
 
     draw_lib.update_screen();
     timer.delay(10000);

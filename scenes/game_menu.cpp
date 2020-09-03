@@ -269,6 +269,7 @@ void game_menu::show_config_video()
             options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
         }
 
+        /*
         if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_NOSCALE) {
             options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale));
         } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_BITSCALE) {
@@ -276,18 +277,19 @@ void game_menu::show_config_video()
         } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_SCALE2x) {
             options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x));
         }
-
+        */
 
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
             SharedData::get_instance()->game_config.video_fullscreen = !SharedData::get_instance()->game_config.video_fullscreen;
-        } else if (selected_option == 1) {
+        }
+        /*else if (selected_option == 1) {
             SharedData::get_instance()->game_config.video_filter++;
             if (SharedData::get_instance()->game_config.video_filter >= VIDEO_FILTER_COUNT) {
                 SharedData::get_instance()->game_config.video_filter = 0;
             }
-        }
+        }*/
         if (selected_option != -1) {
             fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
@@ -464,36 +466,41 @@ void game_menu::show_config_language()
     input.clean();
     timer.delay(300);
     std::vector<st_menu_option> options;
-    if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_FRENCH) {           // FRENCH
+    if (SharedData::get_instance()->current_language == LANGUAGE_FRENCH) {           // FRENCH
         options.push_back(st_menu_option("ANGLAIS"));
         options.push_back(st_menu_option("FRANCAIS", true));
         options.push_back(st_menu_option("ESPANOL", true));
         options.push_back(st_menu_option("ITALIEN", true));
         options.push_back(st_menu_option("PORTUGAIS"));
-    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_SPANISH) {    // SPANISH
+        options.push_back(st_menu_option("AUTOMATIQUE"));
+    } else if (SharedData::get_instance()->current_language == LANGUAGE_SPANISH) {    // SPANISH
         options.push_back(st_menu_option("INGLES"));
         options.push_back(st_menu_option("FRANCES", true));
         options.push_back(st_menu_option("ESPANOL", true));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTUGUES"));
-    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_ITALIAN) {    // ITALIAN
+        options.push_back(st_menu_option("AUTOMÁTICO"));
+    } else if (SharedData::get_instance()->current_language == LANGUAGE_ITALIAN) {    // ITALIAN
         options.push_back(st_menu_option("INGLESE"));
         options.push_back(st_menu_option("FRANCESE", true));
         options.push_back(st_menu_option("SPAGNOLO", true));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTOGHESE"));
-    } else if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
+        options.push_back(st_menu_option("AUTOMATICO"));
+    } else if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
         options.push_back(st_menu_option("INGLÊS"));
         options.push_back(st_menu_option("FRANCES", true));
         options.push_back(st_menu_option("ESPANHOL", true));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTUGUÊS"));
+        options.push_back(st_menu_option("AUTOMÁTICO"));
     } else {                                            // ENGLISH
         options.push_back(st_menu_option("ENGLISH"));
         options.push_back(st_menu_option("FRENCH", true));
         options.push_back(st_menu_option("SPANISH", true));
         options.push_back(st_menu_option("ITALIAN", true));
         options.push_back(st_menu_option("PORTUGUESE"));
+        options.push_back(st_menu_option("AUTOMATIC"));
     }
 
     short selected_option = 0;
@@ -614,7 +621,7 @@ void game_menu::show_config_extras()
     std::vector<std::string> options;
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_music_player));
     options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_sound_player));
-    //options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_art_gallery, game_config.selected_language));
+    //options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_extras_art_gallery, current_language));
 
     short selected_option = 0;
     option_picker config_extras_picker(false, config_text_pos, options, true);

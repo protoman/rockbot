@@ -94,12 +94,17 @@ Sint8 option_picker::pick(int initial_pick_pos)
     input.clean_all();
     timer.delay(100);
     _pick_pos = initial_pick_pos;
-    if (_pick_pos < 0 || _pick_pos >= picker_item_list.size()) {
-        _pick_pos = 0;
-    }
 
     if (picker_item_list.size() == 0) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "option_picker::pick - _items is empty");
+#else
+        std::cout << "option_picker::pick - picker_item_list is empty" << std::endl;
+#endif
         return 0;
+    }
+    if (_pick_pos < 0 || _pick_pos >= picker_item_list.size()) {
+        _pick_pos = 0;
     }
 
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));

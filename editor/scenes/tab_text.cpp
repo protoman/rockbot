@@ -10,7 +10,7 @@ TabText::TabText(QWidget *parent) :
 {
     dataLoading = true;
     currentIndex = -1;
-    SharedData::get_instance()->game_config.selected_language = LANGUAGE_ENGLISH;
+    SharedData::get_instance()->current_language = LANGUAGE_ENGLISH;
 
     ui->setupUi(this);
 
@@ -38,7 +38,7 @@ void TabText::save_data(int n)
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         text_list.push_back(scene_text_list[i]);
     }
-    fio_str.write_scene_text_file(currentIndex, text_list, SharedData::get_instance()->game_config.selected_language);
+    fio_str.write_scene_text_file(currentIndex, text_list, SharedData::get_instance()->current_language);
 }
 
 void TabText::reload()
@@ -247,6 +247,6 @@ void TabText::on_languageComboBox_currentIndexChanged(int index)
         return;
     }
     save_data();
-    SharedData::get_instance()->game_config.selected_language = index;
+    SharedData::get_instance()->current_language = index;
     set_fields(currentIndex);
 }

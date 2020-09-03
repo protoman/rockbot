@@ -2505,6 +2505,13 @@ int artificial_inteligence::get_ai_type() {
         return 0;
     }
 
+    if (_ai_chain_n < 0 || _ai_chain_n >= AI_MAX_STATES) {
+#ifdef ANDROID
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid _ai_chain_n[%d]", _ai_chain_n);
+#endif
+        return 0;
+    }
+
     if (_reaction_state == 0 || GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action == -1) {
         type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
         _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;

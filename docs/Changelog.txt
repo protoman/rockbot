@@ -8,6 +8,9 @@
 - adjust for button A/X position
 - fix shouryuken animation sprite missing and being able to air-dash afterwards
 - try to fix crash in artificial_inteligence::get_ai_type()+132
+- PC-only: fullscreen scales resolution to adjust to screen
+- PC-only: can now resize window for integer scale
+- bosses will appear again even if the stage is complete
 
 ####################################################################################################################################
 .0.32

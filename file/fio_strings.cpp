@@ -467,14 +467,14 @@ namespace format_v4 {
 
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUIRES PHYSICAL CONTROLLER.");
             sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "OTHERWISE YOU WON'T BE");
-            sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "ABLE TO RESTORE SETTING");
+            sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "ABLE TO RESTORE SETTING.");
 
             sprintf(lines[strings_ingame_config_extras_music_player], "%s", "MUSIC PLAYER");
             sprintf(lines[strings_ingame_config_extras_sound_player], "%s", "SFX PLAYER");
             sprintf(lines[strings_ingame_config_extras_art_gallery], "%s", "ART GALLERY");
 
 
-            sprintf(lines[strings_ingame_passwordinvalid], "%s", "PASSWORD INVALID");
+            sprintf(lines[strings_ingame_passwordinvalid], "%s", "INVALID PASSWORD");
             sprintf(lines[strings_ingame_pressstart], "%s", "PRESS START");
             sprintf(lines[strings_ingame_engineerror], "%s", "ROCKBOT ENGINE ERROR");
             sprintf(lines[strings_ingame_nogames], "%s", "NO GAMES AVAILABLE");
@@ -721,7 +721,7 @@ namespace format_v4 {
     std::vector<std::string> fio_strings::get_game_engine_credits()
     {
         std::vector<std::string> credits_list;
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- CRÉDITOS DO MOTOR DE JOGO -");
         } else {
             credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
@@ -731,7 +731,7 @@ namespace format_v4 {
         credits_list.push_back("");
 
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- PLANEJAMENTO -");
         } else {
             credits_list.push_back("- PLANNER -");
@@ -741,7 +741,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- AUXILIARES -");
         } else {
             credits_list.push_back("- HELPER -");
@@ -753,7 +753,7 @@ namespace format_v4 {
         credits_list.push_back("");
 
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- DESIGN DE PERSONAGEM -");
         } else {
             credits_list.push_back("- CHARACTER DESIGNER -");
@@ -766,7 +766,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- DESIGN DE OBJETO -");
         } else {
             credits_list.push_back("- OBJECT DESIGNER -");
@@ -776,7 +776,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- DESIGNER GRÁFICO -");
         } else {
             credits_list.push_back("- GRAPHICS DESIGNER -");
@@ -792,7 +792,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- COMPOSITOR DE DIÁLOGOS -");
         } else {
             credits_list.push_back("- DIALOGS COMPOSING -");
@@ -802,7 +802,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- JOGADOR DE TESTES -");
         } else {
             credits_list.push_back("- TEST PLAYER -");
@@ -813,7 +813,7 @@ namespace format_v4 {
         credits_list.push_back("");
 
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- ILUSTRAÇÕES -");
         } else {
             credits_list.push_back("- ILLUSTRATION DESIGNER -");
@@ -824,7 +824,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- COMPOSIÇÃO MUSICAL -");
         } else {
             credits_list.push_back("- MUSIC COMPOSER -");
@@ -847,7 +847,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- DESIGN DE EFEITOS SONOROS -");
         } else {
             credits_list.push_back("- SFX DESIGNER -");
@@ -858,7 +858,7 @@ namespace format_v4 {
         credits_list.push_back("");
 
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- PROGRAMAÇÃO -");
         } else {
             credits_list.push_back("- PROGRAMMER -");
@@ -869,7 +869,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- AUXÍLIO PLATAFORMAS -");
         } else {
             credits_list.push_back("- PORTING HELPER -");
@@ -884,7 +884,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- REVISÃO E TESTES -");
         } else {
             credits_list.push_back("- REVIEW & TESTING -");
@@ -895,7 +895,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- AGRADECIMENTOS ESPECIAIS -");
         } else {
             credits_list.push_back("- SPECIAL THANKS -");
@@ -911,7 +911,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- FERRAMENTAS DE DESENVOLVIMENTO -");
         } else {
             credits_list.push_back("- DEVELOPMENT TOOLS -");
@@ -932,7 +932,7 @@ namespace format_v4 {
         for (int i=0; i<20; i++) {
             credits_list.push_back("");
         }
-        if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_PORTUGUESE) {
+        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
             credits_list.push_back("- APRESENTADO POR -");
             credits_list.push_back("UPPERLAND STUDIOS");
         } else {
@@ -1090,10 +1090,10 @@ namespace format_v4 {
 
 
         sprintf(file_chr, "%d.txt", text_scene_n);
-        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->game_config.selected_language) + "/" + std::string(file_chr);
+        std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->current_language) + "/" + std::string(file_chr);
         filename = StringUtils::clean_filename(filename);
         // if does not have language, try default english
-        if (!file_exists(filename) && SharedData::get_instance()->game_config.selected_language != LANGUAGE_ENGLISH) {
+        if (!file_exists(filename) && SharedData::get_instance()->current_language != LANGUAGE_ENGLISH) {
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>> try another language" << std::endl;
             filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(LANGUAGE_ENGLISH) + "/" + std::string(file_chr);
             filename = StringUtils::clean_filename(filename);

@@ -523,6 +523,10 @@ void scenesLib::show_bosses_ending()
 
 short scenesLib::pick_stage(int last_stage)
 {
+    if (game_save.stages[INTRO_STAGE] == 0) {
+        return 0;
+    }
+
     graphLib.blank_screen();
     stage_select selection(STAGE_SELECT_SURFACES);
 

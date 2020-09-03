@@ -1763,11 +1763,10 @@ bool character::slide(st_float_position mapScrolling)
         }
     }
 
-
     if (res_move_x != 0 && (mapLockAfter == BLOCK_UNBLOCKED || mapLockAfter == BLOCK_WATER)) {
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
-    } else if (!is_blocked_above) {
+    } else if (!is_blocked_above || slide_type != 1) {
         //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.6" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;

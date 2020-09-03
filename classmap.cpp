@@ -2203,12 +2203,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
             drop_item(npc_ref);
         }
 
-        // if is showing stage boss on a stage already finished, just teleport out, victory is yours!
-        if (npc_ref->is_stage_boss() == true && npc_ref->is_on_visible_screen() == true && game_save.stages[gameControl.currentStage] == 1 && gameControl.currentStage <= 8) {
-            gameControl.got_weapon();
-            return;
-        }
-
         npc_ref->execute(); // TODO: must pass scroll map to npcs somwhow...
 
 		if (dead_state == 1) {
