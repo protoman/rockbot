@@ -569,7 +569,7 @@ namespace format_v4 {
             sprintf(lines[string_intro_demo_warning6], "%s", "DON'T BE A TROLL. DO NOT REPORT THE");
             sprintf(lines[string_intro_demo_warning7], "%s", "APP BECAUSE IT LOOKS ALIKE. ");
             sprintf(lines[string_intro_demo_warning8], "%s", "READ FAQ IN OUT SITE FIRST!");
-            sprintf(lines[string_intro_demo_warning9], "%s", "ROCKBOT VERSION CAN BE OBTAINED AT:");
+            sprintf(lines[string_intro_demo_warning9], "%s", "OLD VERSIONS CAN BE OBTAINED AT:");
             sprintf(lines[string_intro_demo_warning10], "%s", "HTTPS://ROCKBOT.UPPERLAND.NET");
             sprintf(lines[string_intro_demo_warning11], "%s", "");
 
