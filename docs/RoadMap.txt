@@ -1,13 +1,12 @@
 ﻿###########################################################################################################################
 v 0.33
 ###########################################################################################################################
+- (ONGOING) readicionar intro de boss ao entrar na fase
+
+
 - bugs no github: https://github.com/protoman/rockbot/issues
 
 - crash na tela inicial quando se aperta A + B ao mesmo tempo
-
-a 3ª Fase do "DR.D" tá com o chefe de tijolos bugado, pois ele já dá spam no cenário te atacando e não aparece a barra de energia dele, demorando um pouco para enfim começar a luta.
-
-
 
 - fullscreen keep aspect ratio
 
@@ -23,27 +22,13 @@ a 3ª Fase do "DR.D" tá com o chefe de tijolos bugado, pois ele já dá spam no
     # leais a ele para dominar o mundo?
 
 
-- readicionar intro de boss ao entrar na fase
-    # usar versões chibi deles
-- mudar fonte novamente para pressstart2p
-    # tem um item no menu in-game por cima do outro (última linha)
-
 - colocar lista de nomes de chefes e estagios no shared-data
 - tradução de nomes de chefes
-
-- tentar usar outro formato de arquivo para músicas que não ogg, ou reduzir qualidade para ficar menor
-    # quem sabe oferecer um app alternativo para quem tem problemas?
-
-- #2: usar mais tiles animados (lava, cascatas, neve, areia)
-
 
 - traduzir strings novas que estao só em ingles
     # dar uma re-testada após as últimas mudanças
 
 ###########################################################################################################################
-
-- usar configuração do telefone/java para definir o idioma a ser usado (só para pt-BR)
-
 
 - Rockbot1:
     # Entrou cutscene intro antes dos créditos ???????
