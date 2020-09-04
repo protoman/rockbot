@@ -638,24 +638,33 @@ void scenesLib::boss_intro(short stage_n)
     soundManager.play_sfx(SFX_STAGE_SELECTED);
     graphLib.blank_screen();
 
-    char img_filename_chr[512];
     char decimal = '\0';
     if (stage_n < 10) {
         decimal = '0';
     }
-    sprintf(img_filename_chr, "%s/images/backgrounds/boss_intro/%c%d.png", FILEPATH.c_str(), decimal, stage_n);
-    if (!fio.file_exists(img_filename_chr)) {
-        std::cout << "ERROR: file[" << img_filename_chr << "] not found" << std::endl;
+    std::string filename;
+    filename.append(FILEPATH).append("/images/backgrounds/boss_intro/");
+    if (stage_n < 10) {
+        filename.append("0");
+    }
+    filename.append(to_string(stage_n)).append(".png");
+    std::cout << "################### scenesLib::boss_intro::filename[" << filename << "]" << std::endl;
+
+    if (!fio.file_exists(filename)) {
+        std::cout << "ERROR: file[" << filename << "] not found" << std::endl;
         return;
     }
 
     graphicsLib_gSurface boss_intro_bg;
+
+    std::cout << "################### scenesLib::boss_intro::FILEPATH[" << FILEPATH << "]" << std::endl;
+
     graphLib.surfaceFromFile(FILEPATH + "/images/backgrounds/boss_intro/boss_intro_bg.png", &boss_intro_bg);
     graphLib.showSurfaceAt(&boss_intro_bg, st_position(0, 0), false);
 
 
     graphicsLib_gSurface boss_intro_img;
-    graphLib.surfaceFromFile(img_filename_chr, &boss_intro_img);
+    graphLib.surfaceFromFile(filename, &boss_intro_img);
     graphLib.showSurfaceAt(&boss_intro_img, st_position(0, 30), false);
     graphLib.draw_centered_text(188, botname);
     graphLib.wait_and_update_screen(2500);

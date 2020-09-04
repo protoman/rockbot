@@ -7,10 +7,13 @@
 - new "about" screen
 - adjust for button A/X position
 - fix shouryuken animation sprite missing and being able to air-dash afterwards
-- try to fix crash in artificial_inteligence::get_ai_type()+132
+- try to fix crash in artificial_inteligence::get_ai_type and menu pick
 - PC-only: fullscreen scales resolution to adjust to screen
 - PC-only: can now resize window for integer scale
 - bosses will appear again even if the stage is complete
+- simplify logs by using a class that handles android or cout
+- show boss intro even if stage is already completed
+- log class to better handle android/cout
 
 ####################################################################################################################################
 .0.32

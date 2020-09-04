@@ -1410,6 +1410,8 @@ void game::quick_load_game()
 
     // DEBUG //
     //show_ending();
+    scenes.boss_intro(currentStage);
+
 
     game_save.selected_player = PLAYER_4;
     start_stage();

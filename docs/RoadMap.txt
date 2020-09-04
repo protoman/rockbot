@@ -1,22 +1,12 @@
 ﻿###########################################################################################################################
 v 0.33
 ###########################################################################################################################
--09-02 18:16:56.938 32663   458 I SDL     : libSDL: setting envvar LANGUAGE to 'pt_BR'
-
 - bugs no github: https://github.com/protoman/rockbot/issues
 
-BUGS: crash na tela inicial quando se aperta A + B ao mesmo tempo
-- mostrar intro de chefe mesmo que fase já esteja completa (por causa da música)
-- crash em artificial_inteligence::get_ai_type()+132, called from artificial_inteligence::define_ai_next_step()+202
-    # provavelmente fora do array/ponteiro-inválido
-- usar uma lib de logs, se for android usa o do próprio
-
-
-
+- crash na tela inicial quando se aperta A + B ao mesmo tempo
 
 a 3ª Fase do "DR.D" tá com o chefe de tijolos bugado, pois ele já dá spam no cenário te atacando e não aparece a barra de energia dele, demorando um pouco para enfim começar a luta.
-Na fase do Kurupira Bot tem uma plataforma roxa com espinhos próximos a ela, após uma escada que tem dois verdes atiradores te esperando, se você se aproximar mais um pouquinho, você cai como se ela não fosse sólida
-na fase do Snow Bot você "sofre" disso também, só que você atravessa os blocos
+
 
 
 - fullscreen keep aspect ratio

@@ -42,8 +42,8 @@ linux {
     DEFINES += LINUX
     LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
-    QMAKE_CCFLAGS += -O2 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
-    QMAKE_CXXFLAGS += -O2 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
+    QMAKE_CCFLAGS += -std=gnu++11 -O2 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
+    QMAKE_CXXFLAGS += -std=gnu++11 -O2 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -mtune=generic -Werror=return-type -fstack-protector-all
 }
 
 win32 {
@@ -198,6 +198,7 @@ SOURCES += main.cpp \
     graphicslib.cpp \
     inputlib.cpp \
     game.cpp \
+    log.cpp \
     shareddata.cpp \
     stage.cpp \
     classmap.cpp \
@@ -244,6 +245,7 @@ HEADERS += \
     defines.h \
     inputlib.h \
     game.h \
+    log.h \
     shareddata.h \
     stage.h \
     classmap.h \

@@ -2,10 +2,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-#ifdef ANDROID
-#include <android/log.h>
-#endif
-
+#include "log.h"
 #include "artificial_inteligence.h"
 #include "classplayer.h"
 #include "../classmap.h"
@@ -2253,20 +2250,14 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
-            #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::SPAWN, SET NEW BOSS");
-            #endif
-            std::cout << "########################## SET NEW BOSS (SPAWN)" << std::endl;
+            log::get_instance()->write("AI::SPAWN, SET NEW BOSS");
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
         }
     }
     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 
-
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::SPAWN, DONE");
-#endif
+    log::get_instance()->write("AI::SPAWN, AI::SPAWN, DONE");
 
 }
 
@@ -2493,22 +2484,16 @@ int artificial_inteligence::get_ai_type() {
 
     // check for error
     if (_number < 0 || _number >= GameMediator::get_instance()->ai_list.size()) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid number[%d]", _number);
-#endif
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(to_string(_number)).append(std::string("]")));
         return 0;
     }
     if (_reaction_type < 0 || _reaction_type >= MAX_AI_REACTIONS) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid reaction_type[%d]", _reaction_type);
-#endif
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(to_string(_reaction_type)).append(std::string("]")));
         return 0;
     }
 
     if (_ai_chain_n < 0 || _ai_chain_n >= AI_MAX_STATES) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "AI::get_ai_type, invalid _ai_chain_n[%d]", _ai_chain_n);
-#endif
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(to_string(_ai_chain_n)).append(std::string("]")));
         return 0;
     }
 

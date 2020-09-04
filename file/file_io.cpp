@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#include "log.h"
 #include "file_io.h"
 #include "convert.h"
 #include "../aux_tools/stringutils.h"
@@ -646,7 +647,7 @@ namespace format_v4 {
 
     bool file_io::file_exists(std::string filename) const
     {
-        std::cout << "file_io::file_exists.filename[" << filename << "]" << std::endl;
+        //log::get_instance()->write(std::string("file_io::file_exists.filename[").append(filename).append(std::string("]")));
         bool res = false;
         FILE *fp;
         fp = fopen(filename.c_str(), "rb");
