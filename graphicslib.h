@@ -151,6 +151,7 @@ public:
     graphicsLib();
     ~graphicsLib();
     bool initGraphics();
+    void update_screen_mode();
     void load_shared_graphics();
     void preload();
     void updateScreen();

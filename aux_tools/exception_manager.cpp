@@ -8,6 +8,7 @@ exception_manager::exception_manager()
 
 void exception_manager::throw_param_exception(std::string prefix, std::string param)
 {
+    std::cout << "### PARAM-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: Invalid parameter [%s] - value[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
@@ -16,6 +17,7 @@ void exception_manager::throw_param_exception(std::string prefix, std::string pa
 
 void exception_manager::throw_file_not_found_exception(std::string prefix, std::string param)
 {
+    std::cout << "### FILE-NOT-FOUND-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: file not found[%s] - file[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
@@ -24,6 +26,7 @@ void exception_manager::throw_file_not_found_exception(std::string prefix, std::
 
 void exception_manager::throw_general_exception(std::string prefix, std::string param)
 {
+    std::cout << "### -GENERAL-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
     sprintf(error_msg, "Exception: runtime error[%s] - code[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());

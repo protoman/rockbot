@@ -146,16 +146,7 @@ bool classPlayer::get_item(object_collision &obj_info)
             soundManager.play_sfx(SFX_GOT_ITEM);
             res = true;
             break;
-        case OBJ_LIFE:
-            game_save.items.lifes++;
-            if (game_save.items.lifes > 9) {
-                game_save.items.lifes = 9;
-            }
-			obj_info._object->set_finished(true);
-			soundManager.play_sfx(SFX_GOT_ITEM);
-            res = true;
-			break;
-		case OBJ_WEAPON_PILL_BIG:
+        case OBJ_WEAPON_PILL_BIG:
 			obj_info._object->set_finished(true);
 			recharge(ENERGY_TYPE_WEAPON, ENERGY_ITEM_BIG);
             res = true;
@@ -977,16 +968,16 @@ int classPlayer::get_teleporter()
 
 void classPlayer::death()
 {
+
     soundManager.stop_music();
     soundManager.play_sfx(SFX_PLAYER_DEATH);
+    gameControl.draw_player_death(realPosition);
+
 
     //std::cout << "PLAYER::death, x: " << position.x << std::endl;
-    gameControl.get_current_map_obj()->print_objects_number();
     reset_charging_shot();
     gameControl.get_current_map_obj()->clear_animations();
-    gameControl.get_current_map_obj()->print_objects_number();
     gameControl.get_current_map_obj()->reset_objects();
-    gameControl.get_current_map_obj()->print_objects_number();
 	dead = true;
     _obj_jump.interrupt();
     _obj_jump.finish();
@@ -1005,9 +996,10 @@ void classPlayer::death()
     gameControl.remove_current_teleporter_from_list();
 
     //draw_lib.add_fade_out_effect(171, 0, 19);
-    gameControl.draw_explosion(realPosition, false);
+    //gameControl.draw_explosion(realPosition, false);
     //draw_lib.draw_explosion(realPosition);
     //draw_lib.remove_fade_out_effect();
+
 
     std::cout << "PLAYER::DEATH::DONE" << std::endl;
 }
@@ -1237,6 +1229,7 @@ void classPlayer::damage(unsigned int damage_points, bool ignore_hit_timer)
         damage_points--;
         std::cout << "HARD-MODE, damage--[" << damage_points << "]" << std::endl;
     }
+
     int new_damage_points = damage_points;
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_HALFDAMAGE) {
         new_damage_points = damage_points/2;

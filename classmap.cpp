@@ -562,7 +562,7 @@ void classMap::load_map_npcs()
                 new_npc.set_is_boss(true);
             // adjust NPC position to ground, if needed
             } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
-                new_npc.initialize_position_to_ground();
+                new_npc.initialize_boss_position_to_ground();
             }
             new_npc.init_animation();
 
@@ -1041,9 +1041,9 @@ void classMap::drop_item(classnpc* npc_ref)
     if (npc_ref->is_subboss()) {
         obj_type = DROP_ITEM_ENERGY_BIG;
     } else {
-        // 1UP (1%), Big Energy (2%), Big Weapon (2%), Small Energy (15)%, Small Weapon (15%), Score Pearl (53%)
+        // Big Energy (3%), Big Weapon (2%), Small Energy (15)%, Small Weapon (15%), Score Pearl (53%)
         // .byt 99, 97, 95, 80, 65, 12 (http://tasvideos.org/RandomGenerators.html)
-        int drop_ratio[] = {99, 97, 95, 80, 65, 50};
+        int drop_ratio[] = {97, 95, 80, 65, 50};
         if (game_save.difficulty == DIFFICULTY_EASY) {
             // 5%, 10%, 10%, 20%, 20%, 20% //
             int drop_ratio_easy[] = {95, 85, 75, 55, 35, 15};
@@ -1054,17 +1054,15 @@ void classMap::drop_item(classnpc* npc_ref)
             std::copy(drop_ratio_hard, drop_ratio_hard+6, drop_ratio);
         }
 
-        if (rand_n == drop_ratio[0]) {
-            obj_type = DROP_ITEM_1UP;
-        } else if (rand_n >= drop_ratio[1]) {
+        if (rand_n >= drop_ratio[0]) {
             obj_type = DROP_ITEM_ENERGY_BIG;
-        } else if (rand_n >= drop_ratio[2]) {
+        } else if (rand_n >= drop_ratio[1]) {
             obj_type = DROP_ITEM_WEAPON_BIG;
-        } else if (rand_n >= drop_ratio[3]) {
+        } else if (rand_n >= drop_ratio[2]) {
             obj_type = DROP_ITEM_ENERGY_SMALL;
-        } else if (rand_n >= drop_ratio[4]) {
+        } else if (rand_n >= drop_ratio[3]) {
             obj_type = DROP_ITEM_WEAPON_SMALL;
-        } else if (rand_n >= drop_ratio[5]) {
+        } else if (rand_n >= drop_ratio[4]) {
             obj_type = DROP_ITEM_COIN;
         } else {
             return;
@@ -1410,9 +1408,6 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
         return true;
     }
     if (obj_type == OBJ_WEAPON_PILL_SMALL) {
-        return true;
-    }
-    if (obj_type == OBJ_LIFE) {
         return true;
     }
     if (obj_type == OBJ_ITEM_FLY) {
@@ -2425,7 +2420,7 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
         if (npc_ref->getPosition().y >= limit_y) {
             // flying boss can stop on middle of the screen
             if (npc_ref->get_can_fly() == true) {
-                //std::cout << "BOSS-HIT-GROUND <<<<<<<<<<<<<<<<<<<<" << std::endl;
+                //std::cout << "BOSS-HIT-GROUND CAN-FLY <<<<<<<<<<<<<<<<<<<<" << std::endl;
                 npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
                 return true;
             // non-flying bosses need to hit gound to stop
@@ -2436,6 +2431,32 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
         }
     }
     return false;
+}
+
+bool classMap::boss_show_intro_sprites(classnpc *npc_ref)
+{
+    if (npc_ref->have_frame_graphic(npc_ref->get_direction(), ANIM_TYPE_INTRO, 0) == false) {
+        std::cout << "### MAP::boss_show_intro_sprites - DOES NOT HAVE INTRO, LEAVE" << std::endl;
+        return true;
+    }
+    if (npc_ref->get_anim_type() != ANIM_TYPE_INTRO) {
+        std::cout << "### MAP::boss_show_intro_sprites - SET INTRO" << std::endl;
+        npc_ref->set_animation_type(ANIM_TYPE_INTRO);
+        return false;
+    }
+    if (!npc_ref->is_on_last_animation_frame()) {
+        std::cout << "### MAP::boss_show_intro_sprites - EXECUTE" << std::endl;
+        return false;
+    }
+    std::cout << "### MAP::boss_show_intro_sprites - DONE" << std::endl;
+    if (npc_ref->get_can_fly() == true) {
+        std::cout << "### MAP::boss_show_intro_sprites - SET FLY" << std::endl;
+        npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
+    } else {
+        std::cout << "### MAP::boss_show_intro_sprites - SET STAND" << std::endl;
+        npc_ref->set_animation_type(ANIM_TYPE_STAND);
+    }
+    return true;
 }
 
 classnpc *classMap::get_near_boss()

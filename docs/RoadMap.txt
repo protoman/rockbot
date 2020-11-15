@@ -1,20 +1,11 @@
 ﻿###########################################################################################################################
 v 0.33
 ###########################################################################################################################
-- (ONGOING) readicionar intro de boss ao entrar na fase
-
-
-- bugs no github: https://github.com/protoman/rockbot/issues
-
-- crash na tela inicial quando se aperta A + B ao mesmo tempo
-
-- fullscreen keep aspect ratio
-
 
 - história:
     # em um futuro distance, a engenharia genetica e cibernética criou uma raça
-    # mista, chamadas de "Bots". Eles se parecem com crianças, mas na verdade não envelhecem
-    # e são muito mais fortes e resistentes que os humanos.
+    # mista, chamadas de "Bots". Apesar da aparencia de jovens, eles
+    # são muito mais fortes e resistentes que os humanos.
     # Um dia, um cientista chamado Destrin hackeou o sistema de gestação
     # dos bots, colocando em alguns deles, uma porta dos fundos pelo qual ele pode enviar comandos,
     # ordenando eles que tomem locais de obtenção de uma fonte energética utilizada
@@ -22,13 +13,33 @@ v 0.33
     # leais a ele para dominar o mundo?
 
 
-- colocar lista de nomes de chefes e estagios no shared-data
-- tradução de nomes de chefes
-
-- traduzir strings novas que estao só em ingles
-    # dar uma re-testada após as últimas mudanças
-
 ###########################################################################################################################
+- boss: se voa, não precisa aplicar gravity até ele chegar no chão
+
+- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
+    # isso pode ter sido corrigido pelo fix do coil que ficava tb no teto; verificar.
+
+- parece que o tank de HP não esta funcionando
+
+- (ONGOING) readicionar intro de boss ao entrar na fase
+
+- revisar/arrumar diálogos de chefes (todos os players, idiomas)
+
+- Karot:
+    # sprites walk
+    # AI
+- revisar IA do Gear (ví video q ele andava ao invés de só pular)
+    # fazer big-shot dele bem lento, para dar tempo de usar o frog e pular sobre ele
+        # verificar que não seja noe stágio dele q vc ganha o frog
+
+- transição de um cenario com FG para um sem (ou vice-versa) causa problemas, o fg fica pendurado e fora de posição
+
+- #2: fazer intro do chefe polvo - https://www.deviantart.com/boberatu/art/Release-The-Kraken-609576875
+
+- bugs no github: https://github.com/protoman/rockbot/issues
+
+- ANDROID: crash na tela inicial quando se aperta A + B ao mesmo tempo
+
 
 - Rockbot1:
     # Entrou cutscene intro antes dos créditos ???????
@@ -45,33 +56,17 @@ v 0.33
     # game.cpp - criar lista de projéteis, objetos e inimigos on-screen e armazenar em shared (singleton)
     # todos os loops que passam por projéteis, inimigos e objetos devem passar a usar essas listas
 
-
 - PocketGo Port
-    # audio delay
+    # audio delay sfx
 
 - novos inimigos (https://www.youtube.com/watch?v=U8fQ-k2p5Q8&list=WL&index=2&t=514s):
     # jumper (from hole) that fires 4 shots in arc
     # marreta: bata-estacas vindo do teto (não letal ao contrário dos raios da morte)
 
-- parece que o tank de HP não esta funcionando
 
 - recreate intro (use new drawings, create a different story)
 
-- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
-    # isso pode ter sido corrigido pelo fix do coil que ficava tb no teto; verificar.
-
-- checkpoint fica parado no ar em restart_stage, bloqueado pelo jogador
-    # somente plataformas devem colidir com jogador
-
-- inimigos param de atirar após um tempo (? feedback de usuário, não consegui entender)
-
-- hit-area de objetos tipo teleportadores não esta funcionando
-
 - dizem que seleciona fase mas vai para a mesma (testar melhor)
-
-- bug: textos fora de posição (tem que ter tamanho virtual de fonte para cálculo de posição)
-    # seleção de player
-    # config do menu de armas
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 

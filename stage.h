@@ -49,6 +49,7 @@ public:
     void show_objects(int adjust=0);
     void show_above_objects(int adjust=0);
     bool boss_hit_ground(classnpc *npc_ref);
+    bool boss_show_intro_sprites(classnpc *npc_ref);
     classnpc* get_near_boss();
     void reset_stage_maps();
     void reset_stage_npcs();

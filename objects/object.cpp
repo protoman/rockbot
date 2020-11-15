@@ -124,6 +124,18 @@ void object::reset()
     frame = 0;
     //show_teleport = false;
     reset_timer();
+
+    // execute gravity until out of screen or stops moving
+    int pos_y_before = position.y;
+    int n = 0;
+    while (true) {
+        gravity();
+        if (pos_y_before == position.y || position.y > RES_H+TILESIZE || n > RES_H+TILESIZE) {
+            break;
+        }
+        pos_y_before = position.y;
+        n++;
+    }
 }
 
 void object::reset_timer()
@@ -238,8 +250,7 @@ bool object::test_change_position(short xinc, short yinc)
         //if (blocked != 0) std::cout << "obj.blocked: " << blocked << std::endl;
         /// @TODO - consumable items should not stop if blocked by player
         ///
-        if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false) {
-            //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
+        if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false && type != OBJ_CHECKPOINT) {
             return false;
         }
     }
@@ -305,7 +316,7 @@ void object::reset_timers()
 
 bool object::is_consumable()
 {
-    if (type == OBJ_ENERGY_PILL_BIG || type == OBJ_ENERGY_PILL_SMALL || type == OBJ_ENERGY_TANK || type == OBJ_LIFE || type == OBJ_WEAPON_PILL_BIG || type == OBJ_WEAPON_PILL_SMALL || type == OBJ_WEAPON_TANK) {
+    if (type == OBJ_ENERGY_PILL_BIG || type == OBJ_ENERGY_PILL_SMALL || type == OBJ_ENERGY_TANK || type == OBJ_WEAPON_PILL_BIG || type == OBJ_WEAPON_PILL_SMALL || type == OBJ_WEAPON_TANK) {
         return true;
     }
     return false;
@@ -509,15 +520,6 @@ void object::show(int adjust_y, int adjust_x)
         //std::cout << "object::show::name[" << name << "]::adjust_y[" << adjust_y << "]::graphic_destiny.y[" << graphic_destiny.y << "]::position.y[" << position.y << "]" << std::endl;
 
         //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
-        if (type == OBJ_LIFE) {
-            int init_x = graphic_origin.w*game_save.selected_player;
-            // avoid drawing something we don't have
-            if (draw_lib.get_object_graphic(_id)->width < init_x + framesize_w) {
-                init_x = 0;
-            }
-            graphLib.copyArea(st_rectangle(init_x, 0, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-            return;
-        }
 
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it

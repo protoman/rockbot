@@ -243,3 +243,61 @@ void dialogs::show_centered_dialog(std::vector<string> lines)
     input.wait_keypress();
     gameControl.game_unpause();
 }
+
+void dialogs::show_boss_dialog(int stage_n)
+{
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    std::vector<std::string> stage_dialogs = fio_str.get_stage_dialogs(stage_n, SharedData::get_instance()->current_language, true);
+    int n = 0;
+
+    int init_pos = 30;
+    int init_player_pos = init_pos + 6 + game_save.selected_player * 6;
+    // p1: 36, p2: 42, p3: 48, p4: 54
+
+    if (stage_dialogs.at(init_pos).length() <= 0) {
+        std::cout << ">>>> DIALOGS::show_boss_dialog - leave #1 - init_pos[" << init_pos << "]" << std::endl;
+        return;
+    }
+    // BOSS SPEAKING #1
+    std::string lines[FS_DIALOG_LINES];
+    for (int i=init_pos; i<init_pos+FS_DIALOG_LINES; i++) {
+        lines[n] = stage_dialogs.at(i);
+        n++;
+    }
+    std::string boss_face(stage_data.dialog_face_graphics_filename);
+    if (boss_face.length() <= 0) {
+        boss_face = std::string("dr_kanotus.png");
+    }
+    show_dialog(boss_face, stage_data.dialog_top_side, lines, true);
+
+    // PLAYER ANSWER #1
+    n = 0;
+    for (int i=init_player_pos; i<init_player_pos+FS_DIALOG_LINES; i++) {
+        lines[n] = stage_dialogs.at(i);
+        n++;
+    }
+    show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true); /// @TODO: create "extern" for player number
+
+    // BOSS SPEAKING #2
+    int init_pos2 = 33;
+    if (stage_dialogs.at(init_pos2).length() > 0) {
+        n = 0;
+        for (int i=init_pos2; i<init_pos2+FS_DIALOG_LINES; i++) {
+            lines[n] = stage_dialogs.at(i);
+            n++;
+        }
+        show_dialog(boss_face, stage_data.dialog_top_side, lines, true);
+    }
+
+    // PLAYER ANSWER #2
+    if (stage_dialogs.at(init_player_pos+3).length() > 0) {
+        n = 0;
+        for (int i=init_player_pos+3; i<init_player_pos+3+FS_DIALOG_LINES; i++) {
+            lines[n] = stage_dialogs.at(i);
+            n++;
+        }
+        show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
+    }
+
+    std::cout << ">>>> DIALOGS::show_boss_dialog - leave #2" << std::endl;
+}

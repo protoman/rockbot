@@ -61,6 +61,8 @@ extern std::map<Uint8, Uint8> game_scenes_map;
 #include "aux_tools/fps_control.h"
 extern fps_control fps_manager;
 
+#define DEATH_ANIMATION_DELAY 120
+
 
 // ********************************************************************************************** //
 // class constructor                                                                              //
@@ -891,6 +893,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
         draw_lib.update_screen();
 	}
 
+
 	// 2. blink screen
 	graphLib.blink_screen(255, 255, 255);
 
@@ -907,11 +910,36 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
                     show_stage(0, true);
                 }
             }
-        } else {
-            // TODO //
         }
     }
+
+    std::cout << "### GAME::map_present_boss #4" << std::endl;
+    timer.delay(5000);
+
+    // 4. show boss intro sprites animation
+    loop_run = true;
+    while (loop_run == true) {
+        std::cout << "### GAME::map_present_boss #4::LOOP" << std::endl;
+        if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) {
+            loop_run = false;
+            show_stage(0, false);
+        } else {
+            show_stage(0, true);
+        }
+    }
+
+    std::cout << "### GAME::map_present_boss #5" << std::endl;
+    timer.delay(5000);
+
+
+    // 5. show boss dialog
+    dialogs boss_dialog;
+    boss_dialog.show_boss_dialog(loaded_stage.get_number());
+
     show_stage(8, false);
+
+    std::cout << "### GAME::map_present_boss #6" << std::endl;
+    timer.delay(5000);
 
 
     soundManager.play_boss_music();
@@ -1397,14 +1425,13 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
 
+    //scenes.select_save(false);
+
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     currentStage = INTRO_STAGE;
     currentStage = scenes.pick_stage(INTRO_STAGE);
 
-
-    // DEBUG //
-    std::cout << "############### currentStage[" << (int)currentStage << "]" << std::endl;
 
     initGame();
 
@@ -1493,6 +1520,32 @@ void game::draw_explosion(st_position center, bool show_players) {
     }
     timer.delay(300);
     */
+}
+
+void game::draw_player_death(st_position center)
+{
+    center.x += 29/2;
+    center.y += 29/2;
+
+    for (int i=0; i<draw_lib.get_death_animation_frames_n(); i++) {
+        loaded_stage.show_stage();
+        loaded_stage.showAbove();
+        draw_lib.draw_player_death(center, i);
+        draw_lib.update_screen();
+        timer.delay(DEATH_ANIMATION_DELAY);
+        if (i == 5) {
+            loaded_stage.show_stage();
+            loaded_stage.showAbove();
+            draw_lib.draw_player_death(center, i-1);
+            draw_lib.update_screen();
+            timer.delay(DEATH_ANIMATION_DELAY);
+            loaded_stage.show_stage();
+            loaded_stage.showAbove();
+            draw_lib.draw_player_death(center, i);
+            draw_lib.update_screen();
+            timer.delay(DEATH_ANIMATION_DELAY);
+        }
+    }
 }
 
 void game::show_player()
@@ -1854,9 +1907,7 @@ void game::get_drop_item_ids()
         _drop_item_list[i] = -1;
     }
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
-        if (GameMediator::get_instance()->object_list.at(i).type == OBJ_LIFE) {
-            _drop_item_list[DROP_ITEM_1UP] = i;
-        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_SMALL) {
+        if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_SMALL) {
             _drop_item_list[DROP_ITEM_ENERGY_SMALL] = i;
         } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_BIG) {
             _drop_item_list[DROP_ITEM_ENERGY_BIG] = i;

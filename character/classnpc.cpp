@@ -450,19 +450,19 @@ void classnpc::boss_move()
     bool is_static_boss = is_static();
 
     if (is_entirely_on_screen() == true && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
-        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::TELEPORT" << std::endl;
+        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::TELEPORT" << std::endl;
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss);
         // set temp-background in map
         return;
     } else if (is_entirely_on_screen() == false && is_on_screen() == true &&  _initialized == 0 && _is_boss == true) {
-        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::FALL" << std::endl;
+        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::FALL" << std::endl;
         fall_to_ground();
         _initialized = 1;
         return;
     } else if (_initialized == 1 && _is_boss == true && is_static_boss == false) {
-        std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::GRAVITY" << std::endl;
+        //std::cout << "classboss::boss_move[" << name << "] - SHOW-BOSS_INTRO::GRAVITY" << std::endl;
         if (position.x > RES_H/3 && gravity(true) == false) {
             _initialized++;
         }
@@ -479,7 +479,7 @@ void classnpc::boss_move()
         return;
     }
 
-    std::cout << "NPC::boss_move[" << name << "]::EXECUTE-AI-CALL" << std::endl;
+    //std::cout << "NPC::boss_move[" << name << "]::EXECUTE-AI-CALL" << std::endl;
     execute_ai();
     gravity(false);
 }

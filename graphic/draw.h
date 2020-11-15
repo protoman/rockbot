@@ -71,6 +71,8 @@ public:
     void set_boss_hp(int hp);
     void show_boss_intro_bg();
     void draw_explosion(st_position center_point, int radius, int angle_inc);
+    void draw_player_death(st_position center_point, int frame_n);
+    int get_death_animation_frames_n();
     void show_weapon_tooltip();
 
 private:
@@ -134,7 +136,6 @@ private:
     // used in HUD
     graphicsLib_gSurface hud_player_hp_ball;
     graphicsLib_gSurface hud_player_wpn_ball;
-    graphicsLib_gSurface hud_player_1up;
     graphicsLib_gSurface hud_boss_hp_ball;
     int _boss_current_hp;
 
@@ -148,6 +149,8 @@ private:
     st_color current_alpha_color;
     graphicsLib_gSurface current_alpha_surface;
 
+    struct graphicsLib_gSurface _death_animation;
+    int _death_animation_frames_n = 0;
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage
     std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;

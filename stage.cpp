@@ -291,6 +291,11 @@ bool stage::boss_hit_ground(classnpc* npc_ref)
     return get_current_map()->boss_hit_ground(npc_ref);
 }
 
+bool stage::boss_show_intro_sprites(classnpc *npc_ref)
+{
+    return get_current_map()->boss_show_intro_sprites(npc_ref);
+}
+
 classnpc *stage::get_near_boss()
 {
     return get_current_map()->get_near_boss();

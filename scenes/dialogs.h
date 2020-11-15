@@ -24,6 +24,8 @@ public:
 
     void show_centered_dialog(std::vector<std::string> lines);
 
+    void show_boss_dialog(int stage_n);
+
 private:
     void draw_dialog_bg();
 

@@ -648,7 +648,6 @@ void scenesLib::boss_intro(short stage_n)
         filename.append("0");
     }
     filename.append(to_string(stage_n)).append(".png");
-    std::cout << "################### scenesLib::boss_intro::filename[" << filename << "]" << std::endl;
 
     if (!fio.file_exists(filename)) {
         std::cout << "ERROR: file[" << filename << "] not found" << std::endl;
@@ -657,17 +656,15 @@ void scenesLib::boss_intro(short stage_n)
 
     graphicsLib_gSurface boss_intro_bg;
 
-    std::cout << "################### scenesLib::boss_intro::FILEPATH[" << FILEPATH << "]" << std::endl;
-
     graphLib.surfaceFromFile(FILEPATH + "/images/backgrounds/boss_intro/boss_intro_bg.png", &boss_intro_bg);
     graphLib.showSurfaceAt(&boss_intro_bg, st_position(0, 0), false);
 
 
     graphicsLib_gSurface boss_intro_img;
     graphLib.surfaceFromFile(filename, &boss_intro_img);
-    graphLib.showSurfaceAt(&boss_intro_img, st_position(0, 30), false);
-    graphLib.draw_centered_text(188, botname);
-    graphLib.wait_and_update_screen(2500);
+    graphLib.showSurfaceRegionAt(&boss_intro_img, st_rectangle(2, 0, boss_intro_img.width-4, boss_intro_img.height), st_position(2, 10));
+    graphLib.draw_centered_text(217, botname);
+    graphLib.wait_and_update_screen(4200);
 }
 
 void scenesLib::game_scenes_show_unbeaten_intro()
@@ -829,13 +826,19 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
             graphLib.draw_weapon_tooltip_icon(i, pos, false);
         }
     }
-    int item_adjust_x = 12;
-    // lifes
-    st_position pos_lifes(9*18+item_adjust_x, y_pos);
-    graphLib.draw_weapon_tooltip_icon(14+save.selected_player, pos_lifes, true);
+    int item_adjust_x = 10;
     char buffer[3];
-    sprintf(buffer, "x%d", save.items.lifes);
-    graphLib.draw_text(10*18+item_adjust_x-1, y_pos+5, std::string(buffer));
+
+    // character
+    st_position pos_lifes(9*18+item_adjust_x-4, y_pos);
+    graphLib.draw_weapon_tooltip_icon(14+save.selected_player, pos_lifes, true);
+    std::string difficulty = "[M]";
+    if (save.difficulty == DIFFICULTY_EASY) {
+        difficulty = "[E]";
+    } else if (save.difficulty == DIFFICULTY_HARD) {
+        difficulty = "[H]";
+    }
+    graphLib.draw_text(10*18+item_adjust_x-6, y_pos+5, std::string(difficulty));
 
     // e-tank
     st_position pos_etank(11*18+item_adjust_x, y_pos);

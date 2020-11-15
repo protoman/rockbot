@@ -1010,8 +1010,6 @@ namespace format_v4 {
             return false;
         }
 
-        std::cout << "file_io::write_save[" << filename << "]" << std::endl;
-
         fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp);
         fclose(fp);
 

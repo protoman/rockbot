@@ -1195,16 +1195,16 @@ namespace format_v4 {
         if (_dialogs_stage_id != -1) {
             filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
         }
-        //if (_dialogs_stage_id != stage_id) {
-            dialogs_strings_list.clear();
-            _dialogs_stage_id = stage_id;
-            filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
+
+        dialogs_strings_list.clear();
+        _dialogs_stage_id = stage_id;
+        filename = get_stage_dialogs_filename(_dialogs_stage_id, language);
+        dialogs_strings_list = load_game_strings_from_file(filename, language, convert_symbols);
+        if (dialogs_strings_list.size() == 0) {
+            create_default_dialog_strings(language);
             dialogs_strings_list = load_game_strings_from_file(filename, language, convert_symbols);
-            if (dialogs_strings_list.size() == 0) {
-                create_default_dialog_strings(language);
-                dialogs_strings_list = load_game_strings_from_file(filename, language, convert_symbols);
-            }
-        //}
+        }
+
         // generate dialogs, if needed
         if (dialogs_strings_list.size() == 0) {
             std::cout << "Generating default stage dialogs..." << std::endl;

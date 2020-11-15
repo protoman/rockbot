@@ -129,7 +129,7 @@ public:
     void execute_jump_up();					// execute jump until reaches the maximum height
     void fall();								// falls until reaching ground or leaving screen /// @TODO
     void fall_to_ground();
-    void initialize_position_to_ground();
+    void initialize_boss_position_to_ground();
     bool change_position(short int xinc, short int yinc);
     void change_position_x(short int xinc);
     int change_position_y(short int yinc);
@@ -223,6 +223,8 @@ public:
     void add_projectile(short id, st_position pos, int trajectory, int direction);
     st_position get_attack_position();
     st_position get_attack_position(short direction);
+    bool is_on_last_animation_frame();
+    bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
 
 
 private:
@@ -245,7 +247,6 @@ protected:
     void add_graphic();
     virtual void death() = 0;
     bool have_frame_graphics();
-    bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
     bool is_in_stairs_frame() const; // indicates if the character is on some of the STAIRS animation types
     bool is_on_attack_frame();
     virtual void recharge(e_energy_types _en_type, int value);

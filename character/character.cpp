@@ -1254,6 +1254,10 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
+    if ((_is_boss || _is_stage_boss) && get_anim_type() == ANIM_TYPE_INTRO) {
+        return false;
+    }
+
     int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
@@ -2067,13 +2071,11 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
-                std::cout << "FINAL_BOSS_TELEPORTER::STARTED" << std::endl;
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                     set_direction(ANIM_DIRECTION_RIGHT);
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), true);
                 }
             } else if (res_collision_object._object->get_type() == OBJ_STAGE_BOSS_TELEPORTER) {
-                std::cout << "character::map_collision - OBJ_STAGE_BOSS_TELEPORTER" << std::endl;
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
                     set_direction(ANIM_DIRECTION_RIGHT);
                     gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
@@ -2085,7 +2087,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
             // ignore block
             } else if (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == false) {
-                std::cout << "FINAL_BOSS_TELEPORTER::ACTIVATE" << std::endl;
                 // acho que era para ver se todos os inimigos estão mortos, mas não completei o código, então vamos fazer como um boss-teleproter
                 set_direction(ANIM_DIRECTION_RIGHT);
                 gameControl.object_teleport_boss(res_collision_object._object->get_boss_teleporter_dest(), res_collision_object._object->get_boss_teleport_map_dest(), res_collision_object._object->get_obj_map_id(), false);
@@ -2674,6 +2675,11 @@ void character::advance_to_last_frame()
     }
 }
 
+bool character::is_on_last_animation_frame()
+{
+    return (_is_last_frame && state.animation_timer < timer.getTimer()+2000); // plus 2 seconds before the fight starts
+}
+
 bool character::have_frame_graphic(int direction, int type, int pos)
 {
     if (pos >= ANIM_FRAMES_COUNT) {
@@ -3209,7 +3215,7 @@ void character::fall_to_ground()
     //std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
-void character::initialize_position_to_ground()
+void character::initialize_boss_position_to_ground()
 {
     if (can_fly == true) {
         return;

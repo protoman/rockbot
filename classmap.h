@@ -183,6 +183,8 @@ public:
 
     bool boss_hit_ground(classnpc *npc_ref);
 
+    bool boss_show_intro_sprites(classnpc *npc_ref);
+
     classnpc* get_near_boss();
 
     void reset_map_npcs();

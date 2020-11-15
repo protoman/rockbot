@@ -32,6 +32,7 @@ public:
     Uint8 select_player();
     void boss_intro(short stage_n);
     void game_scenes_show_unbeaten_intro();
+    short select_save(bool is_new_game);
 
 private:
     // preload/unload
@@ -40,7 +41,6 @@ private:
     void unload_stage_select();
 
     Uint8 select_difficulty();
-    short select_save(bool is_new_game);
     void draw_save_details(int n, format_v4::st_save save);
 
 

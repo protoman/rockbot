@@ -29,8 +29,6 @@
 #define ENERGY_BALL_IMG_SIZE 10
 #define ENERGY_BALL_PERCENT_SLICE 5
 
-
-
 extern graphicsLib graphLib;
 
 extern timerLib timer;
@@ -122,9 +120,6 @@ void draw::preload()
     graphLib.surfaceFromFile(filename, &hud_boss_hp_ball);
 
 
-    filename = FILEPATH + "/images/1up_icons.png";
-    graphLib.surfaceFromFile(filename, &hud_player_1up);
-
     filename = GAMEPATH + "/shared/images/buttons/d_pad.png";
 
     for (int i=0; i<INPUT_IMAGES_COUNT; i++) {
@@ -145,6 +140,9 @@ void draw::preload()
     filename = GAMEPATH + "/shared/images/buttons/btn_y.png";
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_Y]);
 
+    filename = GAMEPATH + "shared/images/death_animation.png";
+    graphLib.surfaceFromFile(filename, &_death_animation);
+    _death_animation_frames_n = _death_animation.width/_death_animation.height;
 }
 
 void draw::show_gfx()
@@ -818,6 +816,17 @@ void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
     update_screen();
 }
 
+void draw::draw_player_death(st_position center_point, int frame_n)
+{
+    int frame_size = _death_animation.height;
+    graphLib.copyArea(st_rectangle(frame_n*frame_size, 0, frame_size, frame_size), st_position(center_point.x-frame_size/2, center_point.y-frame_size/2), &_death_animation, &graphLib.gameScreen);
+}
+
+int draw::get_death_animation_frames_n()
+{
+    return _death_animation_frames_n;
+}
+
 
 graphicsLib_gSurface *draw::get_dynamic_background(string filename)
 {
@@ -857,34 +866,9 @@ void draw::set_dynamic_bg_alpha(string filename, int alpha)
 
 void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
-    // lifes
-    /*
-    graphLib.copyArea(st_rectangle(game_save.selected_player*hud_player_1up.height, 0, hud_player_1up.height, hud_player_1up.height), st_position(6, 20), &hud_player_1up, &graphLib.gameScreen);
-    char lifes_text[125];
-    sprintf(lifes_text, "x0%d", game_save.items.lifes);
-    graphLib.draw_text(26, 24, std::string(lifes_text));
-    */
-
-
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
     draw_enery_ball(hp_percent, 3, hud_player_hp_ball);
-    /*
-    for (int i=0; i<5; i++) {
-        int min = 20*i;
-        int max2 = min+20;
-        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
-
-        int img_origin_x = 0;
-        if (hp_percent < min) {
-            img_origin_x = hud_player_hp_ball.height*2;
-        } else if (hp_percent < max2) {
-            img_origin_x = hud_player_hp_ball.height;
-        }
-
-        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 9), &hud_player_hp_ball, &graphLib.gameScreen);
-    }
-    */
 
 
     if (selected_weapon != WEAPON_DEFAULT && selected_weapon < WEAPON_ITEM_ETANK) {

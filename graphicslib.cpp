@@ -203,6 +203,20 @@ bool graphicsLib::initGraphics()
     return true;
 }
 
+void graphicsLib::update_screen_mode()
+{
+    if (SharedData::get_instance()->game_config.video_fullscreen == false) {
+        scale_int = SharedData::get_instance()->game_config.scale_int;
+        if (scale_int < 1) {
+            scale_int = 1;
+        }
+        std::cout << "################ WINDOWED.scale[" << scale_int << "]" << std::endl;
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+    } else {
+        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    }
+}
+
 void graphicsLib::load_shared_graphics()
 {
     std::string filename = GAMEPATH + "shared/images/config_bg.png";
@@ -214,6 +228,7 @@ void graphicsLib::load_shared_graphics()
 
     filename = GAMEPATH + "shared/images/backgrounds/weapon_tooltip.png";
     surfaceFromFile(filename, &_weapn_tooltip_bg);
+
 }
 
 void graphicsLib::preload()
@@ -2004,23 +2019,7 @@ void graphicsLib::set_video_mode()
         std::cout << "################ WINDOWED.scale[" << scale_int << "]" << std::endl;
         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
-        const SDL_VideoInfo* info = SDL_GetVideoInfo();
-
-        SharedData::get_instance()->scaleX = info->current_w / RES_W;
-        SharedData::get_instance()->scaleY = info->current_h / RES_H;
-        SharedData::get_instance()->scale_window_size.width = info->current_w;
-        SharedData::get_instance()->scale_window_size.height = info->current_h;
-
-        double scale = SharedData::get_instance()->scaleX;
-        if (SharedData::get_instance()->scaleY < scale) {
-            scale = SharedData::get_instance()->scaleY;
-        }
-        scale_int = (int)scale;
-        if (scale_int < 1) {
-            scale_int = 1;
-        }
-        std::cout << "################ FULLSCREEN.scale[" << scale_int << "]" << std::endl;
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
     if (game_screen != NULL) {
         SDL_FreeSurface(game_screen);

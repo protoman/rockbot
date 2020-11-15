@@ -167,6 +167,8 @@ int stage_select::pick_stage(int stage_n)
 {
     CURRENT_FILE_FORMAT::file_io fio;
     bool can_access_castle = fio.can_access_castle(game_save);
+    bool blink_state = false;
+    long blink_timer = timer.getTimer() + 300;
     if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
         can_access_castle = true;
     }
@@ -262,7 +264,11 @@ int stage_select::pick_stage(int stage_n)
             for (int i=0; i<6; i++) {
                 if (cursor_level_n < CASTLE1_STAGE1 || (can_access_castle && cursor_level_n<= max_stage)) {
                     if (cursor_level_n == stage_n) { // current selection
-                        graphLib.showSurfaceRegionAt(&stage_selection_icon, st_rectangle(72, 0, 36, 36), st_position(icon_x+(i*48), (j*icon_spacing_y)+icon_y));
+                        if (blink_state == true) {
+                            graphLib.showSurfaceRegionAt(&stage_selection_icon, st_rectangle(72, 0, 36, 36), st_position(icon_x+(i*48), (j*icon_spacing_y)+icon_y));
+                        } else {
+                            graphLib.showSurfaceRegionAt(&stage_selection_icon, st_rectangle(36, 0, 36, 36), st_position(icon_x+(i*48), (j*icon_spacing_y)+icon_y));
+                        }
                     } else if (game_save.stages[cursor_level_n] == 1) { // finished stage
                         graphLib.showSurfaceRegionAt(&stage_selection_icon, st_rectangle(36, 0, 36, 36), st_position(icon_x+(i*48), (j*icon_spacing_y)+icon_y));
                     } else { // non-finished-stage
@@ -336,6 +342,11 @@ int stage_select::pick_stage(int stage_n)
         graphLib.clear_area(124, 140, 190, 44, 8, 25, 42);
         graphLib.draw_text(124, 140, std::string(bossname), graphLib.gameScreen);
         graphLib.draw_text(124, 160, stage_name_list.at(stage_n), graphLib.gameScreen);
+
+        if (timer.getTimer() >= blink_timer) {
+            blink_timer = timer.getTimer() + 300;
+            blink_state = !blink_state;
+        }
 
         //graphLib.draw_text(cursorX, cursorY, ">", graphLib.gameScreen);
         graphLib.updateScreen();

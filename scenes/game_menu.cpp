@@ -269,27 +269,12 @@ void game_menu::show_config_video()
             options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
         }
 
-        /*
-        if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_NOSCALE) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_noscale));
-        } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_BITSCALE) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_size2x));
-        } else if (SharedData::get_instance()->game_config.video_filter == VIDEO_FILTER_SCALE2x) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_video_scale2x));
-        }
-        */
-
         option_picker main_config_picker(false, config_text_pos, options, true);
         selected_option = main_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
             SharedData::get_instance()->game_config.video_fullscreen = !SharedData::get_instance()->game_config.video_fullscreen;
+            //graphLib.update_screen_mode();
         }
-        /*else if (selected_option == 1) {
-            SharedData::get_instance()->game_config.video_filter++;
-            if (SharedData::get_instance()->game_config.video_filter >= VIDEO_FILTER_COUNT) {
-                SharedData::get_instance()->game_config.video_filter = 0;
-            }
-        }*/
         if (selected_option != -1) {
             fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();

@@ -297,12 +297,6 @@ void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
     graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp(), player_ref->get_selected_weapon());
-
-
-
-    //graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-    //graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
-    //graphLib.draw_centered_text(RES_H/2-8, "PAUSED (@TODO)", st_color(255, 255, 255));
 }
 
 bool class_config::execute_ingame_menu()
@@ -323,17 +317,7 @@ bool class_config::execute_ingame_menu()
             draw_lib.fade_out_screen(0, 0, 0, 300);
             draw_ingame_menu();
         } else {
-            // left menu, change player color/weapon and remove pause
-            if (ingame_menu_pos.y != 6) {
-                //player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
-                gameControl.game_unpause();
-            } else {
-                // use item
-                //use_tank(ingame_menu_pos.x);
-                ingame_menu_active = !ingame_menu_active; // keep itself inside the menu
-                generate_weapons_matrix();
-                draw_ingame_menu();
-            }
+            gameControl.game_unpause();
         }
     }
 
@@ -366,27 +350,7 @@ bool class_config::execute_ingame_menu()
             }
             draw_ingame_menu();
         }
-        /*
-        if (old_pos.x != ingame_menu_pos.x || old_pos.y != ingame_menu_pos.y) {
-            //std::cout << ">> old_pos.y: " << old_pos.y << ", ingame_menu_pos.y: " << ingame_menu_pos.y << std::endl;
-            if (old_pos.y != 6) {
-                graphLib.draw_weapon_cursor(old_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(old_pos)), -1, player_ref->get_max_hp());
-                graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(old_pos), old_pos, false);
-            } else {
-                graphLib.erase_menu_item(old_pos.x);
-            }
-            if (ingame_menu_pos.y != 6) {
-                graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
-                graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
-                weapon_menu_show_player();
-            } else {
-                graphLib.draw_menu_item(ingame_menu_pos.x);
-            }
-        }
-        */
         input.clean();
-        //timer.delay(MENU_CHANGE_DELAY);
     }
 
     return ingame_menu_active;

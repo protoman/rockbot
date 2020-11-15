@@ -98,6 +98,7 @@ public:
 
 
     void draw_explosion(st_position center, bool show_players);
+    void draw_player_death(st_position center);
     void show_player();
     /**
      * @brief

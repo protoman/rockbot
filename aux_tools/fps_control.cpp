@@ -23,12 +23,6 @@ void fps_control::initialize()
     max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
     frame_count = 0;
     last_second_ticks = timer.getTimer();
-    /*
-    fps_max = max;
-    float percent = (100 * fps_max) / DEFAULT_FPS_MAX;
-    std::cout << "FPS_CONTROL.set_max_fps[" << max << "], percent[" << percent << "]" << std::endl;
-    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
-    */
 }
 
 bool fps_control::limit()
@@ -39,7 +33,6 @@ bool fps_control::limit()
     ++frame_count;
     target_ticks = last_second_ticks + static_cast<unsigned int>(frame_count * max_frame_ticks);
     current_ticks = timer.getTimer();
-    //std::cout << "fps_control::limit::timer.ticks[" << timer.getTimer() << "], sdl.ticks[" << current_ticks << "]" << std::endl;
 
     average_ticks += current_ticks - last_frame_ticks;
     if (current_ticks - last_frame_ticks <= min_ticks)
@@ -93,7 +86,6 @@ void fps_control::fps_count()
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
         if (fps_counter <= fps_timer-4) {
             frame_drop_period = fps_timer/(fps_timer-fps_counter);
-            //std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
         } else {
             frame_drop_period = 0;
         }
@@ -169,7 +161,6 @@ bool fps_control::must_skip_frame()
 {
     int frame_unit_part = frame_count % 10;
     if (std::find(frameskip_list.begin(), frameskip_list.end(), frame_unit_part) != frameskip_list.end()) {
-        //std::cout << "Skipt frame[" << frame_count << "], frame_unit_part[" << frame_unit_part << "]" << std::endl;
         return true;
     }
     return false;
