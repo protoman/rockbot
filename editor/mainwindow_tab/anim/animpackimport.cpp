@@ -53,7 +53,7 @@ void AnimPackImport::on_imageFilename_toolButton_clicked()
 void AnimPackImport::on_frameDelay_spinBox_valueChanged(int arg1)
 {
     if (delay_list.size() <= ui->frameN_comboBox->currentIndex()) {
-        std::cout << "ERROR: delay vector size is invalid." << std::endl;
+        // TODO: show error
         return;
     }
     delay_list.at(ui->frameN_comboBox->currentIndex()) = arg1;

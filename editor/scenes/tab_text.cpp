@@ -155,7 +155,6 @@ void TabText::on_select_comboBox_currentIndexChanged(int index)
     // save previous entry
     if (data_loading == false && currentIndex != -1) {
         save_data(currentIndex);
-        std::cout << "SAVING..." << std::endl;
     }
 
     data_loading = true;

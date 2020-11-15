@@ -59,8 +59,6 @@ void android_game_services::set_android_default_buttons_size(int size, int spaci
 
     // @TODO: if screen_width or screen_height are too small, we'll use buttons position as clue for the resolution
 
-    std::cout << "screen_width: " << screen_width << ", screen_height: " << screen_height << std::endl;
-
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", ">>>>> set_android_default_buttons_size::screensize: w[%d], h[%d]", screen_width, screen_height);
 
     float BUTTON_SIZE_MULTI = 1.2; // medium

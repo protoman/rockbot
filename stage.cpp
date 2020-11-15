@@ -63,21 +63,18 @@ void stage::setNumber(int setNumber)
 //                                                                                                //
 // ********************************************************************************************** //
 void stage::load_stage() {
-    //std::cout << "*************** stage::loadStage(" << number << ") ***************" << std::endl;
     if (number == -1) {
         graphLib.show_debug_msg("ERROR::stage::loadStage - stage number was not set, can't load it before setting the number");
 		return;
 	}
     if (number >= MAX_STAGES) {
         graphLib.show_debug_msg("ERROR::loadStage invalid number");
-        std::cout << "ERROR::stage::loadStage - stage number[" << number << "] is greater than the MAX_STAGES[" << MAX_STAGES << "].\n";
         return;
 	}
 
     draw_lib.clear_maps_dynamic_background_list();
 
     stage_is_loaded = true;
-    //std::cout << "stage::loadStage - number: " << number << std::endl;
 
 	// load stage maps
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
@@ -151,7 +148,6 @@ void stage::reset_scrolling()
 // ********************************************************************************************** //
 st_float_position stage::getMapScrolling()
 {
-    //std::cout << ">> stage::getMapScrolling[" << currentMap << "].x: " << get_current_map()->getMapScrolling().x << std::endl;
     return get_current_map()->getMapScrolling();
 }
 
@@ -160,9 +156,6 @@ st_float_position stage::getMapScrolling()
 // ********************************************************************************************** //
 classMap *stage::get_current_map()
 {
-    //std::cout << "**** stage::get_current_map - number: " << get_current_map()->number << std::endl;
-
-
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
         char error_msg[255];
         sprintf(error_msg, "(stage::get_current_map): Invalid currenct map value[%d]", currentMap);
@@ -187,17 +180,14 @@ void stage::set_current_map(int new_map_n)
         #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "Invalid value for set_current_map[%d]", new_map_n);
         #endif
-        std::cout << "Invalid value for set_current_map[" << new_map_n << "]" << std::endl;
         return;
     }
 
 	currentMap = new_map_n;
 
-    //std::cout << ">> PASS #1" << std::endl;
     std::fflush(stdout);
 
     check_map_effect();
-    //std::cout << ">> PASS #2" << std::endl;
     std::fflush(stdout);
 }
 
@@ -216,15 +206,9 @@ void stage::reload_stage()
     load_stage();
 }
 
-void stage::print_map_objects_number()
-{
-    get_current_map()->print_objects_number();
-}
-
 void stage::reset_current_map()
 {
     set_current_map(checkpoint.map);
-    //std::cout << "STAGE::reset_current_map - currentMap: " << currentMap << std::endl;
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
         return;
     }
@@ -239,7 +223,6 @@ void stage::reset_current_map_objects()
 
 void stage::reset_stage_objects()
 {
-    //std::cout << "================== stage::reset_stage_objects" << std::endl;
     for (int i=0; i<PRELOAD_MAP_N; i++) {
         maps[i].reset_map();
     }
@@ -247,7 +230,6 @@ void stage::reset_stage_objects()
 
 void stage::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number)
 {
-	//std::cout << "stage::redraw_boss_door - is_close: " << is_close << std::endl;
     get_current_map()->redraw_boss_door(is_close, nTiles, tileX, tileY, player_number);
 }
 
@@ -303,7 +285,6 @@ classnpc *stage::get_near_boss()
 
 void stage::reset_stage_maps()
 {
-    //std::cout << "================== stage::reset_stage_maps" << std::endl;
     reset_stage_npcs();
     reset_stage_objects();
 }
@@ -341,9 +322,6 @@ int stage::get_teleport_minimal_y_tile(int xpos)
     int tilex = xpos/TILESIZE;
 
     for (int i=MAP_H-1; i>=4; i--) { // ignore here 3 first tiles, as we need to test them next
-
-        //std::cout << "STAGE::get_teleport_minimal_y[" << i << "]" << std::endl;
-
         int map_lock = get_current_map()->getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
@@ -366,7 +344,6 @@ int stage::get_teleport_minimal_y_tile(int xpos)
 
 void stage::reset_objects_timers()
 {
-    //std::cout << "================== stage::reset_objects_timers" << std::endl;
     get_current_map()->reset_objects_timers();
 }
 
@@ -383,7 +360,6 @@ bool stage::subboss_alive_on_left(short tileX)
 void stage::activate_final_boss_teleporter()
 {
     for (int i=0; i<PRELOAD_MAP_N; i++) {
-        //std::cout << "stage::activate_final_boss_teleporter - currentMap: " << currentMap << std::endl;
         get_current_map()->activate_final_boss_teleporter();
     }
 }
@@ -425,10 +401,7 @@ void stage::check_map_effect()
         return;
     }
 
-
-    //std::cout << ">> PASS #3 [" << (int)number << "][" << (int)currentMap << "]" << std::endl;
     std::fflush(stdout);
-    //std::cout << "####### STAGE::check_map_effect - currentMap[" << (int)currentMap << "], map.gfx: " << (int)get_current_map()->get_map_gfx() << ", draw.gfx: " << (int)draw_lib.get_gfx() << std::endl;
     if (get_current_map()->get_map_gfx() != draw_lib.get_gfx()) {
         draw_lib.set_gfx(get_current_map()->get_map_gfx(), get_current_map()->get_map_gfx_mode());
     }

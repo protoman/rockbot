@@ -141,18 +141,6 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         return;
     }
 
-    // must jump a frame
-    /*
-    if (fps_manager.get_frame_drop_n() > 0 && fps_manager.get_current_frame_n() > 0) {
-        int modulus = fps_manager.get_frame_drop_n() % fps_manager.get_current_frame_n();
-        //std::cout << "MUST JUMP-FRAMES AT [" << fps_manager.get_frame_drop_n() << "], current-frame[" << fps_manager.get_current_frame_n() << "], modulus[" << modulus << "]" << std::endl;
-        if (modulus == 0 && show_fps_enabled == true) {
-            //std::cout << "JUMP FRAME[" << fps_manager.get_current_frame_n() << "]" << std::endl;
-            fps_manager.fps_count();
-            return;
-        }
-    }
-    */
     bool must_skip_frame = fps_manager.must_skip_frame();
 
 
@@ -178,7 +166,6 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
 
     /// @TODO - move this to the player, so we don't need to check every single loop
     if (player1.is_dead() == true) {
-        //std::cout << "### DEAD - RESTART_STAGE ###" << std::endl;
         restart_stage();
         return;
     }
@@ -192,8 +179,6 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
             graphLib.blank_screen();
         }
 
-
-        //std::cout << "GFX_MODE[" << (int)loaded_stage.get_current_map_gfx_mode() << "]" << std::endl;
 
         if (loaded_stage.get_current_map_gfx_mode() == SCREEN_GFX_MODE_OVERLAY) {
             draw_lib.show_gfx();
@@ -308,14 +293,10 @@ void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
 {
     int first_unlocked_from_bottom = loaded_stage.get_current_map()->get_first_lock_on_bottom(initial_pos_x, initial_pos_y, player1.get_size().width, player1.get_size().height);
 
-    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::first_unlocked_from_bottom[" << first_unlocked_from_bottom << "]" << std::endl;
-
     player1.set_position(st_position(initial_pos_x, (first_unlocked_from_bottom+1)*TILESIZE-player1.get_size().height));
     player1.char_update_real_position();
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
     player1.set_animation_frame(0);
-
-    //std::cout << ">>>>>>>>>> GAME::set_player_position_teleport_in::DONE" << std::endl;
 }
 
 void game::show_player_teleport(int pos_x, int pos_y)
@@ -325,7 +306,6 @@ void game::show_player_teleport(int pos_x, int pos_y)
     long end_time = timer.getTimer() + 1500;
 
     while (timer.getTimer() < end_time) {
-        //std::cout << "GAME::show_player_telport - LOOP" << std::endl;
         loaded_stage.show_stage();
         loaded_stage.showAbove();
         if (player1.animation_has_restarted()) {
@@ -337,12 +317,10 @@ void game::show_player_teleport(int pos_x, int pos_y)
         timer.delay(20);
     }
 
-    //std::cout << "GAME::show_player_telport #3" << std::endl;
     player1.set_animation_frame(2);
     player1.show();
     draw_lib.update_screen();
     timer.delay(20);
-    //std::cout << "GAME::show_player_telport #4" << std::endl;
 
     show_ready();
     // force stand to avoid gravity not doing it for any reason
@@ -357,7 +335,6 @@ void game::show_player_teleport(int pos_x, int pos_y)
 
 void game::show_ready()
 {
-    //std::cout << "SHOW READY CALL" << std::endl;
     draw_lib.show_ready();
 }
 
@@ -368,8 +345,6 @@ void game::restart_stage()
 {
 
     input.clean_all();
-
-    //std::cout << "### RESTART_STAGE::START ###" << std::endl;
 
     if (checkpoint.x < TILESIZE*4) {
         checkpoint.x = TILESIZE*4;
@@ -411,7 +386,6 @@ void game::restart_stage()
         // find teleport stop point
         show_player_teleport(PLAYER_INITIAL_X_POS, -1);
     } else {
-        std::cout << "restart_stage - checkpoint.x[" <<checkpoint.x << "], checkpoint.y[" << checkpoint.y << "]" << std::endl;
         show_player_teleport(checkpoint.x, checkpoint.y);
     }
 
@@ -533,8 +507,6 @@ void game::show_notice()
 
     graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 110, strings_map::get_instance()->get_ingame_string(string_intro_presents), graphLib.gameScreen, st_color(199, 215, 255));
 
-
-    //std::cout << ">> logo_pos.x: " << logo_pos.x << ", logo_pos.y: " << logo_pos.y << std::endl;
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
     graphLib.draw_centered_text(206, "HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM");
     graphLib.draw_centered_text(220, "HTTPS://ROCKBOT.UPPERLAND.NET");
@@ -659,7 +631,6 @@ bool game::test_teleport(classPlayer *test_player) {
 					transition_type = TRANSITION_BOTTOM_TO_TOP;
 				}
                 MUST_TELEPORT = check_player_is_on_teleport(test_player, currentMap, temp_x, temp_y, j, transition_type, i, teleporter_dist, player_x, link_type);
-                //std::cout << "MUST_TELEPORT #1[" << MUST_TELEPORT << "]" << std::endl;
             }
             if (MUST_TELEPORT == false && stage_data.links[j].id_map_destiny == currentMap && stage_data.links[j].bidirecional == true && stage_data.links[j].pos_destiny.x != -1) {
                 temp_x = stage_data.links[j].pos_destiny.x;
@@ -672,7 +643,6 @@ bool game::test_teleport(classPlayer *test_player) {
 					transition_type = TRANSITION_BOTTOM_TO_TOP;
 				}
                 MUST_TELEPORT = check_player_is_on_teleport(test_player, currentMap, temp_x, temp_y, j, transition_type, i, teleporter_dist, player_x, link_type);
-                //std::cout << "MUST_TELEPORT #2[" << MUST_TELEPORT << "]" << std::endl;
             }
             if (MUST_TELEPORT == false) {
                 i++;
@@ -688,7 +658,6 @@ bool game::test_teleport(classPlayer *test_player) {
         return false;
     }
 
-    //std::cout << "START TELEPORT!!!!" << std::endl;
     game_pause();
 
     graphLib.set_screen_adjust(st_position(0, 0));
@@ -722,15 +691,12 @@ bool game::test_teleport(classPlayer *test_player) {
         int calc_pos_x = ((int)stage_data.links[j].pos_destiny.x * TILESIZE) - TILESIZE*2;
 
         if (link_type == LINK_TELEPORT_LEFT_LOCK) {
-            //std::cout << "%%%% LEFT %%%%" << std::endl;
             new_map_pos_x = loaded_stage.get_first_lock_on_left(calc_pos_x/TILESIZE) - TILESIZE;
         } else if (link_type == LINK_TELEPORT_RIGHT_LOCK) {
-            //std::cout << "%%%% RIGHT %%%%" << std::endl;
             new_map_pos_x = loaded_stage.get_first_lock_on_right(calc_pos_x/TILESIZE);
         } else {
             new_map_pos_x = calc_pos_x;
         }
-        //std::cout << "##### dest-x[" << (int)stage_data.links[j].pos_destiny.x << "], calc_pos_x[" << calc_pos_x << "], new_map_pos_x[" << new_map_pos_x << "]" << std::endl;
     } else {
         transition_screen(transition_type, temp_map_n, new_map_pos_x, test_player);
     }
@@ -795,7 +761,6 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
     int min = scroll.x-RES_W/2;
     int max = scroll.x+RES_W*1.5;
     if (abs(px) < min || abs(px) > max) {
-        //std::cout << "IGN - px[" << px << "], scroll.x[" << scroll.x << "], min[" << min << "], max[" << max << "]" << std::endl;
         return false;
     }
 
@@ -809,15 +774,12 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
         }
     }
 
-    //std::cout << "GAME::check_player_is_on_teleport - lim3[" << lim3 << "], lim4[" << lim4 << "], py[" << py << "]" << std::endl;
-
     if ((px >= lim1 && px <= lim2) && ((py > lim3 && py < lim4))) {
 
         if (test_player->get_teleporter() == -1) {
 
             // avoid using same teleporter to return
             if ((is_link_teleporter(stage_data.links[link_n].type) == true) && teleport_count == _player_teleporter.teleporter_n) {
-                std::cout << ">>>>>>>>>> IGNORE TELEPORT <<<<<<<<<<<<<<<<<" << std::endl;
                 teleport_count++;
                 // TODO: return false in structure
                 return false;
@@ -836,7 +798,6 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
                 test_player->set_teleporter(teleport_count);
             }
             link_type = stage_data.links[link_n].type;
-            //std::cout << "## TELEPORT #1, teleporter_dist[" << teleporter_dist << "]" << std::endl;
             return true;
         }
     // only clean teleport when player is out of the teleporter
@@ -913,13 +874,9 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
         }
     }
 
-    std::cout << "### GAME::map_present_boss #4" << std::endl;
-    timer.delay(5000);
-
     // 4. show boss intro sprites animation
     loop_run = true;
     while (loop_run == true) {
-        std::cout << "### GAME::map_present_boss #4::LOOP" << std::endl;
         if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) {
             loop_run = false;
             show_stage(0, false);
@@ -928,18 +885,11 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
         }
     }
 
-    std::cout << "### GAME::map_present_boss #5" << std::endl;
-    timer.delay(5000);
-
-
     // 5. show boss dialog
     dialogs boss_dialog;
     boss_dialog.show_boss_dialog(loaded_stage.get_number());
 
     show_stage(8, false);
-
-    std::cout << "### GAME::map_present_boss #6" << std::endl;
-    timer.delay(5000);
 
 
     soundManager.play_boss_music();
@@ -1019,9 +969,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     // if map destiny and map origin are the same, adjust player's X position
     if (loaded_stage.get_current_map_number() == map_n) {
-        //std::cout << "p.x[" << (int)test_player->getPosition().x << "], p.real.x[" << test_player->get_real_position().x << "]" << std::endl;
         pObj->set_position(st_position(pObj->get_real_position().x+adjust_x, pObj->get_real_position().y));
-        //adjust_x += TILESIZE;
     }
 
     // TODO: adjust player X position when changing from the same map
@@ -1070,12 +1018,10 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 			}
 
 			if (type == TRANSITION_TOP_TO_BOTTOM) {
-                //std::cout << "TRANSITION_TOP_TO_BOTTOM, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y > 6) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y - TRANSITION_STEP + extra_y));
 				}
 			} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-                //std::cout << "TRANSITION_BOTTOM_TO_TOP, px[" << (int)pObj->getPosition().x << "], py[" << (int)pObj->getPosition().y << "]" << std::endl;
 				if (pObj->getPosition().y < RES_H-TILESIZE*2) {
 					pObj->set_position(st_position(pObj->getPosition().x, pObj->getPosition().y + TRANSITION_STEP - extra_y));
 				}
@@ -1177,7 +1123,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
     }
 
 
-    std::cout << "player_move_x[" << player_move_x << "], move_limit[" << move_limit << "]" << std::endl;
     for (int i=0; i<move_limit; i++) {
         //loaded_stage.changeScrolling(scroll_move, false);
         loaded_stage.change_map_scroll(scroll_move, false, true);
@@ -1445,11 +1390,7 @@ void game::quick_load_game()
     game_save.selected_player = PLAYER_4;
 
     // UNIT-TEST //
-    //get_first_lock_on_bottom, x_pos[1799], y_pos[178], w[29], h[29]
-    //std::cout << "#######################################################################" << std::endl;
-    int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
-    //std::cout << "get_first_lock_on_bottom[" << lock_point << "]" << std::endl;
-    //std::cout << "#######################################################################" << std::endl;
+    //int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
 
 
     //got_weapon();
@@ -1467,7 +1408,6 @@ void game::update_stage_scrolling()
     }
     loaded_stage.change_map_scroll(checkScrolling(), true, false);
     st_position p_pos = player1.get_real_position();
-    //std::cout << "p_pos.x: " << p_pos.x << std::endl;
     if (p_pos.x < 0.0) {
         player1.change_position_x(1);
         // out of screen, probably because was pushed out on a autoscroll stage
@@ -1575,7 +1515,6 @@ void game::show_player_at(int x, int y)
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### GAME::show_player_at[%d, %d] ###", x, y);
 #endif
-    //std::cout << "show_player_at[" << x << ", " << y << "]" << std::endl;
     player1.show_at(st_position(x, y));
 }
 
@@ -1630,8 +1569,6 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
 	_player_teleporter.old_player_pos.x = set_player_pos.x;
 	_player_teleporter.old_player_pos.y = set_player_pos.y;
 
-    std::cout << "################### SET PLAYER TELEPORTER ###################" << std::endl;
-
 	_player_teleporter.active = true;
 	_player_teleporter.finished = false;
     _player_teleporter.old_map_scroll = loaded_stage.getMapScrolling();
@@ -1640,7 +1577,6 @@ void game::set_player_teleporter(short set_teleport_n, st_position set_player_po
 
 bool game::is_player_on_teleporter()
 {
-    std::cout << "######## is_player_on_teleporter[" << _player_teleporter.active << "] ########" << std::endl;
     return _player_teleporter.active;
 }
 
@@ -1648,7 +1584,6 @@ unsigned short game::get_next_stage()
 {
     unsigned short pos_n = INTRO_STAGE;
     for (unsigned short i=INTRO_STAGE; i<=CASTLE1_STAGE5; i++) {
-        //std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
@@ -1667,13 +1602,11 @@ short game::get_last_castle_stage()
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
-        //std::cout << "GAME_FLAGS[FLAG_ALLWEAPONS]: " << GAME_FLAGS[FLAG_ALLWEAPONS] << "], CASTLE1_STAGE1[" << CASTLE1_STAGE1 << "], stage[" << i << "]: (" << game_save.stages[i] << ")" << std::endl;
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
         pos_n = i+1;
     }
-    //std::cout << "game::get_last_castle_stage[" << pos_n << "]" << std::endl;
     if (pos_n > CASTLE1_STAGE5) {
         pos_n = CASTLE1_STAGE5;
     }
@@ -1743,11 +1676,9 @@ void game::select_game_screen()
     std::vector<std::string> game_list = fio.read_game_list();
     if (game_list.size() < 1) {
         _selected_game = std::string("");
-        std::cout << "select_game_screen [NO GAMES]" << std::endl;
         exit(-1);
     } else if (game_list.size() == 1) {
         _selected_game = game_list.at(0);
-        std::cout << "select_game_screen [" + _selected_game + "]" << std::endl;
         return;
     }
     graphLib.show_config_bg();
@@ -1786,7 +1717,6 @@ void game::finish_player_teleporter()
     draw_lib.fade_out_screen(0, 0, 0, 500);
     timer.delay(1000);
 
-    std::cout << "################### RESET PLAYER TELEPORTER ###################" << std::endl;
     _player_teleporter.active = false;
     _last_stage_used_teleporters.insert(pair<int,bool>(_player_teleporter.teleporter_n, true));
 	// teleport out
@@ -1800,7 +1730,6 @@ void game::finish_player_teleporter()
         loaded_stage.activate_final_boss_teleporter();
     }
     loaded_stage.set_scrolling(st_float_position(_player_teleporter.old_map_scroll));
-    std::cout << "CHAR::RESET_TO_STAND #Y.5" << std::endl;
     player1.set_animation_type(ANIM_TYPE_STAND);
     if (_player_teleporter.is_object == true) {
         loaded_stage.get_current_map()->finish_object_teleporter(_player_teleporter.teleporter_n);
@@ -1845,7 +1774,6 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     if (_last_stage_used_teleporters.find(teleporter_id) != _last_stage_used_teleporters.end()) {
         return;
     }
-    std::cout << "############################################ TELEPORT #2" << std::endl;
     if (must_return) {
         set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
     }

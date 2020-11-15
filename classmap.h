@@ -216,8 +216,6 @@ public:
 
     void reset_objects(); // restore objects to their original position
 
-    void print_objects_number();
-
     void add_bubble_animation(st_position pos);
 
     bool have_player_object();

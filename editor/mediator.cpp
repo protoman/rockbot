@@ -319,15 +319,12 @@ void Mediator::save_dialogs()
 
     std::map<int, std::vector<std::string> >::iterator it;
     for (int i=0; i<LANGUAGE_COUNT; i++) {
-        std::cout << "stage_dialog_list.size[" << stage_dialog_list[i].size() << "]" << std::endl;
         for (it = stage_dialog_list[i].begin(); it != stage_dialog_list[i].end(); it++) {
             std::vector<std::string> list_copy = it->second;
 
             if (list_copy.size() > STAGE_DIALOG_NUMBER) {
-                std::cout << "ERROR: Invalid dialogs size" << std::endl;
                 return;
             }
-            std::cout << "list_copy.size[" << list_copy.size() << "]" << std::endl;
 
             for (int i=0; i<list_copy.size(); i++) {
                 list_copy.at(i) = list_copy.at(i) + "\n";
@@ -415,7 +412,6 @@ void Mediator::load_game() {
     }
 
     ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
-    //std::cout << "MEDIATOR::load_game::ai_list.size(): " << ai_list.size() << std::endl;
     if (ai_list.size() == 0) { // add one first item to avoid errors
         for (int i=0; i<enemy_list.size(); i++) {
             ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
@@ -438,7 +434,6 @@ void Mediator::load_game() {
     if (projectile_list_v2.size() == 0) {
         projectile_list_v2.push_back(CURRENT_FILE_FORMAT::file_projectilev2());
     }
-    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ projectile_list_v2.size[" << projectile_list_v2.size() << "]" << std::endl;
 
     // converts projectile_v2 into projectile_v3 //
     /*
@@ -451,7 +446,6 @@ void Mediator::load_game() {
     if (projectile_list_v3.size() == 0) {
         projectile_list_v3.push_back(CURRENT_FILE_FORMAT::file_projectilev3());
     }
-    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ projectile_list_v3.size[" << projectile_list_v3.size() << "]" << std::endl;
 
 
     scene_list = fio_scenes.load_scenes();
@@ -618,20 +612,18 @@ void Mediator::clean_data()
 
     QPixmap *image = new QPixmap(filename);
     if (image->isNull()) {
-        printf("DEBUG.Tile - Could not load image file '%s'\n", qPrintable(filename));
+        return;
     }
 
     int tileset_w = image->width();
     int tileset_h = image->height();
 
-    std::cout << "tileset_w[" <<  tileset_w << "], tileset_h[" <<  tileset_h << "]" << std::endl;
     // remove all invalid level-3 tiles from maps
     for (int i=0; i<FS_MAX_STAGES; i++) {
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             for (int x=0; x<MAP_W; x++) {
                 for (int y=0; y<MAP_H; y++) {
                     if (maps_data_v2[i][j].tiles[x][y].tile3.x*TILESIZE >= tileset_w || maps_data_v2[i][j].tiles[x][y].tile3.y*TILESIZE >= tileset_h) {
-                        std::cout << "ERASE LV3 TILE stage[" << i << "], map[" << j << "], tile[" << x << "][" << y << "], values[" << (int)maps_data_v2[i][j].tiles[x][y].tile3.x << "][" << (int)maps_data_v2[i][j].tiles[x][y].tile3.y << "]" << std::endl;
                         maps_data_v2[i][j].tiles[x][y].tile3.x = -1;
                         maps_data_v2[i][j].tiles[x][y].tile3.y = -1;
                     }

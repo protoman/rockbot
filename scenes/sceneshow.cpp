@@ -53,7 +53,6 @@ void sceneShow::show_scene(int n)
     for (int i=0; i<SCENE_OBJECTS_N; i++) {
         input.read_input();
         int scene_seek_n = scene.objects[i].seek_n;
-        //std::cout << ">> sceneShow::show_scene - i: " << i << ", scene_seek_n: " << scene_seek_n << std::endl;
 
         if (_interrupt_scene == true || input.p1_input[BTN_START] == 1) {
             break;
@@ -61,7 +60,6 @@ void sceneShow::show_scene(int n)
 
         if (scene_seek_n != -1) {
             int scene_type = scene.objects[i].type;
-            //std::cout << "### scene_type[" << scene_type << "]" << std::endl;
             if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
                 show_text(scene_seek_n);
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
@@ -85,9 +83,8 @@ void sceneShow::show_scene(int n)
             } else if (scene_type == CURRENT_FILE_FORMAT::SCENETYPE_PARALLAX) {
                 show_parallax(scene_seek_n);
             } else {
-                std::cout << ">> sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
+                std::cout << "ERROR: sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
-            //std::cout << "show_scene::DELAY[" << i << "][" << scene.objects[i].delay_after << "]" << std::endl;
             if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
                 _interrupt_scene = true;
             }
@@ -115,7 +112,6 @@ void sceneShow::show_image(int n)
     int diff_y = abs(current_scene_image.ini_y - current_scene_image.dest_y);
     if (diff_x > diff_y) {
         speed_y = (float)((float)diff_y / diff_x);
-        std::cout << "speed_y: " << speed_y << ", res: " << ((float)diff_y / diff_x) << std::endl;
     } else if (diff_x < diff_y) {
         speed_x = (float)((float)diff_x / diff_y);
     }
@@ -173,7 +169,6 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
 
     while (total_dist > 0) {
         input.read_input();
-        //std::cout << "total_dist: " << total_dist << std::endl;
         timer.delay(scene_image.move_delay);
         // @TODO - copy background, but should be done in a smarter way as there can be several moving elements
         graphLib.showSurfaceAt(&bg_image, st_position(0, 0), false);
@@ -195,8 +190,6 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
 
     graphicsLib_gSurface image;
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/" + viewpoint.filename, &image);
-
-    //std::cout << "** sceneShow::run_image_scene::total_dist: " << total_dist << std::endl;
 
     while (total_dist > 0) {
         input.read_input();
@@ -359,9 +352,6 @@ void sceneShow::run_text(int n)
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 
-    std::cout << "center_x[" << center_x << "], max_line_w[" << max_line_w << "], FONT_SIZE[" << FONT_SIZE << "]" << std::endl;
-    // -48, 26, 16
-
     int pos_x = 0;
     int pos_y = 0;
 
@@ -401,7 +391,6 @@ void sceneShow::run_text(int n)
     }
     // clear text area
     int max_h = lines.size()*SCENES_LINE_H_DIFF;
-    //std::cout << "lines[" << lines.size() << "], max_w[" << max_w << "], max_h[" << max_h << "]" << std::endl;
     graphLib.clear_area(pos_x, pos_y, RES_W, max_h, 0, 0, 0);
 
 
@@ -440,7 +429,6 @@ void sceneShow::show_viewpoint(int n)
     int diff_y = abs(viewpoint.ini_y - viewpoint.dest_y);
     if (diff_x > diff_y) {
         speed_y = (float)((float)diff_y / diff_x);
-        std::cout << "speed_y: " << speed_y << ", res: " << ((float)diff_y / diff_x) << std::endl;
     } else if (diff_x < diff_y) {
         speed_x = (float)((float)diff_x / diff_y);
     }
@@ -494,7 +482,6 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
             }
         }
         graphLib.showSurfaceAt(&bg_image, st_position(scene.x, scene.y), false);
-        //std::cout << "x[" << x << "], img.w[" << image.width << "], frame.w[" << scene.frame_w << "]" << std::endl;
         graphLib.showSurfaceRegionAt(&image, st_rectangle(x, 0, scene.frame_w, scene.frame_h), st_position(scene.x, scene.y));
         graphLib.updateScreen();
         timer.delay(scene.frame_delay);

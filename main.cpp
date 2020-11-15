@@ -266,12 +266,7 @@ void get_filepath()
 
 #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
     FILEPATH = "mass:/PS2/Rockbot/";
-//#elif WII
-    //FILEPATH = "sd:/apps/Rockbot/";
-    //printf("MAIN #D\n");
-#endif
-std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
-#ifdef DREAMCAST
+#elif DREAMCAST
     FILEPATH = "/cd/";
 #endif
 
@@ -280,7 +275,6 @@ std::cout << "get_filepath - FILEPATH:" << FILEPATH << std::endl;
 
 
 void detect_language() {
-    std::cout << "CONFIG.LANGUAGE[" << (int)SharedData::get_instance()->game_config.selected_language << "]" << std::endl;
     if (SharedData::get_instance()->game_config.selected_language == LANGUAGE_AUTODETECT) {
         // try to get language from the env, if set
         if (const char* env_lang = std::getenv("LANGUAGE")) {
@@ -309,8 +303,6 @@ void detect_language() {
 
 int main(int argc, char *argv[])
 {
-    std::cout << "PS2.DEBUG #0" << std::endl; std::fflush(stdout);
-
     for (int i=0; i<FLAG_COUNT; i++) {
 		GAME_FLAGS[i] = false;
 	}
@@ -325,14 +317,10 @@ int main(int argc, char *argv[])
     get_filepath();
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
-        std::cout << "Could not read path, fallback to using argv" << std::endl;
         FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     }
-    std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl; std::fflush(stdout);
-
 
 #ifdef PLAYSTATION2
-    std::cout << "PS2.DEBUG #1" << std::endl; std::fflush(stdout);
 
     PS2_init();
 
@@ -341,27 +329,16 @@ int main(int argc, char *argv[])
     // --- DEBUG --- //
 
     //PS2_load_xio();
-    std::cout << "PS2.DEBUG #2" << std::endl; std::fflush(stdout);
 
     if (FILEPATH.find("mass:") != std::string::npos) {
-        printf("DEBUG.PS2 #1.4\n");
-        std::cout << "PS2.DEBUG Load USB" << std::endl; std::fflush(stdout);
         PS2_load_USB();
     }
 
     if (FILEPATH.find("cdfs") != std::string::npos || FILEPATH.find("cdrom") != std::string::npos) {
-        printf("DEBUG.PS2 #1.5\n");
-        std::cout << "PS2.DEBUG Load CDROM" << std::endl; std::fflush(stdout);
         FILEPATH = "cdfs:";
         PS2_load_CDROM();
     }
 
-    printf("DEBUG.PS2 #2\n");
-
-
-
-
-    std::cout << "PS2.DEBUG #3" << std::endl; std::fflush(stdout);
 #endif
 
 
@@ -401,7 +378,6 @@ int main(int argc, char *argv[])
                 std::string stage_n_str;
                 s>>stage_n_str;
                 sscanf(stage_n_str.c_str(), "%d", &current_stage);
-                std::cout << "stage_n_str[" + stage_n_str + "], stage_n_str[" << stage_n_str << "]" << std::endl;
             }
 		}
 	}
@@ -416,10 +392,8 @@ int main(int argc, char *argv[])
     #if defined(LINUX) || defined(OSX) || defined(RASPBERRY)
         SAVEPATH = std::string(getenv("HOME")) + "/.rockdroid/";
         mkdir(SAVEPATH.c_str(), 0777);
-        //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;
     #elif WIN32
         SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
-        std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
         _mkdir(SAVEPATH.c_str());
     #else
         SAVEPATH = GAMEPATH;
@@ -427,8 +401,6 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
-
-    std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
 
 #ifndef PLAYSTATION2
     fio.load_config(SharedData::get_instance()->game_config);
@@ -440,7 +412,6 @@ int main(int argc, char *argv[])
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
         fflush(stdout);
-        std::cout << "ERROR intializing graphic mode." << std::endl;
         return -1;
     }
 
@@ -493,10 +464,7 @@ int main(int argc, char *argv[])
 
         /*
         if (fioMkdir(SAVEPATH.c_str()) < 0) {
-            std::cout << "main - warning: could not create '" << SAVEPATH << "' folder" << std::endl; std::fflush(stdout);
             /// @TODO - check if directory exists
-        } else {
-            std::cout << "Folder '" << SAVEPATH << "' created" << std::endl; std::fflush(stdout);
         }
         */
 
@@ -534,7 +502,6 @@ int main(int argc, char *argv[])
     // INIT GAME
     if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {
         if (gameControl.show_game_intro() == false) {
-            std::cout << "ERROR SHOWING INTRO" << std::endl;
             return 0;
         }
     } else {

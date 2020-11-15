@@ -17,7 +17,6 @@ sprite_preview_area::sprite_preview_area(QWidget *parent) :
 
 void sprite_preview_area::updateBG()
 {
-    //std::cout << "sprite_preview_area::updateBG - current_npc: " << Mediator::get_instance()->current_npc_n << ", current_sprite_type: " << Mediator::get_instance()->current_sprite_type << std::endl;
     _sprite_n++;
     if (_sprite_n > ANIM_FRAMES_COUNT-1) {
         _sprite_n = 0;
@@ -86,7 +85,6 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
         int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w*2;
         int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h*2;
 
-        //std::cout << "hitx: " << hitx << ", hity: " << hity << ", hitw: " << hitw << ", hith: " << hith << std::endl;
         painter.drawRect(hitx, hity, hitw, hith);
     }
 
@@ -94,7 +92,6 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x > 0 || Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y > 0) {
         painter.setPen(QPen(QColor(0, 150, 0), 2, Qt::DashLine));
         int attack_x = center_x + npc_w - (adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2);
-        //std::cout << ">>>>>>>>> attack_x: " << attack_x << ", npc_w: " << npc_w << std::endl;
         int attack_y = center_y + adjust_y + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y*2;
         // vertical line
         painter.drawLine(attack_x, (center_y + adjust_y), attack_x, (center_y + adjust_y + npc_h));

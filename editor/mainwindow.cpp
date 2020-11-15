@@ -139,8 +139,6 @@ void MainWindow::copy_path(QString src, QString dst)
 {
     src = src.replace(QString("//"), QString("/"));
     dst = dst.replace(QString("//"), QString("/"));
-    //std::cout << "MainWindow::copy_path::src: " << src.toStdString() << ", dst: " << dst.toStdString() << std::endl;
-    //exit(-1);
     QDir dir(src);
     if (! dir.exists())
         return;
@@ -350,7 +348,6 @@ void MainWindow::on_bg1_y_pos_valueChanged(int arg1)
 void MainWindow::on_bg1_speed_valueChanged(int arg1)
 {
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#1 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     map_edit_tab->update_edit_area();
 }
 
@@ -401,7 +398,6 @@ void MainWindow::on_bg1_speed_valueChanged(double arg1)
 		return;
 	}
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#2 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     map_edit_tab->update_edit_area();
 }
 
@@ -434,9 +430,7 @@ void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
     if (_data_loading == true) {
 		return;
 	}
-    std::cout << "Mediator::get_instance()->current_player: " << Mediator::get_instance()->current_player << ", max_shots: " << Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].max_shots << std::endl;
     Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].max_shots = arg1;
-    std::cout << "max_shots: " << Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].max_shots << std::endl;
 }
 
 void MainWindow::on_can_slide_checkbox_toggled(bool checked)
@@ -490,7 +484,6 @@ void MainWindow::on_chargedshot_combo_currentIndexChanged(int index)
 void MainWindow::on_players_tab_list_combo_2_currentIndexChanged(int index)
 {
     Mediator::get_instance()->current_player = index;
-    std::cout << "MainWindow::on_players_tab_list_combo_2_currentIndexChanged - index: " << index << ", max_shots: " << Mediator::get_instance()->player_list_v3_1[index].max_shots << std::endl;
 }
 
 void MainWindow::on_actionSwap_Maps_triggered()

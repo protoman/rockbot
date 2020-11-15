@@ -45,8 +45,6 @@ void classjump::start(bool bigjump_mode, int terrain_type)
     }
     jumps_number++;
 
-    //std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
-
     moved = 0;
 }
 
@@ -70,19 +68,14 @@ void classjump::execute(int terrain_type)
         }
     }
 
-
-    //std::cout << "CLASSJUMP::EXECUTE[#1]::speed: " << speed << std::endl;
     speed += acceleration;
     moved += std::abs((double)speed);
-
-    //std::cout << "CLASSJUMP::EXECUTE[#2]::speed: " << speed << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {
             state = JUMPDOWN;
         } else if (is_bigjump == false && std::abs((double)moved) > JUMP_LIMIT) { // hardcoded limit of 3 tiles
             state = JUMPDOWN;
-            std::cout << "OBJUMP RESET SPEED #3" << std::endl;
             speed = 0;
         }
     } else {
@@ -99,7 +92,6 @@ void classjump::interrupt()
     }
     if (state != JUMPUP) {
         state = JUMPDOWN;
-        //std::cout << "%%%%%%%%%%%%%%%%% OBJUMP RESET SPEED #4 %%%%%%%%%%%%%%%%%%" << std::endl;
         speed = 0;
         return;
     }

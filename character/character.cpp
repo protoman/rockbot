@@ -98,7 +98,6 @@ void character::char_update_real_position() {
     if (gameControl.get_current_map_obj() != NULL) {
         realPosition.x = position.x - (int)gameControl.get_current_map_obj()->getMapScrolling().x;
         realPosition.y = position.y - (int)gameControl.get_current_map_obj()->getMapScrolling().y;
-        //std::cout << ">>>> show::char_update_real_position - realPosition.y: " << realPosition.y << ", pos.y: " << position.y << ", gameControl.get_current_map_obj()->getMapScrolling().y: " << gameControl.get_current_map_obj()->getMapScrolling().y << std::endl;
     } else {
 		realPosition.x = position.x;
 		realPosition.y = position.y;
@@ -111,7 +110,6 @@ st_float_position character::get_screen_position_from_point(st_float_position po
     if (gameControl.get_current_map_obj() != NULL) {
         res_pos.x = pos.x - (int)gameControl.get_current_map_obj()->getMapScrolling().x;
         res_pos.y = pos.y - (int)gameControl.get_current_map_obj()->getMapScrolling().y;
-        //std::cout << ">>>> show::char_update_real_position - realPosition.y: " << realPosition.y << ", pos.y: " << position.y << ", gameControl.get_current_map_obj()->getMapScrolling().y: " << gameControl.get_current_map_obj()->getMapScrolling().y << std::endl;
     } else {
         res_pos.x = pos.x;
         res_pos.y = pos.y;
@@ -123,10 +121,6 @@ st_float_position character::get_screen_position_from_point(st_float_position po
 //                                                                                                //
 // ********************************************************************************************** //
 void character::charMove() {
-
-
-    //if (!is_player()) std::cout << "character::charMove[" << name << "]::START" << std::endl;
-
     int mapLock = 0;
 	bool moved = false;
     float temp_move_speed = move_speed;
@@ -135,7 +129,6 @@ void character::charMove() {
     store_previous_position();
 
     if (timer.is_paused() == true) {
-        //std::cout << "character::charMove[" << name << "]::LEAVE.PAUSED" << std::endl;
         return;
     }
 
@@ -157,7 +150,6 @@ void character::charMove() {
 
 
     if (gameControl.get_current_map_obj() == NULL) {
-        //std::cout << "character::charMove[" << name << "]::LEAVE.NO-MAP" << std::endl;
 		return; // error - can't execute this action without an associated map
 	}
 
@@ -169,17 +161,12 @@ void character::charMove() {
     int map_point_x = (position.x+frameSize.width/2)/TILESIZE;
     int map_point_y = (position.y+frameSize.height)/TILESIZE;
     int bottom_point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(map_point_x, map_point_y));
-    //std::cout << "map.x: " << map_point_x << ", map.y: " << map_point_y << ", bottom_point_lock: " << bottom_point_lock << std::endl;
-
 
 	if (state.frozen == true) {
-        std::cout << "CHAR::charMove - timer: " << timer.getTimer() << ", frozen_timer: " << state.frozen_timer << std::endl;
 		if (state.frozen_timer < timer.getTimer()) {
 			state.frozen = false;
 		} else { // if is player, check collision agains NPCs to leave freeze
 			if (is_player()) {
-                std::cout << "CHAR::charMove::frozen - check collision (is_player)" << std::endl;
-                std::cout << "collision_player_npcs #1" << std::endl;
                 classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
                 if (npc_touch != NULL) {
                     if (npc_touch->get_size().height > this->get_size().height) {
@@ -197,17 +184,13 @@ void character::charMove() {
 	}
 
 	if (state.animation_type == ANIM_TYPE_TELEPORT) {
-        //std::cout << "character::charMove[" << name << "]::LEAVE.TELEPORT" << std::endl;
 		gravity(false);
 		return;
 	}
 
     if (state.animation_type == ANIM_TYPE_HIT) {
 
-        //if (is_player()) std::cout << "hit_moved_back_n: " << hit_moved_back_n << ", get_hit_push_back_n(): " << get_hit_push_back_n() << std::endl;
-
         if (hit_moved_back_n < get_hit_push_back_n()) {
-            //std::cout << ">>>>>>>>>>>>> ANIM_TYPE_HIT::PUSHBACK #2" << std::endl;
 
             if (state.direction == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
@@ -226,7 +209,6 @@ void character::charMove() {
             }
 
         } else {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Z" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			hit_moved_back_n = 0;
 		}
@@ -291,9 +273,7 @@ void character::charMove() {
             if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
                 st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
-                //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                    //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", gameControl.get_current_map_obj()->get_last_scrolled().x: " << gameControl.get_current_map_obj()->get_last_scrolled().x << std::endl;
                     if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
                         position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
                     } else if (mapLock == BLOCK_WATER) {
@@ -350,30 +330,22 @@ void character::charMove() {
             if (inertia_xinc != 0) {
                 if (state.direction == ANIM_DIRECTION_LEFT) {
                     if (position.x - inertia_xinc < 0) {
-                        std::cout << "INERTIA::STOP #1" << std::endl;
                         _inertia_obj.stop();
                     } else {
                         st_map_collision map_col = map_collision(-inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x -= inertia_xinc;
-                        //} else {
-                            //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 } else {
                     if (realPosition.x+inertia_xinc > RES_W) {
-                        //std::cout << "INERTIA::STOP #2" << std::endl;
                         _inertia_obj.stop();
                     } else {
                         st_map_collision map_col = map_collision(inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
                         mapLock = map_col.block;
                         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            //std::cout << "inertia CONTINUE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                             position.x += inertia_xinc;
-                        //} else {
-                            //std::cout << "inertia DONT EXECUTE, pos.x: " << position.x << ", mapLock: " << mapLock << std::endl;
                         }
                     }
                 }
@@ -407,15 +379,11 @@ void character::charMove() {
 		// out of stairs
 		} else {
             int map_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
-            //std::cout << ">> map_terrain: " << map_terrain << ", _dropped_from_stairs: " << _dropped_from_stairs << std::endl;
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
-                //if (is_player()) std::cout << "STAIRS SEMI - SET #1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
                 position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
 			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
-                //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #A" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
-                //std::cout << "LEAVE STAIRS (BOTTOM->UP)" << std::endl;
                 position.y -= 2;
 			}
 		}
@@ -433,7 +401,6 @@ void character::charMove() {
         if (is_already_on_stairs == true) {
             // if frame is semi, but already entered whole body, change to full-stairs frame
             if (state.animation_type == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
-                //std::cout << "STAIRS *MOVE* - SET #2" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
             }
 
@@ -445,11 +412,9 @@ void character::charMove() {
             // if bottom point is not stairs, leave it
             if (bottom_point_lock != TERRAIN_STAIR) {
                 if (stairs_pos_center.x == -1 && (bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_WATER)) {
-                    //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #A" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
                 }
                 if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
-                    //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #B, bottom_point_lock[" << bottom_point_lock << "]" << std::endl;
                     set_animation_type(ANIM_TYPE_STAND);
                 }
             }
@@ -459,11 +424,7 @@ void character::charMove() {
                 // over stairs, enter it
                 st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
                 if (stairs_pos_bottom.x != -1) {
-                    //std::cout << "STAIRS SEMI - SET #2" << std::endl;
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
-
-                    //std::cout << "### STAIRS-DOWN #2 ###" << std::endl;
-
                     position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
                     position.x = stairs_pos_bottom.x * TILESIZE - 6;
                 }
@@ -481,7 +442,6 @@ void character::charMove() {
     } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
         _stairs_stopped_count = 0;
         if (state.animation_type == ANIM_TYPE_STAIRS) {
-            //std::cout << "STAIRS *MOVE* - SET #3" << std::endl;
             set_animation_type(ANIM_TYPE_STAIRS_MOVE);
         }
     }
@@ -507,26 +467,17 @@ void character::charMove() {
     if (is_player_type && moved == false && resJump == false && res_slide == false) {
 		//if (state.animation_type != ANIM_TYPE_WALK) {
          if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-			//if (is_player()) std::cout << "********* reset to stand - on_stairs_frame: " << is_in_stairs_frame() << ", state.animation_type: " << state.animation_type << std::endl;
-            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #D" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 		}
-		//std::cout << "charMove - ANIM_TYPE_HIT: " << ANIM_TYPE_HIT << ", animation_type: " << state.animation_type << ", timer.getTimer(): " << timer.getTimer() << ", hit_duration+last_hit_time: " << hit_duration+last_hit_time << std::endl;
 		if (state.animation_type == ANIM_TYPE_HIT && timer.getTimer() > hit_duration/2+last_hit_time) { // finished hit time
-			//if (is_player()) std::cout << "state.animation_type SET to STAND " << std::endl;
-            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #E" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 		}
 	}
 
-    //if (is_player()) std::cout << "pos.x: " << position.x << ", pos.y: " << position.y << std::endl;
-
     if (_dropped_from_stairs == true) {
         if (timer.getTimer() > hit_duration+last_hit_time) {
-            std::cout << "RESET _dropped_from_stairs flag #1" << std::endl;
             _dropped_from_stairs = false;
         } else if (hit_ground() == true) {
-            std::cout << "RESET _dropped_from_stairs flag #2" << std::endl;
             _dropped_from_stairs = false;
         }
     }
@@ -551,7 +502,6 @@ void character::clear_move_commands()
 	moveCommands.down = 0;
 	moveCommands.left = 0;
 	moveCommands.right = 0;
-    //std::cout << ">>> moveCommands.attack::RESET #3" << std::endl;
 	moveCommands.attack = 0;
 	moveCommands.jump = 0;
     moveCommands.start = 0;
@@ -594,12 +544,10 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
         return ATTACK_TYPE_NOATTACK;
     }
     if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
-        std::cout << "CHAR::ATTACK::ERROR: could not find character graphics!" << std::endl;
         return ATTACK_TYPE_NOATTACK;
     }
 
     if (state.animation_type == ANIM_TYPE_SLIDE) {
-        //std::cout << "character::attack - LEAVE #2" << std::endl;
         return ATTACK_TYPE_NOATTACK;
     }
 
@@ -624,7 +572,6 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
 
     // button changed from released to pressed
     if (moveCommands.attack != 0 && attack_button_last_state == 0) {
-        //std::cout << "CHAR::check_must_attack - ATTACK NORMAL" << std::endl;
         return ATTACK_TYPE_NORMAL;
     // button changed from pressed to released and char can use charged attacks
     } else if (SharedData::get_instance()->game_config.turbo_mode == false && _charged_shot_projectile_id > 0 && moveCommands.attack == 0 && attack_button_last_state == 1) {
@@ -658,9 +605,6 @@ void character::check_charging_colors(bool always_charged)
         // reset time, so we start counting only when all projectiles are gone
         return;
     }
-
-
-    //std::cout << "_charged_shot_projectile_id[" << _charged_shot_projectile_id << "]" << std::endl;
 
     if (_charged_shot_projectile_id > 0 && attack_diff_timer > CHARGED_SHOT_INITIAL_TIME && attack_diff_timer < CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1 && _simultaneous_shots < 2) {
         if (is_player() && soundManager.is_playing_repeated_sfx() == false) {
@@ -745,7 +689,6 @@ st_position character::get_attack_position(short direction)
 void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
 {
     if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay) {
-		//std::cout << "character::attack - shoot projectile END" << std::endl;
 		attack_state = ATTACK_NOT;
 	}
 
@@ -777,17 +720,12 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
 
     if (attack_id != -1) {
-        //std::cout << "character::attack - attack_id: " << attack_id << std::endl;
-
-        //if (!is_player()) { std::cout << "CHAR::attack::attack_id: " << attack_id << std::endl; }
         if (attack_id == _charged_shot_projectile_id || attack_id == game_data.semi_charged_projectile_id) {
 			if (is_player() && soundManager.is_playing_repeated_sfx() == true) {
 				soundManager.stop_repeated_sfx();
 			}
 		}
 
-
-        //std::cout << "character::attack - shoot projectile" << std::endl;
         st_position proj_pos = get_attack_position();
 
         projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, is_player()));
@@ -857,7 +795,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 		} else if (is_in_stairs_frame()) {
             set_animation_type(ANIM_TYPE_STAIRS_ATTACK);
 		} else if (state.animation_type == ANIM_TYPE_WALK) {
-			//std::cout << "+++++++++++ CHARACTER - set animation to ANIM_TYPE_WALK_ATTACK" << std::endl;
             set_animation_type(ANIM_TYPE_WALK_ATTACK);
 		}
     }
@@ -869,37 +806,25 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 void character::advance_frameset()
 {
 
-    //if (is_player()) std::cout << "character::show - direction: " << state.direction << ", type: " << state.animation_type << ", state: " << state.animation_state << "\n";
-    //[CHAR_ANIM_DIRECTION_COUNT][ANIM_TYPE_COUNT][ANIM_FRAMES_COUNT]
     if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
-        //if (is_player()) std::cout << "WARNING - character::show - (" << name << ") error, direction value " << state.direction << " is invalid" << std::endl;
         set_direction(ANIM_DIRECTION_LEFT);
 		return;
 	}
     if (state.animation_type > ANIM_TYPE_COUNT) {
-        //if (is_player()) std::cout << "character::show - error, type value " << state.direction << " is invalid" << std::endl;
 		return;
 	}
     if ((is_player() && state.animation_state > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state > MAX_NPC_SPRITES)) {
-        //if (is_player()) std::cout << "character::show - error, animation_state value " << state.animation_state << " is invalid. state.animation_type: " << state.animation_type << std::endl;
-
-        //std::cout << "### RESET-FRAME-N #1 ###" << std::endl;
 		state.animation_state = 0;
 		return;
 	}
     if (have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
-        //if (!is_player()) std::cout << "CHAR::advance_frameset - reset frameset animation" << std::endl;
         _was_animation_reset = true;
-
-        //std::cout << "### RESET-FRAME-N #2 ###" << std::endl;
         state.animation_state = 0;
         _is_last_frame = true;
     } else {
         if (have_frame_graphic(state.direction, state.animation_type, state.animation_state+1) == false) {
-            //if (!is_player()) std::cout << "CHAR::advance_frameset - _is_last_frame TRUE" << std::endl;
             _is_last_frame = true;
         } else {
-            //if (is_player()) std::cout << "CHAR::advance_frameset - _is_last_frame FALSE" << std::endl;
             _is_last_frame = false;
         }
     }
@@ -990,7 +915,6 @@ void character::show_at(st_position pos)
     // show background, if any
     if (is_player() == false && have_background_graphics() == true) {
         st_position bg_pos = st_position(pos.x-background_pos.x, pos.y-background_pos.y);
-        if (is_player() == false) std::cout << "character::show_at[" << name << "] - pos[" << pos.x << "][" << pos.y << "], background_pos[" << background_pos.x << "][" << background_pos.y << "], bg_pos[" << bg_pos.x << "][" << bg_pos.y << "]" << std::endl;
         graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), bg_pos, false);
     }
 
@@ -999,7 +923,6 @@ void character::show_at(st_position pos)
 
     // turn is a special case, if it does not exist, we must show stand instead
     if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
-        //if (is_player() == false) std::cout << "show() - TURN graphic FINISHED, y[" << position.y << "]" << std::endl;
         if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
             show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state, pos);
         } else {
@@ -1017,14 +940,12 @@ void character::show_at(st_position pos)
         if (freeze_weapon_effect != FREEZE_EFFECT_NPC || is_weak_to_freeze() == false) {
             show_sprite();
 #ifdef SHOW_HITBOXES
-        //std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << ", hitbox.y: " << hitbox.y << std::endl;
         graphLib.draw_rectangle(hitbox, 255, 0, 255, 100);
 #endif
         }
     } else {
         show_sprite();
 #ifdef SHOW_HITBOXES
-        //std::cout << "[" << name << "] - pos.x: " << position.x << ", hitbox - x: " << hitbox.x << ", hitbox.y: " << hitbox.y << std::endl;
         graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
 #endif
     }
@@ -1040,14 +961,12 @@ void character::show_at(st_position pos)
 
 void character::show_sprite()
 {
-    //if (is_player()) std::cout << "######### timer[" << timer.getTimer() << "], state.animation_timer[" << state.animation_timer << "]" << std::endl;
     if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
 
 		// change animation state to next frame
 		int frame_inc = 1;
 		if (state.animation_inverse == true) {
             frame_inc = frame_inc * -1;
-            //std::cout << "show_sprite, INVERSE, inc: " << frame_inc << std::endl;
 		}
         int new_frame = (state.animation_state + frame_inc);
         if (have_frame_graphic(state.direction, state.animation_type, new_frame)) {
@@ -1066,12 +985,10 @@ void character::show_sprite()
 				} else {
                     set_direction(ANIM_DIRECTION_LEFT);
 				}
-                //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #F" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
 			}
 			if (state.animation_inverse == false) {
 				if (state.animation_state > 0) {
-                    //std::cout << "### RESET-FRAME-N #3 ###" << std::endl;
                     state.animation_state = 0;
 				}
 			} else {
@@ -1135,8 +1052,6 @@ void character::show_sprite_graphic(short direction, short type, short frame_n, 
     unsigned int now_timer = timer.getTimer();
     if (now_timer < hit_duration+last_hit_time) {
 
-        //if (is_player()) { std::cout << "PLATER::HIT. hit_animation_timer: " << hit_animation_timer << ", now_timer: " << now_timer << std::endl; }
-
         if (hit_animation_timer > now_timer) {
             //graphLib.show_white_surface_at(&it_graphic->second.frames[direction][type][frame_n].frameSurface, frame_pos);
             graphLib.show_white_surface_at(frame_surface, frame_pos);
@@ -1169,7 +1084,6 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
 {
 
     if (frame_n < 0) {
-        std::cout << "ERROR::character::get_current_frame_surface - negative frame-n" << std::endl;
         frame_n = 0;
     }
 
@@ -1181,19 +1095,16 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
     }
     // for non left-right directions, use the original facing direction for NPCs
     if (is_player() == false && direction != ANIM_DIRECTION_LEFT && direction != ANIM_DIRECTION_RIGHT) {
-        std::cout << "%%%% character::show_sprite_graphic(" << name << ") invalid sprite direction[" << direction << "], use[" << facing << "] instead" << std::endl;
         direction = facing;
     }
     if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given N position
         if (frame_n == 0) {
-            //std::cout << ">> character::show_sprite_graphic(" << name << ") #1 - no graphic for direction[" << direction << "], type (" << type << "):frame_n(" << frame_n << "), set to STAND" << std::endl;
             if (type == ANIM_TYPE_TELEPORT) {
                 type = ANIM_TYPE_JUMP;
             } else {
                 type = ANIM_TYPE_STAND;
             }
         } else {
-            //std::cout << ">> character::show_sprite_graphic(" << name << ") #2 - no graphic for type (" << type << "):frame_n(" << frame_n << "), set to ZERO pos" << std::endl;
             frame_n = 0;
             state.animation_state = 0;
             _was_animation_reset = true;
@@ -1203,9 +1114,7 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
         _was_animation_reset = true;
 
 
-        //std::cout << "### RESET-FRAME-N #4 ###" << std::endl;
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
-            //if (is_player()) std::cout << "CHAR::RESET_TO_STAND #G" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             type = ANIM_TYPE_STAND;
             if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic at all
@@ -1300,7 +1209,6 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	// ------------ PLAYER gravity --------------------- //
     if (is_player() && position.y > RES_H+TILESIZE) {
-        //std::cout << "**** gravity - LEAVE (death)" << std::endl;
 		hitPoints.current = 0;
 		death();
         reset_gravity_speed();
@@ -1352,8 +1260,6 @@ bool character::gravity(bool boss_demo_mode=false)
             }
 		}
 
-        //if (is_player()) std::cout << "gravity - accel_speed_y: " << accel_speed_y << ", gravity_y: " << gravity_y << ", adjusted_speed: " << adjusted_speed << ", position.y: " << position.y << std::endl;
-
         st_map_collision map_col;
         bool was_moved = false;
         for (int i=adjusted_speed; i>0; i--) {
@@ -1369,14 +1275,12 @@ bool character::gravity(bool boss_demo_mode=false)
 			}
 
 			if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
-                //if (is_player()) std::cout << "character::gravity - FALL" << std::endl;
 				if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
 					position.y += i;
 				} else {
 					position.y += i*WATER_SPEED_MULT;
 				}
                 if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.1" << std::endl;
                     set_animation_type(ANIM_TYPE_JUMP);
 				}
 				was_moved = true;
@@ -1392,28 +1296,21 @@ bool character::gravity(bool boss_demo_mode=false)
 		}
 
 		if (was_moved == false && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && state.animation_type != ANIM_TYPE_SLIDE) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND[" << name << "] - #H - state.animation_type[" << state.animation_type << "]" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		} else if (was_moved == false && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #I" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		}
         if (was_moved == false && _is_falling == true) {
             _is_falling = false;
             if (is_player()) {
-                //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.1" << std::endl;
                 set_animation_type(ANIM_TYPE_STAND);
-                //std::cout << "SFX_PLAYER_JUMP #2" << std::endl;
                 soundManager.play_sfx(SFX_PLAYER_JUMP);
             }
         }
 
         check_platform_move(map_col.terrain_type);
-
-		// teleport finished
-        //std::cout << "NOT FALLING, RESET ACCEL_SPEED_Y" << std::endl;
     }
 
     return false;
@@ -1433,12 +1330,10 @@ bool character::hit_ground() // indicates if character is standing above ground
     int pointLock1 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y1));
     _hit_ground = false;
     if (pointLock1 != TERRAIN_UNBLOCKED && pointLock1 != TERRAIN_WATER && pointLock1 != TERRAIN_STAIR) {
-        //if (is_player()) std::cout << "hit_ground #1" << std::endl;
         _hit_ground = true;
     } else {
         int pointLock2 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y2));
         if (pointLock1 != pointLock2) {
-            //if (is_player()) std::cout << "hit_ground #2" << std::endl;
             _hit_ground = true;
         }
 
@@ -1504,10 +1399,8 @@ bool character::is_on_screen()
             }
         }
         if (found_lock == false) {
-            //std::cout << "CHAR::is_on_screen[" << name << "], x[" << position.x << "], map_point_start[" << map_point_start << "], map_point_end[" << map_point_end << "]" << std::endl;
             return true;
         }
-        if (name == "Dynamite Bot") std::cout << ">>>> character::is_on_screen - right <<<<" << std::endl;
     }
     return false;
 }
@@ -1523,9 +1416,6 @@ bool character::is_on_visible_screen()
 
 
     if (abs((float)position.x + frameSize.width) >= scroll.x && abs((float)position.x) < scroll.x+RES_W) {
-        if (!is_player()) {
-            //std::cout << "CHAR::is_on_visible_screen - pos.x[" << position.x << "], w[" << frameSize.width << "], scroll.x[" << scroll.x << "]" << std::endl;
-        }
         return true;
     }
     return false;
@@ -1539,9 +1429,6 @@ bool character::is_entirely_on_screen()
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
 
     if (abs((float)position.x + frameSize.width) >= scroll.x+TILESIZE && abs((float)position.x+(float)frameSize.width) < scroll.x+RES_W-TILESIZE) {
-        if (!is_player()) {
-            //std::cout << "CHAR::is_on_visible_screen - pos.x[" << position.x << "], w[" << frameSize.width << "], scroll.x[" << scroll.x << "]" << std::endl;
-        }
         return true;
     }
     return false;
@@ -1580,8 +1467,6 @@ st_float_position character::getPosition() const
 
 void character::set_position(struct st_position new_pos)
 {
-    //std::cout << "\\\\\\\\\\\\ character::set_position - pos.x: " << position.x << ", new_pos.x: " << new_pos.x << std::endl;
-	//std::cout << "\\\\\\\\\\\\ character::set_position - pos.y: " << position.x << ", new_pos.y: " << new_pos.x << std::endl;
 	position.x = new_pos.x;
 	position.y = new_pos.y;
     char_update_real_position();
@@ -1632,7 +1517,6 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     if (position.x <= 0 && state.direction == ANIM_DIRECTION_LEFT) {
-        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.2" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -1658,15 +1542,12 @@ bool character::slide(st_float_position mapScrolling)
 
     int map_lock_above = gameControl.getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y)/TILESIZE));
     bool is_blocked_above = !(map_lock_above == TERRAIN_UNBLOCKED || map_lock_above == TERRAIN_WATER);
-    //std::cout << "CHAR::slide[" << name << "] - map_lock_above[" << map_lock_above << "], is_blocked_above[" << is_blocked_above << "]" << std::endl;
 
     // releasing down (or dash button) interrupts the slide
     if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) && !is_blocked_above) {
         if (did_hit_ground) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.2" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
-            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.3" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
         return false;
@@ -1675,17 +1556,13 @@ bool character::slide(st_float_position mapScrolling)
 
 	if (state.slide_distance > TILESIZE*5 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER)) {
         if (did_hit_ground == true) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND[" << name << "] - #Y.3" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
-            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.4" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
         state.slide_distance = 0;
         return false;
     }
-
-    //std::cout << "_dash_button_released: " << _dash_button_released << std::endl;
 
     // start slide
     if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
@@ -1713,10 +1590,7 @@ bool character::slide(st_float_position mapScrolling)
     st_map_collision map_col_fall = map_collision(0, 1, gameControl.get_current_map_obj()->getMapScrolling());
     int fall_map_lock = map_col_fall.block;
 
-    //std::cout << "character::slide - fall_map_lock: " << fall_map_lock << std::endl;
-
     if (can_air_dash() == false && (fall_map_lock == BLOCK_UNBLOCKED || fall_map_lock == BLOCK_WATER)) {
-        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.5" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
 		state.slide_distance = 0;
 		return false;
@@ -1771,7 +1645,6 @@ bool character::slide(st_float_position mapScrolling)
         position.x += res_move_x;
 		state.slide_distance += abs((float)res_move_x);
     } else if (!is_blocked_above || slide_type != 1) {
-        //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.6" << std::endl;
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -1802,25 +1675,20 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
     int water_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
 
     if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
-        //std::cout << "char::jump - button pressed" << std::endl;
 
         if (is_in_stairs_frame()) {
             if (_obj_jump.is_started() == false) {
-                //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.7" << std::endl;
                 set_animation_type(ANIM_TYPE_JUMP);
                 _is_falling = true;
                 _stairs_falling_timer = timer.getTimer() + STAIRS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
-                std::cout << "JUMP OUT OF STAIRS #1" << std::endl;
                 return false;
             } else {
-                std::cout << "JUMP OUT OF STAIRS #2" << std::endl;
                 _obj_jump.interrupt();
                 if (_force_jump == true) {
                     _force_jump = false;
                 }
             }
         } else {
-            //std::cout << "char::_jumps_number: " << _jumps_number << ", obj::_jumps_number: " << _obj_jump.get_jumps_number() << std::endl;
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
@@ -1831,7 +1699,6 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
                 }
-                //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.8" << std::endl;
                 set_animation_type(ANIM_TYPE_JUMP);
                 jump_button_released = false;
             }
@@ -1864,17 +1731,14 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             }
             st_map_collision map_col = map_collision(0, speed_y, mapScrolling);
             int map_lock = map_col.block;
-            //std::cout << "jump::check_collision - i[" << i << "], map_lock["  << map_lock << "]" << std::endl;
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
-                //std::cout << "jump.speed[" << speed_y << "]" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;
             }
         }
         if (jump_speed != 0 && jump_moved == false) {
-            //std::cout << "chat::jump - must interrupt because a collision happened" << std::endl;
             if (jump_speed < 0) {
                 _obj_jump.interrupt();
             } else {
@@ -1884,14 +1748,12 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
         _obj_jump.execute(water_lock);
         if (_obj_jump.is_started() == false) {
-            //std::cout << "SFX_PLAYER_JUMP #1" << std::endl;
             soundManager.play_sfx(SFX_PLAYER_JUMP);
             if (_force_jump == true) {
                 _force_jump = false;
             }
         } else {
             if (is_player() && position.y > RES_H+1) {
-                std::cout << "**** JUMP::LEAVE (death)" << std::endl;
                 _obj_jump.finish();
             }
         }
@@ -1913,9 +1775,6 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
 void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy) // mode_xy 0 is x, 1 is y
 {
-    //if (name == "SHIELD GROUND" && map_block != 2) std::cout << "CHAR::check_map_collision_point map_block[" << map_block << "], new_map_lock[" << new_map_lock << "]" << std::endl;
-
-    //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1 - mode_xy[" << mode_xy << "]" << std::endl;
     if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_WATER) {
         map_block = BLOCK_WATER;
     }
@@ -1924,38 +1783,29 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
 
     if (old_map_lock != new_map_lock) {
         if (is_player() == false && new_map_lock == TERRAIN_UNBLOCKED && old_map_lock == TERRAIN_WATER) { // NPCs must not leave water
-            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #1" << std::endl;
             must_block = true;
         } else if (is_player() == false && _is_boss == false && old_map_lock == TERRAIN_UNBLOCKED && new_map_lock == TERRAIN_WATER) { // non-boss NPCs must not enter water
-            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #2 - old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "], map.pos[" << (int)(position.x+frameSize.width/2)/TILESIZE << "][" << (int)(position.y+frameSize.height/2)/TILESIZE << "]" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_SCROLL_LOCK) {
-            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #3" << std::endl;
             must_block = true;
         } else if (is_player() == false && new_map_lock == TERRAIN_DOOR) {
-            //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #4" << std::endl;
             must_block = true;
         } else if (new_map_lock == TERRAIN_EASYMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_EASY) {
-                //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #5" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock == TERRAIN_HARDMODEBLOCK) {
             if (game_save.difficulty == DIFFICULTY_HARD) {
                 if (mode_xy == 1 ||  is_player()) {
-                    //std::cout << "HARD_MODE SPIKES DAMAGE" << std::endl;
                     damage_spikes(true);
                 }
-                //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #6" << std::endl;
                 must_block = true;
             }
         } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
-            //if (name == "SHIELD GROUND" && map_block != 2) std::cout << "CHAR::check_map_collision_point BLOCK #7, new_map_lock[" << new_map_lock << "]" << std::endl;
             must_block = true;
         }
 
-    } else if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_SOLID) {
-        //if (name == "SHIELD GROUND") std::cout << "CHAR::check_map_collision_point BLOCK #8" << std::endl;
+    } else if (map_block == BLOCK_UNBLOCKED && (new_map_lock != BLOCK_UNBLOCKED && new_map_lock != TERRAIN_STAIR && new_map_lock != TERRAIN_WATER)) {
         must_block = true;
     }
 
@@ -1981,17 +1831,6 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     if (incx > 0) {
         direction = ANIM_DIRECTION_RIGHT;
     }
-    int check_y = get_hitbox().y;
-    if (incx > 0 && map_lock == TERRAIN_DOOR) {
-        //std::cout << "#1 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
-    }
-    /*
-    if (incx > 0 && map_lock == TERRAIN_DOOR && check_y > map_pos.y*TILESIZE) {
-        //std::cout << "#2 - p.y[" << check_y << "], map.y[" << map_pos.y << "], map_real_y[" << (map_pos.y*TILESIZE) << "]" << std::endl;
-        gameControl.horizontal_screen_move(direction, true, map_pos.x, map_pos.y);
-		return true;
-	}
-    */
     if (incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
         //gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
         gameControl.horizontal_screen_move(state.direction, true, map_pos.x);
@@ -2060,15 +1899,12 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
     }
 
-    //if (name == "SHIELD GROUND" && incx != 0) std::cout << "CHAR::map_collision[" << name << "], incx[" << incx << "], incy[" << incy << "]" << std::endl;
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
     if (is_player() == true && res_collision_object._block != 0) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
         if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
-
-            //std::cout << "CHAR::PLAYER::check-obj-collision #1, block["  << res_collision_object._block << "], type[" << res_collision_object._object->get_type() << "]" << std::endl;
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
@@ -2098,11 +1934,8 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 }
                 // INSIDE PLATFORM OBJECT, MUST DIE
                 if (map_block == BLOCK_INSIDE_OBJ) {
-                    //std::cout << "DEBUG-OBJ-COLlISION #5" << std::endl;
                     damage(999, true);
                     return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
-                } else {
-                    //std::cout << "player-over-obj-platform, map_block[" << map_block << "], py[" << position.y << "]" << std::endl;
                 }
             }
         }
@@ -2146,7 +1979,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
         if (map_block == BLOCK_UNBLOCKED) {
-            //if (name == "SHIELD GROUND" && incx != 0) std::cout << "map_collision[" << name << "], BLOCK-X #1" << std::endl;
             map_block = BLOCK_X;
         } else {
             map_block = BLOCK_XY;
@@ -2190,9 +2022,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         px_right--;
     }
 
-
-    //std::cout << "py_bottom: " << py_bottom << std::endl;
-
 	st_position map_point;
     st_position old_map_point;
 	map_point.x = px_left/TILESIZE;
@@ -2233,13 +2062,10 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, old_map_lock, 0);
 
-            //if (name == "SHIELD GROUND") std::cout << "map_collision[" << name << "], X-POINT[" << i << "] - map_point[" << map_point.x << "][" << map_point.y << "], new_map_lock[" << new_map_lock << "], map_block[" << map_block << "]" << std::endl;
-
-
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
-		}
+        }
 	}
 
 	// TEST Y POINTS
@@ -2293,8 +2119,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 		int point_middle = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[1]));
 		int point_bottom = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[2]));
 
-		//std::cout << ">> check water-splash - point_top.x: " <<  map_x_points[1] << ", point_top.y: " << map_y_points[1] << ", pos.x: " << position.x << ", pos.y: " << position.y << ", point_bottom: " << point_bottom << ", point_middle: " << point_middle << ", point_top: " << point_top << std::endl;
-
 		if (incy != 0) {
 			if (point_top == TERRAIN_UNBLOCKED && point_middle == TERRAIN_UNBLOCKED && point_bottom == TERRAIN_WATER && _water_splash == false) {
 				if (incy < 0) {
@@ -2302,19 +2126,13 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 				} else {
 					soundManager.play_sfx(SFX_WATER_LEAVE);
 				}
-				//std::cout << ">> ADD water splash animation - adjust_y: " << adjust_y << ", point_bottom: " << point_bottom << ", point_middle: " << point_middle << ", point_top: " << point_top << std::endl;
 				_water_splash = true;
-				//ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize
                 gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
 			} else if (point_top == point_bottom && point_top == point_middle && _water_splash == true) {
-				//std::cout << ">> RE-ENABLE water splash animation - point_bottom: " << point_bottom << ", point_middle: " << point_middle << ", point_top: " << point_top << std::endl;
 				_water_splash = false;
 			}
         }
 	}
-
-
-    //if (is_player()) std::cout << "character::map_collision_v2 - map_block: " << map_block << std::endl;
 
     return st_map_collision(map_block, terrain_type);
 
@@ -2331,7 +2149,6 @@ bool character::is_on_teleporter_capsulse(object *object)
         int limit_min = object->get_position().x + obj_center_diff;
         int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
         int px = position.x + frameSize.width/2;
-        //std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
         if (px > limit_min && px < limit_max) {
             return true;
         }
@@ -2351,7 +2168,6 @@ bool character::is_on_teleport_platform(object *object)
         int limit_min = object->get_position().x + obj_center_diff;
         int limit_max = object->get_position().x + object->get_size().width - obj_center_diff;
         int px = position.x + frameSize.width/2;
-        //std::cout << "px: " << px << ", limit_min: " << limit_min << ", limit_max: " << limit_max << std::endl;
         if (px > limit_min && px < limit_max) {
             return true;
         }
@@ -2374,8 +2190,6 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
     spriteArea.h = frameSize.height;
 
     // ANIM_TYPE_STAIRS_MOVE and ANIM_TYPE_STAIRS_SEMI have an extra frame that is the mirror of the first one
-
-    if (is_player()) std::cout << "delay: " << delay << std::endl;
 
     for (int anim_direction=0; anim_direction<=1; anim_direction++) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
@@ -2452,7 +2266,6 @@ string character::get_name(void) const
 st_position character::is_on_stairs(st_rectangle pos)
 {
     if (_dropped_from_stairs == true) { // was dropped from stairs, can't grab again until invencibility time ends
-        //if (is_player()) std::cout << "is_on_stairs - FALSE 1" << std::endl;
         return st_position(-1, -1);;
     }
     int map_tile_x, map_tile_y;
@@ -2462,17 +2275,14 @@ st_position character::is_on_stairs(st_rectangle pos)
 	map_tile_y = (pos.y)/TILESIZE;
 
     if (gameControl.get_current_map_obj()->getMapPointLock(st_position(map_tile_x, map_tile_y)) == TERRAIN_STAIR) {
-        //if (is_player()) std::cout << "is_on_stairs - TRUE 1" << std::endl;
 		return st_position(map_tile_x, map_tile_y);
     }
 
     map_tile_x = (pos.x+pos.w-diff_w)/TILESIZE;
     if (gameControl.get_current_map_obj()->getMapPointLock(st_position(map_tile_x, map_tile_y)) == TERRAIN_STAIR) {
-        //if (is_player()) std::cout << "is_on_stairs - TRUE 2" << std::endl;
         return st_position(map_tile_x, map_tile_y);
     }
 
-    //if (is_player()) std::cout << "is_on_stairs - FALSE 2" << std::endl;
 	return st_position(-1, -1);
 }
 
@@ -2538,12 +2348,6 @@ st_rectangle character::get_hitbox(int anim_type)
         h = col_rect.h;
         if (w <= 0 || h <= 0) {
             CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_number);
-            //std::cout << "#### CHAR::GET_HITBOX name[" << name << "], x[" << x << "], y[" << y << "], w[" << w << "], h[" << h << "], animation_state[" << anim_n << "], animation_type[" << anim_type << "]" << std::endl;
-            if (GameMediator::get_instance()->get_enemy(_number)->sprites[anim_type][anim_n].used == true) {
-                //std::cout << "###### using sprite collision rect" << std::endl;
-            } else {
-                //std::cout << "###### using npc basic info for rect" << std::endl;
-            }
         }
     }
 
@@ -2560,25 +2364,20 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     float h = frameSize.height;
 
     if (vulnerable_area_box.x == 0 && vulnerable_area_box.y == 0 && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
-        //std::cout << "#### DEFAULT hitbox" << std::endl;
         return st_rectangle(0, 0, 0, 0);
     }
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
-        //std::cout << "CHAR::get_vulnerable_area[" << name << "] - EXISTS - pos[" << position.x << ", " << position.y << "], x[" << vulnerable_area_box.x << "], w[" << vulnerable_area_box.w << "], h[" << vulnerable_area_box.h << "]" << std::endl;
         if (state.direction == ANIM_DIRECTION_LEFT) {
             x += vulnerable_area_box.x;
         } else {
-            //std::cout << "%%%%%%% RIGHT - pos.x[" << position.x << "], vulnerable_area_box.x[" << vulnerable_area_box.x << "], hitbox.x[" << x << "]" << std::endl;
             x = position.x + frameSize.width - vulnerable_area_box.w;
         }
         y += vulnerable_area_box.y;
         w = vulnerable_area_box.w;
         h = vulnerable_area_box.h;
-        //if (state.animation_type == ANIM_TYPE_SLIDE) { std::cout << "#### CHAR::get_vulnerable_area [" << name << "][" << x << "," << y << "," << w << "," << h << "]" << std::endl; }
         return st_rectangle(x, y, w, h);
     } else {
-        //std::cout << "CHAR::get_vulnerable_area[" << name << "] - DO NOT EXISTS" << std::endl;
         return st_rectangle(0, 0, 0, 0);
     }
 
@@ -2638,7 +2437,6 @@ void character::clean_character_graphics_list()
     std::map<std::string, st_char_sprite_data>::iterator it;
     it = graphLib.character_graphics_list.find(name);
     if (it != graphLib.character_graphics_list.end()) {
-        //std::cout << "CHAR::clean_character_graphics_list[" << name << "]" << std::endl;
         graphLib.character_graphics_list.erase(it);
     }
 }
@@ -2670,7 +2468,6 @@ void character::advance_to_last_frame()
 	if (frames_n > 0) {
 		state.animation_state = frames_n - 1;
 	} else {
-        //std::cout << "### RESET-FRAME-N #5 ###" << std::endl;
 		state.animation_state = 0;
     }
 }
@@ -2719,7 +2516,6 @@ bool character::is_on_attack_frame()
 
 void character::recharge(e_energy_types _en_type, int value)
 {
-	//std::cout << "character::recharge";
 	if (_en_type == ENERGY_TYPE_HP) {
         if (hitPoints.current < hitPoints.total) {
             if (hitPoints.current + value <= hitPoints.total) {
@@ -2819,8 +2615,6 @@ void character::push_back(short direction)
         xinc = (move_speed-0.2);
     }
 
-    //std::cout << "CHAR::PUSH_BACK - xinc: " << xinc << std::endl;
-
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
     }
@@ -2832,8 +2626,6 @@ void character::pull(short direction)
     if (direction == ANIM_DIRECTION_LEFT) {
         xinc = -(move_speed-0.2);
     }
-
-    //std::cout << "CHAR::PULL - xinc: " << xinc << std::endl;
 
     if (test_change_position(xinc, 0)) {
         position.x += xinc;
@@ -2871,7 +2663,6 @@ st_position character::get_int_position()
 
 void character::add_projectile(short id, st_position pos, int trajectory, int direction)
 {
-    std::cout << "CHAR::add_projectile - id[" << id << "], pos[" << pos.x << "," << pos.y << "], trajectory[" << trajectory << "], direction[" << direction << "]" << std::endl;
     projectile_to_be_added_list.push_back(projectile(id, direction, pos, is_player()));
     projectile &new_projectile = projectile_to_be_added_list.back();
     new_projectile.set_is_permanent();
@@ -2887,7 +2678,6 @@ void character::check_reset_stand()
     // is walking without moving, reset to stand
     if (moveCommands.left == 0 && moveCommands.right == 0) {
         if (state.animation_type == ANIM_TYPE_WALK) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #C" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
@@ -2896,15 +2686,12 @@ void character::check_reset_stand()
     if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
         switch (state.animation_type) {
             case ANIM_TYPE_WALK_ATTACK:
-                //std::cout << "CHAR::check_reset_stand #1" << std::endl;
                 state.animation_type = ANIM_TYPE_WALK;
                 break;
             case ANIM_TYPE_JUMP_ATTACK:
-                //std::cout << "CHAR::check_reset_stand #2" << std::endl;
                 state.animation_type = ANIM_TYPE_JUMP;
                 break;
             default:
-                //std::cout << "CHAR::check_reset_stand #3" << std::endl;
                 state.animation_type = ANIM_TYPE_STAND;
                 break;
         }
@@ -2921,7 +2708,6 @@ unsigned int character::get_projectile_count()
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
         pcount++;
 	}
-    //std::cout << "character::get_projectile_count - pcount: " << pcount << ", max_projectiles: " << max_projectiles << std::endl;
 	return pcount;
 }
 
@@ -2934,14 +2720,12 @@ void character::set_platform(object* obj)
 {
 	if (obj != NULL) {
 		if (state.animation_type == ANIM_TYPE_JUMP) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #O" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
             _obj_jump.interrupt();
         } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
             _obj_jump.interrupt();
         }
-        //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #P" << std::endl;
         set_animation_type(ANIM_TYPE_STAND);
 	}
 	_platform = obj;
@@ -2949,7 +2733,6 @@ void character::set_platform(object* obj)
 
 object* character::get_platform()
 {
-    //std::cout << "CHAR::get_platform: " << _platform << std::endl;
 	return _platform;
 }
 
@@ -2995,12 +2778,8 @@ void character::clean_effect_projectiles()
 
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
 {
-
-    //std::cout << "CHAR::DAMAGE::START" << std::endl;
-
     UNUSED(ignore_hit_timer);
 	if (is_player() && GAME_FLAGS[FLAG_INVENCIBLE] == true) {
-        //std::cout << "CHAR::DAMAGE::LEAVE #1" << std::endl;
 		return;
 	}
     if (game_save.difficulty == DIFFICULTY_HARD && is_player() == false) {
@@ -3012,9 +2791,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
     if (damage_points + _damage_modifier > 0) {
         damage_points += _damage_modifier;
     }
-
-
-	//std::cout << "1. character::damage - damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
 
 	if (hitPoints.current <= 0) { /// already dead
 		return;
@@ -3043,7 +2819,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
     if (!is_player() || GAME_FLAGS[FLAG_INFINITE_HP] == false) {
         hitPoints.current -= damage_points;
-        //std::cout << "CHAR::DAMAGE::damage_points: " << damage_points << ", hitPoints.current: " << hitPoints.current << std::endl;
     }
 
 
@@ -3067,7 +2842,6 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 
 	// TODO: add hit animation
 	if (hitPoints.current <= 0) {
-		//std::cout << "1. character::damage - DEATH" << std::endl;
 		hitPoints.current = 0;
 		death();
     }
@@ -3123,11 +2897,9 @@ void character::execute_jump_up()
         draw_lib.update_screen();
 	}
 
-    //activate_super_jump();
 	// reset command jump, if any
     jump(0, gameControl.get_current_map_obj()->getMapScrolling());
     jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-    //std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (_obj_jump.get_speed() < 0) {
         input.read_input();
         char_update_real_position();
@@ -3150,10 +2922,8 @@ void character::execute_jump()
     jump(0, gameControl.get_current_map_obj()->getMapScrolling());
     int initial_y = (int)position.y;
     jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-	std::cout << "execute_jump::START - " << initial_y << ", position.y: " << position.y << std::endl;
     while (position.y != initial_y) {
         input.read_input();
-        //std::cout << "execute_jump::LOOP - " << initial_y << ", position.y: " << position.y << std::endl;
 		char_update_real_position();
         bool resJump = jump(1, gameControl.get_current_map_obj()->getMapScrolling());
         if (resJump == false) {
@@ -3197,7 +2967,6 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
-    //std::cout << "################## CHAR::fall_to_ground START" << std::endl;
     _obj_jump.finish();
     if (hit_ground() == true) {
         return;
@@ -3206,13 +2975,9 @@ void character::fall_to_ground()
         char_update_real_position();
         position.y++;
         if (position.y >= RES_H/2 && hit_ground() == true) {
-            //std::cout << "################## CHAR::fall_to_ground STOP - y[" << position.y << "]" << std::endl;
             return;
-        } else {
-            //std::cout << "################## CHAR::fall_to_ground CONTINUE - y[" << position.y << "]" << std::endl;
         }
     }
-    //std::cout << "################## CHAR::fall_to_ground::END y[" << position.y << "]" << std::endl;
 }
 
 void character::initialize_boss_position_to_ground()
@@ -3235,13 +3000,11 @@ bool character::change_position(short xinc, short yinc)
 
     st_map_collision map_col = map_collision(xinc, yinc, gameControl.get_current_map_obj()->getMapScrolling());
     short int mapLock = map_col.block;
-    //if (is_player()) std::cout << "*** character::change_position - x: " << position.x << ", y: " << position.y << ", xinc: " << xinc << ", yinc: " << yinc << ", BLOCKED (" << mapLock << ")" << std::endl;
 
 	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
 		return false;
 	}
 	position.x += xinc;
-    //std::cout << "### STAIRS-DOWN #6 ###" << std::endl;
 	position.y += yinc;
     return true;
 }
@@ -3260,7 +3023,6 @@ void character::change_position_x(short xinc)
         int mapLock = map_col.block;
         //mapLock =  gameControl.getMapPointLock(st_position((position.x + frameSize.width + i)/TILESIZE, (position.y + frameSize.height/2)/TILESIZE));
         if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-            //std::cout << "character::charMove - temp_move_speed: " << temp_move_speed << ", gameControl.get_current_map_obj()->get_last_scrolled().x: " << gameControl.get_current_map_obj()->get_last_scrolled().x << std::endl;
             if (mapLock == TERRAIN_UNBLOCKED || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1) || mapLock == BLOCK_Y) {
                 position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
             } else {
@@ -3312,24 +3074,19 @@ int character::change_position_y(short yinc)
 bool character::test_change_position(short xinc, short yinc)
 {
     if (gameControl.get_current_map_obj() == NULL) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #1" << std::endl; }
         return false;
     }
     if (yinc < 0 && position.y < 0) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #2" << std::endl; }
         return false;
 	}
     if (yinc > 0 && position.y > RES_H) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #3" << std::endl; }
         return true;
 	}
     if (xinc < 0 && position.x <= 0) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #4" << std::endl; }
         return false;
     }
 
     if (xinc > 0 && (realPosition.x - frameSize.width) > RES_W) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #5" << std::endl; }
         return false;
     }
 
@@ -3338,7 +3095,6 @@ bool character::test_change_position(short xinc, short yinc)
         short int mapLock = map_col.block;
 
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
-            //if (name == "SHIELD GROUND" && xinc != 0) { std::cout << "++++ character::test_change_position #6, xinc[" << xinc << "], yinc[" << yinc << "], mapLock[" << mapLock << "]" << std::endl; }
             return false;
         }
     }
@@ -3348,7 +3104,6 @@ bool character::test_change_position(short xinc, short yinc)
     bool map_wall = gameControl.get_current_map_obj()->get_map_point_wall_lock(map_x_point);
 
     if (map_wall == true) {
-        //if (name == "SHIELD GROUND") { std::cout << "++++ character::test_change_position #7" << std::endl; }
         return false;
     }
 
@@ -3366,9 +3121,7 @@ bool character::is_shielded(int projectile_direction) const
         }
 		return false;
 	} else {
-		//std::cout << ">> classnpc::is_shielded[" << name << "] - shield_type: " << shield_type << ", projectile_direction: " << projectile_direction << ", state.direction: " << state.direction << std::endl;
         if (shield_type == SHIELD_FULL || (shield_type == SHIELD_FRONT && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK  || state.animation_type == ANIM_TYPE_WALK_AIR)) || (shield_type == SHIELD_STAND && state.animation_type == ANIM_TYPE_STAND)) {
-			//std::cout << ">> classnpc::is_shielded[" << name << "] - TRUE" << std::endl;
 			return true;
 		}
         if (shield_type == SHIELD_STAND_AND_WALK && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK)) {
@@ -3377,7 +3130,6 @@ bool character::is_shielded(int projectile_direction) const
         if (shield_type == SHIELD_STAND_FRONT && projectile_direction != state.direction && state.animation_type == ANIM_TYPE_STAND) {
             return true;
         }
-		//std::cout << ">> classnpc::is_shielded[" << name << "] - FALSE" << std::endl;
 		return false;
     }
 }
@@ -3424,7 +3176,6 @@ bool character::is_using_circle_weapon()
 {
     if (projectile_list.size() == 1) {
         if (projectile_list.at(0).get_move_type() == TRAJECTORY_CENTERED) {
-            std::cout << "CHAR::is_using_circle_weapon[" << name << "] - TRUE" << std::endl;
             return true;
         }
     }
@@ -3443,20 +3194,12 @@ void character::inc_effect_weapon_status()
 
 void character::set_animation_type(ANIM_TYPE type)
 {
-    if (name == _debug_char_name) {
-        if (type == ANIM_TYPE_STAND) {
-            //std::cout << "CHAR::set_animation_type[" << name << "] - reset to STAND" << std::endl;
-        } else if (type == ANIM_TYPE_JUMP) {
-            //std::cout << "CHAR::set_animation_type[" << name << "] - reset to JUMP" << std::endl;
-        }
-    }
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
     }
 
     if (type != state.animation_type) {
-        //std::cout << "### RESET-FRAME-N #6 ###" << std::endl;
         state.animation_state = 0;
 
         if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
@@ -3465,13 +3208,6 @@ void character::set_animation_type(ANIM_TYPE type)
             }
         }
 
-        if (type == ANIM_TYPE_STAIRS) {
-            //std::cout << ">>> SET STAIRS ANIM TYPE" << std::endl;
-        } else if (type == ANIM_TYPE_STAIRS_MOVE) {
-            //std::cout << ">>> SET STAIRS MOOOVE ANIM TYPE, timer: " << timer.getTimer() << ", _stairs_falling_timer: " << _stairs_falling_timer << std::endl;
-        } else if (type == ANIM_TYPE_JUMP) {
-            //std::cout << ">>> SET JUMP ANIM TYPE" << std::endl;
-        }
         state.animation_type = type;
         _was_animation_reset = false;
 
@@ -3488,10 +3224,6 @@ void character::set_animation_type(ANIM_TYPE type)
     int frame_delay = 20;
     if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
         st_char_sprite_data sprite_data = graphLib.character_graphics_list.find(name)->second;
-
-        //std::cout << "set_animation_type::state.direction[" << (int)state.direction << "]" << std::endl;
-        //std::cout << "set_animation_type::state.animation_type[" << state.animation_type << "]" << std::endl;
-        //std::cout << "set_animation_type::state.animation_state[" << state.animation_state << "]" << std::endl;
 
         if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
             set_direction(0);
@@ -3555,14 +3287,11 @@ bool character::can_air_dash()
 
 void character::cancel_slide()
 {
-    //std::cout << "CHAR::cancel_slide[" << name << "]" << std::endl;
     state.slide_distance = 999;
     if (state.animation_type == ANIM_TYPE_SLIDE) {
         if (hit_ground() == true) {
-            //if (name == _debug_char_name) std::cout << "CHAR::RESET_TO_STAND #Y.4" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
         } else {
-            //if (is_player()) std::cout << "CHAR::RESET_TO_JUMP #Z.9" << std::endl;
             set_animation_type(ANIM_TYPE_JUMP);
         }
     }

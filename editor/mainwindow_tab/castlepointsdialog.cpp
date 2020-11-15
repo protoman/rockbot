@@ -22,7 +22,6 @@ void CastlePointsDialog::load_data()
     data_loading = true;
     currentPoint = 0;
     ui->point_comboBox->setCurrentIndex(currentPoint);
-    std::cout << "Mediator::get_instance()->points_castle1.points[currentPoint].x[" << Mediator::get_instance()->points_castle1.points[currentPoint].x << "]" << std::endl;
     ui->x_spinBox->setValue(Mediator::get_instance()->points_castle1.points[currentPoint].x);
     ui->y_spinBox->setValue(Mediator::get_instance()->points_castle1.points[currentPoint].y);
     data_loading = false;

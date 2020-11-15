@@ -48,7 +48,6 @@ QVariant StringEditModel::data(const QModelIndex &index, int role) const
             return res;
         } else if (col == 1) {
             QString res = QString(string_list.at(index.row()).c_str());
-            std::cout << "StringEditModel::col0[" << res.toStdString() << "]" << std::endl;
             return res;
         }
     }

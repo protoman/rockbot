@@ -48,7 +48,6 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
 {
     // boss not yet set
     if (n < 0 || n >= enemy_list.size()) {
-        std::cout << "ERROR: GameMediator::get_enemy - invalid enemy position[" << n << "], list-size: " << enemy_list.size() << std::endl;
         // return first NPC to avoid errors
         n = 0;
     }
@@ -97,9 +96,7 @@ void GameMediator::wii_convert_npc_list() {
         short_to_little_endian(enemy_list.at(i).hp.total);
         short_to_little_endian(enemy_list.at(i).hp.current);
 
-        printf("#convert.npc[%s].range.OLD[%d] #\n", enemy_list.at(i).name, enemy_list.at(i).walk_range);
         sint16_to_little_endian(enemy_list.at(i).walk_range);
-        printf("@convert.npc[%s].range.NEW[%d] #\n", enemy_list.at(i).name, enemy_list.at(i).walk_range);
 
         sint16_to_little_endian(enemy_list.at(i).start_point.x);
         sint16_to_little_endian(enemy_list.at(i).start_point.y);
@@ -150,17 +147,13 @@ void GameMediator::wii_convert_ai_list() {
 
 void GameMediator::wii_convert_projectile_list() {
 
-    printf("$ size(PROJECTILE_TRAJECTORIES)[%d] $\n", sizeof(PROJECTILE_TRAJECTORIES));
 
     for (int i=0; i<projectile_list.size(); i++) {
         sint16_to_little_endian(projectile_list.at(i).size.width);
         sint16_to_little_endian(projectile_list.at(i).size.height);
 
-
-        printf("# trajectory[%d].old[%d] #\n", i, projectile_list.at(i).trajectory);
         Uint16 trajectory = projectile_list.at(i).trajectory;
         uint16_to_little_endian(trajectory);
-        printf("# trajectory[%d].NEW[%d] #\n", i, trajectory);
     }
 }
 

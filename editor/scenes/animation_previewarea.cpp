@@ -56,10 +56,8 @@ void AnimationPreviewArea::set_y(int set)
 
 void AnimationPreviewArea::update_animation()
 {
-    //std::cout << ">> AnimationPreviewArea::update_animation - frame_n: " << frame_n << std::endl;
     unsigned int now_time = QDateTime::currentMSecsSinceEpoch();
     if (now_time > animation_timer) {
-        //std::cout << ">> AnimationPreviewArea::update_animation - RUN!" << std::endl;
         animation_timer = now_time + delay;
         frame_n++;
         repaint();
@@ -74,18 +72,18 @@ void AnimationPreviewArea::paintEvent(QPaintEvent *event)
     painter.fillRect(0, 0, RES_W, RES_H, QColor(0, 0, 0, 255));
 
     if (graphic_filename.length() == 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #1" << std::endl;
+        // TODO: show error
         return;
     }
     if (graphic_filename.toStdString().find(".png") == std::string::npos) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #3" << std::endl;
+        // TODO: show error
         return;
     }
 
     QPixmap image(graphic_filename.toStdString().c_str());
 
     if (image.isNull() == true || image.width() <= 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4" << std::endl;
+        // TODO: show error
         return;
     }
 
@@ -101,7 +99,6 @@ void AnimationPreviewArea::paintEvent(QPaintEvent *event)
     }
 
     // reset animation when needed
-    //std::cout << "frame_n: " << frame_n << ", frame_n*w: " << (frame_n*w) << ", image.width(): " << image.width() << std::endl;
     if (frame_n*w >= image.width()) {
         frame_n = 0;
     }

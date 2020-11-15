@@ -18,7 +18,6 @@ int ObjectListModel::rowCount(const QModelIndex &parent) const
         }
         n++;
     }
-    //std::cout << "ScenesMediator::get_instance()->selected_scene: " << ScenesMediator::get_instance()->selected_scene << ", scene_count: " << n << std::endl;
     return n;
 }
 
@@ -29,16 +28,11 @@ int ObjectListModel::columnCount(const QModelIndex &parent) const
 
 QVariant ObjectListModel::data(const QModelIndex &index, int role) const
 {
-
-    //std::cout << "+++++++++++++++ ObjectListModel::data - RUN #1 +++++++++++++++++++++++" << std::endl;
-
     int row = index.row();
     int col = index.column();
 
-    //std::cout << "ObjectListModel::data - row: " << row << ", col: " << col << std::endl;
-
     if (ScenesMediator::get_instance()->selected_scene > ScenesMediator::get_instance()->scenes_list.size()-1) {
-        std::cout << "ObjectListModel::data - LEAVE #1" << std::endl;
+        // TODO: show error
         return QVariant();
     }
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
@@ -178,7 +172,7 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
                 sprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, "%s", name.c_str());
             } else {
-                std::cout << "Invalid object to set name" << std::endl;
+                // TODO: show error
                 return false;
             }
         } else if (col == 1) {
@@ -207,10 +201,6 @@ void ObjectListModel::update()
 {
     QModelIndex topLeft = index(0, 0);
     QModelIndex bottomRight = index(rowCount()-1, columnCount()-1);
-
-
-    //std::cout << "%%%%%%%%%%%%%% ObjectListModel::update - RUN, row: " << (rowCount()-1) << " %%%%%%%%%%%%%%" << std::endl;
-
     emit dataChanged ( topLeft, bottomRight );
     emit layoutChanged();
 }

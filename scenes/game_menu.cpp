@@ -649,7 +649,6 @@ int game_menu::config_int_value(int initial_value_int, int min, int max, std::st
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
 
         if (input.p1_input[BTN_ATTACK] == 1 || input.p1_input[BTN_START] == 1 || input.p1_input[BTN_DOWN]) {
-            std::cout << "game_menu::config_int_value FINISH" << std::endl;
             keep_going = false;
         } else if (input.p1_input[BTN_LEFT] == 1 && initial_value > min) {
             initial_value--;
@@ -683,7 +682,6 @@ void game_menu::music_player()
     // check stages that have music for max-value, default is castle 1.5
     for (int i=0; i<FS_MAX_STAGES; i++) {
         std::string filename(stages_data.stages[i].bgmusic_filename);
-        std::cout << "stage[" << i << "].music[" << filename << "]" << std::endl;
         if (filename.length() == 0) {
             max = i-1;
             break;

@@ -88,13 +88,9 @@ void tab_parallax::set_all_layer_images(int parallax_n)
     for (int i=0; i<PARALLAX_LAYERS_MAX; i++) {
         std::string layer_filename = std::string(ScenesMediator::get_instance()->parallax_list.at(parallax_n).filename[i]);
         if (layer_filename.length() == 0) {
-            if (i == 0) {
-                std::cout << "tab_parallax::set_all_layer_images filename[" << i << "][EMPTY]" << std::endl;
-            }
             ui->image_preview_widget->set_filename(i, "");
         } else {
             std::string filename = FILEPATH + "/images/scenes/" + layer_filename;
-            std::cout << "tab_parallax::set_all_layer_images filename[" << i << "][" << layer_filename << "]" << std::endl;
             ui->image_preview_widget->set_filename(i, filename);
         }
         ui->image_preview_widget->set_y(i, ScenesMediator::get_instance()->parallax_list.at(parallax_n).adjust_y[i]);
@@ -184,7 +180,6 @@ void tab_parallax::on_run_pushButton_clicked()
     file += QString(".exe");
 #endif
     file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --parallax ") + QString::number(ui->parallax_select_comboBox->currentIndex());
-    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
     process.start(file);
 }
 

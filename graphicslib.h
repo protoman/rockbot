@@ -129,7 +129,6 @@ struct st_char_sprite_data {
     // assign copy constructor //
     st_char_sprite_data& operator= (const st_char_sprite_data& other)
     {
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.START <<\n");
         fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -138,7 +137,6 @@ struct st_char_sprite_data {
                 }
             }
         }
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
         fflush(stdout);
         return *this;
     }
@@ -365,7 +363,6 @@ private:
 
 #ifdef PSP
     psp_ram _ram_counter;
-    //std::cout << "unload_stage::RAM::BF='" << ram_counter.ramAvailable() << "'" << std::endl;
 #endif
 };
 

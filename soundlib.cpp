@@ -292,17 +292,15 @@ void soundLib::play_music() {
 	// toca a música
 	if (music) {
         res = Mix_PlayMusic(music, -1);
-        //std::cout << "<<<<<<<<<<<<< soundLib::play_music, res[" << res << "], error[" << Mix_GetError() << "]" << std::endl;
         if (res == -1) {
-            std::cout << "<<<<<<<<<<<<< Mix_PlayMusic Error: " << Mix_GetError() << std::endl;
+            std::cout << "ERROR: Mix_PlayMusic Error: " << Mix_GetError() << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### Mix_PlayMusic Error[%s] ###", Mix_GetError());
 #endif
 		}
-        //std::cout << "SOUNDLIB::play_music" << std::endl;
         Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	} else {
-		std::cout << ">> play_music ERROR: music is null" << std::endl;
+        std::cout << "ERROR: play_music, music is null" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_music - music is NULL ###");
 #endif
@@ -317,10 +315,6 @@ void soundLib::play_music_once()
     int res = -1;
     if (music) {
         res = Mix_PlayMusic(music, 1);
-        if (res == -1) {
-            std::cout << "<<<<<<<<<<<<< soundLib::play_music_once: " << Mix_GetError() << std::endl;
-        }
-        //std::cout << "SOUNDLIB::play_music" << std::endl;
         Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
     } else {
         std::cout << ">> soundLib::play_music_once: music is null" << std::endl;
@@ -340,7 +334,6 @@ void soundLib::play_boss_music() {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_boss_music Error[%s] ###", Mix_GetError());
 #endif
 		}
-        //std::cout << "SOUNDLIB::play_boss_music" << std::endl;
         Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	} else {
 		printf(">> play_boss_music ERROR: boss_music is null\n");
@@ -368,7 +361,6 @@ void soundLib::load_stage_music(std::string filename) {
 
 void soundLib::restart_music()
 {
-    //std::cout << "SOUNDLIB::restart_music" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::restart_music");
 #endif
@@ -378,7 +370,6 @@ void soundLib::restart_music()
 
 
 void soundLib::stop_music() const {
-    //std::cout << "SOUNDLIB::stop_music" << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::stop_music");
 #endif
@@ -413,7 +404,6 @@ string soundLib::get_filename_for_music(string filename)
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
             std::string old_filename = filename.substr(0,found) + "/old/" + filename.substr(found+1);
-            std::cout << ">>>>>>>>>>>>>> old.music[" << filename << "]" << std::endl;
             if (fio.file_exists(old_filename)) {
                 filename = old_filename;
             }
@@ -423,7 +413,6 @@ string soundLib::get_filename_for_music(string filename)
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
             std::string mp3_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
-            std::cout << ">>>>>>>>>>>>>> mp3.music[" << filename << "]" << std::endl;
             if (fio.file_exists(mp3_filename)) {
                 filename = mp3_filename;
             }

@@ -55,7 +55,6 @@ void key_map::draw_screen()
     timer.delay(300);
 
     for (unsigned int i=0; i<_keys_list.size(); i++) {
-        std::cout << "_keys_list[i]: " << _keys_list[i] << std::endl;
         graphLib.draw_text(config_text_pos.x, config_text_pos.y + i*CURSOR_SPACING, _keys_list[i].c_str());
         redraw_line(i);
     }

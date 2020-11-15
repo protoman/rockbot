@@ -147,7 +147,6 @@ void draw::preload()
 
 void draw::show_gfx()
 {
-    //std::cout << "screen_gfx[" << (int)screen_gfx << "]" << std::endl;
     if (screen_gfx == SCREEN_GFX_RAIN) {
         show_rain();
     } else if (screen_gfx == SCREEN_GFX_SNOW) {
@@ -266,8 +265,6 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
 
-    //std::cout << ">>> sprite_size.x[" << sprite_size.x << "], sprite_size.y[" << sprite_size.y << "]" << std::endl;
-
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
     int sprite_pos_y = BOSS_INTRO_BG_POS_Y-sprite_size.y/2;
     st_position boss_pos(RES_W/2-sprite_size.x/2, sprite_pos_y);
@@ -300,7 +297,6 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     if (intro_frames_n > 1) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
-                //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
                 graphLib.showSurface(&boss_intro_bg);
                 graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
                 // only wait if not last frame
@@ -358,7 +354,6 @@ void draw::show_teleport_small(int x, int y)
             teleport_small_frame++;
             teleport_small_frame_timer = timer.getTimer()+100;
         }
-        //std::cout << "timer[" << timer.getTimer() << "], frame.timer[" << teleport_small_frame_timer << "], frames[" << teleport_small_frame_count << "], current frame[" << teleport_small_frame << "]" << std::endl;
         if (teleport_small_frame >= teleport_small_frame_count) {
             teleport_small_frame = 0;
         }
@@ -397,10 +392,7 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
     // scroll the lines
     unsigned int limit = (credit_text.size()*12)+RES_H/2;
-    std::cout << "credit_text.size[" << credit_text.size() << "]" << std::endl;
     while (scrolled < limit) {
-
-        //std::cout << "scrolled[" << scrolled << "], limit[" << limit << "]" << std::endl;
 
         //@TODO: draw stars fields //
         graphLib.blank_screen();
@@ -507,7 +499,6 @@ void draw::draw_credits_line(int i, std::vector<string> credit_text, int posY)
         } else {
             graphLib.draw_centered_text(text_pos, credit_text.at(i));
         }
-        //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
     }
 }
 
@@ -591,8 +582,6 @@ void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,st
         } else {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
         }
-    } else {
-        std::cout << "ERROR draw_credit_line, initial_line[" << initial_line << "], credit_text.size()[" << credit_text.size() << "]" << std::endl;
     }
 }
 
@@ -682,7 +671,6 @@ void draw::fade_out_screen(int r, int g, int b, int total_delay)
     float delay = (total_delay / 25)-10;
 
     for (float i=0; i<=20; i++) {
-        //std::cout << "alpha_value[" << alpha_value << "], i[" << i << "], step[" << step << "]" << std::endl;
         graphLib.showSurface(&screen_copy);
         graphLib.set_surface_alpha((int)alpha_value, transparent_area);
         alpha_value += step;
@@ -738,7 +726,6 @@ void draw::pixelate_screen()
                             pointsCount++;
                         }
                     }
-                    //std::cout << "x[" << x << "], y[" << y << "], xx[" << (i+x) << "]" << std::endl;
                 }
                 if (pointsCount != 0) {
                     avR = avR/pointsCount; //divide all by the amount of samples taken to get an average
@@ -754,12 +741,10 @@ void draw::pixelate_screen()
 
             }
         }
-        //std::cout << "pixelationAmount[" << pixelationAmount << "]" << std::endl;
         graphLib.copyArea(st_position(0, 0), &res_surface, &graphLib.gameScreen);
         graphLib.updateScreen();
         timer.delay(20);
     }
-    std::cout << "END" << std::endl;
     res_surface.freeGraphic();
 
 }
@@ -804,13 +789,10 @@ void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
     float angle_diff = 360 / points_n;
     int frame = 0;
 
-    //std::cout << "DRAW::draw_explosion::START, angle_diff[" << angle_diff << "], center[" << center_point.x << "][" << center_point.y << "]" << std::endl;
-
     for (int j=0; j<points_n; j++) {
         float angle = (j*angle_diff)+angle_inc;
         float angle_rad = (angle * 3.14)/180;
         points[j] = get_radius_point(center_point, radius, angle_rad);
-        //std::cout << "DRAW::draw_explosion - angle[" << angle_rad << "], point[" << j << "][" << points[j].x << "][" << points[j].y << "]" << std::endl;
         graphLib.copyArea(st_rectangle(frame*32, 0, 32, 32), st_position(points[j].x, points[j].y), graphLib.get_preloaded_image(PRELOADED_IMAGES_EXPLOSION_BUBBLE), &graphLib.gameScreen);
     }
     update_screen();
@@ -876,7 +858,6 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
-        //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     } else if (selected_weapon != WEAPON_DEFAULT && selected_weapon >= WEAPON_ITEM_ETANK) {
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, st_color(250, 250, 250));
@@ -888,7 +869,6 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
         } else if (selected_weapon == WEAPON_ITEM_STANK) {
             wpn_percent = game_save.items.special_tanks*10;
         }
-        //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     }
 
@@ -912,11 +892,8 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
         int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
         int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
         int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
-        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
 
         int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
-
-        //std::cout << "value[" << value << "], min1[" << min1 << "], min2[" << min2 << "], min3[" << min3 << "], min4[" << min4 << "]" << std::endl;
 
         if (value >= min4) {
             img_origin_x = 0;
@@ -952,24 +929,13 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
 {
     // only add if not existing in map
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
-
-
-        //std::cout << "DRAW::add_dynamic_background::ADD[" << filename << "]" << std::endl;
-
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
-
-
         graphicsLib_gSurface temp_surface;
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
-
-        //std::cout << "MAP::add_bg[" << bg1_filename << "], w[" << (int)temp_surface.width << "], h[" << (int)temp_surface.height << "]" << std::endl;
-
-
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
         graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
         graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
-        //maps_dynamic_background_list.find(filename)->second
     }
 }
 
@@ -994,9 +960,6 @@ void draw::show_snow_effect()
         generate_snow_particles();
     }
     std::vector<st_snow_particle>::iterator it;
-
-
-    //std::cout << "## DRAW::SHOW_SNOW - timer.getTimer(): " << timer.getTimer() << ", _effect_timer: " << _effect_timer << std::endl;
 
     if (timer.getTimer() > _effect_timer) {
 
@@ -1026,9 +989,6 @@ void draw::show_snow_effect()
             graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
         _effect_timer = timer.getTimer() + SNOW_DELAY;
-
-        //std::cout << "## DRAW::SHOW_SNOW::SET-EFFECT-TIMER: " << _effect_timer << ", current timer: " << timer.getTimer() << std::endl;
-
     } else {
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
@@ -1040,7 +1000,6 @@ void draw::show_snow_effect()
 void draw::show_train_effect()
 {
     if (_train_effect_timer == 0) {
-        std::cout << "TRAIN_EFFECT-RESET" << std::endl;
         _train_effect_timer = timer.getTimer() + TRAIN_DELAY;
         _train_effect_state = 0;
         if (_train_sfx == NULL) {
@@ -1102,7 +1061,6 @@ void draw::show_shadow_top_effect()
     int alpha_step = alpha/12;
     for (int i=0; i<max; i+=10) {
         graphLib.set_surface_alpha(alpha, &shadow_line);
-        //std::cout << "shadow.y[" << i << "], alpha[" << alpha << "]" << std::endl;
         graphLib.copyArea(st_rectangle(0, 0, shadow_line.width, shadow_line.height), st_position(0, i), &shadow_line, &graphLib.gameScreen);
         alpha -= alpha_step;
     }

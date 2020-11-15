@@ -90,7 +90,6 @@ short stage_select::finished_stages() const
             total_stages++;
         }
     }
-    //std::cout << "stage_select::finished_stages: " << total_stages << std::endl;
     return total_stages;
 }
 
@@ -101,8 +100,6 @@ short stage_select::finished_stages() const
 void stage_select::place_face(std::string face_file, std::string botname, st_position pos) const {
 	// TODO - calculate the text position according to it's strlen
 	int txtPosX, txtPosY;
-
-    //std::cout << "stage_select::place_face - face_file: '" << face_file << "'" << std::endl;
 
 	if (face_file.size() > 0) {
         graphLib.place_face(face_file, st_position(pos.x*80+64, pos.y*62+36));
@@ -124,8 +121,6 @@ void stage_select::show_stage_face(int x, int y, int stage_n)
     } else {
         face_filename = FILEPATH + "/images/faces/" + game_data.stage_face_filename[9];
     }
-
-    std::cout << ">>>>> face_filename[" << face_filename << "]" << std::endl;
 
     graphicsLib_gSurface face_surface;
     graphLib.surfaceFromFile(face_filename, &face_surface);

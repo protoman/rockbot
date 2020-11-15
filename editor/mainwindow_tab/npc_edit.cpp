@@ -52,7 +52,6 @@ void npc_edit::fill_data()
         ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(Mediator::get_instance()->enemy_list.at(0).graphic_filename)));
         ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+std::string(Mediator::get_instance()->enemy_list.at(0).graphic_filename));
         // BACKGROUND //
-        std::cout << ">>>>> BACKGROUND[" << Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename << "]" << std::endl;
         ui->backgroundFileComboBox->setCurrentIndex(ui->backgroundFileComboBox->findText(QString(Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename)));
         ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+std::string(Mediator::get_instance()->enemy_list.at(0).bg_graphic_filename));
         ui->sprite_pos_x->setValue(Mediator::get_instance()->enemy_list.at(0).sprites_pos_bg.x);
@@ -242,7 +241,6 @@ void npc_edit::on_npc_edit_tab_graphicheight_valueChanged(int arg1)
         ui->hitarea_h_spinBox->setValue(arg1);
 
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.height == Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h) {
-            std::cout << "### SET collistion H" << std::endl;
             Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h = arg1;
         }
 
@@ -355,11 +353,9 @@ void npc_edit::on_bg_graphic_combo_currentIndexChanged(const QString &arg1)
         return;
     }
     if (arg1.length() == 0) {
-        //std::cout << "*************** on_bg_graphic_combo_currentIndexChanged - ZERO" << std::endl;
         sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).bg_graphic_filename, "%s", "");
         ui->npc_edit_tab_previewarea->set_bg_graphicfile("");
     } else {
-        //std::cout << "*************** on_bg_graphic_combo_currentIndexChanged - SET to '" << arg1.toStdString() << "'" << std::endl;
         sprintf(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).bg_graphic_filename, "%s", arg1.toStdString().c_str());
         ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+std::string(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).bg_graphic_filename));
     }
@@ -413,13 +409,11 @@ void npc_edit::reload_frame_list(int index)
 
 
 	// insert all sprites for the given type into the combo
-    //std::cout << ">> Adding frames for NPC[" << Mediator::get_instance()->game_data.game_npcs[i].name << "] - type: " << index << std::endl;
     std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).graphic_filename;
     // @204
     for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[index][j].used == true) {
             int calc_pos_x = Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[index][j].sprite_graphic_pos_x * Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).frame_size.width;
-            //std::cout << "NPC[" << Mediator::get_instance()->game_data.game_npcs[i].name << "] - frame.pos_x: " << Mediator::get_instance()->game_data.game_npcs[i].sprites[index][j].sprite_graphic_pos_x << ", cal_pos_x: " << calc_pos_x << std::endl;
             QListWidgetItem* item = new QListWidgetItem;
             QString temp_str(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).name + QString(" (") + QString::number(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[index][j].duration) + QString(")"));
             item->setText(temp_str);
@@ -507,7 +501,6 @@ void npc_edit::on_frameList_listWidget_currentRowChanged(int currentRow)
     ui->sprite_collision_h->setValue(Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[ui->frame_list_selector->currentIndex()][currentRow].collision_rect.h);
 
     if (ui->frame_list_selector->currentText() == "ATTACK") {
-        std::cout << "attack_frame: " << (int)Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame << ", currentRow: " << currentRow << std::endl;
         _data_loading = true;
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).attack_frame == currentRow) {
             ui->isAttackFrame_checkBox->setChecked(true);
@@ -636,8 +629,6 @@ void npc_edit::on_hitarea_x_spinBox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 
-    std::cout << "hi_area::change(x): " << arg1 << std::endl;
-
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.x = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
@@ -645,8 +636,6 @@ void npc_edit::on_hitarea_x_spinBox_valueChanged(int arg1)
 void npc_edit::on_hitarea_y_spinBox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-
-    std::cout << "hi_area::change(y): " << arg1 << std::endl;
 
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.y = arg1;
     ui->npc_edit_tab_previewarea->update();
@@ -656,8 +645,6 @@ void npc_edit::on_hitarea_w_spinBox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
 
-    std::cout << "hi_area::change(w): " << arg1 << std::endl;
-
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w = arg1;
     ui->npc_edit_tab_previewarea->update();
 }
@@ -665,8 +652,6 @@ void npc_edit::on_hitarea_w_spinBox_valueChanged(int arg1)
 void npc_edit::on_hitarea_h_spinBox_valueChanged(int arg1)
 {
     if (_data_loading == true) { return; }
-
-    std::cout << "hi_area::change(h): " << arg1 << std::endl;
 
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h = arg1;
     ui->npc_edit_tab_previewarea->update();
@@ -685,11 +670,9 @@ void npc_edit::on_AddFrame_Button_clicked()
     //frame_list_selector
     // go to the first free slot
     // @204
-    std::cout << "## FOUND NPC!!!!" << std::endl;
     for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
         int frame_type = ui->frame_list_selector->currentIndex();
         if (Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].used == false) {
-            std::cout << "ADD-SPRITE-FRAME: FOUND EMPTY SLOT AT [" << j << "]" << std::endl;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].used = true;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].duration = 100;
             Mediator::get_instance()->enemy_list.at(_npcedit_tab_selectednpc).sprites[frame_type][j].sprite_graphic_pos_x = Mediator::get_instance()->getPalleteX();

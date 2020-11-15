@@ -20,7 +20,6 @@ SharedData *SharedData::get_instance()
     if (!_instance) {
         _instance = new SharedData();
         fps_movement_multiplier = 60.0/max_fps;
-        //std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SharedData::get_movement_multiplier[" << fps_movement_multiplier << "], max_fps[" << max_fps << "]" << std::endl;
     }
     return _instance;
 }
@@ -34,7 +33,6 @@ int SharedData::get_max_fps()
 
 double SharedData::get_movement_multiplier()
 {
-    //std::cout << "SharedData::get_movement_multiplier[" << fps_movement_multiplier << "]" << std::endl;
     return fps_movement_multiplier;
 }
 

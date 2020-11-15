@@ -253,7 +253,6 @@ void map_tab::on_bg1_speed_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#3 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << (int)Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     update_edit_area();
 }
 
@@ -563,7 +562,6 @@ void map_tab::on_fg_speed_doubleSpinBox_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
-    std::cout << ">> on_FG_speed_valueChanged - setvalue: " << arg1 << ", FG.speed: " << (int)Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed << std::endl;
     update_edit_area();
 }
 

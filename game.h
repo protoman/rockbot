@@ -306,7 +306,6 @@ private:
 
 #ifdef PSP
     psp_ram _ram_counter;
-    //std::cout << "unload_stage::RAM::BF='" << ram_counter.ramAvailable() << "'" << std::endl;
 #endif
 
 };

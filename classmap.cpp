@@ -70,7 +70,6 @@ classMap::classMap() : stage_number(-1), number(-1), bg_scroll(st_float_position
 // ********************************************************************************************** //
 classMap::~classMap()
 {
-    //std::cout << "map[" << number << "] destructor" << std::endl;
 }
 
 
@@ -92,7 +91,6 @@ void classMap::reset_map()
 //                                                                                                //
 // ********************************************************************************************** //
 void classMap::setStageNumber(int setStageN) {
-	//std::cout << "classMap::setStageNumber - setStageN: " << setStageN << std::endl;
 	stage_number = setStageN;
 }
 
@@ -143,7 +141,6 @@ void classMap::loadMap()
             int lvl3_x = GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x;
             int lvl3_y = GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y;
             if (lvl3_x != -1 && lvl3_y != -1) {
-                //std::cout << "tile_lvl3[" << lvl3_x << "][" << lvl3_y << "]" << std::endl;
                 struct st_level3_tile temp_tile(st_position(lvl3_x, lvl3_y), st_position(i, j));
                 _level3_tiles.push_back(temp_tile);
             }
@@ -167,9 +164,7 @@ void classMap::loadMap()
                 object *obj_item = &(*object_it);
 
                 if (obj_item->get_type() == OBJ_BOSS_DOOR) {
-                    //std::cout << "obj[" << obj_item->get_name() << "], start[" << (obj_item->get_start_position().x/TILESIZE) << "][" << (obj_item->get_start_position().y/TILESIZE) << "], point[" << i << "][" << j << "]" << std::endl;
                     if ((i >= obj_item->get_start_position().x/TILESIZE && i < obj_item->get_start_position().x/TILESIZE+obj_item->get_size().width/TILESIZE) && (j >= obj_item->get_start_position().y/TILESIZE && j < obj_item->get_start_position().y/TILESIZE+obj_item->get_size().height/TILESIZE)) {
-                        //std::cout << "classMap::loadMap, obj[" << obj_item->get_name() << "] is locking scroll at [" << i << "][" << j << "]" << std::endl;
                         obj_locked = true;
                     }
                 }
@@ -297,11 +292,9 @@ void classMap::draw_animated_tiles(graphicsLib_gSurface &surface)
 {
     //scroll.x - dest.x
     for (int i=0; i<anim_tile_list.size(); i++) {
-        //std::cout << "draw-anim-tile[" << i << "][" << anim_tile_list.at(i).anim_tile_id << "], x[" << anim_tile_list.at(i).dest_x << "], y[" << anim_tile_list.at(i).dest_y << "]" << std::endl;
 
         int pos_x = anim_tile_list.at(i).dest_x-scroll.x;
         if (pos_x >= -TILESIZE && pos_x <= RES_W+1) {
-            //std::cout << "## scroll.x[" << scroll.x << "], dest.x[" << anim_tile_list.at(i).dest_x << "]" << std::endl;
             st_position dest_pos(pos_x, anim_tile_list.at(i).dest_y);
             graphLib.place_anim_tile(anim_tile_list.at(i).anim_tile_id, dest_pos, &surface);
         }
@@ -324,7 +317,6 @@ void classMap::init_animated_tiles()
             if (pos_origin.x < -1 && pos_origin.y == 0) {
                 int anim_tile_id = (pos_origin.x * -1) - 2;
                 pos_destiny.y = j*TILESIZE;
-                //std::cout << "MAP::showMap::place_anim_tile[" << i << "][" << j << "]" << std::endl;
                 anim_tile_list.push_back(anim_tile_desc(anim_tile_id, pos_destiny));
             }
         }
@@ -346,7 +338,6 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
 	if (start_point > 0) { start_point--; }
     short end_point = (scroll_x+RES_W)/TILESIZE;
 	if (end_point < MAP_W-1) { end_point++; }
-    //std::cout << "showAbove - start_point: " << start_point << ", end_point: " << end_point << std::endl;
 
 
 	// draw 3rd tile level
@@ -379,7 +370,6 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
             }
         }
         if (water_lock != TERRAIN_WATER || _water_bubble.timer < timer.getTimer()) {
-            //std::cout << ">> MAP::showAbove::HIDE_BUBBLE <<" <<std::endl;
             _water_bubble.pos.x = -1;
             _water_bubble.pos.y = -1;
         }
@@ -438,18 +428,8 @@ st_position_int8 classMap::get_map_point_tile1(st_position pos)
 // ********************************************************************************************** //
 void classMap::changeScrolling(st_float_position pos, bool check_lock)
 {
-    /*
-    if (timer.is_paused() == true) {
-        return;
-    }
-    */
-
-    //std::cout << "MAP::changeScrolling::timer: " << timer.getTimer() << ", pos.x: " << pos.x << std::endl;
-
     float bg1_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[0].speed/10 * SharedData::get_instance()->get_movement_multiplier();
     float foreground_layer_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10 * SharedData::get_instance()->get_movement_multiplier();
-
-    //std::cout << "MAP::changeScrolling - foreground_layer_speed[" << foreground_layer_speed << "]" << std::endl;
 
 	// moving player to right, screen to left
     if (pos.x > 0 && ((scroll.x/TILESIZE+RES_W/TILESIZE)-1 < MAP_W-1)) {
@@ -474,9 +454,7 @@ void classMap::changeScrolling(st_float_position pos, bool check_lock)
 		}
 		if (scroll.x/TILESIZE >= 0) { // if change is too big, do not update (TODO: must check all wall until lock)
 			int tile_x = (scroll.x+TILESIZE-2)/TILESIZE;
-            //std::cout << "#2 LEFT changeScrolling - scroll.x: " << scroll.x << ", testing tile_x: " << tile_x << std::endl;
 			if (check_lock == false || wall_scroll_lock[tile_x] == false) {
-				//std::cout << "classMap::changeScrolling - 2" << std::endl;
                 scroll.x += x_change;
                 bg_scroll.x -= ((float)x_change*bg1_speed);
                 fg_layer_scroll.x -= ((float)x_change*foreground_layer_speed);
@@ -498,7 +476,6 @@ void classMap::set_scrolling(st_float_position pos)
 	scrolled = pos;
 	scroll.x = pos.x;
 	scroll.y = pos.y;
-    //std::cout << "------- classMap::set_scrolling - map: " << number << ", pos.x: " << pos.x << "-------" << std::endl;
 }
 
 void classMap::reset_scrolling()
@@ -516,7 +493,6 @@ void classMap::reset_scrolling()
 // ********************************************************************************************** //
 st_float_position classMap::getMapScrolling() const
 {
-    //std::cout << "getMapScrolling, x: " << scroll.x << ", y: " << scroll.y << std::endl;
     return scroll;
 }
 
@@ -567,8 +543,6 @@ void classMap::load_map_npcs()
             new_npc.init_animation();
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
-            //std::cout << "(A) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
-
         }
 
 
@@ -579,7 +553,6 @@ void classMap::load_map_npcs()
 void classMap::draw_dynamic_backgrounds()
 {
     // only draw solid background color, if map-heigth is less than RES_H
-    //std::cout << "number[" << number << "], bg1_surface.height[" << bg1_surface.height << "], bg1.y[" << GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y << "]" << std::endl;
     graphicsLib_gSurface* surface_bg = get_dynamic_bg();
     if (surface_bg == NULL || surface_bg->width <= 0) {
         graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, graphLib.gameScreen);
@@ -610,8 +583,6 @@ void classMap::draw_dynamic_backgrounds()
         }
     }
 
-    //std::cout << "## bg1_speed[" << bg1_speed << "], bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
-
     float x1 = bg_scroll.x;
     if (x1 > 0.0) { // moving to right
         x1 = (RES_W - x1) * -1;
@@ -619,16 +590,12 @@ void classMap::draw_dynamic_backgrounds()
 
     float y1 = bg_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[0].adjust_y;
 
-    //std::cout << "## x1[" << x1 << "]" << std::endl;
-
-
     if (surface_bg->width > 0) {
         // draw leftmost part
         graphLib.copyAreaWithAdjust(st_position(x1, y1), surface_bg, &graphLib.gameScreen);
 
         // draw rightmost part, if needed
         if (abs(bg_scroll.x) > RES_W) {
-            //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
             float bg_pos_x = RES_W - (abs(x1)-RES_W);
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), surface_bg, &graphLib.gameScreen);
         }  else if (surface_bg->width - abs(bg_scroll.x) < RES_W) {
@@ -642,10 +609,8 @@ void classMap::draw_dynamic_backgrounds()
 
 void classMap::draw_static_background()
 {
-    //std::cout << "STATIC-BG-DRAW bg.x[" << static_bg_pos.x << "], scroll.x[" << scroll.x << "]" << std::endl;
     if (static_bg.is_null() == false && static_bg_pos.x >= scroll.x-1 && static_bg_pos.x < scroll.x+RES_W) {
         st_position adjusted_static_bg_pos((static_bg_pos.x-scroll.x), static_bg_pos.y);
-        //std::cout << "STATIC-BG-DRAW bg.x[" << static_bg_pos.x << "], scroll.x[" << scroll.x << "], x[" << adjusted_static_bg_pos.x << "]" << std::endl;
         graphLib.copyAreaWithAdjust(adjusted_static_bg_pos, &static_bg, &graphLib.gameScreen);
         return;
     }
@@ -655,12 +620,10 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 {
 
     if (strlen(GameMediator::get_instance()->map_data[number].backgrounds[1].filename) > 0) {
-        //std::cout << "draw_foreground_layer #1" << std::endl;
         float foreground_speed = (float)GameMediator::get_instance()->map_data[number].backgrounds[1].speed/10 * SharedData::get_instance()->get_movement_multiplier();
         int scroll_mode = GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll;
         // dynamic background won't work in low-end graphics more
         if (SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
-            //std::cout << "draw_foreground_layer #2" << std::endl;
             if (scroll_mode == BG_SCROLL_MODE_LEFT) {
                 fg_layer_scroll.x -= ((float)1*foreground_speed);
                 adjust_foreground_position();
@@ -676,8 +639,6 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
             }
         }
 
-        //std::cout << "## foreground_speed[" << foreground_speed << "], fg_layer_scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-
         int x1 = fg_layer_scroll.x;
         if (x1 > 0) { // moving to right
             x1 = (RES_W - x1) * -1;
@@ -685,23 +646,16 @@ void classMap::draw_foreground_layer(int scroll_x, int scroll_y)
 
         int y1 = fg_layer_scroll.y + GameMediator::get_instance()->map_data[number].backgrounds[1].adjust_y;
 
-        //std::cout << "## x1[" << x1 << "]" << std::endl;
-
-
         if (get_dynamic_foreground() != NULL && get_dynamic_foreground()->width > 0) {
             // draw leftmost part
             graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_foreground(), &graphLib.gameScreen);
 
             // draw rightmost part, if needed
-            //std::cout << "fg_layer_scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
             if (abs(fg_layer_scroll.x) > RES_W) {
-                //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
                 int bg_pos_x = RES_W - (abs(x1)-RES_W);
-                //std::cout << "Need to draw second part of surface, bg_pos_x[" << bg_pos_x << "]" << std::endl;
                 graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }  else if (get_dynamic_foreground()->width - abs(fg_layer_scroll.x) < RES_W) {
                 int foreground_pos_x = get_dynamic_foreground()->width - (int)abs(fg_layer_scroll.x);
-                //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT width[" << get_dynamic_foreground()->width << "], scroll.x[" << (int)abs(fg_layer_scroll.x) << "] ###" << std::endl;
                 // test if there isn't a overlap, so we need to add +1
                 graphLib.copyAreaWithAdjust(st_position(foreground_pos_x, y1), get_dynamic_foreground(), &graphLib.gameScreen);
             }
@@ -722,16 +676,10 @@ void classMap::adjust_dynamic_background_position()
     // esq -> direita: #1 bg_limt[640], scroll.x[-640.799]
 
     if (bg_scroll.x < -bg_limit) {
-        //std::cout << "#1 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #1" << std::endl;
         bg_scroll.x = 0;
     } else if (bg_scroll.x > bg_limit) {
-        //std::cout << "#2 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #2" << std::endl;
         bg_scroll.x = 0;
     } else if (bg_scroll.x > 0) {
-        //std::cout << "#3 bg_limt[" << bg_limit << "], scroll.x[" << bg_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #3" << std::endl;
         bg_scroll.x = -(get_dynamic_bg()->width); // erro aqui
     }
 
@@ -755,16 +703,10 @@ void classMap::adjust_foreground_position()
     // esq -> direita: #1 bg_limt[640], scroll.x[-640.799]
 
     if (fg_layer_scroll.x < -foreground_limit) {
-        //std::cout << "#1 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #1" << std::endl;
         fg_layer_scroll.x = 0;
     } else if (fg_layer_scroll.x > foreground_limit) {
-        //std::cout << "#2 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #2" << std::endl;
         fg_layer_scroll.x = 0;
     } else if (fg_layer_scroll.x > 0) {
-        //std::cout << "#3 bg_limt[" << foreground_limit << "], scroll.x[" << fg_layer_scroll.x << "]" << std::endl;
-        //std::cout << "RESET BG-SCROLL #3" << std::endl;
         fg_layer_scroll.x = -(get_dynamic_foreground()->width); // erro aqui
     }
 
@@ -798,9 +740,7 @@ bool classMap::must_show_static_bg()
 void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface)
 {
 
-    //std::cout << "MAP::draw_dynamic_backgrounds_into_surface - color: (" << GameMediator::get_instance()->map_data[number].background_color.r << ", " << GameMediator::get_instance()->map_data[number].background_color.g << ", " << GameMediator::get_instance()->map_data[number].background_color.b << ")" << std::endl;
     graphLib.clear_surface_area(0, 0, surface.width, surface.height, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, surface);
-
 
     if (get_dynamic_bg() == NULL) {
         return;
@@ -819,14 +759,11 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
         graphLib.copyAreaWithAdjust(st_position(x1, y1), get_dynamic_bg(), &surface);
 
         // draw rightmost part, if needed
-        //std::cout << "bg_scroll.x[" << bg_scroll.x << "]" << std::endl;
         if (abs(bg_scroll.x) > RES_W) {
-            //std::cout << "### MUST DRAW SECOND BG-POS-LEFT ###" << std::endl;
             int bg_pos_x = RES_W - (abs(x1)-RES_W);
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &surface);
         }  else if (get_dynamic_bg()->width - abs(bg_scroll.x) < RES_W) {
             int bg_pos_x = get_dynamic_bg()->width - abs(bg_scroll.x);
-            //std::cout << "### MUST DRAW SECOND BG-POS-RIGHT bg_pos_x[" << bg_pos_x << "] ###" << std::endl;
             graphLib.copyAreaWithAdjust(st_position(bg_pos_x, y1), get_dynamic_bg(), &surface);
         }
 
@@ -844,8 +781,6 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
     st_position res;
     st_position x_limit_pos;
 
-    std::cout << "########### get_first_lock_in_direction::START - pos[" << pos.x << "][" << pos.y << "]" << std::endl;
-
     switch (direction) {
 
     case ANIM_DIRECTION_LEFT:
@@ -856,9 +791,7 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         if (scroll_lock_left < pos.x-max_dist.width) {
             for (int pos_i=pos.x; pos_i>(pos.x-max_dist.width); pos_i--) {
                 int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
-                std::cout << "get_first_lock_in_direction - TELEPORT::LEFT x[" << pos.x << "], map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "], scroll_lock_left[" << scroll_lock_left << "]" << std::endl;
                 if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                    std::cout << "get_first_lock_in_direction - FOUND-LEFT - pos_i[" << pos_i << "]" << std::endl;
                     res.x = pos_i+1;
                     break;
                 }
@@ -877,9 +810,7 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         if (scroll_lock_right > pos.x+max_dist.width) {
             for (int pos_i=pos.x; pos_i<(pos.x+max_dist.width); pos_i++) {
                 int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
-                std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << "], map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
                 if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                    std::cout << "TELEPORT::RIGHT #2 - pos_i[" << pos_i << "]" << std::endl;
                     res.x = pos_i-1;
                     break;
                 }
@@ -895,9 +826,7 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         res.x = pos.x;
         for (int pos_i=pos.y; pos_i>(pos.y-max_dist.height); pos_i--) {
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos.x/TILESIZE, pos_i/TILESIZE));
-            //std::cout << "TELEPORT::LEFT x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
             if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                std::cout << "UP - pos_i[" << pos_i << "]" << std::endl;
                 res.y = pos_i+1;
                 break;
             }
@@ -910,9 +839,7 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         res.x = pos.x;
         for (int pos_i=pos.y; pos_i<(pos.y+max_dist.height); pos_i++) {
             int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos.x/TILESIZE, pos_i/TILESIZE));
-            //std::cout << "TELEPORT::RIGHT #1 x[" << pos_i << ", map_x[" << (pos_i/TILESIZE) << "], map_lock[" << map_lock << "]" << std::endl;
             if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
-                std::cout << "TELEPORT::DOWN #2 - pos_i[" << pos_i << "]" << std::endl;
                 res.y = pos_i-1;
                 break;
             }
@@ -943,7 +870,6 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         break;
     }
 
-    std::cout << "########### get_first_lock_in_direction::START - res.x[" << res.x << "], res.y[" << res.y << "]" << std::endl;
     return res;
 }
 
@@ -961,10 +887,8 @@ int classMap::get_first_lock_on_right(int x_tile_pos) const
 {
     int limit = (scroll.x+RES_W)/TILESIZE;
     x_tile_pos += 1;
-    std::cout << "classMap::get_first_lock_on_right - x_pos: " << x_tile_pos << ", limit: " << limit << std::endl;
     for (int i=x_tile_pos; i<=limit; i++) {
         if (wall_scroll_lock[i] == true) {
-            std::cout << "classMap::get_first_lock_on_right - found lock at: " << i << std::endl;
             return i*TILESIZE;
         }
     }
@@ -979,7 +903,6 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos)
 
 int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 {
-    //std::cout << "get_first_lock_on_bottom, x_pos[" << x_pos << "], y_pos[" << y_pos << "], w[" << w << "], h[" << h << "]" << std::endl;
     int tilex = x_pos/TILESIZE;
     int above_tiles_to_test = h/TILESIZE;
     if (above_tiles_to_test < 2) { // at least two tiles above even for small npcs
@@ -998,14 +921,12 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
     for (int i=initial_y; i>=above_tiles_to_test+1; i--) { // ignore here first tiles, as we need to test them next
         int map_lock = getMapPointLock(st_position(tilex, i));
         bool found_bad_point = false;
-        //std::cout << "get_first_lock_on_bottom, i[" << i << "], tilex[" << tilex << "], map_lock[" << map_lock << "], above_tiles_to_test[" << above_tiles_to_test << "], right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
         if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER && map_lock != TERRAIN_EASYMODEBLOCK && map_lock != TERRAIN_HARDMODEBLOCK) {
             // found a stop point, now check above tiles
             for (int j=i-1; j>=i-above_tiles_to_test; j--) {
                 for (int k=0; k<right_tiles_to_test; k++) {
                     int map_lock2 = getMapPointLock(st_position(tilex+k, j));
 
-                    //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - test-point[" << (tilex+k) << "][" << j << "].terrain[" << map_lock2 << "], above_tiles_to_test[" << above_tiles_to_test << "],right_tiles_to_test[" << right_tiles_to_test << "]" << std::endl;
                     if (map_lock2 != TERRAIN_UNBLOCKED && map_lock2 != TERRAIN_WATER) { // found a stop point, now check above ones
                         found_bad_point = true;
                         break;
@@ -1016,7 +937,6 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
                 }
             }
             if (found_bad_point == false) {
-                //std::cout << ">>>>>> MAP::get_first_lock_on_bottom - good-point[" << (i-1) << "]" << std::endl;
                 return i-1;
             }
         }
@@ -1032,9 +952,7 @@ void classMap::drop_item(classnpc* npc_ref)
         return;
     }
     srand(static_cast<unsigned int>(timer.getTimer()));
-    //int rand_n = rand() % 100;
     int rand_n = static_cast<int> (100.0 * (rand() / (RAND_MAX + 1.0)));
-    //std::cout << ">>>>>>> classMap::drop_item() - rand_n: " << rand_n << std::endl;
     DROP_ITEMS_LIST obj_type;
 
     // sub-bosses always will drop energy big
@@ -1074,7 +992,6 @@ void classMap::drop_item(classnpc* npc_ref)
 
     short obj_type_n = gameControl.get_drop_item_id(obj_type);
     if (obj_type_n == -1) {
-        std::cout << ">>>>>>>>> obj_type_n(" << obj_type_n << ") invalid for obj_type(" << obj_type << ")" << std::endl;
         return;
     }
 
@@ -1104,7 +1021,6 @@ void classMap::reset_map_timers()
 
 void classMap::reset_enemies_timers()
 {
-    //std::cout << ">>>>>> MAP::reset_enemies_timers - _npc_list.size: " << _npc_list.size() << std::endl;
     std::vector<classnpc>::iterator enemy_it;
     for (enemy_it = _npc_list.begin(); enemy_it != _npc_list.end(); enemy_it++) {
         (*enemy_it).reset_timers(); // TODO: must pass scroll map to npcs somwhow...
@@ -1114,7 +1030,6 @@ void classMap::reset_enemies_timers()
 
 void classMap::reset_objects_timers()
 {
-    //std::cout << ">>>>>> MAP::reset_objects_timers - object_list.size: " << object_list.size() << std::endl;
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
         (*object_it).reset_timers(); // TODO: must pass scroll map to npcs somwhow...
@@ -1131,25 +1046,17 @@ void classMap::reset_objects_anim_timers()
 
 void classMap::reset_objects()
 {
-    //std::cout << ">>>>>> MAP::reset_objects - object_list.size: " << object_list.size() << std::endl;
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
         (*object_it).reset();
     }
 }
 
-void classMap::print_objects_number()
-{
-    //std::cout << ">>>>>> MAP::print_objects_number - n: " << object_list.size() << std::endl;
-}
-
 void classMap::add_bubble_animation(st_position pos)
 {
     if (_water_bubble.timer > timer.getTimer()) {
-        //std::cout << ">> MAP::add_bubble::CANT_ADD <<" <<std::endl;
         return;
     }
-    //std::cout << ">> MAP::add_bubble::ADDED <<" <<std::endl;
     _water_bubble.timer = timer.getTimer()+3000;
     _water_bubble.pos.x = pos.x;
     _water_bubble.pos.y = pos.y;
@@ -1175,11 +1082,8 @@ bool classMap::subboss_alive_on_left(short tileX)
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         if ((npc_ref->is_boss() == true || npc_ref->is_subboss() == true) && npc_ref->is_dead() == false) {
-            std::cout << "Opa, achou um boss/sub-boss!" << std::endl;
             int dist_door_npc = tileX*TILESIZE - npc_ref->getPosition().x;
-            std::cout << "dist_door_npc[" << dist_door_npc << "], NPC-pos.x: " << npc_ref->getPosition().x << ", tileX*TILESIZE: " << tileX*TILESIZE << std::endl;
             if (npc_ref->getPosition().x >= (tileX-20)*TILESIZE && npc_ref->getPosition().x <= tileX*TILESIZE) { // 20 tiles is the size of a visible screen
-                std::cout << "Opa, achou um sub-boss NA ESQUERDA!!" << std::endl;
                 return true;
             }
         }
@@ -1191,7 +1095,6 @@ void classMap::finish_object_teleporter(int number)
 {
     for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
         object& temp_obj = (*it);
-        std::cout << "number: " << number << ", obj.id: " << temp_obj.get_obj_map_id() << std::endl;
         if (temp_obj.get_obj_map_id() == number) {
             temp_obj.set_direction(ANIM_DIRECTION_RIGHT);
         }
@@ -1200,10 +1103,8 @@ void classMap::finish_object_teleporter(int number)
 
 void classMap::activate_final_boss_teleporter()
 {
-    std::cout << "classMap::activate_final_boss_teleporter::START" << std::endl;
     for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
         object& temp_obj = (*it);
-        std::cout << "number: " << number << ", obj.id: " << temp_obj.get_obj_map_id() << ", type: " << temp_obj.get_type() << ", OBJ_FINAL_BOSS_TELEPORTER: " << OBJ_FINAL_BOSS_TELEPORTER << std::endl;
         if (temp_obj.get_type() == OBJ_FINAL_BOSS_TELEPORTER) {
             temp_obj.start();
         }
@@ -1212,7 +1113,6 @@ void classMap::activate_final_boss_teleporter()
 
 Uint8 classMap::get_map_gfx()
 {
-    //std::cout << ">> MAP::get_map_gfx[" << number << "]" << std::endl;
     return GameMediator::get_instance()->map_data[number].backgrounds[0].gfx;
 }
 
@@ -1298,7 +1198,6 @@ void classMap::create_dynamic_background_surfaces()
 {
     std::string bg_filename = std::string(GameMediator::get_instance()->map_data[number].backgrounds[0].filename);
     if (bg_filename.length() > 0) {
-        //std::cout << "MAP[" << (int)number << "]::create_bg[" << bg_filename << "]" << std::endl;
         draw_lib.add_dynamic_background(bg_filename, GameMediator::get_instance()->map_data[number].backgrounds[0].auto_scroll, GameMediator::get_instance()->map_data[number].background_color);
     }
     // foreground image
@@ -1309,7 +1208,6 @@ void classMap::create_dynamic_background_surfaces()
             draw_lib.add_dynamic_background(std::string(GameMediator::get_instance()->map_data[number].backgrounds[1].filename), GameMediator::get_instance()->map_data[number].backgrounds[1].auto_scroll, st_color(COLORKEY_R, COLORKEY_G, COLORKEY_B));
             if (GameMediator::get_instance()->map_data[number].backgrounds[1].gfx != 100 && SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_LOW) {
                 int fg_alpha = (255 * GameMediator::get_instance()->map_data[number].backgrounds[1].gfx)/100;
-                //std::cout << ">>>>>>>>>>>>>>> FG-Alpha[" << number << "][" << fg_alpha << "]" << std::endl;
                 draw_lib.set_dynamic_bg_alpha(GameMediator::get_instance()->map_data[number].backgrounds[1].filename, fg_alpha);
             }
         }
@@ -1377,13 +1275,9 @@ int classMap::collision_rect_player_obj(st_rectangle player_rect, object* temp_o
 
     if (blocked != 0 && temp_obj->get_type() == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
         if (abs(p_rect.y + p_rect.h - obj_rect.y) > y_inc || y_inc < 0) {
-            std::cout << "SLIM - ignore block, y_inc[" << y_inc << "]" << std::endl;
             blocked = 0;
         }
     }
-
-    //std::cout << "blocked: " << blocked << ", xOverlap: " << xOverlap << ", yOverlap: " << yOverlap << ", p.x: " << p_rect.x << ", p.y: " << p_rect.y << ", p.w: " << p_rect.w << ", p.h: " << p_rect.h << ", o.y: " << obj_rect.y << ", y_inc: " << y_inc << std::endl;
-
 
     return blocked;
 }
@@ -1414,7 +1308,6 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
         return true;
     }
     if (obj_type == OBJ_ITEM_JUMP) {
-        //std::cout << "IGNORE OBJ_ITEM_JUMP" << std::endl;
         return true;
     }
     if (obj_type == OBJ_ARMOR_ARMS) {
@@ -1441,11 +1334,6 @@ bool classMap::is_obj_ignored_by_enemies(Uint8 obj_type)
     if (obj_type == OBJ_FINAL_BOSS_TELEPORTER) {
         return true;
     }
-    /*
-    if (obj_type == OBJ_BOSS_DOOR) {
-        return true;
-    }
-    */
     if (obj_type == OBJ_CHECKPOINT) {
         return true;
     }
@@ -1458,8 +1346,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     int blocked = 0;
     object* res_obj = NULL;
 
-    //if (y_inc < 0) std::cout << "MAP::collision_player_object - y_inc: " << y_inc << std::endl;
-
     // ignore collision if teleporting
     if (charObj->get_anim_type() == ANIM_TYPE_TELEPORT) {
         return;
@@ -1467,41 +1353,33 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
     st_rectangle char_rect = charObj->get_hitbox();
 
-    //std::cout << ">>>>>>>>> CLASSMAP::collision-player-object, char_rect.y[" << char_rect.y << "]" << std::endl;
-
     /// @TODO: isso aqui deveria mesmo estar aqui?
     if (charObj->get_platform() == NULL) {
         for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
             object& temp_obj = (*it);
 
             if (temp_obj.is_hidden() == true) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #1" << std::endl;
                 continue;
             }
 
             if (temp_obj.is_on_screen() == false) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #2" << std::endl;
                 continue;
             }
 
             if (temp_obj.finished() == true) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #3" << std::endl;
                 continue;
             }
 
             if (charObj->is_player() == false && is_obj_ignored_by_enemies(temp_obj.get_type())) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #4" << std::endl;
                 continue;
             }
 
             // slim platform won't collide if movement is from bottom to top
             if (temp_obj.get_type() == OBJ_ACTIVE_OPENING_SLIM_PLATFORM && y_inc < 0) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #5" << std::endl;
                 continue;
             }
 
             if (temp_obj.is_teleporting()) {
-                //std::cout << "obj[" << temp_obj.get_name() << "] - leave #6 [teleporting object]" << std::endl;
                 continue;
             }
 
@@ -1516,29 +1394,20 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             stopped_char_rect.w-= CHAR_OBJ_COLlISION_KILL_ADJUST;
             stopped_char_rect.h-= CHAR_OBJ_COLlISION_KILL_ADJUST*2;
 
-            //std::cout << "collision_rect_player_obj::CALL #1" << std::endl;
             // check if, without moving, player is inside object
             int no_move_blocked = collision_rect_player_obj(stopped_char_rect, &temp_obj, 0, 0, 0, 0);
-
-
-            //std::cout << "### classMap::collision_char_object - obj[" << temp_obj.get_name() << "] - CHECK #1 ###" << std::endl;
-
 
             // some platforms can kill the player if he gets stuck inside it
             if (charObj->is_player() == true && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_FLY_PLATFORM)) {
                 if (no_move_blocked == BLOCK_XY) {
                     _obj_collision = object_collision(BLOCK_INSIDE_OBJ, &temp_obj);
-                    std::cout << "obj[" << temp_obj.get_name() << "] - leave #5" << std::endl;
                     return;
                 }
             }
 
             // usar TEMP_BLOCKED aqui, para não zerar o blocked anterior, fazer merge dos valores
             int temp_blocked = 0;
-            //std::cout << "collision_rect_player_obj::CALL #2" << std::endl;
             temp_blocked = collision_rect_player_obj(char_rect, &temp_obj, x_inc, y_inc, 0, 0);
-            //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK::temp_blocked[" << temp_blocked << "] ###" << std::endl;
-
 
             int temp_obj_y = temp_obj.get_position().y;
             if (temp_obj.get_type() == OBJ_ITEM_JUMP) {
@@ -1549,7 +1418,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
             // to enter platform, player.x+player.h must not be much higher than obj.y
             if (temp_blocked != 0) {
                 if (temp_obj.get_type() == OBJ_CHECKPOINT) {
-                    //std::cout << ">>>>>>>>>>>>>> classMap::collision_char_object - CHECKPOINT" << std::endl;
                     if (temp_obj.is_started() == false) {
                         temp_obj.start();
                     }
@@ -1571,21 +1439,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     }
                 }
-                if (temp_obj.is_platform()) {
-
-
-
-                    //std::cout << "### obj[" << temp_obj.get_name() << "] - CHECK #2, temp_blocked[" << temp_blocked << "] ###" << std::endl;
-                    if (char_rect.y+char_rect.h-2 > temp_obj_y) {
-
-                        //std::cout << "temp_blocked[" << temp_obj.get_name() << "] RESET BLOCK" << std::endl;
-                        // this avoids that player gets stuck inside an object
-                        /// @TODO: only do that if player is trying to leave object area (is locked even with xinc zero)
-                        //temp_blocked = 0;
-                    //} else {
-                        //std::cout << "temp_blocked[" << temp_obj.get_name() << "] KEEP! BLOCK" << std::endl;
-                    }
-                }
 
 
                 if (temp_blocked == BLOCK_Y || temp_blocked == BLOCK_XY) {
@@ -1597,11 +1450,9 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     }
 
                     if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
-                        //std::cout << "############# RAY.DAMAGE #############" << std::endl;
                         charObj->damage(TOUCH_DAMAGE_BIG, false);
                         continue;
                     } else if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
-                        std::cout << "DEATHRAY(damage) - player.x: " << char_rect.x << ", map.scroll_x: " << scroll.x << ", pos.x: " << temp_obj.get_position().x << ", size.w: " << temp_obj.get_size().width << std::endl;
                         charObj->damage(999, false);
                         continue;
                     }
@@ -1611,17 +1462,12 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         charObj->set_position(st_position(charObj->get_int_position().x, temp_obj.get_position().y - charObj->get_size().height));
                     }
 
-                    //std::cout << "y_inc[" << y_inc << "], char_rect.y[" << char_rect.y << "], temp_obj_y[" << temp_obj_y << "]" << std::endl;
-
                     if (y_inc > 0 && char_rect.y <= temp_obj_y) {
-                        //std::cout << ">>>>>>>> entered_platform!!!!!!! <<<<<" << std::endl;
                         entered_platform = true;
                     }
 
 
                     if (entered_platform == true) {
-                        //std::cout << "player.platform: " << playerObj->get_platform() << std::endl;
-
 
                         if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
                             if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
@@ -1659,11 +1505,9 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                             }
                             if (temp_blocked != 0) {
                                 if (y_inc > 0) {
-                                    //std::cout << ">>>> temp_blocked: " << temp_blocked << ", y_inc: " << y_inc << std::endl;
                                     _obj_collision = object_collision(temp_blocked, &(*it));
                                     return;
                                 } else {
-                                    std::cout << ">>>> RESET BLOCKED" <<  std::endl;
                                     temp_blocked = 0;
                                 }
                             }
@@ -1732,18 +1576,14 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     } else {
         object* temp_obj = charObj->get_platform();
         if (temp_obj->is_hidden() == true) {
-            std::cout << "obj[" << temp_obj->get_name() << "] - leave #2.1" << std::endl;
             charObj->set_platform(NULL);
         } else if (temp_obj->get_type() == OBJ_TRACK_PLATFORM && temp_obj->get_state() != 0) {
-            std::cout << "obj[" << temp_obj->get_name() << "] - leave #2.2" << std::endl;
             charObj->set_platform(NULL);
         } else {
-            //std::cout << "collision_rect_player_obj::CALL #3" << std::endl;
             blocked = collision_rect_player_obj(char_rect, temp_obj, x_inc, y_inc, 0, 0);
             if (blocked != 0) {
                 res_obj = temp_obj;
             }
-            //std::cout << "IN-PLATFORM[" << temp_obj->get_name() << "], blocked[" << blocked << "], y_inc[" << y_inc << "]" << std::endl;
         }
     }
 
@@ -1752,21 +1592,17 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     if (blocked == 0 && charObj->get_platform() != NULL) {
         //  for player item, platform must only be removed only if the item was already adtivated
         if (charObj->get_platform()->get_type() == OBJ_ITEM_FLY || charObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
-            //std::cout << "### DEBUG OBJ_ITEM_JUMP #1 ###" << std::endl;
             if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
-                std::cout << "CHAR::OUT-PLATFORM #1" << std::endl;
                 charObj->set_platform(NULL);
             } else {
                 _obj_collision = object_collision(0, NULL);
                 return;
             }
         } else if (charObj->get_platform()->is_hidden() == true) {
-            std::cout << ">> OUT OF PLATFORM #2" << std::endl;
             charObj->set_platform(NULL);
         } else {
             _platform_leave_counter++;
             if (_platform_leave_counter > 2) {
-                std::cout << ">> OUT OF PLATFORM #3" << std::endl;
                 charObj->set_platform(NULL);
                 _platform_leave_counter = 0;
             }
@@ -1818,7 +1654,6 @@ void classMap::remove_temp_objects()
         }
         for (int i=0; i<FS_PLATER_ITEMS_N; i++) {
             if (temp_obj.get_id() == game_data.player_items[i]) {
-                std::cout << ">>> OBJ::FINISHED[" << temp_obj.get_name() << "], id[" << (int)temp_obj.get_id() << "], game_data.player_items[" << i << "][" << (int)game_data.player_items[i] << "]" << std::endl;
                 temp_obj.set_finished(true);
             }
         }
@@ -1850,21 +1685,16 @@ classnpc* classMap::collision_player_npcs(character* playerObj, const short int 
 
     p_rect = playerObj->get_hitbox();
 
-    //std::cout << "collision_player_npcs - p1.x: " << p1.x << ", p1.y: " << p1.y << std::endl;
-
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         if (npc_ref->is_player_friend() == true) {
-            //std::cout << "collision_player_npcs - FRIEND" << std::endl;
 			continue;
 		}
         if (npc_ref->is_dead() == true) {
-            //std::cout << "collision_player_npcs - DEAD" << std::endl;
 			continue;
 		}
         if (npc_ref->is_invisible() == true) {
-            //std::cout << "collision_player_npcs - INVISIBLE" << std::endl;
 			continue;
 		}
 
@@ -1955,15 +1785,12 @@ classnpc* classMap::find_nearest_npc(st_position pos)
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         if (npc_ref->is_player_friend() == true) {
-            //std::cout << "collision_player_npcs - FRIEND" << std::endl;
             continue;
         }
         if (npc_ref->is_dead() == true) {
-            //std::cout << "collision_player_npcs - DEAD" << std::endl;
             continue;
         }
         if (npc_ref->is_invisible() == true) {
-            //std::cout << "collision_player_npcs - INVISIBLE" << std::endl;
             continue;
         }
         if (npc_ref->is_on_visible_screen() == false) {
@@ -2018,13 +1845,8 @@ classnpc *classMap::find_nearest_npc_on_direction(st_position pos, int direction
 
 /// @TODO: fix animation. investigate a better way for drawing it (code is way too confusing)
 void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number) {
-	//is_close = false; // THIS IS A TEMPORARY FIX
-
-	//std::cout << "classMap::redraw_boss_door - is_close: " << is_close << std::endl;
-
     timer.delay(10);
 	for (int k=0; k<nTiles; k++) {
-		//if (is_close == false) { std::cout << "classMap::redraw_boss_door - nTiles: " << nTiles << ", tilePieces: " << tilePieces << ", tileCount: " << tileCount << std::endl; }
 		// redraw screen
         show_map();
 
@@ -2041,7 +1863,6 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 			for (int j=0; j<MAP_H; j++) {
                 if (GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x != -1 && GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y != -1) {
                         if (i == tileX && GameMediator::get_instance()->map_data[number].tiles[i][j].locked == TERRAIN_DOOR) {
-							//std::cout << "****** redraw_boss_door - k: " << k << ", tiles_showed: " << tiles_showed << ", nTiles: " << nTiles << std::endl;
 							if (is_close == false) {
 								if (tiles_showed < nTiles) {
 
@@ -2062,7 +1883,6 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
                                         graphLib.show_debug_msg("EXIT #21.D");
                                         exception_manager::throw_general_exception(std::string("classMap::redraw_boss_door"), "Gamescreen is null #2");
                                     }
-
 
                                     graphLib.placeTile(st_position(GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.x, GameMediator::get_instance()->map_data[number].tiles[i][j].tile3.y), st_position((i*TILESIZE)-scroll.x, (j*TILESIZE)-scroll.y), &graphLib.gameScreen);
                                     draw_lib.update_screen();
@@ -2099,7 +1919,6 @@ void classMap::redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY,
 
 void classMap::add_animation(ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize)
 {
-    //std::cout << ">>>>> classMap::add_animation - pos.x[" << pos.x << "], pos.y[" << pos.y << "]" << std::endl;
     animation_list.push_back(animation(pos_type, surface, pos, adjust_pos, frame_time, repeat_times, direction, framesize, &scroll));
 }
 
@@ -2125,8 +1944,6 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "MAP::spawn_map_npc, id[%d]", npc_id);
 #endif
 
-    //std::cout << "$$$ MAP::SPAWN-NPC, pos[" << npc_pos.x << ", " << npc_pos.y << "], map.scroll.x[" << scroll.x << "]" << std::endl;
-
     classnpc new_npc(stage_number, number, npc_id, npc_pos, direction, player_friend);
 
     if (progressive_span == true) {
@@ -2149,7 +1966,6 @@ int classMap::child_npc_count(int parent_id)
     int n = 0;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
-        //std::cout << "NPC[" << n << "][" << npc_ref->get_name() << "].parent[" << npc_ref->get_parent_id() << ", parent_id[" << parent_id << "]" << std::endl;
         if (npc_ref->is_dead() == false && npc_ref->get_parent_id() == parent_id) {
             count++;
         }
@@ -2157,7 +1973,6 @@ int classMap::child_npc_count(int parent_id)
     }
     for (npc_it = _npc_spawn_list.begin(); npc_it != _npc_spawn_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
-        //std::cout << "NPC.SPANWLIST[" << n << "][" << npc_ref->get_name() << "].parent[" << npc_ref->get_parent_id() << ", parent_id[" << parent_id << "]" << std::endl;
         if (npc_ref->is_dead() == false && npc_ref->get_parent_id() == parent_id) {
             count++;
         }
@@ -2169,7 +1984,6 @@ int classMap::child_npc_count(int parent_id)
 
 void classMap::move_npcs() /// @TODO - check out of screen
 {
-    //std::cout << "*************** classMap::showMap - npc_list.size: " << _npc_list.size() << std::endl;
 
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
@@ -2178,8 +1992,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
         // check if NPC is outside the visible area
         st_position npc_pos = npc_ref->get_real_position();
         short dead_state = npc_ref->get_dead_state();
-
-        //std::cout << "classMap::move_npcs[" << npc_ref->get_name() << "]" << std::endl;
 
         std::string name(npc_ref->get_name());
 
@@ -2227,9 +2039,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     npc_ref->clean_effect_projectiles();
                 }
             } else {
-
-                std::cout << "##### STAGE-BOSS IS DEAD (#1) #####" << std::endl;
-
                 // run npc move one more time, so reaction is executed to test if it will spawn a new boss (replace-itself)
                 for (int i=0; i<2; i++) {
                     npc_ref->execute_ai(); // to ensure death-reaction is run
@@ -2237,15 +2046,12 @@ void classMap::move_npcs() /// @TODO - check out of screen
 
 
                 if (npc_ref->is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
-                    std::cout << "##### STAGE-BOSS IS DEAD (#2) #####" << std::endl;
                     gameControl.draw_explosion(npc_pos, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
                     continue;
                 } else {
-                    std::cout << "##### STAGE-BOSS IS DEAD (#3) #####" << std::endl;
                     gameControl.remove_all_projectiles();
-                    std::cout << "classMap::showMap - killed stage boss" << std::endl;
                     graphLib.set_screen_adjust(st_position(0, 0));
                     /// @TODO - replace with game_data.final_boss_id
                     if (game_data.final_boss_id == npc_ref->get_number()) {
@@ -2270,7 +2076,6 @@ void classMap::move_npcs() /// @TODO - check out of screen
     if (_npc_spawn_list.size() > 0) {
         std::vector<classnpc>::iterator npc_it;
         for (npc_it = _npc_spawn_list.begin(); npc_it != _npc_spawn_list.end(); npc_it++) {
-            //std::cout << "(B) ######### _npc_list.add, size[" << _npc_list.size() << "]" << std::endl;
             _npc_list.push_back(*npc_it);
         }
         _npc_spawn_list.clear();
@@ -2328,7 +2133,6 @@ void classMap::show_npcs_to_left(int x)
     std::vector<classnpc>::iterator npc_it;
     for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
-        //std::cout << "MAP::show_npcs_to_left[" << npc_ref->get_name() << "], x[" << x << "], npc.x[" << npc_ref->getPosition().x << "]" << std::endl;
         if (npc_ref->is_dead() == false && npc_ref->is_on_visible_screen() && npc_ref->getPosition().x <= x) {
             npc_ref->show();
         }
@@ -2402,25 +2206,18 @@ void classMap::show_above_objects(int adjust_y, int adjust_x)
 bool classMap::boss_hit_ground(classnpc* npc_ref)
 {
     if (npc_ref->is_boss() == true && npc_ref->is_on_visible_screen() == true) {
-        //std::cout << "MAP::boss_hit_ground - move boss to ground - pos.y: " << npc_ref->getPosition().y << std::endl;
-
         int limit_y = npc_ref->get_start_position().y - TILESIZE;
-
-        //std::cout << "#### limit_y [" << limit_y << "]" << ", start.y[" << npc_ref->get_start_position().y << "]" << std::endl;
-
 
         if (limit_y > RES_H/2) {
             limit_y = RES_H/2;
         }
         if (npc_ref->get_can_fly()) {
             limit_y = RES_H/2 - npc_ref->get_size().height/2;
-            //std::cout << "#### [FLY] y[" << npc_ref->getPosition().y << "], limit_y [" << limit_y << "]" << ", h/2[" << (npc_ref->get_size().height/2) << "]" << std::endl;
         }
 
         if (npc_ref->getPosition().y >= limit_y) {
             // flying boss can stop on middle of the screen
             if (npc_ref->get_can_fly() == true) {
-                //std::cout << "BOSS-HIT-GROUND CAN-FLY <<<<<<<<<<<<<<<<<<<<" << std::endl;
                 npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
                 return true;
             // non-flying bosses need to hit gound to stop
@@ -2436,24 +2233,18 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
 bool classMap::boss_show_intro_sprites(classnpc *npc_ref)
 {
     if (npc_ref->have_frame_graphic(npc_ref->get_direction(), ANIM_TYPE_INTRO, 0) == false) {
-        std::cout << "### MAP::boss_show_intro_sprites - DOES NOT HAVE INTRO, LEAVE" << std::endl;
         return true;
     }
     if (npc_ref->get_anim_type() != ANIM_TYPE_INTRO) {
-        std::cout << "### MAP::boss_show_intro_sprites - SET INTRO" << std::endl;
         npc_ref->set_animation_type(ANIM_TYPE_INTRO);
         return false;
     }
     if (!npc_ref->is_on_last_animation_frame()) {
-        std::cout << "### MAP::boss_show_intro_sprites - EXECUTE" << std::endl;
         return false;
     }
-    std::cout << "### MAP::boss_show_intro_sprites - DONE" << std::endl;
     if (npc_ref->get_can_fly() == true) {
-        std::cout << "### MAP::boss_show_intro_sprites - SET FLY" << std::endl;
         npc_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
     } else {
-        std::cout << "### MAP::boss_show_intro_sprites - SET STAND" << std::endl;
         npc_ref->set_animation_type(ANIM_TYPE_STAND);
     }
     return true;

@@ -46,8 +46,6 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 	bool moved = false;
     st_position res;
 
-    //std::cout << ">>>>> class_config::move_cursor - xinc: " << x_inc << ", y_inc: " << y_inc << std::endl;
-
     if (ingame_menu_pos.y != 6) { // weapons positions
         if (x_inc > 0) {
             if (ingame_menu_pos.x == 0) {
@@ -115,7 +113,6 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 		moved = true;
     } else if (y_inc < 0) {
         if ((ingame_menu_pos.x == 0 && ingame_menu_pos.y == 0) || (ingame_menu_pos.x == 1 && ingame_menu_pos.y == 1)) { // when on top, go to energy drinks section
-            std::cout << "MOVE CURSOR #1" << std::endl;
 			ingame_menu_pos.y = 6;
 		} else {
             if (ingame_menu_pos.y == 6 && ingame_menu_pos.x == 2) { // just fix x, as there is no third column on weapons section as there is in the energy drinks section
@@ -169,11 +166,8 @@ st_position class_config::move_weapon_curstor_right() const // move from left to
 st_position class_config::move_weapon_curstor_up()
 {
     // from position to top
-    //std::cout << "$$$$$ move_weapon_curstor_up - ini: " << (ingame_menu_pos.y-1) << std::endl;
     for (int i=ingame_menu_pos.y-1; i>=0; i--) {
-        //std::cout << "move_weapon_curstor_up - looking slot [" << ingame_menu_pos.x << "][" << i << "] value: " << _weapons_matrix[ingame_menu_pos.x][i] << std::endl;
         if (_weapons_matrix[ingame_menu_pos.x][i] == true) {
-            //std::cout << "move_weapon_curstor_up - found slot at [" << ingame_menu_pos.x << "][" << i << "]" << std::endl;
             return st_position(ingame_menu_pos.x, i);
         }
     }
@@ -200,9 +194,7 @@ st_position class_config::move_weapon_curstor_down()
     // from position to bottom
     for (int i=ingame_menu_pos.y+1; i<WPN_ROWS; i++) {
         int stage_id = i;
-        //std::cout << "CONFIG::move_weapon_curstor_down - slot[" << ingame_menu_pos.x << "][" << stage_id << "]: " << _weapons_matrix[ingame_menu_pos.x][stage_id] << std::endl;
         if (_weapons_matrix[ingame_menu_pos.x][stage_id] == true) {
-            //std::cout << "CONFIG::move_weapon_curstor_down - found slot at [" << ingame_menu_pos.x << "][" << i << "]" << std::endl;
             return st_position(ingame_menu_pos.x, stage_id);
         }
     }
@@ -364,7 +356,6 @@ short class_config::convert_menu_pos_to_weapon_n(st_position menu_pos) const
     } else {
         res = menu_pos.y + 5;
     }
-    //std::cout << "*** CONFIG::convert_menu_pos_to_weapon_n - res: " << res << ", menu_pos.x: " << menu_pos.x << ", menu_pos.y: " << menu_pos.y << std::endl;
     return res;
 
     /*
@@ -389,8 +380,6 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
         res_pos.y = stage_n - 5;
     }
 
-    //std::cout << "*** CONFIG::convert_menu_pos_to_weapon_n - res.x: " << res_pos.x << ", res.y: " << res_pos.y << std::endl;
-
     return res_pos;
 }
 
@@ -399,9 +388,7 @@ int class_config::find_next_weapon(int current, int move) const
 {
     if (move == 1) {
         for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
-            //std::cout << "#0 CONFIG::find_next_weapon - wpnId: " << i << ", save: " << game_save.stages[i] << std::endl;
             if (has_weapon(i) == true) {
-                //std::cout << "#0 CONFIG::find_next_weapon - OK[" << i << "]" << std::endl;
                 return i;
             }
         }
@@ -413,13 +400,11 @@ int class_config::find_next_weapon(int current, int move) const
     } else {
         for (int i=current-1; i>=0; i--) { // from position to start
             if (has_weapon(i) == true) {
-                //std::cout << ">>#1 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
             if (has_weapon(i) == true) {
-                //std::cout << ">>#2 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
                 return i;
             }
         }
@@ -492,7 +477,6 @@ void class_config::generate_weapons_matrix()
 
         if (game_save.stages[i] == 1) {
             st_position pos = convert_stage_n_to_menu_pos(i);
-            //std::cout << "CONFIG::generate_weapons_matrix - stage[" << i << "]: " << game_save.stages[i] << ", pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
             _weapons_matrix[pos.x][pos.y] = true;
         }
     }

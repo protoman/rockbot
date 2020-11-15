@@ -36,7 +36,6 @@ public:
     void reset_scrolling();
     void move_map(const short int move_x, const short int move_y);
     void reload_stage(); // reload maps npc and object list
-    void print_map_objects_number(); // for debugging
     void reset_current_map();
     void reset_current_map_objects();
     void reset_stage_objects();

@@ -70,7 +70,6 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     // REACTIONS //
     int action_n = Mediator::get_instance()->ai_list.at(index).reactions[0].action;
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
-    std::cout << ">> #1 action_n[" << action_n << "]" << std::endl;
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).reactions[0].extra_parameter);
 
@@ -85,7 +84,6 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[7].action, ui->parameter8);
 
     ui->parameter1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].extra_parameter);
-    //std::cout << "#0 - AI[" << index << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
     ui->parameter2->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[1].extra_parameter);
     ui->parameter3->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[2].extra_parameter);
     ui->parameter4->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[3].extra_parameter);
@@ -139,9 +137,6 @@ void artificial_inteligence_tab::fill_data(int index)
 
 void artificial_inteligence_tab::change_action(int index, int action_n)
 {
-
-    std::cout << "AI::change_action - index: " << index << ", action_n: " << action_n << std::endl;
-
     _filling_data = true;
 
     if (index >= 0) {
@@ -149,8 +144,6 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].extra_parameter = 0;
     // -1: near-player, -2: hit, -3: dead
     }
-
-    std::cout << "### AI::change_action #2 ###" << std::endl;
 
     if (index == 0) {
         common::fill_ai_options_combo(action_n, ui->parameter1);
@@ -172,7 +165,6 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
 
     _filling_data = false;
 
-    std::cout << "### AI::change_action #3 ###" << std::endl;
 }
 
 
@@ -316,13 +308,10 @@ void artificial_inteligence_tab::on_parameter1_currentIndexChanged(int index)
 
 void artificial_inteligence_tab::on_parameter2_currentIndexChanged(int index)
 {
-    //std::cout << "AI::on_parameter2_currentIndexChanged - _filling_data: " << _filling_data << std::endl;
 	if (_filling_data == true) {
 		return;
 	}
-    //std::cout << "#1 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
     Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter = index;
-    //std::cout << "#2 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
 
 }
 
@@ -582,7 +571,6 @@ void artificial_inteligence_tab::on_aiReactionType_comboBox_currentIndexChanged(
     _filling_data = true;
     int action_n = Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].action;
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
-    std::cout << ">> #2 action_n[" << action_n << "]" << std::endl;
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].extra_parameter);
     _filling_data = false;

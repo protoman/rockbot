@@ -112,7 +112,6 @@ bool dialogs::show_yes_no_dialog(string lines[3])
     draw_lib.update_screen();
     while (repeat_menu == true) {
         picked_n = main_picker.pick();
-        //std::cout << "picked_n: " << picked_n << std::endl;
         if (picked_n == 0) {
             res = true;
             repeat_menu = false;
@@ -255,7 +254,6 @@ void dialogs::show_boss_dialog(int stage_n)
     // p1: 36, p2: 42, p3: 48, p4: 54
 
     if (stage_dialogs.at(init_pos).length() <= 0) {
-        std::cout << ">>>> DIALOGS::show_boss_dialog - leave #1 - init_pos[" << init_pos << "]" << std::endl;
         return;
     }
     // BOSS SPEAKING #1
@@ -298,6 +296,4 @@ void dialogs::show_boss_dialog(int stage_n)
         }
         show_dialog(GameMediator::get_instance()->player_list_v3_1[game_save.selected_player].face_filename, stage_data.dialog_top_side, lines, true);
     }
-
-    std::cout << ">>>> DIALOGS::show_boss_dialog - leave #2" << std::endl;
 }

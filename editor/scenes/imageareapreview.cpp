@@ -29,7 +29,6 @@ ImageAreaPreview::ImageAreaPreview(QWidget *parent) : QWidget(parent)
 void ImageAreaPreview::setImageFilename(QString name)
 {
     graphic_filename = name;
-    std::cout << ">> ImageAreaPreview::setImageFilename: " << graphic_filename.toStdString() << std::endl;
     repaint();
 }
 
@@ -96,18 +95,18 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
     painter.fillRect(0, 0, RES_W, RES_H, QColor(0, 0, 0, 255));
 
     if (graphic_filename.length() == 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #1" << std::endl;
+        // TODO: show error
         return;
     }
     if (graphic_filename.toStdString().find(".png") == std::string::npos) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #3" << std::endl;
+        // TODO: show error
         return;
     }
 
     QPixmap image(graphic_filename.toStdString().c_str());
 
     if (image.isNull() == true || image.width() <= 0) {
-        std::cout << ">> ImageAreaPreview::paintEvent: LEAVE #4 [" << graphic_filename.toStdString() << "]" << std::endl;
+        // TODO: show error
         return;
     }
 
@@ -147,8 +146,6 @@ void ImageAreaPreview::paintEvent(QPaintEvent *event)
 
     // destiny rectangle
     painter.setPen(QColor(0, 255, 0));
-
-    //std::cout << "dest_x: " << dest_x << ", dest_y: " << dest_y << std::endl;
 
     // linha topo
     line = QLineF((x+dest_x), (y+dest_y), (x+dest_x+w), (y+dest_y));

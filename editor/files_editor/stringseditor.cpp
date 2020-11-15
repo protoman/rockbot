@@ -222,9 +222,7 @@ void StringsEditor::on_addLanguage_pushButton_clicked()
 
 void StringsEditor::on_languageName_lineEdit_textChanged(const QString &arg1)
 {
-    std::cout << ">>> #1 StringsEditor::on_languageName_lineEdit_textChanged, len: " << arg1.length() << std::endl;
     if (data_loading) { return; }
-    std::cout << ">>> #2 StringsEditor::on_languageName_lineEdit_textChanged, len: " << arg1.length() << std::endl;
     if (arg1.length() == 2) {
         ui->addLanguage_pushButton->setEnabled(true);
     } else {

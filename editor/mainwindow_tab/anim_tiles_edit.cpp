@@ -42,7 +42,6 @@ void anim_tiles_edit::set_data(int index)
     }
     ui->graphic_combo->setCurrentIndex(ui->graphic_combo->findText(QString(Mediator::get_instance()->anim_block_list.at(index).filename)));
     std::string filename = FILEPATH + std::string("images/tilesets/anim/") + std::string(Mediator::get_instance()->anim_block_list.at(index).filename);
-    std::cout << "FILENAME: " << filename << std::endl;
     ui->animTileFrames_widget->set_graphicfile(filename);
     ui->animTileFrames_widget->set_sprite_pos(st_position(0, 0));
     ui->animTileFrames_widget->repaint();

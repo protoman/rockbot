@@ -24,7 +24,7 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 
 	QPixmap image(projectile_filename.c_str());
     if (image.isNull() == true || image.width() <= 0) {
-		std::cout << "projectilePreviewArea::paintEvent - Could not load image file '" << Mediator::get_instance()->addProjectileFilename << "'" << std::endl;
+        // TODO: show error
 		return;
 	}
 	image_w = image.width();

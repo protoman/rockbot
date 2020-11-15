@@ -21,7 +21,6 @@ void animTilePalette::reload()
 {
     image_list.clear();
     int max = Mediator::get_instance()->anim_block_list.size();
-    //std::cout << "ANIMPALETTE::reload::max: " << max << std::endl;
     for (int i=0; i<max; i++) {
         std::string filename = FILEPATH + "/images/tilesets/anim/" + std::string(Mediator::get_instance()->anim_block_list.at(i).filename);
         if (filename.find(".png") == std::string::npos) {
@@ -66,8 +65,6 @@ void animTilePalette::mousePressEvent(QMouseEvent *event)
     selectedTileY = pnt.y()/(TILESIZE*2);
     Mediator::get_instance()->setPalleteX(selectedTileX);
     Mediator::get_instance()->setPalleteY(selectedTileY);
-
-    std::cout << ">>>>>>>>>>>>> animTilePalette::mousePressEvent - x: " << selectedTileX << ", y: " << selectedTileY << std::endl;
 
     Mediator::get_instance()->selectedAnimTileset = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL) + selectedTileY;
 

@@ -39,7 +39,7 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
     QDir dir = QDir(filepath);
 
     if (!dir.exists()) {
-        std::cout << ">> MainWindow::fill_files_combo ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
+        std::cout << "ERROR: MainWindow::fill_files_combo ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
         exit(-1);
     }
 
@@ -72,7 +72,7 @@ void common::fill_graphicfiles_listwidget(std::string directory, QListWidget* li
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-        std::cout << ">> MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
+        std::cout << "ERROR: MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
         exit(-1);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -87,7 +87,6 @@ void common::fill_graphicfiles_listwidget(std::string directory, QListWidget* li
             item = new QListWidgetItem;
             item->setText(fileInfo.fileName());
             std::string filename = FILEPATH + directory + "/" + fileInfo.fileName().toStdString();
-            //std::cout << ">> MainWindow::fill_graphicfiles_listwidget DEBUG: filename: '" << filename << std::endl;
             QPixmap image(filename.c_str());
             if (image.isNull() == false && image.width() > 0) {
                 image = image.copy(0, 0, image.width(), image.height());
@@ -108,7 +107,7 @@ void common::fill_graphicfiles_combobox(std::string directory, QComboBox *comboW
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-        std::cout << ">> MainWindow::fill_graphicfiles_combobox ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
+        std::cout << "ERROR: MainWindow::fill_graphicfiles_combobox ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
         exit(-1);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -231,8 +230,6 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
 
     combo->clear(); // delete all previous entries
 
-    //std::cout << "########## common::fill_ai_options_combo action[" << action << "]" << std::endl;
-
     std::vector<std::string> list;
 	if (action == AI_ACTION_WALK) {
 		list = AI_ACTION_WALK_OPTIONS;
@@ -253,7 +250,6 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
     } else if (action == AI_ACTION_SPAWN_NPC || action == AI_ACTION_REPLACE_NPC || action == AI_ACTION_MORPH_INTO_NPC) {
         list = common::get_npc_names_list();
     } else if (action == AI_ACTION_SHOT_PROJECTILE_AHEAD || action == AI_ACTION_SHOT_PROJECTILE_PLAYER_DIRECTION || action == AI_ACTION_SHOT_PROJECTILE_INVERT_DIRECTION || action == AI_ACTION_JUMP_ATTACK_UP || action == AI_ACTION_JUMP_ATTACK_AHEAD_ONCE) {
-        //list = AI_ACTION_SHOT_OPTIONS;
         list = common::get_weapon_names_list();
     } else if (action == AI_ACTION_CHANGE_MOVE_TYPE || action == AI_ACTION_CHANGE_MOVE_TYPE_REVERSE) {
         list = ANIMATION_TYPE_LIST;

@@ -223,7 +223,6 @@ void scenesLib::main_screen()
 
     if (picked_n == 0) { // NEW GAME //
         game_save.difficulty = select_difficulty();
-        std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
         game_save.selected_player = select_player();
         gameControl.save_game();
     }
@@ -382,9 +381,6 @@ void scenesLib::show_player_walking_ending()
         // show player
         gameControl.show_player_at(player_pos, player_y_pos);
 
-
-        //std::cout << "bg1_pos[" << bg1_pos << "], bg1.left[" << bg1.width-bg1_pos << "]" << std::endl;
-
         graphLib.updateScreen();
         timer.delay(10);
     }
@@ -421,7 +417,6 @@ void scenesLib::show_enemies_ending()
             stage_boss_id_list.insert(temp_data);
         }
     }
-    //std::cout << "GameMediator::get_instance()->get_enemy_list_size[" << GameMediator::get_instance()->get_enemy_list_size() << "]" << std::endl;
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
         if (stage_boss_id_list.find(i) != stage_boss_id_list.end()) {
             continue;
@@ -489,7 +484,6 @@ void scenesLib::show_bosses_ending()
 
 
         if (boss_pos >= boss_credits_data.size()) {
-            std::cout << "ERROR: boss_pos[" << boss_pos << "] is greater than list size[" << boss_credits_data.size() << "]" << std::endl;
             continue;
         }
 
@@ -630,7 +624,6 @@ Uint8 scenesLib::select_player() {
 void scenesLib::boss_intro(short stage_n)
 {
     if (stage_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
-        std::cout << "WARNING: Ignoring boss intro, as boss is not set." << std::endl;
         return;
     }
     std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
@@ -650,7 +643,6 @@ void scenesLib::boss_intro(short stage_n)
     filename.append(to_string(stage_n)).append(".png");
 
     if (!fio.file_exists(filename)) {
-        std::cout << "ERROR: file[" << filename << "] not found" << std::endl;
         return;
     }
 

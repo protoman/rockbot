@@ -43,7 +43,6 @@ void player_edit::fill_players_data()
     ui->damageModSpinBox->setValue(Mediator::get_instance()->player_list_v3_1[index].damage_modifier);
     double move_speed = Mediator::get_instance()->player_list_v3_1[index].move_speed;
     move_speed = move_speed / 10;
-    //std::cout << "move_speed: " << move_speed << std::endl;
     QString graphic_qstring = QString(Mediator::get_instance()->player_list_v3_1[index].graphic_filename);
     ui->player_graphics_combo->setCurrentIndex(ui->player_graphics_combo->findText(graphic_qstring));
 

@@ -39,25 +39,15 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
     painter.fillRect(QRectF(0.0, 0.0, RES_W, RES_H), QColor(0, 0, 0, 255));
 
     if (ScenesMediator::get_instance()->text_list.size() < 1 || ScenesMediator::get_instance()->text_list.size() < selected_n) {
-        //std::cout << ">> DON't DRAW TEXT PREVIEW << " << std::endl;
         return;
     }
 
-    //std::cout << ">>OK - DRAW TEXT PREVIEW << " << std::endl;
     painter.setPen(QColor(255, 255, 255, 255));
 
     CURRENT_FILE_FORMAT::file_scene_show_text text_info = ScenesMediator::get_instance()->text_list.at(selected_n);
 
     int pos_x = 0;
     int pos_y = 0;
-    /*
-    text_position_type_dialogbottom,
-    text_position_type_dialogtop,
-    text_position_type_centered,
-    text_position_type_center_x,
-    text_position_type_center_y,
-    text_position_type_user_defined
-    */
 
     int lines_n = 0;
     int max_line_w = 0;
@@ -106,7 +96,6 @@ void TextPreviewArea::paintEvent(QPaintEvent *event)
     for (int i=0; i<lines_n; i++) {
         QString line = QString(scene_text_list[i].c_str());
         painter.drawText(pos_x, pos_y + (i*SCENES_LINE_H_DIFF), line);
-        //std::cout << ">>OK - DRAW LINE[" << i << "]" << std::endl;
     }
 
 }

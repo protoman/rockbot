@@ -104,13 +104,9 @@ namespace format_v4_old {
 
             // COMMON INPUT FOR JOYSTICK AXIS //
 
-            //std::cout << "#1 BTN_DOWN[" << BTN_DOWN << "].axis_type[" << button_codes_copy[BTN_DOWN].axis_type << "].value[" << button_codes_copy[BTN_DOWN].value << "]" << std::endl;
-
             button_codes_copy[BTN_DOWN].axis_type = 1;
             button_codes_copy[BTN_DOWN].type = JOYSTICK_INPUT_TYPE_AXIS;
             button_codes_copy[BTN_DOWN].value = 1;
-
-            //std::cout << "#2 BTN_DOWN[" << BTN_DOWN << "].axis_type[" << button_codes_copy[BTN_DOWN].axis_type << "].value[" << button_codes_copy[BTN_DOWN].value << "]" << std::endl;
 
             button_codes_copy[BTN_UP].axis_type = -1;
             button_codes_copy[BTN_UP].type = JOYSTICK_INPUT_TYPE_AXIS;

@@ -112,9 +112,7 @@ void stage_edit::update_stage_data(int language_n)
     ui->stages_tab_stage_name_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].name);
     ui->stages_tab_bossname_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name);
     int combo_n = ui->stages_tab_bgmusic_combo->findText(QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].bgmusic_filename));
-    //std::cout << "&&&&& currentStage: " << Mediator::get_instance()->currentStage << ", music-file: '" << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].bgmusic_filename << "'', combo_n: " << combo_n << std::endl;
     ui->stages_tab_bgmusic_combo->setCurrentIndex(combo_n);
-    //ui->dialogs_line1_face->setCurrentIndex(ui->dialogs_line1_face->findText(QString(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].intro_dialog.face_graphics_filename)));
 
     // search for the item that matches the text to select row
     std::string search_text = std::string(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].dialog_face_graphics_filename);
@@ -124,7 +122,6 @@ void stage_edit::update_stage_data(int language_n)
         break;
     }
 
-    //std::cout << "stage: " << Mediator::get_instance()->currentStage << ", boss.id_weapon: " << Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon << std::endl;
     int stage_id = Mediator::get_instance()->currentStage;
     if (language_n < 0 || language_n >= LANGUAGE_COUNT) {
         language_n = LANGUAGE_ENGLISH;
@@ -135,7 +132,6 @@ void stage_edit::update_stage_data(int language_n)
     Mediator::get_instance()->stage_dialog_list[language_n].insert(std::pair<int, std::vector<std::string> >(stage_id, fio_str.get_stage_dialogs(Mediator::get_instance()->currentStage, language_n, false)));
 
     ui->dialogs_line1_text1->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(0).c_str()));
-    std::cout << "SET ===> stage[" << stage_id << "], IN[" << Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(1) << "]" << std::endl;
     ui->dialogs_line1_text2->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(1).c_str()));
     ui->dialogs_line1_text3->setText(QString(Mediator::get_instance()->stage_dialog_list[language_n].at(stage_id).at(2).c_str()));
     ui->dialogs_line1_text1->setPlaceholderText(QString(stage_dialog_default_language_list.at(stage_id).at(0).c_str()));
@@ -303,9 +299,7 @@ void stage_edit::on_dialogs_line1_text2_textChanged(const QString &arg1)
 {
     if (_data_loading) { return; }
     int stage_n = ui->stages_tab_stage_combo->currentIndex();
-    std::cout << "stage[" << stage_n << "], IN[" << arg1.toStdString() << "]" << std::endl;
     Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(stage_n).at(1) = arg1.toStdString();
-    std::cout << "OUT[" <<  Mediator::get_instance()->stage_dialog_list[ui->language_comboBox->currentIndex()].at(stage_n).at(1) << "]" << std::endl;
 }
 
 void stage_edit::on_dialogs_line1_text3_textChanged(const QString &arg1)

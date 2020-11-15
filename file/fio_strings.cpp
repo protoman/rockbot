@@ -61,8 +61,6 @@ namespace format_v4 {
             return "";
         }
 
-        //std::cout << "FIO_STRINGS::get_ingame_string[" << n << "]: " << string_list.at(n) << std::endl;
-
         return string_list.at(n);
     }
 
@@ -79,16 +77,12 @@ namespace format_v4 {
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
-            std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-            if (!fp.is_open()) {
-                std::cout << "[WARNING] file_io::load_game_strings - Critical error, can't open' '" << filename << "' for reading." << std::endl;
-            }
         }
 
         std::string str;
@@ -102,7 +96,6 @@ namespace format_v4 {
                 }
                 StringUtils::replace_all(str, "\\xC9", "é");
             }
-            //std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
             res.push_back(str);
         }
 
@@ -135,7 +128,6 @@ namespace format_v4 {
     {
         std::ofstream fp(filename.c_str());
         if (!fp.is_open()) {
-            std::cout << ">> fio_strings::create_default_ingame_strings: Could not open '" << filename << "' for writting." << std::endl;
             return;
         }
 
@@ -639,7 +631,6 @@ namespace format_v4 {
         std::vector<std::string> res;
         for (int i=0; i<strings_ingame_COUNT; i++) {
             std::string line = std::string(lines[i]) + std::string("\n");
-            std::cout << "fio_strings::create_default_ingame_strings[" << i << "]: " << line << std::endl;
             res.push_back(line);
         }
         return res;
@@ -663,7 +654,6 @@ namespace format_v4 {
             list.at(i) = list.at(i) + std::string("\n");
         }
         for (int i=list.size(); i<strings_ingame_COUNT; i++) {
-            std::cout << "ADD MISSING LINE: '" << res.at(i) << "'" << std::endl;
             list.push_back(res.at(i));
         }
         save_game_strings(list, get_game_strings_filename(language));
@@ -992,12 +982,10 @@ namespace format_v4 {
     std::vector<std::string> fio_strings::get_common_strings(int language, bool convert_symbols)
     {
         if (FILEPATH == "") {
-            std::cout << "FIO_STRINGS - NO FILEPATH count: " << common_strings_list.size() << std::endl;
             return common_strings_list;
         }
 
         if (common_strings_list.size() == 0) {
-            std::cout << "FIO_STRINGS - LOAD count: " << common_strings_list.size() << std::endl;
             common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language, convert_symbols);
         }
         return common_strings_list;
@@ -1012,7 +1000,6 @@ namespace format_v4 {
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
-            std::cout << "[WARNING] file_io::get_string_list_from_file - file '" << filename << "' not found." << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
 #endif
@@ -1058,16 +1045,12 @@ namespace format_v4 {
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
-            std::cout << "[WARNING] file_io::load_game_strings - file '" << filename << "' not found, will generate default..." << std::endl;
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-            if (!fp.is_open()) {
-                std::cout << "[WARNING] file_io::load_game_strings - Critical error, can't open' '" << filename << "' for reading." << std::endl;
-            }
         }
 
         std::string str;
@@ -1094,7 +1077,6 @@ namespace format_v4 {
         filename = StringUtils::clean_filename(filename);
         // if does not have language, try default english
         if (!file_exists(filename) && SharedData::get_instance()->current_language != LANGUAGE_ENGLISH) {
-            std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>> try another language" << std::endl;
             filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(LANGUAGE_ENGLISH) + "/" + std::string(file_chr);
             filename = StringUtils::clean_filename(filename);
         }
@@ -1112,15 +1094,9 @@ namespace format_v4 {
                     }
                     StringUtils::replace_all(str, "\\xC9", "é");
                 }
-                //std::cout << "load_game_strings_from_file[" << str << "]" << std::endl;
                 text_list.push_back(str);
             }
 
-        }
-        for (int i=0; i<text_list.size(); i++) {
-            std::cout << "scene.text.original[" << text_list.at(i) << "]" << std::endl;
-            //text_list.at(i) = convert_text_symbols(text_list.at(i));
-            //std::cout << "scene.text.converted[" << text_list.at(i) << "]" << std::endl;
         }
         // fill empty spaces
         if (text_list.size() < SCENE_TEXT_LINES_N) {
@@ -1138,7 +1114,6 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
-        std::cout << ">>> fio_strings::write_scene_text_file.filename[" << filename << "]" << std::endl;
         // fill empty spaces
         if (list.size() < SCENE_TEXT_LINES_N) {
             for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {
@@ -1159,8 +1134,6 @@ namespace format_v4 {
         if (FILEPATH == "") {
             return std::string("");
         }
-
-        std::cout << "### fio_strings::get_common_string - id: " << id << std::endl;
 
         if (common_strings_list.size() == 0) {
             common_strings_list = load_game_strings_from_file(get_common_strings_filename(language), language,convert_symbols);
@@ -1207,13 +1180,12 @@ namespace format_v4 {
 
         // generate dialogs, if needed
         if (dialogs_strings_list.size() == 0) {
-            std::cout << "Generating default stage dialogs..." << std::endl;
             create_default_dialog_strings(language);
             std::string dialogs_filename = get_stage_dialogs_filename(_dialogs_stage_id,language);
             dialogs_strings_list = load_game_strings_from_file(dialogs_filename,language, convert_symbols);
         }
         if (dialogs_strings_list.size() < STAGE_DIALOG_NUMBER) {
-            std::cout << "Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << ". Will add missing lines." << std::endl;
+            std::cout << "ERROR: Invalid dialogs list size[" << dialogs_strings_list.size() << "]. Minimum is " << STAGE_DIALOG_NUMBER << ". Will add missing lines." << std::endl;
             for (int line_n=dialogs_strings_list.size(); line_n<STAGE_DIALOG_NUMBER; line_n++) {
                 dialogs_strings_list.push_back("");
             }
@@ -1249,7 +1221,6 @@ namespace format_v4 {
         } else if (config == 3) {
             res = "it";
         }
-        std::cout << "FIO_STRINGS::get_language_prefix[" << config << "]=[" << res << "]" << std::endl;
         return res;
     }
 

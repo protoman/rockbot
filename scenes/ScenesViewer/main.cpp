@@ -72,8 +72,6 @@ void get_filepath()
     GAMEPATH += "/";
     delete[] buffer;
 #endif
-
-    std::cout << "get_filepath - GAMEPATH:" << GAMEPATH << std::endl;
 }
 
 
@@ -121,7 +119,6 @@ bool check_parameters(int argc, char *argv[]) {
         }
     }
     FILEPATH = GAMEPATH + std::string("/games/") + GAMENAME + std::string("/");
-    std::cout << "get_filepath - FILEPATH:" << FILEPATH << ", animation_n[" << animation_n << "]" << std::endl;
     return true;
 }
 

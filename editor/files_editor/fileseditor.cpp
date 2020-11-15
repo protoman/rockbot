@@ -53,7 +53,6 @@ std::map<int, std::vector<std::string> > FilesEditor::get_dir_files_matrix(std::
         QString filepath = QString(FILEPATH.c_str()) + QString(dir_list.at(k).c_str());
         QDir dir = QDir(filepath);
         if (!dir.exists()) {
-            std::cout << ">> FilesEditor::get_dir_files_matrix( ERROR: Directory '" << filepath.toStdString() << " does not exist. <<" << std::endl;
             exit(-1);
         }
         dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -63,9 +62,7 @@ std::map<int, std::vector<std::string> > FilesEditor::get_dir_files_matrix(std::
         std::vector<std::string> file_list;
         for (int i = 0; i < list.size(); ++i) {
             QFileInfo fileInfo = list.at(i);
-            if (fileInfo.fileName().length() > 50) {
-                std::cout << "ERROR: file '" << fileInfo.fileName().toStdString() << "' surpasses the maximum number of file-characters (50)" << std::endl;
-            } else {
+            if (fileInfo.fileName().length() <= 50) {
                 file_list.push_back(fileInfo.fileName().toStdString());
             }
         }

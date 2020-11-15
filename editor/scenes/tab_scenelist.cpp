@@ -62,8 +62,6 @@ void TabScenelist::fill_data()
 {
     ui->sceneSelector->clear();
 
-    std::cout << "fill_data::ScenesMediator::get_instance()->scenes_list.size(): " << ScenesMediator::get_instance()->scenes_list.size() << std::endl;
-
     for (int i=0; i<ScenesMediator::get_instance()->scenes_list.size(); i++) {
         ui->sceneSelector->addItem(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
     }
@@ -175,7 +173,6 @@ void TabScenelist::on_addButton_clicked()
         if (ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n == -1) {
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n = seek_n;
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].type = ui->sceneTypeSelector->currentIndex();
-            std::cout << "ADDED at row["  << i << "], ScenesMediator::get_instance()->scenes_list.size: " << (ScenesMediator::get_instance()->scenes_list.size()) << std::endl;
 
             ui->scenes_tableView->setModel(&model_scenes);
 
@@ -243,7 +240,6 @@ void TabScenelist::on_pushButton_clicked()
     file += QString(".exe");
 #endif
     file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex());
-    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
     process.start(file);
 }
 

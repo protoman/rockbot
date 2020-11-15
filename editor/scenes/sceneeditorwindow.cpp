@@ -96,6 +96,5 @@ void SceneEditorWindow::on_actionPlay_Movie_triggered()
     file += QString(".exe");
 #endif
     file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ScenesMediator::get_instance()->selected_scene);
-    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
     process.start(file);
 }

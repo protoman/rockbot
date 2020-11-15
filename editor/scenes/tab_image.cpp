@@ -81,8 +81,6 @@ void tab_image::set_fields(int index)
     ui->desty_spinBox->setValue(ScenesMediator::get_instance()->image_list.at(index).dest_y);
     ui->delay_spinBox->setValue(ScenesMediator::get_instance()->image_list.at(index).move_delay);
 
-    std::cout << ">>>>>>>>> copy_area[" << ScenesMediator::get_instance()->image_list.at(index).copy_area.x << "][" << ScenesMediator::get_instance()->image_list.at(index).copy_area.y << "][" << ScenesMediator::get_instance()->image_list.at(index).copy_area.w << "][" << ScenesMediator::get_instance()->image_list.at(index).copy_area.h << "]" << std::endl;
-
     ui->img_area_x->setValue(ScenesMediator::get_instance()->image_list.at(index).copy_area.x);
     ui->img_area_y->setValue(ScenesMediator::get_instance()->image_list.at(index).copy_area.y);
     ui->img_area_w->setValue(ScenesMediator::get_instance()->image_list.at(index).copy_area.w);
@@ -166,8 +164,6 @@ void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
     if (data_loading) { return; }
     sprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
     std::string filename = ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename;
-
-    std::cout << ">>>>>>>>>>> tab_image::on_filename_comboBox_currentIndexChanged" << std::endl;
 
     if (filename.length() > 0) {
         st_size img_size = common::calc_image_size(filename);
