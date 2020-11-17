@@ -468,42 +468,14 @@ void Mediator::load_game() {
 
 void Mediator::load_game_data()
 {
-    bool convert_old_map_data = false;
-
-    if (convert_old_map_data) {
-        Mediator::get_instance()->fio.read_all_maps(maps_data);
-        convert_map_data_to_v2();
-    } else {
-        Mediator::get_instance()->fio.read_all_maps_v2(maps_data_v2);
-        maps_data_npc_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
-
-        for (int i=0; i<maps_data_npc_list.size(); i++) {
-            // adjust for rockbot 1
-            /*
-            if (maps_data_npc_list.at(i).id_npc == 0 || maps_data_npc_list.at(i).id_npc == 15 || maps_data_npc_list.at(i).id_npc == 16 || maps_data_npc_list.at(i).id_npc == 19) {
-                maps_data_npc_list.at(i).start_point.y -= 1;
-            }
-            */
-            // adjust for rockbot 2
-            /*
-            if (maps_data_npc_list.at(i).id_npc == 8 || maps_data_npc_list.at(i).id_npc == 9) {
-                maps_data_npc_list.at(i).start_point.y -= 1;
-            }
-            */
-        }
-
-
-        maps_data_object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
-
-        points_castle1 = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle1_points.dat"));
-        points_castle2 = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle2_points.dat"));
-    }
+    Mediator::get_instance()->fio.read_all_maps_v2(maps_data_v2);
+    maps_data_npc_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
+    maps_data_object_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
 }
 
 void Mediator::save_game()
 {
     clean_data();
-    //temp_fix_player_colors_order();
 
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
@@ -519,37 +491,12 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
 
-
-    //convert_ai_list_to_v3();
-    //fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3>("game_ai_list_v3.dat", ai_list);
-
-    //convertProjectileListToV2();
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev3>("data/game_projectile_list_v3.dat", projectile_list_v3);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat", player_list_v3_1);
 
-    /*
-    // ######### convert player_v3.1 to player_v3.1.1 ######### //
-    player_list_v3_1_1.clear();
-    for (int i=0; i<player_list_v3_1.size(); i++) {
-        player_list_v3_1_1.push_back(CURRENT_FILE_FORMAT::file_player_v3_1_1(player_list_v3_1.at(i)));
-    }
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat", player_list_v3_1_1);
-    // ######### convert player_v3.1 to player_v3.1.1 ######### //
-
-    // ######### convert npc to npc_v3.1.1 ######### //
-    enemy_list_3_1_1.clear();
-    for (int i=0; i<enemy_list.size(); i++) {
-        enemy_list_3_1_1.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_1(enemy_list.at(i)));
-    }
-    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_1>("game_enemy_list_3_1_1.dat", enemy_list_3_1_1);
-    // ######### convert npc to npc_v3.1.1 ######### //
-    */
-
-    fio_cmm.save_single_object_to_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>("castle1_points.dat", points_castle1);
-    fio_cmm.save_single_object_to_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>("castle2_points.dat", points_castle2);
 
     ScenesMediator::get_instance()->save_game_scenes();
 
@@ -558,46 +505,9 @@ void Mediator::save_game()
 
 void Mediator::save_map_data()
 {
-    //Mediator::get_instance()->fio.write_all_maps(maps_data);
     Mediator::get_instance()->fio.write_all_maps_v2(maps_data_v2);
-    // TODO save v2
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>("/map_npc_data.dat", maps_data_npc_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_object_v2>("/map_object_data.dat", maps_data_object_list);
-}
-
-void Mediator::convert_map_data_to_v2()
-{
-    //maps_data[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]
-    maps_data_npc_list.clear();
-    maps_data_object_list.clear();
-    for (int i=0; i<FS_MAX_STAGES; i++) {
-        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
-            maps_data_v2[i][j] = CURRENT_FILE_FORMAT::file_map_v2(maps_data[i][j]);
-
-            /*
-            for (int k=0; k<FS_MAX_MAP_NPCS; k++) {
-                if (maps_data[i][j].map_npcs[k].id_npc != -1) {
-                    maps_data_npc_list.push_back(CURRENT_FILE_FORMAT::file_map_npc_v2(maps_data[i][j].map_npcs[k], i, j));
-                }
-            }
-            for (int k=0; k<FS_MAX_MAP_OBJECTS; k++) {
-                if (maps_data[i][j].map_objects[k].id_object != -1) {
-                    maps_data_object_list.push_back(CURRENT_FILE_FORMAT::file_map_object_v2(maps_data[i][j].map_objects[k], i, j));
-                }
-            }
-            */
-        }
-    }
-}
-
-void Mediator::convert_ai_list_to_v3()
-{
-    /*
-    ai_list.clear();
-    for (int i=0; i<ai_list_v2.size(); i++) {
-        ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence_v3(ai_list_v2.at(i)));
-    }
-    */
 }
 
 void Mediator::clean_data()

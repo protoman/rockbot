@@ -14,16 +14,16 @@ v 0.33
 
 
 ###########################################################################################################################
-- boss: se voa, não precisa aplicar gravity até ele chegar no chão
+- ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 
-- (Rafaela Coiro) não dei nota máxima por causa do bug na penúltima fase que quando morre pro chefe eu revivo dentro do teto
-    # isso pode ter sido corrigido pelo fix do coil que ficava tb no teto; verificar.
+- #2: tirar chefes da última fase, deixar só o karot como sub-boss
 
-- parece que o tank de HP não esta funcionando
+- revisar/arrumar diálogos de chefes (todos os players, idiomas)
+
+- adicionar intro/fim em puro texto
 
 - (ONGOING) readicionar intro de boss ao entrar na fase
 
-- revisar/arrumar diálogos de chefes (todos os players, idiomas)
 
 - Karot:
     # sprites walk
@@ -39,10 +39,6 @@ v 0.33
 - bugs no github: https://github.com/protoman/rockbot/issues
 
 - ANDROID: crash na tela inicial quando se aperta A + B ao mesmo tempo
-
-
-- Rockbot1:
-    # Entrou cutscene intro antes dos créditos ???????
 
 - Rockbot2:
     # Kurupura: shooter teto não para direita até muro. Colocar checkpoint ao voltar para parte aberta. AI do Kurupira está ridícula.
@@ -63,24 +59,7 @@ v 0.33
     # jumper (from hole) that fires 4 shots in arc
     # marreta: bata-estacas vindo do teto (não letal ao contrário dos raios da morte)
 
-
 - recreate intro (use new drawings, create a different story)
-
-- dizem que seleciona fase mas vai para a mesma (testar melhor)
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
-- criar intro em texto (soldado e blá blá blá)
-    # aparece apenas ao selecionar new game
-
-##########################################
-BACKPORT FIREFLY:
-##########################################
-- Config integer-value method
-- revisar lista de fixes
-
-
-
-8cm largura embaixo
-9cm largura em cima
-3cm altura

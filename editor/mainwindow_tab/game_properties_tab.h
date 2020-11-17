@@ -2,7 +2,6 @@
 #define GAME_PROPERTIES_TAB_H
 
 #include <QWidget>
-#include "castlepointsdialog.h"
 
 namespace Ui {
 class game_properties_tab;
@@ -62,7 +61,6 @@ private:
     Ui::game_properties_tab *ui;
     bool _data_loading;
     int _current_stage;
-    CastlePointsDialog* castlePointsDialog;
 };
 
 #endif // GAME_PROPERTIES_TAB_H

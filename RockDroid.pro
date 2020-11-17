@@ -299,7 +299,6 @@ HEADERS += \
     character/character_animation.h \
     aux_tools/exception_manager.h \
     scenes/game_menu.h \
-    file/v4/file_castlepoints.h \
     ports/android/android_game_services.h
 
 OTHER_FILES += \

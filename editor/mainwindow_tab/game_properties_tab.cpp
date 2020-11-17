@@ -7,7 +7,6 @@
 game_properties_tab::game_properties_tab(QWidget *parent) : QWidget(parent), ui(new Ui::game_properties_tab), _data_loading(false), _current_stage(0)
 {
     ui->setupUi(this);
-    castlePointsDialog = new CastlePointsDialog(this);
     fill_data();
 }
 
@@ -207,6 +206,4 @@ void game_properties_tab::on_finalBoss_comboBox_currentIndexChanged(int index)
 
 void game_properties_tab::on_editMap_pushButton_clicked()
 {
-    castlePointsDialog->show();
-    castlePointsDialog->load_data();
 }

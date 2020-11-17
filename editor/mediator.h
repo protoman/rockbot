@@ -5,7 +5,6 @@
 #include "file/file_io.h"
 #include "file/fio_scenes.h"
 #include "file/fio_strings.h"
-#include "file/v4/file_castlepoints.h"
 
 #include "scenes/scenesmediator.h"
 
@@ -82,24 +81,15 @@ public:
     void load_game_data();
     void save_game();
     void save_map_data();
-    void convert_map_data_to_v2();
-
-    void convert_ai_list_to_v3();
-
 
     void clean_data();                                      // any sanity data cleaning goest here
     void temp_fix_player_colors_order();
-
-    //void convertProjectileListToV2();
 
 	int get_stage_n(const int map_n);
 
     void reload_game_scenes();
 
     void save_dialogs();
-
-
-	// auxiliary functions for map_links
 
 
 	int npcGraphicSize_w;
@@ -115,7 +105,6 @@ public:
 
 
 	void centNumberFormat(int n);
-    //void getGameName(int n);
 	void resetMap(int);
 
 	struct st_player_graphics_data player_graphics_data;
@@ -145,18 +134,14 @@ public:
 
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;
-    //std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence_v3> ai_list;
 
 
-    //std::vector<CURRENT_FILE_FORMAT::file_projectile> projectile_list;
     std::vector<CURRENT_FILE_FORMAT::file_projectilev2> projectile_list_v2;
     std::vector<CURRENT_FILE_FORMAT::file_projectilev3> projectile_list_v3;
 
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_anim_block> anim_block_list;
     std::vector<CURRENT_FILE_FORMAT::file_player_v3_1_1> player_list_v3_1;
-    //std::vector<CURRENT_FILE_FORMAT::file_player_v3_1_1> player_list_v3_1_1;
-
 
 
     CURRENT_FILE_FORMAT::file_io fio;
@@ -166,9 +151,6 @@ public:
 
     // stage dialogs, key is stage_n, vector represent the list for each text line
     std::vector<std::map<int, std::vector<std::string> > > stage_dialog_list;
-
-    CURRENT_FILE_FORMAT::st_file_castle_ponts points_castle1;
-    CURRENT_FILE_FORMAT::st_file_castle_ponts points_castle2;
 
 
 private:

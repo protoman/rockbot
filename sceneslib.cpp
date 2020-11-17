@@ -28,7 +28,6 @@ extern draw draw_lib;
 #include "file/version.h"
 #include "file/file_io.h"
 #include "file/fio_strings.h"
-#include "file/v4/file_castlepoints.h"
 
 #include "options/key_map.h"
 

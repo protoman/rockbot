@@ -119,7 +119,6 @@ SOURCES += main.cpp \
     dialog_pick_color.cpp \
     files_editor/gametextcreditstab.cpp \
     ../aux_tools/exception_manager.cpp \
-    mainwindow_tab/castlepointsdialog.cpp \
     widgets/parallaxpreviewarea.cpp
 
 HEADERS += mainwindow.h \
@@ -202,7 +201,6 @@ HEADERS += mainwindow.h \
     dialog_pick_color.h \
     files_editor/gametextcreditstab.h \
     ../aux_tools/exception_manager.h \
-    mainwindow_tab/castlepointsdialog.h \
     widgets/parallaxpreviewarea.h
 
 FORMS += mainwindow.ui \
@@ -239,8 +237,7 @@ FORMS += mainwindow.ui \
     mainwindow_tab/anim_tiles_edit.ui \
     mainwindow_tab/anim/animpackimport.ui \
     dialog_pick_color.ui \
-    files_editor/gametextcreditstab.ui \
-    mainwindow_tab/castlepointsdialog.ui
+    files_editor/gametextcreditstab.ui
 
 RESOURCES += resources/icons/icons.qrc
 INCLUDEPATH += ../common
