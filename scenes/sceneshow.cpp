@@ -347,8 +347,9 @@ void sceneShow::run_text(int n)
         }
     }
 
-    //int center_x = (RES_W-(max_line_w/2 * FONT_SIZE))/2;
     int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
+    std::cout << "font-size[" << FONT_SIZE << "], max_line_w[" << max_line_w << "], adjust_x[" << (max_line_w/2 * FONT_SIZE) << "], center_x[" << center_x << "]" << std::endl;
+    //int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 
@@ -394,6 +395,9 @@ void sceneShow::run_text(int n)
     graphLib.clear_area(pos_x, pos_y, RES_W, max_h, 0, 0, 0);
 
 
+    int min_pos_x = RES_W;
+    int min_pos_y = RES_H;
+    unsigned int max_line_count = 0;
     for (int i=0; i<lines.size(); i++) {
         if (input.p1_input[BTN_START] == 1) {
             _interrupt_scene = true;
@@ -401,12 +405,26 @@ void sceneShow::run_text(int n)
         }
         std::string line = std::string(lines.at(i));
         int adjusted_y = pos_y+(SCENES_LINE_H_DIFF*i);
-        graphLib.clear_area(pos_x, adjusted_y, line.length()*9, 8, 0, 0, 0);
-        if (graphLib.draw_progressive_text(pos_x, adjusted_y, line, false, 30) == 1) {
+        int text_pos_x = pos_x;
+        // centered x needs to be calculated for each line
+        if (text_list.at(n).position_type == CURRENT_FILE_FORMAT::text_position_type_centered) {
+            text_pos_x = (RES_W * 0.5) - (line.length()/2 * (FONT_SIZE+1));
+        }
+        if (text_pos_x < min_pos_x) {
+            min_pos_x = text_pos_x;
+        }
+        if (adjusted_y < min_pos_y) {
+            min_pos_y = adjusted_y;
+        }
+        if (max_line_count < line.length()) {
+            max_line_count = line.length();
+        }
+        if (graphLib.draw_progressive_text(text_pos_x, adjusted_y, line, false, 30) == 1) {
             _interrupt_scene = true;
             break;
         }
     }
+    graphLib.clear_area(min_pos_x-5, min_pos_y, max_line_count*(FONT_SIZE+1), lines.size()*12, 0, 0, 0);
 }
 
 

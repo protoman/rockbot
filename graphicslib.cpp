@@ -1979,7 +1979,6 @@ void graphicsLib::set_video_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
-        std::cout << "################ WINDOWED.scale[" << scale_int << "]" << std::endl;
         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
         game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);

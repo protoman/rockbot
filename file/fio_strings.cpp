@@ -1039,39 +1039,6 @@ namespace format_v4 {
         std::vector<std::string> text_list;
         char file_chr[255];
 
-        /*
-        std::vector<std::string> res;
-        filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(filename.c_str());
-
-        if (!fp.is_open()) {
-            if (filename == get_game_strings_filename(language)) {
-                create_default_ingame_strings();
-            } else if (filename == get_common_strings_filename(language)) {
-                create_default_common_strings();
-            }
-            fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        }
-
-        std::string str;
-        while (getline(fp, str)) {
-            if (str.length() > 0) {
-                StringUtils::replace_all(str, "\n", "");
-                StringUtils::replace_all(str, "\r", "");
-                std::string str2 = "\\xC9";
-                if (str.find(str2) != -1) {
-                    str.replace(str.find(str2), str2.length(),"é");
-                }
-                StringUtils::replace_all(str, "\\xC9", "é");
-            }
-            res.push_back(str);
-        }
-
-
-        fp.close();
-        */
-
-
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->current_language) + "/" + std::string(file_chr);
         filename = StringUtils::clean_filename(filename);
@@ -1081,7 +1048,6 @@ namespace format_v4 {
             filename = StringUtils::clean_filename(filename);
         }
         if (file_exists(filename)) {
-            //text_list = get_string_list_from_file(filename);
             std::ifstream fp(filename.c_str());
             std::string str;
             while (getline(fp, str)) {

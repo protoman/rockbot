@@ -50,6 +50,7 @@ std::string GAMENAME;
 bool leave_game = false;
 bool GAME_FLAGS[FLAG_COUNT];
 int animation_n = 0;
+int language_n = LANGUAGE_ENGLISH;
 e_EXEC_TYPE exec_type = e_EXEC_TYPE_NORMAL;
 int param_number = 0;
 
@@ -112,8 +113,23 @@ bool check_parameters(int argc, char *argv[]) {
                 istringstream ss(argv[i+1]);
                 exec_type = e_EXEC_TYPE_PARALLAX;
                 if (!(ss >> animation_n)) {
-                    std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --scenenumber flag." << std::endl;
+                    std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --parallax flag." << std::endl;
                     return false;
+                }
+            }
+        } else if (temp_argv == "--language") {
+            if (argc <= i+1) {
+                std::cout << "ERROR: no [NUMBER] informed for --language flag." << std::endl;
+                return false;
+            } else {
+                istringstream ss(argv[i+1]);
+                if (!(ss >> language_n)) {
+                    std::cout << "ERROR: Invalid number '" << argv[i+1] << "' for --language flag." << std::endl;
+                    return false;
+                } else {
+                    if (language_n > 0 && language_n < LANGUAGE_COUNT) {
+                        SharedData::get_instance()->current_language = language_n;
+                    }
                 }
             }
         }

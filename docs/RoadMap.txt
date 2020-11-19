@@ -14,6 +14,8 @@ v 0.33
 
 
 ###########################################################################################################################
+- editor: OPÇÃO PARA ESCOLHER O IDIOMA NO TOCADOR DE CUTSCENES
+
 - ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 
 - #2: tirar chefes da última fase, deixar só o karot como sub-boss

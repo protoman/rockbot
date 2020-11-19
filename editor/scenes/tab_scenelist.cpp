@@ -1,6 +1,7 @@
 #include "tab_scenelist.h"
 #include "ui_tab_scenelist.h"
 #include "scenes/comboboxdelegate.h"
+#include "common.h"
 
 #include <QMessageBox>
 
@@ -33,6 +34,8 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     data_loading = true;
 
     ScenesMediator::get_instance()->scenes_list = fio.load_scenes();
+
+    common::fill_languages_combo(ui->language_comboBox);
 
     fill_data();
     data_loading = false;
@@ -239,7 +242,7 @@ void TabScenelist::on_pushButton_clicked()
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex());
+    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex()) + QString(" --language ") + QString::number(current_language);
     process.start(file);
 }
 
@@ -293,4 +296,9 @@ void TabScenelist::on_down_pushButton_clicked()
     ui->scenes_tableView->setCurrentIndex(next_index);
 
     model_scenes.update();
+}
+
+void TabScenelist::on_language_comboBox_currentIndexChanged(int index)
+{
+    current_language = index;
 }

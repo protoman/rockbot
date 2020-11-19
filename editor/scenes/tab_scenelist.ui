@@ -249,6 +249,9 @@
      </item>
     </layout>
    </item>
+   <item row="2" column="2">
+    <widget class="QComboBox" name="language_comboBox"/>
+   </item>
   </layout>
  </widget>
  <resources>
