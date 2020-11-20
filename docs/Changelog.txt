@@ -1,6 +1,7 @@
 ####################################################################################################################################
 .0.33 [TODO]
 ####################################################################################################################################
+- EDITOR: show option for language in scene player
 - show selected character and difficulty on save picker
 - was not able to leave in-game menu if crystal was selected
 - checkpoint not falling into ground when player returns from death

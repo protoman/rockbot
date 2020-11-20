@@ -14,7 +14,7 @@ v 0.33
 
 
 ###########################################################################################################################
-- editor: OPÇÃO PARA ESCOLHER O IDIOMA NO TOCADOR DE CUTSCENES
+- #2: na primeira fase, um inimigo estaria atirando e caindo em um buraco em seguida
 
 - ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 

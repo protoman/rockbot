@@ -1456,7 +1456,7 @@ void artificial_inteligence::execute_ai_wall_walk()
         previous_position_list.clear();
         bool must_turn = false;
         if (_parameter == AI_ACTION_WALL_WALK_OPTION_LEFT) {
-            _dest_point.x = position.x - frameSize.width/2 - walk_range;
+            _dest_point.x = position.x + frameSize.width/2 - walk_range;
             _dest_point.y = position.y;
             if (state.direction != ANIM_DIRECTION_LEFT) {
                 must_turn = true;
@@ -1468,10 +1468,10 @@ void artificial_inteligence::execute_ai_wall_walk()
             _dest_point.x = position.x + frameSize.width/2 + walk_range;
             _dest_point.y = position.y;
         } else if (_parameter == AI_ACTION_WALL_WALK_OPTION_UP) {
-            _dest_point.y = position.y - walk_range;
+            _dest_point.y = position.y + frameSize.height/2 - walk_range;
             _dest_point.x = position.x;
         } else if (_parameter == AI_ACTION_WALL_WALK_OPTION_DOWN) {
-            _dest_point.y = position.y + walk_range;
+            _dest_point.y = position.y + frameSize.height/2 + walk_range;
             _dest_point.x = position.x;
         }
 
@@ -1537,6 +1537,7 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
             position.y += move_inc.yinc;
         }
     }
+
     return false;
 }
 
@@ -1702,11 +1703,11 @@ bool artificial_inteligence::check_moving_along_wall(int xinc, int yinc)
         st_position check_point_left;
         st_position check_point_right;
         if (yinc > 0) {
-            check_point_left = st_position((realPosition.x-4)/TILESIZE, (realPosition.y+frameSize.height+yinc)/TILESIZE);
-            check_point_right = st_position((realPosition.x+4+frameSize.width)/TILESIZE, (realPosition.y+frameSize.height+yinc)/TILESIZE);
+            check_point_left = st_position((position.x-4)/TILESIZE, (position.y+frameSize.height+yinc)/TILESIZE);
+            check_point_right = st_position((position.x+4+frameSize.width)/TILESIZE, (position.y+frameSize.height+yinc)/TILESIZE);
         } else {
-            check_point_left = st_position((realPosition.x-4)/TILESIZE, realPosition.y/TILESIZE);
-            check_point_right = st_position((realPosition.x+4+frameSize.width)/TILESIZE, (realPosition.y+yinc)/TILESIZE);
+            check_point_left = st_position((position.x-4)/TILESIZE, position.y/TILESIZE);
+            check_point_right = st_position((position.x+4+frameSize.width)/TILESIZE, (position.y+yinc)/TILESIZE);
         }
         int point_lock_left = gameControl.get_current_map_obj()->getMapPointLock(check_point_left);
         int point_lock_right = gameControl.get_current_map_obj()->getMapPointLock(check_point_right);
