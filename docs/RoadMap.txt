@@ -14,7 +14,34 @@ v 0.33
 
 
 ###########################################################################################################################
-- #2: na primeira fase, um inimigo estaria atirando e caindo em um buraco em seguida
+- karot fica trancado na porta
+    # uma vez eu consegui com o player tb, algo com dash ou ataque
+    # é ao mudar direção para esquerda/direita, acho que o do player tem um ajuste de posição ao mudar posição, mas NPCs não
+
+- fazer a fase final com o planeta terra ao fundos
+    # https://vgmaps.com/Atlas/NES/KrionConquest-FinalRound.png
+    # dá para fazer com tiles animados bem lentos um nascer do sol
+
+- #2: face da última fase deve ser karot, da castle 1 deve ser meio termo entre dark e ele
+
+- sub-chefe começa a se mover antes do player (ver karot fase final)
+
+- chefe final esta sem barra de energia na tela
+    # aconteceu uma vez e na outra não
+
+- adicionar boberatu tela intro (presents)
+
+- karot esta com nome killer bear no fim/creditos
+
+- giant squid sem o fundo nos créditos
+
+- boberatu esta 2x em pixel art nos créditos
+
+- renomeat MEETOLLs para HELMUT
+    # revisar outros nomes
+    # golden meetool tem um bug sprites (esquerda, linha preta)
+    # adicionar sprites intro novos inimigos
+
 
 - ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 

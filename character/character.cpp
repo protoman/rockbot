@@ -1180,7 +1180,7 @@ bool character::gravity(bool boss_demo_mode=false)
         if (_ignore_gravity == true) {
             return false;
         }
-        if (can_fly == false || gameControl.is_showing_boss_intro == true) {
+        if (can_fly == false || SharedData::get_instance()->is_showing_boss_intro == true) {
             bool is_moved = false;
             short int limit_speed = move_speed;
 			if (boss_demo_mode == true) {
@@ -2743,6 +2743,14 @@ int character::get_direction() const
 
 void character::set_direction(int direction)
 {
+    if (!is_player()) {
+        // fix to avoid getting stuck into a wall //
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= TILESIZE/3;
+        } else {
+            position.x += TILESIZE/3;
+        }
+    }
     state.direction = direction;
 }
 
@@ -2761,7 +2769,7 @@ void character::clean_effect_projectiles()
 {
     while (true) {
         bool found_item = false;
-        for (int i=0; i<projectile_list.size(); i++) {
+        for (unsigned int i=0; i<projectile_list.size(); i++) {
             Uint8 move_type = projectile_list.at(i).get_move_type();
             if (move_type == TRAJECTORY_QUAKE || move_type == TRAJECTORY_FREEZE || move_type == TRAJECTORY_CENTERED || move_type == TRAJECTORY_PUSH_BACK || move_type == TRAJECTORY_PULL) {
                 found_item = true;

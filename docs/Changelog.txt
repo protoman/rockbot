@@ -2,6 +2,10 @@
 .0.33 [TODO]
 ####################################################################################################################################
 - EDITOR: show option for language in scene player
+- PC-only: fullscreen scales resolution to adjust to screen
+- PC-only: can now resize window for integer scale
+===================================================================
+- fix for vertical moving along wall
 - show selected character and difficulty on save picker
 - was not able to leave in-game menu if crystal was selected
 - checkpoint not falling into ground when player returns from death
@@ -13,8 +17,6 @@
 - adjust for button A/X position
 - fix shouryuken animation sprite missing and being able to air-dash afterwards
 - try to fix crash in artificial_inteligence::get_ai_type and menu pick
-- PC-only: fullscreen scales resolution to adjust to screen
-- PC-only: can now resize window for integer scale
 - bosses will appear again even if the stage is complete
 - simplify logs by using a class that handles android or cout
 - show boss intro even if stage is already completed

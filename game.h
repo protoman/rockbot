@@ -144,7 +144,7 @@ public:
      * @param player_n
      */
     void set_player_direction(Uint8 direction);
-    void map_present_boss(bool show_dialog, bool is_static_boss);
+    void map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage_boss);
 
     character* get_player();
 
@@ -269,7 +269,7 @@ private:
 
 public:
     Uint8 currentStage;
-    bool is_showing_boss_intro;
+
 
 
 

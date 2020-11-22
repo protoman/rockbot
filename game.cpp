@@ -74,7 +74,7 @@ game::game() : loaded_stage(-1, NULL), _show_boss_hp(false), player1(0)
 	_frame_duration = 1000/80; // each frame must use this share of time
     invencible_old_value = false;
     _dark_mode = false;
-    is_showing_boss_intro = false;
+    SharedData::get_instance()->is_showing_boss_intro = false;
     current_save_slot = 0;
     show_fps_enabled = false;
 
@@ -497,19 +497,24 @@ void game::show_notice()
     graphicsLib_gSurface jmd_surface;
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/jmd_logo.png", &jmd_surface);
 
-    st_position upperland_logo_pos(RES_W/2 - (upperland_surface.width/6)/2, 20);
+    graphicsLib_gSurface boberatu_surface;
+    graphLib.surfaceFromFile(GAMEPATH + "/shared/images/boberatu.png", &boberatu_surface);
 
+    st_position upperland_logo_pos(RES_W/2 - (upperland_surface.width/6)/2, 40);
 
     graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 2, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios), graphLib.gameScreen, st_color(199, 215, 255));
 
-    graphLib.copyArea(st_rectangle(0, 0, jmd_surface.width, jmd_surface.height), st_position(RES_W/2-(jmd_surface.width/2), 80), &jmd_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 76, "JMD AMIGA MUSIC", graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.copyArea(st_rectangle(0, 0, boberatu_surface.width, boberatu_surface.height), st_position(20, 100), &boberatu_surface, &graphLib.gameScreen);
 
-    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 110, strings_map::get_instance()->get_ingame_string(string_intro_presents), graphLib.gameScreen, st_color(199, 215, 255));
+    graphLib.copyArea(st_rectangle(0, 0, jmd_surface.width, jmd_surface.height), st_position(RES_W-jmd_surface.width-20, 100), &jmd_surface, &graphLib.gameScreen);
+    graphLib.draw_text(190, upperland_logo_pos.y + upperland_surface.height + 75, "JMD AMIGA MUSIC", st_color(199, 215, 255));
+
+    graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 135, strings_map::get_instance()->get_ingame_string(string_intro_presents), graphLib.gameScreen, st_color(199, 215, 255));
 
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(206, "HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM");
-    graphLib.draw_centered_text(220, "HTTPS://ROCKBOT.UPPERLAND.NET");
+    graphLib.draw_centered_text(210, "HTTPS://TWITTER.COM/BOBERATU");
+    graphLib.draw_centered_text(220, "HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM");
+    graphLib.draw_centered_text(230, "HTTPS://ROCKBOT.UPPERLAND.NET");
     draw_lib.update_screen();
     input.clean_and_wait_scape_time(400);
     for (int i=1; i<6; i++) {
@@ -522,7 +527,7 @@ void game::show_notice()
 
     draw_lib.update_screen();
 
-    input.clean_and_wait_scape_time(1200);
+    input.clean_and_wait_scape_time(3200);
 
 
     graphLib.blank_screen();
@@ -831,9 +836,9 @@ Uint8 game::get_current_map()
 }
 
 
-void game::map_present_boss(bool show_dialog, bool is_static_boss)
+void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage_boss)
 {
-	is_showing_boss_intro = true;
+    SharedData::get_instance()->is_showing_boss_intro = true;
 
     soundManager.stop_music();
     soundManager.unload_music();
@@ -878,6 +883,13 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
     loop_run = true;
     while (loop_run == true) {
         if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) {
+            // TODO: check for flying enemies
+            if (boss_ref->get_can_fly() == true) {
+                boss_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
+            // non-flying bosses need to hit gound to stop
+            } else {
+                boss_ref->set_animation_type(ANIM_TYPE_STAND);
+            }
             loop_run = false;
             show_stage(0, false);
         } else {
@@ -885,9 +897,11 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
         }
     }
 
-    // 5. show boss dialog
-    dialogs boss_dialog;
-    boss_dialog.show_boss_dialog(loaded_stage.get_number());
+    if (is_stage_boss) {
+        // 5. show boss dialog
+        dialogs boss_dialog;
+        boss_dialog.show_boss_dialog(loaded_stage.get_number());
+    }
 
     show_stage(8, false);
 
@@ -897,7 +911,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss)
     timer.delay(100);
 
 	_show_boss_hp = true;
-	is_showing_boss_intro = false;
+    SharedData::get_instance()->is_showing_boss_intro = false;
 
 }
 
@@ -1369,6 +1383,10 @@ void game::quick_load_game()
     game_save.armor_pieces[ARMOR_TYPE_LEGS] = true;
 
     scenes.preloadScenes();
+
+    show_notice();
+    SDL_Quit();
+    exit(0);
 
     //scenes.select_save(false);
 

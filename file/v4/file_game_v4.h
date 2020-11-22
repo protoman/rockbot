@@ -380,8 +380,8 @@ namespace format_v4 {
 
         file_player_v3_1(file_player obj) {
             sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s%", obj.graphic_filename);
-            sprintf(face_filename, "%s%", obj.face_filename);
+            sprintf(graphic_filename, "%s", obj.graphic_filename);
+            sprintf(face_filename, "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;
@@ -585,8 +585,8 @@ namespace format_v4 {
 
         file_player_v3_1_1(file_player_v3_1 obj) {
             sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s%", obj.graphic_filename);
-            sprintf(face_filename, "%s%", obj.face_filename);
+            sprintf(graphic_filename, "%s", obj.graphic_filename);
+            sprintf(face_filename, "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;

@@ -35,7 +35,7 @@ public:
     st_size scale_window_size;
     bool changed_window_size;
     short current_language = LANGUAGE_AUTODETECT;
-
+    bool is_showing_boss_intro = false;
 
 
 };

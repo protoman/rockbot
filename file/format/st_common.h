@@ -196,7 +196,7 @@ struct st_rectangle {
     }
     bool operator!=(const st_rectangle &comp_pt) const
     {
-        if (x != comp_pt.x || y != comp_pt.y || w != comp_pt.w && h != comp_pt.h) {
+        if (x != comp_pt.x || y != comp_pt.y || (w != comp_pt.w && h != comp_pt.h)) {
             return true;
         }
         return false;
@@ -323,7 +323,6 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
-            SDL_Surface* sdl_surface_ref = original.gSurface;
             if (original.width == 0 || original.height == 0) {
                 gSurface = NULL;
                 width = 0;
@@ -438,15 +437,15 @@ struct graphicsLib_gSurface {
             Uint32 new_color_n = SDL_MapRGB(gSurface->format, new_color.r, new_color.g, new_color.b);
 
             if (key_n == 0) {
-                for (int i=0; i<colorkey1_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey1_points.size(); i++) {
                     put_pixel(colorkey1_points.at(i).x, colorkey1_points.at(i).y, new_color_n);
                 }
             } else if (key_n == 1) {
-                for (int i=0; i<colorkey2_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey2_points.size(); i++) {
                     put_pixel(colorkey2_points.at(i).x, colorkey2_points.at(i).y, new_color_n);
                 }
             } else {
-                for (int i=0; i<colorkey3_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey3_points.size(); i++) {
                     put_pixel(colorkey3_points.at(i).x, colorkey3_points.at(i).y, new_color_n);
                 }
             }

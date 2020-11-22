@@ -130,7 +130,7 @@ void init_enum_names() {
     AI_ACTION_JUMP_OPTIONS.push_back("TO PLAYER");
     AI_ACTION_JUMP_OPTIONS.push_back("TO ROOT");
     AI_ACTION_JUMP_OPTIONS.push_back("TO SAVED POINT");
-    AI_ACTION_JUMP_OPTIONS.push_back("JUMP ONCE AHEAD");
+    AI_ACTION_JUMP_OPTIONS.push_back("TO PLAYER DIRECTION");
     // -------------------------------------------------------------- //
     AI_ACTION_AIR_WALK_OPTIONS.push_back("LEFT");
     AI_ACTION_AIR_WALK_OPTIONS.push_back("RIGHT");

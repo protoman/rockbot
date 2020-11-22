@@ -78,6 +78,9 @@ void artificial_inteligence::execute_ai()
     if (timer.getTimer() < _ai_timer) {
         return;
     }
+    if (SharedData::get_instance()->is_showing_boss_intro == true) {
+        return;
+    }
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         if (_current_ai_type != AI_ACTION_WAIT_RANDOM_TIME) { // this AI will set the delay itself
@@ -559,6 +562,16 @@ void artificial_inteligence::ia_action_jump_ahead()
 void artificial_inteligence::ia_action_jump_once()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        if (_parameter == AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION) {
+            struct_player_dist dist_players = dist_npc_players();
+            if (dist_players.pObj->getPosition().x > position.x) {
+                std::cout << "AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION::START - MOVE RIGHT" << std::endl;
+                set_direction(ANIM_DIRECTION_RIGHT);
+            } else {
+                std::cout << "AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION::START - MOVE LEFT" << std::endl;
+                set_direction(ANIM_DIRECTION_LEFT);
+            }
+        }
         if (state.direction == ANIM_DIRECTION_LEFT) {
             _origin_point.x = position.x - frameSize.width/2 - walk_range;
             _dest_point.x = position.x - TILESIZE*4;
@@ -1799,6 +1812,8 @@ void artificial_inteligence::execute_ai_step_jump()
         ia_action_jump_once();
     } else if (_parameter == AI_ACTION_JUMP_OPTION_UP) {
         ia_action_jump_up();
+    } else if (_parameter == AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION) {
+        ia_action_jump_once();
     }
 
 }

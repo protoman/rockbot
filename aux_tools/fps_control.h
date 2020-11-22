@@ -51,7 +51,7 @@ private:
 
     unsigned short fps_max;
 
-    unsigned int fps_timer;
+    unsigned long fps_timer;
     int fps_counter;
     // if we are getting less than 60 fps, this will tell main loop how many times it will run full until drop one
     unsigned short frame_drop_period;
