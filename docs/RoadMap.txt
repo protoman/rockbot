@@ -14,32 +14,25 @@ v 0.33
 
 
 ###########################################################################################################################
+- novas artes:
+    # shared/window_icon
+    # 1 e 2: deletar 1up_icons (não é mais usado)
+    # 1: rock e beta da tela inicial e 2, seleção de personagem
+    # 1 e 2: faces kanotus
+    # 2: dragon, zodiac
+
 - karot fica trancado na porta
     # uma vez eu consegui com o player tb, algo com dash ou ataque
     # é ao mudar direção para esquerda/direita, acho que o do player tem um ajuste de posição ao mudar posição, mas NPCs não
 
-- fazer a fase final com o planeta terra ao fundos
-    # https://vgmaps.com/Atlas/NES/KrionConquest-FinalRound.png
-    # dá para fazer com tiles animados bem lentos um nascer do sol
-
-- #2: face da última fase deve ser karot, da castle 1 deve ser meio termo entre dark e ele
-
-- sub-chefe começa a se mover antes do player (ver karot fase final)
 
 - chefe final esta sem barra de energia na tela
     # aconteceu uma vez e na outra não
-
-- adicionar boberatu tela intro (presents)
+    # pode ser por causa do sub-boss antes
 
 - karot esta com nome killer bear no fim/creditos
 
-- giant squid sem o fundo nos créditos
-
-- boberatu esta 2x em pixel art nos créditos
-
-- renomeat MEETOLLs para HELMUT
-    # revisar outros nomes
-    # golden meetool tem um bug sprites (esquerda, linha preta)
+- revisar nomes de inimigos
     # adicionar sprites intro novos inimigos
 
 
@@ -92,3 +85,4 @@ v 0.33
 
 - [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
+EDITOR: quando tem fundo, o segundo sprite fica vazio

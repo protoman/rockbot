@@ -1384,9 +1384,11 @@ void game::quick_load_game()
 
     scenes.preloadScenes();
 
+    /*
     show_notice();
     SDL_Quit();
     exit(0);
+    */
 
     //scenes.select_save(false);
 

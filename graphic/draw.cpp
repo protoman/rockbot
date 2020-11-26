@@ -260,7 +260,56 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     st_position sprite_size;
     graphicsLib_gSurface bgCopy, boss_graphics;
 
+
+    // TODO: background
+    std::string bg_filename_str = std::string(GameMediator::get_instance()->get_enemy(boss_id)->bg_graphic_filename);
+    std::string bg_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename_str;
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
+
+    std::cout << "### graph_filename[" << graph_filename << "], bg_filename[" << bg_filename << "]" << std::endl;
+
+    graphicsLib_gSurface bg_img;
+    int bg_x = 0;
+    int bg_y = 0;
+    int bg_w = 0;
+    int bg_h = 0;
+    int dest_x = 0;
+    int dest_y = 0;
+    bool show_bg = false;
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        std::cout << "### HAS_BG" << std::endl;
+        show_bg = true;
+        graphLib.surfaceFromFile(bg_filename.c_str(), &bg_img);
+        // available space is 320x117
+        bg_x = (RES_W - bg_img.width) / 2;
+        bg_y = -(117 - bg_img.height) / 2;
+        bg_w = bg_img.width;
+        if (bg_w > RES_W) {
+            bg_w = RES_W;
+        }
+        bg_h = bg_img.height;
+        if (bg_h > 117) {
+            bg_h = 117;
+        }
+        dest_x = 0;
+        dest_y = 34;
+        if (bg_w < RES_W) {
+            dest_x = (RES_W-bg_w)/2;
+        }
+        if (bg_h < 117) {
+            dest_y = (117-bg_h)/2;
+        }
+
+        bg_x = 0;
+
+        std::cout << "bg_x[" << bg_x << "], bg_y[" << bg_y << "], bg_w[" << bg_w << "], bg_h[" << bg_h << "], dest_x[" << dest_x << "], dest_y[" << dest_y << "]" << std::endl;
+        graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+
+
+    } else {
+        std::cout << "### NO_BG" << std::endl;
+    }
+
 
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
@@ -268,6 +317,11 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
     int sprite_pos_y = BOSS_INTRO_BG_POS_Y-sprite_size.y/2;
     st_position boss_pos(RES_W/2-sprite_size.x/2, sprite_pos_y);
+
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        boss_pos.x -= 8;
+        //boss_pos.y = 160;
+    }
 
     graphLib.showSurface(&boss_intro_bg);
 
@@ -282,6 +336,9 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         while (boss_pos.y < sprite_pos_y) {
             boss_pos.y += 4;
             graphLib.showSurface(&boss_intro_bg);
+            if (show_bg) {
+                graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+            }
             graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
             graphLib.updateScreen();
             timer.delay(5);
@@ -292,12 +349,19 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         boss_pos.y = sprite_pos_y;
     }
 
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        boss_pos.y += 26;
+    }
+
 
     // show intro sprites
     if (intro_frames_n > 1) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
                 graphLib.showSurface(&boss_intro_bg);
+                if (show_bg) {
+                    graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+                }
                 graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
                 // only wait if not last frame
                 if (i<ANIM_FRAMES_COUNT-1 && GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i+1].used) {
@@ -308,6 +372,9 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         }
     } else { // just frow first sprite
         graphLib.showSurface(&boss_intro_bg);
+        if (show_bg) {
+            graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+        }
         graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
         graphLib.updateScreen();
         timer.delay(200);

@@ -64,6 +64,13 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     int npc_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width*2;
     int npc_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height*2;
 
+    if (bg_image.isNull() == false && bg_image.width() > 0) {
+        bg_image = bg_image.scaled(bg_image.width()*2, bg_image.height()*2);
+        QRectF target(QPoint(center_x, center_y), QSize(bg_image.width()*2, bg_image.height()*2));
+        QRectF source(QPoint(0, 0), QSize(bg_image.width()*2, bg_image.height()*2));
+        painter.drawPixmap(target, bg_image, source);
+    }
+
     if (fg_image.isNull() == false && fg_image.width() > 0) {
         fg_image = fg_image.scaled(fg_image.width()*2, fg_image.height()*2);
         QRectF target(QPoint(center_x+adjust_x, center_y+adjust_y), QSize(npc_w, npc_h));
@@ -71,12 +78,6 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
         painter.drawPixmap(target, fg_image, source);
     }
 
-    if (bg_image.isNull() == false && bg_image.width() > 0) {
-        bg_image = bg_image.scaled(bg_image.width()*2, bg_image.height()*2);
-        QRectF target(QPoint(center_x, center_y), QSize(bg_image.width()*2, bg_image.height()*2));
-        QRectF source(QPoint(0, 0), QSize(bg_image.width()*2, bg_image.height()*2));
-        painter.drawPixmap(target, bg_image, source);
-    }
     // draw hit-area
     painter.setBrush(QColor(255, 0, 0, 50));
     if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h != 0) {

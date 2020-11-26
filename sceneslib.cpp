@@ -405,7 +405,7 @@ void scenesLib::show_enemies_ending()
     }
     soundManager.play_music();
 
-    // get all stage bosses
+    // get all stage bosses and add to a vector, and show non-bosses
     std::map<int, std::string> stage_boss_id_list;
     for (int i=0; i<FS_MAX_STAGES; i++) {
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
@@ -416,20 +416,20 @@ void scenesLib::show_enemies_ending()
             stage_boss_id_list.insert(temp_data);
         }
     }
+
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
         if (stage_boss_id_list.find(i) != stage_boss_id_list.end()) {
             continue;
         }
-        // final boss
+        // non-boss
         std::string name = std::string(GameMediator::get_instance()->get_enemy(i)->name);
         ending_show_single_enemy(i, name);
     }
 
     show_bosses_ending();
 
-    if (game_data.final_boss_id != -1) {
-        ending_show_single_enemy(game_data.final_boss_id, GameMediator::get_instance()->get_enemy(game_data.final_boss_id)->name);
-    }
+    // final boss
+    ending_show_single_enemy(game_data.final_boss_id, GameMediator::get_instance()->get_enemy(game_data.final_boss_id)->name);
 
     graphLib.blank_screen();
     graphLib.updateScreen();
@@ -470,10 +470,10 @@ void scenesLib::show_bosses_ending()
         fio.read_stage(stage_data_obj, i);
 
 
+        int boss_id = stage_data_obj.boss.id_npc;
 
         draw_lib.show_boss_intro_bg();
         graphLib.updateScreen();
-        int boss_id = stage_data_obj.boss.id_npc;
 
 
         // BOSS POSITION IN DATA - 40y, 111h
@@ -485,6 +485,7 @@ void scenesLib::show_bosses_ending()
         if (boss_pos >= boss_credits_data.size()) {
             continue;
         }
+
 
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
