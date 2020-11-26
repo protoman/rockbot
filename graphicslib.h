@@ -209,10 +209,10 @@ public:
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
-    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp, short selected_weapon);
+    void draw_weapon_menu_bg(short selected_weapon);
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
 
-    void clear_area_alpha(short int x, short int y, short int w, short int h, short int r, short int g, short int b, int alpha);
+    void clear_area_alpha(short int x, short int y, short int w, short int h);
 
     void clear_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
     void blank_area(short int x, short int y, short int w, short int h);
@@ -267,7 +267,7 @@ private:
     void set_video_mode();
     void preload_images();
     void preload_anim_tiles();
-    void render_text(short int x, short int y, std::string text, st_color color, struct graphicsLib_gSurface& surface, bool centered);
+    void render_text(short int x, short int y, std::string text, st_color color, bool centered);
 
 
 

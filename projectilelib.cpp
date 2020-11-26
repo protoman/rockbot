@@ -490,6 +490,8 @@ st_size projectile::move() {
                 position.y = _owner_position->y + 6;
             }
             if (_owner_direction != NULL) {
+                std::cout << "_owner_direction[" << *_owner_direction << "]" << std::endl;
+                short temp = (*_owner_direction);
                 direction = *_owner_direction;
             }
         }

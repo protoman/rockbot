@@ -303,7 +303,7 @@ void game::show_player_teleport(int pos_x, int pos_y)
 {
     // find ground for player
     set_player_position_teleport_in(pos_x, pos_y);
-    long end_time = timer.getTimer() + 1500;
+    unsigned long end_time = timer.getTimer() + 1500;
 
     while (timer.getTimer() < end_time) {
         loaded_stage.show_stage();
@@ -625,7 +625,7 @@ bool game::test_teleport(classPlayer *test_player) {
 			}
 
 
-            if ((stage_data.links[j].id_map_origin == currentMap && stage_data.links[j].pos_origin.x != -1)) {
+            if (stage_data.links[j].id_map_origin == currentMap) {
                 temp_x = stage_data.links[j].pos_origin.x;
                 temp_y = stage_data.links[j].pos_origin.y;
                 temp_map_n = stage_data.links[j].id_map_destiny;
@@ -637,7 +637,7 @@ bool game::test_teleport(classPlayer *test_player) {
 				}
                 MUST_TELEPORT = check_player_is_on_teleport(test_player, currentMap, temp_x, temp_y, j, transition_type, i, teleporter_dist, player_x, link_type);
             }
-            if (MUST_TELEPORT == false && stage_data.links[j].id_map_destiny == currentMap && stage_data.links[j].bidirecional == true && stage_data.links[j].pos_destiny.x != -1) {
+            if (MUST_TELEPORT == false && stage_data.links[j].id_map_destiny == currentMap && stage_data.links[j].bidirecional == true) {
                 temp_x = stage_data.links[j].pos_destiny.x;
                 temp_y = stage_data.links[j].pos_destiny.y;
                 temp_map_n = stage_data.links[j].id_map_origin;
@@ -865,6 +865,9 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
 
 	// 3. move boss from top to ground
     classnpc* boss_ref = loaded_stage.get_near_boss();
+    if (boss_ref == NULL) {
+        return;
+    }
     if (boss_ref != NULL) {
         if (is_static_boss == false) {
             loop_run = true;
@@ -1170,7 +1173,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
 
 void game::show_door_animation()
 {
-    int steps = 50;
     remove_players_slide();
 
     timer.delay(6);
@@ -1217,14 +1219,14 @@ void game::got_weapon()
         soundManager.play_music();
 
         for (int i=0; i<2; i++) {
-            for (int j=0; j<color_list.size(); j++) {
+            for (unsigned int j=0; j<color_list.size(); j++) {
                 graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
                 player1.show();
                 draw_lib.update_screen();
                 timer.delay(300);
             }
         }
-        long end_timer = timer.getTimer() + 3500;
+        unsigned long end_timer = timer.getTimer() + 3500;
         while (timer.getTimer() < end_timer) {
             loaded_stage.show_stage();
             player1.show();
@@ -1711,7 +1713,7 @@ void game::select_game_screen()
     int picked_n = -1;
     while (repeat_menu == true) {
         picked_n = main_picker.pick();
-        if (picked_n >= 0 && picked_n < game_list.size()) {
+        if (picked_n >= 0 && (unsigned int)picked_n < game_list.size()) {
             repeat_menu = false;
         }
         main_picker.draw();
@@ -1820,12 +1822,6 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     draw_lib.update_screen();
 }
 
-void game::object_teleport_final_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return)
-{
-
-}
-
-
 
 bool game::show_config(short finished_stage)
 {
@@ -1854,7 +1850,7 @@ void game::get_drop_item_ids()
     for (int i=0; i<DROP_ITEM_COUNT; i++) {
         _drop_item_list[i] = -1;
     }
-    for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
+    for (unsigned int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_SMALL) {
             _drop_item_list[DROP_ITEM_ENERGY_SMALL] = i;
         } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_PILL_BIG) {

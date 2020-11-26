@@ -447,8 +447,6 @@ void classnpc::boss_move()
 
 void classnpc::copy(classnpc *from)
 {
-	int i;
-
 	facing = from->facing;
 	start_point = from->start_point;
     static_bg_pos = from->static_bg_pos;
@@ -531,7 +529,7 @@ void classnpc::move_projectiles()
             }
         } else { // NPC attacking other NPCs
 
-            for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
+            for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
                 st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 				//classnpc* enemy = (*enemy_it);
                 if (other_npc_hitbox.is_empty() == false && (*it).check_collision(other_npc_hitbox, st_position(moved.width, moved.height)) == true) {

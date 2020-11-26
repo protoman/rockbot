@@ -937,13 +937,13 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
         return;
     }
 
-    render_text(x, y, text, color, gameScreen, false);
+    render_text(x, y, text, color, false);
 }
 
 
 void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface &surface)
 {
-    render_text(x, y, text, st_color(255, 255, 255), surface, false);
+    render_text(x, y, text, st_color(255, 255, 255), false);
 }
 
 void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
@@ -958,10 +958,10 @@ void graphicsLib::draw_centered_text(short y, string text)
 
 void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface &surface, st_color temp_font_color)
 {
-    render_text(0, y, text, temp_font_color, surface, true);
+    render_text(0, y, text, temp_font_color, true);
 }
 
-void graphicsLib::render_text(short x, short y, string text, st_color color, graphicsLib_gSurface &surface, bool centered)
+void graphicsLib::render_text(short x, short y, string text, st_color color, bool centered)
 {
     SDL_Color font_color = SDL_Color();
     font_color.r = color.r;
@@ -1241,14 +1241,12 @@ void graphicsLib::erase_menu_item(int x_pos)
     //copyArea(st_position(x, 196), spriteCopy, &gameScreen);
 }
 
-void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* player_frame, short max_hp, short selected_weapon) {
-    int icon_size = weapon_icons.at(0).width;
-    int spacer_h = icon_size+2;
+void graphicsLib::draw_weapon_menu_bg(short selected_weapon) {
     int pos_x = 130;
 
     showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
 
-    showSurfaceAt(&player_image_big[game_save.selected_player], st_position((RES_W-ingame_menu.width)*0.5+5, (RES_H-ingame_menu.height)*0.5+47));
+    showSurfaceAt(&player_image_big[game_save.selected_player], st_position(4, (RES_H-ingame_menu.height)*0.5+47));
 
 
     int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config).length()+4)*8;
@@ -1256,7 +1254,6 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
 
 
     draw_text(pos_x, 60, strings_map::get_instance()->get_ingame_string(strings_weapon_selected)+":");
-    // TODO: get weapon name
 
     std::string weapon_name = game_data.weapons[selected_weapon].name;
 
@@ -1273,7 +1270,8 @@ void graphicsLib::draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface* pl
     }
 
     draw_text(pos_x+60, 60, weapon_name);
-    draw_text(pos_x-20, RES_H-40,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_CHANGE_WEAPON));
+
+    draw_text(pos_x+20, RES_H-40,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_CHANGE_WEAPON));
 
     draw_text(pos_x, 80,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_TANKS)+":");
     std::stringstream ss;
@@ -1502,7 +1500,7 @@ void graphicsLib::clear_area(short int x, short int y, short int w, short int h,
     SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
-void graphicsLib::clear_area_alpha(short x, short y, short w, short h, short r, short g, short b, int alpha)
+void graphicsLib::clear_area_alpha(short x, short y, short w, short h)
 {
     if (game_screen == NULL || game_screen->format) {
         return;

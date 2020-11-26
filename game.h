@@ -191,7 +191,6 @@ public:
     void show_savegame_error();
     void showGotArmorDialog(e_ARMOR_PIECES armor_type);
     void object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return);
-    void object_teleport_final_boss(st_position dest_pos, Uint8 dest_map, Uint8 teleporter_id, bool must_return);
     void remove_current_teleporter_from_list(); // used when player dies
     void select_game_screen();
     std::string get_selected_game();
@@ -286,7 +285,7 @@ private:
     float _frame_duration;
     std::map<short, bool> _last_stage_used_teleporters; // list of used teleportes (they do not work anymore after added to this list)
     used_teleporter _player_teleporter;
-    bool _show_boss_hp; // after set to true, will keep showing the boss HP bar on screen right side
+    bool _show_boss_hp = false; // after set to true, will keep showing the boss HP bar on screen right side
 
     short _drop_item_list[DROP_ITEM_COUNT];
     bool invencible_old_value; // used to store flag value in order we don't loose it when setting to true due to temporary "got weapon" invencibility

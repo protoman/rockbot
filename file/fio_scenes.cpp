@@ -140,6 +140,9 @@ namespace format_v4 {
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;
         std::vector<T> res;
+        if (FILEPATH.length() == 0) {
+            return res;
+        }
         FILE *fp = fopen(filename.c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;

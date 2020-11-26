@@ -288,7 +288,7 @@ void class_config::use_tank(int tank_type)
 void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
-    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp(), player_ref->get_selected_weapon());
+    graphLib.draw_weapon_menu_bg(player_ref->get_selected_weapon());
 }
 
 bool class_config::execute_ingame_menu()

@@ -59,10 +59,6 @@ struct st_position {
 
 
 
-/**
- * @brief
- *
- */
 struct st_float_position {
     float x;
     float y;
@@ -70,34 +66,19 @@ struct st_float_position {
         x = 0.0;
         y = 0.0;
     }
-/**
- * @brief
- *
- * @param setX
- * @param setY
- */
-    st_float_position (float setX, float setY) {
+
+    st_float_position(float setX, float setY) {
         x = setX;
         y = setY;
     }
-    /**
-     * @brief
-     *
-     * @param set_pt
-     * @return st_position &operator
-     */
+
     st_float_position& operator=(const st_position &set_pt)
     {
         x = set_pt.x;
         y = set_pt.y;
         return *this;
     }
-    /**
-     * @brief
-     *
-     * @param comp_pt
-     * @return bool operator
-     */
+
     bool operator==(const st_position &comp_pt) const
     {
         if (x == comp_pt.x && y == comp_pt.y) {
@@ -105,24 +86,14 @@ struct st_float_position {
         }
         return false;
     }
-    /**
-     * @brief
-     *
-     * @param set_pt
-     * @return st_position &operator
-     */
+
     st_float_position& operator=(const st_float_position &set_pt)
     {
         x = set_pt.x;
         y = set_pt.y;
         return *this;
     }
-    /**
-     * @brief
-     *
-     * @param comp_pt
-     * @return bool operator
-     */
+
     bool operator==(const st_float_position &comp_pt) const
     {
         if (x == comp_pt.x && y == comp_pt.y) {

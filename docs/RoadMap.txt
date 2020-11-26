@@ -16,7 +16,6 @@ v 0.33
 ###########################################################################################################################
 - novas artes:
     # shared/window_icon
-    # 1 e 2: deletar 1up_icons (não é mais usado)
     # 1: rock e beta da tela inicial e 2, seleção de personagem
     # 1 e 2: faces kanotus
     # 2: dragon, zodiac
@@ -25,12 +24,11 @@ v 0.33
     # uma vez eu consegui com o player tb, algo com dash ou ataque
     # é ao mudar direção para esquerda/direita, acho que o do player tem um ajuste de posição ao mudar posição, mas NPCs não
 
-
-- chefe final esta sem barra de energia na tela
+- às vezes chefe final fica sem barra de energia na tela
     # aconteceu uma vez e na outra não
     # pode ser por causa do sub-boss antes
 
-- karot esta com nome killer bear no fim/creditos
+- #2: karot esta com nome killer bear no fim/creditos
 
 - revisar nomes de inimigos
     # adicionar sprites intro novos inimigos
