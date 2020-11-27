@@ -14,8 +14,7 @@ v 0.33
 
 
 ###########################################################################################################################
-- CRITICAL: teleporte para mesmo mapa esta quebrado, manda para tela vazia)
-    # destrin castle 5, rockbot 1
+- #1: adicionar ending
 
 - novas artes:
     # shared/window_icon
@@ -35,7 +34,7 @@ v 0.33
 
 - ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 
-- revisar/arrumar diálogos de chefes (todos os players, idiomas)
+- #2: revisar/arrumar diálogos de chefes (todos os players, idiomas)
 
 - (ONGOING) adicionar intro/fim em puro texto
 
