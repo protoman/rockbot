@@ -18,7 +18,7 @@ log *log::get_instance()
 void log::write(std::string log_str)
 {
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", log_str.c_);
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "%s", log_str.c_str());
 #else
     std::cout << log_str << std::endl;
 #endif

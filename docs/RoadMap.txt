@@ -14,6 +14,9 @@ v 0.33
 
 
 ###########################################################################################################################
+- CRITICAL: hard-level block esta trancando movimento (ver início fase daisie)
+    # idem um 1up perdido na mesma fase (remover todos)
+
 - novas artes:
     # shared/window_icon
     # 1: rock e beta da tela inicial e 2, seleção de personagem
@@ -30,27 +33,19 @@ v 0.33
 
 - #2: karot esta com nome killer bear no fim/creditos
 
-- revisar nomes de inimigos
-    # adicionar sprites intro novos inimigos
-
-
 - ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
-
-- #2: tirar chefes da última fase, deixar só o karot como sub-boss
 
 - revisar/arrumar diálogos de chefes (todos os players, idiomas)
 
-- adicionar intro/fim em puro texto
+- (ONGOING) adicionar intro/fim em puro texto
 
-- (ONGOING) readicionar intro de boss ao entrar na fase
-
-
-- Karot:
-    # sprites walk
-    # AI
 - revisar IA do Gear (ví video q ele andava ao invés de só pular)
     # fazer big-shot dele bem lento, para dar tempo de usar o frog e pular sobre ele
         # verificar que não seja noe stágio dele q vc ganha o frog
+
+#################################################################################################################################
+LATER
+#################################################################################################################################
 
 - transição de um cenario com FG para um sem (ou vice-versa) causa problemas, o fg fica pendurado e fora de posição
 
@@ -80,7 +75,5 @@ v 0.33
     # marreta: bata-estacas vindo do teto (não letal ao contrário dos raios da morte)
 
 - recreate intro (use new drawings, create a different story)
-
-- [2] final boss teleporter não está funcionando (sem animação, não teleporta)
 
 EDITOR: quando tem fundo, o segundo sprite fica vazio

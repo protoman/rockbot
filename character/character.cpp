@@ -1801,12 +1801,21 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
                 }
                 must_block = true;
             }
-        } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR) {
+        } else if (new_map_lock != TERRAIN_UNBLOCKED && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_SCROLL_LOCK && new_map_lock != TERRAIN_CHECKPOINT && new_map_lock != TERRAIN_STAIR && new_map_lock != TERRAIN_HARDMODEBLOCK && new_map_lock != TERRAIN_EASYMODEBLOCK) {
             must_block = true;
         }
 
-    } else if (map_block == BLOCK_UNBLOCKED && (new_map_lock != BLOCK_UNBLOCKED && new_map_lock != TERRAIN_STAIR && new_map_lock != TERRAIN_WATER)) {
-        must_block = true;
+    } else {
+        if (new_map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty == DIFFICULTY_EASY) {
+            must_block = true;
+        } else if (new_map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == DIFFICULTY_HARD) {
+            if (mode_xy == 1 ||  is_player()) {
+                damage_spikes(true);
+            }
+            must_block = true;
+        } else if (map_block == BLOCK_UNBLOCKED && (new_map_lock != BLOCK_UNBLOCKED && new_map_lock != TERRAIN_STAIR && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_EASYMODEBLOCK && new_map_lock != TERRAIN_HARDMODEBLOCK)) {
+            must_block = true;
+        }
     }
 
     if (must_block == true) {
