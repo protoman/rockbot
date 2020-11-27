@@ -14,8 +14,8 @@ v 0.33
 
 
 ###########################################################################################################################
-- CRITICAL: hard-level block esta trancando movimento (ver início fase daisie)
-    # idem um 1up perdido na mesma fase (remover todos)
+- CRITICAL: teleporte para mesmo mapa esta quebrado, manda para tela vazia)
+    # destrin castle 5, rockbot 1
 
 - novas artes:
     # shared/window_icon
