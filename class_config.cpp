@@ -341,6 +341,11 @@ bool class_config::execute_ingame_menu()
                 return true;
             }
             draw_ingame_menu();
+        } else if (input.p1_input[BTN_DASH] == 1) {
+            SharedData::get_instance()->leave_stage_request = true;
+            ingame_menu_active = false;
+            gameControl.game_unpause();
+            return true;
         }
         input.clean();
     }

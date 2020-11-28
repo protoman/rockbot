@@ -503,8 +503,27 @@ void Mediator::save_game()
     save_dialogs();
 }
 
+void Mediator::clean_map_data()
+{
+    //maps_data_v2[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]
+    for (int i=0; i<FS_MAX_STAGES; i++) {
+        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            //tiles[MAP_W][MAP_H]
+            for (int k=0; k<MAP_W; k++) {
+                for (int l=0; l<MAP_H; l++) {
+                    if (maps_data_v2[i][j].tiles[k][l].locked == TERRAIN_CHECKPOINT) {
+                        maps_data_v2[i][j].tiles[k][l].locked = TERRAIN_UNBLOCKED;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 void Mediator::save_map_data()
 {
+    clean_map_data();
     Mediator::get_instance()->fio.write_all_maps_v2(maps_data_v2);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>("/map_npc_data.dat", maps_data_npc_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_object_v2>("/map_object_data.dat", maps_data_object_list);

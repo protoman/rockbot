@@ -141,6 +141,12 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         return;
     }
 
+    if (SharedData::get_instance()->leave_stage_request == true) {
+        SharedData::get_instance()->leave_stage_request = false;
+        leave_stage();
+        input.clean();
+    }
+
     bool must_skip_frame = fps_manager.must_skip_frame();
 
 
@@ -1356,6 +1362,9 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
+
+    scenes.show_ending_scenes((e_PLAYERS)game_save.selected_player);
+
     scenes.show_player_walking_ending();
 
     scenes.show_enemies_ending();
@@ -1376,7 +1385,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    game_save.selected_player = PLAYER_4;
+    game_save.selected_player = PLAYER_3;
     game_save.difficulty = DIFFICULTY_NORMAL;
 
     // DEBUG //
@@ -1404,7 +1413,7 @@ void game::quick_load_game()
 
     // DEBUG //
     //show_ending();
-    scenes.boss_intro(currentStage);
+    //scenes.boss_intro(currentStage);
 
 
     game_save.selected_player = PLAYER_4;

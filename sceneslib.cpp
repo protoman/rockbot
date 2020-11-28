@@ -76,7 +76,7 @@ scenesLib::scenesLib() : _timer(0), _state(0)
 // ********************************************************************************************** //
 void scenesLib::preloadScenes()
 {
-    //game_scenes_map = fio_scn.load_game_scenes();
+    game_scenes_map = fio_scn.load_game_scenes();
     soundManager.load_boss_music(game_data.boss_music_filename);
 }
 
@@ -802,6 +802,21 @@ short scenesLib::select_save(bool is_new_game)
     }
 
     return selected;
+
+}
+
+void scenesLib::show_ending_scenes(e_PLAYERS selected_player)
+{
+    sceneShow show;
+    if (selected_player == PLAYER_1) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER1]);
+    } else if (selected_player == PLAYER_2) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER2]);
+    } else if (selected_player == PLAYER_3) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER3]);
+    } else if (selected_player == PLAYER_4) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER4]);
+    }
 
 }
 

@@ -14,7 +14,13 @@ v 0.33
 
 
 ###########################################################################################################################
+- tiles tipo checkpoint estao bloqueando player
+    # no editor, ao salvar, trocar todos de checkpoint para unblocked
+
+
 - #1: adicionar ending
+
+- (A) em "novos personagens disponíveis" no final fora de lugar
 
 - novas artes:
     # shared/window_icon

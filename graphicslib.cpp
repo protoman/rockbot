@@ -1271,7 +1271,10 @@ void graphicsLib::draw_weapon_menu_bg(short selected_weapon) {
 
     draw_text(pos_x+60, 60, weapon_name);
 
-    draw_text(pos_x+20, RES_H-40,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_CHANGE_WEAPON));
+    // POS d-pad: 134, 195 (12x12 size)
+    // pos change weapon should be 150, 192, leave-stage should be 150x210
+    draw_text(150, 197,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_CHANGE_WEAPON));
+    draw_text(150, 214,  strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
 
     draw_text(pos_x, 80,  strings_map::get_instance()->get_ingame_string(strings_weapon_menu_TANKS)+":");
     std::stringstream ss;

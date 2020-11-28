@@ -43,6 +43,9 @@ void sceneShow::show_scene(int n)
     if (n < 0) {
         return;
     }
+
+    std::cout << "SCENESHOW::show_scene[" << n << "]" << std::endl;
+
     if (scene_list.size() <= n) {
         std::cout << "ERROR: Scene List[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         return;

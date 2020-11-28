@@ -2752,7 +2752,7 @@ int character::get_direction() const
 
 void character::set_direction(int direction)
 {
-    if (!is_player()) {
+    if (!is_player() && direction != state.direction) {
         // fix to avoid getting stuck into a wall //
         if (direction == ANIM_DIRECTION_LEFT) {
             position.x -= TILESIZE/3;

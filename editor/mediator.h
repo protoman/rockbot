@@ -80,6 +80,7 @@ public:
     void load_game();
     void load_game_data();
     void save_game();
+    void clean_map_data();
     void save_map_data();
 
     void clean_data();                                      // any sanity data cleaning goest here

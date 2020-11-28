@@ -20,6 +20,9 @@
 - show boss intro even if stage is already completed
 - bosses will appear again even if the stage is complete
 - log class to better handle android/cout
+- new spriutes for Milonga based on Arismeire's design
+- deprecate and remove all tiles with terrain type checkpoint
+- option to leave stage directly from in-game menu
 
 ####################################################################################################################################
 .0.32
