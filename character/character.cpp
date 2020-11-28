@@ -1982,7 +1982,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     }
 
 
-	if (incx == 0 && incy == 0) {
+    if (incx == 0 && incy == 0) {
         return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
     }
 
@@ -2033,12 +2033,12 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 	st_position map_point;
     st_position old_map_point;
-	map_point.x = px_left/TILESIZE;
+    map_point.x = px_left/TILESIZE;
     old_map_point.x = old_px_left/TILESIZE;
-	int new_map_lock = TERRAIN_UNBLOCKED;
+    int new_map_lock = TERRAIN_UNBLOCKED;
     int old_map_lock = TERRAIN_UNBLOCKED;
 	if (incx > 0) {
-		map_point.x = px_right/TILESIZE;
+        map_point.x = px_right/TILESIZE;
         old_map_point.x = old_px_right/TILESIZE;
 	}
 

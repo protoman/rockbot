@@ -528,8 +528,8 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
             }
 
             graphLib.draw_centered_text(RES_H-34, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_AVAILABLE));
-            graphLib.draw_centered_text(RES_H-22, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE));
-            graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(134, RES_H-20), false);
+            graphLib.draw_text(40, RES_H-22, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE));
+            graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(80, RES_H-24), false);
 
             draw_credits_line(credit_text.size()-2, credit_text, -300);
             draw_credits_line(credit_text.size()-1, credit_text, -300);

@@ -1665,7 +1665,7 @@ void classMap::remove_temp_objects()
 
 bool classMap::get_map_point_wall_lock(int x) const
 {
-	return wall_scroll_lock[x/TILESIZE];
+    return wall_scroll_lock[x/TILESIZE];
 }
 
 void classMap::move_map(const short int move_x, const short int move_y)

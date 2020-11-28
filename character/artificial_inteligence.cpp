@@ -625,27 +625,27 @@ void artificial_inteligence::ia_action_jump_up()
 
 void artificial_inteligence::ia_action_jump_to_roof()
 {
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         set_animation_type(ANIM_TYPE_JUMP);
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
 
         // find the end-point of the jump-up
-		int limit_y = 0;
-		for (int y=position.y; y>=0; y--) {
+        int limit_y = 0;
+        for (int y=position.y; y>=0; y--) {
             st_position new_pos((position.x+frameSize.width/2)/TILESIZE, (y)/TILESIZE);
             if (gameControl.get_current_map_obj()->is_point_solid(new_pos) == true) {
-				limit_y = y;
-				break;
-			}
-		}
+                limit_y = y;
+                break;
+            }
+        }
         if (limit_y == 0) {
             limit_y = 1;
         }
-		_ai_state.secondary_position.y = limit_y;
-		_ai_state.step = (limit_y - position.y)/max_speed;
+        _ai_state.secondary_position.y = limit_y;
+        _ai_state.step = (limit_y - position.y)/max_speed;
         _ignore_gravity = true; // disable gravity
         speed_y = max_speed*2;
-		return;
+        return;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         // executing
         if (position.y > _ai_state.secondary_position.y) {
@@ -659,59 +659,59 @@ void artificial_inteligence::ia_action_jump_to_roof()
 void artificial_inteligence::ia_action_air_walk()
 {
 
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         set_animation_type(ANIM_TYPE_WALK_AIR);
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-		struct_player_dist dist_npc_player = dist_npc_players();
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        struct_player_dist dist_npc_player = dist_npc_players();
         _dest_point.x = dist_npc_player.pObj->getPosition().x;
-	} else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         // IURI - colocar verificação de colisão aqui
-		/// @TODO use move speed and reducer for last part
+        /// @TODO use move speed and reducer for last part
         if (move_to_point(_dest_point, move_speed, 0, false, false) == true) {
             set_animation_type(ANIM_TYPE_JUMP);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-		}
-	}
+        }
+    }
 }
 
 void artificial_inteligence::ia_action_jump_fall()
 {
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         set_animation_type(ANIM_TYPE_JUMP);
         speed_y = 5;
-	} else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-		ia_accelerate_down();
-		if (hit_ground() == true) {
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        ia_accelerate_down();
+        if (hit_ground() == true) {
             set_animation_type(ANIM_TYPE_STAND);
-			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-			_ai_timer = timer.getTimer() + 1200;
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            _ai_timer = timer.getTimer() + 1200;
             _ignore_gravity = false;
         }
-	}
+    }
 }
 
 void artificial_inteligence::ia_action_quake_attack()
 {
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-		_ai_state.initial_position.x = 0;
-	} else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-		_ai_state.initial_position.x++;
-		if (_ai_state.initial_position.x % 20) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        _ai_state.initial_position.x = 0;
+    } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
+        _ai_state.initial_position.x++;
+        if (_ai_state.initial_position.x % 20) {
             graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
-			ground_damage_players();
-		} else if (_ai_state.initial_position.x % 25) {
+            ground_damage_players();
+        } else if (_ai_state.initial_position.x % 25) {
             graphLib.set_screen_adjust(st_position(QUAKE_SCREEN_MOVE, 0));
-			ground_damage_players();
-		}
-		_ai_state.timer = timer.getTimer() + 500;
-		if (_ai_state.initial_position.x > 200) {
-			graphLib.set_screen_adjust(st_position(0, 0));
+            ground_damage_players();
+        }
+        _ai_state.timer = timer.getTimer() + 500;
+        if (_ai_state.initial_position.x > 200) {
+            graphLib.set_screen_adjust(st_position(0, 0));
             set_animation_type(ANIM_TYPE_STAND);
-			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-		}
-	}
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    }
 }
 
 void artificial_inteligence::ia_accelerate_up()
@@ -723,20 +723,20 @@ void artificial_inteligence::ia_accelerate_up()
         speed_y = TILESIZE-2;
     } else if (speed_y > max_speed*2) {
         speed_y = max_speed*2;
-	}
-	position.y -= speed_y;
-	/// @TODO - adjustment when ground is near
+    }
+    position.y -= speed_y;
+    /// @TODO - adjustment when ground is near
 }
 
 
 void artificial_inteligence::ia_accelerate_down()
 {
     speed_y += speed_y*acceleration_y*4;
-	if (speed_y < 1) {
+    if (speed_y < 1) {
         speed_y = acceleration_y*4;
     } else if (speed_y > TILESIZE-1) {
         speed_y = TILESIZE-1;
-	}
+    }
     // adjust fall to hit ground exactly on the point
     if (will_hit_ground(speed_y) == true) {
         for (int i=speed_y-1; i>=0; i--) {
@@ -746,128 +746,128 @@ void artificial_inteligence::ia_accelerate_down()
             }
         }
     }
-	position.y += speed_y;
-	/// @TODO - adjustment when ground is near
+    position.y += speed_y;
+    /// @TODO - adjustment when ground is near
 }
 
 
 
 void artificial_inteligence::ia_set_destiny_point(st_position dest_point)
 {
-	_ai_state.initial_position.x = position.x;
-	_ai_state.initial_position.y  = position.y;
-	_ai_state.secondary_position.x = dest_point.x;
-	_ai_state.secondary_position.y = dest_point.y;
-	if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
+    _ai_state.initial_position.x = position.x;
+    _ai_state.initial_position.y  = position.y;
+    _ai_state.secondary_position.x = dest_point.x;
+    _ai_state.secondary_position.y = dest_point.y;
+    if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
         set_direction(ANIM_DIRECTION_LEFT);
-	} else {
+    } else {
         set_direction(ANIM_DIRECTION_RIGHT);
-	}
+    }
 }
 
 // walk until reaching a given X coordinate
 // @TODO - jump if needed
 void artificial_inteligence::ia_walk_to_position()
 {
-	// @TODO - if can't walk, change action to jump to player
-	//if (!test_change_position(-move_speed, 0)) {
+    // @TODO - if can't walk, change action to jump to player
+    //if (!test_change_position(-move_speed, 0)) {
 
     bool finished = false;
-	if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
-		position.x -= move_speed;
-		if (position.x <= _ai_state.secondary_position.x) {
-			finished = true;
-		}
-	} else {
-		position.x += move_speed;
-		if (position.x >= _ai_state.secondary_position.x) {
-			finished = true;
-		}
-	}
-	if (finished == true) {
+    if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
+        position.x -= move_speed;
+        if (position.x <= _ai_state.secondary_position.x) {
+            finished = true;
+        }
+    } else {
+        position.x += move_speed;
+        if (position.x >= _ai_state.secondary_position.x) {
+            finished = true;
+        }
+    }
+    if (finished == true) {
         set_animation_type(ANIM_TYPE_STAND);
-		_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-	}
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    }
 }
 
 void artificial_inteligence::ia_float_to_position()
 {
-	bool finished = false;
-	int xinc = 0;
-	int yinc = 0;
-	bool reached_x = false;
-	bool reached_y = false;
+    bool finished = false;
+    int xinc = 0;
+    int yinc = 0;
+    bool reached_x = false;
+    bool reached_y = false;
 
 
-	if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
-		if (position.x <= _ai_state.secondary_position.x) {
-			xinc = 0;
-		} else {
-			xinc -= move_speed;
-		}
-	} else {
-		if (position.x >= _ai_state.secondary_position.x) {
-			xinc = 0;
-		} else {
-			xinc += move_speed;
-		}
-	}
-	if (_ai_state.secondary_position.y < _ai_state.initial_position.y) {
-		if (position.y <= _ai_state.secondary_position.y) {
-			yinc = 0;
-		} else {
-			yinc -= move_speed;
-		}
-	} else {
-		if (position.y >= _ai_state.secondary_position.y) {
-			yinc = 0;
-		} else {
-			yinc += move_speed;
-		}
-	}
+    if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
+        if (position.x <= _ai_state.secondary_position.x) {
+            xinc = 0;
+        } else {
+            xinc -= move_speed;
+        }
+    } else {
+        if (position.x >= _ai_state.secondary_position.x) {
+            xinc = 0;
+        } else {
+            xinc += move_speed;
+        }
+    }
+    if (_ai_state.secondary_position.y < _ai_state.initial_position.y) {
+        if (position.y <= _ai_state.secondary_position.y) {
+            yinc = 0;
+        } else {
+            yinc -= move_speed;
+        }
+    } else {
+        if (position.y >= _ai_state.secondary_position.y) {
+            yinc = 0;
+        } else {
+            yinc += move_speed;
+        }
+    }
 
 
     if (test_change_position(xinc, 0) == false) {
-		xinc = 0;
-	}
+        xinc = 0;
+    }
     if (test_change_position(0, yinc) == false) {
-		yinc = 0;
-	}
-	if (xinc == 0 && yinc == 0) { // both X and Y blocked, leave
-		finished = true;
-	} else {
-		position.x += xinc;
-		position.y += yinc;
-	}
+        yinc = 0;
+    }
+    if (xinc == 0 && yinc == 0) { // both X and Y blocked, leave
+        finished = true;
+    } else {
+        position.x += xinc;
+        position.y += yinc;
+    }
 
-	if (reached_x == true && reached_y == true) {
-		finished = true;
-	}
-	// check if reached the point
-	if (finished == true) {
+    if (reached_x == true && reached_y == true) {
+        finished = true;
+    }
+    // check if reached the point
+    if (finished == true) {
         set_animation_type(ANIM_TYPE_STAND);
-		_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-	}
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    }
 }
 
 void artificial_inteligence::ia_dash()
 {
-	bool finished = false;
-	if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
+    bool finished = false;
+    if (_ai_state.secondary_position.x < _ai_state.initial_position.x) {
         position.x -= max_speed;
-		if (position.x <= _ai_state.secondary_position.x) {
-			finished = true;
-		}
-	} else {
+        if (position.x <= _ai_state.secondary_position.x) {
+            finished = true;
+        }
+    } else {
         position.x += max_speed;
-		if (position.x >= _ai_state.secondary_position.x) {
-			finished = true;
-		}
-	}
-	if (finished == true) {
+        if (position.x >= _ai_state.secondary_position.x) {
+            finished = true;
+        }
+    }
+    if (finished == true) {
         set_animation_type(ANIM_TYPE_STAND);
-		_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-	}
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    }
 }
 
 
@@ -880,7 +880,7 @@ void artificial_inteligence::execute_ai_step_walk()
     short move_type = _parameter;
     _dest_point.y = position.y; // is not flying, keep the position
 
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         // if not on ground and can't fly, leave
         if (hit_ground() == false && can_fly == false) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
@@ -922,8 +922,8 @@ void artificial_inteligence::execute_ai_step_walk()
             set_animation_type(ANIM_TYPE_WALK);
         }
 
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-	} else {
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    } else {
         if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_TURN) {
             if (_is_last_frame == true) { // finished turn animation
                 if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -955,21 +955,21 @@ void artificial_inteligence::execute_ai_step_walk()
 
 void artificial_inteligence::execute_ai_action_wait_until_player_in_range()
 {
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         set_animation_type(ANIM_TYPE_STAND);
-	} else {
-		struct_player_dist dist_players = dist_npc_players();
-		int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
-		if (dist_player <= walk_range) {
-			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-		}
-	}
+    } else {
+        struct_player_dist dist_players = dist_npc_players();
+        int dist_player = abs((float)dist_players.pObj->getPosition().x - position.x);
+        if (dist_player <= walk_range) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    }
 }
 
 void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool invert_direction)
 {
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         if (state.animation_type == ANIM_TYPE_WALK_AIR) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
         } else if (is_on_attack_frame() == false){
@@ -984,11 +984,11 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
                 set_direction(ANIM_DIRECTION_LEFT);
             }
         }
-		state.animation_state = 0;
+        state.animation_state = 0;
         state.animation_timer = timer.getTimer() + (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
-	} else {
+    } else {
         if (_was_animation_reset == true && _did_shot == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _did_shot = false;
@@ -1068,7 +1068,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
 void artificial_inteligence::execute_ai_step_fly()
 {
     // INITIALIZATION
-	if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+    if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         must_show_dash_effect = false;
         previous_position_list.clear();
         if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
@@ -1165,18 +1165,18 @@ void artificial_inteligence::execute_ai_step_fly()
         }
 
         set_animation_type(ANIM_TYPE_WALK_AIR);
-		_ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
 
     // EXECUTION
-	} else {
+    } else {
 
 
         if (state.animation_type == ANIM_TYPE_TURN && have_frame_graphic(state.direction, state.animation_type, (state.animation_state+1)) == false) {
             set_animation_type(ANIM_TYPE_STAND);
             set_direction(!state.direction);
-			_ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-			return;
-		}
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            return;
+        }
 
         if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
             if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {

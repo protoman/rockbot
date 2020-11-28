@@ -274,6 +274,8 @@ protected:
 
     void invert_left_right_direction();
 
+    void adjust_position_opposite_wall();
+
 
 
 

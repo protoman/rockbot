@@ -2,26 +2,6 @@
 v 0.33
 ###########################################################################################################################
 
-- história:
-    # em um futuro distance, a engenharia genetica e cibernética criou uma raça
-    # mista, chamadas de "Bots". Apesar da aparencia de jovens, eles
-    # são muito mais fortes e resistentes que os humanos.
-    # Um dia, um cientista chamado Destrin hackeou o sistema de gestação
-    # dos bots, colocando em alguns deles, uma porta dos fundos pelo qual ele pode enviar comandos,
-    # ordenando eles que tomem locais de obtenção de uma fonte energética utilizada
-    # nas câmaras de gestação. Estaria ele tentando criar uma fábrica de bots
-    # leais a ele para dominar o mundo?
-
-
-###########################################################################################################################
-- tiles tipo checkpoint estao bloqueando player
-    # no editor, ao salvar, trocar todos de checkpoint para unblocked
-
-
-- #1: adicionar ending
-
-- (A) em "novos personagens disponíveis" no final fora de lugar
-
 - novas artes:
     # shared/window_icon
     # 1: rock e beta da tela inicial e 2, seleção de personagem
@@ -36,21 +16,26 @@ v 0.33
     # aconteceu uma vez e na outra não
     # pode ser por causa do sub-boss antes
 
+- ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
+
+
+###########################################################################################################################
+Rockbot #2
+###########################################################################################################################
+
 - #2: karot esta com nome killer bear no fim/creditos
 
-- ANDROID: input config bug (ver se já arrumei, não dava para configurar botoes)
 
 - #2: revisar/arrumar diálogos de chefes (todos os players, idiomas)
 
-- (ONGOING) adicionar intro/fim em puro texto
-
-- revisar IA do Gear (ví video q ele andava ao invés de só pular)
+- #2: revisar IA do Gear (ví video q ele andava ao invés de só pular)
     # fazer big-shot dele bem lento, para dar tempo de usar o frog e pular sobre ele
         # verificar que não seja noe stágio dele q vc ganha o frog
 
 #################################################################################################################################
 LATER
 #################################################################################################################################
+- espaço entre spike e parede ao se agarrar nela na esquerda
 
 - transição de um cenario com FG para um sem (ou vice-versa) causa problemas, o fg fica pendurado e fora de posição
 
