@@ -2136,7 +2136,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 					soundManager.play_sfx(SFX_WATER_LEAVE);
 				}
 				_water_splash = true;
-                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
+                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE-TILESIZE/3), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
 			} else if (point_top == point_bottom && point_top == point_middle && _water_splash == true) {
 				_water_splash = false;
 			}
