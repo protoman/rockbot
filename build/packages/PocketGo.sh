@@ -11,27 +11,25 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 DIR=./pocketgo
+GAME_DIR=Rockbot$version_number
 
 rm -r -f $DIR
 mkdir $DIR
-mkdir $DIR/Rockbot
-mkdir $DIR/Rockbot/games
-mkdir $DIR/Rockbot/fonts
-mkdir $DIR/Rockbot/shared
+mkdir $DIR/$GAME_DIR
+mkdir $DIR/$GAME_DIR/games
+mkdir $DIR/$GAME_DIR/fonts
+mkdir $DIR/$GAME_DIR/shared
 
-cp ../rockbot_pocketgo $DIR/Rockbot/
+cp ../rockbot_pocketgo $DIR/$GAME_DIR/
 
 
-mkdir ./$DIR/Rockbot/data
-mkdir ./$DIR/Rockbot/data/games
-rsync -r --exclude=.svn ../fonts ./$DIR/Rockbot/data
-#rsync -r --exclude=.svn ../games/RockDroid$version_number ./$DIR/Rockbot/data/games
-rsync -r --exclude=.svn ../shared ./$DIR/Rockbot/data
+mkdir ./$DIR/$GAME_DIR/data
+mkdir ./$DIR/$GAME_DIR/data/games
 
-rsync -r --exclude=.svn ../games $DIR/Rockbot
-rsync -r --exclude=.svn ../fonts $DIR/Rockbot
-rsync -r --exclude=.svn ../shared $DIR/Rockbot
+rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR/data
+rsync -r --exclude=.svn ../shared ./$DIR/$GAME_DIR/data
+rsync -r --exclude=.svn ../games/RockDroid$version_number ./$DIR/$GAME_DIR/data/games
 
-cp $DIR/Rockbot/data/images/faces/rockbot.png $DIR/Rockbot/
+cp $DIR/$GAME_DIR/data/images/faces/rockbot.png $DIR/$GAME_DIR/
 cd $DIR
-zip -r ../Rockbot2_PocketGo_$VERSIONNAME.zip *
+zip -r ../Rockbot_PocketGo_$VERSIONNAME.zip *

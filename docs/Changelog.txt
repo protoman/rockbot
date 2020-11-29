@@ -1,6 +1,32 @@
 ####################################################################################################################################
 .0.33 [TODO]
 ####################################################################################################################################
+Default language - en-US
+Show selected character and difficulty on save picker
+Added back boss dialogs
+New level selection screen
+Convert music from ogg to mp3 at a low bitrate to keep size small
+Added option to use MOD music instead of mp3
+New "about" screen
+Adjust for button A/X position
+Show boss intro even if stage is already completed
+Bosses will appear again even if the stage is complete
+Option to leave stage directly from in-game menu
+New sprites for Milonga based on Arismeire's design
+--------------------------------------------------------------------------------------
+Mostrar personageme  dificuldade na seleção de save
+Retorno de diálogos de chefes
+Nova tela de seleção de fase
+Música convertida para mp3 em baixa resolução para tamanho menor
+Opção para tocar música MOD no lugar de mp3
+Nova tela de "sobre"
+Ajuste para posição dos botoes de tela A/X
+Mostra intro e chefe mesmo para fases já completadas
+Opção para sair da fase direto no menu de jogo
+Novos sprites para Milonga baseados no design de Arismeire
+--------------------------------------------------------------------------------------
+
+
 - EDITOR: show option for language in scene player
 - PC-only: fullscreen scales resolution to adjust to screen
 - PC-only: can now resize window for integer scale
@@ -20,7 +46,7 @@
 - show boss intro even if stage is already completed
 - bosses will appear again even if the stage is complete
 - log class to better handle android/cout
-- new spriutes for Milonga based on Arismeire's design
+- new sprites for Milonga based on Arismeire's design
 - deprecate and remove all tiles with terrain type checkpoint
 - option to leave stage directly from in-game menu
 

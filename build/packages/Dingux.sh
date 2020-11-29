@@ -10,24 +10,25 @@ then
 fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
+GAME_DIR=rockbot$version_number
 
 rm -r -f ./Dingux
 mkdir ./Dingux
-mkdir ./Dingux/Rockbot
-mkdir ./Dingux/Rockbot/games
-mkdir ./Dingux/Rockbot/fonts
-mkdir ./Dingux/Rockbot/shared
+mkdir ./Dingux/$GAME_DIR
+mkdir ./Dingux/$GAME_DIR/games
+mkdir ./Dingux/$GAME_DIR/fonts
+mkdir ./Dingux/$GAME_DIR/shared
 
-cp ../rockbot.dge ./Dingux/Rockbot/
+cp ../rockbot.dge ./Dingux/$GAME_DIR/
 
 
-rsync -r ../fonts ././Dingux/Rockbot/
-rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/Rockbot/games
-rsync -r ../shared ././Dingux/Rockbot/
+rsync -r ../fonts ././Dingux/$GAME_DIR/
+rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
+rsync -r ../shared ././Dingux/$GAME_DIR/
 
-rsync -r ../fonts ./Dingux/Rockbot
-rsync -r ../shared ./Dingux/Rockbot
+rsync -r ../fonts ./Dingux/$GAME_DIR
+rsync -r ../shared ./Dingux/$GAME_DIR
 
-cp ./Dingux/Rockbot/games/RockDroid$version_number/images/faces/rockbot.png ./Dingux/Rockbot/
+cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/faces/rockbot.png ./Dingux/$GAME_DIR/
 cd ./Dingux
 zip -r ../Rockbot2_Dingux_$VERSIONNAME.zip *

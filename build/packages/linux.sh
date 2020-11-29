@@ -8,21 +8,22 @@ then
 fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
+GAME_DIR=rockbot$version_number
 
 rm -r -f ./linux
 mkdir ./linux
-mkdir ./linux/rockbot
+mkdir ./linux/$GAME_DIR
 cp ./docs/README.LINUX.TXT ./linux/README.TXT
-cp ../rockbot ./linux/rockbot
-cp ../editor ./linux/rockbot
+cp ../rockbot ./linux/$GAME_DIR
+cp ../editor ./linux/$GAME_DIR
 
-rsync -r --exclude=.svn ../fonts ./linux/rockbot
-rsync -r --exclude=.svn ../games/RockDroid$version_number ./linux/rockbot/games
-rsync -r --exclude=.svn ../shared ./linux/rockbot
+rsync -r --exclude=.svn ../games/RockDroid$version_number ./linux/$GAME_DIR/games
+rsync -r --exclude=.svn ../fonts ./linux/$GAME_DIR
+rsync -r --exclude=.svn ../shared ./linux/$GAME_DIR
 
-rm ./linux/rockbot/data/game*.sav
-rm ./linux/rockbot/data/config*.sav
+rm ./linux/$GAME_DIR/data/game*.sav
+rm ./linux/$GAME_DIR/data/config*.sav
 
 cd ./linux
-tar -cvf ../Rockbot_Linux_$VERSIONNAME.tar rockbot
+tar -cvf ../Rockbot_Linux_$VERSIONNAME.tar $GAME_DIR
 gzip ../Rockbot_Linux_$VERSIONNAME.tar

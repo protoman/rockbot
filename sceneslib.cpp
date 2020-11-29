@@ -623,10 +623,13 @@ Uint8 scenesLib::select_player() {
 
 void scenesLib::boss_intro(short stage_n)
 {
+    /*
     if (stage_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
         return;
     }
-    std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
+    */
+    //std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
+    std::string botname = stage_data.boss.name;
 
     soundManager.play_sfx(SFX_STAGE_SELECTED);
     graphLib.blank_screen();
