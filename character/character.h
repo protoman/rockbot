@@ -103,6 +103,7 @@ public:
     void advance_frameset(); // changes the state for the next (or previous) frame
     void show();
     void show_previous_sprites();
+    void reset_dash_effect();
     void show_at(st_position pos);
     void show_sprite();
     void reset_sprite_animation_timer();

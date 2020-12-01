@@ -294,11 +294,11 @@ protected:
 
 
 	// "external" members
-    static std::vector<character*> *player_list;					// reference to the players list /**< TODO */
-    unsigned int _ai_timer;										// used to not execute AI before a while /**< TODO */
+    static std::vector<character*> *player_list;        // reference to the players list /**< TODO */
+    unsigned int _ai_timer;                             // used to not execute AI before a while /**< TODO */
     double started_action_timer = 0;
-    short _ai_chain_n;							// indicates witch one of the four AI actions is the NPC on /**< TODO */
-    short _ghost_move_speed_reducer;           // some NPCs walk slowly when throught walls
+    short _ai_chain_n;                                  // indicates witch one of the four AI actions is the NPC on /**< TODO */
+    short _ghost_move_speed_reducer;                    // some NPCs walk slowly when throught walls
     struct st_position start_point;
     unsigned int _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
 
@@ -326,6 +326,9 @@ protected:
     double shooter_timer = 0;
     short shoot_direction = ANIM_DIRECTION_LEFT;
     bool shot_success = false;
+
+    unsigned long execution_timer = 0;                  // used to timeout an operation if the enemy got stuck into something
+    unsigned int move_to_point_tries = 0;               // used to check if an enemy can't move to a point several times to interrupt AI
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

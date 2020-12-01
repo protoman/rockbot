@@ -18,7 +18,7 @@ mkdir ./pandora/$GAME_DIR
 #cp ../../editor ./pandora/$GAME_DIR
 cp -r ./pandora/project/* ./pandora/$GAME_DIR
 cp ../rockbot_pandora ./pandora/$GAME_DIR/rockbot
-rsync -r --exclude=.svn ../data ./pandora/$GAME_DIR
+rsync -r --exclude=mp3 --exclude=.svn ../data ./pandora/$GAME_DIR
 rm ./pandora/$GAME_DIR/data/game*.sav
 rm ./pandora/$GAME_DIR/data/config*.sav
 cd ./pandora

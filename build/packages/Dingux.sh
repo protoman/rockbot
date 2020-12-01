@@ -23,11 +23,8 @@ cp ../rockbot.dge ./Dingux/$GAME_DIR/
 
 
 rsync -r ../fonts ././Dingux/$GAME_DIR/
-rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
 rsync -r ../shared ././Dingux/$GAME_DIR/
-
-rsync -r ../fonts ./Dingux/$GAME_DIR
-rsync -r ../shared ./Dingux/$GAME_DIR
+rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
 
 cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/faces/rockbot.png ./Dingux/$GAME_DIR/
 cd ./Dingux

@@ -877,7 +877,7 @@ void character::show() {
 void character::show_previous_sprites()
 {
     if (must_show_dash_effect == false && state.animation_type != ANIM_TYPE_SLIDE) {
-        dash_effect_shadow_surface_frame.freeGraphic();
+        reset_dash_effect();
         return;
     }
 
@@ -900,6 +900,11 @@ void character::show_previous_sprites()
         graphLib.showSurfaceAt(&dash_effect_shadow_surface_frame, st_position(screen_pos.x, screen_pos.y), false);
     }
     graphLib.set_surface_alpha_nocolorkey(255, dash_effect_shadow_surface_frame);
+}
+
+void character::reset_dash_effect()
+{
+    dash_effect_shadow_surface_frame.freeGraphic();
 }
 
 void character::show_at(st_position pos)
@@ -2759,6 +2764,9 @@ void character::set_direction(int direction)
         } else {
             position.x += TILESIZE/3;
         }
+    }
+    if (direction != state.direction) {
+        reset_dash_effect();
     }
     state.direction = direction;
 }

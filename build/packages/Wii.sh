@@ -17,8 +17,10 @@ mkdir ./Wii/apps/$GAME_DIR
 #unzip unzip -x ./files/wii_meta.zip -d ./Wii/apps/$GAME_DIR
 cp ./files/wii_meta/* ./Wii/apps/$GAME_DIR
 cp ../boot.dol ./Wii/apps/$GAME_DIR
+
 rsync -r --exclude=.svn ../fonts ./Wii/apps/$GAME_DIR
-rsync -r --exclude=.svn ../games ./Wii/apps/$GAME_DIR
 rsync -r --exclude=.svn ../shared ./Wii/apps/$GAME_DIR
+rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./Wii/apps/$GAME_DIR/games
+
 cd ./Wii
 zip -r ../Rockbot_Wii_$VERSIONNAME.zip *

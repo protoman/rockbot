@@ -882,6 +882,7 @@ namespace format_v4 {
         credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
         credits_list.push_back("NELSON ROSENBERG");
         credits_list.push_back("ANDREW PRZELUCKI");
+        credits_list.push_back("YAMA DROID");
         credits_list.push_back("");
         credits_list.push_back("");
 

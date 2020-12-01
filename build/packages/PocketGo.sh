@@ -22,13 +22,9 @@ mkdir $DIR/$GAME_DIR/shared
 
 cp ../rockbot_pocketgo $DIR/$GAME_DIR/
 
-
-mkdir ./$DIR/$GAME_DIR/data
-mkdir ./$DIR/$GAME_DIR/data/games
-
-rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR/data
-rsync -r --exclude=.svn ../shared ./$DIR/$GAME_DIR/data
-rsync -r --exclude=.svn ../games/RockDroid$version_number ./$DIR/$GAME_DIR/data/games
+rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR
+rsync -r --exclude=.svn ../shared ./$DIR/$GAME_DIR
+rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./$DIR/$GAME_DIR/games
 
 cp $DIR/$GAME_DIR/data/images/faces/rockbot.png $DIR/$GAME_DIR/
 cd $DIR

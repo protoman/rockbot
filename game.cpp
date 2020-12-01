@@ -1362,7 +1362,6 @@ void game::show_ending()
     // reset player colors to original
     player1.set_weapon(0, false);
 
-
     scenes.show_ending_scenes((e_PLAYERS)game_save.selected_player);
 
     scenes.show_player_walking_ending();
@@ -1385,7 +1384,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    game_save.selected_player = PLAYER_4;
+    game_save.selected_player = PLAYER_3;
     game_save.difficulty = DIFFICULTY_NORMAL;
 
     // DEBUG //

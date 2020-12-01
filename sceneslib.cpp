@@ -643,7 +643,9 @@ void scenesLib::boss_intro(short stage_n)
     if (stage_n < 10) {
         filename.append("0");
     }
-    filename.append(to_string(stage_n)).append(".png");
+    char filename_chr[256];
+    sprintf(filename_chr, "%d.png", stage_n);
+    filename.append(std::string(filename_chr));
 
     if (!fio.file_exists(filename)) {
         return;

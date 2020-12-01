@@ -17,7 +17,7 @@ cp ./docs/README.LINUX.TXT ./linux/README.TXT
 cp ../rockbot ./linux/$GAME_DIR
 cp ../editor ./linux/$GAME_DIR
 
-rsync -r --exclude=.svn ../games/RockDroid$version_number ./linux/$GAME_DIR/games
+rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./linux/$GAME_DIR/games
 rsync -r --exclude=.svn ../fonts ./linux/$GAME_DIR
 rsync -r --exclude=.svn ../shared ./linux/$GAME_DIR
 

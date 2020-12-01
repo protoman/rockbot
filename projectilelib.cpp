@@ -490,7 +490,6 @@ st_size projectile::move() {
                 position.y = _owner_position->y + 6;
             }
             if (_owner_direction != NULL) {
-                std::cout << "_owner_direction[" << *_owner_direction << "]" << std::endl;
                 short temp = (*_owner_direction);
                 direction = *_owner_direction;
             }
@@ -645,7 +644,11 @@ st_size projectile::move() {
             position.y += get_speed();
             // check if hit ground
             int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
-            if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+            int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+            if ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+
+                std::cout << "TRAJECTORY_FALL_BOMB - pos.x[" << position.y << "], first_bottom_lock[" << (first_bottom_lock*TILESIZE) << "]" << std::endl;
+
                 /// morph into a bigger explosion
                 _points = 5000;
                 _effect_timer = timer.getTimer()+1600;

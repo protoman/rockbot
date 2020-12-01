@@ -9,16 +9,16 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
-
+# NOT-WORKING #
+#CONFIG += playstation2
+#CONFIG += open_pandora
+#CONFIG += wii # missing rotozoom
+#CONFIG += dreamcast # /opt/toolchains/dc/sh-elf/bin/sh-elf-g++: Command not found
 
 CONFIG += linux
 #CONFIG += win32
 #CONFIG += raspberry
-#CONFIG += playstation2
 #CONFIG += dingux
-#CONFIG += open_pandora
-#CONFIG += wii
-#CONFIG += dreamcast
 #CONFIG += pocketgo
 
 #DEFINES+= ANDROID=1

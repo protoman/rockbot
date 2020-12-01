@@ -71,16 +71,19 @@ void artificial_inteligence::execute_ai()
         _always_move_ahead = always_move_ahead();
         _check_always_move_ahead = false;
     }
+
+    check_ai_reaction();
+
     if (is_stage_boss() && get_anim_type() == ANIM_TYPE_INTRO) {
         return;
     }
-    check_ai_reaction();
     if (timer.getTimer() < _ai_timer) {
         return;
     }
     if (SharedData::get_instance()->is_showing_boss_intro == true) {
         return;
     }
+
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         if (_current_ai_type != AI_ACTION_WAIT_RANDOM_TIME) { // this AI will set the delay itself
@@ -158,7 +161,12 @@ void artificial_inteligence::check_ai_reaction()
         int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
         react_type--;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
-            return;
+            for (int i=0; i<RES_H; i++) {
+                gravity(false);
+                if (hit_ground() == true) {
+                    break;
+                }
+            }
         }
         _reaction_state = 1;
 
@@ -191,6 +199,9 @@ void artificial_inteligence::define_ai_next_step()
         }
     } else {
         _ai_chain_n = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to-1;
+        if (_ai_chain_n < 0) {
+            _ai_chain_n = 0;
+        }
     }
     _current_ai_type = get_ai_type();
     _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
@@ -199,6 +210,7 @@ void artificial_inteligence::define_ai_next_step()
 
 void artificial_inteligence::execute_ai_step()
 {
+
     _ai_timer = timer.getTimer() + 20;
     if (_current_ai_type == AI_ACTION_WALK) {
         execute_ai_step_walk();
@@ -265,7 +277,9 @@ void artificial_inteligence::execute_ai_step()
         }
         execute_ai_wall_walk();
     } else {
-        std::cout << "ERROR: ********** AI::UNKNOWN - number[" << _number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+        std::cout << "ERROR: ********** AI::UNKNOWN - number[" << (int)_number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
+        _current_ai_type = 0;
+        _ai_chain_n = 0;
     }
 
     if (is_shooter) {
@@ -295,7 +309,8 @@ struct_player_dist artificial_inteligence::dist_npc_players()
     }
 
     res.pObj = gameControl.get_current_map_obj()->_player_ref;
-    dist = sqrt(pow((position.x - res.pObj->getPosition().x), 2) + pow((position.y - res.pObj->getPosition().y), 2));
+    float part1 = pow((position.x - res.pObj->getPosition().x), 2) + pow((position.y - res.pObj->getPosition().y), 2);
+    dist = sqrt(part1);
     res.dist_xy.x = abs((float)position.x - res.pObj->getPosition().x);
     res.dist_xy.y = abs((float)position.y - res.pObj->getPosition().y);
 
@@ -565,10 +580,8 @@ void artificial_inteligence::ia_action_jump_once()
         if (_parameter == AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION) {
             struct_player_dist dist_players = dist_npc_players();
             if (dist_players.pObj->getPosition().x > position.x) {
-                std::cout << "AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION::START - MOVE RIGHT" << std::endl;
                 set_direction(ANIM_DIRECTION_RIGHT);
             } else {
-                std::cout << "AI_ACTION_JUMP_OPTION_TO_PLAYER_DIRECTION::START - MOVE LEFT" << std::endl;
                 set_direction(ANIM_DIRECTION_LEFT);
             }
         }
@@ -1075,7 +1088,11 @@ void artificial_inteligence::execute_ai_step_fly()
             struct_player_dist dist_players = dist_npc_players();
             _dest_point = dist_players.pObj->getPosition();
             must_show_dash_effect = true;
-
+            if (dist_players.pObj->getPosition().x < position.x) {
+                set_direction(ANIM_DIRECTION_LEFT);
+            } else {
+                set_direction(ANIM_DIRECTION_RIGHT);
+            }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
             int rand_x = create_rand_x_point(walk_range);
             int rand_Y = create_rand_y_point(walk_range);
@@ -2148,16 +2165,24 @@ int artificial_inteligence::get_ai_type() {
 
     // check for error
     if (_number < 0 || _number >= GameMediator::get_instance()->ai_list.size()) {
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(to_string(_number)).append(std::string("]")));
+        char int_to_str[256];
+        sprintf(int_to_str, "%d", _reaction_type);
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(std::string(int_to_str)).append(std::string("]")));
         return 0;
     }
     if (_reaction_type < 0 || _reaction_type >= MAX_AI_REACTIONS) {
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(to_string(_reaction_type)).append(std::string("]")));
+        char int_to_str[256];
+        sprintf(int_to_str, "%d", _reaction_type);
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(std::string(int_to_str)).append(std::string("]")));
+        _reaction_type = 0;
         return 0;
     }
 
     if (_ai_chain_n < 0 || _ai_chain_n >= AI_MAX_STATES) {
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(to_string(_ai_chain_n)).append(std::string("]")));
+        char int_to_str[256];
+        sprintf(int_to_str, "%d", _ai_chain_n);
+        log::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(std::string(int_to_str)).append(std::string("]")));
+        _ai_chain_n = 0;
         return 0;
     }
 

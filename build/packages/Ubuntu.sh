@@ -20,7 +20,7 @@ mkdir -p ./debian/opt/game/$GAME_DIR/games
 
 rsync -r --exclude=.svn ../../../fonts ./debian/opt/game/$GAME_DIR
 rsync -r --exclude=.svn ../../../shared ./debian/opt/game/$GAME_DIR
-rsync -r --exclude=.svn ../../../games/RockDroid$version_number ./debian/opt/game/$GAME_DIR/games
+rsync -r --exclude=mp3 --exclude=.svn ../../../games/RockDroid$version_number ./debian/opt/game/$GAME_DIR/games
 
 rm ./debian/opt/game/$GAME_DIR/game*.sav
 rm ./debian/opt/game/$GAME_DIR/config*.sav

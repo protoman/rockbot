@@ -1,5 +1,22 @@
 ﻿###########################################################################################################################
-v 0.33
+v 0.39
+###########################################################################################################################
+
+- AI não pode trancar
+    # move to point, se falhar 3x, desiste
+    # adicionar máximo de 3s para tentar uma ação
+    # em reação, tem que interromper o que estiver tentando fazer de imediato
+
+- inimigo não deve trancar porque a parte de trás ficou dentro da parede
+    # no map-collision, se for para a esquerda, só testa ponto esquerda e meio, não direita
+    # se for para a direita, só teste ponto meio e direita, não esquerda
+
+- ÍCONE DO dINGOO DEVE SER DIFERENTE PARA 1 E 2
+
+- aparentemente, peixe azul quando vai muto para cima fica trancado na transião unlocked/water.
+
+- PSP: tem que fazer uma VM com um Ubuntu mais antigo
+
 ###########################################################################################################################
 
 - novas artes:
