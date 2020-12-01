@@ -1,17 +1,21 @@
 ####################################################################################################################################
 .0.40+
 ####################################################################################################################################
+Thanks to Yama Droid for the bug reporting.
 Fix destrin rain of bombs exploding on the ceiling.
 Fix invalid AI state that made enemies to stop moving.
 Fly-to-Player was not changing directions to face him.
 Dash effect was not updating when changing directions.
 Removed teleport left by mistake on Spike's stage.
+Fix error in map-collision old-point using wrong Y.
 --------------------------------------------------------------
+Obrigado ao Yama Droid pelos relatos de bugs.
 Chuva de bombas não deve explodir no teto.
 Correção de estado de IA inválido que fazia inimigos pararem.
 IA Voar-até-jogador não estava virando em direção a ele.
 Efeito de dash não estava resetando ao mudar a direção.
 Removido teleporte esquecido na fase do Spike.
+Correção na colisão de mapa em que o ponto anterior usava um Y errado.
 
 ####################################################################################################################################
 .0.38

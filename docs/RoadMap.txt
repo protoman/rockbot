@@ -7,7 +7,7 @@ v 0.39
     # adicionar máximo de 3s para tentar uma ação
     # em reação, tem que interromper o que estiver tentando fazer de imediato
 
-- inimigo não deve trancar porque a parte de trás ficou dentro da parede
+- inimigo não deve trancar porque a parte de trás ficou dentro da paredegame_ma
     # no map-collision, se for para a esquerda, só testa ponto esquerda e meio, não direita
     # se for para a direita, só teste ponto meio e direita, não esquerda
 
@@ -51,6 +51,14 @@ Rockbot #2
 #################################################################################################################################
 LATER
 #################################################################################################################################
+- Add a ultra-low mode for performance, sets fps to 30 top
+
+- PSP: windowed option not working, always distorced
+
+- PSP: map ps-button to ESC or make it work as should
+
+- PSP: game freezes qwhen leaving (quit) from the menu
+
 - espaço entre spike e parede ao se agarrar nela na esquerda
 
 - transição de um cenario com FG para um sem (ou vice-versa) causa problemas, o fg fica pendurado e fora de posição

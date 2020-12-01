@@ -2088,9 +2088,10 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 	} else if (incy > 0) {
 		map_point.y = py_bottom/TILESIZE;
 	}
+    old_map_point.y = py_middle/TILESIZE;
 
     if (incy != 0) {
-		for (int i=0; i<3; i++) {
+        for (int i=0; i<3; i++) {
             map_point.x = map_x_points[i];
             old_map_point.x = map_x_points[i];
 
@@ -2109,6 +2110,8 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 			// STAIRS
 			if ((map_block == BLOCK_UNBLOCKED || map_block == BLOCK_X || map_block == BLOCK_WATER) && incy > 0 && new_map_lock == TERRAIN_STAIR) { // stairs special case
+
+
                 int middle_y_point_lock = TERRAIN_UNBLOCKED;
                 if (incy == 1) { // gravity
                     middle_y_point_lock = gameControl.getMapPointLock(st_position(map_x_points[i], (py_bottom-1)/TILESIZE));
@@ -3118,7 +3121,6 @@ bool character::test_change_position(short xinc, short yinc)
     if (is_ghost == false) {
         st_map_collision map_col = map_collision(xinc, yinc, gameControl.get_current_map_obj()->getMapScrolling());
         short int mapLock = map_col.block;
-
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
             return false;
         }
