@@ -38,9 +38,15 @@ v 0.39
 ###########################################################################################################################
 Rockbot #2
 ###########################################################################################################################
+- tentaculos do octopus estao caindo
+
+- fazer abertura
+
+- karot aparece pulando antes de entrar em intro. tem q setar em intro imediatamente qdo é sub-boss
+
+- tirar o dark repetido de castle 1, e colocar ele em castle 4, com diálogo explicando que é um clone
 
 - #2: karot esta com nome killer bear no fim/creditos
-
 
 - #2: revisar/arrumar diálogos de chefes (todos os players, idiomas)
 
