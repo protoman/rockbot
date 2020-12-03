@@ -118,7 +118,7 @@ void game::initGame()
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
 
     fps_manager.initialize();
-#if defined(DINGUX) || defined(PLAYSTATION2)
+#if defined(DINGUX) || defined(PLAYSTATION2) || defined (PSP)
     fps_manager.set_frameskip(5);
 #endif
     is_game_started = true;
