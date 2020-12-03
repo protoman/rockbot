@@ -303,6 +303,11 @@ void detect_language() {
 
 int main(int argc, char *argv[])
 {
+
+#ifdef PSP
+    SetupCallbacks();
+    scePowerSetClockFrequency(333, 333, 166);
+#endif
     for (int i=0; i<FLAG_COUNT; i++) {
 		GAME_FLAGS[i] = false;
 	}
