@@ -28,8 +28,8 @@ PSP_LARGE_MEMORY = 1
 
  
 EXTRA_TARGETS   = EBOOT.PBP
-PSP_EBOOT_TITLE = Rockbot 1.0
-PSP_EBOOT_ICON= ./build/packages/files/psp_icon.png
-PSP_EBOOT_PIC1= ./build/packages/files/psp_background.png
+PSP_EBOOT_TITLE = Rockbot 1.2.040
+PSP_EBOOT_ICON= ./build/packages/files/psp_icon1.png
+PSP_EBOOT_PIC1= ./build/packages/files/psp_background1.png
 
 include /home/iuri/SDK/PSP/SDK/psp/sdk/lib/build.mak

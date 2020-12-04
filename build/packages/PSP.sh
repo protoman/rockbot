@@ -15,7 +15,7 @@ mkdir ./PSP/$GAME_DIR
 mkdir ./PSP/$GAME_DIR/games
 mkdir ./PSP/$GAME_DIR/fonts
 mkdir ./PSP/$GAME_DIR/shared
-cp ../../EBOOT.PBP ./PSP/$GAME_DIR/
+cp ../EBOOT.PBP ./PSP/$GAME_DIR/
 rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./PSP/$GAME_DIR/games
 rsync -r --exclude=.svn ../fonts ./PSP/$GAME_DIR
 rsync -r --exclude=.svn ../shared ./PSP/$GAME_DIR
