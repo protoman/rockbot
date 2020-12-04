@@ -19,15 +19,17 @@ v 0.39
 
 ###########################################################################################################################
 
+- atualizar ícone #2 para Dingux
+
+- atualizar imagem de fundo para PSP (#1 e #2)
+
+- atualizar ícone janela (Windows e Linux)
+
 - novas artes:
     # shared/window_icon
     # 1: rock e beta da tela inicial e 2, seleção de personagem
     # 1 e 2: faces kanotus
     # 2: dragon, zodiac
-
-- karot fica trancado na porta
-    # uma vez eu consegui com o player tb, algo com dash ou ataque
-    # é ao mudar direção para esquerda/direita, acho que o do player tem um ajuste de posição ao mudar posição, mas NPCs não
 
 - às vezes chefe final fica sem barra de energia na tela
     # aconteceu uma vez e na outra não
