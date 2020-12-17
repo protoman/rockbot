@@ -276,7 +276,7 @@ protected:
 
     void adjust_position_opposite_wall();
 
-
+    void execute_play_sfx();
 
 
 protected:

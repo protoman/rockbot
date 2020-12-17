@@ -3326,7 +3326,8 @@ void character::cancel_slide()
 
 float character::get_hit_push_back_n()
 {
-    return TILESIZE*0.8;
+    //return TILESIZE*0.8;
+    return TILESIZE * 1.2;
 }
 
 bool character::have_shoryuken()

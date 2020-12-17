@@ -1,29 +1,34 @@
 ﻿###########################################################################################################################
-v 0.39
+v 0.41
 ###########################################################################################################################
 
-- AI não pode trancar
-    # move to point, se falhar 3x, desiste
-    # adicionar máximo de 3s para tentar uma ação
-    # em reação, tem que interromper o que estiver tentando fazer de imediato
+- adicionar opção automático para esnapnhol
 
-- inimigo não deve trancar porque a parte de trás ficou dentro da paredegame_ma
-    # no map-collision, se for para a esquerda, só testa ponto esquerda e meio, não direita
-    # se for para a direita, só teste ponto meio e direita, não esquerda
+- mission start não esta i18n
 
-- ÍCONE DO dINGOO DEVE SER DIFERENTE PARA 1 E 2
+- Ícone diferente para 1 e 2 no Dingoo (refazer versao 0.40 mesmo)
 
-- aparentemente, peixe azul quando vai muto para cima fica trancado na transião unlocked/water.
+- PSP: ver pq não esta alternando modos fullscreen e windowed
 
-- PSP: tem que fazer uma VM com um Ubuntu mais antigo
-
-###########################################################################################################################
+- está aparecendo sempre a Kitty no menu de armas (pelo menos no quickload)
 
 - atualizar ícone #2 para Dingux
 
 - atualizar imagem de fundo para PSP (#1 e #2)
 
 - atualizar ícone janela (Windows e Linux)
+
+- AI não pode trancar
+    # move to point, se falhar 3x, desiste
+    # adicionar máximo de 3s para tentar uma ação
+    # em reação, tem que interromper o que estiver tentando fazer de imediato
+
+
+###########################################################################################################################
+v 0.42+
+###########################################################################################################################
+
+- texto "boss" esta desalinhado em relação à bolas de energia
 
 - novas artes:
     # shared/window_icon
@@ -40,6 +45,51 @@ v 0.39
 ###########################################################################################################################
 Rockbot #2
 ###########################################################################################################################
+- adicionar mais layers de fundo
+
+- em plataformas lentas (PSP, Dingoo), setar performance default como low
+- adicionar opção de frameskip em performance, para ajustar manualmente
+
+- novas animações:
+    # fumaça saindo de canos
+    # esgoto verde ou marrom
+
+- melhorar projéteis inimigos
+    # gráficos mais robustos e menos limão
+
+- inimigo estilo a águia de ninja gaiden
+    # começa devagar e acelera
+    # ajusta a posição do player a cada n sprites
+
+- prainha de todos os santos
+    # colocar coisas da Bahia na fase
+
+- intro deve ter coisas do rio grande do sul, tipo laçador e beira-rio
+
+- trocar explosão chefe por múltiplas explosões
+
+
+- player música:
+    # último estagio esta aparecendo fire bot
+    # adicionar músicas extras (colocar em shared)
+    # adicionar shared sfx no player
+
+- efeito senóide para fundo:
+    # https://youtu.be/R-iG6Zyq_y4?t=70
+
+- esta sem o som de "hou" no super tiro
+
+- fase intermediária do circo pode ter uma montanha russa ao fundo
+    # https://www.youtube.com/watch?v=aJPAfMV4RVI
+
+- fase final pode ter telas de computador (como batman)
+    # https://youtu.be/LIm2fnWFyCQ?t=709
+
+- fazer um míssil que segue o jogador mas com delay, atualiza a posição dele a cada 5 frames
+
+- young mecha shinoby turtles
+    # springler rat master
+
 - tentaculos do octopus estao caindo
 
 - fazer abertura

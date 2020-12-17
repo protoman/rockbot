@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1203</width>
+    <width>1222</width>
     <height>723</height>
    </rect>
   </property>
@@ -80,7 +80,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_3">
         <property name="geometry">
@@ -88,7 +88,7 @@
           <x>0</x>
           <y>0</y>
           <width>380</width>
-          <height>573</height>
+          <height>553</height>
          </rect>
         </property>
         <attribute name="label">
@@ -398,7 +398,7 @@
           <x>0</x>
           <y>0</y>
           <width>380</width>
-          <height>573</height>
+          <height>553</height>
          </rect>
         </property>
         <attribute name="label">
@@ -1427,6 +1427,8 @@ If you want to set are that misses the shots, use hitarea instead.</string>
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/icons/icons.qrc"/>
+  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>
  <connections/>

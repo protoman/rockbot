@@ -276,6 +276,8 @@ void artificial_inteligence::execute_ai_step()
             }
         }
         execute_ai_wall_walk();
+    } else if (_current_ai_type == AI_ACTION_PLAY_SFX) {
+        execute_play_sfx();
     } else {
         std::cout << "ERROR: ********** AI::UNKNOWN - number[" << (int)_number << "], pos[" << _ai_chain_n << "], _current_ai_type[" << (int)_current_ai_type << "] - NOT IMPLEMENTED *******" << std::endl;
         _current_ai_type = 0;
@@ -2221,6 +2223,13 @@ void artificial_inteligence::invert_left_right_direction()
     } else if (state.direction == ANIM_DIRECTION_RIGHT) {
         set_direction(ANIM_DIRECTION_LEFT);
     }
+}
+
+void artificial_inteligence::execute_play_sfx()
+{
+    // TODO: add options
+    soundManager.play_shared_sfx("dinosaur_growl.wav");
+    _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
 }
 
 bool artificial_inteligence::is_teleporting()

@@ -149,6 +149,7 @@ public:
     graphicsLib();
     ~graphicsLib();
     bool initGraphics();
+    void set_window_icon();
     void update_screen_mode();
     void load_shared_graphics();
     void preload();

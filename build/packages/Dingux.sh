@@ -26,6 +26,6 @@ rsync -r ../fonts ././Dingux/$GAME_DIR/
 rsync -r ../shared ././Dingux/$GAME_DIR/
 rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
 
-cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/faces/rockbot.png ./Dingux/$GAME_DIR/
+cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
 cd ./Dingux
 zip -r ../Rockbot2_Dingux_$VERSIONNAME.zip *

@@ -9,17 +9,29 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
-# NOT-WORKING #
-#CONFIG += playstation2
-#CONFIG += open_pandora
-#CONFIG += wii # missing rotozoom
-#CONFIG += dreamcast # /opt/toolchains/dc/sh-elf/bin/sh-elf-g++: Command not found
-
 CONFIG += linux
+
 #CONFIG += win32
+
 #CONFIG += raspberry
+
 #CONFIG += dingux
+
 #CONFIG += pocketgo
+
+#CONFIG += playstation2
+    # currently won't build because old C++ compiler that do not support member initialization on header file
+
+#CONFIG += open_pandora
+
+#CONFIG += wii
+    # missing rotozoom, check if we can remove it (I think it is used for missiles)
+
+#CONFIG += dreamcast
+    # /opt/toolchains/dc/sh-elf/bin/sh-elf-g++: Command not found
+
+#CONFIG += psp
+    # try to replicate the exact same behavior of the makefile.psp
 
 #DEFINES+= ANDROID=1
 

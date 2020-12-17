@@ -37,6 +37,8 @@ public:
     short current_language = LANGUAGE_AUTODETECT;
     bool is_showing_boss_intro = false;
     bool leave_stage_request = false;
+    int version_number = 1;
+    std::string version_number_str = "1";
 
 
 };

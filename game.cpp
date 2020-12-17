@@ -1384,7 +1384,7 @@ void game::quick_load_game()
         fio.read_save(game_save, current_save_slot);
     }
 
-    game_save.selected_player = PLAYER_3;
+    game_save.selected_player = PLAYER_1;
     game_save.difficulty = DIFFICULTY_NORMAL;
 
     // DEBUG //
@@ -1412,6 +1412,9 @@ void game::quick_load_game()
 
     // DEBUG //
     //show_ending();
+
+
+
     //scenes.boss_intro(currentStage);
 
 

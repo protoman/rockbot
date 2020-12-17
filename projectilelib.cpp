@@ -24,6 +24,8 @@ extern int freeze_weapon_id;
 #define BOMB_RAIN_DELAY 1600
 #define BOMB_RAIN_N 4
 
+#define LIGHTING_START_DELAY 400
+
 #define LARGE_BEAM_DELAY 20
 
 #include "shareddata.h"
@@ -110,6 +112,11 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
         position.y = 0;
         _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+
+        // add animation into the place it will appear
+        animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position0.x, first_bottom_lock*TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+        gameControl.get_current_map_obj()->add_animation(anim2);
+        lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
     } else if (_move_type == TRAJECTORY_SPIRAL) {
         angle = 360;
         position0.x = position.x;
@@ -430,6 +437,9 @@ void projectile::inc_status()
 
 st_rectangle projectile::get_area()
 {
+    if (_move_type == TRAJECTORY_LIGHTING && lighting_timer > timer.getTimer()) {
+        return st_rectangle(-RES_W*2, -RES_H*2, 0, 0);
+    }
     return st_rectangle(position.x, position.y, _size.width, _size.height);
 }
 
@@ -710,17 +720,25 @@ st_size projectile::move() {
         }
 
     } else if (_move_type == TRAJECTORY_LIGHTING) {
-        if (_effect_n > LIGHTING_FRAMES_N) {
-            play_sfx(false);
-            if (direction == ANIM_DIRECTION_LEFT) {
-                position.x -= RES_W/3;
-            } else {
-                position.x += RES_W/3;
-            }
-            _effect_n = 0;
-            status = 0;
-            if (status > 3) {
-                finish();
+        if (lighting_timer < timer.getTimer()) {
+            if (_effect_n > LIGHTING_FRAMES_N) {
+                play_sfx(false);
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    position.x -= RES_W/3;
+                } else {
+                    position.x += RES_W/3;
+                }
+                int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+                _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+                _effect_n = 0;
+                status = 0;
+                if (status > 3) {
+                    finish();
+                } else {
+                    animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, _size.height-TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+                    gameControl.get_current_map_obj()->add_animation(anim2);
+                    lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
+                }
             }
         }
     } else if (_move_type == TRAJECTORY_SPIRAL) {
@@ -884,13 +902,14 @@ void projectile::draw() {
 
     // lighting gets image from bottom to height
     } else if (_move_type == TRAJECTORY_LIGHTING) {
-        int y_pos = get_surface()->height -_size.height;
-        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, y_pos, show_width, _size.height), realPosition);
+        if (lighting_timer < timer.getTimer()) {
+            int y_pos = get_surface()->height -_size.height;
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, y_pos, show_width, _size.height), realPosition);
 
-        if (animation_pos == _max_frames-1) {
-            _effect_n++;
+            if (animation_pos == _max_frames-1) {
+                _effect_n++;
+            }
         }
-
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
         // @TODO - add animation frames
         // back
@@ -938,7 +957,9 @@ void projectile::draw() {
         if (_move_type == TRAJECTORY_CENTERED) {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/2;
         } else if (_move_type == TRAJECTORY_LIGHTING) {
-            animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/3;
+            if (lighting_timer < timer.getTimer()) {
+                animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/3;
+            }
         } else if (_move_type == TRAJECTORY_SPIRAL) {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/4;
         } else {
@@ -951,6 +972,9 @@ void projectile::draw() {
 bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) const
 {
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK || _move_type == TRAJECTORY_PULL) {
+        return false;
+    }
+    if (_move_type == TRAJECTORY_LIGHTING && lighting_timer > timer.getTimer()) {
         return false;
     }
 

@@ -12,6 +12,7 @@ extern std::vector<std::string> AI_ACTION_TELEPORT_OPTIONS;
 extern std::vector<std::string> AI_ACTION_DASH_OPTIONS;
 extern std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
 extern std::vector<std::string> ANIMATION_TYPE_LIST;
+extern std::vector<std::string> AI_ACTION_SFX_OPTION_NAMES;
 
 #include "mediator.h"
 
@@ -270,6 +271,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         dist_list.push_back("10");
         dist_list.push_back("20");
         list = dist_list;
+    } else if (action == AI_ACTION_PLAY_SFX) {
+        list = AI_ACTION_SFX_OPTION_NAMES;
     } else {
         return;
     }

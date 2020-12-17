@@ -235,7 +235,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_config_android_play_services4], "%s", "COM ESTA OPCAO HABILITADA.");
 
             sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUER UM CONTROLE FÍSICO,");
-            sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "CASO CONTRÁRIO NAO CONSEGUIRA");
+            sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "CASO CONTRÁRIO NÃO CONSEGUIRA");
             sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "RESTAURAR CONFIGURACOES.");
 
             sprintf(lines[strings_ingame_config_extras_music_player], "%s", "PLAYER DE MÚSICA");
@@ -291,7 +291,7 @@ namespace format_v4 {
             sprintf(lines[strings_config_android_screencontrolssize], "%s", "TAMANHO CONTROLES");
             sprintf(lines[strings_config_android_useplayservices], "%s", "PLAY SERVICES");
             sprintf(lines[strings_config_android_usecloudsave], "%s", "SALVAR NA NUVEM");
-            sprintf(lines[strings_config_wii_joysticktype], "%s", "TYPO DE CONTROLE");
+            sprintf(lines[strings_config_wii_joysticktype], "%s", "TIPO DE CONTROLE");
             sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "PEQUENO");
             sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIUM");
             sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "GRANDE");
@@ -396,6 +396,228 @@ namespace format_v4 {
 
             sprintf(lines[strings_weapon_selected], "%s", "ARMA");
 
+        } else if (language == LANGUAGE_SPANISH) {
+            sprintf(lines[strings_ingame_newgame], "%s", "NUEVA PARTIDA");
+            sprintf(lines[strings_ingame_loadgame], "%s", "CARGAR PARTIDA");
+            sprintf(lines[strings_ingame_config], "%s", "CONFIGURACIÓN");
+            sprintf(lines[strings_ingame_about], "%s", "INFORMACIÓN");
+            sprintf(lines[strings_ingame_extras], "%s", "EXTRAS");
+            sprintf(lines[strings_ingame_password], "%s", "CONTRASEÑA");
+            sprintf(lines[strings_ingame_gameover], "%s", "PARTIDA ACABADA");
+            sprintf(lines[strings_ingame_and], "%s", "Y");
+            sprintf(lines[strings_ingame_yougot_singular], "%s", "HA SIDO ADQUIRIDO");
+            sprintf(lines[strings_ingame_yougot_plural], "%s", "HA SIDO ADQUIRIDO");
+            sprintf(lines[strings_ingame_selectgame], "%s", "SELECCIONE PARTIDA");
+            sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR AL GUARDAR PARTIDA,");
+            sprintf(lines[strings_ingame_savegameerror2], "%s", "EVISE QUE EL DISPOSITIVO O");
+            sprintf(lines[strings_ingame_savegameerror3], "%s", "ARCHIVO NO ESTE PROTEGIDO.");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
+            sprintf(lines[strings_ingame_input], "%s", "INPUT");
+            sprintf(lines[strings_ingame_video], "%s", "VIDEO");
+            sprintf(lines[strings_ingame_leavestage], "%s", "DEJAR NIVEL");
+            sprintf(lines[strings_ingame_language], "%s", "LENGUAJE");
+            sprintf(lines[strings_ingame_video_windowed], "%s", "EN VENTANA");
+            sprintf(lines[strings_ingame_video_fullscreen], "%s", "PANTALLA COMPLETA");
+            sprintf(lines[strings_ingame_video_noscale], "%s", "NO ESCALAR  ");
+            sprintf(lines[strings_ingame_video_size2x], "%s", "TAMAÑO X2    ");
+            sprintf(lines[strings_ingame_video_scale2x], "%s", "ESCALA X2   ");
+            sprintf(lines[strings_ingame_video_show_fps], "%s", "ENSEÑAR FPS");
+            sprintf(lines[strings_ingame_config_restart1], "%s", "OR FAVOR REINICIE EL JUEGO");
+            sprintf(lines[strings_ingame_config_restart2], "%s", "PARA QUE LA CONFIGURACIÓN");
+            sprintf(lines[strings_ingame_config_restart3], "%s", "TOME EFECTO.");
+            sprintf(lines[strings_ingame_config_presstorestart], "%s", "PRESIONE UN BOTÓN PARA REGRESAR");
+            sprintf(lines[strings_ingame_pressanykey], "%s", "PRESIONE CUALQUIER BOTÓN");
+            sprintf(lines[strings_ingame_config_set], "%s", "DEFINIR");
+            sprintf(lines[strings_ingame_config_key_up], "%s", "ARRIBA");
+            sprintf(lines[strings_ingame_config_key_down], "%s", "ABAJO");
+            sprintf(lines[strings_ingame_config_key_left], "%s", "IZQUIERDA");
+            sprintf(lines[strings_ingame_config_key_right], "%s", "DERECHA");
+            sprintf(lines[strings_ingame_config_key_jump], "%s", "SALTAR");
+            sprintf(lines[strings_ingame_config_key_dash], "%s", "DASH");
+            sprintf(lines[strings_ingame_config_key_shield], "%s", "ESCUDO");
+            sprintf(lines[strings_ingame_config_key_fire], "%s", "DISPARAR");
+            sprintf(lines[strings_ingame_config_key_start], "%s", "START");
+            sprintf(lines[strings_ingame_config_key_keyl], "%s", "BOTÓN-L");
+            sprintf(lines[strings_ingame_config_key_keyr], "%s", "BOTÓN-R");
+            sprintf(lines[strings_ingame_config_key_pressnew], "%s", "PRESIONE UNA NUEVA TECLA/BOTÓN");
+            sprintf(lines[strings_ingame_config_key_reset], "%s", "REESTABLECER");
+            sprintf(lines[strings_ingame_config_key_directional], "%s", "DIRECCIONAL");
+            sprintf(lines[strings_ingame_config_key_directional_analog], "%s", "ANÁLOGO");
+            sprintf(lines[strings_ingame_config_key_directional_digital], "%s", "DIGITAL");
+
+            sprintf(lines[strings_ingame_config_android_cloud_save1], "%s", "EL GUARDADO EN LA NUBE REQUIERE");
+            sprintf(lines[strings_ingame_config_android_cloud_save2], "%s", "CONEXIÓN A INTERNET O EL JUEGO SE");
+            sprintf(lines[strings_ingame_config_android_cloud_save3], "%s", "CONGELARÁ CUANDO TRATE DE OBTENER");
+            sprintf(lines[strings_ingame_config_android_cloud_save4], "%s", "DATOS DEL SERVIDOR.");
+
+            sprintf(lines[strings_ingame_config_android_play_services1], "%s", "ACTIVAR ESTA OPCIÓN REQUIERE");
+            sprintf(lines[strings_ingame_config_android_play_services2], "%s", "CONEXIÓN A DATOS.");
+            sprintf(lines[strings_ingame_config_android_play_services3], "%s", "ADVERTENCIA: EL JUEGO PODRÍA");
+            sprintf(lines[strings_ingame_config_android_play_services4], "%s", "CONGELARSE CON ESTA OPCIÓN ACTIVADA.");
+
+            sprintf(lines[strings_ingame_config_android_hide_controls1], "%s", "REQUIERES DE UN MANDO FÍSICO,");
+            sprintf(lines[strings_ingame_config_android_hide_controls2], "%s", "O NO PODRÁS RESTABLECER LA");
+            sprintf(lines[strings_ingame_config_android_hide_controls3], "%s", "CONFIGURACIÓN.");
+
+            sprintf(lines[strings_ingame_config_extras_music_player], "%s", "REPRODUCTOR DE MÚSICA");
+            sprintf(lines[strings_ingame_config_extras_sound_player], "%s", "REPRODUCTOR DE SFX");
+            sprintf(lines[strings_ingame_config_extras_art_gallery], "%s", "GALLERÍA DE ARTE");
+
+            sprintf(lines[strings_ingame_passwordinvalid], "%s", "CONTRASEÑA INVALIDA");
+            sprintf(lines[strings_ingame_pressstart], "%s", "PRESIONE START");
+            sprintf(lines[strings_ingame_engineerror], "%s", "ERROR EN ROCKBOT ENGINE");
+            sprintf(lines[strings_ingame_nogames], "%s", "NO HAY JUEGOS DISPONIBLES");
+            sprintf(lines[strings_ingame_quitgame], "%s", "¿SALIR DEL JUEGO?");
+            sprintf(lines[strings_ingame_yes], "%s", "SI");
+            sprintf(lines[strings_ingame_no], "%s", "NO");
+            sprintf(lines[strings_ingame_life], "%s", "VIDA(S)");
+            sprintf(lines[strings_ingame_item], "%s", "OBJETO(S)");
+            sprintf(lines[strings_ingame_coin], "%s", "MONEDA(S)");
+            sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "TE DA LA HABILIDAD DE");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "ESTOS BRAZOS MEJORADOS TE PERMITEN");
+            sprintf(lines[strings_ingame_gotarmor_type_arms_msg], "%s", "DISPARAR");
+            sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "ESTAS PIERNAS LIGERAS TE PERMITEN");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "HACER UN DASH EN EL AIRE.");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "HACER UN SALTO DOBLE");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "HACER UN SHOURYUKEN (ARRIBA+DASH)");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
+            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "ESTE CUERPO FORTIFICADO TE PERMITE");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "SER INTANGIBLE POR MÁS TIEMPO");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TOMAR LA MITAD DEL DAÑO");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "EVITAR EMPUJONES AL SER DAÑADO");
+            sprintf(lines[strings_ingame_gotarmor_type_body_msg4], "%s", "RESISTIR ESPINAS");
+            sprintf(lines[strings_ingame_difficulty_select], "%s", "SELECCIONE UNA DIFICULTAD:");
+            sprintf(lines[strings_ingame_difficulty_easy], "%s", "FÁCIL");
+            sprintf(lines[strings_ingame_difficulty_normal], "%s", "NORMAL");
+            sprintf(lines[strings_ingame_difficulty_hard], "%s", "DIFÍCIL");
+            sprintf(lines[strings_ingame_config_input_selected_joystick], "%s", "JOYSTICK SELECCIONADO");
+            sprintf(lines[strings_ingame_config_input_buttons], "%s", "CONFIGURAR BOTONES");
+            sprintf(lines[strings_ingame_config_input_turbo_mode], "%s", "MODO TURBO");
+            sprintf(lines[strings_ingame_config_input_autocharge_mode], "%s", "AUTO-CARGA");
+            sprintf(lines[strings_ingame_config_on], "%s", "SI");
+            sprintf(lines[strings_ingame_config_off], "%s", "NO");
+            sprintf(lines[strings_ingame_config_quitgame], "%s", "SALIR DEL JUEGO");
+            sprintf(lines[strings_ingame_armor], "%s", "ARMADURA");
+            sprintf(lines[strings_ingame_config_audio_volume_music], "%s", "VOLUMEN DE MÚSICA");
+            sprintf(lines[strings_ingame_config_audio_volume_sfx], "%s", "VOLUMEN DE SFX");
+            sprintf(lines[strings_ingame_config_enabled], "%s", "HABILITADO");
+            sprintf(lines[strings_ingame_config_disabled], "%s", "DESHABILITADO");
+            sprintf(lines[strings_ingame_ready_message], "%s", "¡MISIÓN INICIADA!");
+            sprintf(lines[strings_ingame_config_select_player], "%s", "< SELECCIONE UN PERSONAJE >");
+            sprintf(lines[strings_ingame_config_press_start_to_select], "%s", "PRESIONE START PARA SELECCIONAR");
+            sprintf(lines[strings_ingame_manual], "%s", "MANUAL");
+            sprintf(lines[strings_ingame_mode], "%s", "MODO");
+            sprintf(lines[strings_ingame_video_scale_mode], "%s", "MODO DE ESCALA");
+            sprintf(lines[strings_config_android_hidescreencontrols], "%s", "OCULTAR CONTROLES");
+            sprintf(lines[strings_config_android_screencontrolssize], "%s", "TAMAÑO DE CONTROLES");
+            sprintf(lines[strings_config_android_useplayservices], "%s", "SERVICIOS DE GOOGLE PLAY");
+            sprintf(lines[strings_config_android_usecloudsave], "%s", "GUARDADO EN LA NUBE");
+            sprintf(lines[strings_config_wii_joysticktype], "%s", "TIPO DE JOYSTICK");
+            sprintf(lines[strings_config_android_screencontrolssize_SMALL], "%s", "PEQUEÑO");
+            sprintf(lines[strings_config_android_screencontrolssize_MEDIUM], "%s", "MEDIANO");
+            sprintf(lines[strings_config_android_screencontrolssize_BIG], "%s", "GRANDE");
+            sprintf(lines[strings_config_wii_joysticktype_WIIMOTE], "%s", "WIIMOTE");
+            sprintf(lines[strings_config_wii_joysticktype_CLASSIC], "%s", "CLASSIC");
+            sprintf(lines[strings_config_wii_joysticktype_GAMECUBE], "%s", "GAMECUBE");
+            sprintf(lines[strings_config_wii_platformspecific], "%s", "ESPECIFICO DE PLATAFORMA");
+            sprintf(lines[strings_config_keys_unet], "%s", "POR FAVOR DEFINA");
+            sprintf(lines[strings_ingame_config_graphics_performance], "%s", "RENDIMIENTO");
+            sprintf(lines[strings_ingame_enable_playservices_dialog], "%s", "¿HABILITAR SERVICIOS DE GOOGLE PLAY?");
+            sprintf(lines[strings_ingame_enable_cloudsave_dialog], "%s", "¿HABILITAR GUARDADO EN LA NUBE?");
+            sprintf(lines[strings_ingame_requires_network], "%s", "(SE REQUIERE UN CONEXIÓN DISPONIBLE)");
+            sprintf(lines[strings_config_low], "%s", "BAJO");
+            sprintf(lines[strings_config_medium], "%s", "MEDIO");
+            sprintf(lines[strings_config_high], "%s", "ALTO");
+            sprintf(lines[string_stage_select_stage], "%s", "NIVEL:");
+            sprintf(lines[string_stage_select_lair_of], "%s", "GUARIDA DE:");
+            sprintf(lines[string_stage_select_enter_stage], "%s", "[SELECCIONAR]");
+            sprintf(lines[string_stage_select_unavailable], "%s", "[NO DISPONIBLE EN LA DEMO]");
+            sprintf(lines[strings_config_return], "%s", "REGRESAR");
+
+            sprintf(lines[string_intro_upperland_studios], "%s", "HOMEBREW GAMES TEAM");
+            sprintf(lines[string_intro_presents], "%s", "PRESENTA");
+
+            sprintf(lines[string_intro_engine1], "%s", "-- ROCKBOT ENGINE --");
+            sprintf(lines[string_intro_engine2], "%s", "ESTE JUEGO UTILIZA CÓDIGO ORIGINAL");
+            sprintf(lines[string_intro_engine3], "%s", "Y ASSETS HECHOS DESDE CERO.");
+            sprintf(lines[string_intro_engine4], "%s", "CUALQUIER SIMILITUDES SON");
+            sprintf(lines[string_intro_engine5], "%s", "TRIBUTOS A JUEGOS ANTIGUOS");
+            sprintf(lines[string_intro_engine6], "%s", "O UN MALENTENDIDO.");
+
+            sprintf(lines[string_intro_engine7], "%s", "ROCKBOT Y UPPERLAND NO ESTÁN RELACIONADOS");
+            sprintf(lines[string_intro_engine8], "%s", "A NINGUNA OTRA COMPAÑÍA O JUEGO.");
+            sprintf(lines[string_intro_engine9], "%s", "GOOGLE REMOVIÓ ROCKBOT DEBIDO");
+            sprintf(lines[string_intro_engine10], "%s", "A USUARIOS REPORTÁNDOLO POR");
+            sprintf(lines[string_intro_engine11], "%s", "‘COPIAR’ A OTRO JUEGO.");
+
+            sprintf(lines[string_intro_demo_warning_title], "%s", "-- ADVERTENCIA HOMEBREW"
+                                                                  " --");
+            sprintf(lines[string_intro_demo_warning1], "%s", "ESTO ES UN HOMEBREW, HECHO POR");
+            sprintf(lines[string_intro_demo_warning2], "%s", "POCAS PERSONAS SIN NINGUNA GANANCIA");
+            sprintf(lines[string_intro_demo_warning3], "%s", "MONETARIA Y DURANTE NUESTRO TIEMPO");
+            sprintf(lines[string_intro_demo_warning4], "%s", "LIBRE DEL TRABAJO. HACEMOS JUEGOS PARA");
+            sprintf(lines[string_intro_demo_warning5], "%s", "QUÉ SE DIVIERTAN.");
+            sprintf(lines[string_intro_demo_warning6], "%s", "NÃO SEJA TROLL. NÃO REPORTE");
+            sprintf(lines[string_intro_demo_warning7], "%s", "SÓ PORQUE ACHA PARECIDO.");
+            sprintf(lines[string_intro_demo_warning8], "%s", "POR FAVOR, LEA EL F.A.Q.!!");
+            sprintf(lines[string_intro_demo_warning9], "%s", "VERSIONES ANTIGUAS PUEDEN SER OBTENIDAS EN:");
+            sprintf(lines[string_intro_demo_warning10], "%s", "HTTPS://ROCKBOT.UPPERLAND.NET");
+            sprintf(lines[string_intro_demo_warning11], "%s", "");
+            sprintf(lines[string_press_key_or_button], "%s", "");
+            sprintf(lines[STRING_ENDING_CONCEPT], "%s", "CONCEPTO");
+            sprintf(lines[STRING_ENDING_DESIGN], "%s", "DISEÑO");
+
+            sprintf(lines[strings_config_android_screencontrolsspacing], "%s", "ESPACIADO ENTRE BOTONES");
+            sprintf(lines[strings_config_android_audiobuffersize], "%s", "TAMAÑO DEL BÚFER DE AUDIO");
+            sprintf(lines[strings_config_android_audiobuffersize_VERY_SMALL], "%s", "MUY PEQUEÑO");
+            sprintf(lines[strings_config_android_audiobuffersize_SMALL], "%s", "PEQUEÑO");
+            sprintf(lines[strings_config_android_audiobuffersize_MEDIUM], "%s", "MEDIANO");
+            sprintf(lines[strings_config_android_audiobuffersize_BIG], "%s", "GRANDE");
+            sprintf(lines[strings_config_android_audiobuffersize_DESCRIPTION], "%s", "INCREMENTE EL VALOR SI SE ESCUCHA CORTADO");
+
+            sprintf(lines[strings_menu_item_CHEATS], "%s", "TRUCOS");
+            sprintf(lines[strings_menu_item_CHEATS_INVENCIBLE], "%s", "INVENCIBILIDAD");
+            sprintf(lines[strings_menu_item_CHEATS_ALLBEATEN], "%s", "TODOS LOS NIVELES COMPLETADOS");
+            sprintf(lines[strings_menu_item_CHEATS_CHARACTER], "%s", "PERSONAJE");
+
+            sprintf(lines[strings_menu_pick_save_slot_PICK_OPTION], "%s", "POR FAVOR, SELECCIONE UNA CASILLA DE GUARDADO");
+            sprintf(lines[strings_menu_pick_save_slot_NEW_GAME], "%s", "CREAR UNA NUEVA PARTIDA");
+            sprintf(lines[strings_menu_pick_save_slot_LOAD_GAME], "%s", "CARGAR UN ARCHIVO DE GUARDADO");
+            sprintf(lines[strings_menu_pick_save_slot_NO_SAVE], "%s", "– SIN PARTIDA GUARDADA –");
+
+            sprintf(lines[strings_ending_NEW_CHARACTERS_AVAILABLE], "%s", "NUEVOS PERSONAJES DESBLOQUEADOS");
+            sprintf(lines[strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE], "%s", "USA      PARA CONTINUAR");
+
+            sprintf(lines[strings_weapon_name_COIL], "%s", "FROG COIL");
+            sprintf(lines[strings_weapon_name_JET], "%s", "EAGLE JET");
+            sprintf(lines[strings_weapon_name_ETANK], "%s", "HP CRYSTAL");
+            sprintf(lines[strings_weapon_name_WTANK], "%s", "MP CRYSTAL");
+            sprintf(lines[strings_weapon_name_STANK], "%s", "SPECIAL CRYSTAL");
+
+            sprintf(lines[strings_weapon_menu_CHANGE_WEAPON], "%s", "CAMBIAR ARMA/OBJETO");
+            sprintf(lines[strings_weapon_menu_TANKS], "%s", "HEALTH CRYSTALS");
+            sprintf(lines[strings_weapon_menu_BOOTS], "%s", "BOTAS");
+            sprintf(lines[strings_weapon_menu_ARMOR], "%s", "ARMADURA");
+            sprintf(lines[strings_weapon_menu_WEAPON], "%s", "RAYO");
+            sprintf(lines[strings_weapon_menu_PART_NORMAL], "%s", "NORMAL");
+            sprintf(lines[strings_weapon_menu_PART_ENHANCED], "%s", "MEJORADO");
+
+            sprintf(lines[strings_ingame_config_audio_use_old_music], "%s", "USAR MÚSICA ANTIGUA");
+
+            sprintf(lines[strings_about_site], "%s", "- SITIO -");
+            sprintf(lines[strings_about_bugs], "%s", "- AYUDA -");
+            sprintf(lines[strings_about_twitter], "%s", "- TWITTER -");
+            sprintf(lines[strings_about_facebook], "%s", "- FACEBOOK -");
+
+            sprintf(lines[strings_stage_select_pick_mission], "%s", "SELECCIONE UNA MISIÓN");
+            sprintf(lines[strings_stage_select_boss], "%s", "JEFE:");
+            sprintf(lines[strings_stage_select_select], "%s", "SELECCIONE");
+
+            sprintf(lines[strings_config_android_use_mod_music], "%s", "USAR MÚSICA CHIPTUNE");
+            sprintf(lines[strings_config_android_use_mod_music_warning], "%s", "PUEDE CAUSAR PROBLEMAS DE AUDIO");
+
+            sprintf(lines[strings_weapon_selected], "%s", "ARMA");
 
 
         } else {

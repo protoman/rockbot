@@ -454,7 +454,7 @@ void game_menu::show_config_language()
     if (SharedData::get_instance()->current_language == LANGUAGE_FRENCH) {           // FRENCH
         options.push_back(st_menu_option("ANGLAIS"));
         options.push_back(st_menu_option("FRANCAIS", true));
-        options.push_back(st_menu_option("ESPANOL", true));
+        options.push_back(st_menu_option("ESPANOL"));
         options.push_back(st_menu_option("ITALIEN", true));
         options.push_back(st_menu_option("PORTUGAIS"));
         options.push_back(st_menu_option("AUTOMATIQUE"));
@@ -468,21 +468,21 @@ void game_menu::show_config_language()
     } else if (SharedData::get_instance()->current_language == LANGUAGE_ITALIAN) {    // ITALIAN
         options.push_back(st_menu_option("INGLESE"));
         options.push_back(st_menu_option("FRANCESE", true));
-        options.push_back(st_menu_option("SPAGNOLO", true));
+        options.push_back(st_menu_option("SPAGNOLO"));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTOGHESE"));
         options.push_back(st_menu_option("AUTOMATICO"));
     } else if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {    // PORTUGUESE (BRAZILIAN)
         options.push_back(st_menu_option("INGLÊS"));
         options.push_back(st_menu_option("FRANCES", true));
-        options.push_back(st_menu_option("ESPANHOL", true));
+        options.push_back(st_menu_option("ESPANHOL"));
         options.push_back(st_menu_option("ITALIANO", true));
         options.push_back(st_menu_option("PORTUGUÊS"));
         options.push_back(st_menu_option("AUTOMÁTICO"));
     } else {                                            // ENGLISH
         options.push_back(st_menu_option("ENGLISH"));
         options.push_back(st_menu_option("FRENCH", true));
-        options.push_back(st_menu_option("SPANISH", true));
+        options.push_back(st_menu_option("SPANISH"));
         options.push_back(st_menu_option("ITALIAN", true));
         options.push_back(st_menu_option("PORTUGUESE"));
         options.push_back(st_menu_option("AUTOMATIC"));
@@ -676,7 +676,7 @@ void game_menu::music_player()
     graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 300, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     input.clean();
     timer.delay(10);
-    char value[3]; // for now, we handle only 0-999
+    char value[5]; // for now, we handle only 0-999
 
     int max = CASTLE1_STAGE5;
     // check stages that have music for max-value, default is castle 1.5
@@ -690,7 +690,6 @@ void game_menu::music_player()
 
     while (true) {
         input.read_input();
-
         if (music_number < 10) {
             sprintf(value, "00%d", music_number);
         } else if (music_number < 100) {
@@ -744,7 +743,7 @@ void game_menu::sfx_player()
     graphLib.clear_area(config_text_pos_x-1, config_text_pos_y-1, 300, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     input.clean();
     timer.delay(10);
-    char value[3]; // for now, we handle only 0-999
+    char value[5]; // for now, we handle only 0-999
 
     int max = SFX_GOT_ENERGY_BIG;
 

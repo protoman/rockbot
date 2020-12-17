@@ -26,6 +26,6 @@ rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR
 rsync -r --exclude=.svn ../shared ./$DIR/$GAME_DIR
 rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./$DIR/$GAME_DIR/games
 
-cp $DIR/$GAME_DIR/data/images/faces/rockbot.png $DIR/$GAME_DIR/
+cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
 cd $DIR
 zip -r ../Rockbot_PocketGo_$VERSIONNAME.zip *

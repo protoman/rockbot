@@ -164,8 +164,20 @@ bool graphicsLib::initGraphics()
     SDL_WM_SetCaption("RockBot", "RockBot");
 #endif
     set_video_mode();
-#ifdef PC
-    std::string icon_filename = FILEPATH + "shared/images/window_icon.png";
+	// other loading methods
+    fflush(stdout);
+
+    load_shared_graphics();
+
+    return true;
+}
+
+void graphicsLib::set_window_icon()
+{
+    std::string icon_filename = FILEPATH + "/images/icon_32px.png";
+
+    std::cout << "graphicsLib::set_window_icon[" << icon_filename << "]" << std::endl;
+
     SDL_RWops *rwop = SDL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
@@ -175,13 +187,6 @@ bool graphicsLib::initGraphics()
     } else {
         std::cout << "ERROR::graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
     }
-#endif
-	// other loading methods
-    fflush(stdout);
-
-    load_shared_graphics();
-
-    return true;
 }
 
 void graphicsLib::update_screen_mode()
@@ -1953,17 +1958,11 @@ void graphicsLib::set_video_mode()
 #elif defined(ANDROID)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
 #elif defined(WII)
-    //game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
-    _video_filter = VIDEO_FILTER_BITSCALE;
-    game_screen_scaled = SDL_SetVideoMode(RES_W*2, RES_H*2, VIDEO_MODE_COLORS, SDL_HWSURFACE);
-    if (game_screen != NULL) {
-        SDL_FreeSurface(game_screen);
-    }
-    game_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    _video_filter = VIDEO_FILTER_NOSCALE;
+    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
     game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
-
 #elif defined(DREAMCAST)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)

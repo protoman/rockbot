@@ -154,5 +154,7 @@ private:
     // used for rotated images
     graphicsLib_gSurface rotated_surface;
 
+    unsigned long lighting_timer = 0;
+
 };
 #endif // PROJECTILELIB_H

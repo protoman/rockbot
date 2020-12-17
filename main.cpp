@@ -288,8 +288,10 @@ void detect_language() {
             } else {
                 language = lang_str;
             }
-            if (language == "pt_BR") {
+            if (language == "pt" || language.find("pt_") != std::string::npos || language.find("pt-") != std::string::npos) {
                 SharedData::get_instance()->current_language = LANGUAGE_PORTUGUESE;
+            } else if (language == "es" || language.find("es_") != std::string::npos || language.find("es-") != std::string::npos) {
+                SharedData::get_instance()->current_language = LANGUAGE_SPANISH;
             } else { // default fallback
                 SharedData::get_instance()->current_language = LANGUAGE_ENGLISH;
             }
@@ -453,7 +455,9 @@ int main(int argc, char *argv[])
         return 0;
     }
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
-
+#ifdef PC
+    graphLib.set_window_icon();
+#endif
 	fio.read_game(game_data);
 
 
