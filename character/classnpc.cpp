@@ -457,7 +457,9 @@ void classnpc::copy(classnpc *from)
 	shield_type = from->shield_type;
 
 	_is_boss = from->_is_boss;
-	hitPoints = from->hitPoints;
+
+    hitPoints = from->hitPoints;
+
 	name = from->name;
 	position = from->position;
 	realPosition = from->realPosition;
@@ -656,7 +658,8 @@ void classnpc::set_is_boss(bool set_boss)
         } else {
             position.y = start_point.y;
         }
-        hitPoints.total = BOSS_INITIAL_HP;
+        //hitPoints.total = BOSS_INITIAL_HP;
+        hitPoints.total = 1;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }
@@ -679,7 +682,8 @@ void classnpc::set_stage_boss(bool boss_flag)
         } else {
             position.y = start_point.y;
         }
-        hitPoints.total = BOSS_INITIAL_HP;
+        //hitPoints.total = BOSS_INITIAL_HP;
+        hitPoints.total = 1;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }

@@ -108,6 +108,19 @@ namespace format_v4 {
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
+#elif FIRE_TV
+            keys_codes_copy[BTN_ATTACK] = SDLK_a;
+            keys_codes_copy[BTN_JUMP] = SDLK_x;
+            keys_codes_copy[BTN_DASH] = SDLK_c;
+            keys_codes_copy[BTN_SHIELD] = SDLK_z;
+            keys_codes_copy[BTN_L] = SDLK_q;
+            keys_codes_copy[BTN_R] = SDLK_w;
+            keys_codes_copy[BTN_QUIT] = SDLK_ESCAPE;
+            keys_codes_copy[BTN_START] = SDLK_RETURN;
+            keys_codes_copy[BTN_LEFT] = SDLK_LEFT;
+            keys_codes_copy[BTN_RIGHT] = SDLK_RIGHT;
+            keys_codes_copy[BTN_UP] = SDLK_UP;
+            keys_codes_copy[BTN_DOWN] = SDLK_DOWN;
 #else
             keys_codes_copy[BTN_ATTACK] = SDLK_a;
             keys_codes_copy[BTN_JUMP] = SDLK_x;

@@ -761,6 +761,9 @@ void artificial_inteligence::ia_accelerate_down()
             }
         }
     }
+    if (name == "OCTOPUS TENTACLE") {
+        std::cout << "######## OCTOPUS TENTACLE::ia_accelerate_down" << std::endl;
+    }
     position.y += speed_y;
     /// @TODO - adjustment when ground is near
 }

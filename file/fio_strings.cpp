@@ -9,6 +9,7 @@
 #include "../aux_tools/stringutils.h"
 #include "fio_common.h"
 #include "shareddata.h"
+#include "strings_map.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -396,6 +397,21 @@ namespace format_v4 {
 
             sprintf(lines[strings_weapon_selected], "%s", "ARMA");
 
+            sprintf(lines[strings_game_engine_credits_title], "%s", "CRÉDITOS DO MOTOR DE JOGO");
+            sprintf(lines[strings_game_engine_credits_planning], "%s", "PLANEJAMENTO");
+            sprintf(lines[strings_game_engine_credits_design], "%s", "DESIGN");
+            sprintf(lines[strings_game_engine_credits_dialogs], "%s", "DIÁLOGOS");
+            sprintf(lines[strings_game_engine_credits_tests], "%s", "TESTES AND REVISÃO");
+            sprintf(lines[strings_game_engine_credits_illustration], "%s", "ILUSTRAÇÕES");
+            sprintf(lines[strings_game_engine_credits_music], "%s", "MÚSICA");
+            sprintf(lines[strings_game_engine_credits_translation], "%s", "TRADUÇÃO");
+            sprintf(lines[strings_game_engine_credits_programming], "%s", "PROGRAMAÇÃO");
+            sprintf(lines[strings_game_engine_credits_ports], "%s", "PLATAFORMAS");
+            sprintf(lines[strings_game_engine_credits_special_thanks], "%s", "AGRADECIMENTOS ESPECIAIS");
+            sprintf(lines[strings_game_engine_credits_dev_tools], "%s", "FERRAMENTAS DE DESENVOLVIMENTO");
+            sprintf(lines[strings_game_engine_credits_presented_by], "%s", "APRESENTADO POR");
+
+
         } else if (language == LANGUAGE_SPANISH) {
             sprintf(lines[strings_ingame_newgame], "%s", "NUEVA PARTIDA");
             sprintf(lines[strings_ingame_loadgame], "%s", "CARGAR PARTIDA");
@@ -619,6 +635,19 @@ namespace format_v4 {
 
             sprintf(lines[strings_weapon_selected], "%s", "ARMA");
 
+            sprintf(lines[strings_game_engine_credits_title], "%s", "CRÉDITOS DO MOTOR DE JOGO");
+            sprintf(lines[strings_game_engine_credits_planning], "%s", "PLANEJAMENTO");
+            sprintf(lines[strings_game_engine_credits_design], "%s", "DESIGN");
+            sprintf(lines[strings_game_engine_credits_dialogs], "%s", "DIÁLOGOS");
+            sprintf(lines[strings_game_engine_credits_tests], "%s", "TESTES AND REVISÃO");
+            sprintf(lines[strings_game_engine_credits_illustration], "%s", "ILUSTRAÇÕES");
+            sprintf(lines[strings_game_engine_credits_music], "%s", "MÚSICA");
+            sprintf(lines[strings_game_engine_credits_translation], "%s", "TRADUÇÃO");
+            sprintf(lines[strings_game_engine_credits_programming], "%s", "PROGRAMAÇÃO");
+            sprintf(lines[strings_game_engine_credits_ports], "%s", "PLATAFORMAS");
+            sprintf(lines[strings_game_engine_credits_special_thanks], "%s", "AGRADECIMENTOS ESPECIAIS");
+            sprintf(lines[strings_game_engine_credits_dev_tools], "%s", "FERRAMENTAS DE DESENVOLVIMENTO");
+            sprintf(lines[strings_game_engine_credits_presented_by], "%s", "APRESENTADO POR");
 
         } else {
             sprintf(lines[strings_ingame_newgame], "%s", "NEW GAME");
@@ -845,6 +874,20 @@ namespace format_v4 {
 
             sprintf(lines[strings_weapon_selected], "%s", "WEAPON");
 
+            sprintf(lines[strings_game_engine_credits_title], "%s", "GAME ENGINE CREDITS");
+            sprintf(lines[strings_game_engine_credits_planning], "%s", "PLANNING");
+            sprintf(lines[strings_game_engine_credits_design], "%s", "DESIGN");
+            sprintf(lines[strings_game_engine_credits_dialogs], "%s", "DIALOGS");
+            sprintf(lines[strings_game_engine_credits_tests], "%s", "TESTS AND REVIEW");
+            sprintf(lines[strings_game_engine_credits_illustration], "%s", "ILLUSTRATION");
+            sprintf(lines[strings_game_engine_credits_music], "%s", "MUSIC");
+            sprintf(lines[strings_game_engine_credits_translation], "%s", "TRANSLATION");
+            sprintf(lines[strings_game_engine_credits_programming], "%s", "PROGRAMMING");
+            sprintf(lines[strings_game_engine_credits_ports], "%s", "PORTING");
+            sprintf(lines[strings_game_engine_credits_special_thanks], "%s", "SPECIAL THANKS");
+            sprintf(lines[strings_game_engine_credits_dev_tools], "%s", "DEVLOPMENT TOOLS");
+            sprintf(lines[strings_game_engine_credits_presented_by], "%s", "PRESENTED BY");
+
         }
 
 
@@ -933,67 +976,21 @@ namespace format_v4 {
     std::vector<std::string> fio_strings::get_game_engine_credits()
     {
         std::vector<std::string> credits_list;
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- CRÉDITOS DO MOTOR DE JOGO -");
-        } else {
-            credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_title) + " -");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- PLANEJAMENTO -");
-        } else {
-            credits_list.push_back("- PLANNER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_planning) + " -");
         credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- AUXILIARES -");
-        } else {
-            credits_list.push_back("- HELPER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_design) + " -");
+        credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-        credits_list.push_back("NELSON ROSENBERG");
-        credits_list.push_back("");
-        credits_list.push_back("");
-        credits_list.push_back("");
-
-
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- DESIGN DE PERSONAGEM -");
-        } else {
-            credits_list.push_back("- CHARACTER DESIGNER -");
-        }
-        credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-        credits_list.push_back("BOBERATU");
-        credits_list.push_back("IURI FIEDORUK");
-        credits_list.push_back("NELSON ROSENBERG");
-        credits_list.push_back("");
-        credits_list.push_back("");
-        credits_list.push_back("");
-
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- DESIGN DE OBJETO -");
-        } else {
-            credits_list.push_back("- OBJECT DESIGNER -");
-        }
-        credits_list.push_back("IURI FIEDORUK");
-        credits_list.push_back("");
-        credits_list.push_back("");
-        credits_list.push_back("");
-
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- DESIGNER GRÁFICO -");
-        } else {
-            credits_list.push_back("- GRAPHICS DESIGNER -");
-        }
-        credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("BOBERATU");
         credits_list.push_back("HFBN2");
         credits_list.push_back("CAPT. CHRIS AND KB");
@@ -1004,43 +1001,21 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- COMPOSITOR DE DIÁLOGOS -");
-        } else {
-            credits_list.push_back("- DIALOGS COMPOSING -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_dialogs) + " -");
+        credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("NELSON ROSENBERG");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- JOGADOR DE TESTES -");
-        } else {
-            credits_list.push_back("- TEST PLAYER -");
-        }
-        credits_list.push_back("NELSON ROSENBERG");
-        credits_list.push_back("");
-        credits_list.push_back("");
-        credits_list.push_back("");
-
-
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- ILUSTRAÇÕES -");
-        } else {
-            credits_list.push_back("- ILLUSTRATION DESIGNER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_illustration) + " -");
         credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
         credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- COMPOSIÇÃO MUSICAL -");
-        } else {
-            credits_list.push_back("- MUSIC COMPOSER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_music) + " -");
         credits_list.push_back("MODARCHIVE.ORG");
         credits_list.push_back("FIREAGE");
         credits_list.push_back("SOLARIS");
@@ -1059,33 +1034,20 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- DESIGN DE EFEITOS SONOROS -");
-        } else {
-            credits_list.push_back("- SFX DESIGNER -");
-        }
-        credits_list.push_back("IURI FIEDORUK");
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_translation) + " -");
+        credits_list.push_back("DOUBLE JAY GREEN");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
-
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- PROGRAMAÇÃO -");
-        } else {
-            credits_list.push_back("- PROGRAMMER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_programming) + " -");
         credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("FARLEY KNIGHT");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- AUXÍLIO PLATAFORMAS -");
-        } else {
-            credits_list.push_back("- PORTING HELPER -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_ports) + " -");
         credits_list.push_back("DINGUX: SHIN-NIL");
         credits_list.push_back("PANDORA: SIGMA NL");
         credits_list.push_back("PS2: RAGNAROK2040");
@@ -1108,11 +1070,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- AGRADECIMENTOS ESPECIAIS -");
-        } else {
-            credits_list.push_back("- SPECIAL THANKS -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_special_thanks) + " -");
         credits_list.push_back("FELIPE ZACANI (FPS)");
         credits_list.push_back("FREE SDK DEVELOPERS");
         credits_list.push_back("DEVIANTART.COM");
@@ -1124,11 +1082,7 @@ namespace format_v4 {
         credits_list.push_back("");
         credits_list.push_back("");
 
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- FERRAMENTAS DE DESENVOLVIMENTO -");
-        } else {
-            credits_list.push_back("- DEVELOPMENT TOOLS -");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_dev_tools) + " -");
         credits_list.push_back("LIBSDL");
         credits_list.push_back("DIGIA QT");
         credits_list.push_back("GCC G+");
@@ -1145,13 +1099,8 @@ namespace format_v4 {
         for (int i=0; i<20; i++) {
             credits_list.push_back("");
         }
-        if (SharedData::get_instance()->current_language == LANGUAGE_PORTUGUESE) {
-            credits_list.push_back("- APRESENTADO POR -");
-            credits_list.push_back("UPPERLAND STUDIOS");
-        } else {
-            credits_list.push_back("- PRESENTED BY -");
-            credits_list.push_back("UPPERLAND STUDIOS");
-        }
+        credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_presented_by) + " -");
+        credits_list.push_back("UPPERLAND STUDIOS");
 
         return credits_list;
     }

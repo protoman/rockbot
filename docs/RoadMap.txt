@@ -1,37 +1,31 @@
 ﻿###########################################################################################################################
 v 0.41
 ###########################################################################################################################
+- android esta logando cada botão apertado, isso pode estar detonando a performance
 
-- adicionar opção automático para esnapnhol
-
-- mission start não esta i18n
-
-- Ícone diferente para 1 e 2 no Dingoo (refazer versao 0.40 mesmo)
+- adicionar opção automático para espanhol
+    get_game_engine_credits <- strings para serem traduzidas, estao hardcoded, passar para as game strings mesmo
 
 - PSP: ver pq não esta alternando modos fullscreen e windowed
 
 - está aparecendo sempre a Kitty no menu de armas (pelo menos no quickload)
 
-- atualizar ícone #2 para Dingux
-
 - atualizar imagem de fundo para PSP (#1 e #2)
 
-- atualizar ícone janela (Windows e Linux)
 
-- AI não pode trancar
-    # move to point, se falhar 3x, desiste
-    # adicionar máximo de 3s para tentar uma ação
-    # em reação, tem que interromper o que estiver tentando fazer de imediato
 
 
 ###########################################################################################################################
 v 0.42+
 ###########################################################################################################################
+- AI não pode trancar
+    # move to point, se falhar 3x, desiste
+    # adicionar máximo de 3s para tentar uma ação
+    # em reação, tem que interromper o que estiver tentando fazer de imediato
 
 - texto "boss" esta desalinhado em relação à bolas de energia
 
 - novas artes:
-    # shared/window_icon
     # 1: rock e beta da tela inicial e 2, seleção de personagem
     # 1 e 2: faces kanotus
     # 2: dragon, zodiac
@@ -45,6 +39,28 @@ v 0.42+
 ###########################################################################################################################
 Rockbot #2
 ###########################################################################################################################
+- boss-intro, quando caindo, não pode parar antes de 50% da altura (esta acontecendo na fase do beast)
+
+- ideia para arma golden-arrow: boomerangue que rebate paredes (com cálculo de ângulo tipo pong) 3 vezes antes de desaparecer
+- ideia para arma snow-gale: tipo stone-man (espiral)
+
+- olhar chefes shatterhand, tem comportamentos legais
+
+- Creditos:
+    # Alucard (bg)
+
+- Trocar fundo:
+    # apagar fundos não usados
+    # adicionar créditos dos novos fundos
+
+- novos inimigos e tilesets:
+    # https://opengameart.org/content/open-gunner-expansion-pack-1 (Master484)
+    # https://opengameart.org/content/sideview-fantasy-patreon-collection (ansimuz)
+    # https://opengameart.org/content/mega-bot-assets-pack (ansimuz)
+    # https://opengameart.org/content/sideview-sci-fi-patreon-collection
+    # https://opengameart.org/content/gothicvania-patreons-collection
+    # https://opengameart.org/content/warped-city
+
 - adicionar mais layers de fundo
 
 - em plataformas lentas (PSP, Dingoo), setar performance default como low
@@ -66,11 +82,8 @@ Rockbot #2
 
 - intro deve ter coisas do rio grande do sul, tipo laçador e beira-rio
 
-- trocar explosão chefe por múltiplas explosões
-
-
 - player música:
-    # último estagio esta aparecendo fire bot
+    # último estagio está aparecendo fire bot (deve checar flag final boss/stage)
     # adicionar músicas extras (colocar em shared)
     # adicionar shared sfx no player
 
@@ -79,24 +92,14 @@ Rockbot #2
 
 - esta sem o som de "hou" no super tiro
 
-- fase intermediária do circo pode ter uma montanha russa ao fundo
-    # https://www.youtube.com/watch?v=aJPAfMV4RVI
-
 - fase final pode ter telas de computador (como batman)
     # https://youtu.be/LIm2fnWFyCQ?t=709
 
 - fazer um míssil que segue o jogador mas com delay, atualiza a posição dele a cada 5 frames
 
-- young mecha shinoby turtles
-    # springler rat master
-
-- tentaculos do octopus estao caindo
-
 - fazer abertura
 
 - karot aparece pulando antes de entrar em intro. tem q setar em intro imediatamente qdo é sub-boss
-
-- tirar o dark repetido de castle 1, e colocar ele em castle 4, com diálogo explicando que é um clone
 
 - #2: karot esta com nome killer bear no fim/creditos
 

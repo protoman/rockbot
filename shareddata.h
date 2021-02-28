@@ -39,6 +39,7 @@ public:
     bool leave_stage_request = false;
     int version_number = 1;
     std::string version_number_str = "1";
+    bool is_fire_tv = false;
 
 
 };

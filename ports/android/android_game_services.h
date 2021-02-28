@@ -10,6 +10,7 @@
 #include <SDL_screenkeyboard.h>
 #include "../../defines.h"
 #include "../../file/file_io.h"
+#include <sys/system_properties.h>
 
 //### NDK ###//
 /*
@@ -17,6 +18,9 @@
 #include <gpg/android_platform_configuration.h>
 #include <gpg/android_support.h>
 */
+
+#define ANDROID_OS_BUILD_MODEL               "ro.product.model"
+
 #define MARGIN_DIVISOR 3
 #endif
 
@@ -32,6 +36,9 @@ public:
     void crash_handler(std::string log);
 
     void set_android_audio_buffer_size(int size);
+
+    bool is_firetv();
+    void set_fire_tv_keys();
 
 private:
     void check_button_size(SDL_Rect &dest_size, SDL_Rect &default_size);

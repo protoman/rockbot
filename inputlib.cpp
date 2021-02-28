@@ -118,7 +118,6 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
     }
 
     while (SDL_PollEvent(&event)) {
-
         if (event.type == SDL_VIDEORESIZE) {
             SharedData::get_instance()->scaleX = event.resize.w / RES_W;
             SharedData::get_instance()->scaleY = event.resize.h / RES_H;
@@ -134,14 +133,15 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 
         if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE || SharedData::get_instance()->game_config.input_type == INPUT_TYPE_KEYBOARD) {
             int *key_config_tmp = SharedData::get_instance()->game_config.keys_codes;
+
             if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### event.key.which[%d] ###", event.key.which);
+                //__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### event.key.which[%d] ###", event.key.which);
                 if (event.key.which == 0) {
-                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING DEFAULT ###");
+                    //__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING DEFAULT ###");
                     key_config_tmp = default_keys_codes;
                 } else {
-                    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING USER-CONFIG ###");
+                    //__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### USING USER-CONFIG ###");
                     key_config_tmp = SharedData::get_instance()->game_config.keys_codes;
                 }
 #endif

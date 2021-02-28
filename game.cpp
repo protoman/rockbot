@@ -1457,6 +1457,7 @@ void game::draw_explosion(st_position center, bool show_players) {
     int angle_inc = 0;
 
 
+    /*
     for (int i=5; i<RES_W; i+=6) {
         loaded_stage.show_stage();
         if (show_players) {
@@ -1476,13 +1477,43 @@ void game::draw_explosion(st_position center, bool show_players) {
         draw_lib.update_screen();
         timer.delay(10);
     }
+    */
 
-    /*
     //ANIMATION_TYPES pos_type, graphicsLib_gSurface* surface, const st_float_position &pos, st_position adjust_pos, unsigned int frame_time, unsigned int repeat_times, int direction, st_size framesize
-    st_float_position anim_pos = st_float_position(centerX-23+get_current_map_obj()->get_map_scrolling_ref()->x, centerY-23);
+    st_float_position anim_pos = st_float_position(center.x-23+get_current_map_obj()->get_map_scrolling_ref()->x, center.y-23);
     get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion_player_death, anim_pos, st_position(0, 0), 100, 6, player1.get_direction(), st_size(47, 47));
 
-    while (timer.getTimer() < timerInit+2000) {
+    unsigned long timerInit = timer.getTimer();
+    int explosion_n = 0;
+
+    while (timer.getTimer() < timerInit+3000) {
+        for (int i=0; i<4; i++) {
+            unsigned long check_time = (timerInit+300*i)+300;
+            if (explosion_n == i && timer.getTimer() > check_time) {
+                soundManager.play_sfx(SFX_BIG_EXPLOSION);
+                //std::cout << "explosion_n[" << explosion_n << "], timer[" << timer.getTimer() << "], check_time[" << check_time << "]" << std::endl;
+                int x = center.x-23+get_current_map_obj()->get_map_scrolling_ref()->x;
+                int y = center.y-23;
+                if (i == 0) {
+                    x -= 32;
+                    y -= 32;
+                } else if (i == 1) {
+                    x += 32;
+                    y += 32;
+                } else if (i == 2) {
+                    x += 32;
+                    y -= 32;
+                } else {
+                    x -= 32;
+                    y += 32;
+                }
+                st_float_position anim_pos = st_float_position(x, y);
+                get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion_player_death, anim_pos, st_position(0, 0), 100, 6, player1.get_direction(), st_size(47, 47));
+                explosion_n++;
+            }
+        }
+
+
         loaded_stage.show_stage();
         if (show_players) {
             player1.show();
@@ -1492,7 +1523,6 @@ void game::draw_explosion(st_position center, bool show_players) {
         timer.delay(10);
     }
     timer.delay(300);
-    */
 }
 
 void game::draw_player_death(st_position center)

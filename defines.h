@@ -1231,6 +1231,21 @@ enum E_STRINGS_INGAME {
 
     strings_weapon_selected,
 
+    strings_game_engine_credits_title,
+    strings_game_engine_credits_planning,
+    strings_game_engine_credits_design,
+    strings_game_engine_credits_dialogs,
+    strings_game_engine_credits_tests,
+    strings_game_engine_credits_illustration,
+    strings_game_engine_credits_music,
+    strings_game_engine_credits_translation,
+    strings_game_engine_credits_programming,
+    strings_game_engine_credits_ports,
+    strings_game_engine_credits_special_thanks,
+    strings_game_engine_credits_dev_tools,
+    strings_game_engine_credits_presented_by,
+
+
     strings_ingame_COUNT
 };
 

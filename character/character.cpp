@@ -1185,7 +1185,8 @@ bool character::gravity(bool boss_demo_mode=false)
         if (_ignore_gravity == true) {
             return false;
         }
-        if (can_fly == false || SharedData::get_instance()->is_showing_boss_intro == true) {
+
+        if (can_fly == false || (_is_boss && SharedData::get_instance()->is_showing_boss_intro == true)) {
             bool is_moved = false;
             short int limit_speed = move_speed;
 			if (boss_demo_mode == true) {
@@ -1194,8 +1195,6 @@ bool character::gravity(bool boss_demo_mode=false)
             if (limit_speed < 1) {
                 limit_speed = 1;
             }
-
-
 
 			for (int i=limit_speed; i>0; i--) {
                 bool res_test_move = test_change_position(0, i);
@@ -1480,6 +1479,9 @@ void character::set_position(struct st_position new_pos)
 void character::inc_position(float inc_x, float inc_y)
 {
     position.x += inc_x;
+    if (name == "OCTOPUS TENTACLE" && inc_y > 0) {
+        std::cout << "######## OCTOPUS TENTACLE::inc_position" << std::endl;
+    }
     position.y += inc_y;
 }
 
@@ -2968,6 +2970,9 @@ void character::execute_jump()
 
 void character::fall()
 {
+    if (name == "OCTOPUS TENTACLE") {
+        std::cout << "######## OCTOPUS TENTACLE::fall #1" << std::endl;
+    }
     _obj_jump.finish();
     // already on the ground
     if (hit_ground() == true) {
@@ -2995,6 +3000,9 @@ void character::fall()
 // @TODO: find first ground from bottom, that have space for player (2 tiles above are free), check 2 tiles on the x-axis also
 void character::fall_to_ground()
 {
+    if (name == "OCTOPUS TENTACLE") {
+        std::cout << "######## OCTOPUS TENTACLE::fall_to_ground #1" << std::endl;
+    }
     _obj_jump.finish();
     if (hit_ground() == true) {
         return;

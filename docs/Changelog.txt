@@ -1,13 +1,20 @@
 ####################################################################################################################################
-Rockbot 2
+.0.42
 ####################################################################################################################################
-- improve lighting attack, show where it will land before, fix vertical position
+- #2: improve lighting attack, show where it will land before, fix vertical position
+- #2: new boss order in castle stages
+- improved backgrounds and tilesets in stages
+- (partial) spanish translation from DOUBLE JAY GREEN
+- remove debug in input for Android port, could improve performance
 
 
 ####################################################################################################################################
 .0.41
 ####################################################################################################################################
 Fix crash in music and sound effects player.
+Different icons for 1 and 2 in Dingux/PocketGo
+Octopus Tenctacles should not fall due to boss intro
+Changed boss explosion
 
 ####################################################################################################################################
 .0.40

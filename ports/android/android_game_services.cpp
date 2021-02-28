@@ -25,6 +25,15 @@ void android_game_services::set_android_audio_buffer_size(int size)
     SDL_ANDROID_SetAudiobufferSize(size);
 }
 
+bool android_game_services::is_firetv()
+{
+    char model_id[PROP_VALUE_MAX]; // PROP_VALUE_MAX from <sys/system_properties.h>.
+    int len;
+    len = __system_property_get(ANDROID_OS_BUILD_MODEL, model_id); // On return, len will equal (int)strlen(model_id).
+    std::string model_str = std::string(model_id);
+    return (std::string::npos != model_str.find("AFT"));
+}
+
 void android_game_services::init_android_button_size()
 {
     // get button 0 (A) and D-PAD as base to calc distance between buttons
