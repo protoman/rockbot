@@ -166,6 +166,8 @@ private slots:
 
     void on_actionGRID_toggled(bool arg1);
 
+    void on_actionRun_Stage_2_triggered();
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;
@@ -190,6 +192,8 @@ private:
     AboutWindow* about_window;
     FilesEditor* files_editor_window;
     StringsEditor* strings_editor_window;
+
+    QProcess process;
 };
 
 

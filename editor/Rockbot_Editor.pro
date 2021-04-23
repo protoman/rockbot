@@ -57,6 +57,7 @@ TARGET = ../build/editor
 TEMPLATE = app
 SOURCES += main.cpp \
     ../shareddata.cpp \
+    ../strings_map.cpp \
     mainwindow.cpp \
     editorarea.cpp \
     editortilepallete.cpp \
@@ -123,6 +124,7 @@ SOURCES += main.cpp \
 
 HEADERS += mainwindow.h \
     ../shareddata.h \
+    ../strings_map.h \
     editorarea.h \
     editortilepallete.h \
     mediator.h \

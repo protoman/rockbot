@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include "game.h"
 #include <fstream>
+#include <iostream>
+#include <algorithm>
 
 #ifdef PSP
 	#include <pspkernel.h>
@@ -1404,8 +1406,10 @@ void game::quick_load_game()
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-    currentStage = INTRO_STAGE;
-    currentStage = scenes.pick_stage(INTRO_STAGE);
+    if (is_stage_selected == false) {
+        currentStage = INTRO_STAGE;
+        currentStage = scenes.pick_stage(INTRO_STAGE);
+    }
 
 
     initGame();
@@ -1736,6 +1740,9 @@ void game::remove_current_teleporter_from_list()
 
 void game::select_game_screen()
 {
+    if (is_game_selected) {
+        return;
+    }
     std::vector<std::string> game_list = fio.read_game_list();
     if (game_list.size() < 1) {
         _selected_game = std::string("");
@@ -1824,6 +1831,17 @@ void game::show_stage(int wait_time, bool move_npcs)
 bool game::subboss_alive_on_left(short tileX)
 {
     return loaded_stage.subboss_alive_on_left(tileX);
+}
+
+void game::set_selected_game(string game_name)
+{
+    std::vector<std::string> game_list = fio.read_game_list();
+    std::vector<std::string>::iterator it;
+    it = std::find(game_list.begin(), game_list.end(), game_name);
+    if (it != game_list.end()) {
+        is_game_selected = true;
+        _selected_game = game_name;
+    }
 }
 
 classMap *game::get_current_map_obj()
@@ -1933,6 +1951,7 @@ void game::show_map()
 
 void game::set_current_stage(int stage)
 {
+    is_stage_selected = true;
     currentStage = stage;
 }
 

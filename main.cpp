@@ -120,7 +120,7 @@ int freeze_weapon_id = -1;
 
 struct CURRENT_FILE_FORMAT::st_checkpoint checkpoint;
 
-int current_stage = 0;
+int current_stage = -1;
 
 #ifdef PLAYSTATION2
     #include "ports/ps2/modules.h"
@@ -373,17 +373,11 @@ int main(int argc, char *argv[])
                 GAME_FLAGS[FLAG_PLAYER3] = true;
             } else if (temp_argv == "--player4") {
                 GAME_FLAGS[FLAG_PLAYER4] = true;
-            } else if (stage_found = std::string::npos && temp_argv.length() > 7) {
-                char n1 = temp_argv.at(7);
-                std::stringstream s;
-                s<<n1;
-                char char_at_eight = temp_argv[8];
-                if (temp_argv.length() > 8 && char_at_eight != ' ') {
-                    char n2 = temp_argv.at(8);
-                    s<<n2;
-                }
-                std::string stage_n_str;
-                s>>stage_n_str;
+            } else if (temp_argv == "--gamename" && argc >= i+1) {
+                std::string game_name(argv[i+1]);
+                gameControl.set_selected_game(game_name);
+            } else if (temp_argv == "--stage" && argc >= i+1) {
+                std::string stage_n_str(argv[i+1]);
                 sscanf(stage_n_str.c_str(), "%d", &current_stage);
             }
 		}
@@ -506,7 +500,9 @@ int main(int argc, char *argv[])
 
     input.clean();
 
-    gameControl.set_current_stage(current_stage);
+    if (current_stage != -1) {
+        gameControl.set_current_stage(current_stage);
+    }
 
     // INIT GAME
     if (GAME_FLAGS[FLAG_QUICKLOAD] == false) {

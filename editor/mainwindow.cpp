@@ -648,3 +648,14 @@ void MainWindow::on_actionGRID_toggled(bool arg1)
     Mediator::get_instance()->show_grid = !Mediator::get_instance()->show_grid;
     map_edit_tab->update_edit_area();
 }
+
+void MainWindow::on_actionRun_Stage_2_triggered()
+{
+    QString file = QString(GAMEPATH.c_str()) + QString("rockbot");
+#ifdef WIN32
+    file += QString(".exe");
+#endif
+    file += QString(" --quickload --allweapons --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --stage ") + QString::number(Mediator::get_instance()->currentStage);
+    std::cout << "file[" << file.toStdString() << "]" << std::endl;
+    process.start(file);
+}

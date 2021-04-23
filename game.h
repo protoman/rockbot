@@ -205,6 +205,8 @@ public:
     void save_game();
     void set_show_fps_enabled(bool enabled);
     bool get_show_fps_enabled();
+    void set_selected_game(std::string game_name);
+
 
 private:
     void exit_game();
@@ -266,8 +268,9 @@ private:
 
 
 
+
 public:
-    Uint8 currentStage;
+    Uint8 currentStage = 0;
 
 
 
@@ -302,6 +305,9 @@ private:
     std::vector<st_position> map_interstage_points;
 
     bool is_game_started;
+
+    bool is_game_selected = false;
+    bool is_stage_selected = false;
 
 #ifdef PSP
     psp_ram _ram_counter;
