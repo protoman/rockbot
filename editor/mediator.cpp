@@ -41,7 +41,7 @@ Mediator::Mediator() : stage_data(), stage_extra_data() {
 	npc_direction = 0;
     object_direction = 0;
 
-	zoom = 1;
+    zoom = 2;
 	currentStage = 1;
     currentDifficulty = DIFFICULTY_EASY;
     currentDifficultyMode = DIFFICULTY_MODE_GREATER;
