@@ -2,8 +2,8 @@
 # Project created by QtCreator 2009-12-03T12:16:29
 # -------------------------------------------------
 
-#CONFIG += win32
-CONFIG += linux
+CONFIG += win32
+#CONFIG += linux
 #CONFIG += macosx
 
 QT += widgets
@@ -44,7 +44,7 @@ win32 {
     QMAKE_CCFLAGS += -std=c++0x -fpermissive
     QMAKE_CXXFLAGS += -std=c++0x -fpermissive
     CXXFLAGS += -std=c++0x
-    LIBS = -lmingw32 -mwindows -lqtmaind
+    LIBS = -lmingw32 -mwindows
     QT += core gui
     QMAKE_CCFLAGS += -DWIN32
     QMAKE_CXXFLAGS += -DWIN32
