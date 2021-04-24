@@ -1,4 +1,5 @@
-﻿###########################################################################################################################
+﻿
+###########################################################################################################################
 v 0.41
 ###########################################################################################################################
 - android esta logando cada botão apertado, isso pode estar detonando a performance
@@ -13,6 +14,11 @@ v 0.41
 - atualizar imagem de fundo para PSP (#1 e #2)
 
 
+- EDITOR:
+    # opção para rodar o jogo na fase selecionada por dentro do editor
+    # zoom nível 2 por padrão
+    # overlay mostrado como transparente mesmo background selecionado
+    # opção esconder overlay
 
 
 ###########################################################################################################################

@@ -256,27 +256,6 @@ void MainWindow::on_editNPCButton_clicked()
 }
 
 
-void MainWindow::on_actionOne_triggered()
-{
-    Mediator::get_instance()->layerLevel = 1;
-    map_edit_tab->update_edit_area();
-}
-
-void MainWindow::on_actionTwo_triggered()
-{
-    Mediator::get_instance()->layerLevel = 2;
-    map_edit_tab->update_edit_area();
-}
-
-void MainWindow::on_actionThree_triggered()
-{
-    Mediator::get_instance()->layerLevel = 3;
-    map_edit_tab->update_edit_area();
-}
-
-
-
-
 void MainWindow::on_toolBox_currentChanged(int index)
 {
 	Q_UNUSED (index);
@@ -658,4 +637,10 @@ void MainWindow::on_actionRun_Stage_2_triggered()
     file += QString(" --quickload --allweapons --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --stage ") + QString::number(Mediator::get_instance()->currentStage);
     std::cout << "file[" << file.toStdString() << "]" << std::endl;
     process.start(file);
+}
+
+void MainWindow::on_actionOverlay_Tiles_toggled(bool arg1)
+{
+    Mediator::get_instance()->show_overlay_tiles = arg1;
+    map_edit_tab->update_edit_area();
 }

@@ -394,14 +394,6 @@
     <property name="title">
      <string>View</string>
     </property>
-    <widget class="QMenu" name="menuLevel">
-     <property name="title">
-      <string>Level</string>
-     </property>
-     <addaction name="actionOne"/>
-     <addaction name="actionTwo"/>
-     <addaction name="actionThree"/>
-    </widget>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
       <string>Zoom</string>
@@ -410,8 +402,8 @@
      <addaction name="actionZoomTwo"/>
      <addaction name="actionZoomThree"/>
     </widget>
-    <addaction name="menuLevel"/>
     <addaction name="menuZoom"/>
+    <addaction name="actionOverlay_Tiles"/>
     <addaction name="actionGRID"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
@@ -502,21 +494,6 @@
    </property>
    <property name="toolTip">
     <string>Layer Level</string>
-   </property>
-  </action>
-  <action name="actionOne">
-   <property name="text">
-    <string>one</string>
-   </property>
-  </action>
-  <action name="actionTwo">
-   <property name="text">
-    <string>two</string>
-   </property>
-  </action>
-  <action name="actionThree">
-   <property name="text">
-    <string>three</string>
    </property>
   </action>
   <action name="actionReset_Map">
@@ -632,7 +609,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>gRID</string>
+    <string>Grid</string>
    </property>
   </action>
   <action name="actionRun_Stage_2">
@@ -645,6 +622,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionOverlay_Tiles">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Overlay Tiles</string>
    </property>
   </action>
  </widget>

@@ -68,6 +68,7 @@ public:
     short stage_select_edit_mode;
     short stage_select_stage_number;
     bool show_grid;
+    bool show_overlay_tiles = true;
 
 
 	int getPalleteX();

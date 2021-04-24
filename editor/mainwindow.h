@@ -73,9 +73,6 @@ public slots:
 	void on_spinBox_valueChanged(int );
 	void on_listWidget_2_currentRowChanged(int currentRow);
 	void on_toolBox_currentChanged(int index);
-    void on_actionThree_triggered();
-    void on_actionTwo_triggered();
-    void on_actionOne_triggered();
     void on_editNPCButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
     void on_comboBox_currentIndexChanged(int index);
@@ -167,6 +164,8 @@ private slots:
     void on_actionGRID_toggled(bool arg1);
 
     void on_actionRun_Stage_2_triggered();
+
+    void on_actionOverlay_Tiles_toggled(bool arg1);
 
 private:
     Ui::MainWindow *ui;
