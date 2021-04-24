@@ -37,7 +37,6 @@ void player_edit::fill_players_data()
 
     common::fill_graphicfiles_combobox("/images/sprites/", ui->player_graphics_combo);
     ui->players_tab_name->setText(QString(Mediator::get_instance()->player_list_v3_1[index].name));
-    ui->players_tab_hp->setValue(Mediator::get_instance()->player_list_v3_1[index].HP);
     ui->players_tab_hasshield->setChecked(Mediator::get_instance()->player_list_v3_1[index].have_shield);
     ui->players_tab_maxshots->setValue(Mediator::get_instance()->player_list_v3_1[index].max_shots);
     ui->damageModSpinBox->setValue(Mediator::get_instance()->player_list_v3_1[index].damage_modifier);
@@ -109,7 +108,6 @@ void player_edit::on_color_selected2(const QColor &color)
 
     ui->ColorValueIndicator2->setStyleSheet(QString("background-color: rgb(") + QString::number(color.red()) + QString(", ") +  QString::number(color.green()) + QString(", ") +  QString::number(color.blue()) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
     ui->player_preview_widget->update_sprites();
-    ui->player_preview_widget->update_sprites();
 }
 
 void player_edit::on_color_selected3(const QColor &color)
@@ -120,38 +118,35 @@ void player_edit::on_color_selected3(const QColor &color)
 
     ui->ColorValueIndicator3->setStyleSheet(QString("background-color: rgb(") + QString::number(color.red()) + QString(", ") +  QString::number(color.green()) + QString(", ") +  QString::number(color.blue()) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
     ui->player_preview_widget->update_sprites();
-    ui->player_preview_widget->update_sprites();
 }
 
-void player_edit::pick_player_color1()
+void player_edit::pick_player_color1(QColor color)
 {
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r = color.red();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g = color.green();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b = color.blue();
 
     ui->ColorValueIndicator1->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.r) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.g) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color1.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
 
     ui->player_preview_widget->update_sprites();
-    ui->player_preview_widget->update_sprites();
 }
 
-void player_edit::pick_player_color2()
+void player_edit::pick_player_color2(QColor color)
 {
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r = color.red();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g = color.green();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b = color.blue();
 
     ui->ColorValueIndicator2->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
 
     ui->player_preview_widget->update_sprites();
-    ui->player_preview_widget->update_sprites();
 }
 
-void player_edit::pick_player_color3()
+void player_edit::pick_player_color3(QColor color)
 {
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].r;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].g;
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b = Mediator::get_instance()->colormap[Mediator::get_instance()->picked_color_n].b;
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r = color.red();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g = color.green();
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b = color.blue();
 
     ui->ColorValueIndicator3->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
 
@@ -170,12 +165,6 @@ void player_edit::on_players_tab_name_textChanged(const QString &arg1)
 {
     if (_loading == true) { return; }
     sprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
-}
-
-void player_edit::on_players_tab_hp_valueChanged(int arg1)
-{
-    if (_loading == true) { return; }
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].HP = arg1;
 }
 
 void player_edit::on_players_tab_hasshield_toggled(bool checked)
@@ -271,23 +260,23 @@ void player_edit::on_player_hitarea_h_valueChanged(int arg1)
 
 void player_edit::on_color1_picker_clicked()
 {
-    QDialog *color_pick = new dialog_pick_color;
-    color_pick->show();
-    QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color1()));
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_player_color1(QColor)));
+    colorDialog->show();
 }
 
 void player_edit::on_color2_picker_clicked()
 {
-    QDialog *color_pick = new dialog_pick_color;
-    color_pick->show();
-    QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color2()));
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_player_color2(QColor)));
+    colorDialog->show();
 }
 
 void player_edit::on_color3_picker_clicked()
 {
-    QDialog *color_pick = new dialog_pick_color;
-    color_pick->show();
-    QObject::connect(color_pick, SIGNAL(accepted()), this, SLOT(pick_player_color3()));
+    QColorDialog *colorDialog = new QColorDialog(this);
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(pick_player_color3(QColor)));
+    colorDialog->show();
 }
 
 void player_edit::on_chargedshot_combo_currentIndexChanged(int index)
@@ -310,6 +299,7 @@ void player_edit::on_weaponlist_combo_currentIndexChanged(int index)
     ui->ColorValueIndicator2->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.r) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.g) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color2.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
     ui->ColorValueIndicator3->setStyleSheet(QString("background-color: rgb(") + QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.r) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.g) + QString(", ") +  QString::number(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].weapon_colors[Mediator::get_instance()->current_weapon].color3.b) + QString("); border-style: outset; border-width: 1px; border-color: black;"));
     ui->player_preview_widget->update_sprites();
+    ui->player_preview_widget->repaint();
 }
 
 void player_edit::on_players_tab_movespeed_valueChanged(double arg1)

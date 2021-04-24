@@ -2,6 +2,11 @@
 ###########################################################################################################################
 v 0.41
 ###########################################################################################################################
+- limpeza no editor
+- fazer o multiplicador de dano do player opcional
+- trocar color-picker de player para um padrão do qt (como tem em outro lugar do editor já)
+- área de preview do player deve mostrar tb a versao colorizada
+
 - android esta logando cada botão apertado, isso pode estar detonando a performance
 
 - adicionar opção automático para espanhol

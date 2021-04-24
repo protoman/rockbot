@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>801</width>
-    <height>487</height>
+    <height>577</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,35 +16,38 @@
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit">
-       <property name="maxLength">
-        <number>30</number>
-       </property>
-      </widget>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="semicharged_shot_combo"/>
      </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_10">
+     <item row="15" column="0">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Game Over Music:</string>
+        <string>Semi-Charged Projectile:</string>
        </property>
       </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QComboBox" name="gameStartMusic_comboBox"/>
      </item>
      <item row="3" column="1">
       <widget class="QComboBox" name="special_item1_combo"/>
      </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_13">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_8">
        <property name="text">
-        <string>Start Screen Music:</string>
+        <string>Game Style:</string>
        </property>
       </widget>
-     </item>
-     <item row="8" column="1">
-      <widget class="QComboBox" name="bossMusic_comboBox"/>
      </item>
      <item row="2" column="1">
       <widget class="QComboBox" name="stageNumber_comboBox">
@@ -63,22 +66,12 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_8">
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_9">
        <property name="text">
-        <string>Game Style:</string>
+        <string>Got Weapon Music:</string>
        </property>
       </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Stage-Select Names/Faces:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QComboBox" name="semicharged_shot_combo"/>
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_5">
@@ -87,111 +80,13 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>Number of Stages:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1">
-      <widget class="QComboBox" name="finalBossMusic_comboBox"/>
-     </item>
-     <item row="13" column="1">
-      <widget class="QComboBox" name="stageSelectMusic_comboBox"/>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Final Boss Music:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="1">
-      <widget class="QComboBox" name="gameOverMusic_comboBox"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Special Item #2:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1">
-      <widget class="QComboBox" name="gotWeaponMusic_comboBox"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Special Item #1:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="gameStyle_comboBox">
-       <item>
-        <property name="text">
-         <string>Mega Man / Rockman</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Castlevania / Ghould &amp; Ghosts</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="13" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>Stage Select Music:</string>
-       </property>
-      </widget>
+     <item row="7" column="1">
+      <widget class="QComboBox" name="gameStartMusic_comboBox"/>
      </item>
      <item row="14" column="0">
       <widget class="QLabel" name="label_20">
        <property name="text">
         <string>Final Boss:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="1">
-      <widget class="QComboBox" name="finalBoss_comboBox"/>
-     </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Boss Music:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>Got Weapon Music:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="16" column="0">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="special_item2_combo"/>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Semi-Charged Projectile:</string>
        </property>
       </widget>
      </item>
@@ -219,17 +114,111 @@
        </item>
       </layout>
      </item>
-     <item row="15" column="1">
-      <widget class="QPushButton" name="editMap_pushButton">
+     <item row="4" column="1">
+      <widget class="QComboBox" name="special_item2_combo"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_13">
        <property name="text">
-        <string>Edit</string>
+        <string>Start Screen Music:</string>
        </property>
       </widget>
      </item>
-     <item row="15" column="0">
-      <widget class="QLabel" name="label_21">
+     <item row="11" column="1">
+      <widget class="QComboBox" name="gotWeaponMusic_comboBox"/>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="maxLength">
+        <number>30</number>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="1">
+      <widget class="QComboBox" name="gameOverMusic_comboBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="gameStyle_comboBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>Mega Man / Rockman</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Castlevania / Ghould &amp; Ghosts</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="13" column="0">
+      <widget class="QLabel" name="label_11">
        <property name="text">
-        <string>Castle Map Points:</string>
+        <string>Stage Select Music:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="1">
+      <widget class="QComboBox" name="finalBoss_comboBox"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Stage-Select Names/Faces:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Final Boss Music:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Special Item #2:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="12" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Game Over Music:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QComboBox" name="bossMusic_comboBox"/>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Boss Music:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="1">
+      <widget class="QComboBox" name="stageSelectMusic_comboBox"/>
+     </item>
+     <item row="10" column="1">
+      <widget class="QComboBox" name="finalBossMusic_comboBox"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>Number of Stages:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Special Item #1:</string>
        </property>
       </widget>
      </item>

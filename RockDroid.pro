@@ -10,9 +10,9 @@ QT       -= core
 QT       -= gui
 
 
-#CONFIG += linux
+CONFIG += linux
 
-CONFIG += win32
+#CONFIG += win32
 
 #CONFIG += raspberry
 

@@ -29,9 +29,6 @@ protected:
   void paintEvent(QPaintEvent *event);
 
 private:
-    void replace_colors();
-
-private:
 	int selected_player;
 	QWidget *myParent;
     QImage _colored_sprites;

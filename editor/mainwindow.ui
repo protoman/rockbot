@@ -402,12 +402,20 @@
      <addaction name="actionZoomTwo"/>
      <addaction name="actionZoomThree"/>
     </widget>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionDark"/>
+     <addaction name="actionDefault"/>
+    </widget>
     <addaction name="menuZoom"/>
     <addaction name="actionOverlay_Tiles"/>
     <addaction name="actionGRID"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
+    <addaction name="menuTheme"/>
    </widget>
    <addaction name="menuFILE"/>
    <addaction name="menuEdit"/>
@@ -633,6 +641,16 @@
    </property>
    <property name="text">
     <string>Overlay Tiles</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionDefault">
+   <property name="text">
+    <string>Default</string>
    </property>
   </action>
  </widget>
