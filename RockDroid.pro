@@ -61,10 +61,10 @@ linux {
 
 win32 {
     DEFINES += WIN32
-    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\5.15.2\mingw81_32\lib -L/usr/lib -L/usr/lib/x86 -LC:\MinGW\lib -LC:\MinGW\lib\x86
+    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\5.15.2\mingw81_32\lib -LC:\Qt\5.15.2\mingw81_32\lib\x86 -L/usr/lib -L/usr/lib/x86 -LC:\MinGW\lib -LC:\MinGW\lib\x86
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -O2 -DWIN32 -DPC
-    QMAKE_CXXFLAGS += -O2 -DWIN32 -DPC -IC:\Qt\5.15.2\mingw81_32\ -IC:\Qt\5.15.2\mingw81_32\include -LC:\Qt\5.15.2\mingw81_32\lib
+    QMAKE_CXXFLAGS += -O2 -DWIN32 -DPC -IC:\Qt\5.15.2\mingw81_32\ -IC:\Qt\5.15.2\mingw81_32\include -LC:\Qt\5.15.2\mingw81_32\lib -LC:\Qt\5.15.2\mingw81_32\lib\x86
     CONFIG -= console
 }
 
