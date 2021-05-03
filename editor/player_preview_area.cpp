@@ -41,10 +41,7 @@ void player_preview_area::paintEvent(QPaintEvent *) {
     QRectF target, source;
     int i;
 
-    std::cout << ">>>>>>>>>>> paintEvent" << std::endl;
-
     if (_original_sprites.isNull()) {
-        std::cout << ">>>>>>>>>>> ERROR #0" << std::endl;
         return;
     }
 
@@ -65,9 +62,6 @@ void player_preview_area::paintEvent(QPaintEvent *) {
 
     // colorized copy under the first one
     // COLOR_KEY_GREEN, COLOR_KEY_PURPLE, COLOR_KEY_CYAN
-    QColor colorKey1 = QColor(55, 255, 0);
-    QColor colorKey2 = QColor(255, 0, 255);
-    QColor colorKey3 = QColor(0, 255, 255);
 
     QColor weaponColor1 = QColor(Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color1.r, Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color1.g, Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color1.b);
     QColor weaponColor2 = QColor(Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color2.r, Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color2.g, Mediator::get_instance()->player_list_v3_1[player_n].weapon_colors[weapon_n].color2.b);

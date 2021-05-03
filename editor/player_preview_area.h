@@ -33,6 +33,10 @@ private:
 	QWidget *myParent;
     QImage _colored_sprites;
     QImage _original_sprites;
+    QColor colorKey1 = QColor(55, 255, 0);
+    QColor colorKey2 = QColor(255, 0, 255);
+    QColor colorKey3 = QColor(0, 255, 255);
+
 };
 
 #endif // PLAYER_PREVIEW_AREA_H
