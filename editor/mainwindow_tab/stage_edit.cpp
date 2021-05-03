@@ -199,11 +199,6 @@ void stage_edit::update_stage_data(int language_n)
     ui->stages_tab_bossname_lineedit->setText(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name);
 
 
-    if (Mediator::get_instance()->stage_extra_data.extra_data[stage_id].active == true) {
-        ui->checkBox->setCheckState(Qt::Checked);
-    } else {
-        ui->checkBox->setCheckState(Qt::Unchecked);
-    }
 }
 
 

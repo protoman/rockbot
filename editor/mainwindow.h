@@ -121,8 +121,6 @@ public slots:
 
     void on_players_tab_hasshield_toggled(bool checked);
 
-    void on_players_tab_hp_valueChanged(int arg1);
-
     void on_players_tab_name_textChanged(const QString &arg1);
 
     void on_chargedshot_combo_currentIndexChanged(int index);
@@ -166,6 +164,10 @@ private slots:
     void on_actionRun_Stage_2_triggered();
 
     void on_actionOverlay_Tiles_toggled(bool arg1);
+
+    void on_actionDark_triggered();
+
+    void on_actionDefault_triggered();
 
 private:
     Ui::MainWindow *ui;

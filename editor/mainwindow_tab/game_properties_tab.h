@@ -52,8 +52,6 @@ private slots:
 
     void on_finalBoss_comboBox_currentIndexChanged(int index);
 
-    void on_editMap_pushButton_clicked();
-
 private:
     void fill_data();
     

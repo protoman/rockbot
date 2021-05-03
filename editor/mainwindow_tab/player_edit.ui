@@ -25,7 +25,7 @@
         <x>0</x>
         <y>0</y>
         <width>752</width>
-        <height>395</height>
+        <height>377</height>
        </rect>
       </property>
       <attribute name="label">
@@ -37,20 +37,6 @@
          <property name="rightMargin">
           <number>10</number>
          </property>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Max Shots:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_34">
-           <property name="text">
-            <string>Damage Modifier::</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -63,13 +49,6 @@
             </size>
            </property>
           </spacer>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_16">
-           <property name="text">
-            <string>Hit Points:</string>
-           </property>
-          </widget>
          </item>
          <item row="1" column="6">
           <widget class="QCheckBox" name="canDoubleJumpCheckBox">
@@ -118,16 +97,6 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="2">
-          <widget class="QComboBox" name="chargedshot_combo"/>
-         </item>
-         <item row="9" column="0">
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Charged Shot:</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_14">
            <property name="text">
@@ -135,27 +104,10 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QSpinBox" name="players_tab_hp">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="value">
-            <number>32</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_15">
            <property name="text">
             <string>Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>Has Shield:</string>
            </property>
           </widget>
          </item>
@@ -231,7 +183,63 @@
            </property>
           </spacer>
          </item>
-         <item row="4" column="2">
+         <item row="0" column="6">
+          <widget class="QCheckBox" name="can_slide_checkbox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>Has Shield:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="players_tab_hasshield">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Max Shots:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Simultaneous Shots:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_34">
+           <property name="text">
+            <string>Damage Modifier::</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Normal Shot:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Charged Shot:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
           <widget class="QSpinBox" name="players_tab_maxshots">
            <property name="toolTip">
             <string>Maximum number of projectiles on screen if player keeps pressing the attack button</string>
@@ -244,21 +252,14 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
-          <widget class="QCheckBox" name="players_tab_hasshield">
-           <property name="text">
-            <string/>
+         <item row="4" column="2">
+          <widget class="QSpinBox" name="simultaneousShots_spinBox">
+           <property name="toolTip">
+            <string>Number of projectiles fired each time player hits the attack button</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="6">
-          <widget class="QCheckBox" name="can_slide_checkbox">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
+         <item row="5" column="2">
           <widget class="QSpinBox" name="damageModSpinBox">
            <property name="minimum">
             <number>-3</number>
@@ -268,29 +269,11 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Simultaneous Shots:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QSpinBox" name="simultaneousShots_spinBox">
-           <property name="toolTip">
-            <string>Number of projectiles fired each time player hits the attack button</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="text">
-            <string>Normal Shot:</string>
-           </property>
-          </widget>
+         <item row="6" column="2">
+          <widget class="QComboBox" name="normalShot_comboBox"/>
          </item>
          <item row="7" column="2">
-          <widget class="QComboBox" name="normalShot_comboBox"/>
+          <widget class="QComboBox" name="chargedshot_combo"/>
          </item>
         </layout>
        </item>
@@ -301,8 +284,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>752</width>
-        <height>395</height>
+        <width>738</width>
+        <height>441</height>
        </rect>
       </property>
       <attribute name="label">

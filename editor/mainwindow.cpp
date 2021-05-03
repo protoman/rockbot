@@ -12,6 +12,7 @@
 #include <QList>
 #include <QListWidgetItem>
 #include <QMessageBox>
+#include <QStyleFactory>
 
 #include "../defines.h"
 #include "../file/version.h"
@@ -31,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	ui->setupUi(this);
     QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER);
     setWindowTitle(window_title);
+
+
 
 	// insert NPC tab form
 	npc_edit_tab = new npc_edit();
@@ -436,14 +439,6 @@ void MainWindow::on_players_tab_hasshield_toggled(bool checked)
     Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].have_shield = checked;
 }
 
-void MainWindow::on_players_tab_hp_valueChanged(int arg1)
-{
-    if (_data_loading == true) {
-        return;
-    }
-    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].HP = arg1;
-}
-
 void MainWindow::on_players_tab_name_textChanged(const QString &arg1)
 {
     if (_data_loading == true) {
@@ -643,4 +638,44 @@ void MainWindow::on_actionOverlay_Tiles_toggled(bool arg1)
 {
     Mediator::get_instance()->show_overlay_tiles = arg1;
     map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_actionDark_triggered()
+{
+    // set style
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+    // increase font size for better reading
+    //QFont defaultFont = QApplication::font();
+    //defaultFont.setPointSize(defaultFont.pointSize()+1);
+    //qApp->setFont(defaultFont);
+    // modify palette to dark
+    QPalette darkPalette;
+    darkPalette.setColor(QPalette::Window,QColor(53,53,53));
+    darkPalette.setColor(QPalette::WindowText,Qt::white);
+    darkPalette.setColor(QPalette::Disabled,QPalette::WindowText,QColor(127,127,127));
+    darkPalette.setColor(QPalette::Base,QColor(42,42,42));
+    darkPalette.setColor(QPalette::AlternateBase,QColor(66,66,66));
+    darkPalette.setColor(QPalette::ToolTipBase,Qt::white);
+    darkPalette.setColor(QPalette::ToolTipText,Qt::white);
+    darkPalette.setColor(QPalette::Text,Qt::white);
+    darkPalette.setColor(QPalette::Disabled,QPalette::Text,QColor(127,127,127));
+    darkPalette.setColor(QPalette::Dark,QColor(35,35,35));
+    darkPalette.setColor(QPalette::Shadow,QColor(20,20,20));
+    darkPalette.setColor(QPalette::Button,QColor(53,53,53));
+    darkPalette.setColor(QPalette::ButtonText,Qt::white);
+    darkPalette.setColor(QPalette::Disabled,QPalette::ButtonText,QColor(127,127,127));
+    darkPalette.setColor(QPalette::BrightText,Qt::red);
+    darkPalette.setColor(QPalette::Link,QColor(42,130,218));
+    darkPalette.setColor(QPalette::Highlight,QColor(42,130,218));
+    darkPalette.setColor(QPalette::Disabled,QPalette::Highlight,QColor(80,80,80));
+    darkPalette.setColor(QPalette::HighlightedText,Qt::white);
+    darkPalette.setColor(QPalette::Disabled,QPalette::HighlightedText,QColor(127,127,127));
+    qApp->setPalette(darkPalette);
+}
+
+void MainWindow::on_actionDefault_triggered()
+{
+    qApp->setPalette(this->style()->standardPalette());
+    qApp->setStyle(QStyleFactory::create("WindowsVista"));
+    qApp->setStyleSheet("");
 }
