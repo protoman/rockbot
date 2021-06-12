@@ -265,15 +265,26 @@ void character::charMove() {
             set_direction(ANIM_DIRECTION_RIGHT);
             return;
         }
+        if (state.animation_type == ANIM_TYPE_HIT) {
+            hit_moved_back_n += temp_move_speed;
+        }
         for (float i=temp_move_speed; i>=0.1; i--) {
-            if (state.animation_type == ANIM_TYPE_HIT) {
-                hit_moved_back_n += temp_move_speed;
+            // movement is too small to change a pixel in player movement, ignore it
+            int adjusted_real_pos = (int)(realPosition.x + i);
+            int real_pos = (int)realPosition.x;
+            std::cout << "adjusted_real_pos[" << adjusted_real_pos << "], real_pos[" << real_pos << "]" << std::endl;
+            if (adjusted_real_pos == real_pos) {
+                break;
             }
 
             if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
                 st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
+
+                std::cout << "temp_move_speed[" << i << "], mapLock[" << mapLock << "]" << std::endl;
+
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    std::cout << "MOVE" << std::endl;
                     if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
                         position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
                     } else if (mapLock == BLOCK_WATER) {
@@ -296,6 +307,8 @@ void character::charMove() {
                     }
                     moved = true;
                     break;
+                } else {
+                    moved = false;
                 }
             }
 		}
@@ -312,6 +325,7 @@ void character::charMove() {
 
         if (moved == true) {
             if (moveCommands.right == 1) {
+                std::cout << "ICE MOVE" << std::endl;
                 st_map_collision map_col = map_collision(1, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
@@ -1783,6 +1797,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy) // mode_xy 0 is x, 1 is y
 {
     if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_WATER) {
+        std::cout << "check_map_collision_point - SET WATER, new_map_lock[" << new_map_lock << "]" << std::endl;
         map_block = BLOCK_WATER;
     }
 
@@ -1821,6 +1836,8 @@ void character::check_map_collision_point(int &map_block, int &new_map_lock, int
             }
             must_block = true;
         } else if (map_block == BLOCK_UNBLOCKED && (new_map_lock != BLOCK_UNBLOCKED && new_map_lock != TERRAIN_STAIR && new_map_lock != TERRAIN_WATER && new_map_lock != TERRAIN_EASYMODEBLOCK && new_map_lock != TERRAIN_HARDMODEBLOCK)) {
+            must_block = true;
+        } else if (map_block == BLOCK_WATER && new_map_lock == BLOCK_X) {
             must_block = true;
         }
     }
@@ -2078,6 +2095,10 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, old_map_lock, 0);
 
+            if (is_player()) {
+                std::cout << "i[" << i << "], map_block[" << map_block << "], old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "]" << std::endl;
+            }
+
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -2100,6 +2121,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             old_map_lock = gameControl.getMapPointLock(old_map_point);
 			new_map_lock = gameControl.getMapPointLock(map_point);
 
+
             check_map_collision_point(map_block, new_map_lock, old_map_lock, 1);
 
             if (new_map_lock != TERRAIN_UNBLOCKED) {
@@ -2112,7 +2134,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 			// STAIRS
 			if ((map_block == BLOCK_UNBLOCKED || map_block == BLOCK_X || map_block == BLOCK_WATER) && incy > 0 && new_map_lock == TERRAIN_STAIR) { // stairs special case
-
 
                 int middle_y_point_lock = TERRAIN_UNBLOCKED;
                 if (incy == 1) { // gravity

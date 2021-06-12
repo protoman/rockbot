@@ -584,6 +584,12 @@ enum e_shield_types {
     SHIELD_STAND_AND_WALK,
     SHIELD_COUNT };
 
+enum e_GAME_STYLE {
+    GAME_STYLE_MODERN,
+    GAME_STYLE_VINTAGE,
+    GAME_STYLE_COUNT
+};
+
 /**
  * @brief
  *

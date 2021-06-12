@@ -838,6 +838,7 @@ void draw::show_weapon_tooltip()
     }
 }
 
+
 st_float_position draw::get_radius_point(st_position center_point, int radius, float angle)
 {
     st_float_position res;
@@ -915,6 +916,10 @@ void draw::set_dynamic_bg_alpha(string filename, int alpha)
 
 void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        show_hud_vintage(hp, player_n, selected_weapon, selected_weapon_value);
+        return;
+    }
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
     draw_enery_ball(hp_percent, 3, hud_player_hp_ball);
@@ -946,8 +951,26 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
         graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
         draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
     }
-
 }
+
+void draw::show_hud_vintage(int hp, int player_n, int selected_weapon, int selected_weapon_value)
+{
+    // player HP
+    int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
+    //draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
+    draw_energy_bar(hp, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
+    if (selected_weapon != WEAPON_DEFAULT) {
+        draw_energy_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+    }
+
+    // boss HP
+    if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
+        int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
+        draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
+    }
+}
+
 
 void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surface)
 {
@@ -973,6 +996,48 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
         }
 
         graphLib.copyArea(st_rectangle(img_origin_x, 0, ball_surface.height, ball_surface.height), st_position(x_pos+(10*i), 3), &ball_surface, &graphLib.gameScreen);
+    }
+}
+
+void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
+{
+    short int y;
+    int hp_percent = (100 * hp) / max_hp;
+    int graph_lenght = (int)(hp_percent/2);
+
+
+    st_color color0(0, 0, 0); // black
+    st_color color1(10, 10, 10);
+    st_color color2(10, 10, 10);
+    if (player_n != -1) {
+        st_color weapon_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
+        st_color weapon_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+        color1 = st_color(weapon_color1.r, weapon_color1.g, weapon_color1.b);    // player color or weapon color
+        color2 = st_color(weapon_color2.r, weapon_color2.g, weapon_color2.b);    // player color or weapon color
+    }
+
+    st_position bar_pos(1, 2);
+    if (player_n == -1) {
+        bar_pos.x = RES_W-15;
+    } else if (weapon_n != WEAPON_DEFAULT) {
+        bar_pos.x = 10;
+    }
+
+    //graphLib.clear_area(bar_pos.x, bar_pos.y, 8, 52, color1.r, color1.g, color1.b);
+
+    int weapon_n_adjusted = weapon_n;
+    if (weapon_n == -1) {
+        weapon_n_adjusted = WEAPON_COUNT;
+    }
+    graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
+
+    y = bar_pos.y + 1 + (50 - graph_lenght);
+    graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+    graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
+    graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+
+    for (int i=1; i<graph_lenght; i+=2) {
+        graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
     }
 }
 

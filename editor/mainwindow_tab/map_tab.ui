@@ -13,10 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
-   <property name="spacing">
-    <number>4</number>
-   </property>
+  <layout class="QGridLayout" name="gridLayout_3">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -29,7 +26,7 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item>
+   <item row="0" column="0">
     <widget class="QWidget" name="Sidebar" native="true">
      <property name="minimumSize">
       <size>
@@ -193,7 +190,7 @@
             <enum>QFrame::NoFrame</enum>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>6</number>
            </property>
            <property name="tabSpacing">
             <number>0</number>
@@ -203,8 +200,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>361</width>
-              <height>514</height>
+              <width>362</width>
+              <height>586</height>
              </rect>
             </property>
             <attribute name="label">
@@ -551,8 +548,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -676,8 +673,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -821,8 +818,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -904,8 +901,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1014,8 +1011,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1067,8 +1064,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>374</width>
-              <height>304</height>
+              <width>376</width>
+              <height>281</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1077,26 +1074,44 @@
             <layout class="QVBoxLayout" name="verticalLayout_6">
              <item>
               <widget class="QScrollArea" name="scrollArea_3">
+               <property name="verticalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
+               </property>
+               <property name="horizontalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
+               </property>
                <property name="widgetResizable">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <widget class="QWidget" name="scrollAreaWidgetContents_3">
                 <property name="geometry">
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>354</width>
-                  <height>138</height>
+                  <width>356</width>
+                  <height>261</height>
                  </rect>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                 <widget class="animTilePalette" name="animTilePaletteWidget" native="true">
                  <property name="geometry">
                   <rect>
                    <x>10</x>
                    <y>10</y>
-                   <width>291</width>
-                   <height>101</height>
+                   <width>341</width>
+                   <height>241</height>
                   </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
@@ -1123,19 +1138,6 @@
                </widget>
               </widget>
              </item>
-             <item>
-              <spacer name="verticalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </widget>
           </widget>
@@ -1146,7 +1148,7 @@
      </layout>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout_8">
      <property name="rightMargin">
       <number>0</number>
@@ -1321,7 +1323,7 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item row="0" column="2">
     <layout class="QVBoxLayout" name="verticalLayout_9">
      <property name="rightMargin">
       <number>0</number>
@@ -1438,7 +1440,7 @@
      </item>
     </layout>
    </item>
-   <item>
+   <item row="0" column="3">
     <widget class="QScrollArea" name="scrollArea">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1515,6 +1517,8 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/icons/icons.qrc"/>
+  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>
  <connections/>

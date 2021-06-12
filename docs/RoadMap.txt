@@ -2,16 +2,23 @@
 ###########################################################################################################################
 v 0.41
 ###########################################################################################################################
-- BUG: Colisão quando é um tile apenas à frente do player, não bloqueia movimento
+
+
+===========================================================================================================================
 
 - limpeza no editor
-    - fazer o multiplicador de dano do player float
-    - trocar color-picker de player para um padrão do qt (como tem em outro lugar do editor já)
-    - área de preview do player deve mostrar tb a versao colorizada
-    - colocar coisas como estilo da barra de energia no editor
-    - salvar a seleção de theme
+    OK - trocar color-picker de player para um padrão do qt (como tem em outro lugar do editor já)
+    OK - área de preview do player deve mostrar tb a versao colorizada
+    - usar opção de game-type para ter Rockbot e Megaman
+        # em modo 8 bit vintage as barras de energia e seleção de armas ficam tipo mm
+    - salvar a seleção de theme dark/default
+
+===========================================================================================================================
 
 - android esta logando cada botão apertado, isso pode estar detonando a performance
+
+===========================================================================================================================
+
 
 - adicionar opção automático para espanhol
     get_game_engine_credits <- strings para serem traduzidas, estao hardcoded, passar para as game strings mesmo

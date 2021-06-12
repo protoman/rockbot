@@ -140,16 +140,16 @@
      <item row="1" column="1">
       <widget class="QComboBox" name="gameStyle_comboBox">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <item>
         <property name="text">
-         <string>Mega Man / Rockman</string>
+         <string>Rockbot Modern</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Castlevania / Ghould &amp; Ghosts</string>
+         <string>8 bits MM</string>
         </property>
        </item>
       </widget>

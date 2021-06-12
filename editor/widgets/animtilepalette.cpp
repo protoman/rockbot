@@ -14,7 +14,6 @@ animTilePalette::animTilePalette(QWidget *parent) : QWidget(parent)
 
 QString animTilePalette::getPallete()
 {
-
 }
 
 void animTilePalette::reload()
@@ -34,6 +33,8 @@ void animTilePalette::reload()
     myParent->adjustSize();
 }
 
+
+// TODO: grid, do not select outside image bondaries
 void animTilePalette::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -51,11 +52,14 @@ void animTilePalette::paintEvent(QPaintEvent *event)
             }
         }
     }
-    this->resize(this->width(), (row+1)*TILESIZE*2);
+
     // draw the selection marker
     painter.setPen(QColor(255, 0, 0));
     QRectF select(QPoint((selectedTileX*TILESIZE*2), (selectedTileY*TILESIZE*2)), QSize(TILESIZE*2, TILESIZE*2-1));
     painter.drawRect(select);
+
+    this->resize(this->width(), (row+1)*TILESIZE*4);
+    myParent->adjustSize();
 }
 
 void animTilePalette::mousePressEvent(QMouseEvent *event)

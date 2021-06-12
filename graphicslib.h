@@ -205,6 +205,7 @@ public:
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
     void load_icons();
     void draw_weapon_icon(short, st_position menu_pos, bool active);
+    void draw_small_weapon_icon(short wpn_n, st_position pos, bool active);
     void draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled);
     void draw_weapon_changed_tooltip(short weapon_n);
     void draw_menu_item(int x_pos);

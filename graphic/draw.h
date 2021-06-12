@@ -66,14 +66,19 @@ public:
 
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
+
     void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
+    void show_hud_vintage(int hp, int player_n, int selected_weapon, int selected_weapon_value);
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
+    void draw_energy_bar(short int hp, short int player_n, short int weapon_n, short int max_hp);
+
     void set_boss_hp(int hp);
     void show_boss_intro_bg();
     void draw_explosion(st_position center_point, int radius, int angle_inc);
     void draw_player_death(st_position center_point, int frame_n);
     int get_death_animation_frames_n();
     void show_weapon_tooltip();
+
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
