@@ -3,6 +3,8 @@
 ####################################################################################################################################
 - EDITOR: corrigir tamanho da área dos tiles animados (dependendo da resolução corta)
 - fix collision on water when there is a single block ahead
+- fixed animation-timer for when shooting on stair
+- changed 1up style and animation
 
 ####################################################################################################################################
 .0.42
