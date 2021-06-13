@@ -281,10 +281,7 @@ void character::charMove() {
                 st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
 
-                std::cout << "temp_move_speed[" << i << "], mapLock[" << mapLock << "]" << std::endl;
-
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                    std::cout << "MOVE" << std::endl;
                     if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
                         position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
                     } else if (mapLock == BLOCK_WATER) {
@@ -451,6 +448,7 @@ void character::charMove() {
 	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type == ANIM_TYPE_STAIRS_MOVE) {
         _stairs_stopped_count++;
         if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
+            std::cout << "SET STAIRS #1" << std::endl;
             set_animation_type(ANIM_TYPE_STAIRS);
         }
     } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
@@ -980,7 +978,8 @@ void character::show_at(st_position pos)
 
 void character::show_sprite()
 {
-    if (state.animation_timer < timer.getTimer()) { // time passed the value to advance frame
+    unsigned int now_timer = timer.getTimer();
+    if (state.animation_timer < now_timer) { // time passed the value to advance frame
 
 		// change animation state to next frame
 		int frame_inc = 1;
@@ -1017,7 +1016,8 @@ void character::show_sprite()
             _was_animation_reset = true;
             // some animation types reset to stand/other
             if (state.animation_type == ANIM_TYPE_STAIRS_ATTACK) {
-                state.animation_type = ANIM_TYPE_STAIRS;
+                std::cout << "SET STAIRS #2 - state.animation_timer[" << state.animation_timer << "], timer[" << now_timer << "]" << std::endl;
+                set_animation_type(ANIM_TYPE_STAIRS);
             }
         }
 		if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
@@ -1025,6 +1025,7 @@ void character::show_sprite()
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
             int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+            if (is_player()) std::cout << "DELAY #2[" << delay << "]" << std::endl;
             state.animation_timer = timer.getTimer() + delay;
         }
     }
@@ -1049,8 +1050,8 @@ void character::reset_sprite_animation_timer()
                 }
             }
         }
-
         state.animation_timer = timer.getTimer() + delay;
+        if (is_player()) std::cout << "DELAY #3[" << delay << "]" << std::endl;
     }
 }
 
@@ -2095,10 +2096,6 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             new_map_lock = gameControl.getMapPointLock(map_point);
             check_map_collision_point(map_block, new_map_lock, old_map_lock, 0);
 
-            if (is_player()) {
-                std::cout << "i[" << i << "], map_block[" << map_block << "], old_map_lock[" << old_map_lock << "], new_map_lock[" << new_map_lock << "]" << std::endl;
-            }
-
             if (is_player() && process_special_map_points(new_map_lock, incx, incy, map_point) == true) {
                 return st_map_collision(map_block, new_map_lock);
             }
@@ -2726,13 +2723,13 @@ void character::check_reset_stand()
     if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
         switch (state.animation_type) {
             case ANIM_TYPE_WALK_ATTACK:
-                state.animation_type = ANIM_TYPE_WALK;
+                set_animation_type(ANIM_TYPE_WALK);
                 break;
             case ANIM_TYPE_JUMP_ATTACK:
-                state.animation_type = ANIM_TYPE_JUMP;
+                set_animation_type(ANIM_TYPE_JUMP);
                 break;
             default:
-                state.animation_type = ANIM_TYPE_STAND;
+                set_animation_type(ANIM_TYPE_STAND);
                 break;
         }
 
@@ -3250,6 +3247,13 @@ void character::inc_effect_weapon_status()
 
 void character::set_animation_type(ANIM_TYPE type)
 {
+    if (is_player()) {
+        std::cout << "PLAYER.SET_ANIM[" << type << "]" << std::endl;
+        if (type == ANIM_TYPE_STAIRS) {
+            std::cout << "SET STAIRS" << std::endl;
+        }
+    }
+
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
@@ -3279,21 +3283,20 @@ void character::set_animation_type(ANIM_TYPE type)
     }
     int frame_delay = 20;
     if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
-        st_char_sprite_data sprite_data = graphLib.character_graphics_list.find(name)->second;
-
         if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
             set_direction(0);
         }
         if (state.animation_type >= ANIM_TYPE_COUNT) {
-            state.animation_type = 0;
+            set_animation_type(ANIM_TYPE_STAND);
         }
         if (state.animation_state >= ANIM_FRAMES_COUNT) {
             state.animation_state = 0;
         }
 
-        frame_delay = sprite_data.frames[state.direction][state.animation_type][state.animation_state].delay;
+        frame_delay = (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
     }
     state.animation_timer = timer.getTimer() + frame_delay;
+    if (is_player()) std::cout << "DELAY #1[" << frame_delay << "]" << std::endl;
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
 }
 

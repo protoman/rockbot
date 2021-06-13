@@ -1,8 +1,10 @@
 ﻿
 ###########################################################################################################################
-v 0.41
+v 0.43
 ###########################################################################################################################
-
+- eagle jet tem que mostrar consumo de energia dele ao usar (tem que manter na tela o MP)
+- parar de mostrar HP de chefe após matá-lo (mesmo que ele seja um mid-stage boss)
+- ao atirar nas escadas, esta voltando muito rápido para o ANIM_STAIRS depois do ANIM_ATTACK_STAIRS
 
 ===========================================================================================================================
 

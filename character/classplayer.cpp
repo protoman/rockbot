@@ -207,7 +207,7 @@ bool classPlayer::shouryuken()
 {
     // trying to start command (can only start if standing)
     if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND)  {
-        state.animation_type = ANIM_TYPE_SPECIAL_ATTACK;
+        set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
         _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
         _obj_jump.start(true, TERRAIN_UNBLOCKED);
@@ -240,7 +240,7 @@ bool classPlayer::shouryuken()
                 _obj_jump.interrupt();
             } else {
                 _obj_jump.finish();
-                state.animation_type = ANIM_TYPE_STAND;
+                set_animation_type(ANIM_TYPE_STAND);
             }
         }
 
