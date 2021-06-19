@@ -942,7 +942,9 @@ void game::check_player_return_teleport()
 
 bool game::must_show_boss_hp()
 {
-	return _show_boss_hp;
+    // check boss in on extended-screen and alive
+
+    return (_show_boss_hp && loaded_stage.get_current_map()->is_boss_on_extended_screen());
 }
 
 

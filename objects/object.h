@@ -109,7 +109,7 @@ private:
     void add_graphic();
     void gravity();
     bool test_change_position(short int xinc, short int yinc);
-    void check_player_move(int xinc, int yinc) const; // if player uses this as platform, move him
+    void check_player_move(int xinc, int yinc); // if player uses this as platform, move him
 
 
 private:
@@ -154,6 +154,7 @@ private:
     bool is_dropped;
     bool show_teleport;
     long teleport_max_timer;
+    bool item_jet_started = false;
 };
 
 #endif // OBJECT_H

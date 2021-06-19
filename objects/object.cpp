@@ -268,7 +268,7 @@ bool object::test_change_position(short xinc, short yinc)
 	return false;
 }
 
-void object::check_player_move(int xinc, int yinc) const
+void object::check_player_move(int xinc, int yinc)
 {
 	if (xinc == 0 && yinc == 0) {
 		return;
@@ -281,6 +281,9 @@ void object::check_player_move(int xinc, int yinc) const
     }
 	if (gameControl.get_player_platform() == this) {
         gameControl.change_player_position(xinc, yinc);
+        if (!item_jet_started) {
+            item_jet_started = true;
+        }
     }
 }
 
@@ -856,12 +859,14 @@ void object::move(bool paused)
 		if (_command_down == true) {
             yinc = speed;
 		}
-		position.x += xinc;
-		position.y += yinc;
-		check_player_move(xinc, yinc); // @TODO - player can move up/down
-		distance += abs((float)xinc);
-		_command_up = false;
-		_command_down = false;
+        check_player_move(xinc, yinc); // @TODO - player can move up/down
+        if (item_jet_started == true) {
+            position.x += xinc;
+            position.y += yinc;
+            distance += abs((float)xinc);
+            _command_up = false;
+            _command_down = false;
+        }
     } else if (type == OBJ_DISAPPEARING_BLOCK) { // 1500 is visible time and 2000 is hidden time. initial delay is defined by obj_timer
         /// @TODO - this must be "static" for all objects of this type
         if (_timer_limit < timer.getTimer()) {

@@ -1,12 +1,16 @@
-﻿
+﻿###########################################################################################################################
+v3
+###########################################################################################################################
+- refatorar o código como eu fiz com a engine do project firefly,
+ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e correções
+- rockbot sera um personagem jogavel no project firefly com fases em HD inspiradas no original
+- adicionar "centelhas" ao redor do personagem no tiro carregado - https://www.youtube.com/watch?v=z-bwxtXMnLM
+###########################################################################################################################
+
+
 ###########################################################################################################################
 v 0.43
 ###########################################################################################################################
-- eagle jet tem que mostrar consumo de energia dele ao usar (tem que manter na tela o MP)
-- ao subir nele, no início ele anda sem puxar o player, deixando ele para trás
-
-- parar de mostrar HP de chefe após matá-lo (mesmo que ele seja um mid-stage boss)
-- adicionar "centelhas" ao redor do personagem no tiro carregado - https://www.youtube.com/watch?v=z-bwxtXMnLM
 
 ===========================================================================================================================
 

@@ -8,7 +8,8 @@
 - do not change to default weapon after calling coil or jet
 - correct jet/coil colors on teleport
 - remove jet/coil once player dies
-
+- jet item should only start moving once player set foot on it
+- do not show boss HP is he is dead or out of extended-screen
 
 ####################################################################################################################################
 .0.42

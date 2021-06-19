@@ -272,7 +272,6 @@ void character::charMove() {
             // movement is too small to change a pixel in player movement, ignore it
             int adjusted_real_pos = (int)(realPosition.x + i);
             int real_pos = (int)realPosition.x;
-            std::cout << "adjusted_real_pos[" << adjusted_real_pos << "], real_pos[" << real_pos << "]" << std::endl;
             if (adjusted_real_pos == real_pos) {
                 break;
             }
@@ -1016,7 +1015,6 @@ void character::show_sprite()
             _was_animation_reset = true;
             // some animation types reset to stand/other
             if (state.animation_type == ANIM_TYPE_STAIRS_ATTACK) {
-                std::cout << "SET STAIRS #2 - state.animation_timer[" << state.animation_timer << "], timer[" << now_timer << "]" << std::endl;
                 set_animation_type(ANIM_TYPE_STAIRS);
             }
         }
@@ -1025,7 +1023,6 @@ void character::show_sprite()
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
             int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
-            if (is_player()) std::cout << "DELAY #2[" << delay << "]" << std::endl;
             state.animation_timer = timer.getTimer() + delay;
         }
     }
@@ -1051,7 +1048,6 @@ void character::reset_sprite_animation_timer()
             }
         }
         state.animation_timer = timer.getTimer() + delay;
-        if (is_player()) std::cout << "DELAY #3[" << delay << "]" << std::endl;
     }
 }
 
@@ -3247,13 +3243,6 @@ void character::inc_effect_weapon_status()
 
 void character::set_animation_type(ANIM_TYPE type)
 {
-    if (is_player()) {
-        std::cout << "PLAYER.SET_ANIM[" << type << "]" << std::endl;
-        if (type == ANIM_TYPE_STAIRS) {
-            std::cout << "SET STAIRS" << std::endl;
-        }
-    }
-
     // if is hit, finish jumping
     if (state.animation_type != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
@@ -3296,7 +3285,6 @@ void character::set_animation_type(ANIM_TYPE type)
         frame_delay = (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
     }
     state.animation_timer = timer.getTimer() + frame_delay;
-    if (is_player()) std::cout << "DELAY #1[" << frame_delay << "]" << std::endl;
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
 }
 

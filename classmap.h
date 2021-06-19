@@ -187,6 +187,8 @@ public:
 
     classnpc* get_near_boss();
 
+    bool is_boss_on_extended_screen();
+
     void reset_map_npcs();
 
     void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface);

@@ -2277,6 +2277,18 @@ classnpc *classMap::get_near_boss()
     return NULL;
 }
 
+bool classMap::is_boss_on_extended_screen()
+{
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        if (npc_ref->is_boss() == true && npc_ref->is_on_screen() == true && !npc_ref->is_dead()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void classMap::reset_map_npcs()
 {
 	load_map_npcs();
