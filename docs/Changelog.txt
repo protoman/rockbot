@@ -5,6 +5,10 @@
 - fix collision on water when there is a single block ahead
 - fixed animation-timer for when shooting on stair
 - changed 1up style and animation
+- do not change to default weapon after calling coil or jet
+- correct jet/coil colors on teleport
+- remove jet/coil once player dies
+
 
 ####################################################################################################################################
 .0.42

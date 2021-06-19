@@ -927,7 +927,6 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     if (selected_weapon != WEAPON_DEFAULT && selected_weapon < WEAPON_ITEM_ETANK) {
         // draw weapon
-
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);

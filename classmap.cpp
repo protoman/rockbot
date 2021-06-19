@@ -1048,7 +1048,11 @@ void classMap::reset_objects()
 {
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        (*object_it).reset();
+        if ((*object_it).get_id() == game_data.player_items[0] || (*object_it).get_id() == game_data.player_items[1]) {
+            (*object_it).set_finished(true);
+        } else {
+            (*object_it).reset();
+        }
     }
 }
 
@@ -1074,6 +1078,17 @@ bool classMap::have_player_object()
         }
     }
     return false;
+}
+
+void classMap::remove_player_objects()
+{
+    for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
+        object& temp_obj = (*it);
+        int item_id = temp_obj.get_id();
+        if (item_id == game_data.player_items[0] || item_id == game_data.player_items[1]) {
+            temp_obj.set_finished(true);
+        }
+    }
 }
 
 bool classMap::subboss_alive_on_left(short tileX)

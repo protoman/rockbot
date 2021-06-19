@@ -360,14 +360,14 @@ void classPlayer::attack(bool dont_update_colors)
             } else {
                 add_coil_object();
             }
-            set_weapon(WEAPON_DEFAULT, true);
+            //set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_JET) {
             if (gameControl.get_current_map_obj()->have_player_object() == true) {
                 weapon_id = -1;
             } else {
                 add_jet_object();
             }
-            set_weapon(WEAPON_DEFAULT, true);
+            //set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_ETANK) {
             class_config config_manager;
             config_manager.set_player_ref(this);

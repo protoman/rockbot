@@ -312,9 +312,9 @@ void object::enable_teleport_animation()
 {
     show_teleport = true;
     if (type == OBJ_ITEM_FLY) {
-        draw_lib.set_teleport_small_colors(st_color(219, 43, 0), st_color(235, 235, 235));
+        draw_lib.set_teleport_small_colors(st_color(255, 155, 59), st_color(235, 235, 235));
     } else if (type == OBJ_ITEM_JUMP) {
-        draw_lib.set_teleport_small_colors(st_color(235, 235, 235), st_color(219, 43, 0));
+        draw_lib.set_teleport_small_colors(st_color(0, 151, 0), st_color(227, 255, 163));
     } else {
         draw_lib.set_teleport_small_colors(st_color(112, 110, 110), st_color(235, 235, 235));
     }

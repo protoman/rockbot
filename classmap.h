@@ -220,6 +220,8 @@ public:
 
     bool have_player_object();
 
+    void remove_player_objects();
+
     bool subboss_alive_on_left(short tileX);
 
     void finish_object_teleporter(int number);
