@@ -658,8 +658,7 @@ void classnpc::set_is_boss(bool set_boss)
         } else {
             position.y = start_point.y;
         }
-        //hitPoints.total = BOSS_INITIAL_HP;
-        hitPoints.total = 1;
+        hitPoints.total = BOSS_INITIAL_HP;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }
@@ -682,8 +681,7 @@ void classnpc::set_stage_boss(bool boss_flag)
         } else {
             position.y = start_point.y;
         }
-        //hitPoints.total = BOSS_INITIAL_HP;
-        hitPoints.total = 1;
+        hitPoints.total = BOSS_INITIAL_HP;
         hitPoints.current = hitPoints.total;
         hit_duration = BOSS_HIT_DURATION;
     }

@@ -1,7 +1,7 @@
 ####################################################################################################################################
 .0.43
 ####################################################################################################################################
-- EDITOR: corrigir tamanho da área dos tiles animados (dependendo da resolução corta)
+- EDITOR: fix animated tiles-area to be scrolleable
 - fix collision on water when there is a single block ahead
 - fixed animation-timer for when shooting on stair
 - changed 1up style and animation
@@ -10,6 +10,30 @@
 - remove jet/coil once player dies
 - jet item should only start moving once player set foot on it
 - do not show boss HP is he is dead or out of extended-screen
+
+
+<en-US>
+- fix collision on water when there is a single block ahead
+- fixed animation-timer for when shooting on stair
+- changed 1up style and animation (even if this item is deprecated)
+- do not change to default weapon after calling coil or jet
+- correct jet/coil colors on teleport
+- remove jet/coil once player dies
+- jet item should only start moving once player set foot on it
+- do not show boss HP is he is dead or out of extended-screen
+</en-US>
+<pt-BR>
+Correções:
+- colisão em água com apenas 1 tile à frente
+- tempo da animação ao atirar quando em escada
+- não mudar arma para nromal ao ativar jato/mola
+- cores de jato/mola no teleporte
+- jet e mola devem sumir quando o jogador morre
+- jet só deve começar a mover quando o jogador estiver efetivamente em cima dele
+- não mostrar vida do chefe se ele morreu
+MELHORIAS:
+- mudada aparência do item vida (ainda que ele não seja mais necessário)
+</pt-BR>
 
 ####################################################################################################################################
 .0.42

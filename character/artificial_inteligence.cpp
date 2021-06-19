@@ -98,8 +98,10 @@ void artificial_inteligence::execute_ai()
 
         _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
         define_ai_next_step();
+        //if (name == "WOOD SHIELDER") std::cout << "### AI::execute_ai_step::execute_ai_step_walk[DEFINE_NEXT_STEP].ai_chain_n[" << _ai_chain_n << "].current_ai_type[" << _current_ai_type << "]" << std::endl;
     } else {
         execute_ai_step();
+        //if (name == "WOOD SHIELDER") std::cout << "### AI::execute_ai_step::execute_ai_step_walk[EXECUTE_IA_STEP].ai_chain_n[" << _ai_chain_n << "].current_ai_type[" << _current_ai_type << "]" << std::endl;
     }
     // reset flag
     did_hit_player = false;
@@ -210,7 +212,7 @@ void artificial_inteligence::define_ai_next_step()
 
 void artificial_inteligence::execute_ai_step()
 {
-
+    //if (name == "WOOD SHIELDER") std::cout << "AI::execute_ai_step::_current_ai_type[" << _current_ai_type << "], sub-status[" << _ai_state.sub_status << "]" << std::endl;
     _ai_timer = timer.getTimer() + 20;
     if (_current_ai_type == AI_ACTION_WALK) {
         execute_ai_step_walk();
@@ -898,8 +900,12 @@ void artificial_inteligence::execute_ai_step_walk()
     short move_type = _parameter;
     _dest_point.y = position.y; // is not flying, keep the position
 
+
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         // if not on ground and can't fly, leave
+
+        // aqui, está dizendo que não chegou no chão porque está em cima de escada
+
         if (hit_ground() == false && can_fly == false) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             set_animation_type(ANIM_TYPE_STAND);
@@ -962,7 +968,8 @@ void artificial_inteligence::execute_ai_step_walk()
             set_animation_type(ANIM_TYPE_WALK);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         } else {
-            if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
+            bool moved = move_to_point(_dest_point, move_speed, 0, is_ghost, false);
+            if (moved == true) {
                 set_animation_type(ANIM_TYPE_STAND);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -1547,7 +1554,7 @@ void artificial_inteligence::execute_ai_wall_walk()
     }
 }
 
-// returns false if can ove and true if blocked
+// returns false if can move and true if blocked
 bool artificial_inteligence::move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall)
 {
     can_move_struct move_inc = check_can_move_to_point(dest_point, speed_x, speed_y, can_pass_walls, must_walk_along_wall);

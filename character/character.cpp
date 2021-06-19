@@ -1343,8 +1343,11 @@ bool character::hit_ground() // indicates if character is standing above ground
     short map_tile_y1 = (position.y + frameSize.height)/TILESIZE;
     short map_tile_y2 = (position.y + frameSize.height/2)/TILESIZE;
     int pointLock1 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y1));
+
     _hit_ground = false;
     if (pointLock1 != TERRAIN_UNBLOCKED && pointLock1 != TERRAIN_WATER && pointLock1 != TERRAIN_STAIR) {
+        _hit_ground = true;
+    } else if (!is_player() && pointLock1 == TERRAIN_STAIR) {
         _hit_ground = true;
     } else {
         int pointLock2 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y2));
