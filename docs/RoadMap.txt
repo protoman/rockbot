@@ -14,7 +14,6 @@ v 0.44
 https://github.com/protoman/rockbot/issues/60 - não dá para usar coil em save-point
 https://github.com/protoman/rockbot/issues/75 - melhorar posicionamento/tipo inimigo mina
 https://github.com/protoman/rockbot/issues/73 - refactor sub=boss egito
-https://github.com/protoman/rockbot/issues/62 - mage, inimigo fica preso na escada de passagem secreta após destruir bloco
 
 
 ===========================================================================================================================
