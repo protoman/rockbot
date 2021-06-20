@@ -11,7 +11,6 @@ ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e
 ###########################################################################################################################
 v 0.44
 ###########################################################################################################################
-EDITOR: fill_files_combo tem que criar diretório se não existe
 https://github.com/protoman/rockbot/issues/60 - não dá para usar coil em save-point
 https://github.com/protoman/rockbot/issues/73 - refactor sub=boss egito
 

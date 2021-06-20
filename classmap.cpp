@@ -1440,7 +1440,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.y = temp_obj.get_position().y + temp_obj.get_size().height + TILESIZE/2;
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-                    return;
+                    //return;
+                    continue;
                 } else if (temp_obj.get_type() == OBJ_BOSS_DOOR && charObj->is_player()) {
                     if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) { // check for sub-boss alive on the left
                         // check if player position is not under door //
