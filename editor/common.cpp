@@ -14,6 +14,10 @@ extern std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
 extern std::vector<std::string> ANIMATION_TYPE_LIST;
 extern std::vector<std::string> AI_ACTION_SFX_OPTION_NAMES;
 
+#include <QString>
+#include <QMessageBox>
+
+#include "aux_tools/stringutils.h"
 #include "mediator.h"
 
 common::common()
@@ -36,12 +40,12 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
 
     combo->addItem(QString("")); // for "empty"
     std::string str_filepath(FILEPATH+directory);
+    str_filepath = StringUtils::clean_filename(str_filepath);
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
 
     if (!dir.exists()) {
-        std::cout << "ERROR: MainWindow::fill_files_combo ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
-        exit(-1);
+        show_directory_error_message(str_filepath);
     }
 
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -70,11 +74,11 @@ void common::fill_graphicfiles_listwidget(std::string directory, QListWidget* li
     QListWidgetItem* item;
 
     std::string str_filepath(FILEPATH+directory);
+    str_filepath = StringUtils::clean_filename(str_filepath);
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-        std::cout << "ERROR: MainWindow::fill_graphicfiles_listwidget ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
-        exit(-1);
+        show_directory_error_message(str_filepath);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     dir.setSorting(QDir::Size | QDir::Reversed);
@@ -105,11 +109,11 @@ void common::fill_graphicfiles_combobox(std::string directory, QComboBox *comboW
     comboWidget->clear(); // delete all previous entries
 
     std::string str_filepath(FILEPATH+directory);
+    str_filepath = StringUtils::clean_filename(str_filepath);
     QString filepath(str_filepath.c_str());
     QDir dir = QDir(filepath);
     if (!dir.exists()) {
-        std::cout << "ERROR: MainWindow::fill_graphicfiles_combobox ERROR: Directory '" << str_filepath << " does not exist. <<" << std::endl;
-        exit(-1);
+        show_directory_error_message(str_filepath);
     }
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     dir.setSorting(QDir::Size | QDir::Reversed);
@@ -454,6 +458,16 @@ void common::fill_anim_block_combo(QComboBox *combo)
         QString name = QString::number(i);
         combo->addItem(name);
     }
+}
+
+void common::show_directory_error_message(std::string directory)
+{
+    QString error_msg = QString("WARNING: Directory '") + QString(directory.c_str()) + QString("' does not exist and will be created empty.");
+    QMessageBox msgBox;
+    msgBox.setText(error_msg);
+    msgBox.exec();
+    // create directory now
+    QDir().mkdir(directory.c_str());
 }
 
 
