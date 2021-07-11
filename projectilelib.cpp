@@ -143,6 +143,10 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         _move_type = TRAJECTORY_LINEAR;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         status_timer = timer.getTimer();
+        position0.x = RES_W/BOMB_RAIN_N * status  + gameControl.get_current_map_obj()->getMapScrolling().x + TILESIZE;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position0.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x - TILESIZE;
+        }
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
         frame_w = _size.width/3;
         status = 0;
@@ -827,9 +831,9 @@ st_size projectile::move() {
         if (status_timer < timer.getTimer()) {
             // make the projectile owner to add new one into its list
             st_position new_proj_pos;
-            new_proj_pos.x = RES_W/BOMB_RAIN_N * status  + gameControl.get_current_map_obj()->getMapScrolling().x;
+            new_proj_pos.x = (RES_W-TILESIZE*2)/BOMB_RAIN_N * status  + position0.x;
             if (direction == ANIM_DIRECTION_LEFT) {
-                new_proj_pos.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x;
+                new_proj_pos.x = position0.x - ((RES_W-TILESIZE*2)/BOMB_RAIN_N * status);
             }
             // adds same type to get properties and graphics, but chances trajectory for a different type
             owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
