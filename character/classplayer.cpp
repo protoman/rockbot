@@ -523,9 +523,8 @@ void classPlayer::damage_ground_npcs()
 // ********************************************************************************************** //
 void classPlayer::initFrames()
 {
-	frameSize.width = 29;
-    frameSize.height = 29;
-
+    frameSize.width = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.width;
+    frameSize.height = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.height;
 
     add_graphic();
     init_weapon_colors();

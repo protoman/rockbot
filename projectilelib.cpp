@@ -406,6 +406,7 @@ void projectile::set_target_position(st_float_position *pos)
     } else if (_target_position != NULL && _move_type == TRAJECTORY_ARC_TO_TARGET) {
         _trajectory_parabola = trajectory_parabola(_target_position->x - position.x);
         position0.y = position.y;
+        _was_parabola_set = true;
     }
 }
 
@@ -537,8 +538,18 @@ st_size projectile::move() {
         position.y += get_speed();
 
     } else if (_move_type == TRAJECTORY_ARC_TO_TARGET) {
-        move_ahead(moved);
-        position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
+        if (_was_parabola_set == false) {
+            int temp_target_x = position.x + RES_W/2 - TILESIZE*3;
+            if (direction == ANIM_DIRECTION_LEFT) {
+                temp_target_x = position.x - RES_W/2 + TILESIZE*2;
+            }
+            _trajectory_parabola = trajectory_parabola(temp_target_x - position.x);
+            position0.y = position.y;
+            _was_parabola_set = true;
+        } else {
+            move_ahead(moved);
+            position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
+        }
 	} else if (_move_type == TRAJECTORY_SIN) {
         _sin_x += 0.12;
         float sin_value = (TILESIZE*3)*sin(_sin_x);

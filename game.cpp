@@ -254,7 +254,7 @@ void game::start_stage()
     loaded_stage.reset_current_map();
 
     /// @TODO - this must be on a single method in soundlib
-    player1.set_position(st_position(RES_W/2 - 29/2, -TILESIZE));
+    player1.set_position(st_position(RES_W/2 - player1.get_hitbox().h/2, -TILESIZE));
 
     soundManager.stop_music();
 
@@ -1533,8 +1533,8 @@ void game::draw_explosion(st_position center, bool show_players) {
 
 void game::draw_player_death(st_position center)
 {
-    center.x += 29/2;
-    center.y += 29/2;
+    center.x += player1.get_hitbox().w/2;
+    center.y += player1.get_hitbox().h/2;
 
     for (int i=0; i<draw_lib.get_death_animation_frames_n(); i++) {
         loaded_stage.show_stage();

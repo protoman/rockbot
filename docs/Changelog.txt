@@ -1,9 +1,10 @@
 ####################################################################################################################################
 .0.44
 ####################################################################################################################################
-#117: EDITOR: fill_files_combo tem que criar diretório se não existe
-#62 - enemies get locked into stairs instead of turning back
-#75 - improve h-star position in mine
+#60  - não dá para usar coil em save-point
+#117 - EDITOR: fill_files_combo tem que criar diretório se não existe
+#62  - enemies get locked into stairs instead of turning back
+#75  - improve h-star position in mine
 
 
 ####################################################################################################################################

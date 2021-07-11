@@ -1232,7 +1232,6 @@ void artificial_inteligence::execute_ai_step_fly()
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
-            bool res_move = move_to_point(_dest_point, 0, move_speed, true, false);
             if (position.y >= RES_H+TILESIZE) {
                 position.y = -TILESIZE*2;
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
