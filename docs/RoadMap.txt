@@ -11,19 +11,18 @@ ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e
 ###########################################################################################################################
 v 0.44
 ###########################################################################################################################
-https://github.com/protoman/rockbot/issues/73 - refactor sub=boss egito
+(ver issues do github e log)
 
+- EDITOR: bug no seletor de layer de parallax (duplicou os números de 0 a 10)
 
 ===========================================================================================================================
 
 ===========================================================================================================================
 
-- limpeza no editor
-    OK - trocar color-picker de player para um padrão do qt (como tem em outro lugar do editor já)
-    OK - área de preview do player deve mostrar tb a versao colorizada
-    - usar opção de game-type para ter Rockbot e Megaman
+- EDITOR:
+    # usar opção de game-type para ter Rockbot e Megaman (modern/vintage)
         # em modo 8 bit vintage as barras de energia e seleção de armas ficam tipo mm
-    - salvar a seleção de theme dark/default
+    # salvar a seleção de theme dark/default
 
 ===========================================================================================================================
 
