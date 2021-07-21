@@ -22,9 +22,11 @@ private:
   int editor_selectedTileY;
   int image_w;
   int image_h;
+  int zoom = 4;
 
 protected:
   void paintEvent(QPaintEvent *event);
+  void wheelEvent(QWheelEvent *event);
 
   QWidget *myParent;
 
