@@ -29,9 +29,10 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
    painter.drawPixmap(target, *image, source);
    this->resize(image->size().width()*zoom, image->size().height()*zoom);
    myParent->adjustSize();
+
    // draw the selection marker
    painter.setPen(QColor(255, 0, 0));
-   QRectF select(QPoint((selectedTileX*tilesize), (selectedTileY*tilesize)), QSize(tilesize, tilesize));
+   QRectF select(QPoint((selectedTileX*TILESIZE*zoom), (selectedTileY*TILESIZE*zoom)), QSize(TILESIZE*zoom, TILESIZE*zoom));
    painter.drawRect(select);
 
    // GRID
@@ -59,8 +60,9 @@ void EditorTilePallete::changeTileSet(const QString &tileset) {
 
 void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
    QPoint pnt = event->pos();
-   selectedTileX = pnt.x()/tilesize;
-   selectedTileY = pnt.y()/tilesize;
+   selectedTileX = pnt.x()/(TILESIZE*zoom);
+   selectedTileY = pnt.y()/(TILESIZE*zoom);
+
    Mediator::get_instance()->setPalleteX(selectedTileX);
    Mediator::get_instance()->setPalleteY(selectedTileY);
    repaint();
