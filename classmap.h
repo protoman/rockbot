@@ -187,6 +187,8 @@ public:
 
     classnpc* get_near_boss();
 
+    bool is_boss_on_extended_screen();
+
     void reset_map_npcs();
 
     void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface);
@@ -219,6 +221,8 @@ public:
     void add_bubble_animation(st_position pos);
 
     bool have_player_object();
+
+    void remove_player_objects();
 
     bool subboss_alive_on_left(short tileX);
 

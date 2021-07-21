@@ -1,4 +1,50 @@
 ####################################################################################################################################
+.0.44
+####################################################################################################################################
+#60  - não dá para usar coil em save-point
+#117 - EDITOR: fill_files_combo tem que criar diretório se não existe
+#62  - enemies get locked into stairs instead of turning back
+#75  - improve h-star position in mine
+
+
+####################################################################################################################################
+.0.43
+####################################################################################################################################
+- EDITOR: fix animated tiles-area to be scrolleable
+- fix collision on water when there is a single block ahead
+- fixed animation-timer for when shooting on stair
+- changed 1up style and animation
+- do not change to default weapon after calling coil or jet
+- correct jet/coil colors on teleport
+- remove jet/coil once player dies
+- jet item should only start moving once player set foot on it
+- do not show boss HP is he is dead or out of extended-screen
+
+
+<en-US>
+- fix collision on water when there is a single block ahead
+- fixed animation-timer for when shooting on stair
+- changed 1up style and animation (even if this item is deprecated)
+- do not change to default weapon after calling coil or jet
+- correct jet/coil colors on teleport
+- remove jet/coil once player dies
+- jet item should only start moving once player set foot on it
+- do not show boss HP is he is dead or out of extended-screen
+</en-US>
+<pt-BR>
+Correções:
+- colisão em água com apenas 1 tile à frente
+- tempo da animação ao atirar quando em escada
+- não mudar arma para nromal ao ativar jato/mola
+- cores de jato/mola no teleporte
+- jet e mola devem sumir quando o jogador morre
+- jet só deve começar a mover quando o jogador estiver efetivamente em cima dele
+- não mostrar vida do chefe se ele morreu
+MELHORIAS:
+- mudada aparência do item vida (ainda que ele não seja mais necessário)
+</pt-BR>
+
+####################################################################################################################################
 .0.42
 ####################################################################################################################################
 - #2: improve lighting attack, show where it will land before, fix vertical position

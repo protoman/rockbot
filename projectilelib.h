@@ -135,6 +135,8 @@ private:
 
     Uint8 _speed;
     trajectory_parabola _trajectory_parabola;
+    bool _was_parabola_set = false;
+
     bool _owner_is_player;
 
     bool _is_temporary;                                 // this is needed because C++ lists create a copy, so we must know that this little one here is NOT the one that is inside the list

@@ -1167,6 +1167,18 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
     }
 }
 
+void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)
+{
+    int icon_size = small_weapon_icons.at(wpn_n).width;
+    clear_area(pos.x, pos.y, icon_size, icon_size, 0, 0, 0);
+    if (active == true) {
+        showSurfaceRegionAt(&small_weapon_icons.at(wpn_n), st_rectangle(0, 0, icon_size, icon_size), pos);
+    } else {
+        showSurfaceRegionAt(&small_weapon_icons.at(wpn_n), st_rectangle(0, icon_size, icon_size, icon_size), pos);
+    }
+
+}
+
 void graphicsLib::draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled)
 {
     if (weapon_n >= weapon_icons.size()) {

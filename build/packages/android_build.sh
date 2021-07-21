@@ -106,8 +106,8 @@ case $response in
 		# remove as assinaturas do Android (caso haja alguma, por engano)
 		zip -d $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk META-INF/*
 		# assina e realinha o APK
-		/opt/java/jdk1.8.0_121/bin/jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk alias_name
-		/home/iuri/Programas/android_sdk/build-tools/26.0.2/zipalign -v 4 $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
+		jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ~/.android/my-release-key.keystore  $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk alias_name
+		zipalign -v 4 $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
 		# copy mappings.txt so we can use for later debugging
 		#cp ./project/bin/proguard/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME.txt
 		cp ./project/app/build/outputs/mapping/release/mapping.txt $ROCKDROIDDIR/Tmappings_$VERSIONNAME.txt

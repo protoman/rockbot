@@ -207,7 +207,7 @@ bool classPlayer::shouryuken()
 {
     // trying to start command (can only start if standing)
     if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND)  {
-        state.animation_type = ANIM_TYPE_SPECIAL_ATTACK;
+        set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
         _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
         _obj_jump.start(true, TERRAIN_UNBLOCKED);
@@ -240,7 +240,7 @@ bool classPlayer::shouryuken()
                 _obj_jump.interrupt();
             } else {
                 _obj_jump.finish();
-                state.animation_type = ANIM_TYPE_STAND;
+                set_animation_type(ANIM_TYPE_STAND);
             }
         }
 
@@ -360,14 +360,14 @@ void classPlayer::attack(bool dont_update_colors)
             } else {
                 add_coil_object();
             }
-            set_weapon(WEAPON_DEFAULT, true);
+            //set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_JET) {
             if (gameControl.get_current_map_obj()->have_player_object() == true) {
                 weapon_id = -1;
             } else {
                 add_jet_object();
             }
-            set_weapon(WEAPON_DEFAULT, true);
+            //set_weapon(WEAPON_DEFAULT, true);
         } else if (used_weapon == WEAPON_ITEM_ETANK) {
             class_config config_manager;
             config_manager.set_player_ref(this);
@@ -523,9 +523,8 @@ void classPlayer::damage_ground_npcs()
 // ********************************************************************************************** //
 void classPlayer::initFrames()
 {
-	frameSize.width = 29;
-    frameSize.height = 29;
-
+    frameSize.width = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.width;
+    frameSize.height = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.height;
 
     add_graphic();
     init_weapon_colors();

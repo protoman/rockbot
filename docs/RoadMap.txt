@@ -1,17 +1,35 @@
-﻿
+﻿###########################################################################################################################
+v3
 ###########################################################################################################################
-v 0.41
+- refatorar o código como eu fiz com a engine do project firefly,
+ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e correções
+- rockbot sera um personagem jogavel no project firefly com fases em HD inspiradas no original
+- adicionar "centelhas" ao redor do personagem no tiro carregado - https://www.youtube.com/watch?v=z-bwxtXMnLM
 ###########################################################################################################################
-- BUG: Colisão quando é um tile apenas à frente do player, não bloqueia movimento
 
-- limpeza no editor
-    - fazer o multiplicador de dano do player float
-    - trocar color-picker de player para um padrão do qt (como tem em outro lugar do editor já)
-    - área de preview do player deve mostrar tb a versao colorizada
-    - colocar coisas como estilo da barra de energia no editor
-    - salvar a seleção de theme
+
+###########################################################################################################################
+v 0.44
+###########################################################################################################################
+(ver issues do github e log)
+
+- EDITOR: bug no seletor de layer de parallax (duplicou os números de 0 a 10)
+
+===========================================================================================================================
+
+===========================================================================================================================
+
+- EDITOR:
+    # usar opção de game-type para ter Rockbot e Megaman (modern/vintage)
+        # em modo 8 bit vintage as barras de energia e seleção de armas ficam tipo mm
+    # salvar a seleção de theme dark/default
+
+===========================================================================================================================
 
 - android esta logando cada botão apertado, isso pode estar detonando a performance
+
+===========================================================================================================================
+
 
 - adicionar opção automático para espanhol
     get_game_engine_credits <- strings para serem traduzidas, estao hardcoded, passar para as game strings mesmo

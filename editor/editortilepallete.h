@@ -30,10 +30,12 @@ public:
 protected:
   void paintEvent(QPaintEvent *event);
   void mousePressEvent(QMouseEvent * event);
+  void wheelEvent(QWheelEvent *event);
 
 
 private:
   int tilesize = 32;
+  int zoom = 2;
 
 signals:
      void signalPalleteChanged();

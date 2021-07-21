@@ -1048,7 +1048,11 @@ void classMap::reset_objects()
 {
     std::vector<object>::iterator object_it;
     for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
-        (*object_it).reset();
+        if ((*object_it).get_id() == game_data.player_items[0] || (*object_it).get_id() == game_data.player_items[1]) {
+            (*object_it).set_finished(true);
+        } else {
+            (*object_it).reset();
+        }
     }
 }
 
@@ -1074,6 +1078,17 @@ bool classMap::have_player_object()
         }
     }
     return false;
+}
+
+void classMap::remove_player_objects()
+{
+    for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
+        object& temp_obj = (*it);
+        int item_id = temp_obj.get_id();
+        if (item_id == game_data.player_items[0] || item_id == game_data.player_items[1]) {
+            temp_obj.set_finished(true);
+        }
+    }
 }
 
 bool classMap::subboss_alive_on_left(short tileX)
@@ -1425,7 +1440,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                     checkpoint.y = temp_obj.get_position().y + temp_obj.get_size().height + TILESIZE/2;
                     checkpoint.map = gameControl.get_current_map_obj()->get_number();
                     checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-                    return;
+                    //return;
+                    continue;
                 } else if (temp_obj.get_type() == OBJ_BOSS_DOOR && charObj->is_player()) {
                     if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) { // check for sub-boss alive on the left
                         // check if player position is not under door //
@@ -2260,6 +2276,18 @@ classnpc *classMap::get_near_boss()
         }
     }
     return NULL;
+}
+
+bool classMap::is_boss_on_extended_screen()
+{
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        if (npc_ref->is_boss() == true && npc_ref->is_on_screen() == true && !npc_ref->is_dead()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void classMap::reset_map_npcs()
