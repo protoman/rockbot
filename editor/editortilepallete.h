@@ -34,7 +34,6 @@ protected:
 
 
 private:
-  int tilesize = 32;
   int zoom = 2;
 
 signals:

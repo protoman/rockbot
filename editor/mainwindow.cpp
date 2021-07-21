@@ -13,6 +13,7 @@
 #include <QListWidgetItem>
 #include <QMessageBox>
 #include <QStyleFactory>
+#include <QSettings>
 
 #include "../defines.h"
 #include "../file/version.h"
@@ -24,6 +25,9 @@
 extern std::string GAMEPATH;
 extern std::string FILEPATH;
 extern std::string GAMENAME;
+
+#define CONFIG_THEME_KEY "theme"
+#define CONFIG_FILE "configs/config.ini"
 
 bool background_filled = false;
 
@@ -86,6 +90,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QObject::connect(scenes_window, SIGNAL(scenes_editor_window_closed()), this, SLOT(on_scenes_editor_window_closed()));
     scenes_window->hide();
 
+    QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
+    settings.sync();
+    int theme = settings.value(CONFIG_THEME_KEY, 0).toInt();
+    if (theme == 1) {
+        on_actionDark_triggered();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -671,6 +681,10 @@ void MainWindow::on_actionDark_triggered()
     darkPalette.setColor(QPalette::HighlightedText,Qt::white);
     darkPalette.setColor(QPalette::Disabled,QPalette::HighlightedText,QColor(127,127,127));
     qApp->setPalette(darkPalette);
+
+    QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
+    settings.setValue(CONFIG_THEME_KEY, 1);
+    settings.sync();
 }
 
 void MainWindow::on_actionDefault_triggered()
@@ -678,4 +692,8 @@ void MainWindow::on_actionDefault_triggered()
     qApp->setPalette(this->style()->standardPalette());
     qApp->setStyle(QStyleFactory::create("WindowsVista"));
     qApp->setStyleSheet("");
+
+    QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
+    settings.setValue(CONFIG_THEME_KEY, 0);
+    settings.sync();
 }
