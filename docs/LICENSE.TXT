@@ -1,0 +1,12 @@
+Code is licensed under gpl v2, as seen in LICENSE_SOURCECODE.txt
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+
+Art and sound files are licensed under Creative Commons Share-Alike.
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Music from Jmd are licensed under under Creative Commons Share-Alike.
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Old Music (folder music/old) are licensed under their respective creators licenses from modarchive.net. We used only free to use, but please refrain from redistributing it unless you check specific license.
+
+Rockbot, Betabot, Kittybot, Candybod, Dr. Kanotus, Dr. Destrin and all bosses are copyright Iuri Fiedoruk & Arismeire Kümmer Silva Fiedoruk and respective collaborators, all rights reserved.
