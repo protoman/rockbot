@@ -858,7 +858,7 @@ void object::move(bool paused)
 		}
 		if (_command_down == true) {
             yinc = speed;
-		}
+        }
         check_player_move(xinc, yinc); // @TODO - player can move up/down
         if (item_jet_started == true) {
             position.x += xinc;

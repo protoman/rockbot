@@ -2419,7 +2419,5 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
 {
     if (picker_bg.is_null() == false) {
         graphLib.copyArea(st_rectangle(x, y, w, h), st_position(dest_x, dest_y), &picker_bg, &graphLib.gameScreen);
-        std::cout << ">>>>>>> restore_picker_bg[" << x << ", " << y << ", " << w << ", " << h << ", " << dest_x << ", " << dest_y << "]" << std::endl;
-        //graphLib.copyArea(st_rectangle(x, y, picker_bg.width, picker_bg.height), st_position(dest_x, dest_y), &picker_bg, &graphLib.gameScreen);
     }
 }

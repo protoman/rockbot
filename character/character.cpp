@@ -3050,11 +3050,16 @@ void character::initialize_boss_position_to_ground()
 
 bool character::change_position(short xinc, short yinc)
 {
-
     st_map_collision map_col = map_collision(xinc, yinc, gameControl.get_current_map_obj()->getMapScrolling());
     short int mapLock = map_col.block;
 
-	if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
+    int type = -1;
+    if (_platform != NULL) {
+        type = _platform->get_type();
+    }
+    bool is_on_fly_obj = (yinc > 0 && type == OBJ_ITEM_FLY);
+
+    if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER && is_on_fly_obj == false) {
 		return false;
 	}
 	position.x += xinc;
