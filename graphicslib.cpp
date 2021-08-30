@@ -439,7 +439,9 @@ void graphicsLib::copy_gamescreen_area(st_rectangle origin_rectangle, st_positio
 void graphicsLib::copyArea(struct st_rectangle origin_rectangle, struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny)
 {
     if (!surfaceDestiny->get_surface()) {
-        std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
+        std::cout << "copyArea - ERROR surfaceDestiny is NULL #1 - ignoring..." << std::endl;
+        int a = 1;
+        int b = a + 2;
         show_debug_msg("ERROR #21.3");
         return;
     }
@@ -454,7 +456,7 @@ void graphicsLib::copyArea(struct st_rectangle origin_rectangle, struct st_posit
 void graphicsLib::copyArea(struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny)
 {
     if (!surfaceDestiny->get_surface()) {
-        std::cout << "copyArea - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
+        std::cout << "copyArea - ERROR surfaceDestiny is NULL #2 - ignoring..." << std::endl;
         show_debug_msg("ERROR #21.4");
         return;
     }
@@ -1041,8 +1043,12 @@ void graphicsLib::drawCursor(st_position pos) {
 }
 
 void graphicsLib::eraseCursor(st_position pos) {
-    //clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b)
     clear_area(pos.x, pos.y, CURSOR_SPACING, CURSOR_SPACING, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+}
+
+void graphicsLib::eraseCursorWithBG(int pick_n, st_position dest)
+{
+    restore_picker_bg(0, pick_n*CURSOR_SPACING, CURSOR_SPACING, CURSOR_SPACING, dest.x, dest.y);
 }
 
 void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
@@ -2400,3 +2406,20 @@ void graphicsLib::stop_stars_animation()
     _show_stars = false;
 }
 
+void graphicsLib::copy_picker_bg(int x, int y, int w, int h)
+{
+    picker_bg.freeGraphic();
+    if (graphLib.gameScreen.is_null()  == false) {
+        initSurface(st_size(w, h), &picker_bg);
+        graphLib.copy_gamescreen_area(st_rectangle(x, y, w, h), st_position(0, 0), &picker_bg);
+    }
+}
+
+void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y)
+{
+    if (picker_bg.is_null() == false) {
+        graphLib.copyArea(st_rectangle(x, y, w, h), st_position(dest_x, dest_y), &picker_bg, &graphLib.gameScreen);
+        std::cout << ">>>>>>> restore_picker_bg[" << x << ", " << y << ", " << w << ", " << h << ", " << dest_x << ", " << dest_y << "]" << std::endl;
+        //graphLib.copyArea(st_rectangle(x, y, picker_bg.width, picker_bg.height), st_position(dest_x, dest_y), &picker_bg, &graphLib.gameScreen);
+    }
+}

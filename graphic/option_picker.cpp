@@ -96,6 +96,11 @@ Sint8 option_picker::pick(int initial_pick_pos)
         _pick_pos = 0;
     }
 
+    if (!initialized) {
+        graphLib.copy_picker_bg(_position.x-CURSOR_SPACING, _position.y,  CURSOR_SPACING, picker_item_list.size()*CURSOR_SPACING);
+        initialized = true;
+    }
+
 	graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
 
     while (finished == false) {
@@ -111,7 +116,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
             if (picker_item_list.at(_pick_pos).disabled == true) {
                 soundManager.play_sfx(SFX_NPC_HIT);
             } else {
-                graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
+                graphLib.eraseCursorWithBG(_pick_pos, st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
                 draw_lib.update_screen();
                 if (_show_return == true) {
                     _pick_pos--;
@@ -121,7 +126,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
         }
         if (input.p1_input[BTN_DOWN]) {
             soundManager.play_sfx(SFX_CURSOR);
-            graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
+            graphLib.eraseCursorWithBG(_pick_pos, st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
             _pick_pos++;
             if (_pick_pos >= picker_item_list.size()) {
                 _pick_pos = 0;
@@ -130,7 +135,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
         }
         if (input.p1_input[BTN_UP]) {
             soundManager.play_sfx(SFX_CURSOR);
-            graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
+            graphLib.eraseCursorWithBG(_pick_pos, st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
             if (_pick_pos == 0) {
                 _pick_pos = picker_item_list.size()-1;
             } else {
@@ -139,7 +144,7 @@ Sint8 option_picker::pick(int initial_pick_pos)
             graphLib.drawCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
         }
         if (input.p1_input[BTN_QUIT] || input.p1_input[BTN_ATTACK]) {
-            graphLib.eraseCursor(st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
+            graphLib.eraseCursorWithBG(_pick_pos, st_position(_position.x-CURSOR_SPACING, _position.y+(_pick_pos*CURSOR_SPACING)));
             return -1;
         }
 
@@ -178,7 +183,7 @@ void option_picker::show_reset_config_dialog()
     graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
     wait_release_reset_config();
-    graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
+    //graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
     graphLib.draw_text(20, 20, "NOW PRESS TWO BUTTONS TOGETHER"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.draw_text(20, 32, "AND HOLD IT FOR 5 SECONDS");
     graphLib.draw_text(20, 44, "TO RESET CONFIGURATION.");
@@ -206,7 +211,7 @@ void option_picker::show_reset_config_dialog()
 
 void option_picker::wait_release_reset_config()
 {
-    graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
+    //graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
     graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.updateScreen();
     while (input.is_check_input_reset_command_activated() == true) {
@@ -234,7 +239,7 @@ void option_picker::draw()
         }
     }
 
-    graphLib.clear_area(_position.x, _position.y, text_max_len*8, picker_item_list.size()*12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+    //graphLib.clear_area(_position.x, _position.y, text_max_len*8, picker_item_list.size()*12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     for (unsigned int i=0; i<picker_item_list.size(); i++) {
         st_menu_option menu_item = picker_item_list.at(i);
 
