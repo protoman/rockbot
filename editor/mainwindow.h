@@ -144,6 +144,7 @@ public slots:
     void on_scenes_editor_window_closed();
 
 
+
 private slots:
     void on_actionMovie_Editor_triggered();
 
@@ -168,6 +169,9 @@ private slots:
     void on_actionDark_triggered();
 
     void on_actionDefault_triggered();
+
+    void on_swap_stages_window_closed();
+
 
 private:
     Ui::MainWindow *ui;
