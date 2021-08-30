@@ -1846,6 +1846,13 @@ void game::set_selected_game(string game_name)
     }
 }
 
+void game::restart_stage_music()
+{
+    soundManager.stop_music();
+    soundManager.load_stage_music(stage_data.bgmusic_filename);
+    soundManager.play_music();
+}
+
 classMap *game::get_current_map_obj()
 {
     return loaded_stage.get_current_map();

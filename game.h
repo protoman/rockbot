@@ -180,10 +180,6 @@ public:
     void set_current_stage(int stage);
     void set_current_map(int);
     st_float_position get_current_stage_scroll();
-    /**
-     * @brief
-     *
-     */
     void reset_scroll();
     short get_drop_item_id(short type);
     void get_drop_item_ids();
@@ -206,6 +202,7 @@ public:
     void set_show_fps_enabled(bool enabled);
     bool get_show_fps_enabled();
     void set_selected_game(std::string game_name);
+    void restart_stage_music();
 
 
 private:

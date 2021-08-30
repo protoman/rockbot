@@ -635,6 +635,8 @@ void classnpc::death()
     }
     if (is_stage_boss()) {
         gameControl.get_current_map_obj()->clear_animations();
+    } else if (is_boss()) {
+        gameControl.restart_stage_music();
     }
 }
 
