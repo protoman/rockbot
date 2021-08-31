@@ -635,10 +635,11 @@ void MainWindow::on_actionGRID_toggled(bool arg1)
 
 void MainWindow::on_actionRun_Stage_2_triggered()
 {
-    QString file = QString(GAMEPATH.c_str()) + QString("rockbot");
+    QString file = QString("\"") + QString(GAMEPATH.c_str()) + QString("rockbot");
 #ifdef WIN32
     file += QString(".exe");
 #endif
+    file +=  QString("\"");
     file += QString(" --quickload --allweapons --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --stage ") + QString::number(Mediator::get_instance()->currentStage);
     std::cout << "file[" << file.toStdString() << "]" << std::endl;
     process.start(file);
