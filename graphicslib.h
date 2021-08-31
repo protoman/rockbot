@@ -201,6 +201,7 @@ public:
     Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
     void drawCursor(st_position);
     void eraseCursor(st_position);
+    void eraseCursorWithBG(int pick_n, st_position dest);
     void blink_screen(Uint8 r, Uint8 g, Uint8 b);
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
     void load_icons();
@@ -253,6 +254,9 @@ public:
     void rotate_image(graphicsLib_gSurface& picture, double angle);
     void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
     graphicsLib_gSurface* get_preloaded_image(e_PRELOADED_IMAGES image_n);
+
+    void copy_picker_bg(int x, int y, int w, int h);
+    void restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
@@ -361,7 +365,7 @@ private:
     int scale_int = 1;
     int scale_adjust_x = 0;
 
-
+    graphicsLib_gSurface picker_bg;
 
 #ifdef PSP
     psp_ram _ram_counter;

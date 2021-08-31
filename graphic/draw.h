@@ -161,6 +161,8 @@ private:
     std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;
 
     graphicsLib_gSurface input_images_map[INPUT_IMAGES_COUNT];
+
+
 };
 
 #endif // DRAW_H

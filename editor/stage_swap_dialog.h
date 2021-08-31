@@ -18,6 +18,10 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
+signals:
+    void finished_swap_stages();
+
+
 private:
     Ui::stage_swap_dialog *ui;
 };

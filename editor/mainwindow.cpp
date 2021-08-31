@@ -474,12 +474,9 @@ void MainWindow::on_actionSwap_Maps_triggered()
 {
     // open swap maps dialog
     QDialog *stage_swap = new stage_swap_dialog;
+    QObject::connect(stage_swap, SIGNAL(finished_swap_stages()), this, SLOT(on_swap_stages_window_closed()));
     stage_swap->show();
 }
-
-
-
-
 
 void MainWindow::on_actionScenes_Editor_triggered()
 {
@@ -625,6 +622,12 @@ void MainWindow::on_actionZoomThree_triggered()
 void MainWindow::on_scenes_editor_window_closed()
 {
     game_scenes_tab->reload();
+}
+
+void MainWindow::on_swap_stages_window_closed()
+{
+    std::cout << ">>>>>> on_swap_stages_window_closed" << std::endl;
+    map_edit_tab->update_edit_area();
 }
 
 void MainWindow::on_actionGRID_toggled(bool arg1)

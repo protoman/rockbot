@@ -36,6 +36,7 @@ public:
 
 
 private:
+    bool initialized = false;
     st_position _position; /**< TODO */
     std::vector<st_menu_option> picker_item_list; /**< TODO */
     bool _draw_border; /**< TODO */

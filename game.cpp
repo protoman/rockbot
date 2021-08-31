@@ -420,7 +420,7 @@ bool game::show_game_intro()
 {
 
 
-    show_notice();
+    //show_notice();
 
 #ifdef BETA_VERSION
     show_beta_version_warning();
@@ -430,7 +430,7 @@ bool game::show_game_intro()
 
     scenes.preloadScenes();
 
-    scenes.game_scenes_show_unbeaten_intro();
+    //scenes.game_scenes_show_unbeaten_intro();
 
     scenes.main_screen();
 	initGame();
@@ -1844,6 +1844,13 @@ void game::set_selected_game(string game_name)
         is_game_selected = true;
         _selected_game = game_name;
     }
+}
+
+void game::restart_stage_music()
+{
+    soundManager.stop_music();
+    soundManager.load_stage_music(stage_data.bgmusic_filename);
+    soundManager.play_music();
 }
 
 classMap *game::get_current_map_obj()
