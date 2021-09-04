@@ -20,7 +20,7 @@ case $response in
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
 		#copy icon
-		cp ../packages/files/android/icon_v$version_number.png ~/Programas/android_sdk/rockbot_build/src/icon.png
+		cp ../packages/files/android/icon_v$version_number.png /media/iuri/SamsungEXT4/development/SDK/Android/Sdk/rockbot/src/icon.png
 		#read -p "Press any key to continue..." -n1 -s
 		#copy data
 		rm -r -f ./Android
@@ -41,13 +41,13 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
-		rm $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/*.zip
-		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/rockbot_build/project/jni/application/src/AndroidData/
-		#rm $ANDROIDSDK/rockbot_build/project/jni/application/src/libapplication.so
-		#rm $ANDROIDSDK/rockbot_build/project/obj/local/armeabi/libapplication.so
-		#rm $ANDROIDSDK/rockbot_build/project/libs/armeabi/libapplication.so
+		rm $ANDROIDSDK/rockbot/project/jni/application/src/AndroidData/*.zip
+		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/rockbot/project/jni/application/src/AndroidData/
+		#rm $ANDROIDSDK/rockbot/project/jni/application/src/libapplication.so
+		#rm $ANDROIDSDK/rockbot/project/obj/local/armeabi/libapplication.so
+		#rm $ANDROIDSDK/rockbot/project/libs/armeabi/libapplication.so
 		#cp ../../libapplication.so ../../../Android/project/jni/application/src/libapplication.so
-		cd $ANDROIDSDK/rockbot_build
+		cd $ANDROIDSDK/rockbot
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
 		LINENUMBERVERSION=`grep -n "AppVersionName=" AndroidAppSettings.cfg | cut -f1 -d:`

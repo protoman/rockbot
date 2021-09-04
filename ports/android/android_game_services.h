@@ -35,11 +35,6 @@ public:
     void set_touch_controls_visible(bool show);
     void crash_handler(std::string log);
 
-    void set_android_audio_buffer_size(int size);
-
-    bool is_firetv();
-    void set_fire_tv_keys();
-
 private:
     void check_button_size(SDL_Rect &dest_size, SDL_Rect &default_size);
 

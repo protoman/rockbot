@@ -13,8 +13,7 @@ GAME_DIR=rockbot$version_number
 rm -r -f ./raspberry
 mkdir ./raspberry
 mkdir ./raspberry/$GAME_DIR
-cp ../rockbot ./raspberry/$GAME_DIR
-cp ../editor ./raspberry/$GAME_DIR
+cp ../rockbot_pi ./raspberry/$GAME_DIR/rockbot
 
 rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./raspberry/$GAME_DIR/games
 rsync -r --exclude=.svn ../fonts ./raspberry/$GAME_DIR

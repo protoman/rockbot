@@ -9,19 +9,17 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
-
-CONFIG += linux
+#CONFIG += linux
 
 #CONFIG += win32
 
-#CONFIG += raspberry
+CONFIG += raspberry
 
 #CONFIG += dingux
 
 #CONFIG += pocketgo
 
-#CONFIG += playstation2
-    # currently won't build because old C++ compiler that do not support member initialization on header file
+#CONFIG += playstation2 # currently won't build because old C++ compiler that do not support member initialization on header file
 
 #CONFIG += open_pandora
 
@@ -70,6 +68,7 @@ win32 {
 
 raspberry {
     DEFINES+= RASPBERRY=1
+    TARGET = rockbot_pi
     LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -O2 -DRASPBERRY -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive
@@ -79,20 +78,19 @@ raspberry {
 dingux {
     DEFINES += DINGUX
     TARGET = rockbot.dge
-    DEFINES += OPENDINGUX_TOOLCHAIN_PREFIX=/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/
 
-    QMAKE_CC = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-gcc
-    QMAKE_CXX = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
-    QMAKE_LINK = $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-g++
+    QMAKE_CC = /media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/mipsel-linux-gcc
+    QMAKE_CXX = /media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/mipsel-linux-g++
+    QMAKE_LINK = /media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/mipsel-linux-g++
 
     QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
-    QMAKE_CXXFLAGS += -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
+    QMAKE_CXXFLAGS += -I/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3 -L/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/lib
 
-    LIBS = $(SUBLIBS) -L$(OPENDINGUX_TOOLCHAIN_PREFIX)lib -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$(OPENDINGUX_TOOLCHAIN_PREFIX)/bin/sdl-config --libs` -lpthread
+    LIBS = $(SUBLIBS) -L/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/lib/ -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/sdl-config --libs` -lpthread -o /media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/lib/crt1.o
 
-    INCLUDES = -I$(OPENDINGUX_TOOLCHAIN_PREFIX)/include -I. -I../include -I.
+    INCLUDES = -I/media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/include -I. -I../include -I.
 
-    #QMAKE_POST_LINK += $(OPENDINGUX_TOOLCHAIN_PREFIX)bin/mipsel-linux-strip --strip-all rockbot.dge
+    #QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/opendingux/opendingux-toolchain/usr/bin/mipsel-linux-strip --strip-all rockbot.dge
 }
 
 pocketgo {
@@ -158,9 +156,10 @@ playstation2 {
 
 open_pandora {
     TARGET = rockbot_pandora
+    PANDORASDK = /media/iuri/SamsungEXT4/development/SDK/pandora_sdk/arm-2011.09/
 
-    QMAKE_CXX = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
-    QMAKE_LINK = $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-g++
+    QMAKE_CXX = $${PANDORASDK}/bin/arm-angstrom-linux-gnueabi-g++
+    QMAKE_LINK = $${PANDORASDK}/bin/arm-angstrom-linux-gnueabi-g++
 
     QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DOPEN_PANDORA -DHANDHELD -I$(PANDORAROOTDIR)/usr/include
 

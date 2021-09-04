@@ -1,4 +1,17 @@
 ####################################################################################################################################
+.050
+####################################################################################################################################
+Fix #73 - change giant fly to UFO and improve it's AI.
+Fix #120 set parabola when no target is defined.
+    Use actual player hitbox instead of hardcoded values for w/h.
+Fix #119 - adjust so all projectiles from bomb rain fall into the screen width and do not change new bombs dropping position if scroll changes.
+
+EDITOR:
+    fix layer number in parallax tab in movie editor to be filled again with 0-10 values. Improve UI for scenes editor.
+    Add mousewheel zoom adjust in tileset selector and projectile preview areas.
+    fix issue with tileset selection when using zoom and save/load selected theme.
+
+####################################################################################################################################
 .0.44
 ####################################################################################################################################
 #60  - não dá para usar coil em save-point
