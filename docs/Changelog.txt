@@ -1,15 +1,25 @@
 ####################################################################################################################################
 .050
 ####################################################################################################################################
+Code cleanup.
+Update Android SDK to latest version.
 Fix #73 - change giant fly to UFO and improve it's AI.
 Fix #120 set parabola when no target is defined.
-    Use actual player hitbox instead of hardcoded values for w/h.
+Use actual player hitbox instead of hardcoded values for w/h.
 Fix #119 - adjust so all projectiles from bomb rain fall into the screen width and do not change new bombs dropping position if scroll changes.
+Fix #128 - boss music keeps playing after defeating sub-boss.
+Fix #130 - Pick Option menu to use BG image instead of solid colors.
+Fix #127 - Player falls from jet when using down to move it.
 
 EDITOR:
     fix layer number in parallax tab in movie editor to be filled again with 0-10 values. Improve UI for scenes editor.
     Add mousewheel zoom adjust in tileset selector and projectile preview areas.
     fix issue with tileset selection when using zoom and save/load selected theme.
+    Fix #126 - swap stages missing changing enemies and objects.
+    Fix run game on Windows platform.
+
+MISC:
+    Add license details in docs, fixes #124
 
 ####################################################################################################################################
 .0.44

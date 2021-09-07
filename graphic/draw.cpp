@@ -1022,8 +1022,6 @@ void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_h
         bar_pos.x = 10;
     }
 
-    //graphLib.clear_area(bar_pos.x, bar_pos.y, 8, 52, color1.r, color1.g, color1.b);
-
     int weapon_n_adjusted = weapon_n;
     if (weapon_n == -1) {
         weapon_n_adjusted = WEAPON_COUNT;
@@ -1116,7 +1114,6 @@ void draw::show_snow_effect()
                 temp_particle->position.y = 0;
 
             }
-            //graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
             graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
         _effect_timer = timer.getTimer() + SNOW_DELAY;

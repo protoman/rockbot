@@ -149,7 +149,6 @@ void scenesLib::main_screen()
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
-
     main_picker.enable_check_input_reset_command();
     main_picker.enable_check_input_cheat_command();
 
@@ -564,11 +563,24 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
+    draw_lib.update_screen();
+
+    graphicsLib_gSurface selection_area_surface;
+    st_size selection_area_size(RES_W, 18);
+    st_position selection_area_position(60, 168);
+    draw_lib.update_screen();
+    graphLib.initSurface(selection_area_size, &selection_area_surface);
+    //graphLib.clear_surface_area(0, 0, selection_area_surface.width, selection_area_surface.height, 200, 10, 10, selection_area_surface);
+    //graphLib.copyArea(st_rectangle(selection_area_position.x, selection_area_position.y, selection_area_size.width, selection_area_size.height), st_position(0, 0), &graphLib.gameScreen, &selection_area_surface);
+
+    graphLib.copyArea(st_rectangle(0,  selection_area_position.y, selection_area_size.width, selection_area_size.height), st_position(0, 0), &graphLib.gameScreen, &selection_area_surface);
+
+
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player));
     graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
     graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select));
-    graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
-    draw_lib.update_screen();
+
 
 
     input.clean();
@@ -589,7 +601,6 @@ Uint8 scenesLib::select_player() {
             } else if (selected > max_loop) {
                 selected = 1;
             }
-            graphLib.clear_area(0, 49, RES_W, 96, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             if (selected == 1) {
                 graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
             } else if (selected == 2) {
@@ -599,7 +610,7 @@ Uint8 scenesLib::select_player() {
             } else if (selected == 4) {
                 graphLib.copyArea(st_position(0, 50), &p4_surface, &graphLib.gameScreen);
             }
-            graphLib.clear_area(60, 168, RES_W, 18, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+            graphLib.copyArea(st_rectangle(0, 0, selection_area_surface.width, selection_area_surface.height), st_position(0, selection_area_position.y), &selection_area_surface, &graphLib.gameScreen);
             graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[selected-1].name);
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;

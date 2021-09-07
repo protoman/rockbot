@@ -183,7 +183,6 @@ void option_picker::show_reset_config_dialog()
     graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
     wait_release_reset_config();
-    //graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
     graphLib.draw_text(20, 20, "NOW PRESS TWO BUTTONS TOGETHER"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.draw_text(20, 32, "AND HOLD IT FOR 5 SECONDS");
     graphLib.draw_text(20, 44, "TO RESET CONFIGURATION.");
@@ -211,7 +210,6 @@ void option_picker::show_reset_config_dialog()
 
 void option_picker::wait_release_reset_config()
 {
-    //graphLib.clear_area(0, 0, RES_W, RES_H, 40, 0, 0);
     graphLib.draw_text(20, 20, "PLEASE RELEASE BUTTONS"); // those strings must remain in english, as the language could be the reason for the reset
     graphLib.updateScreen();
     while (input.is_check_input_reset_command_activated() == true) {
@@ -239,7 +237,6 @@ void option_picker::draw()
         }
     }
 
-    //graphLib.clear_area(_position.x, _position.y, text_max_len*8, picker_item_list.size()*12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     for (unsigned int i=0; i<picker_item_list.size(); i++) {
         st_menu_option menu_item = picker_item_list.at(i);
 
