@@ -46,21 +46,13 @@ public:
 	void fillNpcList();
 	void fillObjList();
 	void fillStageList();
-
     void show_critial_error(QString error);
-
-
-
 
 
 private:
 	void fill_NPC_edit_tab();
 	void fill_background_list();
     void copy_path(QString src, QString dst);
-
-
-
-
 
 public slots:
     void reload();
@@ -75,7 +67,6 @@ public slots:
 	void on_toolBox_currentChanged(int index);
     void on_editNPCButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
-    void on_comboBox_currentIndexChanged(int index);
     void on_MainWindow_iconSizeChanged(QSize iconSize);
     void on_actionNew_triggered();
     void on_pallete_signalPalleteChanged();
@@ -163,8 +154,6 @@ private slots:
     void on_actionGRID_toggled(bool arg1);
 
     void on_actionRun_Stage_2_triggered();
-
-    void on_actionOverlay_Tiles_toggled(bool arg1);
 
     void on_actionDark_triggered();
 

@@ -23,6 +23,7 @@ public:
     ~TabScenelist();
     void save_data();
     void reload();
+    void update_app_theme();
 
 private:
     void fill_data();

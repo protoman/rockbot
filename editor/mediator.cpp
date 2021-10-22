@@ -475,14 +475,10 @@ void Mediator::load_game_data()
 
 void Mediator::save_game()
 {
-    clean_data();
-
     Mediator::get_instance()->fio.write_game(game_data);
     Mediator::get_instance()->fio.write_all_stages(stage_data);
-
     std::string stages_extra_data_filename = "data/stages_extra_data" + fio.get_sufix() + ".dat";
     fio_cmm.save_struct_data<CURRENT_FILE_FORMAT::file_stages_extra_data>(stages_extra_data_filename, stage_extra_data);
-
 
     save_map_data();
     Mediator::get_instance()->fio.write_castle_data(castle_data);
@@ -490,13 +486,9 @@ void Mediator::save_game()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat", enemy_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
-
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev3>("data/game_projectile_list_v3.dat", projectile_list_v3);
-
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_anim_block>("anim_block_list.dat", anim_block_list);
-
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_player_v3_1_1>("player_list_v3_1_1.dat", player_list_v3_1);
-
 
     ScenesMediator::get_instance()->save_game_scenes();
 
@@ -529,40 +521,6 @@ void Mediator::save_map_data()
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_map_object_v2>("/map_object_data.dat", maps_data_object_list);
 }
 
-void Mediator::clean_data()
-{
-
-    QString filename;
-    if (Mediator::get_instance()->getPallete().length() < 1) {
-         filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString("default.png");
-    } else {
-         filename = QString(FILEPATH.c_str()) + QString("/images/tilesets/") + QString(Mediator::get_instance()->getPallete().c_str());
-    }
-
-    QPixmap *image = new QPixmap(filename);
-    if (image->isNull()) {
-        return;
-    }
-
-    int tileset_w = image->width();
-    int tileset_h = image->height();
-
-    // remove all invalid level-3 tiles from maps
-    for (int i=0; i<FS_MAX_STAGES; i++) {
-        for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
-            for (int x=0; x<MAP_W; x++) {
-                for (int y=0; y<MAP_H; y++) {
-                    if (maps_data_v2[i][j].tiles[x][y].tile3.x*TILESIZE >= tileset_w || maps_data_v2[i][j].tiles[x][y].tile3.y*TILESIZE >= tileset_h) {
-                        maps_data_v2[i][j].tiles[x][y].tile3.x = -1;
-                        maps_data_v2[i][j].tiles[x][y].tile3.y = -1;
-                    }
-                }
-            }
-
-        }
-
-    }
-}
 
 void Mediator::temp_fix_player_colors_order()
 {

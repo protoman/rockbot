@@ -187,7 +187,7 @@ void map_tab::on_mapListCombo_currentIndexChanged(int index)
 void map_tab::on_comboBox_currentIndexChanged(int index)
 {
     int value = 1;
-    if (index == 1) {
+    if (index > 0) {
         value = 3;
     }
     Mediator::get_instance()->layerLevel = value;

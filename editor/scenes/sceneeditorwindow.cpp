@@ -70,6 +70,11 @@ void SceneEditorWindow::reload()
     animation_tab->reload();
 }
 
+void SceneEditorWindow::update_app_theme()
+{
+    scenes_tab->update_app_theme();
+}
+
 void SceneEditorWindow::on_actionSave_triggered()
 {
     save();

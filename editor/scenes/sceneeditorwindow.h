@@ -30,6 +30,7 @@ public:
     ~SceneEditorWindow();
     void closeEvent (QCloseEvent *event);
     void reload();
+    void update_app_theme();
 
 signals:
     void scenes_editor_window_closed();

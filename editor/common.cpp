@@ -56,7 +56,10 @@ void common::fill_files_combo(std::string directory, QComboBox* combo, bool show
 
     foreach (const QFileInfo &fileInfo, dir.entryInfoList()) {
         if (fileInfo.fileName().length() > 30) {
-            std::cout << "ERROR: file '" << fileInfo.fileName().toStdString() << "' surpasses the maximum number of file-characters (" << FS_CHAR_NAME_SIZE << ")" << std::endl;
+            QMessageBox msgBox;
+            QString error_msg = QString("ERROR: file '") + QString(fileInfo.fileName()) + QString("' surpasses the maximum number of file-characters (") + QString::number(FS_CHAR_NAME_SIZE) + QString(")");
+            msgBox.setText(error_msg);
+            msgBox.exec();
         } else {
             QString filename(fileInfo.fileName());
             if (filename.length() > 0) {
@@ -87,7 +90,10 @@ void common::fill_graphicfiles_listwidget(std::string directory, QListWidget* li
     for (unsigned int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         if (fileInfo.fileName().length() > 30) {
-            std::cout << "ERROR: file '" << fileInfo.fileName().toStdString() << "' surpasses the maximum number of file-characters (" << FS_CHAR_NAME_SIZE << ")" << std::endl;
+            QMessageBox msgBox;
+            QString error_msg = QString("ERROR: file '") + QString(fileInfo.fileName()) + QString("' surpasses the maximum number of file-characters (") + QString::number(FS_CHAR_NAME_SIZE) + QString(")");
+            msgBox.setText(error_msg);
+            msgBox.exec();
         } else {
             item = new QListWidgetItem;
             item->setText(fileInfo.fileName());
@@ -122,7 +128,10 @@ void common::fill_graphicfiles_combobox(std::string directory, QComboBox *comboW
     for (unsigned int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         if (fileInfo.fileName().length() > 30) {
-            std::cout << "ERROR: file '" << fileInfo.fileName().toStdString() << "' surpasses the maximum number of file-characters (" << FS_CHAR_NAME_SIZE << ")" << std::endl;
+            QMessageBox msgBox;
+            QString error_msg = QString("ERROR: file '") + QString(fileInfo.fileName()) + QString("' surpasses the maximum number of file-characters (") + QString::number(FS_CHAR_NAME_SIZE) + QString(")");
+            msgBox.setText(error_msg);
+            msgBox.exec();
         } else {
             std::string filename = FILEPATH + directory + "/" + fileInfo.fileName().toStdString();
             QIcon icon(filename.c_str());

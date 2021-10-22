@@ -60,7 +60,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -84,7 +84,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -108,7 +108,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -132,7 +132,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -156,7 +156,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -180,7 +180,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -204,7 +204,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -228,7 +228,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -252,7 +252,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -276,7 +276,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -300,7 +300,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -324,7 +324,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>275</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -410,7 +410,6 @@
      <addaction name="actionDefault"/>
     </widget>
     <addaction name="menuZoom"/>
-    <addaction name="actionOverlay_Tiles"/>
     <addaction name="actionGRID"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
@@ -630,17 +629,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
-   </property>
-  </action>
-  <action name="actionOverlay_Tiles">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Overlay Tiles</string>
    </property>
   </action>
   <action name="actionDark">

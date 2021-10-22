@@ -68,7 +68,7 @@ public:
     short stage_select_edit_mode;
     short stage_select_stage_number;
     bool show_grid;
-    bool show_overlay_tiles = true;
+    int app_theme = 0;
 
 
 	int getPalleteX();
@@ -84,7 +84,6 @@ public:
     void clean_map_data();
     void save_map_data();
 
-    void clean_data();                                      // any sanity data cleaning goest here
     void temp_fix_player_colors_order();
 
 	int get_stage_n(const int map_n);

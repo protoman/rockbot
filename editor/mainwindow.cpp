@@ -93,6 +93,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
     settings.sync();
     int theme = settings.value(CONFIG_THEME_KEY, 0).toInt();
+    Mediator::get_instance()->app_theme = theme;
+    scenes_window->update_app_theme();
+    std::cout << "LOAD #1 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
     if (theme == 1) {
         on_actionDark_triggered();
     }
@@ -230,29 +233,11 @@ void MainWindow::on_actionNew_triggered()
 
 // ------------------- EDIT BUTTONS --------------------- //
 
-
-
-
-
-
 void MainWindow::on_MainWindow_iconSizeChanged(QSize iconSize)
 {
 	Q_UNUSED (iconSize);
 	saveGeometry();
 }
-
-
-
-
-
-
-
-void MainWindow::on_comboBox_currentIndexChanged(int index)
-{
-    Mediator::get_instance()->layerLevel = index+1;
-    map_edit_tab->update_edit_area();
-}
-
 
 void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
@@ -648,12 +633,6 @@ void MainWindow::on_actionRun_Stage_2_triggered()
     process.start(file);
 }
 
-void MainWindow::on_actionOverlay_Tiles_toggled(bool arg1)
-{
-    Mediator::get_instance()->show_overlay_tiles = arg1;
-    map_edit_tab->update_edit_area();
-}
-
 void MainWindow::on_actionDark_triggered()
 {
     // set style
@@ -689,6 +668,10 @@ void MainWindow::on_actionDark_triggered()
     QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
     settings.setValue(CONFIG_THEME_KEY, 1);
     settings.sync();
+
+    Mediator::get_instance()->app_theme = 1;
+    scenes_window->update_app_theme();
+
 }
 
 void MainWindow::on_actionDefault_triggered()
@@ -700,4 +683,8 @@ void MainWindow::on_actionDefault_triggered()
     QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
     settings.setValue(CONFIG_THEME_KEY, 0);
     settings.sync();
+
+    Mediator::get_instance()->app_theme = 0;
+    scenes_window->update_app_theme();
+
 }

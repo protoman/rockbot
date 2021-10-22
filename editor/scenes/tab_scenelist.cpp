@@ -3,6 +3,8 @@
 #include "scenes/comboboxdelegate.h"
 #include "common.h"
 
+#include <mediator.h>
+
 #include <QMessageBox>
 
 extern std::string GAMEPATH;
@@ -20,8 +22,7 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     ui->scenes_tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->scenes_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    ui->scenes_tableView->setAlternatingRowColors(true);
-    ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff;background-color: #dddddd;");
+    update_app_theme();
 
     ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
@@ -85,6 +86,17 @@ void TabScenelist::reload()
     ScenesMediator::get_instance()->scenes_list = fio.load_scenes();
     fill_data();
     data_loading = false;
+}
+
+void TabScenelist::update_app_theme()
+{
+    ui->scenes_tableView->setAlternatingRowColors(true);
+    std::cout << "LOAD #2 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
+    if (Mediator::get_instance()->app_theme == 0) {
+        ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff; background-color: #dddddd; font-color:black; color:black;");
+    } else {
+        ui->scenes_tableView->setStyleSheet("alternate-background-color: #0c004e; background-color: #313131; font-color:white; color:white;");
+    }
 }
 
 void TabScenelist::change_fields_enabled(bool value)
