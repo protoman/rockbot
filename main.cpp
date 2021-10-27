@@ -454,7 +454,7 @@ int main(int argc, char *argv[])
 #endif
 	fio.read_game(game_data);
 
-
+    std::cout << "###################################################" << std::endl;
 
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();

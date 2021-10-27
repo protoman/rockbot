@@ -1175,6 +1175,10 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
 
 void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)
 {
+    if (wpn_n >= small_weapon_icons.size()) {
+        std::cout << "DEBUG wpn_n[" << wpn_n << "], small_weapon_icons.size[" << small_weapon_icons.size() << "]" << std::endl;
+        return;
+    }
     int icon_size = small_weapon_icons.at(wpn_n).width;
     clear_area(pos.x, pos.y, icon_size, icon_size, 0, 0, 0);
     if (active == true) {

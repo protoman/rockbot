@@ -1026,15 +1026,15 @@ void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_h
     if (weapon_n == -1) {
         weapon_n_adjusted = WEAPON_COUNT;
     }
-    graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
-
-    y = bar_pos.y + 1 + (50 - graph_lenght);
-    graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
-    graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
-    graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
-
-    for (int i=1; i<graph_lenght; i+=2) {
-        graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
+    if (weapon_n <= WEAPON_ITEM_JET) {
+        graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
+        y = bar_pos.y + 1 + (50 - graph_lenght);
+        graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+        graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
+        graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+        for (int i=1; i<graph_lenght; i+=2) {
+            graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
+        }
     }
 }
 
