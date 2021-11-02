@@ -1122,7 +1122,6 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
             _dest_point.y = RES_H + frameSize.height + 2;
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) { // DRILL_DOWN is similar to move-down, but NPC is ghostly (can walk walls) and when on walls, move 1/4 of speed.Also, it randomizes its x point when restarted
-            randomize_x_point(TILESIZE*2);
             _dest_point.y = RES_H + frameSize.height + TILESIZE;
             _ghost_move_speed_reducer = 4;
             walk_range = RES_H + TILESIZE*4;
@@ -1228,6 +1227,7 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
             if (position.y >= RES_H+TILESIZE) {
                 position.y = -TILESIZE*2;
+                randomize_x_point(TILESIZE*3);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             } else {
                 can_move_struct check_move_res = check_can_move_to_point(_dest_point, 0, move_speed, false, false);
