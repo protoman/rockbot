@@ -1,5 +1,21 @@
 ﻿Fix crash with old-style energy bar.
-Start fixes for drill-down AI.
+Fixes for drill-down AI.
+Improved clear of text selection in picker.
+Fix falling from jet when pressing down.
+Fix music stopping after killing sub-boss.
+Add license file.
+Fix projectile being stuck due to screen scrolling.
+Fix Lullaby projectile when enemy is away.
+Allow coil and jet to work over another object like savepoints.
+
+#1: Change giant fly to UFO and fix its behavior.
+#1: Fix for zig-zag in mines that are short of movement.
+
+
+
+20152 (2.01.52)
+201044 (2.01.044)
+
 
 ###########################################################################################################################
 v3

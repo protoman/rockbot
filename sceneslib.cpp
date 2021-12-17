@@ -541,7 +541,6 @@ Uint8 scenesLib::select_player() {
         max_loop = 4;
     }
 
-
     graphLib.blank_screen();
     std::string filename = FILEPATH + "images/backgrounds/player_selection.png";
     graphLib.surfaceFromFile(filename, &bg_surface);
