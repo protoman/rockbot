@@ -250,7 +250,7 @@ void TabScenelist::on_removeButton_clicked()
 
 void TabScenelist::on_pushButton_clicked()
 {
-    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
+    QString file = QString("scenesviewer");
 #ifdef WIN32
     file += QString(".exe");
 #endif

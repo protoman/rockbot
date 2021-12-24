@@ -175,7 +175,7 @@ void tab_parallax::on_parallax_layer_speed_spinBox_valueChanged(int arg1)
 
 void tab_parallax::on_run_pushButton_clicked()
 {
-    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
+    QString file = QString("scenesviewer");
 #ifdef WIN32
     file += QString(".exe");
 #endif
