@@ -175,9 +175,6 @@ bool graphicsLib::initGraphics()
 void graphicsLib::set_window_icon()
 {
     std::string icon_filename = FILEPATH + "/images/icon_32px.png";
-
-    std::cout << "graphicsLib::set_window_icon[" << icon_filename << "]" << std::endl;
-
     SDL_RWops *rwop = SDL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);

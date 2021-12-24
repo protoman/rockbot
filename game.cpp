@@ -1405,6 +1405,7 @@ void game::quick_load_game()
     */
 
     //scenes.select_save(false);
+    scenes.select_player();
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
@@ -1419,10 +1420,7 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-
-
     //scenes.boss_intro(currentStage);
-
 
     game_save.selected_player = PLAYER_4;
     start_stage();
@@ -1430,7 +1428,6 @@ void game::quick_load_game()
 
     // UNIT-TEST //
     //int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
-
 
     //got_weapon();
 }

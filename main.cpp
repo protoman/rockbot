@@ -328,7 +328,6 @@ int main(int argc, char *argv[])
     }
 
 #ifdef PLAYSTATION2
-
     PS2_init();
 
     // --- DEBUG --- //
@@ -345,7 +344,6 @@ int main(int argc, char *argv[])
         FILEPATH = "cdfs:";
         PS2_load_CDROM();
     }
-
 #endif
 
 
@@ -354,7 +352,6 @@ int main(int argc, char *argv[])
 	if (argc > 1) {
 		for (int i=1; i<argc; i++) {
 			std::string temp_argv(argv[i]);
-            std::size_t stage_found = temp_argv.find("--stage");
 			if (temp_argv == "--fullscreen") {
                 // TODO
 			} else if (temp_argv == "--quickload") {
@@ -453,8 +450,6 @@ int main(int argc, char *argv[])
     graphLib.set_window_icon();
 #endif
 	fio.read_game(game_data);
-
-    std::cout << "###################################################" << std::endl;
 
     gameControl.get_drop_item_ids();
 	soundManager.init_audio_system();
