@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     scenes_window->update_app_theme();
     std::cout << "LOAD #1 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
     if (theme == 1) {
+        std::cout << "LOAD #1 - Mediator::get_instance() - DARK" << std::endl;
         on_actionDark_triggered();
     }
 }
@@ -623,11 +624,10 @@ void MainWindow::on_actionGRID_toggled(bool arg1)
 
 void MainWindow::on_actionRun_Stage_2_triggered()
 {
-    QString file = QString("\"") + QString(GAMEPATH.c_str()) + QString("rockbot");
+    QString file = QString("rockbot");
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file +=  QString("\"");
     file += QString(" --quickload --allweapons --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --stage ") + QString::number(Mediator::get_instance()->currentStage);
     std::cout << "file[" << file.toStdString() << "]" << std::endl;
     process.start(file);
