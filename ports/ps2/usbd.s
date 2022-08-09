@@ -1,5 +1,19 @@
+.ifdef .gasversion.
+.section .mdebug.abiN32
+.else
+.section .mdebug.eabi64
+.endif
+.previous
+.ifdef .gasversion.
+.nan legacy
+.module singlefloat
+.module oddspreg
+.endif
 .sdata
 
+.align 2
+.type size_usbd,@object
+.size size_usbd,4
 .globl size_usbd
 size_usbd:	.word 26105
 
@@ -8,6 +22,8 @@ size_usbd:	.word 26105
 .balign 16
 
 .globl usbd
+.type usbd,@object
+.size usbd,26105
 usbd:
 
 

@@ -112,10 +112,10 @@ public:
 
 	int picked_color_n;
 	st_color colormap[67]; /// @TODO: colormap should be a combination of three enums
-	int current_weapon;
-    int current_projectile;
-	int current_player;
-    int current_ai;
+    int current_weapon = 0;
+    int current_projectile = 0;
+    int current_player = 0;
+    int current_ai = 0;
 
     // old globals
     CURRENT_FILE_FORMAT::file_game game_data;

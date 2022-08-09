@@ -10,7 +10,7 @@ artificial_inteligence_tab::artificial_inteligence_tab(QWidget *parent) :
 {
     ui->setupUi(this);
     fill_next_combos();
-    fill_data(0);
+    fill_data(Mediator::get_instance()->current_ai);
 }
 
 
@@ -24,7 +24,7 @@ void artificial_inteligence_tab::reload()
 {
     _filling_data = true;
     fill_next_combos();
-    fill_data(0);
+    fill_data(Mediator::get_instance()->current_ai);
     _filling_data = false;
 }
 
@@ -118,7 +118,9 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 void artificial_inteligence_tab::fill_data(int index)
 {
 	// ai selector
+
     common::fill_npc_combo(ui->ai_selector);
+    ui->ai_selector->setCurrentIndex(index);
 
 	// actions
 	common::fill_ai_actions_combo(ui->action1);

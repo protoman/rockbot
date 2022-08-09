@@ -9,6 +9,7 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
+
 CONFIG += linux
 
 #CONFIG += win32
@@ -21,6 +22,11 @@ CONFIG += linux
 
 #CONFIG += playstation2 # currently won't build because old C++ compiler that do not support member initialization on header file
 
+#CONFIG += playstation3
+
+#CONFIG += psp
+    # try to replicate the exact same behavior of the makefile.psp
+
 #CONFIG += open_pandora
 
 #CONFIG += wii
@@ -29,8 +35,6 @@ CONFIG += linux
 #CONFIG += dreamcast
     # /opt/toolchains/dc/sh-elf/bin/sh-elf-g++: Command not found
 
-#CONFIG += psp
-    # try to replicate the exact same behavior of the makefile.psp
 
 #DEFINES+= ANDROID=1
 
@@ -114,19 +118,30 @@ pocketgo {
 }
 
 playstation2 {
-    QMAKESPEC=./ports/ps2/g++-ps2.conf
-    DEFINES+= PLAYSTATION2=1
+    QMAKESPEC = ./ports/ps2/g++-ps2.conf
+    DEFINES += PLAYSTATION2=1
+    #DEFINES += _EE
+    DEFINES += _IOP
     TARGET = rockbot.elf
+
+    PS2DEV = /media/iuri/SamsungEXT4/development/SDK/PS2/sdk
+    PS2SDK = $${PS2DEV}/ps2sdk
+    GSKIT = $${PS2DEV}/gsKit
+
+    export(PS2DEV)
+    export(PS2SDK)
+    export(GSKIT)
+
 
     # pre-build commands
     SJPCM.target = SJPCM.s
-    SJPCM.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/SJPCM.irx ../ports/ps2/SJPCM.s SJPCM
+    SJPCM.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/SJPCM.irx ../ports/ps2/SJPCM.s SJPCM
     cdvd.target = cdvd.s
-    cdvd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/cdvd.irx ../ports/ps2/cdvd.s cdvd
+    cdvd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/cdvd.irx ../ports/ps2/cdvd.s cdvd
     usbd.target = usbd.s
-    usbd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbd.irx ../ports/ps2/usbd.s usbd
+    usbd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/usbd.irx ../ports/ps2/usbd.s usbd
     usbhdfsd.target = usbhdfsd.s
-    usbhdfsd.commands = $(PS2SDK)/bin/bin2s ../ports/ps2/usbhdfsd.irx ../ports/ps2/usbhdfsd.s usbhdfsd
+    usbhdfsd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/usbhdfsd.irx ../ports/ps2/usbhdfsd.s usbhdfsd
     QMAKE_EXTRA_TARGETS += SJPCM cdvd usbd usbhdfsd
     PRE_TARGETDEPS += SJPCM.s
     PRE_TARGETDEPS += cdvd.s
@@ -134,12 +149,12 @@ playstation2 {
     PRE_TARGETDEPS += usbhdfsd.s
 
     SOURCES += ports/ps2/cdvd_rpc.c
-    QMAKE_CC = ee-gcc
-    QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -I$(PS2SDK)/ee/ee/include/sys -w
+    QMAKE_CC = $${PS2DEV}/ee/bin/mips64r5900el-ps2-elf-gcc
+    QMAKE_CFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -fpermissive -I../include -I./include -I$${PS2SDK}/ports/include/SDL -I$${PS2SDK}/ports/include -I../common -I $${PS2SDK}/ee/include -I $${PS2SDK}/common/include -I$${PS2SDK}/ee/ee/include/sys -w
 
-    QMAKE_CXX = ee-g++
+    QMAKE_CXX = $${PS2DEV}/ee/bin/mips64r5900el-ps2-elf-g++
     QMAKE_LINK = ee-g++
-    QMAKE_CXXFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common -I $(PS2SDK)/ee/include -I $(PS2SDK)/common/include -w
+    QMAKE_CXXFLAGS += -G0 -Dwint_t=int -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -fpermissive -I../include -I./include -I$${PS2SDK}/ports/include/SDL -I$${PS2SDK}/ports/include -I../common -I $${PS2SDK}/ee/include -I $${PS2SDK}/common/include -w
 
     QMAKE_CFLAGS -= -m64
     QMAKE_CFLAGS -= -std=gnu++11
@@ -147,11 +162,80 @@ playstation2 {
     QMAKE_CXXFLAGS -= -std=gnu++11
     QMAKE_LFLAGS -= -m64
 
-    INCLUDES = -D_EE -O3 -G0 -Wall -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$(PS2SDK)/ports/include/SDL -I$(PS2SDK)/ports/include -I../common I$(PS2SDK)/ee/include
-    LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$(PS2SDK)/ports/lib -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc
-    LIBS +=  -lstdc++  -Wl,--whole-archive $(PS2SDK)/ee/lib/libc.a -Wl,--no-whole-archive $(PS2DEV)/ee/ee/lib/libc.a -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
+    INCLUDES = -D_EE -O3 -G0 -Wall -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN -DEXECUTE_SUPERFX_PER_LINE   -DSPC700_C  -DUNZIP_SUPPORT    -DSDD1_DECOMP  -DNO_INLINE_SET_GET -DNOASM -D_STLP_NO_NAMESPACES -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$${PS2SDK}/ports/include/SDL -I$${PS2SDK}/ports/include -I../common I$${PS2SDK}/ee/include
+    LIBS = $(SUBLIBS) -mno-crt0 -T/usr/local/ps2dev/ps2sdk/ee/startup/linkfile /usr/local/ps2dev/ps2sdk/ee/startup/crt0.o ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc -lstlport -L$(PS2DEV)/gsKit/lib -L../lib -L$${PS2SDK}/ports/lib -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lfreetype -lm -lcdvd -lsdl -lmf -lpacket -ldma -lfileXio -L/usr/local/ps2dev/ps2sdk/ee/lib -L/usr/local/ps2dev/gsKit/lib -L/usr/local/ps2dev/ps2sdk/ports/lib -lmc
+    LIBS +=  -lstdc++  -Wl,--whole-archive $${PS2SDK}/ee/lib/libc.a -Wl,--no-whole-archive $(PS2DEV)/ee/ee/lib/libc.a -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
     #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
 }
+
+playstation3 {
+    TARGET = rockbot
+    PS3SDK = /usr/local/ps3dev
+    PSL1GHT = /usr/local/ps3dev
+    export(PSL1GHT)
+
+    QMAKE_CXX = $${PS3SDK}/ppu/bin/ppu-g++
+    QMAKE_LINK = $${PS3SDK}/ppu/bin/ppu-g++
+
+    QMAKE_CXXFLAGS += -pipe -g -Wall -W -D_REENTRANT -DPS3 -I$${PS3SDK}/portlibs/ppu/include
+
+    LIBS = $(SUBLIBS) -L$${PS3SDK}/portlibs/ppu/lib -L/usr/local/ps3dev/portlibs/ppu/lib -lSDL_gfx -lSDL_image -lpng -ltiff -ljpeg -lz -lSDL_ttf -lfreetype -lSDL_mixer -lvorbisfile -lvorbis -logg -lmikmod -lmad `/usr/local/ps3dev/portlibs/ppu/bin/sdl-config --libs`
+
+
+    INCLUDES = -I. -I../include -I.
+
+    #QMAKE_POST_LINK += $(PANDORASDK)/bin/arm-angstrom-linux-gnueabi-strip --strip-all rockbot_pandora
+}
+
+psp {
+    TARGET = rockbot_psp.elf
+    PSPSDK = /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/
+
+    DEFINES += PSP
+    DEFINES += _PSP_FW_VERSION=150
+
+    QMAKE_CC = $${PSPSDK}/bin/psp-gcc
+    QMAKE_CXX = $${PSPSDK}/bin/psp-g++
+    QMAKE_LINK = $${PSPSDK}/bin/psp-g++
+
+    QMAKE_CFLAGS -= -DQT_QML_DEBUG
+    QMAKE_CXXFLAGS -= -DQT_QML_DEBUG
+
+    QMAKE_CFLAGS -= -pipe
+    QMAKE_CXXFLAGS -= -pipe
+
+    QMAKE_CFLAGS -= -W
+    QMAKE_CXXFLAGS -= -W
+
+
+    QMAKE_CFLAGS += -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I. -I/psp/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk//include -G0 -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I. -I/psp/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk//include -G0 -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions -fno-exceptions -fno-rtti -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/ -D_PSP_FW_VERSION=150   -c -o
+    QMAKE_CXXFLAGS += -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I. -I/psp/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk//include -G0 -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I. -I/psp/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk//include -G0 -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions -fno-exceptions -fno-rtti -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/ -D_PSP_FW_VERSION=150   -c -o
+
+    LIBS = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -logg -lmikmod -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz \
+    -lSDLmain -lSDL -lm -lGL -lm -L/usr/local/pspdev/psp/sdk/lib -L/usr/local/pspdev/psp -lpspirkeyb -lpsppower -lpspvfpu -lpspdebug -lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio \
+    -L$(PSPSDK)/sdk/lib -L/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib
+
+    INCLUDES = -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/
+
+
+#mksfo 'Rockbot ' PARAM.SFO
+#psp-strip rockbot_psp.elf -o rockbot_psp_strip.elf
+#pack-pbp EBOOT.PBP PARAM.SFO ./build/packages/files/psp_icon.png  \
+#        NULL NULL ./build/packages/files/psp_background.png  \
+#        NULL  rockbot_psp_strip.elf NULL
+#
+#[0]        408 bytes | PARAM.SFO
+#[1]       7146 bytes | ./build/packages/files/psp_icon.png
+#[2]          0 bytes | NULL
+#[3]          0 bytes | NULL
+#[4]     134559 bytes | ./build/packages/files/psp_background.png
+#[5]          0 bytes | NULL
+#[6]    3783804 bytes | rockbot_psp_strip.elf
+#[7]          0 bytes | NULL
+
+
+}
+
 
 
 open_pandora {

@@ -1,5 +1,19 @@
+.ifdef .gasversion.
+.section .mdebug.abiN32
+.else
+.section .mdebug.eabi64
+.endif
+.previous
+.ifdef .gasversion.
+.nan legacy
+.module singlefloat
+.module oddspreg
+.endif
 .sdata
 
+.align 2
+.type size_SJPCM,@object
+.size size_SJPCM,4
 .globl size_SJPCM
 size_SJPCM:	.word 8133
 
@@ -8,6 +22,8 @@ size_SJPCM:	.word 8133
 .balign 16
 
 .globl SJPCM
+.type SJPCM,@object
+.size SJPCM,8133
 SJPCM:
 
 

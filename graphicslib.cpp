@@ -705,9 +705,6 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         temp_surface = SDL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
-#ifdef PSP
-            graphLib.psp_show_available_ram(100);
-#endif
             show_debug_msg("EXIT #41.2");
             exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
         }
@@ -2282,17 +2279,6 @@ graphicsLib_gSurface *graphicsLib::get_preloaded_image(e_PRELOADED_IMAGES image_
 {
     return &preloaded_images[image_n];
 }
-
-#ifdef PSP
-void graphicsLib::psp_show_available_ram(int n)
-{
-    char debug_msg[255];
-    sprintf(debug_msg, "MEM[%d][%d]", n, (int)_ram_counter.ramAvailable());
-    show_debug_msg(std::string(debug_msg));
-}
-#endif
-
-
 
 void graphicsLib::show_btn_a(st_position btn_pos)
 {

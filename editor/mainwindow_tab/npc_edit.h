@@ -103,6 +103,7 @@ private slots:
 
 private:
 	void fill_data();
+    void init_form();
 
     // used to prevent creating an enemy with no STAND frame
     void add_frame_one();
@@ -113,7 +114,6 @@ public slots:
 
 private:
     Ui::npc_edit *ui;
-    unsigned int _npcedit_tab_selectednpc;
 	int _npcedit_tab_selected_weakness_weapon;
 	bool _data_loading; // prevents "on_change" happening while data is being filled in
     bool _ignore_spritelist_row_changed;

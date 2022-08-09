@@ -20,10 +20,6 @@ class classnpc;
 #include "aux_tools/fps_control.h"
 
 
-#ifdef PSP
-#include "ports/psp/psp_ram.h"
-#endif
-
 /**
  * @brief
  *
@@ -305,10 +301,6 @@ private:
 
     bool is_game_selected = false;
     bool is_stage_selected = false;
-
-#ifdef PSP
-    psp_ram _ram_counter;
-#endif
 
 };
 

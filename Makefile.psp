@@ -1,5 +1,5 @@
-PSPSDK=/home/iuri/SDK/PSP/SDK/
-export PATH=$PATH:/home/iuri/SDK/PSP/SDK/bin
+PSPSDK=/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/
+export PATH=$PATH:/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin
 
 TARGET = rockbot_psp
 OBJS   = main.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o collision_detection.o graphicslib.o \
@@ -14,22 +14,23 @@ shareddata.o \
 log.o
 
  
-INCDIR   = /home/iuri/SDK/PSP/SDK/psp/include/
+INCDIR   = /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/
 CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g -fexceptions -I/home/iuri/SDK/PSP/SDK/psp/sdk/include -I/home/iuri/SDK/PSP/SDK/psp/include/ -I/home/iuri/SDK/PSP/SDK/psp/include/SDL/
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/
 ASFLAGS  = $(CFLAGS)
  
 LIBDIR  =
 LDFLAGS =
-LIBS    = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -lvorbisidec -logg -lmikmod -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz `/home/iuri/SDK/PSP/SDK/psp/bin/sdl-config --libs` -lpspirkeyb -lpsppower -L$(PSPSDK)/sdk/lib -L/home/iuri/SDK/PSP/SDK/psp/sdk/lib
+LIBS    = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -logg -lmikmod -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz \
+    -lSDLmain -lSDL -lm -lGL -lm -L/usr/local/pspdev/psp/sdk/lib -L/usr/local/pspdev/psp -lpspirkeyb -lpsppower -lpspvfpu -lpspdebug -lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio \
+    -L$(PSPSDK)/sdk/lib -L/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib
  
 BUILD_PRX=1 
 PSP_LARGE_MEMORY = 1 
+EXTRA_TARGETS   = EBOOT.PBP
 
- 
-EXTRA_TARGETS   = ./build/EBOOT.PBP
 PSP_EBOOT_TITLE = Rockbot $(VERSIONNAME)
 PSP_EBOOT_ICON= ./build/packages/files/psp_icon$($version_number).png
 PSP_EBOOT_PIC1= ./build/packages/files/psp_background$($version_number).png
 
-include /home/iuri/SDK/PSP/SDK/psp/sdk/lib/build.mak
+include /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib/build.mak

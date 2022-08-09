@@ -420,7 +420,7 @@ bool game::show_game_intro()
 {
 
 
-    //show_notice();
+    show_notice();
 
 #ifdef BETA_VERSION
     show_beta_version_warning();
@@ -430,12 +430,11 @@ bool game::show_game_intro()
 
     scenes.preloadScenes();
 
-    //scenes.game_scenes_show_unbeaten_intro();
+    scenes.game_scenes_show_unbeaten_intro();
 
     scenes.main_screen();
 	initGame();
 
-    //currentStage = get_next_stage();
     currentStage = scenes.pick_stage(INTRO_STAGE);
     loaded_stage = stage(currentStage, &player1);
     // show boss intro with stars, if needed

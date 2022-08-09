@@ -18,10 +18,6 @@
 #include "game_mediator.h"
 #include "shareddata.h"
 
-#ifdef PSP
-#include "ports/psp/psp_ram.h"
-#endif
-
 #define INTRO_STARS_NUMBER 10
 #define ANIM_STARS_BIG_STEP 6
 #define ANIM_STARS_STEP 4
@@ -245,9 +241,6 @@ public:
     void flip_image(graphicsLib_gSurface original, graphicsLib_gSurface &res, e_flip_type flip_mode);
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
     void place_water_tile(st_position dest);
-#ifdef PSP
-    void psp_show_available_ram(int n);
-#endif
 
     void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
     SDL_Surface *zoom_screen(int scale, SDL_Surface *origin);
@@ -367,9 +360,6 @@ private:
 
     graphicsLib_gSurface picker_bg;
 
-#ifdef PSP
-    psp_ram _ram_counter;
-#endif
 };
 
 #endif // GRAPHICSLIB_H

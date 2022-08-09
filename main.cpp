@@ -186,8 +186,8 @@ void PS2_create_save_icons()
 
 #ifdef PSP
 PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
-//PSP_HEAP_SIZE_KB(-1024);
-PSP_HEAP_SIZE_MAX();
+PSP_HEAP_SIZE_KB(-1024);
+//PSP_HEAP_SIZE_MAX();
 
 
 /* Exit callback */
@@ -224,7 +224,6 @@ void *__dso_handle = NULL;
 */
 
 // ram counter object
-psp_ram _ram_counter;
 #endif
 
 
