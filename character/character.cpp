@@ -1183,6 +1183,10 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
+    if (is_player()  == false && (game_data.final_boss_id == _number || (GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action ==  AI_ACTION_REPLACE_NPC && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].extra_parameter == game_data.final_boss_id))) {
+        _has_final_game_boss = true;
+    }
+
     int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
@@ -3310,6 +3314,11 @@ void character::set_progressive_appear_pos(int pos)
 bool character::is_stage_boss()
 {
     return _is_stage_boss;
+}
+
+bool character::has_final_game_boss()
+{
+    return _has_final_game_boss;
 }
 
 bool character::is_weak_to_freeze()

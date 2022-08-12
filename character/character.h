@@ -207,6 +207,7 @@ public:
 
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();
+    bool has_final_game_boss();
     void clean_character_graphics_list();
     bool have_background_graphics();
     void cancel_slide();
@@ -363,6 +364,7 @@ protected:
     bool _check_always_move_ahead;                          // used to prevent setting _always_move_ahead each time we can AI exec
     int _progressive_appear_pos;                            // used by spawn-npc to show just a part of the NPC
     bool _is_stage_boss;                                    // used in NPC class. Indicates if this is the stage-boss
+    bool _has_final_game_boss = false;                      // this enemy is the final game boss or spawns it
     bool _dropped_from_stairs;                              // used to avoid grabbing stairs again when dropped from it
     classjump _obj_jump;
     short _jumps_number;                                    // used for double or triple jumping

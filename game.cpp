@@ -915,8 +915,13 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
 
     show_stage(8, false);
 
-
-    soundManager.play_boss_music();
+    if (boss_ref->has_final_game_boss()) {
+        soundManager.stop_music();
+        soundManager.load_music(game_data.final_boss_music_filename);
+        soundManager.play_music();
+    } else {
+        soundManager.play_boss_music();
+    }
 
     timer.delay(100);
 
