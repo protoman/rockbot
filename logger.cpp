@@ -1,21 +1,21 @@
-#include "log.h"
+#include "logger.h"
 
 #ifdef ANDROID
 #include <android/log.h>
 #endif
 
 
-log* log::_instance = NULL;
+RockbotLogger* RockbotLogger::_instance = NULL;
 
-log *log::get_instance()
+RockbotLogger *RockbotLogger::get_instance()
 {
     if (!_instance) {
-        _instance = new log();
+        _instance = new RockbotLogger();
     }
     return _instance;
 }
 
-void log::write(std::string log_str)
+void RockbotLogger::write(std::string log_str)
 {
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "%s", log_str.c_str());
@@ -24,7 +24,7 @@ void log::write(std::string log_str)
 #endif
 }
 
-log::log()
+RockbotLogger::RockbotLogger()
 {
 
 }

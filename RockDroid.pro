@@ -294,7 +294,7 @@ SOURCES += main.cpp \
     graphicslib.cpp \
     inputlib.cpp \
     game.cpp \
-    log.cpp \
+    logger.cpp \
     shareddata.cpp \
     stage.cpp \
     classmap.cpp \
@@ -341,7 +341,7 @@ HEADERS += \
     defines.h \
     inputlib.h \
     game.h \
-    log.h \
+    logger.h \
     shareddata.h \
     stage.h \
     classmap.h \

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <cstdlib>
 
-#include "log.h"
+#include "logger.h"
 #include "file_io.h"
 #include "convert.h"
 #include "../aux_tools/stringutils.h"

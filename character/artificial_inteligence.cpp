@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include "log.h"
+#include "logger.h"
 #include "artificial_inteligence.h"
 #include "classplayer.h"
 #include "../classmap.h"
@@ -1977,7 +1977,7 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
 
         // is executing reaction and is dying and is map-boss -> set child as new map-boss
         if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
-            log::get_instance()->write("AI::SPAWN, SET NEW BOSS");
+            RockbotLogger::get_instance()->write("AI::SPAWN, SET NEW BOSS");
             _is_stage_boss = false;
             npc_ref->set_stage_boss(true);
         }
@@ -2182,13 +2182,13 @@ int artificial_inteligence::get_ai_type() {
     if (_number < 0 || _number >= GameMediator::get_instance()->ai_list.size()) {
         char int_to_str[256];
         sprintf(int_to_str, "%d", _reaction_type);
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(std::string(int_to_str)).append(std::string("]")));
+        RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(std::string(int_to_str)).append(std::string("]")));
         return 0;
     }
     if (_reaction_type < 0 || _reaction_type >= MAX_AI_REACTIONS) {
         char int_to_str[256];
         sprintf(int_to_str, "%d", _reaction_type);
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(std::string(int_to_str)).append(std::string("]")));
+        RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(std::string(int_to_str)).append(std::string("]")));
         _reaction_type = 0;
         return 0;
     }
@@ -2196,7 +2196,7 @@ int artificial_inteligence::get_ai_type() {
     if (_ai_chain_n < 0 || _ai_chain_n >= AI_MAX_STATES) {
         char int_to_str[256];
         sprintf(int_to_str, "%d", _ai_chain_n);
-        log::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(std::string(int_to_str)).append(std::string("]")));
+        RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(std::string(int_to_str)).append(std::string("]")));
         _ai_chain_n = 0;
         return 0;
     }

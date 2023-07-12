@@ -38,9 +38,9 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
-		rm $ANDROIDSDK/rockbot/project/jni/application/src/AndroidData/*.zip
-		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/rockbot/project/jni/application/src/AndroidData/
-		cd $ANDROIDSDK/rockbot
+		rm $ANDROIDSDK/pelya/project/jni/application/src/AndroidData/*.zip
+		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/pelya/project/jni/application/src/AndroidData/
+		cd $ANDROIDSDK/pelya
 		
 		#read -p "Press any key to continue... " -n1 -s
 
