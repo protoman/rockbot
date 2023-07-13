@@ -115,12 +115,12 @@ void classMap::loadMap()
 
 	if (stage_number == -1) {
         graphLib.show_debug_msg("ERROR::loadStage invalid number[-1]");
-		cout << "ERROR::map::loadMap - stage number was not set, can't load it before setting the number.\n";
+                cout << "ERROR::map::loadMap - stage number was not set, can't load it before setting the number.\n";
 		return;
 	}
 	if (number == -1) {
         graphLib.show_debug_msg("ERROR::loadStage invalid number[>MAX]");
-		cout << "ERROR::map::loadMap - map number was not set, can't load it before setting the number.\n";
+                cout << "ERROR::map::loadMap - map number was not set, can't load it before setting the number.\n";
 		return;
     }
 

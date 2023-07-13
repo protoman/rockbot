@@ -1327,7 +1327,7 @@ void graphicsLib::draw_weapon_menu_bg(short selected_weapon) {
 
 void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_scale, int scale) const
 {
-    register int i, j;
+    auto int i, j;
     int b, h;
     int bpp = surface->format->BytesPerPixel;
     if (SDL_MUSTLOCK(dest) != 0) {

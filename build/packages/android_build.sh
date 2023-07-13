@@ -20,7 +20,7 @@ case $response in
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
 		#copy icon
-		cp ../packages/files/android/icon_v$version_number.png /media/iuri/SamsungEXT4/development/SDK/Android/Sdk/rockbot/src/icon.png
+		cp ../packages/files/android/icon_v$version_number.png /home/iuri/devel/rockbot/icon.png
 		#read -p "Press any key to continue..." -n1 -s
 		#copy data
 		rm -r -f ./Android
@@ -38,9 +38,9 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
-		rm $ANDROIDSDK/pelya/project/jni/application/src/AndroidData/*.zip
-		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/pelya/project/jni/application/src/AndroidData/
-		cd $ANDROIDSDK/pelya
+		rm $ANDROIDSDK/commandergenius/project/jni/application/src/AndroidData/*.zip
+		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/commandergenius/project/jni/application/src/AndroidData/
+		cd $ANDROIDSDK/commandergenius
 		
 		#read -p "Press any key to continue... " -n1 -s
 
@@ -87,10 +87,10 @@ case $response in
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
-		sh ./build.sh rockdroid debug
+		sh ./build.sh rockbot debug
 		
 		# build release
-		sh ./build.sh rockdroid release
+		sh ./build.sh rockbot release
 		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
 		pwd
 		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk
