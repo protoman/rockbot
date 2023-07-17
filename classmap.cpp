@@ -771,7 +771,7 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
 
 }
 
-void classMap::add_object(object obj)
+void classMap::add_object(object& obj)
 {
     object_list.push_back(obj);
 }
@@ -946,6 +946,9 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 
 void classMap::drop_item(classnpc* npc_ref)
 {
+    if (npc_ref == nullptr) {
+        return;
+    }
     st_float_position position = st_float_position(npc_ref->getPosition().x + npc_ref->get_size().width/2, npc_ref->getPosition().y + npc_ref->get_size().height/2);
     // dying out of screen should not drop item
     if (position.y > RES_H) {
@@ -960,16 +963,28 @@ void classMap::drop_item(classnpc* npc_ref)
         obj_type = DROP_ITEM_ENERGY_BIG;
     } else {
         // Big Energy (3%), Big Weapon (2%), Small Energy (15)%, Small Weapon (15%), Score Pearl (53%)
-        // .byt 99, 97, 95, 80, 65, 12 (http://tasvideos.org/RandomGenerators.html)
-        int drop_ratio[] = {97, 95, 80, 65, 50};
+        int drop_ratio[5];
         if (game_save.difficulty == DIFFICULTY_EASY) {
             // 5%, 10%, 10%, 20%, 20%, 20% //
-            int drop_ratio_easy[] = {95, 85, 75, 55, 35, 15};
-            std::copy(drop_ratio_easy, drop_ratio_easy+6, drop_ratio);
+            drop_ratio[0] = 95;
+            drop_ratio[1] = 85;
+            drop_ratio[2] = 75;
+            drop_ratio[3] = 55;
+            drop_ratio[4] = 35;
         } else if (game_save.difficulty == DIFFICULTY_HARD) {
             // 1%, 1%, 1%, 10%, 10%, 10% //
-            int drop_ratio_hard[] = {99, 98, 97, 87, 77, 67};
-            std::copy(drop_ratio_hard, drop_ratio_hard+6, drop_ratio);
+            drop_ratio[0] = 99;
+            drop_ratio[1] = 98;
+            drop_ratio[2] = 97;
+            drop_ratio[3] = 87;
+            drop_ratio[4] = 77;
+        } else {
+            // .byt 99, 97, 95, 80, 65, 12 (http://tasvideos.org/RandomGenerators.html)
+            drop_ratio[0] = 97;
+            drop_ratio[1] = 95;
+            drop_ratio[2] = 80;
+            drop_ratio[3] = 65;
+            drop_ratio[4] = 50;
         }
 
         if (rand_n >= drop_ratio[0]) {
@@ -994,6 +1009,7 @@ void classMap::drop_item(classnpc* npc_ref)
     if (obj_type_n == -1) {
         return;
     }
+
 
     object temp_obj(obj_type_n, this, obj_pos, st_position(-1, -1), -1);
     temp_obj.set_position(st_position(static_cast<int>(position.x), static_cast<int>(position.y)));
@@ -2022,7 +2038,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
             npc_ref->reset_position();
             npc_ref->revive();
             continue;
-        } else if (dead_state == 1 && npc_ref->is_spawn() == false && npc_ref->is_boss() == false) {// drop item
+        } else if (dead_state == 1 && npc_ref->is_spawn() == false && npc_ref->is_boss() == false) { // drop item
             drop_item(npc_ref);
         }
 

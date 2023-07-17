@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -x
 
@@ -20,7 +20,7 @@ case $response in
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
 		#copy icon
-		cp ../packages/files/android/icon_v$version_number.png /home/iuri/devel/rockbot/icon.png
+		cp ../packages/files/android/icon_v$version_number.png /home/iuri/Desenvolvimento/rockbot/icon.png
 		#read -p "Press any key to continue..." -n1 -s
 		#copy data
 		rm -r -f ./Android
@@ -30,7 +30,7 @@ case $response in
 		rsync -r --exclude=.svn ../fonts ./Android/data
 		rsync -r --exclude=.svn ../shared ./Android/data
 		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
-		export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
+		#export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
 		### TEST ###
 		rm ./Android/data/games/RockDroid$version_number/music/ogg/*
 		rm ./Android/data/game*.sav
@@ -38,8 +38,8 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
-		rm $ANDROIDSDK/commandergenius/project/jni/application/src/AndroidData/*.zip
-		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/commandergenius/project/jni/application/src/AndroidData/
+		rm $ANDROIDSDK/commandergenius/project/jni/application/rockbot/AndroidData/*.zip
+		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/commandergenius/project/jni/application/rockbot/AndroidData/
 		cd $ANDROIDSDK/commandergenius
 		
 		#read -p "Press any key to continue... " -n1 -s
@@ -87,10 +87,10 @@ case $response in
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
-		sh ./build.sh rockbot debug
+		./build.sh rockbot debug
 		
 		# build release
-		sh ./build.sh rockbot release
+		./build.sh rockbot release
 		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk
 		pwd
 		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk $ROCKDROIDDIR/TEMP_RockBot_Android_$VERSIONNAME.apk

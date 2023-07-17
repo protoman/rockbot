@@ -193,7 +193,7 @@ public:
 
     void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface);
 
-    void add_object(object obj);
+    void add_object(object &obj);
 
     st_position get_first_lock_in_direction(st_position pos, st_size max_dist, int direction);
 
