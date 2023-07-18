@@ -1415,6 +1415,7 @@ void game::quick_load_game()
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         currentStage = INTRO_STAGE;
+        game_save.stages[0] = 1;
         currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 

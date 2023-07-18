@@ -1061,7 +1061,11 @@ Uint8 projectile::get_direction() const
 void projectile::reflect()
 {
     // if it is a bomb, don't reflect at all
-    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_SLASH) {
+    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB
+            || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_SLASH
+            || get_trajectory() == TRAJECTORY_CENTERED || get_trajectory() == TRAJECTORY_PUSH_BACK
+            || get_trajectory() == TRAJECTORY_RING || get_trajectory() == TRAJECTORY_BOMB_RAIN
+            || get_trajectory() == TRAJECTORY_PULL || get_trajectory() == TRAJECTORY_LARGE_BEAM) {
         return;
     } else if (get_trajectory() == TRAJECTORY_LARGE_BEAM) {
         return;

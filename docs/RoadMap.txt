@@ -1,4 +1,17 @@
-﻿Fix crash with old-style energy bar.
+﻿###########################################################################################################################
+0.62
+###########################################################################################################################
+- Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
+- Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
+
+
+###########################################################################################################################
+TODO:
+###########################################################################################################################
+- apertar R repetida e rapidamente para mudar arma causa crash no Android
+
+
+Fix crash with old-style energy bar.
 Fixes for drill-down AI.
 Improved clear of text selection in picker.
 Fix falling from jet when pressing down.
@@ -10,11 +23,6 @@ Allow coil and jet to work over another object like savepoints.
 
 #1: Change giant fly to UFO and fix its behavior.
 #1: Fix for zig-zag in mines that are short of movement.
-
-
-
-20152 (2.01.52)
-201044 (2.01.044)
 
 
 ###########################################################################################################################
