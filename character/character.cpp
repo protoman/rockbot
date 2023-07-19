@@ -447,7 +447,6 @@ void character::charMove() {
 	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type == ANIM_TYPE_STAIRS_MOVE) {
         _stairs_stopped_count++;
         if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
-            std::cout << "SET STAIRS #1" << std::endl;
             set_animation_type(ANIM_TYPE_STAIRS);
         }
     } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
@@ -2059,7 +2058,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         px_right--;
     }
 
-	st_position map_point;
+    st_position map_point;
     st_position old_map_point;
     map_point.x = px_left/TILESIZE;
     old_map_point.x = old_px_left/TILESIZE;
@@ -2070,7 +2069,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         old_map_point.x = old_px_right/TILESIZE;
 	}
 
-	/// @TODO - use a array-of-array for poijts in order to having a cleaner code
+    /// @TODO - use a array-of-array for points in order to having a cleaner code
 
     int map_x_points[3];
     if (incx == 0 && incy != 0) {
@@ -2088,7 +2087,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     // TEST X POINTS
 	if (incx != 0) {
-		for (int i=0; i<3; i++) {
+        for (int i=0; i<3; i++) {
             if (is_player() && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && i == 0) {
                 map_point.y = (py_top+1)/TILESIZE;
             } else {
@@ -2103,7 +2102,8 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 return st_map_collision(map_block, new_map_lock);
             }
         }
-	}
+        //if (is_player() == false) std::cout << "CHAR::map_collision - px_left[" << px_left << "],px_right[" << px_right << "], map_block[" << (int)map_block << "]" << std::endl;
+    }
 
 	// TEST Y POINTS
 	if (incy < 0) {
@@ -2374,17 +2374,15 @@ st_rectangle character::get_hitbox(int anim_type)
                                     GameMediator::get_instance()->get_enemy(_number)->frame_size.height);
         }
 
-        // IURI: removed this adjust because it was blocking enemies when it should not, like moving up/down
-        // I don't know the original reason for this anymore, let's look for it and test if removing is OK
+
+
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            //x = position.x - (frameSize.width - col_rect.w) + col_rect.x + 2;
-            x = position.x - (frameSize.width - col_rect.w) + col_rect.x;
+            x = position.x + frameSize.width - col_rect.x - col_rect.w;
         } else {
-            //x += col_rect.x - 2;
             x += col_rect.x;
         }
         y += col_rect.y;
-        w = col_rect.w - 4;
+        w = col_rect.w;
         h = col_rect.h;
         if (w <= 0 || h <= 0) {
             CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_number);
@@ -2783,7 +2781,8 @@ int character::get_direction() const
 
 void character::set_direction(int direction)
 {
-    if (!is_player() && direction != state.direction) {
+    int must_adjust_x = frameSize.width % TILESIZE;
+    if (!is_player() && direction != state.direction && must_adjust_x != 0) {
         // fix to avoid getting stuck into a wall //
         if (direction == ANIM_DIRECTION_LEFT) {
             position.x -= TILESIZE/3;
@@ -3155,6 +3154,8 @@ bool character::test_change_position(short xinc, short yinc)
     if (is_ghost == false) {
         st_map_collision map_col = map_collision(xinc, yinc, gameControl.get_current_map_obj()->getMapScrolling());
         short int mapLock = map_col.block;
+
+        //if (xinc != 0) std::cout << "CHAR::test_change_position - xinc[" << xinc << "], new-x[" << (position.x+xinc) << "], mapLock[" << mapLock << "], mqap.scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl;
         if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER) {
             return false;
         }

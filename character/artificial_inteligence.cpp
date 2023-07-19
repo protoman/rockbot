@@ -1562,6 +1562,23 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
 {
     can_move_struct move_inc = check_can_move_to_point(dest_point, speed_x, speed_y, can_pass_walls, must_walk_along_wall);
 
+    // decrease move-speed until can move (only for horizontal move, for now)
+    if (move_inc.can_move_x == false && speed_x != 0 && abs(speed_x) > 1) {
+        int abs_speed_x = abs(speed_x);
+        int multiplier = 1;
+        if (speed_x < 0) {
+            multiplier = -1;
+        }
+        for (int i=abs_speed_x; i>=1; i--) {
+            move_inc = check_can_move_to_point(dest_point, i*multiplier, speed_y, can_pass_walls, must_walk_along_wall);
+            if (move_inc.can_move_x == true) {
+                break;
+            }
+        }
+    }
+
+    //std::cout << "AI::move_to_point.x[" << position.x << "], move_inc.result[" << (int)move_inc.result << "], move_inc.can_move_x[" << move_inc.can_move_x << "]" << std::endl;
+
     if (move_inc.result == CAN_MOVE_LEAVE_TRUE) {
         return true;
     } else if (move_inc.result == CAN_MOVE_LEAVE_FALSE) {
@@ -1666,6 +1683,8 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     bool can_move_y = true;
     can_move_x = test_change_position(xinc, 0);
     can_move_y = test_change_position(0, yinc);
+
+    //std::cout << "AI::check_can_move_to_point - x[" << position.x << "], xinc[" << xinc << "], can_move_x[" << can_move_x << "]" << std::endl;
 
     if (must_walk_along_wall == true) {
         if (check_moving_along_wall(xinc, yinc) == false) {

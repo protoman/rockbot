@@ -3,12 +3,43 @@
 ###########################################################################################################################
 - Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
 - Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
-
+- melhor ajuste na posição de Glue.H para grudar na parede
 
 ###########################################################################################################################
 TODO:
 ###########################################################################################################################
-- apertar R repetida e rapidamente para mudar arma causa crash no Android
+- editor: grid dos sprites dos inimigos não está atualizando com o tamanho dos sprites ao trocar inimigo
+    # ao trocar tamanho, esta atualizando
+- adicionar novas músicas em Rockbot 2
+- readicionar vidas e comtinue/back-to-menu
+    # hard 2
+    # normal 5
+    # easy 9
+- finalizar Rockbot 2:
+    # kurupira: melhorar IA
+        # tem que recuperar porco depois de um tempo
+        # fazer kurupira mais baixo (hitarea não contar fogo)
+        # atirar o porco troca gráficos
+        # remover 1up'
+    # circo
+        # parte com barris precisa um inimigo tipo martelo-esmaga
+        # colocar blocos easy
+        # soldadinhos de chumbo só andam, poderiam correr ou atirar
+        # remover 1up
+        # projetil beast não sai (aparece e some)
+            # se era para ser assim, ele deveria correr até a frente do jogador e daí atacar
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################################################################
 
 
 Fix crash with old-style energy bar.
