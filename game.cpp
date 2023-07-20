@@ -1409,14 +1409,14 @@ void game::quick_load_game()
     */
 
     //scenes.select_save(false);
-    scenes.select_player();
+    //scenes.select_player();
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 

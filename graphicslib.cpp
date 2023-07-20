@@ -1106,6 +1106,7 @@ void graphicsLib::load_icons()
 	// small icons
     filename = FILEPATH + "images/icons_small.png";
 	surfaceFromFile(filename, &tmp);
+    int total_icons_small = tmp.width/8;
 	for (int i=0; i<(tmp.width/8); i++) {
 		small_weapon_icons.push_back(graphicsLib_gSurface());
 		initSurface(st_size(8, 8), &small_weapon_icons.at(small_weapon_icons.size()-1));
@@ -1115,9 +1116,6 @@ void graphicsLib::load_icons()
 
     filename = FILEPATH + "images/backgrounds/dialog.png";
     surfaceFromFile(filename, &dialog_surface);
-
-    filename = FILEPATH + "images/backgrounds/weapon_menu.png";
-    surfaceFromFile(filename, &ingame_menu);
 
     filename = FILEPATH + "images/backgrounds/btn_a.png";
     surfaceFromFile(filename, &_btn_a_surface);
@@ -1165,6 +1163,12 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
     } else {
         showSurfaceRegionAt(&weapon_icons.at(wpn_n), st_rectangle(0, icon_size, icon_size, icon_size), pos);
     }
+}
+
+void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active)
+{
+    int icon_size = small_weapon_icons.at(weapon_n).width;
+    showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);
 }
 
 void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)
@@ -1262,7 +1266,8 @@ void graphicsLib::erase_menu_item(int x_pos)
     //copyArea(st_position(x, 196), spriteCopy, &gameScreen);
 }
 
-void graphicsLib::draw_weapon_menu_bg(short selected_weapon) {
+/*
+void graphicsLib::draw_weapon_menu_bg_old(short selected_weapon) {
     int pos_x = 130;
 
     showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
@@ -1321,9 +1326,9 @@ void graphicsLib::draw_weapon_menu_bg(short selected_weapon) {
     }
 
 
-	updateScreen();
+    updateScreen();
 }
-
+*/
 
 void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_scale, int scale) const
 {

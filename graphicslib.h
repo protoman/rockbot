@@ -202,13 +202,15 @@ public:
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
     void load_icons();
     void draw_weapon_icon(short, st_position menu_pos, bool active);
+    void draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active);
     void draw_small_weapon_icon(short wpn_n, st_position pos, bool active);
     void draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled);
     void draw_weapon_changed_tooltip(short weapon_n);
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
-    void draw_weapon_menu_bg(short selected_weapon);
+    //void draw_weapon_menu_bg_old(short selected_weapon);
+
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
 
     void clear_area_alpha(short int x, short int y, short int w, short int h);
@@ -322,7 +324,6 @@ private:
     std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars
     std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars
 
-    struct graphicsLib_gSurface ingame_menu;
     struct graphicsLib_gSurface config_menu;
     struct graphicsLib_gSurface dialog_surface;
     struct graphicsLib_gSurface _btn_a_surface;

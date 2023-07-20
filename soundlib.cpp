@@ -431,6 +431,9 @@ void soundLib::update_volumes()
 
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
 {
+    if (SharedData::get_instance()->game_config.sound_enabled == false) {
+        return;
+    }
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
@@ -442,6 +445,9 @@ void soundLib::play_sfx_from_file(string filename, int repeat_n)
 
 void soundLib::play_shared_sfx(string filename)
 {
+    if (SharedData::get_instance()->game_config.sound_enabled == false) {
+        return;
+    }
     filename = GAMEPATH + "/shared/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
@@ -458,6 +464,9 @@ void soundLib::play_shared_sfx(string filename)
 
 void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
 {
+    if (SharedData::get_instance()->game_config.sound_enabled == false) {
+        return;
+    }
     if (!chunk) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_sfx_from_chunk - invalid chunk ###");

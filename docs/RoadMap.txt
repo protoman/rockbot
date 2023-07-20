@@ -4,23 +4,32 @@
 - Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
 - Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
 - melhor ajuste na posição de Glue.H para grudar na parede
+- Fix hitboxes when facing left.
+- Adjust hitbox for Kurupira so player can jump over him.
+- Alguns efeitos sonoros tocavam mesmo com o audio desabilitado.
 
 ###########################################################################################################################
 TODO:
 ###########################################################################################################################
 - editor: grid dos sprites dos inimigos não está atualizando com o tamanho dos sprites ao trocar inimigo
     # ao trocar tamanho, esta atualizando
+
 - adicionar novas músicas em Rockbot 2
+
 - readicionar vidas e comtinue/back-to-menu
     # hard 2
     # normal 5
     # easy 9
+    # mostrar vidas no save
+
+- refazer menu de armas
+    # dar uma olhada em jogos tipo megaman para fazer algo diferente visualmente
+    # readicionar vidas
+
 - finalizar Rockbot 2:
     # kurupira: melhorar IA
-        # tem que recuperar porco depois de um tempo
-        # fazer kurupira mais baixo (hitarea não contar fogo)
+        # ao recuperar porco ele deve sumir ao encostar no Kurupira
         # atirar o porco troca gráficos
-        # remover 1up'
     # circo
         # parte com barris precisa um inimigo tipo martelo-esmaga
         # colocar blocos easy

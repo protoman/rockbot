@@ -70,6 +70,7 @@ public:
     void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
     void show_hud_vintage(int hp, int player_n, int selected_weapon, int selected_weapon_value);
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
+    void draw_game_menu_weapon_bar(int weapon_n, int percent, int value);
     void draw_energy_bar(short int hp, short int player_n, short int weapon_n, short int max_hp);
 
     void set_boss_hp(int hp);
@@ -78,6 +79,9 @@ public:
     void draw_player_death(st_position center_point, int frame_n);
     int get_death_animation_frames_n();
     void show_weapon_tooltip();
+
+    void draw_in_game_menu(short selected_weapon_n);
+    void draw_weapon_menu_weapon(short selected_weapon_n);
 
 
 private:
@@ -143,6 +147,9 @@ private:
     graphicsLib_gSurface hud_player_wpn_ball;
     graphicsLib_gSurface hud_boss_hp_ball;
     int _boss_current_hp;
+
+    // used in weapoins menu
+    struct graphicsLib_gSurface ingame_menu_bg_img;
 
     // WEAPON ICON TOOLTIP
     const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type
