@@ -251,7 +251,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_yes], "%s", "SIM");
             sprintf(lines[strings_ingame_no], "%s", "NAO");
             sprintf(lines[strings_ingame_life], "%s", "VIDAS");
-            sprintf(lines[strings_ingame_item], "%s", "ITEMS");
+            sprintf(lines[strings_ingame_item], "%s", "ITEM");
             sprintf(lines[strings_ingame_coin], "%s", "MOEDAS");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "CONCEDEM A HABILIDADE PARA");
             sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS IRAO");

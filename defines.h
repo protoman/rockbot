@@ -1402,6 +1402,8 @@ enum e_INPUT_IMAGES {
 
 #define PREVIOUS_FRAMES_MAX 12
 
+#define WEAPON_MENU_COL_N 4
+
 #endif // DEFINES_H
 
 

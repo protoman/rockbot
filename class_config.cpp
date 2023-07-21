@@ -12,7 +12,7 @@ extern soundLib soundManager;
 #include "game.h"
 extern game gameControl;
 
-
+#include "data/datautil.h"
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
 
@@ -101,7 +101,7 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 
 	if (y_inc > 0) {
 		if (ingame_menu_pos.y < 6) {
-            res = move_weapon_curstor_down();
+            res = move_weapon_cursor_down();
             if (res.y != -1) {
                 ingame_menu_pos = res;
                 moved = true;
@@ -118,7 +118,7 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
             if (ingame_menu_pos.y == 6 && ingame_menu_pos.x == 2) { // just fix x, as there is no third column on weapons section as there is in the energy drinks section
 				ingame_menu_pos.x = 1;
 			}
-            res = move_weapon_curstor_up();
+            res = move_weapon_cursor_up();
             if (res.y != -1) {
                 ingame_menu_pos = res;
                 moved = true;
@@ -163,7 +163,7 @@ st_position class_config::move_weapon_curstor_right() const // move from left to
     return move_weapon_curstor_left(); // both are the same code
 }
 
-st_position class_config::move_weapon_curstor_up()
+st_position class_config::move_weapon_cursor_up()
 {
     // from position to top
     for (int i=ingame_menu_pos.y-1; i>=0; i--) {
@@ -188,7 +188,7 @@ st_position class_config::move_weapon_curstor_up()
 
 }
 
-st_position class_config::move_weapon_curstor_down()
+st_position class_config::move_weapon_cursor_down()
 {
 
     // from position to bottom
@@ -214,10 +214,6 @@ st_position class_config::move_weapon_curstor_down()
 
 }
 
-void class_config::weapon_menu_show_player()
-{
-    graphLib.copyArea(st_position(16, 195), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &graphLib.gameScreen);
-}
 
 void class_config::use_tank(int tank_type)
 {
@@ -288,7 +284,7 @@ void class_config::use_tank(int tank_type)
 void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
-    draw_lib.draw_in_game_menu(player_ref->get_selected_weapon());
+    draw_lib.draw_in_game_menu(player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_selected_weapon());
 }
 
 bool class_config::execute_ingame_menu()
@@ -296,7 +292,7 @@ bool class_config::execute_ingame_menu()
     st_position old_pos;
 
 
-    if (input.p1_input[BTN_START] == 1) {
+    if (input.p1_input[BTN_START] == 1 || (ingame_menu_active == true && input.p1_input[BTN_JUMP] == 1)) {
 
         input.clean();
         timer.delay(100);
@@ -317,9 +313,21 @@ bool class_config::execute_ingame_menu()
         old_pos.x = ingame_menu_pos.x;
         old_pos.y = ingame_menu_pos.y;
         if (input.p1_input[BTN_UP] == 1) {
-            //move_cursor(0, -1);
+            soundManager.play_sfx(SFX_CURSOR);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -WEAPON_MENU_COL_N);
+            std::cout << "WEAPON-MENU-UP[" << player_ref->get_selected_weapon() << "][" << selected_weapon_c << "]" << std::endl;
+            if (selected_weapon_c != -1) {
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_DOWN] == 1) {
-            //move_cursor(0, 1);
+            soundManager.play_sfx(SFX_CURSOR);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), WEAPON_MENU_COL_N);
+            std::cout << "WEAPON-MENU-DOWN[" << player_ref->get_selected_weapon() << "][" << selected_weapon_c << "]" << std::endl;
+            if (selected_weapon_c != -1) {
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_LEFT] == 1) {
             int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -1);
             if (selected_weapon_c != -1) {
@@ -388,55 +396,54 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
     return res_pos;
 }
 
+/*
+// comportamento cima/baixo: move para aquela posição, se não tiver, continua andando, de 1 em 1, até achar a próxima/anterior
+int class_config::find_next_weapon(int current, int move) const
+{
+    int result = -1;
+    for (int i=abs(move); i>=1; i--) {
+        int new_weapon_n = current + move;
+        if (new_weapon_n >= WEAPON_COUNT) {
+            new_weapon_n = new_weapon_n-WEAPON_COUNT;
+        }
+        if (new_weapon_n < 0) {
+            new_weapon_n = WEAPON_COUNT - new_weapon_n;
+        }
+        int move_n = 1;
+        if (move < 0) {
+            move_n = -1;
+        }
+    }
+    return result;
+}
+*/
 
 int class_config::find_next_weapon(int current, int move) const
 {
-    if (move == 1) {
-        for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
-            if (has_weapon(i) == true) {
+    if (move > 0) {
+        for (int i=current+move; i<WEAPON_COUNT; i++) { // from position to end
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
         for (int i=0; i<current; i++) { // from start to position
-            if (has_weapon(i) == true) {
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
     } else {
-        for (int i=current-1; i>=0; i--) { // from position to start
-            if (has_weapon(i) == true) {
+        for (int i=current+move; i>=0; i--) { // from position to start
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
-            if (has_weapon(i) == true) {
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
     }
     return -1;
-}
-
-bool class_config::has_weapon(int weapon_n) const
-{
-    if (weapon_n <= WEAPON_SEAHORSEBOT) {
-        if (game_save.stages[weapon_n] == 1) {
-            return true;
-        }
-    } else {
-        if (weapon_n == WEAPON_ITEM_COIL && game_save.stages[WEAPON_APEBOT] == 1) {
-            return true;
-        } else if (weapon_n == WEAPON_ITEM_JET && game_save.stages[WEAPON_TECHNOBOT] == 1) {
-            return true;
-        } else if (weapon_n == WEAPON_ITEM_ETANK && game_save.items.energy_tanks > 0) {
-            return true;
-        } else if (weapon_n == WEAPON_ITEM_WTANK && game_save.items.weapon_tanks > 0) {
-            return true;
-        } else if (weapon_n == WEAPON_ITEM_STANK && game_save.items.special_tanks > 0) {
-            return true;
-        }
-    }
-    return false;
 }
 
 void class_config::disable_ingame_menu()

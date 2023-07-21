@@ -40,8 +40,6 @@ public:
     int version_number = 1;
     std::string version_number_str = "1";
     bool is_fire_tv = false;
-
-
 };
 
 #endif // SHAREDDATA_H

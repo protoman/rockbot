@@ -1391,6 +1391,19 @@ void game::quick_load_game()
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
+/*
+    game_save.stages[INTRO_STAGE] = 1;
+    for (int i=STAGE1; i<=STAGE8; i++) {
+        game_save.stages[i] = 0;
+    }
+    for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
+        game_save.stages[i] = 1;
+    }
+*/
+    //data_out.stages[STAGE1] = 1; // APE: coil
+    //data_out.stages[STAGE6] = 1; // TECHNO: jet
+    //data_out.stages[STAGE3] = 1; // TECHNO: jet
+
 
     game_save.selected_player = PLAYER_1;
     game_save.difficulty = DIFFICULTY_NORMAL;
@@ -1409,14 +1422,15 @@ void game::quick_load_game()
     */
 
     //scenes.select_save(false);
-    //scenes.select_player();
+    scenes.select_player();
+    game_save.selected_player = PLAYER_2;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        //currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 
@@ -1427,9 +1441,7 @@ void game::quick_load_game()
 
     //scenes.boss_intro(currentStage);
 
-    game_save.selected_player = PLAYER_4;
     start_stage();
-    game_save.selected_player = PLAYER_4;
 
     // UNIT-TEST //
     //int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
@@ -1853,6 +1865,40 @@ void game::restart_stage_music()
     soundManager.stop_music();
     soundManager.load_stage_music(stage_data.bgmusic_filename);
     soundManager.play_music();
+}
+
+void game::game_over()
+{
+    _last_stage_used_teleporters.clear();
+
+    timer.delay(200);
+    input.clean();
+    soundManager.load_music(game_data.game_over_music_filename);
+    soundManager.play_music();
+    graphLib.blank_screen();
+
+
+    graphLib.show_config_bg();
+
+    graphicsLib_gSurface dialog_img;
+    std::string filename = FILEPATH + "images/backgrounds/dialog.png";
+    graphLib.surfaceFromFile(filename, &dialog_img);
+    //graphLib.copyArea(st_rectangle(0, 0, dialog_img.get_surface()->w, dialog_img.get_surface()->h), st_position(RES_W/2-dialog_img.get_surface()->w/2, RES_H/2-dialog_img.get_surface()->h/2), &dialog_img, &graphLib.gameScreen);
+
+    graphLib.draw_centered_text(RES_H/2-6, strings_map::get_instance()->get_ingame_string(strings_ingame_gameover));
+    graphLib.draw_centered_text(RES_H/2-6+12, strings_map::get_instance()->get_ingame_string(strings_ingame_pressstart));
+
+    draw_lib.update_screen();
+    timer.delay(400);
+    input.wait_keypress();
+    if (game_save.stages[INTRO_STAGE] != 0) {
+        leave_stage();
+    } else { // if first stage is not yet complete, can only back to it
+        soundManager.stop_music();
+        soundManager.load_stage_music(stage_data.bgmusic_filename);
+        // restart stage will play the music
+        restart_stage();
+    }
 }
 
 classMap *game::get_current_map_obj()

@@ -145,6 +145,7 @@ private:
      * @brief virtual from character, execute actions when player dies (reset map, explosion, etc)
      */
     void death();
+    void reset_lifes();
 
 
     /**

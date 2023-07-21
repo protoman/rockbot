@@ -50,7 +50,7 @@ extern soundLib soundManager;
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 
-#define WEAPON_MENU_COL_N 4
+#include "data/datautil.h"
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -121,6 +121,8 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/boss_hp_ball.png";
     graphLib.surfaceFromFile(filename, &hud_boss_hp_ball);
 
+    filename = GAMEPATH + "shared/images/hp_ball_disabled.png";
+    graphLib.surfaceFromFile(filename, &hp_ball_disabled);
 
     filename = GAMEPATH + "/shared/images/buttons/d_pad.png";
 
@@ -843,31 +845,26 @@ void draw::show_weapon_tooltip()
     }
 }
 
-void draw::draw_in_game_menu(short selected_weapon_n)
+void draw::draw_in_game_menu(graphicsLib_gSurface *character_sprite, short selected_weapon_n)
 {
-    int pos_x = 130;
-
-    //graphLib.showSurfaceAt(&ingame_menu, st_position((RES_W-ingame_menu.width)*0.5, (RES_H-ingame_menu.height)*0.5));
-
     graphLib.copyArea(st_rectangle(0, 0, ingame_menu_bg_img.width, ingame_menu_bg_img.height), st_position(0, 0), &ingame_menu_bg_img, &graphLib.gameScreen);
 
     int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config).length()+4)*8;
     graphLib.draw_text(20, 22, "GAME MENU");
     graphLib.draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" [R]"));
-    //st_position pos, short int hp, short int player_n, short max_hp
 
     draw_weapon_menu_weapon(selected_weapon_n);
+    weapon_menu_show_player(character_sprite);
 
     graphLib.updateScreen();
 }
 
-// TODO: color the balls depending on the weapon_n
-// TODO: show selection
-// TODO: show player sprite with colors, lifes, etc
-// TODO: show numbers instead of balls for tanks
-// TODO: only show weapons player have
-void draw::draw_game_menu_weapon_bar(int weapon_n, int percent, int value)
+void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int percent, int value)
 {
+    if (weapon_n >= WEAPON_ITEM_ETANK && weapon_n < WEAPON_COUNT && value == 0) {
+        return;
+    }
+
     int row_n = weapon_n/WEAPON_MENU_COL_N;
     int col_n = 0;
     int adjusted_weapon_n = 0;
@@ -879,14 +876,15 @@ void draw::draw_game_menu_weapon_bar(int weapon_n, int percent, int value)
     int x = 25 + col_n*76;
     int y = 60 + row_n*20;
 
-    graphLib.draw_small_weapon_icon_at(weapon_n, st_position(x-10, y+1), false);
+    graphLib.draw_small_weapon_icon_at(weapon_n, st_position(x-10, y+1), selected_weapon_n == weapon_n);
 
-    if (weapon_n < WEAPON_ITEM_ETANK) {
+    if (selected_weapon_n == weapon_n && weapon_n < WEAPON_ITEM_ETANK) {
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1);
     }
 
+
     if (weapon_n != WEAPON_DEFAULT && weapon_n >= WEAPON_ITEM_ETANK) {
-        std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
+        //std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
         char error_msg[10];
         if (value < 10) {
             sprintf(error_msg, "[0%d]", value);
@@ -894,7 +892,6 @@ void draw::draw_game_menu_weapon_bar(int weapon_n, int percent, int value)
             sprintf(error_msg, "[%d]", value);
         }
         graphLib.draw_text(x, y+1, std::string(error_msg));
-        // TODO: draw text instead
         return;
     }
 
@@ -919,14 +916,17 @@ void draw::draw_game_menu_weapon_bar(int weapon_n, int percent, int value)
             img_origin_x = ENERGY_BALL_IMG_SIZE*3;
         }
 
-        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(x+i*10, y), &hud_player_wpn_ball, &graphLib.gameScreen);
+        if (selected_weapon_n == weapon_n) {
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(x+i*10, y), &hud_player_wpn_ball, &graphLib.gameScreen);
+        } else {
+            graphLib.copyArea(st_rectangle(img_origin_x, 0, hp_ball_disabled.height, hp_ball_disabled.height), st_position(x+i*10, y), &hp_ball_disabled, &graphLib.gameScreen);
+        }
     }
 }
 
 
 void draw::draw_weapon_menu_weapon(short selected_weapon_n)
 {
-    int current_value = game_save.items.weapons[selected_weapon_n];
     for (int i=0; i<WEAPON_COUNT; i++) {
         int selected_weapon_value = game_save.items.weapons[i];
         if (i < WEAPON_ITEM_ETANK) {
@@ -934,19 +934,21 @@ void draw::draw_weapon_menu_weapon(short selected_weapon_n)
             hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[i].color1);
             int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
             //std::cout << "draw::draw_weapon_menu_weapon - wpn_percent[" << i << "][" << wpn_percent << "]" << std::endl;
-            draw_game_menu_weapon_bar(i, wpn_percent, game_save.items.weapons[i]);
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.weapons[i]);
+            }
         } else if (i != WEAPON_DEFAULT && i >= WEAPON_ITEM_ETANK) {
             hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, st_color(250, 250, 250));
             int wpn_percent = 0;
             if (i == WEAPON_ITEM_ETANK) {
                 wpn_percent = game_save.items.energy_tanks*10;
-                draw_game_menu_weapon_bar(i, wpn_percent, game_save.items.energy_tanks);
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.energy_tanks);
             } else if (i == WEAPON_ITEM_WTANK) {
                 wpn_percent = game_save.items.weapon_tanks*10;
-                draw_game_menu_weapon_bar(i, wpn_percent, game_save.items.weapon_tanks);
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.weapon_tanks);
             } else if (i == WEAPON_ITEM_STANK) {
                 wpn_percent = game_save.items.special_tanks*10;
-                draw_game_menu_weapon_bar(i, wpn_percent, game_save.items.special_tanks);
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.special_tanks);
             }
 
         }
@@ -956,6 +958,43 @@ void draw::draw_weapon_menu_weapon(short selected_weapon_n)
     graphLib.draw_text(180, 214,  "OK");
     graphLib.draw_text(220, 214,  strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
 
+    graphLib.draw_text(104, 165,  strings_map::get_instance()->get_ingame_string(strings_weapon_selected)+std::string("/")+strings_map::get_instance()->get_ingame_string(strings_ingame_item)+std::string(":"));
+    graphLib.draw_text(104, 179,  get_selected_weapon_name(selected_weapon_n));
+
+    char player_lifes[20];
+    sprintf(player_lifes, "x[%d]", game_save.items.lifes);
+    graphLib.draw_text(48, 178, player_lifes);
+}
+
+string draw::get_selected_weapon_name(int selected_weapon_n)
+{
+    std::string weapon_name = "";
+    if (selected_weapon_n < WEAPON_ITEM_COIL) {
+        weapon_name = std::string(game_data.weapons[selected_weapon_n].name);
+    }
+    if (selected_weapon_n == WEAPON_ITEM_COIL) {
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
+    } else if (selected_weapon_n == WEAPON_ITEM_JET) {
+        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
+    } else if (selected_weapon_n == WEAPON_ITEM_ETANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (selected_weapon_n == WEAPON_ITEM_WTANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (selected_weapon_n == WEAPON_ITEM_STANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
+        weapon_name = std::string(crystal_msg);
+    }
+    return weapon_name;
+}
+
+void draw::weapon_menu_show_player(graphicsLib_gSurface *character_sprite)
+{
+    graphLib.copyArea(st_position(16, 157), character_sprite, &graphLib.gameScreen);
 }
 
 

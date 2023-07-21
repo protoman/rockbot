@@ -31,7 +31,6 @@ public:
     short convert_menu_pos_to_weapon_n(st_position menu_pos) const;
     st_position convert_stage_n_to_menu_pos(short stage_n) const;
     int find_next_weapon(int current, int move) const; // used by L/R buttons
-    bool has_weapon(int weapon_n) const;
     void disable_ingame_menu();
     void use_tank(int tank_type);
 
@@ -40,8 +39,8 @@ private:
     void move_cursor(Sint8 x_inc, Sint8 y_inc);
     st_position move_weapon_curstor_left() const;
     st_position move_weapon_curstor_right() const;
-    st_position move_weapon_curstor_up();
-    st_position move_weapon_curstor_down();
+    st_position move_weapon_cursor_up();
+    st_position move_weapon_cursor_down();
     void weapon_menu_show_player();
     void generate_weapons_matrix();
     void generate_weapons_array();                      // used  to create an array with all weapons that have have depending on save

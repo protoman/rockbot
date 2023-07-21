@@ -176,6 +176,12 @@ bool classPlayer::get_item(object_collision &obj_info)
             update_armor_properties();
             res = true;
             break;
+        case OBJ_LIFE:
+            obj_info._object->set_finished(true);
+            soundManager.play_sfx(SFX_GOT_ITEM);
+            if (game_save.items.lifes < 9) {
+                game_save.items.lifes++; // max 9
+            }
         default:
 			break;
 		}
@@ -894,6 +900,13 @@ void classPlayer::death()
     soundManager.play_sfx(SFX_PLAYER_DEATH);
     gameControl.draw_player_death(realPosition);
 
+    game_save.items.lifes--;
+    if (game_save.items.lifes < 0) {
+        reset_lifes();
+        gameControl.game_over();
+        return;
+    }
+
     reset_charging_shot();
     gameControl.get_current_map_obj()->clear_animations();
     gameControl.get_current_map_obj()->reset_objects();
@@ -913,6 +926,17 @@ void classPlayer::death()
 	input.clean();
     set_direction(ANIM_DIRECTION_RIGHT);
     gameControl.remove_current_teleporter_from_list();
+}
+
+void classPlayer::reset_lifes()
+{
+    if (game_save.difficulty != DIFFICULTY_EASY) {
+        game_save.items.lifes = 9;
+    } else if (game_save.difficulty != DIFFICULTY_NORMAL) {
+        game_save.items.lifes = 5;
+    } else {
+        game_save.items.lifes = 3;
+    }
 }
 
 void classPlayer::reset_hp()

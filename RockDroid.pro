@@ -291,6 +291,7 @@ TEMPLATE = app
 SOURCES += main.cpp \
     aux_tools/fps_control.cpp \
     character/character.cpp \
+    data/datautil.cpp \
     graphicslib.cpp \
     inputlib.cpp \
     game.cpp \
@@ -336,6 +337,7 @@ SOURCES += main.cpp \
 HEADERS += \
     aux_tools/fps_control.h \
     character/character.h \
+    data/datautil.h \
     file/v4/file_config_old.h \
     graphicslib.h \
     defines.h \

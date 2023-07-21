@@ -848,7 +848,7 @@ namespace format_v4 {
 /*
         data_out.stages[INTRO_STAGE] = 1;
         for (int i=STAGE1; i<=STAGE8; i++) {
-            data_out.stages[i] = 1;
+            data_out.stages[i] = 0;
         }
         for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
             data_out.stages[i] = 1;
@@ -892,7 +892,6 @@ namespace format_v4 {
         if (data_out.items.special_tanks > 1) {
             data_out.items.special_tanks = 1;
         }
-
 
         fclose(fp);
 

@@ -1112,6 +1112,13 @@ void graphicsLib::load_icons()
 		initSurface(st_size(8, 8), &small_weapon_icons.at(small_weapon_icons.size()-1));
 		copyArea(st_rectangle(i*8, 0, 8, 8), st_position(0, 0), &tmp, &(small_weapon_icons.at(small_weapon_icons.size()-1)));
 	}
+    filename = FILEPATH + "images/icons_small_disabled.png";
+    surfaceFromFile(filename, &tmp);
+    for (int i=0; i<(tmp.width/8); i++) {
+        small_weapon_icons_disabled.push_back(graphicsLib_gSurface());
+        initSurface(st_size(8, 8), &small_weapon_icons_disabled.at(small_weapon_icons_disabled.size()-1));
+        copyArea(st_rectangle(i*8, 0, 8, 8), st_position(0, 0), &tmp, &(small_weapon_icons_disabled.at(small_weapon_icons_disabled.size()-1)));
+    }
 
 
     filename = FILEPATH + "images/backgrounds/dialog.png";
@@ -1168,7 +1175,11 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
 void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active)
 {
     int icon_size = small_weapon_icons.at(weapon_n).width;
-    showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);
+    if (active) {
+        showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);
+    } else {
+        showSurfaceRegionAt(&small_weapon_icons_disabled.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);
+    }
 }
 
 void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)

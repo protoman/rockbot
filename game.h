@@ -200,6 +200,7 @@ public:
     void set_selected_game(std::string game_name);
     void restart_stage_music();
 
+    void game_over();
 
 private:
     void exit_game();
