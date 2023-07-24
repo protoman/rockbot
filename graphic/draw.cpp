@@ -50,6 +50,11 @@ extern soundLib soundManager;
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 
+#define ARMOR_PIECES_SPRITE_W 28
+#define ARMOR_PIECES_SPRITE_H 29
+
+#define ARMOR_PIECES_SPRITE_POS_X (RES_W - 36)
+
 #include "data/datautil.h"
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
@@ -100,7 +105,6 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/boss_intro_bg.png";
     graphLib.surfaceFromFile(filename, &boss_intro_bg);
 
-
     // DROPABLE OBJECT GRAPHICS
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         for (int j=0; j<DROP_ITEM_COUNT; j++) {
@@ -150,6 +154,10 @@ void draw::preload()
 
     filename = FILEPATH + "images/backgrounds/weapon_menu.png";
     graphLib.surfaceFromFile(filename, &ingame_menu_bg_img);
+
+    filename = FILEPATH + "/images/backgrounds/player_armor_pieces.png";
+    graphLib.surfaceFromFile(filename, &ingame_menu_player_armor_pieces);
+
 }
 
 void draw::show_gfx()
@@ -273,7 +281,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     std::string bg_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename_str;
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
 
-    std::cout << "### graph_filename[" << graph_filename << "], bg_filename[" << bg_filename << "]" << std::endl;
+    //std::cout << "### graph_filename[" << graph_filename << "], bg_filename[" << bg_filename << "]" << std::endl;
 
     graphicsLib_gSurface bg_img;
     int bg_x = 0;
@@ -284,7 +292,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     int dest_y = 0;
     bool show_bg = false;
     if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
-        std::cout << "### HAS_BG" << std::endl;
+        //std::cout << "### HAS_BG" << std::endl;
         show_bg = true;
         graphLib.surfaceFromFile(bg_filename.c_str(), &bg_img);
         // available space is 320x117
@@ -309,12 +317,12 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
 
         bg_x = 0;
 
-        std::cout << "bg_x[" << bg_x << "], bg_y[" << bg_y << "], bg_w[" << bg_w << "], bg_h[" << bg_h << "], dest_x[" << dest_x << "], dest_y[" << dest_y << "]" << std::endl;
+        //std::cout << "bg_x[" << bg_x << "], bg_y[" << bg_y << "], bg_w[" << bg_w << "], bg_h[" << bg_h << "], dest_x[" << dest_x << "], dest_y[" << dest_y << "]" << std::endl;
         graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
 
 
-    } else {
-        std::cout << "### NO_BG" << std::endl;
+    //} else {
+        //std::cout << "### NO_BG" << std::endl;
     }
 
 
@@ -961,9 +969,6 @@ void draw::draw_weapon_menu_weapon(short selected_weapon_n)
     graphLib.draw_text(104, 165,  strings_map::get_instance()->get_ingame_string(strings_weapon_selected)+std::string("/")+strings_map::get_instance()->get_ingame_string(strings_ingame_item)+std::string(":"));
     graphLib.draw_text(104, 179,  get_selected_weapon_name(selected_weapon_n));
 
-    char player_lifes[20];
-    sprintf(player_lifes, "x[%d]", game_save.items.lifes);
-    graphLib.draw_text(48, 178, player_lifes);
 }
 
 string draw::get_selected_weapon_name(int selected_weapon_n)
@@ -994,7 +999,23 @@ string draw::get_selected_weapon_name(int selected_weapon_n)
 
 void draw::weapon_menu_show_player(graphicsLib_gSurface *character_sprite)
 {
-    graphLib.copyArea(st_position(16, 157), character_sprite, &graphLib.gameScreen);
+    graphLib.copyArea(st_position(6, 157), character_sprite, &graphLib.gameScreen);
+    char player_lifes[20];
+    sprintf(player_lifes, "x[%d]", game_save.items.lifes);
+    graphLib.draw_text(38, 178, player_lifes);
+
+    // show armor pieces
+    graphLib.copyArea(st_rectangle(0, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W*2, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W*3, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+
 }
 
 

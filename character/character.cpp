@@ -966,12 +966,12 @@ void character::show_at(st_position pos)
     }
 #ifdef SHOW_VULNERABLE_AREAS
     st_rectangle vulnerable_area = get_vulnerable_area();
-    graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 100);
+    if (!is_player()) {
+        vulnerable_area.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
+        graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 180);
+    }
 #endif
 }
-
-
-
 
 
 void character::show_sprite()
@@ -2407,7 +2407,8 @@ st_rectangle character::get_vulnerable_area(int anim_type)
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            x += vulnerable_area_box.x;
+            //x = position.x + frameSize.width - col_rect.x - col_rect.w;
+            x = position.x + frameSize.width - vulnerable_area_box.x - vulnerable_area_box.w;
         } else {
             x = position.x + frameSize.width - vulnerable_area_box.w;
         }
@@ -2418,8 +2419,6 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     } else {
         return st_rectangle(0, 0, 0, 0);
     }
-
-
 }
 
 

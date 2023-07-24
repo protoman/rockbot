@@ -1422,15 +1422,16 @@ void game::quick_load_game()
     */
 
     //scenes.select_save(false);
-    scenes.select_player();
-    game_save.selected_player = PLAYER_2;
+    //scenes.select_player();
+    game_save.selected_player = PLAYER_1;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
-        currentStage = INTRO_STAGE;
+        //currentStage = STAGE5;
+        currentStage = CASTLE1_STAGE5;
         game_save.stages[0] = 1;
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 

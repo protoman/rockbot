@@ -1489,6 +1489,11 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         continue;
                     }
 
+                    if (charObj->is_player() == true && temp_obj.get_type() == OBJ_CRUSHER && temp_obj.check_player_crushed()) {
+                        charObj->damage(999, false);
+                        continue;
+                    }
+
                     // if inside object and is disappearing block, move char above it
                     if (no_move_blocked == BLOCK_XY && temp_blocked == BLOCK_XY && (charObj->is_player() && temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK || charObj->is_player() && temp_obj.get_type() == OBJ_ACTIVE_DISAPPEARING_BLOCK)) {
                         charObj->set_position(st_position(charObj->get_int_position().x, temp_obj.get_position().y - charObj->get_size().height));

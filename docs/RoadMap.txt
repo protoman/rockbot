@@ -4,9 +4,15 @@
 - Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
 - Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
 - melhor ajuste na posição de Glue.H para grudar na parede
-- Fix hitboxes when facing left.
+- Fix hitboxes/vulçnerable-area when facing left.
 - Adjust hitbox for Kurupira so player can jump over him.
 - Alguns efeitos sonoros tocavam mesmo com o audio desabilitado.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Novo tipo de item, crusher (tipo uma marreta que esmaga o player).
+- Ajustes estagio Circo.
+- Adicionada reação de IA faltando, perto do jogador (1/4 distancia-movimento).
+- Correção IA do beast Bot, faz dash até a frente do player antes de usar o dash.
 
 ###########################################################################################################################
 TODO:
@@ -16,36 +22,17 @@ TODO:
 
 - adicionar novas músicas em Rockbot 2
 
-- readicionar vidas e comtinue/back-to-menu
-    # hard 2
-    # normal 5
-    # easy 9
-    # mostrar vidas no save
-
-- refazer menu de armas
-    # dar uma olhada em jogos tipo megaman para fazer algo diferente visualmente
-    # readicionar vidas
-
 - finalizar Rockbot 2:
     # kurupira: melhorar IA
         # ao recuperar porco ele deve sumir ao encostar no Kurupira
-        # atirar o porco troca gráficos
-    # circo
-        # parte com barris precisa um inimigo tipo martelo-esmaga
-        # colocar blocos easy
-        # soldadinhos de chumbo só andam, poderiam correr ou atirar
-        # remover 1up
-        # projetil beast não sai (aparece e some)
-            # se era para ser assim, ele deveria correr até a frente do jogador e daí atacar
+        # atirar o porco troca sprites por um instante
 
+- castle 5:
+    # remover middle-boss
+    # adicionar idálogos boss
+    # adicionar cutscene fim
 
-
-
-
-
-
-
-
+- final: esta mostrando octopus com nome kill bear e torak como octopus
 
 
 ###########################################################################################################################

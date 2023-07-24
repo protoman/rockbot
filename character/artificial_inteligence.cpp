@@ -151,6 +151,9 @@ void artificial_inteligence::check_ai_reaction()
     } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
         _reaction_type = 3;
         start_reaction = true;
+    } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action > 0) {
+        _reaction_type = 4;
+        start_reaction = true;
     }
 
     _was_hit = false; // reset flag
@@ -914,6 +917,11 @@ void artificial_inteligence::execute_ai_step_walk()
             if (move_type == AI_ACTION_WALK_OPTION_TO_PLAYER) {
                 struct_player_dist dist_players = dist_npc_players();
                 _dest_point = dist_players.pObj->getPosition();
+                if (dist_players.pObj->getPosition().x > (position.x  + frameSize.width/2)) {
+                    set_direction(ANIM_DIRECTION_RIGHT);
+                } else {
+                    set_direction(ANIM_DIRECTION_LEFT);
+                }
             } else if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_AHEAD) {
                 if (state.direction == ANIM_DIRECTION_LEFT) {
                     _dest_point.x = position.x - frameSize.width/2 - walk_range;
@@ -1418,8 +1426,6 @@ void artificial_inteligence::execute_ai_step_dash()
             set_direction(ANIM_DIRECTION_RIGHT);
         } else if (_parameter == AI_ACTION_DASH_OPTION_TO_PLAYER) {
             struct_player_dist dist_players = dist_npc_players();
-
-
             if (dist_players.pObj->getPosition().x > (position.x  + frameSize.width/2)) {
                 set_direction(ANIM_DIRECTION_RIGHT);
                 _dest_point.x = position.x + frameSize.width/2 + walk_range;
@@ -1427,6 +1433,18 @@ void artificial_inteligence::execute_ai_step_dash()
                 set_direction(ANIM_DIRECTION_LEFT);
                 _dest_point.x = position.x + frameSize.width/2 - walk_range;
             }
+            _dest_point.y = position.y;
+        } else if (_parameter == AI_ACTION_DASH_OPTION_TO_NEAR_PLAYER) {
+            st_rectangle player_hitbox = gameControl.get_current_map_obj()->_player_ref->get_hitbox();
+            struct_player_dist dist_players = dist_npc_players();
+            if (dist_players.pObj->getPosition().x > (position.x  + frameSize.width/2)) {
+                set_direction(ANIM_DIRECTION_RIGHT);
+                _dest_point.x = player_hitbox.x - (player_hitbox.w*2 + 10);
+            } else {
+                set_direction(ANIM_DIRECTION_LEFT);
+                _dest_point.x = player_hitbox.x + player_hitbox.w - 10;
+            }
+            int scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
             _dest_point.y = position.y;
         } else if (_parameter == AI_ACTION_DASH_OPTION_OPPOSITE_DIRECTION) {
             if (realPosition.x > RES_W/2) {

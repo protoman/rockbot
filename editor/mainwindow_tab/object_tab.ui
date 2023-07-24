@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>815</width>
-    <height>471</height>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -247,6 +247,11 @@
           <item>
            <property name="text">
             <string>Stage Boss teleporter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Crusher</string>
            </property>
           </item>
          </widget>

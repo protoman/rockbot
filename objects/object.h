@@ -25,6 +25,14 @@ enum e_OBJECT_BOSS_DOOR_STATES {
     e_OBJECT_BOSS_DOOR_STATE_COUNT
 };
 
+enum e_OBJECT_CRUSHER_STATE {
+    e_OBJECT_CRUSHER_STATE_INIT,
+    e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL,
+    e_OBJECT_CRUSHER_STATE_FOUND_HIT_GROUND,
+    e_OBJECT_CRUSHER_STATE_RETURNING,
+    e_OBJECT_CRUSHER_STATE_COUNT
+};
+
 /**
  * @brief
  *
@@ -45,10 +53,15 @@ public:
     void show_deathray_vertical(int adjust_x=0, int adjust_y=0);
     void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
     void show_boss_door(int adjust_x=0, int adjust_y=0);
+    void show_crusher();
 
     bool is_platform();                                             // tell if object is of platform type
 
     void move(bool paused);
+
+    void move_crusher();
+
+    bool check_player_crushed();
 
     void reset_animation();
 
@@ -155,6 +168,7 @@ private:
     bool show_teleport;
     long teleport_max_timer;
     bool item_jet_started = false;
+    float crusher_speed = 0;
 };
 
 #endif // OBJECT_H

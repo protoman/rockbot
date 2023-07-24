@@ -35,6 +35,10 @@ extern game gameControl;
 #define DAMAGING_PLATFORM_TIME 100
 #define INITIAL_ACTIVATION_DELAY 220
 
+#define CRUSHER_X_TOLERANCE 3
+#define CRUSHER_Y_TOLERANCE 4
+#define CRUSHER_DELAY 800
+
 // constructor for game_object
 
 
@@ -198,7 +202,7 @@ void object::gravity()
         return;
     }
 	// non-falling object types
-    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_CRUSHER) {
 		return;
 	}
     for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
@@ -222,6 +226,8 @@ bool object::test_change_position(short xinc, short yinc)
 	if (xinc == 0 && yinc == 0) {
 		return true;
 	}
+
+    // TODO - OBJ_CRUSHER ignore walls until it leaves inside it. It accelerated until hit a ghround after leaving the wall
 
     if (yinc > 0 && position.y > RES_H) { // check if item felt out of screen
         if (position.y < RES_H+TILESIZE*2) {
@@ -396,6 +402,9 @@ void object::show(int adjust_y, int adjust_x)
     //} else if (type == OBJ_BOSS_DOOR) {
         //show_boss_door(adjust_x, adjust_y);
         //return;
+    } else if (type == OBJ_CRUSHER) {
+        show_crusher();
+        return;
     }
 
     if (show_teleport) {
@@ -635,6 +644,24 @@ void object::show_boss_door(int adjust_x, int adjust_y)
         graphLib.copyArea(st_rectangle(0, 0, framesize_w, graph_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
 
+}
+
+void object::show_crusher()
+{
+    float scroll_x = (float)map->getMapScrolling().x;
+    float scroll_y = (float)map->getMapScrolling().y;
+    st_position graphic_destiny = st_position(position.x - scroll_x, position.y + scroll_y);
+    // first frame is the lower part
+    graphLib.copyArea(st_rectangle(0, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    // second frame repeats to fill the area above
+    int repeat_n = (position.y - start_point.y)/framesize_h;
+    //std::cout << "OBJ::show_crusher - repeat_n[" << repeat_n << "], start_point.y[" << start_point.y << "], position.y[" << position.y << "]" << std::endl;
+    for (int i=0; i<repeat_n; i++) {
+        graphLib.copyArea(st_rectangle(framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y-(framesize_h*(i+1))), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    }
+    // draw the remaining, if needed
+    int remaining = position.y - framesize_h*repeat_n - start_point.y;
+    graphLib.copyArea(st_rectangle(framesize_w, 0, framesize_w, remaining), st_position(start_point.x-scroll_x, start_point.y-scroll_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
 }
 
 bool object::is_platform()
@@ -1048,7 +1075,58 @@ void object::move(bool paused)
                 _state = e_OBJECT_BOSS_DOOR_STATE_NONE;
             }
         }
+    } else if (type == OBJ_CRUSHER) {
+        move_crusher();
     }
+}
+
+void object::move_crusher()
+{
+    if (_state == e_OBJECT_CRUSHER_STATE_INIT) {
+        position.y += crusher_speed;
+        crusher_speed += 0.1;
+        short p1 = map->getMapPointLock(st_position((position.x+(framesize_w/2))/TILESIZE, (position.y+framesize_h)/TILESIZE));
+        if (p1 == TERRAIN_UNBLOCKED) {
+            _state = e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL;
+        }
+    } else if (_state == e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL) {
+        position.y += crusher_speed;
+        crusher_speed += 0.1;
+        short p1 = map->getMapPointLock(st_position((position.x+(framesize_w/2))/TILESIZE, (position.y+framesize_h)/TILESIZE));
+        if (p1 != TERRAIN_UNBLOCKED) {
+            _state = e_OBJECT_CRUSHER_STATE_FOUND_HIT_GROUND;
+            obj_timer = timer.getTimer() + CRUSHER_DELAY;
+        }
+    } else if (_state == e_OBJECT_CRUSHER_STATE_FOUND_HIT_GROUND) {
+        crusher_speed = 0.0;
+        if (timer.getTimer() > obj_timer) {
+            _state = e_OBJECT_CRUSHER_STATE_RETURNING;
+        }
+    } else if (_state == e_OBJECT_CRUSHER_STATE_RETURNING) {
+        position.y -= speed;
+        if (position.y <= start_point.y) {
+            position.y = start_point.y;
+            _state = e_OBJECT_CRUSHER_STATE_INIT;
+            // TODO: add timer
+        }
+    }
+
+}
+
+bool object::check_player_crushed()
+{
+    if (_state != e_OBJECT_CRUSHER_STATE_INIT && _state != e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL) {
+        return false;
+    }
+    st_rectangle p_rect = gameControl.get_player()->get_hitbox();
+    std::cout << "check_player_crushed - p_rect.x[" << p_rect.x << "], position.x[" << position.x << "]" << std::endl;
+    if (p_rect.x >= position.x+CRUSHER_X_TOLERANCE && p_rect.x <= position.x+framesize_w-CRUSHER_X_TOLERANCE && p_rect.y <= position.y+framesize_h-CRUSHER_Y_TOLERANCE) {
+        return true;
+    }
+    if (p_rect.x+p_rect.w >= position.x+CRUSHER_X_TOLERANCE && p_rect.x+p_rect.w <= position.x+framesize_w-CRUSHER_X_TOLERANCE && p_rect.y <= position.y+framesize_h-CRUSHER_Y_TOLERANCE) {
+        return true;
+    }
+    return false;
 }
 
 void object::reset_animation()

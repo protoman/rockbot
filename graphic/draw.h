@@ -153,6 +153,7 @@ private:
 
     // used in weapoins menu
     struct graphicsLib_gSurface ingame_menu_bg_img;
+    struct graphicsLib_gSurface ingame_menu_player_armor_pieces;
 
     // WEAPON ICON TOOLTIP
     const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type
