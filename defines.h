@@ -1403,8 +1403,8 @@ enum e_INPUT_IMAGES {
 
 #define WEAPON_MENU_COL_N 4
 
-#define SHOW_HITBOXES 1
-#define SHOW_VULNERABLE_AREAS
+//#define SHOW_HITBOXES 1
+//#define SHOW_VULNERABLE_AREAS
 
 #endif // DEFINES_H
 
