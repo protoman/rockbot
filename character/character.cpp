@@ -985,6 +985,8 @@ void character::show_sprite()
             frame_inc = frame_inc * -1;
 		}
         int new_frame = (state.animation_state + frame_inc);
+
+
         if (have_frame_graphic(state.direction, state.animation_type, new_frame)) {
 			state.animation_state += frame_inc;
             if (state.animation_state < 0) {
@@ -1448,8 +1450,11 @@ bool character::is_entirely_on_screen()
         return true;
     }
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
+    float my_pos = abs((float)position.x+(float)frameSize.width);
+    int limit_min = scroll.x+TILESIZE;
+    int limit_max = scroll.x+RES_W;
 
-    if (abs((float)position.x + frameSize.width) >= scroll.x+TILESIZE && abs((float)position.x+(float)frameSize.width) < scroll.x+RES_W-TILESIZE) {
+    if (my_pos >= limit_min && my_pos <= limit_max) {
         return true;
     }
     return false;
@@ -2511,7 +2516,8 @@ void character::advance_to_last_frame()
 
 bool character::is_on_last_animation_frame()
 {
-    return (_is_last_frame && state.animation_timer < timer.getTimer()+2000); // plus 2 seconds before the fight starts
+    bool result = (_is_last_frame && state.animation_timer < timer.getTimer());
+    return result;
 }
 
 bool character::have_frame_graphic(int direction, int type, int pos)
@@ -2841,7 +2847,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         damage_points += _damage_modifier;
     }
 
-	if (hitPoints.current <= 0) { /// already dead
+    if (hitPoints.current <= 0) { // already dead
 		return;
 	}
 
@@ -2851,7 +2857,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 	}
 
 	unsigned int now_timer = timer.getTimer();
-    if (now_timer < hit_duration+last_hit_time) { /// is still intangible from last hit
+    if (now_timer < hit_duration+last_hit_time) { // is still intangible from last hit
         return;
     }
 
@@ -3203,6 +3209,9 @@ bool character::is_intangible()
     if (state.animation_type == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE) {
         return true;
     }
+    if (timer.getTimer() < hit_duration+last_hit_time) { // is still intangible from last hit
+        return true;
+    }
     return false;
 }
 
@@ -3335,7 +3344,6 @@ bool character::is_weak_to_freeze()
     if (wpn_id == -1) {
         return false;
     }
-    //if (game_data.game_npcs[_number].weakness[wpn_id].damage_multiplier == 0) {
     if (GameMediator::get_instance()->get_enemy(_number)->weakness[wpn_id].damage_multiplier == 0) {
         return false;
     }

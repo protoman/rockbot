@@ -853,6 +853,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     // 1. keep showing game screen until player reaches ground
     player1.clear_move_commands();
 	bool loop_run = true;
+    long limit_time = timer.getTimer() + 3000;
 	while (loop_run == true) {
         loaded_stage.show_stage();
         player1.charMove();
@@ -860,6 +861,9 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
         if (player1.hit_ground() == true && anim_type == ANIM_TYPE_STAND) {
 			loop_run = false;
 		}
+        if (timer.getTimer() > limit_time) {
+            loop_run = false;
+        }
         player1.show();
         loaded_stage.showAbove();
         timer.delay(8);
@@ -878,6 +882,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     if (boss_ref != NULL) {
         if (is_static_boss == false) {
             loop_run = true;
+            long limit_time = timer.getTimer() + 3000;
             while (loop_run == true) {
                 if (loaded_stage.boss_hit_ground(boss_ref) == true) {
                     loop_run = false;
@@ -885,14 +890,18 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
                 } else {
                     show_stage(0, true);
                 }
+                if (timer.getTimer() > limit_time) {
+                    loop_run = false;
+                }
             }
         }
     }
 
     // 4. show boss intro sprites animation
     loop_run = true;
+    limit_time = timer.getTimer() + 3000;
     while (loop_run == true) {
-        if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) {
+        if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) { // done playing the intro
             // TODO: check for flying enemies
             if (boss_ref->get_can_fly() == true) {
                 boss_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
@@ -902,10 +911,14 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
             }
             loop_run = false;
             show_stage(0, false);
-        } else {
+        } else { // still running the intro animation
             show_stage(0, true);
         }
+        if (timer.getTimer() > limit_time) {
+            loop_run = false;
+        }
     }
+    // TODO: add a delay here
 
     if (is_stage_boss) {
         // 5. show boss dialog
@@ -1391,15 +1404,15 @@ void game::quick_load_game()
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
-/*
     game_save.stages[INTRO_STAGE] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
-        game_save.stages[i] = 0;
+        game_save.stages[i] = 1;
     }
+    /*
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
         game_save.stages[i] = 1;
     }
-*/
+    */
     //data_out.stages[STAGE1] = 1; // APE: coil
     //data_out.stages[STAGE6] = 1; // TECHNO: jet
     //data_out.stages[STAGE3] = 1; // TECHNO: jet
@@ -1438,7 +1451,7 @@ void game::quick_load_game()
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     //scenes.boss_intro(currentStage);
 

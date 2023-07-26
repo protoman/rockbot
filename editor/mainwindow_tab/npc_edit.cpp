@@ -203,7 +203,11 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
 
     fill_data();
 
+    ui->npc_edit_tab_previewarea->set_grid_w(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
+    ui->npc_edit_tab_previewarea->set_grid_h(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
+    ui->npc_edit_tab_previewarea->update();
 
+    reload_frame_list(Mediator::get_instance()->current_sprite_type);
 	_data_loading = false;
 }
 

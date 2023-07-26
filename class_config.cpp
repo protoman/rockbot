@@ -315,7 +315,6 @@ bool class_config::execute_ingame_menu()
         if (input.p1_input[BTN_UP] == 1) {
             soundManager.play_sfx(SFX_CURSOR);
             int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -WEAPON_MENU_COL_N);
-            std::cout << "WEAPON-MENU-UP[" << player_ref->get_selected_weapon() << "][" << selected_weapon_c << "]" << std::endl;
             if (selected_weapon_c != -1) {
                 player_ref->set_weapon(selected_weapon_c, true);
                 draw_ingame_menu();
@@ -323,7 +322,6 @@ bool class_config::execute_ingame_menu()
         } else if (input.p1_input[BTN_DOWN] == 1) {
             soundManager.play_sfx(SFX_CURSOR);
             int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), WEAPON_MENU_COL_N);
-            std::cout << "WEAPON-MENU-DOWN[" << player_ref->get_selected_weapon() << "][" << selected_weapon_c << "]" << std::endl;
             if (selected_weapon_c != -1) {
                 player_ref->set_weapon(selected_weapon_c, true);
                 draw_ingame_menu();

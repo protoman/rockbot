@@ -324,6 +324,7 @@ void classnpc::npc_set_direction(short dir)
 
 void classnpc::npc_set_initialized(short init)
 {
+    std::cout << ">>>> NPC::npc_set_initialized[" << name << "], init[" << init << "]" << std::endl;
     _initialized = init;
 }
 
@@ -413,13 +414,18 @@ void classnpc::boss_move()
     move_projectiles();
     bool is_static_boss = is_static();
 
+    // no need for further numbers, otherwise it will create an overflow
+    if (_initialized > 4) {
+        _initialized = 4;
+    }
+
     if (is_entirely_on_screen() == true && _initialized == 0 && _is_boss == true) { /// @TODO: move this logic to map (player should not move while boss is presenting)
         _initialized++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         gameControl.map_present_boss(is_stage_boss(), is_static_boss, is_stage_boss());
         // set temp-background in map
         return;
-    } else if (is_entirely_on_screen() == false && is_on_screen() == true &&  _initialized == 0 && _is_boss == true) {
+    } else if (is_entirely_on_screen() == false && is_on_screen() == true && _initialized == 0 && _is_boss == true) {
         fall_to_ground();
         _initialized = 1;
         return;
@@ -436,11 +442,13 @@ void classnpc::boss_move()
     }
 
     if (_ai_timer > timer.getTimer()) {
+        //std::cout << "NPC::EXECUTE.boss_move[" << name << "] - END #1" << std::endl;
         return;
     }
 
     execute_ai();
     gravity(false);
+    //std::cout << "NPC::EXECUTE.boss_move[" << name << "] - END #2" << std::endl;
 }
 
 

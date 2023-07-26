@@ -30,12 +30,12 @@ soundLib::~soundLib()
 void soundLib::init_audio_system()
 {
     int bitrate = MIX_DEFAULT_FREQUENCY;
-    int channels = 2;
+    int channels = MIX_DEFAULT_CHANNELS;
 #if defined(ANDROID) || defined(POCKETGO)
     //bitrate = 11000;
     //channels = 1;
 #endif
-    if (Mix_OpenAudio(bitrate, MIX_DEFAULT_FORMAT, channels, 4096) < 0) {
+    if (Mix_OpenAudio(bitrate, MIX_DEFAULT_FORMAT, channels, 1024) < 0) {
         std::cout << "Couldn't open audio. Error: " << SDL_GetError() << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB[Couldn't open audio.] ###");

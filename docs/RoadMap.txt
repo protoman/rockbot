@@ -10,15 +10,19 @@
 - Vidas e continue/game-over de volta.
 - Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
 - Novo tipo de item, crusher (tipo uma marreta que esmaga o player).
-- Ajustes estagio Circo.
+- #2: Ajustes estagio Circo.
 - Adicionada reação de IA faltando, perto do jogador (1/4 distancia-movimento).
-- Correção IA do beast Bot, faz dash até a frente do player antes de usar o dash.
+- #2: Correção IA do beast Bot, faz dash até a frente do player antes de usar o dash.
+- #2: Correção nomes chefes final.
+- Editor: update frames when changing between enemies.
+- multiplicador zero para dano estava sendo ignorado.
+- projetil não deve ser consumido se inimigo esta no tempo de intangibilidade.
+- adicionada Destrin Ship ao derrotar Machine.
 
 ###########################################################################################################################
 TODO:
 ###########################################################################################################################
-- editor: grid dos sprites dos inimigos não está atualizando com o tamanho dos sprites ao trocar inimigo
-    # ao trocar tamanho, esta atualizando
+- lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5
 
 - adicionar novas músicas em Rockbot 2
 
@@ -28,12 +32,11 @@ TODO:
         # atirar o porco troca sprites por um instante
 
 - castle 5:
-    # remover middle-boss
-    # adicionar idálogos boss
+    # revisar dálogo boss
     # adicionar cutscene fim
 
-- final: esta mostrando octopus com nome kill bear e torak como octopus
-
+- laser muito rápido
+- gráfico do laser não esta certo (invertido) dependendo a direção que reflete
 
 ###########################################################################################################################
 

@@ -2267,6 +2267,7 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
     return false;
 }
 
+// return false when still playing and true when unable or done
 bool classMap::boss_show_intro_sprites(classnpc *npc_ref)
 {
     if (npc_ref->have_frame_graphic(npc_ref->get_direction(), ANIM_TYPE_INTRO, 0) == false) {

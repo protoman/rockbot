@@ -1953,10 +1953,14 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     // spawn new npc
     classnpc* npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
+
     // is executing reaction and is dying and is map-boss -> set child as new map-boss
     if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
         _is_stage_boss = false;
         npc_ref->set_stage_boss(true);
+        hp_copy.total = BOSS_INITIAL_HP;
+        hp_copy.current = hitPoints.total;
+        npc_ref->npc_set_hp(hp_copy);
     // is morphing into the new NPC, copy some properties
     } else if (morph == true) {
         if (_is_stage_boss) {
@@ -1966,13 +1970,11 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
         // @TODO: the boss HP HUD gets lost with morph //
         _dead_state = DEAD_STATE_IGNORE;
         npc_ref->npc_set_hp(hp_copy);
-        // adjust Y post because of heigth difference //
-        st_float_position new_pos = position;
-        new_pos.y += frameSize.height - npc_ref->get_size().height;
-        npc_ref->npc_set_position(new_pos);
-        npc_ref->npc_set_direction(state.direction);
-        npc_ref->npc_set_initialized(3);
     }
+    st_float_position new_pos = position;
+    new_pos.y += frameSize.height - npc_ref->get_size().height; // adjust Y post because of heigth difference //
+    npc_ref->npc_set_position(new_pos);
+    npc_ref->npc_set_initialized(4);
 }
 
 
