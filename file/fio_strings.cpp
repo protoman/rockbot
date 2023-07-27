@@ -1214,6 +1214,7 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->current_language) + "/" + std::string(file_chr);
+        std::cout << "FIO:_STRINGS::get_string_list_from_scene_text_file[" << filename << "]" << std::endl;
         filename = StringUtils::clean_filename(filename);
         // if does not have language, try default english
         if (!file_exists(filename) && SharedData::get_instance()->current_language != LANGUAGE_ENGLISH) {
@@ -1253,6 +1254,7 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
+        std::cout << "FIO:_STRINGS::write_scene_text_file[" << filename << "]" << std::endl;
         // fill empty spaces
         if (list.size() < SCENE_TEXT_LINES_N) {
             for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {

@@ -1404,11 +1404,11 @@ void game::quick_load_game()
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
+    /*
     game_save.stages[INTRO_STAGE] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
         game_save.stages[i] = 1;
     }
-    /*
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
         game_save.stages[i] = 1;
     }
@@ -1444,7 +1444,7 @@ void game::quick_load_game()
         //currentStage = STAGE5;
         currentStage = CASTLE1_STAGE5;
         game_save.stages[0] = 1;
-        //currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 

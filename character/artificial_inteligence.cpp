@@ -128,10 +128,6 @@ void artificial_inteligence::check_ai_reaction()
     if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {
         _reaction_type = 0;
         start_reaction = true;
-    // hit
-    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action > 0) {
-        _reaction_type = 1;
-        start_reaction = true;
     // dead
     } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action > 0) {
         _reaction_type = 2;
@@ -147,7 +143,10 @@ void artificial_inteligence::check_ai_reaction()
         animation anim2(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, state.direction, st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
         anim2.set_initial_delay(500);
         gameControl.get_current_map_obj()->add_animation(anim2);
-
+    // hit (comes after death to avoid not firing that reaction that has priority)
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action > 0) {
+        _reaction_type = 1;
+        start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
         _reaction_type = 3;
         start_reaction = true;

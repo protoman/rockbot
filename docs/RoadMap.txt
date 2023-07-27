@@ -18,6 +18,8 @@
 - multiplicador zero para dano estava sendo ignorado.
 - projetil não deve ser consumido se inimigo esta no tempo de intangibilidade.
 - adicionada Destrin Ship ao derrotar Machine.
+- Improve sfx delay by lowering buffer size.
+- Novas músicas de Simone Bernacchia
 
 ###########################################################################################################################
 TODO:
@@ -26,16 +28,28 @@ TODO:
 
 - adicionar novas músicas em Rockbot 2
 
+
 - finalizar Rockbot 2:
     # kurupira: melhorar IA
         # ao recuperar porco ele deve sumir ao encostar no Kurupira
         # atirar o porco troca sprites por um instante
 
-- castle 5:
-    # revisar dálogo boss
-    # adicionar cutscene fim
 
-- laser muito rápido
+- adicionar intro:
+    # jornal mostrando vitória (atualizar sprite Destrin)
+    # precisa novas imagens estilo chibi
+    # rock e candy correndo
+
+- adicionar cutscene fim
+    # rock: how many times should I defeat you until this ends?
+    # candy: look mister, this time, just satay on prision, ok?
+    # beta: after a while, I finnally understood why rock saved you last time
+    # if you keep doing this schemas, one day, someone will just end you.
+    # personagems olhando para o cidade ao longe (estilo ninja gaiden)
+        # so much effort, even building this whole castle
+        # using a parent grief
+        # I will make sure you won't leave prision, ever again, Dr. Destrin
+
 - gráfico do laser não esta certo (invertido) dependendo a direção que reflete
 
 ###########################################################################################################################

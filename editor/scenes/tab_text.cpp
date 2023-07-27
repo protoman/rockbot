@@ -28,7 +28,6 @@ TabText::~TabText()
 void TabText::save_data()
 {
     fio_scenes.save_scenes_show_text(ScenesMediator::get_instance()->text_list);
-
     save_data(currentIndex);
 }
 
@@ -43,6 +42,7 @@ void TabText::save_data(int n)
 
 void TabText::reload()
 {
+    currentIndex = 0;
     fill_data();
 }
 
