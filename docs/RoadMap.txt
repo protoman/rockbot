@@ -26,19 +26,11 @@ TODO:
 ###########################################################################################################################
 - lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5
 
-- adicionar novas músicas em Rockbot 2
-
-
 - finalizar Rockbot 2:
     # kurupira: melhorar IA
         # ao recuperar porco ele deve sumir ao encostar no Kurupira
         # atirar o porco troca sprites por um instante
 
-
-- adicionar intro:
-    # jornal mostrando vitória (atualizar sprite Destrin)
-    # precisa novas imagens estilo chibi
-    # rock e candy correndo
 
 - adicionar cutscene fim
     # rock: how many times should I defeat you until this ends?
