@@ -65,7 +65,7 @@ void game_menu::show_extra_menu()
         // ABOUT/CREDITS //
         if (selected_option == 0) {
             // only wait for keypress if user did not interrupted credits
-            if (draw_lib.show_credits(true) == 0) {
+            if (draw_lib.show_credits(true, false) == 0) {
                 input.wait_keypress();
             }
         }

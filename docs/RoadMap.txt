@@ -20,10 +20,17 @@
 - adicionada Destrin Ship ao derrotar Machine.
 - Improve sfx delay by lowering buffer size.
 - Novas músicas de Simone Bernacchia
+- Continuar mostrando "presented by upperland studios" when new characters message is shown.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
 
 ###########################################################################################################################
 TODO:
 ###########################################################################################################################
+- vulnerable-area do player esta não batendo com inimigos, dá para "entrar" em parte neles e não toma dano
+(TESTAR) - tentar trocar nome da app android
+- mostrar msg novos personagens só na primeira vez q liberar eles
+
+
 - lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5
 
 - finalizar Rockbot 2:
@@ -33,11 +40,7 @@ TODO:
 
 
 - adicionar cutscene fim
-    # rock: how many times should I defeat you until this ends?
-    # candy: look mister, this time, just satay on prision, ok?
-    # beta: after a while, I finnally understood why rock saved you last time
-    # if you keep doing this schemas, one day, someone will just end you.
-    # personagems olhando para o cidade ao longe (estilo ninja gaiden)
+     # personagems olhando para o cidade ao longe (estilo ninja gaiden)
         # so much effort, even building this whole castle
         # using a parent grief
         # I will make sure you won't leave prision, ever again, Dr. Destrin

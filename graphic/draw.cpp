@@ -446,7 +446,7 @@ void draw::show_teleport_small(int x, int y)
     }
 }
 
-int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text)
+int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text, bool show_new_characters_warning)
 {
     unsigned int scrolled = 0;
     int posY = RES_H;
@@ -542,14 +542,15 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
                 bg2_pos = 0;
             }
 
-            graphLib.draw_centered_text(RES_H-34, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_AVAILABLE));
+            draw_credits_line(credit_text.size()-2, credit_text, posY);
+            draw_credits_line(credit_text.size()-1, credit_text, posY);
+            if (show_new_characters_warning == true) {
+                graphLib.draw_centered_text(RES_H-34, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_AVAILABLE));
+            }
             graphLib.draw_text(40, RES_H-22, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE));
             graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(80, RES_H-24), false);
 
-            draw_credits_line(credit_text.size()-2, credit_text, -300);
-            draw_credits_line(credit_text.size()-1, credit_text, -300);
-
-            if (input.wait_scape_time(STARS_DELAY/2) == 1 || input.p1_input[BTN_JUMP] == 1) {
+            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_JUMP] == 1) {
                 keep_running = false;
                 return 1;
             }
@@ -584,13 +585,13 @@ void draw::draw_credits_line(int i, std::vector<string> credit_text, int posY)
     }
 }
 
-int draw::show_credits(bool can_leave)
+int draw::show_credits(bool can_leave, bool show_new_characters_warning)
 {
     soundManager.stop_music();
     soundManager.load_music("rockbot_endcredits.mod");
     soundManager.play_music();
 
-    int res = show_credits_text(can_leave, create_engine_credits_text());
+    int res = show_credits_text(can_leave, create_engine_credits_text(), show_new_characters_warning);
 
     if (res == 1) {
         soundManager.stop_music();

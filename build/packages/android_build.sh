@@ -76,12 +76,12 @@ case $response in
 		
 		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" ./AndroidAppSettings.cfg > ./AndroidAppSettings.cfg.temp1
 		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
-		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockdroid$version_number\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
+		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot $version_number\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
 		if [ "$version_number" == "1" ]; then
-                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
-                else
-                    sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
-                fi
+			sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
+		else
+			sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
+		fi
 		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old

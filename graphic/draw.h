@@ -46,9 +46,9 @@ public:
     void show_bubble(int x, int y);
     void set_teleport_small_colors(st_color color1, st_color color2);
     void show_teleport_small(int x, int y);
-    int show_credits_text(bool can_leave, std::vector<string> credit_text);
+    int show_credits_text(bool can_leave, std::vector<string> credit_text, bool show_new_characters_warning);
     void draw_credits_line(int i, std::vector<string> credit_text, int posY);
-    int show_credits(bool can_leave);
+    int show_credits(bool can_leave, bool show_new_characters_warning);
     void show_about();
     std::vector<string> create_engine_credits_text();
     graphicsLib_gSurface* get_object_graphic(int obj_id);

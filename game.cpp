@@ -1377,6 +1377,10 @@ void game::exit_game()
 void game::show_ending()
 {
     // save the data indicating game was finished, so user can see ending later or get access to more features
+    bool show_new_characters_warning = true;
+    if (SharedData::get_instance()->game_config.game_finished == true) { // already finished the game before
+        show_new_characters_warning = false;
+    }
     SharedData::get_instance()->game_config.game_finished = true;
     fio.save_config(SharedData::get_instance()->game_config);
 
@@ -1389,7 +1393,7 @@ void game::show_ending()
 
     scenes.show_enemies_ending();
 
-    draw_lib.show_credits(false);
+    draw_lib.show_credits(false, show_new_characters_warning);
 
     return_to_intro_screen();
 }
