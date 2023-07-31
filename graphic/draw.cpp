@@ -1128,7 +1128,8 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
         int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
-        graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
+        int adjust_x = strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).length()*FONT_SIZE;
+        graphLib.draw_text(RES_W-55-4-adjust_x, 4, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
         draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
     }
 }

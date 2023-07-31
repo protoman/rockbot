@@ -240,12 +240,12 @@ void class_config::use_tank(int tank_type)
         if (play_times < 2) {
             play_times = 2;
         }
-        player_ref->set_current_hp(diff);
+        player_ref->set_current_hp(player_ref->get_hp().total);
         soundManager.play_sfx(SFX_GOT_ENERGY);
 	}
 	if (tank_type == TANK_SPECIAL || tank_type == TANK_WEAPON) {
 		st_position weapon_pos(0, 0);
-        for (int i=WEAPON_ITEM_COIL; i<WEAPON_COUNT; i++) {
+        for (int i=WEAPON_APEBOT; i<WEAPON_ITEM_COIL; i++) {
 			n = 0;
 			short unsigned int value = player_ref->get_weapon_value(i);
 			if (value < player_ref->get_hp().total) {

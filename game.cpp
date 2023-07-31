@@ -902,10 +902,8 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     limit_time = timer.getTimer() + 3000;
     while (loop_run == true) {
         if (loaded_stage.boss_show_intro_sprites(boss_ref) == true) { // done playing the intro
-            // TODO: check for flying enemies
             if (boss_ref->get_can_fly() == true) {
                 boss_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
-            // non-flying bosses need to hit gound to stop
             } else {
                 boss_ref->set_animation_type(ANIM_TYPE_STAND);
             }
@@ -915,12 +913,18 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
             show_stage(0, true);
         }
         if (timer.getTimer() > limit_time) {
+            if (boss_ref->get_can_fly() == true) {
+                boss_ref->set_animation_type(ANIM_TYPE_WALK_AIR);
+            } else {
+                boss_ref->set_animation_type(ANIM_TYPE_STAND);
+            }
             loop_run = false;
         }
     }
     // TODO: add a delay here
 
     if (is_stage_boss) {
+        input.clean_all();
         // 5. show boss dialog
         dialogs boss_dialog;
         boss_dialog.show_boss_dialog(loaded_stage.get_number());
@@ -1408,6 +1412,9 @@ void game::quick_load_game()
     if (fio.save_exists(current_save_slot)) {
         fio.read_save(game_save, current_save_slot);
     }
+
+    game_save.items.weapon_tanks = 9;
+    game_save.items.special_tanks = 9;
     /*
     game_save.stages[INTRO_STAGE] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {

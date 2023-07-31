@@ -1,11 +1,13 @@
 ﻿###########################################################################################################################
 0.62
 ###########################################################################################################################
-- Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
+
+====================
+- #2: Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
 - Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
 - melhor ajuste na posição de Glue.H para grudar na parede
 - Fix hitboxes/vulçnerable-area when facing left.
-- Adjust hitbox for Kurupira so player can jump over him.
+- #2: Adjust hitbox for Kurupira so player can jump over him.
 - Alguns efeitos sonoros tocavam mesmo com o audio desabilitado.
 - Vidas e continue/game-over de volta.
 - Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
@@ -17,18 +19,47 @@
 - Editor: update frames when changing between enemies.
 - multiplicador zero para dano estava sendo ignorado.
 - projetil não deve ser consumido se inimigo esta no tempo de intangibilidade.
-- adicionada Destrin Ship ao derrotar Machine.
+- #2: adicionada Destrin Ship ao derrotar Machine.
 - Improve sfx delay by lowering buffer size.
-- Novas músicas de Simone Bernacchia
+- #2: Novas músicas de Simone Bernacchia
 - Continuar mostrando "presented by upperland studios" when new characters message is shown.
 - Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Quando interromper a boss intro por timeout, precisa setar o anim_type para FLY/STAND senão o chefe fica congelado.
+- Fix HUD'1s boss text position.
+- Tanque de recarga de armas e especial não recarregam armas.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Limpar input antes de mostrar diálogos de chefes.
+- Melhorias sprites Daisie.
+
+
+====================
+#1
+====================
+<en-US>
+- Several bug fixes, please check site for details.
+- Lifes and continue/game-over are back.
+- Improved weapons menu with weapon list, lifes and armor pieces.
+- Improve sfx delay by lowering buffer size.
+- Show new characters warning only on first game completion.
+- Store up to 9 weapon and special tanks now.
+- Daisie sprites improvements.
+</en-US>
+<pt-BR>
+- Diversas correções de defeitos, veja mais informações no site para detalhes.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Improve sfx delay by lowering buffer size.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Melhorias sprites Daisie.
+</pt-BR>
 
 ###########################################################################################################################
 TODO:
 ###########################################################################################################################
+
 - vulnerable-area do player esta não batendo com inimigos, dá para "entrar" em parte neles e não toma dano
 (TESTAR) - tentar trocar nome da app android
-- mostrar msg novos personagens só na primeira vez q liberar eles
 
 
 - lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5

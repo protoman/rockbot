@@ -20,6 +20,15 @@ mkdir $DIR/$GAME_DIR/games
 mkdir $DIR/$GAME_DIR/fonts
 mkdir $DIR/$GAME_DIR/shared
 
+
+cd ..
+make clean
+cd ..
+qmake ../RockDroid.pro CONFIG -=linux CONFIG+=pocketgo
+cd build
+make
+cd packages
+
 cp ../rockbot_pocketgo $DIR/$GAME_DIR/
 
 rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR

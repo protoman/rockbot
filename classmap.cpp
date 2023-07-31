@@ -946,7 +946,7 @@ int classMap::get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h)
 
 void classMap::drop_item(classnpc* npc_ref)
 {
-    if (npc_ref == nullptr) {
+    if (npc_ref == NULL) {
         return;
     }
     st_float_position position = st_float_position(npc_ref->getPosition().x + npc_ref->get_size().width/2, npc_ref->getPosition().y + npc_ref->get_size().height/2);

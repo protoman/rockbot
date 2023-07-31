@@ -19,6 +19,14 @@ mkdir ./Dingux/$GAME_DIR/games
 mkdir ./Dingux/$GAME_DIR/fonts
 mkdir ./Dingux/$GAME_DIR/shared
 
+cd ..
+make clean
+cd ..
+qmake ../RockDroid.pro CONFIG -=linux CONFIG+=dingux
+cd build
+make
+cd packages
+
 cp ../rockbot.dge ./Dingux/$GAME_DIR/
 
 

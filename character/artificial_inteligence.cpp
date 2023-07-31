@@ -158,7 +158,6 @@ void artificial_inteligence::check_ai_reaction()
     _was_hit = false; // reset flag
 
     if (start_reaction == true) {
-
         // do not start a walk-reaction in middle air
         int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
         react_type--;

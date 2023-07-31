@@ -128,13 +128,17 @@ bool classPlayer::get_item(object_collision &obj_info)
             res = true;
 			break;
 		case OBJ_WEAPON_TANK:
-            game_save.items.weapon_tanks = 1; // max 1
+            if (game_save.items.weapon_tanks < 9) { // max 9
+                game_save.items.weapon_tanks++;
+            }
 			obj_info._object->set_finished(true);
 			soundManager.play_sfx(SFX_GOT_ITEM);
             res = true;
 			break;
         case OBJ_SPECIAL_TANK:
-            game_save.items.special_tanks = 1; // max 1
+            if (game_save.items.special_tanks < 9) { // max 9
+                game_save.items.special_tanks++;
+            }
             obj_info._object->set_finished(true);
             soundManager.play_sfx(SFX_GOT_ITEM);
             res = true;
