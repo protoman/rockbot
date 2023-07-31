@@ -9,8 +9,14 @@ fi
 VERSIONNAME=`cat version_name_v$version_number.txt`
 GAME_DIR=Rockbot$version_number
 
-cd ../..
-Make -f Makefile.psp version_number=$version_number VERSIONNAME=$VERSIONNAME
+cd ..
+make clean
+cd ..
+qmake ../RockDroid.pro CONFIG -=linux CONFIG+=psp
+cd build
+make
+cd packages
+
 rm -r -f ./PSP
 mkdir ./PSP
 mkdir ./PSP/$GAME_DIR

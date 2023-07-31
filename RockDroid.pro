@@ -10,7 +10,7 @@ QT       -= core
 QT       -= gui
 
 
-CONFIG += linux
+#CONFIG += linux
 
 #CONFIG += win32
 
@@ -24,7 +24,7 @@ CONFIG += linux
 
 #CONFIG += playstation3
 
-#CONFIG += psp
+CONFIG += psp
     # try to replicate the exact same behavior of the makefile.psp
 
 #CONFIG += open_pandora
@@ -220,6 +220,9 @@ psp {
 
     INCLUDES = -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/
 
+    QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/mksfo 'Rockbot ' PARAM.SFO $$escape_expand(\n\t)
+    QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/psp-strip rockbot_psp.elf -o rockbot_psp_strip.elf $$escape_expand(\n\t)
+    QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/pack-pbp EBOOT.PBP PARAM.SFO ./packages/files/psp_icon.png NULL NULL ./packages/files/psp_background.png NULL rockbot_psp_strip.elf NULL $$escape_expand(\n\t)
 
 #mksfo 'Rockbot ' PARAM.SFO
 #psp-strip rockbot_psp.elf -o rockbot_psp_strip.elf
