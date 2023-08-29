@@ -221,16 +221,20 @@ st_size projectile::get_size() const
 
 void projectile::move_ahead(st_size &moved)
 {
-    if (direction == ANIM_DIRECTION_UP) {
+    //std::cout << "PROJECTILE::move_ahead.direction[" << (int)direction << "]" << std::endl;
+    if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_UP_LEFT || direction == ANIM_DIRECTION_UP_RIGHT) {
         position.y -= get_speed();
         moved.height -= get_speed();
-    } else if (direction == ANIM_DIRECTION_DOWN) {
+    }
+    if (direction == ANIM_DIRECTION_DOWN || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_DOWN_RIGHT) {
         position.y += get_speed();
         moved.height += get_speed();
-    } else if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
+    }
+    if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
         position.x -= get_speed();
         moved.width -= get_speed();
-    } else {
+    }
+    if (direction == ANIM_DIRECTION_RIGHT || direction == ANIM_DIRECTION_DOWN_RIGHT || direction == ANIM_DIRECTION_UP_RIGHT) {
         position.x += get_speed();
         moved.width += get_speed();
     }

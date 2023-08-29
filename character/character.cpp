@@ -383,6 +383,7 @@ void character::charMove() {
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
 			}
             if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
+                std::cout << "P.y.DEC #1" << std::endl;
                 position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
                 position.x = stairs_pos.x * TILESIZE - 6;
             }
@@ -391,9 +392,11 @@ void character::charMove() {
             int map_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
+                std::cout << "P.y.DEC #2" << std::endl;
                 position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
 			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
                 set_animation_type(ANIM_TYPE_STAND);
+                std::cout << "P.y.DEC #3" << std::endl;
                 position.y -= 2;
 			}
 		}
@@ -416,6 +419,7 @@ void character::charMove() {
 
             // check that path is clear to move
             if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
+                std::cout << "P.y.INC #1" << std::endl;
                 position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
             }
 
@@ -435,6 +439,7 @@ void character::charMove() {
                 st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
                 if (stairs_pos_bottom.x != -1) {
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
+                    std::cout << "P.y.INC #2" << std::endl;
                     position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
                     position.x = stairs_pos_bottom.x * TILESIZE - 6;
                 }
@@ -1215,6 +1220,7 @@ bool character::gravity(bool boss_demo_mode=false)
 			for (int i=limit_speed; i>0; i--) {
                 bool res_test_move = test_change_position(0, i);
                 if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
+                    std::cout << "P.y.INC #3" << std::endl;
                     position.y += i;
 					is_moved = true;
 					break;
@@ -1294,21 +1300,25 @@ bool character::gravity(bool boss_demo_mode=false)
 				mapLock = BLOCK_UNBLOCKED;
 			}
 
-			if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
-				if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
-					position.y += i;
-				} else {
-					position.y += i*WATER_SPEED_MULT;
-				}
-                if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    set_animation_type(ANIM_TYPE_JUMP);
-				}
-				was_moved = true;
+            if (_platform == nullptr || (_platform != nullptr && _platform->get_type() != OBJ_MOVING_PLATFORM_UPDOWN && _platform->get_type() != OBJ_MOVING_PLATFORM_UP && _platform->get_type() != OBJ_MOVING_PLATFORM_DOWN)) {
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
+                    if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
+                        std::cout << "P.y.INC #4" << std::endl;
+                        position.y += i;
+                    } else {
+                        std::cout << "P.y.INC #5" << std::endl;
+                        position.y += i*WATER_SPEED_MULT;
+                    }
+                    if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                        set_animation_type(ANIM_TYPE_JUMP);
+                    }
+                    was_moved = true;
 
-                if (state.animation_type != ANIM_TYPE_TELEPORT) {
-                    _is_falling = true;
+                    if (state.animation_type != ANIM_TYPE_TELEPORT) {
+                        _is_falling = true;
+                    }
+                    break;
                 }
-				break;
             }
 			if (i == 1) {
                 reset_gravity_speed();
@@ -1501,9 +1511,7 @@ void character::set_position(struct st_position new_pos)
 void character::inc_position(float inc_x, float inc_y)
 {
     position.x += inc_x;
-    if (name == "OCTOPUS TENTACLE" && inc_y > 0) {
-        std::cout << "######## OCTOPUS TENTACLE::inc_position" << std::endl;
-    }
+    std::cout << "P.y.INC #6" << std::endl;
     position.y += inc_y;
 }
 
@@ -1721,8 +1729,10 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
+                    set_platform(nullptr);
                     _obj_jump.start(true, water_lock);
                 } else {
+                    set_platform(nullptr);
                     _obj_jump.start(false, water_lock);
                 }
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
@@ -1762,6 +1772,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             int map_lock = map_col.block;
 
             if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) {
+                std::cout << "P.y.INC #7 speed_y[" << speed_y << "]" << std::endl;
                 position.y += speed_y;
                 jump_moved = true;
                 break;
@@ -1805,7 +1816,6 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 void character::check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy) // mode_xy 0 is x, 1 is y
 {
     if (map_block == BLOCK_UNBLOCKED && new_map_lock == TERRAIN_WATER) {
-        std::cout << "check_map_collision_point - SET WATER, new_map_lock[" << new_map_lock << "]" << std::endl;
         map_block = BLOCK_WATER;
     }
 
@@ -1943,7 +1953,12 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
-    if (is_player() == true && res_collision_object._block != 0) {
+    bool is_on_moving_platform = false;
+    if (_platform != nullptr && _platform == res_collision_object._object && (_platform->get_type() == OBJ_MOVING_PLATFORM_UP || _platform->get_type() == OBJ_MOVING_PLATFORM_DOWN)) {
+        is_on_moving_platform = true;
+    }
+
+    if (is_player() == true && res_collision_object._block != 0 && is_on_moving_platform == false) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
         if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
 
@@ -2761,16 +2776,18 @@ unsigned int character::get_projectile_count()
 // ********************************************************************************************** //
 void character::set_platform(object* obj)
 {
-	if (obj != NULL) {
+    _obj_jump.finish();
+    if (obj != nullptr) {
+        std::cout << "CHAR::set_platform[OBJ]" << std::endl;
 		if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_STAND);
-            _obj_jump.interrupt();
         } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
-            _obj_jump.interrupt();
         }
         set_animation_type(ANIM_TYPE_STAND);
-	}
+    } else {
+        std::cout << "CHAR::set_platform[NULL]" << std::endl;
+    }
 	_platform = obj;
 }
 
@@ -3062,7 +3079,7 @@ bool character::change_position(short xinc, short yinc)
     short int mapLock = map_col.block;
 
     int type = -1;
-    if (_platform != NULL) {
+    if (_platform != nullptr) {
         type = _platform->get_type();
     }
     bool is_on_fly_obj = (yinc > 0 && type == OBJ_ITEM_FLY);
@@ -3070,8 +3087,10 @@ bool character::change_position(short xinc, short yinc)
     if (mapLock != BLOCK_UNBLOCKED && mapLock != BLOCK_WATER && is_on_fly_obj == false) {
 		return false;
 	}
+    int py_before = position.y;
 	position.x += xinc;
 	position.y += yinc;
+    std::cout << "CHAR::change_position - TRUE, yinc[" << yinc << "], py_before[" << py_before << "], py_after[" <<position.y << "]" << std::endl;
     return true;
 }
 

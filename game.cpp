@@ -1415,7 +1415,6 @@ void game::quick_load_game()
 
     game_save.items.weapon_tanks = 9;
     game_save.items.special_tanks = 9;
-    /*
     game_save.stages[INTRO_STAGE] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
         game_save.stages[i] = 1;
@@ -1423,7 +1422,6 @@ void game::quick_load_game()
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
         game_save.stages[i] = 1;
     }
-    */
     //data_out.stages[STAGE1] = 1; // APE: coil
     //data_out.stages[STAGE6] = 1; // TECHNO: jet
     //data_out.stages[STAGE3] = 1; // TECHNO: jet

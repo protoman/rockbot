@@ -174,6 +174,8 @@ void draw::show_gfx()
         show_shadow_top_effect();
     } else if (screen_gfx == SCREEN_GFX_INFERNO) {
         show_inferno_effect();
+    } else if (screen_gfx == SCREEN_GFX_WAVE && screen_gfx_mode == SCREEN_GFX_MODE_BACKGROUND) { // WAVE only works on background for now
+        show_wave_effect();
     }
 
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
@@ -1401,6 +1403,31 @@ void draw::show_inferno_effect()
 void draw::free_inferno_surface()
 {
     _inferno_surface.freeGraphic();
+}
+
+void draw::show_wave_effect()
+{
+    // varia de -2 a +2, a cada 8 pixels (8 partes)
+    // simplesmente mudar o que o valor do ponto inicial, e seguior daí
+    // tipo, onde começa a onde inteira (+ e -)
+    // sequencia = 0, 1, 2, 1, 0, 1, -2, 1
+    for (int j=0; j<4; j++) {
+        for (int i=0; i<8; i++) {
+            int pos_array = i + wave_effect_sin;
+            if (pos_array >= 8) {
+                pos_array -= 8;
+            }
+            int pos_adjust_x = wave_effect_array[pos_array];
+            graphLib.copyArea(st_rectangle(0, i*8+j*64, RES_W, 8), st_position(pos_adjust_x, i*8+j*64), &graphLib.gameScreen, &graphLib.gameScreen);
+        }
+    }
+    if (wave_effect_timer < timer.getTimer()) {
+        wave_effect_sin++;
+        wave_effect_timer = timer.getTimer() + 100;
+    }
+    if (wave_effect_sin >= 8) {
+        wave_effect_sin = 0;
+    }
 }
 
 

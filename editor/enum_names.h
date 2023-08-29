@@ -17,6 +17,7 @@ std::vector<std::string> AI_ACTION_DASH_OPTIONS;
 std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
 std::vector<std::string> ANIMATION_TYPE_LIST;
 std::vector<std::string> AI_ACTION_SFX_OPTION_NAMES;
+std::vector<std::string> AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES;
 
 void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("LINEAR");
@@ -80,6 +81,7 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("PLAY SOUND EFFECT");
     AI_ACTION_NAMES.push_back("WALL-WALK");
     AI_ACTION_NAMES.push_back("WALL-WALK-SHOOT");
+    AI_ACTION_NAMES.push_back("MULTIPLE ATTACK");
 
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
@@ -93,6 +95,7 @@ void init_enum_names() {
     AI_ACTION_WALK_OPTIONS.push_back("TURN TO PLAYER");
     AI_ACTION_WALK_OPTIONS.push_back("RANDOM DIRECTION");
     AI_ACTION_WALK_OPTIONS.push_back("TO OPPOSITE WALL");
+    AI_ACTION_WALK_OPTIONS.push_back("AHEAD FALLING");
 
     // -------------------------------------------------------------- //
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD");
@@ -115,6 +118,7 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("RANDOM Y");
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD [SIN-Y]");
     AI_ACTION_FLY_OPTIONS.push_back("AIR-DASH TO PLAYER");
+    AI_ACTION_FLY_OPTIONS.push_back("DOWN RANDOM DIAGONAL");
 
     // -------------------------------------------------------------- //
 
@@ -189,6 +193,16 @@ void init_enum_names() {
 
     // -------------------------------------------------------------- //
     AI_ACTION_SFX_OPTION_NAMES.push_back("DINOSSAUR GROWL");
+
+    // -------------------------------------------------------------- //
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("5 UP");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("5 DOWN");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("5 AHEAD");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("3 UP");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("3 DOWN");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("3 AHEAD");
+    AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES.push_back("8");
+
 }
 
 

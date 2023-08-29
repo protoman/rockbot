@@ -47,9 +47,27 @@ void npc_edit::fill_data()
         int current_npc_debug = Mediator::get_instance()->current_npc_n;
         ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->current_npc_n);
 
+        // PROPERTIES //
+        ui->npc_edit_tab_NpcName->setText(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).name);
+        ui->npc_edit_tab_NpcHP->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).hp.total);
+        ui->projectileOriginX_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x);
+        ui->projectileOriginY_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y);
+        ui->npc_edit_tab_canshoot->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_ghost);
+        ui->isBoss_checkBox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_boss);
+        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).fly_flag == 0) {
+            ui->checkBox->setChecked(false);
+        } else {
+            ui->checkBox->setChecked(true);
+        }
+        ui->isSubBoss_checkbox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_sub_boss);
+        ui->npc_edit_tab_shieldtype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).shield_type);
+        ui->npc_edit_tab_movespeed->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).speed);
+        ui->npc_edit_tab_range->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).walk_range);
+        ui->npc_edit_tab_weakness_list->setCurrentIndex(0);
+        ui->npc_edit_tab_weakness_points->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).weakness[0].damage_multiplier);
+        ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
 
         /*
-        ui->npc_edit_tab_canshoot->setChecked(Mediator::get_instance()->enemy_list.at(index).is_ghost);
         // GRAPHIC FILE //
         std::string image_filename(Mediator::get_instance()->enemy_list.at(index).graphic_filename);
         if (image_filename.length() > 0) {
@@ -74,13 +92,6 @@ void npc_edit::fill_data()
 
         Mediator::get_instance()->npcGraphicSize_h = Mediator::get_instance()->enemy_list.at(index).frame_size.height;
         Mediator::get_instance()->npcGraphicSize_w = Mediator::get_instance()->enemy_list.at(index).frame_size.width;
-        ui->npc_edit_tab_movespeed->setValue(Mediator::get_instance()->enemy_list.at(index).speed);
-        ui->npc_edit_tab_NpcHP->setValue(Mediator::get_instance()->enemy_list.at(index).hp.total);
-        ui->npc_edit_tab_NpcName->setText(Mediator::get_instance()->enemy_list.at(index).name);
-        ui->npc_edit_tab_range->setValue(Mediator::get_instance()->enemy_list.at(index).walk_range);
-        ui->npc_edit_tab_shieldtype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(index).shield_type);
-        ui->npc_edit_tab_weakness_list->setCurrentIndex(0);
-        ui->npc_edit_tab_weakness_points->setValue(Mediator::get_instance()->enemy_list.at(index).weakness[0].damage_multiplier);
 
         ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+std::string(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename));
 
@@ -90,14 +101,6 @@ void npc_edit::fill_data()
         reload_frame_list(ui->frame_list_selector->currentIndex());
         ui->sprites_preview_widget->repaint();
 
-        ui->isBoss_checkBox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_boss);
-        ui->isSubBoss_checkbox->setChecked(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).is_sub_boss);
-
-        if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).fly_flag == 0) {
-            ui->checkBox->setChecked(false);
-        } else {
-            ui->checkBox->setChecked(true);
-        }
 
         ui->hitarea_x_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.x);
         ui->hitarea_y_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.y);
@@ -113,10 +116,7 @@ void npc_edit::fill_data()
             ui->hitarea_h_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
         }
 
-        ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
 
-        ui->projectileOriginX_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x);
-        ui->projectileOriginY_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y);
 */
 
         // GRAPHIC FILE //

@@ -1506,10 +1506,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
                     if (entered_platform == true) {
 
-                        if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
+                        if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_UP || temp_obj.get_type() == OBJ_MOVING_PLATFORM_DOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
                             if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
-
-
                                 charObj->set_platform(&temp_obj);
                                 if (temp_obj.get_type() == OBJ_FALL_PLATFORM) {
                                     temp_obj.set_direction(ANIM_DIRECTION_LEFT);

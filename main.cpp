@@ -18,8 +18,10 @@
 #include <kos.h>
 #endif
 
+
 #include <iostream>
 #include <SDL/SDL.h>				//Include da SDL
+#include <SDL/SDL_main.h>
 #include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
 #include <SDL/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
 #include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
@@ -302,6 +304,7 @@ void detect_language() {
     }
 }
 
+
 int main(int argc, char *argv[])
 {
 
@@ -310,9 +313,9 @@ int main(int argc, char *argv[])
     scePowerSetClockFrequency(333, 333, 166);
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
-		GAME_FLAGS[i] = false;
-	}
-	UNUSED(argc);
+        GAME_FLAGS[i] = false;
+    }
+    UNUSED(argc);
 
     string argvString = "";
     argvString = string(argv[0]);
@@ -347,20 +350,20 @@ int main(int argc, char *argv[])
 
 
 #ifdef PC
-	// check command-line paramethers
-	if (argc > 1) {
-		for (int i=1; i<argc; i++) {
-			std::string temp_argv(argv[i]);
-			if (temp_argv == "--fullscreen") {
+    // check command-line paramethers
+    if (argc > 1) {
+        for (int i=1; i<argc; i++) {
+            std::string temp_argv(argv[i]);
+            if (temp_argv == "--fullscreen") {
                 // TODO
-			} else if (temp_argv == "--quickload") {
-				GAME_FLAGS[FLAG_QUICKLOAD] = true;
+            } else if (temp_argv == "--quickload") {
+                GAME_FLAGS[FLAG_QUICKLOAD] = true;
             } else if (temp_argv == "--invencible") { // player is not hit by enemies
-				GAME_FLAGS[FLAG_INVENCIBLE] = true;
-			} else if (temp_argv == "--allweapons") { // player have all weapons available even if
-				GAME_FLAGS[FLAG_ALLWEAPONS] = true;
-			} else if (temp_argv == "--infinitejump") { // player can jump again and again
-				GAME_FLAGS[FLAG_INFINITE_JUMP] = true;
+                GAME_FLAGS[FLAG_INVENCIBLE] = true;
+            } else if (temp_argv == "--allweapons") { // player have all weapons available even if
+                GAME_FLAGS[FLAG_ALLWEAPONS] = true;
+            } else if (temp_argv == "--infinitejump") { // player can jump again and again
+                GAME_FLAGS[FLAG_INFINITE_JUMP] = true;
             } else if (temp_argv == "--player1") {
                 GAME_FLAGS[FLAG_PLAYER1] = true;
             } else if (temp_argv == "--player2") {
@@ -376,8 +379,8 @@ int main(int argc, char *argv[])
                 std::string stage_n_str(argv[i+1]);
                 sscanf(stage_n_str.c_str(), "%d", &current_stage);
             }
-		}
-	}
+        }
+    }
 #endif
     fflush(stdout);
 
@@ -448,10 +451,10 @@ int main(int argc, char *argv[])
 #ifdef PC
     graphLib.set_window_icon();
 #endif
-	fio.read_game(game_data);
+    fio.read_game(game_data);
 
     gameControl.get_drop_item_ids();
-	soundManager.init_audio_system();
+    soundManager.init_audio_system();
 
     // define SAVEPATH
 #ifdef PLAYSTATION2
@@ -471,7 +474,7 @@ int main(int argc, char *argv[])
     graphLib.preload();
 
 #ifdef PLAYSTATION2
-    fio.load_config(game_config);
+    //fio.load_config(game_config);
     PS2_create_save_icons();
 #endif
 
@@ -523,9 +526,8 @@ int main(int argc, char *argv[])
 
 
     SDL_Quit();
-	
-	return 1;
 }
+
 
 
 #ifdef ANDROID

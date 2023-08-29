@@ -97,6 +97,7 @@ private:
     void show_shadow_top_effect();
     void show_inferno_effect();
     void free_inferno_surface();
+    void show_wave_effect();
     st_float_position get_radius_point(st_position center_point, int radius, float angle);
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
 
@@ -173,6 +174,9 @@ private:
 
     graphicsLib_gSurface input_images_map[INPUT_IMAGES_COUNT];
 
+    int wave_effect_sin = 0;
+    int wave_effect_array[8] = {0, 1, 2, 1, 0, -1, -2, -1};
+    unsigned long wave_effect_timer = 0;
 
 };
 

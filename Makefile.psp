@@ -20,7 +20,8 @@ ASFLAGS  = $(CFLAGS)
 LIBDIR  =
 LDFLAGS =
 LIBS    = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -logg -lmikmod -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz \
-    -lSDLmain -lSDL -lm -lGL -lm -L/usr/local/pspdev/psp/sdk/lib -L/usr/local/pspdev/psp -lpspirkeyb -lpsppower -lpspvfpu -lpspdebug -lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio \
+    -lSDLmain -lSDL -lm -lGL -lm -L/usr/local/pspdev/psp/sdk/lib -L/usr/local/pspdev/psp -lpspirkeyb -lpsppower -lpspvfpu -lpspdebug \
+    -lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio \
     -L$(PSPSDK)/sdk/lib -L/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib
  
 BUILD_PRX=1 

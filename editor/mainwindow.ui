@@ -414,6 +414,7 @@
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
+    <addaction name="actionShowTileset"/>
     <addaction name="menuTheme"/>
    </widget>
    <addaction name="menuFILE"/>
@@ -639,6 +640,17 @@
   <action name="actionDefault">
    <property name="text">
     <string>Default</string>
+   </property>
+  </action>
+  <action name="actionShowTileset">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tileset</string>
    </property>
   </action>
  </widget>

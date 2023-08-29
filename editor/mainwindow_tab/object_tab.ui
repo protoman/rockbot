@@ -254,6 +254,16 @@
             <string>Crusher</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Moving Platform Up</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Moving Platform Down</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

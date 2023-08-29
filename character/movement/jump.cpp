@@ -23,6 +23,7 @@ classjump::classjump() : started(false)
 
 void classjump::start(bool bigjump_mode, int terrain_type)
 {
+    std::cout << ">>>>>>> JUMP::START" << std::endl;
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -90,6 +91,7 @@ void classjump::interrupt()
     if (!started) {
         return;
     }
+    std::cout << ">>>>>>> JUMP::INTERRUPT" << std::endl;
     if (state != JUMPUP) {
         state = JUMPDOWN;
         speed = 0;
@@ -107,6 +109,7 @@ void classjump::interrupt()
 
 void classjump::finish()
 {
+    std::cout << ">>>>>>> JUMP::FINISH" << std::endl;
     jumps_number = 0;
     state = NOJUMP;
 

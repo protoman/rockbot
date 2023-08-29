@@ -1,4 +1,43 @@
-﻿###########################################################################################################################
+﻿- peixão esta fazendo spawn de vários inimigos juntos
+- Efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
+- background do npc deve contar como parte dele para efeitos de dano de contato com o player
+
+- colisão com teleporter parou de funcionar, aparentemente (dá para andar reto sem pular na parte de baixo)
+
+- [Rockbot] EDITOR: poder ver o preview em outros idiomas, respeitando a opção do combo em 
+
+
+##########################################################################################################################
+MEGAMIX
+###########################################################################################################################
+- opção para npc caminhar adiante mesmo que caia (só inverte posição se der de cara com parede)
+    # walk ahead falling
+    # idealmente tem que ser uma opção e não uma IA
+
+- user move-speed do npc para definir tamanho do pulo
+- nova IA down and respawn (tipo drill, mas mantém velocidade)
+- novo projetil 5 way (esquerda, diagonal esquerda, cima ou baixo, diagonal direita, direita)
+- novo projetil 8 way (todas)
+- Nova ia jump up e "chover" - diagonal com ãngulo e direção random (variar o ângulo dentro de um limite tipo 30 a 50)
+- nova IA voar em senoildal (onda) frente, cima, baixo
+    # como definir amplitude?
+- novo objeto: raio temporizado, estatico ou se move zigue-zague
+    # quando desativado, dá dano se encostas nas pontas (tilezie), ativo entre elas
+
+===========================================================================================================================
+- EDITOR: adicionada opção view->tileset
+- EDITOR: reset do mapa deve ser geral, incluindo links, inimigos e objetos
+- EFEITO wave no fundo (bubbleman wily wars)
+- new AI: shoot projectile in several directions at same time
+- new AI: fall down in diagonal
+- moving platform up and down
+
+###########################################################################################################################
+0.7.0
+###########################################################################################################################
+- EDITOR: não estava atualizando propriedades dos ncs ao mudar de npc
+
+###########################################################################################################################
 0.62
 ###########################################################################################################################
 

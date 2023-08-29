@@ -401,6 +401,29 @@ void MainWindow::on_actionReset_Map_triggered()
             Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
 		}
 	}
+    // reset map objects
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> new_maps_data_object_list;
+    for (unsigned int m=0; m<Mediator::get_instance()->maps_data_object_list.size(); m++) {
+        if (Mediator::get_instance()->maps_data_object_list[m].stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_object_list[m].map_id != Mediator::get_instance()->currentMap) {
+            new_maps_data_object_list.push_back(Mediator::get_instance()->maps_data_object_list.at(m));
+        }
+    }
+    Mediator::get_instance()->maps_data_object_list = new_maps_data_object_list;
+
+    // reset map npcs
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> new_maps_data_npc_list;
+    for (unsigned int i=0; i<Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+        if (Mediator::get_instance()->maps_data_npc_list.at(i).stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_npc_list.at(i).map_id != Mediator::get_instance()->currentMap) {
+            new_maps_data_npc_list.push_back(Mediator::get_instance()->maps_data_npc_list.at(i));
+        }
+    }
+    Mediator::get_instance()->maps_data_npc_list = new_maps_data_npc_list;
+
+    // reset map links
+    on_actionReset_Stage_Links_triggered();
+    map_edit_tab->update_edit_area();
+
+
 }
 
 void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
@@ -688,3 +711,10 @@ void MainWindow::on_actionDefault_triggered()
     scenes_window->update_app_theme();
 
 }
+
+void MainWindow::on_actionShowTileset_toggled(bool arg1)
+{
+    Mediator::get_instance()->show_tileset_flag = arg1;
+    map_edit_tab->update_edit_area();
+}
+

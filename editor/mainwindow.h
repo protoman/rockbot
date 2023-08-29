@@ -162,6 +162,8 @@ private slots:
     void on_swap_stages_window_closed();
 
 
+    void on_actionShowTileset_toggled(bool arg1);
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;

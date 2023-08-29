@@ -202,7 +202,7 @@ void object::gravity()
         return;
     }
 	// non-falling object types
-    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_CRUSHER) {
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_CRUSHER) {
 		return;
 	}
     for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
@@ -231,7 +231,7 @@ bool object::test_change_position(short xinc, short yinc)
 
     if (yinc > 0 && position.y > RES_H) { // check if item felt out of screen
         if (position.y < RES_H+TILESIZE*2) {
-            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP && type != OBJ_MOVING_PLATFORM_DOWN) {
                 _finished = true;
                 return false;
             } else {
@@ -258,7 +258,7 @@ bool object::test_change_position(short xinc, short yinc)
 	short p1 = map->getMapPointLock(st_position((position.x+2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 
-    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP && type != OBJ_MOVING_PLATFORM_DOWN) {
         if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
             return false;
         }
@@ -276,21 +276,30 @@ bool object::test_change_position(short xinc, short yinc)
 
 void object::check_player_move(int xinc, int yinc)
 {
+    if (!is_on_screen()) {
+        return;
+    }
+    //std::cout << ">>>>>>>> OBJECT::check_player_move #1" << std::endl;
 	if (xinc == 0 && yinc == 0) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #1" << std::endl;
 		return;
 	}
 	if (yinc < 0 && position.y+framesize_h < 0) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #2" << std::endl;
 		return;
 	}
 	if (yinc > 0 && position.y > RES_H) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #3" << std::endl;
 		return;
     }
 	if (gameControl.get_player_platform() == this) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move #2, yinc[" << yinc << "]" << std::endl;
         gameControl.change_player_position(xinc, yinc);
         if (!item_jet_started) {
             item_jet_started = true;
         }
     }
+    //std::cout << ">>>>>>>> OBJECT::check_player_move #3" << std::endl;
 }
 
 void object::set_collision_mode(collision_modes collision_mode)
@@ -666,7 +675,7 @@ void object::show_crusher()
 
 bool object::is_platform()
 {
-    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP  || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
         return true;
     }
     return false;
@@ -1077,6 +1086,23 @@ void object::move(bool paused)
         }
     } else if (type == OBJ_CRUSHER) {
         move_crusher();
+    } else if (type == OBJ_MOVING_PLATFORM_UP) {
+        if (position.y < -framesize_h) {
+            position.y = RES_H;
+            distance = 0;
+        }
+        int yinc = -speed;
+        position.y += yinc;
+        //std::cout << ">>>>>>>> OBJ_MOVING_PLATFORM_UP" << std::endl;
+        check_player_move(0, yinc);
+    } else if (type == OBJ_MOVING_PLATFORM_DOWN) {
+        if (position.y > RES_H) {
+            position.y = -framesize_h;
+            distance = 0;
+        }
+        int yinc = speed;
+        position.y += yinc;
+        check_player_move(0, yinc);
     }
 }
 

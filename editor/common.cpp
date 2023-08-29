@@ -13,6 +13,7 @@ extern std::vector<std::string> AI_ACTION_DASH_OPTIONS;
 extern std::vector<std::string> AI_ACTION_GRAB_WALL_OPTIONS;
 extern std::vector<std::string> ANIMATION_TYPE_LIST;
 extern std::vector<std::string> AI_ACTION_SFX_OPTION_NAMES;
+extern std::vector<std::string> AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES;
 
 #include <QString>
 #include <QMessageBox>
@@ -286,6 +287,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         list = dist_list;
     } else if (action == AI_ACTION_PLAY_SFX) {
         list = AI_ACTION_SFX_OPTION_NAMES;
+    } else if (action == AI_ACTION_SHOT_MULTIPLE_PROJECTILE) {
+        list = AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES;
     } else {
         return;
     }

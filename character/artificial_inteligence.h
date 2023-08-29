@@ -222,6 +222,8 @@ protected:
 
     bool throw_projectile(int projectile_type, bool invert_direction);
 
+    void throw_direction_projectile(int direction);
+
     /**
      * @brief
      */
@@ -277,6 +279,7 @@ protected:
     void adjust_position_opposite_wall();
 
     void execute_play_sfx();
+    void execute_shot_multiple_projectile();
 
 
 protected:
@@ -329,6 +332,7 @@ protected:
 
     unsigned long execution_timer = 0;                  // used to timeout an operation if the enemy got stuck into something
     unsigned int move_to_point_tries = 0;               // used to check if an enemy can't move to a point several times to interrupt AI
+    bool can_fall_during_move = false;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

@@ -11,7 +11,6 @@
 #ifdef DREAMCAST
 #include <kos.h>
 #elif PLAYSTATION2
-#include <fileXio_rpc.h>
 typedef struct {
     char displayname[64];
     int  dircheck;
@@ -586,92 +585,6 @@ namespace format_v4 {
         filename = StringUtils::clean_filename(filename);
         return read_directory_list(filename, true);
     }
-
-#ifdef PLAYSTATION2
-    // @TODO
-    /*
-    int file_io::listcdvd(const char *path, entries *FileEntry) {
-        static struct TocEntry TocEntryList[2048];
-        char dir[1025];
-        int i, n, t;
-        strcpy(dir, &path[5]);
-        // Directories first...
-        CDVD_FlushCache();
-        n = CDVD_GetDir(dir, NULL, CDVD_GET_DIRS_ONLY, TocEntryList, 2048, dir);
-        strcpy(FileEntry[0].filename, "..");
-        strcpy(FileEntry[0].displayname, "..");
-             FileEntry[0].dircheck = 1;
-        t = 1;
-        for (i=0; i<n; i++) {
-            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
-                continue; //Skip pseudopaths "." and ".."
-            }
-            FileEntry[t].dircheck = 1;
-            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
-            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
-            t++;
-            if (t >= 2046) {
-                break;
-            }
-         }
-        // Now files only
-        CDVD_FlushCache();
-        n = CDVD_GetDir(dir, NULL, CDVD_GET_FILES_ONLY, TocEntryList, 2048, dir);
-        for (i=0; i<n; i++) {
-            if (TocEntryList[i].fileProperties & 0x02 && (!strcmp(TocEntryList[i].filename, ".") || !strcmp(TocEntryList[i].filename, ".."))) {
-                continue; //Skip pseudopaths "." and ".."
-            }
-            FileEntry[t].dircheck = 0;
-            strcpy(FileEntry[t].filename, TocEntryList[i].filename);
-            strzncpy(FileEntry[t].displayname, FileEntry[t].filename, 63);
-            t++;
-            if (t >= 2046) {
-                break;
-            }
-        }
-        return t;
-    }
-*/
-
-    /*
-    void file_io::ps2_listfiles(std::string filepath, std::vector<std::string> &res) {
-        int n = 0;
-        entries *FileEntry;
-        iox_dirent_t buf;
-
-        // force because code crashed //
-        res.push_back("RockDroid2");
-        return;
-
-        int dd = fioDopen(filepath.c_str());
-        if (dd < 0) {
-            std::cout << "ERROR: ps2_listfiles - Could not read directory" << std::endl;
-            return;
-        } else {
-            printf("Directory opened!\n");
-            while (fileXioDread(dd, &buf) > 0) {
-                if (buf.stat.mode & FIO_S_IFDIR && (!strcmp(buf.name,".") || !strcmp(buf.name,".."))) {
-                    printf(">>> file_io::ps2_listfiles::CHECK #5 <<<\n");
-                    continue;
-                }
-                if (buf.stat.mode & FIO_S_IFDIR) {
-                    FileEntry[n].dircheck = 1;
-                    strcpy(FileEntry[n].filename, buf.name);
-                    res.push_back(std::string(FileEntry[n].filename));
-                    n++;
-                }
-
-                if(n > 2046) {
-                    break;
-                }
-            }
-            if (dd >= 0) {
-                fioDclose(dd);
-            }
-        }
-    }
-    */
-#endif
 
     // @TODO: make this work in multiplatform
     // http://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
