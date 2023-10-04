@@ -8,6 +8,9 @@
 class classMap; // forward declaration
 
 #define TELEPORT_TIME 400
+#define STATUS_TIMER_DELAY 500
+#define TIMED_BOMB_DELAY 1000
+#define TIMED_BOMB_EXPLOSION_DURATION 2000
 
 enum e_object_teleport_states {
     e_object_teleport_state_initial,
@@ -33,6 +36,15 @@ enum e_OBJECT_CRUSHER_STATE {
     e_OBJECT_CRUSHER_STATE_COUNT
 };
 
+enum e_OBJECT_DIAGONAL_PLATFORM_STATE {
+    e_OBJECT_DIAGONAL_PLATFORM_STATE_INIT,
+    e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING,
+    e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL,
+    e_OBJECT_DIAGONAL_PLATFORM_STATE_FALLING,
+    e_OBJECT_DIAGONAL_PLATFORM_STATE_COUNT
+};
+
+
 /**
  * @brief
  *
@@ -41,7 +53,7 @@ class object
 {
 public:
     //object(Uint8 id, struct CURRENT_FILE_FORMAT::file_object temp_obj); // game object constructor
-    object(short _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest); // map object constructor
+    object(short _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest, short set_direction); // map object constructor
     ~object();
     void reset();
     void reset_timer();
@@ -61,6 +73,8 @@ public:
 
     void move_crusher();
 
+    void add_explosion();
+
     bool check_player_crushed();
 
     void reset_animation();
@@ -68,6 +82,8 @@ public:
     void stop();
 
     void execute(bool paused);
+
+    bool object_type_needs_reset_offscreen();
 
 
     st_position get_position() const;
@@ -78,6 +94,7 @@ public:
     st_rectangle get_area();
     st_size get_size();
     Uint8 get_type() const;
+    bool is_active_platform();
     Uint8 get_id() const;
     Uint8 get_direction() const;
     void set_direction(int);
@@ -97,9 +114,11 @@ public:
     void command_down();														// some objects can be controlled by the player
     std::string get_name() const;
     bool is_hidden() const;
+    void set_hidden(bool hide);
     bool is_started() const;
     bool is_on_screen();
     bool is_on_visible_screen();
+    bool is_on_expanded_visible_screen();
     void set_collision_mode(enum collision_modes collision_mode); // if player uses this as platform, move him
     enum collision_modes get_collision_mode() const;
     void reset_timers();
@@ -116,6 +135,7 @@ public:
     bool is_teleporting();
     void set_is_dropped(bool dropped);
     bool get_is_dropped();
+    void inc_status();
 
 
 private:
@@ -136,6 +156,7 @@ private:
     int speed;																	// used as speed for moving platform
     int limit;																	// used as range (pixels) for moving platform, visible time for disapearing block
     short direction;																// used to check if moving away from oiginalpoint or moving to it
+    short original_direction;
     int distance;
     int framesize_w;
     int framesize_h;
@@ -169,6 +190,10 @@ private:
     long teleport_max_timer;
     bool item_jet_started = false;
     float crusher_speed = 0;
+    unsigned long active_platform_timer = 0;
+    unsigned long status_timer = 0;
+    unsigned long last_execute_time = 0;
+    int zigzag_graph_pos_x = 0;
 };
 
 #endif // OBJECT_H

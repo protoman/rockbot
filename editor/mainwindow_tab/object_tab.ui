@@ -264,6 +264,46 @@
             <string>Moving Platform Down</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Destructible</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Destructible with Item Drop</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Active Platform Diagonal Up</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Active Platform Diagonal Down</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Active Platform Ahead</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Active Platform Up</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Double (Jump and Shoot) Destructible</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Timed Bomb</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="5" column="2">

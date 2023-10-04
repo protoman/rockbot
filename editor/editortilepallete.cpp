@@ -31,9 +31,11 @@ void EditorTilePallete::paintEvent(QPaintEvent *) {
    myParent->adjustSize();
 
    // draw the selection marker
+   painter.setBrush(QColor(40, 240, 40, 120));
    painter.setPen(QColor(255, 0, 0));
    QRectF select(QPoint((selectedTileX*TILESIZE*zoom), (selectedTileY*TILESIZE*zoom)), QSize(TILESIZE*zoom, TILESIZE*zoom));
    painter.drawRect(select);
+   painter.setBrush(Qt::NoBrush);
 
    // GRID
    QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);

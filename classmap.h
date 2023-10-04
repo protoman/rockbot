@@ -163,7 +163,7 @@ public:
 
     classnpc *spawn_map_npc(short int npc_id, st_position npc_pos, short direction, bool player_friend, bool progressive_span);
 
-    int child_npc_count(int parent_id);
+    int child_npc_count(st_position parent_id);
 
     void move_npcs();
 
@@ -206,6 +206,8 @@ public:
     int get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h);
 
     void drop_item(classnpc *npc_ref);
+    void drop_random_item(st_position position);
+    void drop_great_random_item(st_position position);
 
     void set_bg_scroll(int scrollx);
 
@@ -294,6 +296,8 @@ private:
     int _show_map_pos_x;                                                    // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
     graphicsLib_gSurface map_screen;                                        // use to avoid having to draw the tilesets each time we update screen
     std::vector<anim_tile_desc> anim_tile_list;                             // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
+    int bg_anim_pos = 0;
+    unsigned long bg_anim_timer = 0;
 };
 
 

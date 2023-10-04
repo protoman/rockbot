@@ -509,6 +509,9 @@ void classPlayer::damage_ground_npcs()
         if (gameControl.get_current_map_obj()->_npc_list.at(i).is_on_visible_screen() == false) {
 			continue;
 		}
+        if (gameControl.get_current_map_obj()->_npc_list.at(i).is_player_friend() == true) {
+            continue;
+        }
 
 		// check if NPC is vulnerable to quake (all bosses except the one with weakness are not)
         short damage = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[weapon_n].damage_multiplier;
@@ -654,7 +657,7 @@ void classPlayer::execute_projectiles()
             projectile_list.erase(it);
             break;
         }
-        st_size moved = (*it).move();
+        st_float_size moved = (*it).move();
 
         /// @TODO projectiles that are tele-guided
         if ((*it).get_move_type() == TRAJECTORY_QUAKE) {
@@ -667,7 +670,7 @@ void classPlayer::execute_projectiles()
         }
 
         // check collision against enemies
-        for (int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
+        for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
                 projectile_list.erase(it);
                 break;
@@ -678,7 +681,9 @@ void classPlayer::execute_projectiles()
             if (gameControl.get_current_map_obj()->_npc_list.at(i).is_dead() == true) {
                 continue;
             }
-
+            if (gameControl.get_current_map_obj()->_npc_list.at(i).is_player_friend() == true) {
+                continue;
+            }
 
             // collision against whole body
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
@@ -745,17 +750,31 @@ void classPlayer::execute_projectiles()
         }
 
 
+        // check collision against objects
+
         // if projectile is a bomb, check collision against objects
-        if ((*it).get_effect_n() == 1 && ((*it).get_move_type() == TRAJECTORY_BOMB || (*it).get_move_type() == TRAJECTORY_FALL_BOMB) || (*it).is_explosive() == true) {
-            std::vector<object*> res_obj = gameControl.get_current_map_obj()->check_collision_with_objects((*it).get_area());
-            if (res_obj.size() > 0) {
-                for (unsigned int i=0; i<res_obj.size(); i++) {
-                    object* temp_obj = res_obj.at(i);
-                    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WALL) {
+        std::vector<object*> res_obj = gameControl.get_current_map_obj()->check_collision_with_objects((*it).get_area());
+        if (res_obj.size() > 0) {
+            for (unsigned int i=0; i<res_obj.size(); i++) {
+                object* temp_obj = res_obj.at(i);
+                if (object_is_affected_by_projectile(temp_obj, (*it))) {
+                    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_NO_DROP) {
+                        temp_obj->set_hidden(true);
+                    } else if (temp_obj->get_type() == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+                        temp_obj->inc_status();
+                        continue;
+                    } else {
                         temp_obj->set_finished(true);
-                        if ((*it).is_explosive() == true) {
-                            (*it).transform_into_explosion();
-                        }
+                    }
+                    if ((*it).is_explosive() == true) {
+                        (*it).transform_into_explosion();
+                    } else {
+                        st_float_position obj_pos(temp_obj->get_position().x, temp_obj->get_position().y);
+                        gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion16, obj_pos, st_position(0, 0), 80, 2, ANIM_DIRECTION_RIGHT, st_size(16, 16));
+                    }
+                    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WITH_DROP) {
+                        st_position drop_pos(temp_obj->get_position().x+temp_obj->get_size().width/2, (temp_obj->get_position().y));
+                        gameControl.get_current_map_obj()->drop_random_item(drop_pos);
                     }
                 }
             }
@@ -765,9 +784,20 @@ void classPlayer::execute_projectiles()
     projectile_to_be_added_list.clear();
 }
 
+bool classPlayer::object_is_affected_by_projectile(object *temp_obj, projectile &projectile)
+{
+    if (projectile.get_effect_n() == 1 && (projectile.get_move_type() == TRAJECTORY_BOMB || projectile.get_move_type() == TRAJECTORY_FALL_BOMB) || projectile.is_explosive() == true && temp_obj->get_type() == OBJ_DESTRUCTIBLE_WALL) {
+        return true;
+    }
+    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_NO_DROP || temp_obj->get_type() == OBJ_DESTRUCTIBLE_WITH_DROP || temp_obj->get_type() == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+        return true;
+    }
+    return false;
+}
+
 void classPlayer::move()
 {
-	if (input.p1_input[BTN_DOWN] == 1) {
+    if (input.p1_input[BTN_DOWN] == 1) {
 		moveCommands.down = 1;
 	} else {
 		moveCommands.down = 0;
@@ -918,6 +948,7 @@ void classPlayer::death()
 	dead = true;
     _obj_jump.interrupt();
     _obj_jump.finish();
+    set_platform(nullptr);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
 
     last_hit_time = 0;
@@ -1060,7 +1091,7 @@ void classPlayer::add_coil_object()
 		}
 
 
-        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
+        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
 
         int first_unlocked_from_bottom = gameControl.get_current_map_obj()->get_first_lock_on_bottom(obj_pos.x, getPosition().y+frameSize.height+4, temp_obj.get_size().width, temp_obj.get_size().height);
 
@@ -1070,7 +1101,6 @@ void classPlayer::add_coil_object()
 		temp_obj.set_duration(2500);
         temp_obj.enable_teleport_animation();
         temp_obj.set_collision_mode(COLlISION_MODE_Y);
-        temp_obj.set_direction(state.direction);
         gameControl.get_current_map_obj()->add_object(temp_obj);
         consume_weapon(1);
     }
@@ -1086,11 +1116,10 @@ void classPlayer::add_jet_object()
         } else {
             obj_pos.x = position.x + frameSize.width + 2;
         }
-        object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1);
+        object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
         temp_obj.set_precise_position(obj_pos, state.direction);
         temp_obj.enable_teleport_animation();
 		temp_obj.set_duration(4500);
-		temp_obj.set_direction(state.direction);
         gameControl.get_current_map_obj()->add_object(temp_obj);
 	}
 }

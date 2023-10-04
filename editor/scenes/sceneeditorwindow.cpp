@@ -100,7 +100,9 @@ void SceneEditorWindow::on_actionPlay_Movie_triggered()
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ScenesMediator::get_instance()->selected_scene);
+    file += QString(" --gamename \"")  + QString(GAMENAME.c_str()) + QString("\"")
+            + QString(" --language \"")  + QString::number(scenes_tab->get_language()) + QString("\"")
+            + QString(" --scenenumber ") + QString::number(ScenesMediator::get_instance()->selected_scene);
     std::cout << "SceneEditorWindow::on_actionPlay_Movie_triggered[" << file.toStdString() << "]" << std::endl;
     process.start(file);
 }

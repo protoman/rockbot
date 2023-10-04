@@ -689,9 +689,11 @@ bool game::test_teleport(classPlayer *test_player) {
 
     int diff_h=6;
 
+    /*
     if (test_player->get_size().width > 30) {
        diff_h = abs((float)test_player->get_size().width-30);
     }
+    */
     new_map_pos_x -= diff_h +2;
 
 
@@ -716,7 +718,8 @@ bool game::test_teleport(classPlayer *test_player) {
 
     st_float_position bg1_pos = loaded_stage.get_current_map()->get_bg_scroll();
 
-
+    std::string current_bg_filename = std::string(GameMediator::get_instance()->map_data[loaded_stage.get_current_map_number()].backgrounds[0].filename);
+    std::string new_bg_filename = std::string(GameMediator::get_instance()->map_data[temp_map_n].backgrounds[0].filename);
     set_current_map(temp_map_n);
 
     if (is_link_teleporter(stage_data.links[j].type) == true) {
@@ -727,7 +730,6 @@ bool game::test_teleport(classPlayer *test_player) {
         }
         //loaded_stage.set_scrolling(st_float_position(new_scroll_pos, loaded_stage.getMapScrolling().y));
         loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
-
         loaded_stage.get_current_map()->reset_scrolled();
         if (link_type == LINK_FADE_TELEPORT) {
             test_player->set_position(st_position(stage_data.links[j].pos_destiny.x*TILESIZE, stage_data.links[j].pos_destiny.y*TILESIZE));
@@ -743,7 +745,12 @@ bool game::test_teleport(classPlayer *test_player) {
         }
     } else {
         loaded_stage.set_scrolling(st_float_position(new_map_pos_x, loaded_stage.getMapScrolling().y));
-        loaded_stage.get_current_map()->set_bg_scroll(bg1_pos);
+
+        if (current_bg_filename == new_bg_filename) {
+            loaded_stage.get_current_map()->set_bg_scroll(bg1_pos);
+        } else {
+            loaded_stage.get_current_map()->set_bg_scroll(0);
+        }
         test_player->set_position(st_position(abs((float)test_player->get_real_position().x+new_map_pos_x), test_player->getPosition().y));
         test_player->char_update_real_position();
         loaded_stage.get_current_map()->reset_scrolled();
@@ -1010,8 +1017,17 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
 
     classMap* temp_map = &loaded_stage.maps[map_n];
-    temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
-    temp_map->set_foreground_postion(loaded_stage.get_current_map()->get_foreground_postion());
+
+    std::string current_bg_filename = std::string(GameMediator::get_instance()->map_data[loaded_stage.get_current_map_number()].backgrounds[0].filename);
+    std::string new_bg_filename = std::string(GameMediator::get_instance()->map_data[map_n].backgrounds[0].filename);
+
+    if (loaded_stage.get_current_map_number() == map_n || current_bg_filename == new_bg_filename) {
+        temp_map->set_bg_scroll(loaded_stage.get_current_map()->get_bg_scroll());
+        temp_map->set_foreground_postion(loaded_stage.get_current_map()->get_foreground_postion());
+    } else {
+        temp_map->set_bg_scroll(0);
+        temp_map->set_foreground_postion(st_float_position(0, 0));
+    }
 
     graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
@@ -1133,7 +1149,7 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     temp_screen.freeGraphic();
 	pObj->set_teleporter(-1);
-	pObj->char_update_real_position();
+    pObj->char_update_real_position();
 }
 
 
@@ -1161,8 +1177,6 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         }
         loaded_stage.show_stage();
 	}
-
-
 
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
     float player_move_x = (float)(TILESIZE*2.5)/(float)move_limit; // player should move two tilesize, to avoid doors
@@ -1427,7 +1441,6 @@ void game::quick_load_game()
     //data_out.stages[STAGE3] = 1; // TECHNO: jet
 
 
-    game_save.selected_player = PLAYER_1;
     game_save.difficulty = DIFFICULTY_NORMAL;
 
     // DEBUG //
@@ -1998,6 +2011,10 @@ void game::get_drop_item_ids()
             _drop_item_list[DROP_ITEM_WEAPON_SMALL] = i;
         } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_WEAPON_PILL_BIG) {
             _drop_item_list[DROP_ITEM_WEAPON_BIG] = i;
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_ENERGY_TANK) {
+            _drop_item_list[DROP_ITEM_ENERGY_TANK] = i;
+        } else if (GameMediator::get_instance()->object_list.at(i).type == OBJ_LIFE) {
+            _drop_item_list[DROP_ITEM_1UP] = i;
         }
     }
 }

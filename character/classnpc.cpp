@@ -38,7 +38,7 @@ extern int freeze_weapon_id;
 classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(false)
 {
 	add_graphic();
-	hit_duration = 500;
+    hit_duration = HIT_BLINK_ANIMATION_LAPSE;
     if (is_subboss()) {
         hit_duration = BOSS_HIT_DURATION;
     }
@@ -47,7 +47,7 @@ classnpc::classnpc() : graphic_filename(), first_run(true), _is_player_friend(fa
     _is_spawn = false;
     _initialized = 0;
     _screen_blinked = false;
-    _parent_id = -1;
+    _parent_id = st_position(-1, -1);
     is_ghost = false;
 
 }
@@ -75,7 +75,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     _is_spawn = false;
     _initialized = 0;
     _screen_blinked = false;
-    _parent_id = -1;
+    _parent_id = st_position(-1, -1);
 
 
     if (is_static()) {
@@ -102,7 +102,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     _is_spawn = true;
     _initialized = 0;
     _screen_blinked = false;
-    _parent_id = -1;
+    _parent_id = st_position(-1, -1);
 
     if (is_static()) {
         can_fly = true;
@@ -124,7 +124,7 @@ classnpc::classnpc(std::string set_name) : graphic_filename(), first_run(true), 
     _is_spawn = false;
     _initialized = 0;
     _screen_blinked = false;
-    _parent_id = -1;
+    _parent_id = st_position(-1, -1);
 
     is_ghost = false;
 }
@@ -171,8 +171,6 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 			}
 		}
 	}
-
-
 
     hitPoints.total = GameMediator::get_instance()->get_enemy(main_id)->hp.total;
 	hitPoints.current = hitPoints.total;
@@ -247,7 +245,10 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
                 std::cout << "ERROR: initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
                 return;
             }
+            graphicsLib_gSurface gsurface_flip;
             graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
+            graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
+            graphLib.character_graphics_background_list_left.insert(std::pair<std::string, graphicsLib_gSurface>(name, gsurface_flip));
             _has_background = true;
         }
     }
@@ -260,8 +261,11 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         can_fly = true;
     }
 
-
     vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->vulnerable_area;
+
+    if (_is_player_friend == false && GameMediator::get_instance()->get_enemy(main_id)->behavior == NPC_BEHAVIOR_PLAYER_FRIEND) {
+        _is_player_friend = true;
+    }
 }
 
 
@@ -283,6 +287,7 @@ bool classnpc::is_subboss()
 
 void classnpc::reset_position()
 {
+    std::cout << ">>>>>>>>>> NPC::reset_position[" << name << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
     position.x = start_point.x;
     position.y = start_point.y;
     // if the NPC uses fly/fall, it means, we need to respawn it inside the hole
@@ -328,12 +333,12 @@ void classnpc::npc_set_initialized(short init)
     _initialized = init;
 }
 
-void classnpc::set_parent_id(int parent_id)
+void classnpc::set_parent_id(st_position parent_id)
 {
     _parent_id = parent_id;
 }
 
-int classnpc::get_parent_id()
+st_position classnpc::get_parent_id()
 {
     return _parent_id;
 }
@@ -494,11 +499,16 @@ void classnpc::move_projectiles()
     st_rectangle player_hitbox = gameControl.get_current_map_obj()->get_player_hitbox();
 
 	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
-        st_size moved = (*it).move();
+        st_float_size moved = (*it).move();
         // check collision agains players
 
+        if ((*it).is_finished == true) {
+            projectile_list.erase(it);
+            break;
+        }
+
         if ((*it).is_reflected == true) {
-			continue;
+            continue;
 		}
 
         if (_is_player_friend == false) { // NPC attacking players
@@ -601,8 +611,6 @@ void classnpc::move() {
     if (can_fly == false && position.y >= RES_H+1) {
         // death because felt in a hole
         damage(999, true);
-        position.x = start_point.x;
-        position.y = start_point.y;
         return;
     }
 
@@ -634,6 +642,10 @@ short classnpc::get_dead_state()
 
 void classnpc::death()
 {
+    if (dead == true) {
+        return;
+    }
+    //std::cout << ">>>>>>>>>> NPC::death[" << name << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
     _obj_jump.interrupt();
     _obj_jump.finish();
     dead = true;

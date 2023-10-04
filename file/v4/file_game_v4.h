@@ -741,7 +741,7 @@ namespace format_v4 {
         st_position_int8 attack_arm_pos;
         Uint8 attack_frame;
         st_rectangle vulnerable_area;
-        Sint8 gfx_effect;                                         // can cause snow, rain, darkned roon, etc
+        Sint8 behavior;                                            // can be player friend, cause snow, rain, darkned roon, etc
 
 
         file_npc_v3_1_2() {
@@ -765,7 +765,7 @@ namespace format_v4 {
             is_sub_boss = false;
             respawn_delay = 0;
             attack_frame = -1;
-            gfx_effect = -1;
+            behavior = -1;
         }
 
         file_npc_v3_1_2(file_npc_v3_1_1 old) {
@@ -808,7 +808,7 @@ namespace format_v4 {
             vulnerable_area.y = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y;
             vulnerable_area.w = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w;
             vulnerable_area.h = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h;
-            gfx_effect = -1;
+            behavior = -1;
         }
 
     };
@@ -859,16 +859,6 @@ namespace format_v4 {
             animation_loop = true;
         }
     };
-
-
-
-
-
-
-
-
-
-
 
     struct file_ai_action {
         int chance;

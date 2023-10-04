@@ -73,6 +73,8 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).reactions[0].extra_parameter);
+    ui->reactionGotoNextComboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).reactions[0].go_to);
+    ui->reactionGotoDelaySpinBox->setValue(Mediator::get_instance()->ai_list.at(index).reactions[0].go_to_delay);
 
 	// OPTIONS
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[0].action, ui->parameter1);
@@ -520,6 +522,7 @@ void artificial_inteligence_tab::fill_next_combos()
     fill_next_combo(ui->next6);
     fill_next_combo(ui->next7);
     fill_next_combo(ui->next8);
+    fill_next_combo(ui->reactionGotoNextComboBox);
 }
 
 void artificial_inteligence_tab::fill_next_combo(QComboBox *combo)
@@ -580,5 +583,26 @@ void artificial_inteligence_tab::on_aiReactionType_comboBox_currentIndexChanged(
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].extra_parameter);
+    ui->reactionGotoNextComboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].go_to);
+    ui->reactionGotoDelaySpinBox->setValue(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].go_to_delay);
+
     _filling_data = false;
 }
+
+void artificial_inteligence_tab::on_reactionGotoNextComboBox_currentIndexChanged(int index)
+{
+    if (_filling_data == true) {
+        return;
+    }
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].go_to = index;
+}
+
+
+void artificial_inteligence_tab::on_reactionGotoDelaySpinBox_valueChanged(int arg1)
+{
+    if (_filling_data == true) {
+        return;
+    }
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].go_to_delay = arg1;
+}
+

@@ -41,7 +41,7 @@ public:
     void set_is_permanent();
     void set_default_values(); // set some common values for all constructors
     ~projectile();
-    st_size move();
+    st_float_size move();
     void draw();
     bool check_collision(st_rectangle enemy_pos, st_position pos_inc) const;
     bool check_map_collision(st_position pos_inc) const;
@@ -84,10 +84,11 @@ private:
      */
     st_size get_size() const;
 
-    void move_ahead(st_size &moved);
+    void move_ahead(st_float_size &moved);
     void position_to_ground();
     void set_direction_from_xyinc(int xinc, int yinc);
     void set_direction_from_targetpos(int middle_tolerance);
+    void inc_zigzag_status();
 
 
 public:
@@ -116,6 +117,7 @@ private:
 
     bool diagonal_flag; // used to control diagonal shot angle
     Uint8 _max_frames; // number of frames for the projectile
+    Uint8 max_frames_vertical; // number of frames for the projectile
     double angle;
     short int radius;
 
@@ -157,6 +159,9 @@ private:
     graphicsLib_gSurface rotated_surface;
 
     unsigned long lighting_timer = 0;
+    Uint8 original_direction;
+    int hp = 0;
+    unsigned short animation_status = 0;
 
 };
 #endif // PROJECTILELIB_H

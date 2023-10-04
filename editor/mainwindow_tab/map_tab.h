@@ -81,6 +81,8 @@ private slots:
 
     void on_difficultyMode_pushButton_clicked();
 
+    void on_FGScrollModeComboBox_currentIndexChanged(int index);
+
 private:
     void fill_data();
     void fill_background_list();

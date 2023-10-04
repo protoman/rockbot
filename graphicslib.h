@@ -161,6 +161,7 @@ public:
     void copyArea(struct st_rectangle rect, struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*);
     void copyArea(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
     void copyAreaWithAdjust(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
+    void copyAreaWithAdjustAndAnimFrame(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*, int frame); // overload, use the whole width and height of given image
     void surfaceFromFile(std::string, graphicsLib_gSurface *);
     void showSurface(struct graphicsLib_gSurface*);
     void showSurfaceRegion(struct graphicsLib_gSurface*, const struct st_rectangle origin_rectangle);
@@ -302,8 +303,9 @@ public:
     graphicsLib_gSurface armor_icon_legs;
 
     // character graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_char_sprite_data> character_graphics_list;
-    static std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
+    std::map<std::string, st_char_sprite_data> character_graphics_list;
+    std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
+    std::map<std::string, graphicsLib_gSurface> character_graphics_background_list_left;
 
 private:
     std::vector<struct anim_tile_timer> ANIM_TILES_TIMERS;

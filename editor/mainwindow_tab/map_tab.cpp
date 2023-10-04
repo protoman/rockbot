@@ -614,3 +614,10 @@ void map_tab::on_difficultyMode_pushButton_clicked()
 //        ui->difficultyMode_pushButton->setText("<=");
     }
 }
+
+void map_tab::on_FGScrollModeComboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll = index;
+}
+

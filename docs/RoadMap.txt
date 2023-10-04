@@ -1,36 +1,83 @@
-﻿- peixão esta fazendo spawn de vários inimigos juntos
-- Efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
-- background do npc deve contar como parte dele para efeitos de dano de contato com o player
-
-- colisão com teleporter parou de funcionar, aparentemente (dá para andar reto sem pular na parte de baixo)
-
-- [Rockbot] EDITOR: poder ver o preview em outros idiomas, respeitando a opção do combo em 
-
-
+﻿
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
-- opção para npc caminhar adiante mesmo que caia (só inverte posição se der de cara com parede)
-    # walk ahead falling
-    # idealmente tem que ser uma opção e não uma IA
+- não pode iniciar um segundo react se ainda esta na chain dele
 
-- user move-speed do npc para definir tamanho do pulo
-- nova IA down and respawn (tipo drill, mas mantém velocidade)
-- novo projetil 5 way (esquerda, diagonal esquerda, cima ou baixo, diagonal direita, direita)
-- novo projetil 8 way (todas)
-- Nova ia jump up e "chover" - diagonal com ãngulo e direção random (variar o ângulo dentro de um limite tipo 30 a 50)
-- nova IA voar em senoildal (onda) frente, cima, baixo
-    # como definir amplitude?
-- novo objeto: raio temporizado, estatico ou se move zigue-zague
+- problemas em plataforma up/down:
+    # player consegue mudar elas de posição, bloqueando-as
+    # player morre se é "esmagado" por uma mesmo estando do lado e não embaixo
+    # tem que usar direction para definir se vai mover primeiro para baixo ou para cima
+    # plataformas snakeman player entra dentro dela um pouco (tem que ter ajuste fino)
+
+- problemas colisão em escadas (fica preso)
+
+- new AI option: big jump ahead
+
+- repetição de fundo esta com problemas na fase do Chill (quando morre e na segunda imagem)
+
+- ao morrer tem que resetar todos os objetos tipo destructible de volta
+
+- fazer objeto bombas com timer
+    # como definir o lado (esquerda, direita, cima) do ativador?
+
+- adicionar efeito sonoro em plataformas ativas quando acionar elas
+
+- adicionar som ao entrar em cápsula de teleporte
+
+- projetil aparece por um instante na posição 0x0 da tela (ver elefantes)
+
+- ao bater a cabeça esta puxando o jogador para baixo ao interromper pulo (deve ser por conta do outro fix)
+
+- novo objeto: raio temporizado, estatico ou se move zigue-zague (sparkman)
     # quando desativado, dá dano se encostas nas pontas (tilezie), ativo entre elas
 
+- efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
+
 ===========================================================================================================================
-- EDITOR: adicionada opção view->tileset
-- EDITOR: reset do mapa deve ser geral, incluindo links, inimigos e objetos
-- EFEITO wave no fundo (bubbleman wily wars)
-- new AI: shoot projectile in several directions at same time
-- new AI: fall down in diagonal
-- moving platform up and down
+- dercrease enemies intangible time after hit to 200ms
+- block that can be broken by shooting or jumping on it
+- fix projectile trajectories up and down
+- fix replace itself position
+# EDDIE:
+    - npc amigável via behavior flag
+    - nova IA: throw item
+    - nova IA: teleport out
+- EDITOR: shuld not be able to select empty tile
+- map gfx animated bg: splits image into half for frames
+- fix jump limits when inside quicksand
+- new IA para walk ou fly: up to ground, down to inside ground
+- corrigido projetil tipo TARGET_EXACT
+- suporte a goto nas reactions
+- ao trocar de mapa, só deve manter o scroll se o fundo for o mesmo, senao deve resetar
+- EDITOR: ask if user wants to same data before loading another game
+- EDITOR: tornar mais fácild e enxergar linhas de tamanho de sala e seleção de tile
+- active platform e destructible item (sem drop), fora da tela, tem que resetar posição e estado
+- ao transicionar tela na horizontal e não fort porta, não mudar para STAND se estiver em slide
+- use hitbox area defined in editor for players instead of hardcoded one
+- se usar o frog para sair da tela por cima, acaba ficando preso fora dela
+- novo tipo de escudo: usando escudo (anim_type_shield)
+- novo tipo de escudo: back
+- limit the max of spawned npcs from the origin point of the map-npc instead of the number of the main-npc data.
+- two new object types, destructible (with regular weapons) and same that drops item.
+- try to use ANIM_TYPE_STAND for hitbox if current anim-type is not used, avoiding falling to default frameSize.
+    # fix collision against npcs with background.
+- NPC death explosion being shown at start point when falling in hold/ground (should have no explision at all)
+- fly/to-player esta deixando rastro como dash, não é para ter.
+- HIGH: reflected projectiles were not being consumed/finished.
+- AI: use move-speed to determine the range of the jump.
+- new AI: walk ahead even if falls from platform.
+- new AI: shoot projectile in several directions at same time.
+- new AI: fall down in diagonal.
+- new projectile types that fire multiple, 5 way up, 5 way down and 8 way.
+- EDITOR: opção "draw areas" que mostra o retangulo de objetos e inimigos.
+- moving platform up and down.
+- EDITOR: add option for FG auto-scroll.
+- EDITOR: npc with background was not being correctly shown when facing right direction.
+- EDITOR: poder ver o preview em outros idiomas, respeitando a opção do combo em
+- EDITOR: adicionada opção view->tileset.
+- EDITOR: reset do mapa deve ser geral, incluindo links, inimigos e objetos.
+- EFEITO wave no fundo (bubbleman wily wars).
 
 ###########################################################################################################################
 0.7.0

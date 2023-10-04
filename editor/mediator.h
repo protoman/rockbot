@@ -66,6 +66,7 @@ public:
     bool show_npcs_flag;
     bool show_teleporters_flag;
     bool show_tileset_flag = true;
+    bool show_rects_flag = false;
     short stage_select_edit_mode;
     short stage_select_stage_number;
     bool show_grid;

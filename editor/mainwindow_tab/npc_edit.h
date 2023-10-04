@@ -101,6 +101,8 @@ private slots:
 
     void on_backgroundFileComboBox_currentIndexChanged(const QString &arg1);
 
+    void on_npcBehaviorComboBox_currentIndexChanged(int index);
+
 private:
 	void fill_data();
     void init_form();

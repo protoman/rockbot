@@ -48,6 +48,7 @@ void npc_edit::fill_data()
         ui->npc_edit_tab_selectnpccombo->setCurrentIndex(Mediator::get_instance()->current_npc_n);
 
         // PROPERTIES //
+        ui->npcBehaviorComboBox->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).behavior);
         ui->npc_edit_tab_NpcName->setText(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).name);
         ui->npc_edit_tab_NpcHP->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).hp.total);
         ui->projectileOriginX_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x);
@@ -760,5 +761,14 @@ void npc_edit::on_backgroundFileComboBox_currentIndexChanged(const QString &arg1
     ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+arg1.toStdString());
     add_frame_one();
     ui->npc_edit_tab_previewarea->repaint();
+}
+
+
+void npc_edit::on_npcBehaviorComboBox_currentIndexChanged(int index)
+{
+    if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
+        return;
+    }
+    Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).behavior = index;
 }
 

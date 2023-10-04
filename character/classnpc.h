@@ -60,8 +60,8 @@ public:
     void npc_set_position(st_float_position pos);
     void npc_set_direction(short dir);
     void npc_set_initialized(short init);
-    void set_parent_id(int parent_id);
-    int get_parent_id();
+    void set_parent_id(st_position parent_id);
+    st_position get_parent_id();
     void reset_timers();
     bool is_static();
     bool npc_is_ghost();
@@ -102,7 +102,7 @@ protected:
     // boss member variables
     short _initialized; /**< TODO */
     bool _screen_blinked; /**< TODO */
-    int _parent_id;
+    st_position _parent_id;                             // parent original position in the map is the id
     st_position static_bg_pos;
 };
 

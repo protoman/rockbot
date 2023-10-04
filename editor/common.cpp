@@ -289,6 +289,8 @@ void common::fill_ai_options_combo(int action, QComboBox *combo)
         list = AI_ACTION_SFX_OPTION_NAMES;
     } else if (action == AI_ACTION_SHOT_MULTIPLE_PROJECTILE) {
         list = AI_ACTION_SHOT_MULTIPLE_PROJECTILE_NAMES;
+    } else if (action == AI_ACTION_THROW_ITEM) {
+        list = get_throw_object_options();
     } else {
         return;
     }
@@ -481,6 +483,16 @@ void common::show_directory_error_message(std::string directory)
     msgBox.exec();
     // create directory now
     QDir().mkdir(directory.c_str());
+}
+
+std::vector<std::string> common::get_throw_object_options()
+{
+    std::vector<std::string> res;
+    res.push_back("RANROM");
+    for (unsigned int i=0; i<Mediator::get_instance()->object_list.size(); i++) {
+        res.push_back(Mediator::get_instance()->object_list.at(i).name);
+    }
+    return res;
 }
 
 

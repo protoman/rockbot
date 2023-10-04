@@ -43,7 +43,7 @@ extern game gameControl;
 
 
 // constructor for map_object
-object::object(short set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
+object::object(short set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest, short set_direction) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
 {
 	map = set_map;
 	_id = set_id;
@@ -53,7 +53,8 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     obj_timer = GameMediator::get_instance()->object_list.at(_id).timer;
     speed = GameMediator::get_instance()->object_list.at(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     limit = GameMediator::get_instance()->object_list.at(_id).limit;
-	direction = 0;
+    original_direction = set_direction;
+    direction = set_direction;
 	distance = 0;
     framesize_w = GameMediator::get_instance()->object_list.at(_id).size.width;
     framesize_h = GameMediator::get_instance()->object_list.at(_id).size.height;
@@ -75,6 +76,14 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
         _started = true;
     }
 
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        if (direction != ANIM_DIRECTION_RIGHT) {
+            direction = ANIM_DIRECTION_DOWN;
+        } else {
+            direction = ANIM_DIRECTION_UP;
+        }
+    }
+
     _command_up = false;
 	_command_down = false;
     _start_timer = 0;
@@ -93,6 +102,11 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     is_dropped = false;
     show_teleport = false;
     teleport_max_timer = 0;
+
+    if (type == OBJ_TIMED_BOMB) {
+        _state = GameMediator::get_instance()->object_list.at(_id).timer;
+    }
+
     add_graphic();
 }
 
@@ -109,8 +123,16 @@ void object::reset()
     _animation_finished = false;
     _animation_reversed = false;
     _hidden = false;
-    if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_TRACK_PLATFORM) {
+    if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_TRACK_PLATFORM) {
         direction = 0;
+    }
+    direction = original_direction;
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        if (direction != ANIM_DIRECTION_RIGHT) {
+            direction = ANIM_DIRECTION_DOWN;
+        } else {
+            direction = ANIM_DIRECTION_UP;
+        }
     }
     distance = 0;
     position.x = start_point.x;
@@ -137,6 +159,7 @@ void object::reset()
         pos_y_before = position.y;
         n++;
     }
+    _state = 0;
 }
 
 void object::reset_timer()
@@ -202,7 +225,13 @@ void object::gravity()
         return;
     }
 	// non-falling object types
-    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_CRUSHER) {
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP_LOOP
+            || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK
+            || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_TIMED_BOMB
+            || type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM
+            || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DAMAGING_PLATFORM
+            || type == OBJ_CRUSHER || type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP
+            || is_active_platform() == true) {
 		return;
 	}
     for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
@@ -231,7 +260,7 @@ bool object::test_change_position(short xinc, short yinc)
 
     if (yinc > 0 && position.y > RES_H) { // check if item felt out of screen
         if (position.y < RES_H+TILESIZE*2) {
-            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP && type != OBJ_MOVING_PLATFORM_DOWN) {
+            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP_LOOP && type != OBJ_MOVING_PLATFORM_DOWN) {
                 _finished = true;
                 return false;
             } else {
@@ -247,7 +276,7 @@ bool object::test_change_position(short xinc, short yinc)
         int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
         /// @TODO - consumable items should not stop if blocked by player
         if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false && type != OBJ_CHECKPOINT) {
-            return false;
+            //return false;
         }
     }
 
@@ -258,7 +287,7 @@ bool object::test_change_position(short xinc, short yinc)
 	short p1 = map->getMapPointLock(st_position((position.x+2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 
-    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP && type != OBJ_MOVING_PLATFORM_DOWN) {
+    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP_LOOP && type != OBJ_MOVING_PLATFORM_DOWN) {
         if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
             return false;
         }
@@ -268,8 +297,6 @@ bool object::test_change_position(short xinc, short yinc)
             && ((p2 == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD) || (p2 == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || p2 == TERRAIN_UNBLOCKED ||  p2 == TERRAIN_WATER || p2 == TERRAIN_SPIKE)) {
         return true;
 	}
-
-
 
 	return false;
 }
@@ -414,6 +441,31 @@ void object::show(int adjust_y, int adjust_x)
     } else if (type == OBJ_CRUSHER) {
         show_crusher();
         return;
+    } else if (type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+        int graphic_x = 0;
+        if (_state == 1) {
+            graphic_x = framesize_w;
+        } else if (_state > 1) {
+            _hidden = true;
+            //_finished = true;
+            return;
+        }
+        if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
+            graphic_destiny.x = position.x - scroll_x;
+            graphic_destiny.y = adjust_y + position.y;
+            graphLib.copyArea(st_rectangle(graphic_x, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        }
+        return;
+    } else if (type == OBJ_TIMED_BOMB) {
+        if (_state == -1) {
+            st_position explosion_pos(position.x - TILESIZE, position.y - TILESIZE);
+            graphLib.draw_explosion(explosion_pos);
+        } else if (_state >= 0) {
+            graphic_destiny.x = position.x - scroll_x;
+            graphic_destiny.y = adjust_y + position.y;
+            graphLib.copyArea(st_rectangle(_state*framesize_w, (direction*framesize_h)*2, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            return;
+        }
     }
 
     if (show_teleport) {
@@ -457,7 +509,7 @@ void object::show(int adjust_y, int adjust_x)
 					_animation_reversed = false;
                     _started = false;
                     // force stop if active block
-                    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
+                    if (is_active_platform() == true) {
                         _hidden = false;
                         _obj_frame_timer = timer.getTimer() + _frame_duration;
                         _animation_finished = false;
@@ -504,7 +556,7 @@ void object::show(int adjust_y, int adjust_x)
 
 
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
-            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x+zigzag_graph_pos_x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // disappearning block has a shadow under it
             if (type == OBJ_DISAPPEARING_BLOCK) {
                 graphLib.clear_area(graphic_destiny.x, graphic_destiny.y+framesize_h, framesize_w, 6, 0, 0, 0);
@@ -675,7 +727,10 @@ void object::show_crusher()
 
 bool object::is_platform()
 {
-    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP  || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || is_active_platform() == true || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP_LOOP  || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+        return true;
+    }
+    if (is_active_platform()) {
         return true;
     }
     return false;
@@ -760,6 +815,11 @@ void object::move(bool paused)
         return;
     }
 
+    if (last_execute_time > timer.getTimer()) {
+        return;
+    }
+    last_execute_time = timer.getTimer() + 20;
+
     if (_duration > 0 && timer.getTimer() > _timer_limit && !(type == OBJ_ITEM_FLY && _started == true)) { // eagle-jet, when active, can't teleport out because of timer
         if (show_teleport == true && _teleport_state != e_object_teleport_state_teleport_out) {
             _teleport_state = e_object_teleport_state_teleport_out;
@@ -791,7 +851,9 @@ void object::move(bool paused)
             distance = limit - distance;
 		}
 	} else if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - distance[" << distance << "], limit[" << limit << "]" << std::endl;
 		if (distance > limit) {
+            //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - INVERT" << std::endl;
 			invert_direction_y();
 			distance = 0;
 		}
@@ -802,6 +864,7 @@ void object::move(bool paused)
             yinc = speed;
 		}
 		bool can_move = test_change_position(0, yinc);
+        //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - yinc[" << yinc << "], can_move[" << can_move << "]" << std::endl;
 		if (can_move) {
 			position.y += yinc;
 			check_player_move(0, yinc);
@@ -1086,7 +1149,7 @@ void object::move(bool paused)
         }
     } else if (type == OBJ_CRUSHER) {
         move_crusher();
-    } else if (type == OBJ_MOVING_PLATFORM_UP) {
+    } else if (type == OBJ_MOVING_PLATFORM_UP_LOOP && is_on_visible_screen()) {
         if (position.y < -framesize_h) {
             position.y = RES_H;
             distance = 0;
@@ -1095,6 +1158,18 @@ void object::move(bool paused)
         position.y += yinc;
         //std::cout << ">>>>>>>> OBJ_MOVING_PLATFORM_UP" << std::endl;
         check_player_move(0, yinc);
+
+        if (_state == 0) {
+            zigzag_graph_pos_x--;
+            if (zigzag_graph_pos_x <= -limit) {
+                _state = 1;
+            }
+        } else {
+            zigzag_graph_pos_x++;
+            if (zigzag_graph_pos_x >= limit) {
+                _state = 0;
+            }
+        }
     } else if (type == OBJ_MOVING_PLATFORM_DOWN) {
         if (position.y > RES_H) {
             position.y = -framesize_h;
@@ -1103,6 +1178,62 @@ void object::move(bool paused)
         int yinc = speed;
         position.y += yinc;
         check_player_move(0, yinc);
+    } else if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_UP) {
+        if (_started == true && _state == e_OBJECT_DIAGONAL_PLATFORM_STATE_INIT) {
+            _state = e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING;
+            distance = 0;
+        } else if (_state == e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING) {
+            int xinc = 0;
+            int yinc = 0;
+            if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_UP) {
+                yinc = -speed;
+            } else if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN) {
+                yinc = speed;
+            }
+            if (type != OBJ_ACTIVE_PLATFORM_UP) {
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    xinc  = -speed;
+                } else {
+                    xinc = speed;
+                }
+            }
+            position.x += xinc;
+            position.y += yinc;
+            distance += speed;
+            check_player_move(xinc, yinc);
+            if (distance > limit) {
+                _state = e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL;
+                active_platform_timer = timer.getTimer() + 300;
+            }
+        } else if (_state == e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL) {
+            if (timer.getTimer() > active_platform_timer) {
+                _state = e_OBJECT_DIAGONAL_PLATFORM_STATE_FALLING;
+            }
+        } else if (_state == e_OBJECT_DIAGONAL_PLATFORM_STATE_FALLING) {
+            position.y += GRAVITY_SPEED;
+            if (position.y > RES_H) {
+                _hidden = true;
+            }
+        }
+    } else if (type == OBJ_TIMED_BOMB) {
+        if (_started == true && status_timer < timer.getTimer()) {
+            if (_state >= 0) {
+                status_timer = timer.getTimer() + TIMED_BOMB_DELAY;
+                _state--;
+                if (_state == -1) { // turn into explosion
+                    status_timer = timer.getTimer() + TIMED_BOMB_EXPLOSION_DURATION;
+                }
+            } else {
+                _state--;
+                _hidden = true;
+            }
+        }
+        if (_state == -1) {
+            int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 2, 0, 0);
+            if (blocked != 0) {
+                gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
+            }
+       }
     }
 }
 
@@ -1177,7 +1308,20 @@ void object::execute(bool paused)
 {
     move(paused);
     gravity();
-	/// @TODO: finish items
+
+    if (object_type_needs_reset_offscreen() == true && is_on_expanded_visible_screen() == false && (_started == true || _state != 0 || is_hidden() == true)) {
+        reset();
+    }
+
+    /// @TODO: finish items
+}
+
+bool object::object_type_needs_reset_offscreen()
+{
+    if (is_active_platform() || type == OBJ_DESTRUCTIBLE_NO_DROP || type == OBJ_FALL_PLATFORM) {
+        return true;
+    }
+    return false;
 }
 
 // ********************************************************************************************** //
@@ -1262,10 +1406,20 @@ Uint8 object::get_type() const
     return type;
 }
 
+bool object::is_active_platform()
+{
+    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_ACTIVE_PLATFORM_UP) {
+        return true;
+    }
+    return false;
+}
+
 Uint8 object::get_id() const
 {
     return _id;
 }
+
+
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -1280,7 +1434,7 @@ Uint8 object::get_direction() const
 // ********************************************************************************************** //
 void object::set_direction(int new_dir)
 {
-	direction = new_dir;
+    direction = new_dir;
 }
 
 int object::get_distance() const
@@ -1384,6 +1538,11 @@ bool object::is_hidden() const
     return _hidden;
 }
 
+void object::set_hidden(bool hide)
+{
+    _hidden = hide;
+}
+
 bool object::is_started() const
 {
     return _started;
@@ -1405,6 +1564,16 @@ bool object::is_on_visible_screen()
     st_float_position scroll = map->getMapScrolling();
 
     if (abs((float)position.x) > scroll.x && abs((float)position.x) < scroll.x+RES_W) {
+        return true;
+    }
+    return false;
+}
+
+bool object::is_on_expanded_visible_screen()
+{
+    st_float_position scroll = map->getMapScrolling();
+
+    if (abs((float)position.x) > scroll.x-RES_W/2 && abs((float)position.x) < scroll.x+RES_W*1.5) {
         return true;
     }
     return false;
@@ -1446,5 +1615,14 @@ void object::set_is_dropped(bool dropped)
 bool object::get_is_dropped()
 {
     return is_dropped;
+}
+
+void object::inc_status()
+{
+    // TODO: play sfx and show mreak animation
+    if (timer.getTimer() > status_timer) {
+        _state++;
+        status_timer = timer.getTimer() + STATUS_TIMER_DELAY;
+    }
 }
 

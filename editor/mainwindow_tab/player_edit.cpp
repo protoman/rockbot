@@ -223,36 +223,36 @@ void player_edit::on_player_sprite_h_valueChanged(int arg1)
 
 void player_edit::on_player_hitarea_x_valueChanged(int arg1)
 {
-    Mediator::get_instance()->player_graphics_data.hit_area.x = arg1;
     if (_loading == false) {
-        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.x;
+        Mediator::get_instance()->player_graphics_data.hit_area.x = arg1;
+        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.x = arg1;
         ui->player_preview_widget->update_sprites();
     }
 }
 
 void player_edit::on_player_hitarea_y_valueChanged(int arg1)
 {
-    Mediator::get_instance()->player_graphics_data.hit_area.y = arg1;
     if (_loading == false) {
-        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.y;
+        Mediator::get_instance()->player_graphics_data.hit_area.y = arg1;
+        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.y = arg1;
         ui->player_preview_widget->update_sprites();
     }
 }
 
 void player_edit::on_player_hitarea_w_valueChanged(int arg1)
 {
-    Mediator::get_instance()->player_graphics_data.hit_area.w = arg1;
     if (_loading == false) {
-        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.w;
+        Mediator::get_instance()->player_graphics_data.hit_area.w = arg1;
+        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.w = arg1;
         ui->player_preview_widget->update_sprites();
     }
 }
 
 void player_edit::on_player_hitarea_h_valueChanged(int arg1)
 {
-    Mediator::get_instance()->player_graphics_data.hit_area.h = arg1;
     if (_loading == false) {
-        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.h;
+        Mediator::get_instance()->player_graphics_data.hit_area.h = arg1;
+        Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.h = arg1;
         ui->player_preview_widget->update_sprites();
     }
 }

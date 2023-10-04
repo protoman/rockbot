@@ -415,6 +415,7 @@
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
     <addaction name="actionShowTileset"/>
+    <addaction name="actionShow_Rects"/>
     <addaction name="menuTheme"/>
    </widget>
    <addaction name="menuFILE"/>
@@ -651,6 +652,14 @@
    </property>
    <property name="text">
     <string>Tileset</string>
+   </property>
+  </action>
+  <action name="actionShow_Rects">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Rects</string>
    </property>
   </action>
  </widget>

@@ -57,10 +57,6 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 #define E2 tp[i*2 + tpitch]
 #define E3 tp[i*2 + 1 + tpitch]
 
-// initialize static member
-std::map<std::string, st_char_sprite_data> graphicsLib::character_graphics_list;
-std::map<std::string, graphicsLib_gSurface> graphicsLib::character_graphics_background_list;
-
 graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0), font(NULL)
 {
 
@@ -474,6 +470,23 @@ void graphicsLib::copyAreaWithAdjust(struct st_position pos, struct graphicsLib_
     //pos.x += _screen_adjust.x;
     //pos.y += _screen_adjust.y;
 
+    copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
+}
+
+void graphicsLib::copyAreaWithAdjustAndAnimFrame(struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny, int frame)
+{
+    if (!surfaceDestiny->get_surface()) {
+        std::cout << "copyAreaWithAdjust - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
+        show_debug_msg("ERROR #21.4");
+        return;
+    }
+    int w = surfaceOrigin->width/2;
+    int h = surfaceOrigin->height;
+    int origin_x = 0;
+    if (frame == 1) {
+        origin_x = surfaceOrigin->width/2;
+    }
+    st_rectangle origin_rectangle(origin_x, 0, w, h);
     copySDLArea(origin_rectangle, pos, surfaceOrigin->get_surface(), surfaceDestiny->get_surface());
 }
 

@@ -227,6 +227,7 @@ public:
     st_position get_attack_position(short direction);
     bool is_on_last_animation_frame();
     bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
+    bool is_on_quicksand();
 
 
 private:
@@ -384,6 +385,7 @@ protected:
     bool must_show_dash_effect;
     graphicsLib_gSurface dash_effect_shadow_surface_frame;
     short int facing = ANIM_DIRECTION_LEFT;					    // defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
+    bool can_fall_during_move = false;
 
 
 };

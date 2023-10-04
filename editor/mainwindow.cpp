@@ -211,6 +211,12 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this, "Rockbot Editor :: Game Editor", tr("Save data before loading other game?\n"), QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes, QMessageBox::Yes);
+    if (resBtn == QMessageBox::Yes) {
+        Mediator::get_instance()->save_game();
+    } else if (resBtn == QMessageBox::Cancel) {
+        return;
+    }
     this->hide();
 	QDialog *open = new loadGamePicker;
     QObject::connect(open, SIGNAL(game_picked()), this, SLOT(reload()));
@@ -715,6 +721,13 @@ void MainWindow::on_actionDefault_triggered()
 void MainWindow::on_actionShowTileset_toggled(bool arg1)
 {
     Mediator::get_instance()->show_tileset_flag = arg1;
+    map_edit_tab->update_edit_area();
+}
+
+
+void MainWindow::on_actionShow_Rects_toggled(bool arg1)
+{
+    Mediator::get_instance()->show_rects_flag = arg1;
     map_edit_tab->update_edit_area();
 }
 

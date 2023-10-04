@@ -84,7 +84,6 @@ void player_preview_area::paintEvent(QPaintEvent *) {
     }
     painter.drawImage(target, cloned, source);
 
-
     painter.setPen(QColor(0, 120, 0));
     int inc = Mediator::get_instance()->player_graphics_data.frame_size.width*2;
     if (inc > 0) {
@@ -102,6 +101,20 @@ void player_preview_area::paintEvent(QPaintEvent *) {
           painter.drawLine(line);
        }
     }
+
+    // draw hitarea
+    int inc_x = Mediator::get_instance()->player_graphics_data.frame_size.width*2*2;
+    int x = inc_x + Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.x*PREVIEW_SCALE;
+    int y = Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.y*PREVIEW_SCALE;
+    int w = Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.w*PREVIEW_SCALE;
+    int h = Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.h*PREVIEW_SCALE;
+
+    painter.setBrush(QColor(100, 100, 255, 180));
+    painter.drawRect(x, y, w, h);
+
+
+
+    //Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.y;
 }
 
 

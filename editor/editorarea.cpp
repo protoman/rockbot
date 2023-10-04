@@ -134,45 +134,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
-    // DRAW ENEMIES BACKGROUNDS //
-    if (Mediator::get_instance()->show_npcs_flag == true) {
-        /// draw NPCs
-        for (int i=0; i<Mediator::get_instance()->maps_data_npc_list.size(); i++) {
-            if (Mediator::get_instance()->maps_data_npc_list[i].stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_npc_list[i].map_id != Mediator::get_instance()->currentMap) {
-                continue; // only show enemies from current stage/map
-            }
-            if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_GREATER && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level > Mediator::get_instance()->currentDifficulty) {
-                continue; // only show enemies with equal or lower difficulty
-            } else if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level != Mediator::get_instance()->currentDifficulty) {
-                continue;
-            }
 
-            int npc_id = Mediator::get_instance()->maps_data_npc_list[i].id_npc;
-            if (npc_id >= Mediator::get_instance()->enemy_list.size() || npc_id < 0) {
-                Mediator::get_instance()->maps_data_npc_list[i].id_npc = -1;
-                continue;
-            }
-
-
-
-            std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
-            if (npc_bg_file.length() > 0) {
-                std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
-                QPixmap bg_image(_bg_graphic_filename.c_str());
-
-                // calculate total image size of background exists
-                if (!bg_image.isNull()) {
-                    int total_w = bg_image.width();
-                    int total_h = bg_image.height();
-                    QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
-                    bg_image.setMask(enemy_bg_mask);
-                    QRectF bg_target(QPoint(Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w*Mediator::get_instance()->zoom, total_h*Mediator::get_instance()->zoom));
-                    QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
-                    painter.drawPixmap(bg_target, bg_image, bg_source);
-                }
-            }
-        }
-    }
 
 
     // DRAW TILES //
@@ -356,32 +318,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
         }
     }
 
-    if (Mediator::get_instance()->show_grid) {
-        // DRAW GRID //
-        QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
-        QPen pen_red(QColor(180, 50, 50), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
-        painter.setPen(pen);
-        for (i=1; i<MAP_W; i++) {
-            pos = i*16*Mediator::get_instance()->zoom-1;
-            //QLineF line(0, 800, 16, 800);
-            // linhas horizontais
-            line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
-            if (i % 20 == 0) {
-                painter.setPen(pen_red);
-            } else {
-                painter.setPen(pen);
-            }
-            painter.drawLine(line);
-        }
-        painter.setPen(pen);
-        for (i=1; i<MAP_H; i++) {
-            pos = i*16*Mediator::get_instance()->zoom-1;
-            //QLineF line(0, 800, 16, 800);
-            // linhas verticais
-            line = QLineF(0, pos, MAP_W*16*Mediator::get_instance()->zoom-1, pos);
-            painter.drawLine(line);
-        }
-    }
+
 
 
     // DRAW LINKS //
@@ -437,6 +374,61 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
+    // DRAW ENEMIES BACKGROUNDS //
+    std::map<int, int> npc_bg_width_map;
+    if (Mediator::get_instance()->show_npcs_flag == true) {
+        /// draw NPCs
+        for (int i=0; i<Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+            if (Mediator::get_instance()->maps_data_npc_list[i].stage_id != Mediator::get_instance()->currentStage || Mediator::get_instance()->maps_data_npc_list[i].map_id != Mediator::get_instance()->currentMap) {
+                continue; // only show enemies from current stage/map
+            }
+            if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_GREATER && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level > Mediator::get_instance()->currentDifficulty) {
+                continue; // only show enemies with equal or lower difficulty
+            } else if (Mediator::get_instance()->maps_data_npc_list[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && Mediator::get_instance()->maps_data_npc_list[i].difficulty_level != Mediator::get_instance()->currentDifficulty) {
+                continue;
+            }
+
+            int npc_id = Mediator::get_instance()->maps_data_npc_list[i].id_npc;
+            if (npc_id >= Mediator::get_instance()->enemy_list.size() || npc_id < 0) {
+                Mediator::get_instance()->maps_data_npc_list[i].id_npc = -1;
+                continue;
+            }
+
+
+            std::string npc_bg_file(Mediator::get_instance()->enemy_list.at(npc_id).bg_graphic_filename);
+            if (npc_bg_file.length() > 0) {
+                std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + npc_bg_file;
+                QPixmap bg_image(_bg_graphic_filename.c_str());
+
+                // calculate total image size of background exists
+                if (!bg_image.isNull()) {
+                    int total_w = bg_image.width();
+                    npc_bg_width_map.insert(std::pair<int, int>(npc_id, bg_image.width()));
+                    int total_h = bg_image.height();
+                    QBitmap enemy_bg_mask = bg_image.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                    bg_image.setMask(enemy_bg_mask);
+                    QRectF bg_target(QPoint(Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(total_w*Mediator::get_instance()->zoom, total_h*Mediator::get_instance()->zoom));
+                    QRectF bg_source(QRectF(QPoint(0, 0), QSize(bg_image.width(), bg_image.height())));
+
+                    int direction = Mediator::get_instance()->maps_data_npc_list[i].direction;
+                    // TODO: store this background to optimize things
+                    if (direction == ANIM_DIRECTION_LEFT) {
+                        QImage temp_img(_bg_graphic_filename.c_str());
+                        QImage mirror_image = temp_img.copy(0, 0, total_w, total_h);
+                        mirror_image = mirror_image.mirrored(true, false);
+                        QPixmap mirror_image_pixmap = QPixmap().fromImage(mirror_image);
+
+                        QBitmap mirror_enemy_bg_mask = mirror_image_pixmap.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
+                        mirror_image_pixmap.setMask(mirror_enemy_bg_mask);
+                        painter.drawPixmap(bg_target, mirror_image_pixmap, bg_source);
+                    } else {
+                        painter.drawPixmap(bg_target, bg_image, bg_source);
+                    }
+                }
+            }
+        }
+    }
+
     // DRAW ENEMIES //
     if (Mediator::get_instance()->show_npcs_flag == true) {
         /// draw NPCs
@@ -472,8 +464,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 int sprite_adjust_x = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x;
                 int sprite_adjust_y = Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.y;
 
-
-
                 QRectF target(QPoint((Mediator::get_instance()->maps_data_npc_list[i].start_point.x*16+sprite_adjust_x)*Mediator::get_instance()->zoom, (Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16+sprite_adjust_y)*Mediator::get_instance()->zoom), QSize(total_w, total_h));
                 QRectF source;
                 if (Mediator::get_instance()->maps_data_npc_list[i].direction != ANIM_DIRECTION_RIGHT || temp_image.height() <= Mediator::get_instance()->enemy_list.at(npc_id).frame_size.height) {
@@ -501,7 +491,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.drawRect(target);
                 }
 
-
                 int direction = Mediator::get_instance()->maps_data_npc_list[i].direction;
                 if (direction == ANIM_DIRECTION_LEFT) {
                     QImage temp_img(filename.c_str());
@@ -512,10 +501,26 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     QBitmap mirror_enemy_bg_mask = mirror_image_pixmap.createMaskFromColor(QColor(75, 125, 125), Qt::MaskInColor);
                     mirror_image_pixmap.setMask(mirror_enemy_bg_mask);
 
-
+                    if (npc_bg_width_map.find(npc_id) != npc_bg_width_map.end()) {
+                        int original_pos_x = Mediator::get_instance()->maps_data_npc_list[i].start_point.x*TILESIZE;
+                        int bg_image_width = npc_bg_width_map.find(npc_id)->second;
+                        int graph_diff_x = bg_image_width - Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x - Mediator::get_instance()->enemy_list.at(npc_id).frame_size.width;
+                        //std::cout << "char[" << name << "], original_pos_x[" << original_pos_x << "], pos.x[" << pos.x << "], background_pos.x[" << background_pos.x << "], graph_diff_x[" << graph_diff_x << "]" << std::endl;
+                        int new_pos_x = original_pos_x + graph_diff_x;
+                        //std::cout << "NPC[" << Mediator::get_instance()->enemy_list.at(npc_id).name << "], bg_image_width[" << bg_image_width << "], new_pos_x[" << new_pos_x << "], graph_diff_x[" << graph_diff_x << "], bg_img.w[" << bg_image_width << "], bg_pos.x[" << Mediator::get_instance()->enemy_list.at(npc_id).sprites_pos_bg.x << "]" << std::endl;
+                        target = QRectF(QPoint((new_pos_x)*Mediator::get_instance()->zoom, (Mediator::get_instance()->maps_data_npc_list[i].start_point.y*16+sprite_adjust_y)*Mediator::get_instance()->zoom), QSize(total_w, total_h));
+                    }
                     painter.drawPixmap(target, mirror_image_pixmap, source);
+                    if (Mediator::get_instance()->show_rects_flag == true) {
+                        painter.setBrush(QColor(255, 255, 255, 180));
+                        painter.drawRect(target.left(), target.top(), target.width(), target.height());
+                    }
                 } else {
                     painter.drawPixmap(target, temp_image, source);
+                    if (Mediator::get_instance()->show_rects_flag == true) {
+                        painter.setBrush(QColor(255, 255, 255, 180));
+                        painter.drawRect(target.left(), target.top(), target.width(), target.height());
+                    }
                 }
             }
         }
@@ -529,11 +534,9 @@ void EditorArea::paintEvent(QPaintEvent *) {
             int obj_stage_id = (int)Mediator::get_instance()->maps_data_object_list[i].stage_id;
             int obj_map_id = (int)Mediator::get_instance()->maps_data_object_list[i].map_id;
 
-
             if (obj_stage_id != Mediator::get_instance()->currentStage || obj_map_id != Mediator::get_instance()->currentMap) {
                 continue;
             }
-
 
             if (Mediator::get_instance()->maps_data_object_list[i].difficulty_mode == DIFFICULTY_MODE_GREATER && Mediator::get_instance()->maps_data_object_list[i].difficulty_level > Mediator::get_instance()->currentDifficulty) {
                 continue; // only show enemies with equal or lower difficulty
@@ -576,6 +579,13 @@ void EditorArea::paintEvent(QPaintEvent *) {
                         QRectF target(QPoint(Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom - (Mediator::get_instance()->object_list.at(obj_id).size.width-TILESIZE)*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
                         QRectF source(QPoint(0, 0), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         painter.drawPixmap(target, temp_image, source);
+                    } else if (obj_type == OBJ_TIMED_BOMB) {
+                        int bomb_direction =Mediator::get_instance()->maps_data_object_list[i].direction;
+                        int y_graph_adjust = (bomb_direction * Mediator::get_instance()->object_list.at(obj_id).size.height)*2;
+                        std::cout << "BOMB[" << i << "].direction[" << bomb_direction << "], y_graph_adjust[" << y_graph_adjust << "]" << std::endl;
+                        QRectF target(QPoint(Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom - (Mediator::get_instance()->object_list.at(obj_id).size.width-TILESIZE)*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
+                        QRectF source(QPoint(0, y_graph_adjust), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
+                        painter.drawPixmap(target, temp_image, source);
                     } else {
                         QRectF target(QPoint(Mediator::get_instance()->maps_data_object_list[i].start_point.x*16*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
                         QRectF source = QRectF(QPoint(0, 0), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
@@ -584,7 +594,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
                         }
                         //std::cout << "OBJECT[" << i << "], ID[" << (int)Mediator::get_instance()->maps_data_object_list.at(i).id_object << "] target[" << target.left() << "][" << target.top() << "], source.w[" << source.width() << "], source.h[" << source.height() << "]" << std::endl;
                         //painter.setBrush(QColor(255, 255, 255, 180));
-                        //painter.drawRect(Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom);
+                        if (Mediator::get_instance()->show_rects_flag == true) {
+                            painter.setBrush(QColor(255, 255, 255, 180));
+                            painter.drawRect(Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*TILESIZE*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom);
+                        }
                         painter.drawPixmap(target, temp_image, source);
                     }
                 }
@@ -643,6 +656,37 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     painter.drawText(map_obj.link_dest.x*16*Mediator::get_instance()->zoom + 3*Mediator::get_instance()->zoom, (map_obj.link_dest.y+1)*16*Mediator::get_instance()->zoom -2*Mediator::get_instance()->zoom, QString::number(m));
                 }
             }
+        }
+    }
+
+    if (Mediator::get_instance()->show_grid) {
+        // DRAW GRID //
+        QPen pen(QColor(160, 160, 160), 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        QPen pen_red(QColor(255, 0, 255), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        QPen pen_white(QColor(250, 250, 250), 2, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
+        painter.setPen(pen);
+        for (i=1; i<MAP_W; i++) {
+            pos = i*16*Mediator::get_instance()->zoom-1;
+            //QLineF line(0, 800, 16, 800);
+            // linhas horizontais
+            line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
+            if (i % 20 == 0) {
+                painter.setPen(pen_white);
+                QLineF lineWhite = QLineF(pos+4, 0, pos+4, MAP_H*16*Mediator::get_instance()->zoom-1);
+                painter.drawLine(lineWhite);
+                painter.setPen(pen_red);
+            } else {
+                painter.setPen(pen);
+            }
+            painter.drawLine(line);
+        }
+        painter.setPen(pen);
+        for (i=1; i<MAP_H; i++) {
+            pos = i*16*Mediator::get_instance()->zoom-1;
+            //QLineF line(0, 800, 16, 800);
+            // linhas verticais
+            line = QLineF(0, pos, MAP_W*16*Mediator::get_instance()->zoom-1, pos);
+            painter.drawLine(line);
         }
     }
 
@@ -753,6 +797,10 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
             int anim_tile_id = (Mediator::get_instance()->selectedAnimTileset*-1) - 2;
 
             if (anim_tile_id >= 0) {
+                return;
+            }
+            int abs_anim_tile_id = abs(anim_tile_id) - 2;
+            if (abs_anim_tile_id >= Mediator::get_instance()->anim_block_list.size()) {
                 return;
             }
             tilex = anim_tile_id;

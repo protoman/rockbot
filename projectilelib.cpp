@@ -41,6 +41,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     owner = NULL;
     position = set_position;
     direction = set_direction;
+    original_direction = set_direction;
 	_size = get_size();
 
 	/// @TODO _ move this to game load
@@ -51,6 +52,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     } else if (GameMediator::get_instance()->get_projectile(_id).speed > 0) {
         _speed = GameMediator::get_instance()->get_projectile(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     }
+    hp = GameMediator::get_instance()->get_projectile(_id).hp;
 
     _sin_x = 0;
 
@@ -58,8 +60,10 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 
 	position.y -= _size.height/2;
 	_max_frames = get_surface()->width / _size.width;
-	_move_type = get_trajectory();
+    max_frames_vertical = get_surface()->height / _size.height;
 
+	_move_type = get_trajectory();
+    //std::cout << "NEW PROJECTILE, type[" << (int)_move_type << "]" << std::endl;
 
     if (_move_type == TRAJECTORY_BOMB) {
         if (direction == ANIM_DIRECTION_LEFT) {
@@ -154,6 +158,16 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         if (direction == ANIM_DIRECTION_LEFT) {
             position.x -= frame_w*2;
         }
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        frame_w = GameMediator::get_instance()->get_projectile(_id).size.width;
+    } else if (_move_type == TRAJECTORY_DOWN) {
+        position0.x = position.x;
+        position0.y = position.y;
+        direction = ANIM_DIRECTION_DOWN;
+    } else if (_move_type == TRAJECTORY_UP) {
+        position0.x = position.x;
+        position0.y = position.y;
+        direction = ANIM_DIRECTION_UP;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
@@ -180,6 +194,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 
     _speed_x = 8;
     _accel_x = 0.95;
+
 
 }
 
@@ -219,7 +234,7 @@ st_size projectile::get_size() const
     return GameMediator::get_instance()->get_projectile(_id).size;
 }
 
-void projectile::move_ahead(st_size &moved)
+void projectile::move_ahead(st_float_size &moved)
 {
     //std::cout << "PROJECTILE::move_ahead.direction[" << (int)direction << "]" << std::endl;
     if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_UP_LEFT || direction == ANIM_DIRECTION_UP_RIGHT) {
@@ -312,6 +327,16 @@ void projectile::set_direction_from_targetpos(int middle_tolerance)
     }
 }
 
+void projectile::inc_zigzag_status()
+{
+    status++;
+    if (status > hp) {
+        is_finished = true;
+    } else {
+        direction = !direction;
+    }
+}
+
 
 
 Uint8 projectile::get_speed() const
@@ -372,42 +397,54 @@ void projectile::set_target_position(st_float_position *pos)
 
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_EXACT) {
         _diagonal_speed.x = get_speed();
+        if (_target_position->x <= position.x) {
+            direction = ANIM_DIRECTION_LEFT;
+        } else {
+            direction = ANIM_DIRECTION_RIGHT;
+        }
         int dist_x = _target_position->x - position.x;
-        int dist_y = _target_position->y - position.y;
+        int dist_y = _target_position->y + TILESIZE - position.y;
+
         _diagonal_speed.y = (_diagonal_speed.x * dist_y) / dist_x;
         if (dist_x < 0) {
             _diagonal_speed.y = _diagonal_speed.y * -1;
         }
-        set_direction_from_targetpos(TILESIZE/2);
 
+        //std::cout << ">>>>>>>>> direction[" << (int)direction << "], diagonal_speed.x[" << _diagonal_speed.x << "], diagonal_speed.y[" << _diagonal_speed.y << "], dist_x[" << dist_x << "], position.x[" << position.x << "], _target_position->x[" << _target_position->x << "]" << std::endl;
+        //std::cout << ">>>>>>>>> dist_y[" << dist_y << "], position.y[" << position.y << "], _target_position->y[" << _target_position->y << "]" << std::endl;
 
-        graphLib.initSurface(st_size(_size.width, _size.height), &rotated_surface);
+        _max_frames = get_surface()->width / _size.width;
+        if (_max_frames < 1) {
+            _max_frames = 1;
+        }
+        graphLib.initSurface(st_size(_size.width*_max_frames, _size.height), &rotated_surface);
         int temp_direction = direction;
         direction  = ANIM_DIRECTION_LEFT;
-        graphLib.copyArea(st_rectangle(0, 0, _size.width, _size.height), st_position(0, 0), get_surface(), &rotated_surface);
+        graphLib.copyArea(st_rectangle(0, 0, _size.width*_max_frames, _size.height), st_position(0, 0), get_surface(), &rotated_surface);
         direction = temp_direction;
 
-
-        // calculate angle and set image
-        angle = (float) atan2(abs(dist_y), (float) abs(dist_x));
-        angle = (360*angle)/6.28;
-        // TODO: generate an image from the region, not the whole picture
-        // TARGET to the LEFT
-        if (dist_x < 0) {
-            if (dist_y < 0) {
-                angle *= -1;
+        if (_max_frames < 2) {
+            // calculate angle and set image
+            angle = (float) atan2(abs(dist_y), (float) abs(dist_x));
+            angle = (360*angle)/6.28;
+            // TODO: generate an image from the region, not the whole picture
+            // TARGET to the LEFT
+            if (dist_x < 0) {
+                if (dist_y < 0) {
+                    angle *= -1;
+                }
+                // if target is to the left, we need to "flip" image
+            // TARGET to the RIGHT
+            } else {
+                angle += 180;
+                if (dist_y > 0) {
+                    angle *= -1;
+                }
             }
-            // if target is to the left, we need to "flip" image
-        // TARGET to the RIGHT
-        } else {
-            angle += 180;
-            if (dist_y > 0) {
-                angle *= -1;
-            }
-        }
 
-        if (angle != 0.0) {
-            graphLib.rotate_image(rotated_surface, angle);
+            if (angle != 0.0) {
+                graphLib.rotate_image(rotated_surface, angle);
+            }
         }
 
 
@@ -481,11 +518,11 @@ st_float_position projectile::get_position()
     return position;
 }
 
-st_size projectile::move() {
-	st_size moved;
+st_float_size projectile::move() {
+    st_float_size moved;
 
 	if (move_timer >= timer.getTimer()) {
-		return st_size(0, 0);
+        return st_float_size(0, 0);
 	}
     move_timer = timer.getTimer()+ move_delay;
 
@@ -513,13 +550,20 @@ st_size projectile::move() {
                 direction = *_owner_direction;
             }
         }
-    } else if (_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) {
+    } else if (_move_type == TRAJECTORY_TARGET_DIRECTION) {
         move_ahead(moved);
+    } else if (_move_type == TRAJECTORY_TARGET_EXACT) {
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= _diagonal_speed.x;
+        } else {
+            position.x += _diagonal_speed.x;
+        }
         position.y += _diagonal_speed.y;
+        //std::cout << "PROJECTILE::MOVE #1 - pos[" << position.x << "][" << position.y << "], speed[" << _diagonal_speed.x << "][" << _diagonal_speed.y << "]" << std::endl;
     } else if (_move_type == TRAJECTORY_ARC) {
         if (position.y < _size.height || position.y > RES_H) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         move_ahead(moved);
         position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
@@ -527,7 +571,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_ARC_SMALL) {
         if (position.y < _size.height || position.y > RES_H) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
 
         if (_speed_x > 0) {
@@ -628,15 +672,17 @@ st_size projectile::move() {
 		}
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
         move_ahead(moved);
-		if (check_map_collision(st_position(moved.width, moved.height)) == true) {
-			status++;
-			if (status > 3) {
-				is_finished = true;
-			} else {
-				direction = !direction;
-			}
-		}
-	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position != NULL) {
+        if (original_direction != direction) {
+            if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
+                inc_zigzag_status();
+            } else if (direction == ANIM_DIRECTION_RIGHT && position.x >= position0.x) {
+                inc_zigzag_status();
+            }
+        }
+        if (check_map_collision(st_position(moved.width, moved.height)) == true) {
+            inc_zigzag_status();
+        }
+    } else if (_move_type == TRAJECTORY_FOLLOW && _target_position != NULL) {
 		int xinc = 0;
 		int yinc = 0;
 		if (_target_position->x > position.x) {
@@ -661,6 +707,7 @@ st_size projectile::move() {
 	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position == NULL) {
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if ((_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) && _target_position == NULL) { // if do not have a target, act as linear
+        //std::cout << "PROJECTILE::MOVE #2 - pos[" << position.x << "][" << position.y << "]" << std::endl;
         move_ahead(moved);
     } else if (_move_type == TRAJECTORY_PROGRESSIVE) { // move a bit each time the animation is reset
         if (animation_pos == 0) {
@@ -806,7 +853,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_DOUBLE_LINEAR || _move_type == TRAJECTORY_DOUBLE_DIAGONAL) {
         if (owner == NULL || is_finished == true) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         // @TODO: calc the X position given the direction owner is facing and his projectile-origin
         st_position proj_pos_left = owner->get_attack_position(ANIM_DIRECTION_LEFT);
@@ -827,7 +874,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         if (owner == NULL || is_finished == true) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         if (status_timer < timer.getTimer()) {
             // make the projectile owner to add new one into its list
@@ -856,6 +903,31 @@ st_size projectile::move() {
             if (status > RES_W/frame_w) {
                 is_finished = true;
             }
+        }
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        if (status == 0) {
+            position.y += get_speed()/2;
+            // check if hit ground
+            int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y+TILESIZE)/TILESIZE));
+            if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+                status++;
+            }
+        } else {
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x -= get_speed();
+            } else {
+                position.x += get_speed();
+            }
+        }
+    } else if (_move_type == TRAJECTORY_DOWN) {
+        position.y += get_speed();
+        if (position.y > RES_H + TILESIZE) {
+            is_finished = true;
+        }
+    } else if (_move_type == TRAJECTORY_UP) {
+        position.y -= get_speed();
+        if (position.y > -TILESIZE) {
+            is_finished = true;
         }
     } else {
         is_finished = true;
@@ -937,8 +1009,21 @@ void projectile::draw() {
         // point
         graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos+frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
 
-    } else if (_move_type == TRAJECTORY_TARGET_EXACT && _target_position != NULL) {
+    } else if (_move_type == TRAJECTORY_TARGET_EXACT && _target_position != NULL && _max_frames < 2) {
         graphLib.showSurfaceAt(&rotated_surface, realPosition, false);
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        int graph_start_y = 0;
+        if (status != 0) {
+            if (animation_timer < timer.getTimer()) {
+                animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME*2;
+                animation_status++;
+            }
+            if (animation_status >= max_frames_vertical) {
+                animation_status = 1;
+            }
+            graph_start_y = animation_status * _size.height;
+        }
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(0, graph_start_y, _size.width, _size.height), realPosition);
     } else {
         //printf(">> PROJECTILE::DRAW[%d] - x[%d], y[%d], direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, realPosition.x, realPosition.y, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
         if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*2) {

@@ -32,10 +32,10 @@ private:
     float speed;
     E_JUMP_STATE state;
     short jumps_number;               // how many consecutive jumps used (for double/triple jumping)
-    short moved;                        // this is used to hardcode the number of pixels a jump should move in maximum
+    float moved;                        // this is used to hardcode the number of pixels a jump should move in maximum
     bool is_bigjump;
     double JUMP_ACCELERATION;
-    int JUMP_LIMIT;
+    float JUMP_LIMIT;
     int start_terrain_type;
     bool start_big_jump;
     double JUMP_INITIAL_SPEED;

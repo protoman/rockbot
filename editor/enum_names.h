@@ -53,6 +53,7 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("SLASH");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("UP");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("DOWN");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("FALL AND SEEK");
 
 
     // -------------------------------------------------------------- //
@@ -82,6 +83,8 @@ void init_enum_names() {
     AI_ACTION_NAMES.push_back("WALL-WALK");
     AI_ACTION_NAMES.push_back("WALL-WALK-SHOOT");
     AI_ACTION_NAMES.push_back("MULTIPLE ATTACK");
+    AI_ACTION_NAMES.push_back("EXPLODE ITSELF");
+    AI_ACTION_NAMES.push_back("THROW ITEM");
 
     // -------------------------------------------------------------- //
     AI_ACTION_SHOT_OPTIONS.push_back("FACE PLAYER");
@@ -119,6 +122,8 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("AHEAD [SIN-Y]");
     AI_ACTION_FLY_OPTIONS.push_back("AIR-DASH TO PLAYER");
     AI_ACTION_FLY_OPTIONS.push_back("DOWN RANDOM DIAGONAL");
+    AI_ACTION_FLY_OPTIONS.push_back("UP UNTIL GROUND");
+    AI_ACTION_FLY_OPTIONS.push_back("DOWN INTO GROUND");
 
     // -------------------------------------------------------------- //
 
@@ -136,6 +141,9 @@ void init_enum_names() {
     AI_ACTION_JUMP_OPTIONS.push_back("TO ROOT");
     AI_ACTION_JUMP_OPTIONS.push_back("TO SAVED POINT");
     AI_ACTION_JUMP_OPTIONS.push_back("TO PLAYER DIRECTION");
+    AI_ACTION_JUMP_OPTIONS.push_back("TELEPORT IN");
+    AI_ACTION_JUMP_OPTIONS.push_back("TELEPORT OUT");
+    AI_ACTION_JUMP_OPTIONS.push_back("LONG AHEAD");
     // -------------------------------------------------------------- //
     AI_ACTION_AIR_WALK_OPTIONS.push_back("LEFT");
     AI_ACTION_AIR_WALK_OPTIONS.push_back("RIGHT");

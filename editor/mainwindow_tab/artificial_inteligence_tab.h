@@ -108,6 +108,10 @@ private slots:
 
     void on_aiReactionType_comboBox_currentIndexChanged(int index);
 
+    void on_reactionGotoNextComboBox_currentIndexChanged(int index);
+
+    void on_reactionGotoDelaySpinBox_valueChanged(int arg1);
+
 private:
     void fill_next_combos();
     void fill_next_combo(QComboBox *combo);

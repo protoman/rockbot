@@ -24,6 +24,7 @@ public:
     void save_data();
     void reload();
     void update_app_theme();
+    int get_language();
 
 private:
     void fill_data();

@@ -164,6 +164,8 @@ private slots:
 
     void on_actionShowTileset_toggled(bool arg1);
 
+    void on_actionShow_Rects_toggled(bool arg1);
+
 private:
     Ui::MainWindow *ui;
     npc_edit *npc_edit_tab;

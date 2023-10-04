@@ -99,6 +99,11 @@ void TabScenelist::update_app_theme()
     }
 }
 
+int TabScenelist::get_language()
+{
+    return ui->language_comboBox->currentIndex();
+}
+
 void TabScenelist::change_fields_enabled(bool value)
 {
     ui->sceneSelector->setEnabled(value);

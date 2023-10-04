@@ -70,7 +70,15 @@ void animTilePalette::mousePressEvent(QMouseEvent *event)
     Mediator::get_instance()->setPalleteX(selectedTileX);
     Mediator::get_instance()->setPalleteY(selectedTileY);
 
-    Mediator::get_instance()->selectedAnimTileset = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL) + selectedTileY;
+    int selected_anim_tile = selectedTileX + (selectedTileY * EDITOR_ANIM_PALETE_MAX_COL) + selectedTileY;;
+    int anim_tile_id = (selected_anim_tile*-1) - 2;
+    std::cout << "anim_tile_id[" << anim_tile_id << "], anim_block_list.size[" << Mediator::get_instance()->anim_block_list.size() << "]" << std::endl;
+    int abs_anim_tile_id = abs(anim_tile_id) - 2;
+    if (abs_anim_tile_id >= Mediator::get_instance()->anim_block_list.size()) {
+        return;
+    }
+
+    Mediator::get_instance()->selectedAnimTileset = selected_anim_tile;
 
     repaint();
 }

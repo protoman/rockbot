@@ -38,6 +38,7 @@ public:
      * @brief move the projectiles created by this player and damage any npcs that are in it's way
      */
     void execute_projectiles();
+    bool object_is_affected_by_projectile(object* temp_obj, projectile& projectile);
 
     /**
      * @brief this is used when player enters a boss-teleport that teleport the player back to it's origin point
@@ -136,34 +137,11 @@ public:
 
 
 private:
-    /**
-     * @brief called by execute() method, moves player depending on input
-     */
     void move();
-
-    /**
-     * @brief virtual from character, execute actions when player dies (reset map, explosion, etc)
-     */
     void death();
     void reset_lifes();
-
-
-    /**
-     * @brief load from game_data into class properties. @TODO: this should be replaced by using game_data directly if possible
-     */
     void init_weapon_colors();
-
-    /**
-     * @brief called when player collides with an object. execute the object (like giving more HP) or storer it in player's possessions
-     * @param obj_info information about the object that player collided
-     * @return bool in case object is not executable or storable (like a platform), returns false
-     */
     bool get_item(object_collision& obj_info);
-
-
-    /**
-     * @brief execute an attack, including weapon usage
-     */
     void attack(bool dont_update_colors = false);
 
     /**

@@ -129,6 +129,27 @@ struct st_size {
 };
 
 
+struct st_float_size {
+    float width;
+    float height;
+    st_float_size()
+    {
+        width = 0;
+        height = 0;
+    }
+/**
+ * @brief
+ *
+ * @param w
+ * @param h
+ */
+    st_float_size(float w, float h)
+    {
+        width = w;
+        height = h;
+    }
+};
+
 /**
  * @brief
  *
