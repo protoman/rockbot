@@ -444,7 +444,7 @@ void character::charMove() {
                 if (stairs_pos_bottom.x != -1) {
                     set_animation_type(ANIM_TYPE_STAIRS_SEMI);
                     position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-                    position.x = stairs_pos_bottom.x * TILESIZE - 6;
+                    position.x = stairs_pos_bottom.x * TILESIZE - (frameSize.width-TILESIZE)/2;
                 }
             }
         }

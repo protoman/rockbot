@@ -117,7 +117,6 @@ object::~object()
 void object::reset()
 {
     _finished = false;
-    _state = 0;
     _size = 0;
     _started = false;
     _animation_finished = false;
@@ -160,6 +159,9 @@ void object::reset()
         n++;
     }
     _state = 0;
+    if (type == OBJ_TIMED_BOMB) {
+        _state = GameMediator::get_instance()->object_list.at(_id).timer;
+    }
 }
 
 void object::reset_timer()
@@ -409,7 +411,7 @@ void object::show(int adjust_y, int adjust_x)
 		return;
 	}
 
-    if (_hidden == true && type != OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
+    if (_hidden == true && type != OBJ_ACTIVE_OPENING_SLIM_PLATFORM && type != OBJ_TIMED_BOMB) {
 		return;
 	}
 
@@ -458,14 +460,18 @@ void object::show(int adjust_y, int adjust_x)
         return;
     } else if (type == OBJ_TIMED_BOMB) {
         if (_state == -1) {
-            st_position explosion_pos(position.x - TILESIZE, position.y - TILESIZE);
+            st_position explosion_pos(position.x - TILESIZE - scroll_x, position.y - TILESIZE);
             graphLib.draw_explosion(explosion_pos);
         } else if (_state >= 0) {
             graphic_destiny.x = position.x - scroll_x;
             graphic_destiny.y = adjust_y + position.y;
-            graphLib.copyArea(st_rectangle(_state*framesize_w, (direction*framesize_h)*2, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-            return;
+            int active_bomb_graph_y_adjust = 0;
+            if (_started == true) {
+                active_bomb_graph_y_adjust = framesize_h;
+            }
+            graphLib.copyArea(st_rectangle(_state*framesize_w, (direction*framesize_h)*2+active_bomb_graph_y_adjust, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         }
+        return;
     }
 
     if (show_teleport) {
@@ -1220,12 +1226,14 @@ void object::move(bool paused)
             if (_state >= 0) {
                 status_timer = timer.getTimer() + TIMED_BOMB_DELAY;
                 _state--;
+                soundManager.play_sfx(SFX_TIMED_BOMB_TICK);
                 if (_state == -1) { // turn into explosion
                     status_timer = timer.getTimer() + TIMED_BOMB_EXPLOSION_DURATION;
+                    _hidden = true;
+                    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
                 }
             } else {
                 _state--;
-                _hidden = true;
             }
         }
         if (_state == -1) {
@@ -1354,6 +1362,19 @@ st_position object::get_position() const
         } else {
             return st_position(position.x+TILESIZE, position.y+TILESIZE/2); // TILESIZE/2 is because of lava graphic not taking the whole width
         }
+    } else if (type == OBJ_TIMED_BOMB) {
+        int x = position.x;
+        int y = position.y;
+        if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN) {
+            x += 4;
+        }
+        if (direction == ANIM_DIRECTION_UP && _started == true)  {
+            y += 2;
+        }
+        if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_RIGHT) {
+            y += 4;
+        }
+        return st_position(x, y);
     }
     return position;
 }
@@ -1365,8 +1386,7 @@ st_position object::get_start_position() const
 
 st_rectangle object::get_area()
 {
-    st_size size = get_size();
-    return st_rectangle(position.x, position.y, size.width, size.height);
+    return st_rectangle(get_position().x, get_position().y, get_size().width, get_size().height);
 }
 
 
@@ -1393,6 +1413,19 @@ st_size object::get_size()
         } else {
             return st_size((_size*TILESIZE), framesize_h-TILESIZE); // -TILESIZE in width is because of lava graphic not taking the whole width
         }
+    } else if (type == OBJ_TIMED_BOMB) {
+        int w = framesize_w;
+        int h= framesize_h;
+        if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN) {
+            w -= 8;
+        }
+        if (_started == true && (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN)) {
+            h -= 2;
+        }
+        if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_RIGHT) {
+            h -= 8;
+        }
+        return st_size(w, h);
     }
 	return st_size(framesize_w, framesize_h);
 }
@@ -1518,6 +1551,27 @@ void object::start()
     }
 }
 
+void object::start_timed_bomb(int xinc, int yinc, st_rectangle player_hitbox)
+{
+    // TODO: add bom start, ticking and explosion sfx
+    if (direction == ANIM_DIRECTION_LEFT && xinc > 0 && player_hitbox.x+player_hitbox.w <= position.x) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_RIGHT && xinc < 0 && player_hitbox.x >= position.x+framesize_w) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_UP && yinc > 0 && player_hitbox.y+player_hitbox.h >= position.y) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_DOWN && yinc < 0 && player_hitbox.y >= position.y+framesize_h) {
+        start();
+        return;
+    }
+}
+
 void object::command_up()
 {
 	_command_up = true;
@@ -1623,6 +1677,9 @@ void object::inc_status()
     if (timer.getTimer() > status_timer) {
         _state++;
         status_timer = timer.getTimer() + STATUS_TIMER_DELAY;
+        if (type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+            soundManager.play_sfx(SFX_OBJECT_BREAK);
+        }
     }
 }
 

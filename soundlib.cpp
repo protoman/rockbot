@@ -217,6 +217,15 @@ void soundLib::load_all_sfx() {
     filename = FILEPATH + "sfx/recharge.wav";
     sfx_list[SFX_GOT_ENERGY_BIG] = Mix_LoadWAV(filename.c_str());
     i++;
+
+    filename = FILEPATH + "sfx/timed_bomb_count.wav";
+    sfx_list[SFX_TIMED_BOMB_TICK] = Mix_LoadWAV(filename.c_str());
+    i++;
+
+    filename = FILEPATH + "sfx/object_break.wav";
+    sfx_list[SFX_OBJECT_BREAK] = Mix_LoadWAV(filename.c_str());
+    i++;
+
 }
 
 

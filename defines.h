@@ -272,6 +272,8 @@ enum SFX_LIST {
     SFX_SHORYUKEN_GIRL,
     SFX_BEAM,
     SFX_GOT_ENERGY_BIG,
+    SFX_TIMED_BOMB_TICK,
+    SFX_OBJECT_BREAK,
 	SFX_COUNT // not used as sfx, this is a way to measure size of the enum list
 };
 

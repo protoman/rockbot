@@ -2,6 +2,8 @@
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
+- ver como fazer um appImage e um snap (colocar na store)
+
 - não pode iniciar um segundo react se ainda esta na chain dele
 
 - problemas em plataforma up/down:
@@ -10,16 +12,10 @@ MEGAMIX
     # tem que usar direction para definir se vai mover primeiro para baixo ou para cima
     # plataformas snakeman player entra dentro dela um pouco (tem que ter ajuste fino)
 
-- problemas colisão em escadas (fica preso)
-
-- new AI option: big jump ahead
-
 - repetição de fundo esta com problemas na fase do Chill (quando morre e na segunda imagem)
+- efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
 
 - ao morrer tem que resetar todos os objetos tipo destructible de volta
-
-- fazer objeto bombas com timer
-    # como definir o lado (esquerda, direita, cima) do ativador?
 
 - adicionar efeito sonoro em plataformas ativas quando acionar elas
 
@@ -32,10 +28,17 @@ MEGAMIX
 - novo objeto: raio temporizado, estatico ou se move zigue-zague (sparkman)
     # quando desativado, dá dano se encostas nas pontas (tilezie), ativo entre elas
 
-- efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
+- testar/corrigir rockbot 1 e 2
+    # novo sfx objeto quebrável jump+shoot
 
 ===========================================================================================================================
-- dercrease enemies intangible time after hit to 200ms
+- implement timed-bombs
+- add sfx for shoot+jump destructible object
+- fix entering stairs pos x adjust for different player sprites sizes
+
+---------------------------------------------------------------------------------------------------------------------------
+- player showing above overlay in teleport-in animation
+- decrease enemies intangible time after hit to 200ms
 - block that can be broken by shooting or jumping on it
 - fix projectile trajectories up and down
 - fix replace itself position

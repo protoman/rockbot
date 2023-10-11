@@ -9,7 +9,7 @@ class classMap; // forward declaration
 
 #define TELEPORT_TIME 400
 #define STATUS_TIMER_DELAY 500
-#define TIMED_BOMB_DELAY 1000
+#define TIMED_BOMB_DELAY 800
 #define TIMED_BOMB_EXPLOSION_DURATION 2000
 
 enum e_object_teleport_states {
@@ -66,31 +66,18 @@ public:
     void show_deathray_horizontal(int adjust_x=0, int adjust_y=0);
     void show_boss_door(int adjust_x=0, int adjust_y=0);
     void show_crusher();
-
     bool is_platform();                                             // tell if object is of platform type
-
     void move(bool paused);
-
     void move_crusher();
-
     void add_explosion();
-
     bool check_player_crushed();
-
     void reset_animation();
-
     void stop();
-
     void execute(bool paused);
-
     bool object_type_needs_reset_offscreen();
 
-
     st_position get_position() const;
-
     st_position get_start_position() const;
-
-
     st_rectangle get_area();
     st_size get_size();
     Uint8 get_type() const;
@@ -110,6 +97,7 @@ public:
     short get_state() const;
     void set_duration(int duration);
     void start();
+    void start_timed_bomb(int xinc, int yinc, st_rectangle player_hitbox);
     void command_up();															// some objects can be controlled by the player
     void command_down();														// some objects can be controlled by the player
     std::string get_name() const;

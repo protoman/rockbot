@@ -1581,6 +1581,8 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     }
                 }
+            } else if (temp_obj.get_type() == OBJ_TIMED_BOMB && charObj->is_player()) {
+                temp_obj.start_timed_bomb(x_inc, y_inc, charObj->get_hitbox());
             }
 
 
@@ -1705,9 +1707,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                             temp_obj.start();
                             return;
                         }
-                    } else if (temp_obj.get_type() == OBJ_TIMED_BOMB) {
-                        temp_obj.start();
-                        //return;
                     }
                 }
 

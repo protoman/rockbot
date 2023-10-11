@@ -250,7 +250,6 @@ void game::start_stage()
     _show_boss_hp = false;
     input.clean();
 
-
     loaded_stage.reset_current_map();
 
     /// @TODO - this must be on a single method in soundlib
@@ -288,7 +287,6 @@ void game::start_stage()
         timer.delay(20);
     }
     loaded_stage.add_autoscroll_delay();
-
     show_player_teleport(PLAYER_INITIAL_X_POS, -1);
     show_game(false, false);
     // reset timers for objects
@@ -314,19 +312,21 @@ void game::show_player_teleport(int pos_x, int pos_y)
     unsigned long end_time = timer.getTimer() + 1500;
 
     while (timer.getTimer() < end_time) {
-        loaded_stage.show_stage();
-        loaded_stage.showAbove();
         if (player1.animation_has_restarted()) {
             player1.set_animation_frame(1);
             player1.set_animation_has_restarted(false);
         }
+        loaded_stage.show_stage();
         player1.show();
+        loaded_stage.showAbove();
         draw_lib.update_screen();
         timer.delay(20);
     }
 
     player1.set_animation_frame(2);
+    loaded_stage.show_stage();
     player1.show();
+    loaded_stage.showAbove();
     draw_lib.update_screen();
     timer.delay(20);
 
@@ -334,8 +334,8 @@ void game::show_player_teleport(int pos_x, int pos_y)
     // force stand to avoid gravity not doing it for any reason
     player1.set_animation_type(ANIM_TYPE_STAND);
     loaded_stage.show_stage();
-    loaded_stage.showAbove();
     player1.show();
+    loaded_stage.showAbove();
     draw_lib.update_screen();
     timer.delay(20);
 
