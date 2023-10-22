@@ -648,7 +648,7 @@ void character::check_charging_colors(bool always_charged)
             }
         }
     }
-    if (_charged_shot_projectile_id > 0 && is_player() && attack_diff_timer >= CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1) {
+    if (_charged_shot_projectile_id > 0 && is_player() && attack_diff_timer >= CHARGED_SHOT_TIME && attack_button_last_state == 1 && moveCommands.attack == 1 && !is_dead()) {
         if (soundManager.is_playing_repeated_sfx() == true && soundManager.get_repeated_sfx_n() == SFX_CHARGING1) {
             soundManager.stop_repeated_sfx();
             soundManager.play_repeated_sfx(SFX_CHARGING2, 255);
@@ -939,7 +939,6 @@ void character::show_at(st_position pos)
 
     // show background, if any
     if (is_player() == false && have_background_graphics() == true) {
-        if (!is_player()) std::cout << "CHAR::showAt[" << name << "] - Has BG" << std::endl;
         st_position bg_pos = st_position(pos.x-background_pos.x, pos.y-background_pos.y);
         if (state.direction != ANIM_DIRECTION_LEFT) {
             graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), bg_pos, false);
@@ -990,6 +989,7 @@ void character::show_at(st_position pos)
 #ifdef SHOW_VULNERABLE_AREAS
     st_rectangle vulnerable_area = get_vulnerable_area();
     if (!is_player()) {
+        //std::cout << "DRAW_VUL-AREA[" << name << "][" << vulnerable_area.x << "][" << vulnerable_area.y << "][" << vulnerable_area.w << "][" << vulnerable_area.h << "], scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl;
         vulnerable_area.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
         graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 180);
     }
@@ -1204,12 +1204,12 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (is_player() && state.animation_type == ANIM_TYPE_TELEPORT) {
         return false;
     }
 
     if (is_player()  == false && (game_data.final_boss_id == _number || (GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action ==  AI_ACTION_REPLACE_NPC && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].extra_parameter == game_data.final_boss_id))) {
-        _has_final_game_boss = true;
+        _is_final_game_boss = true;
     }
 
     int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
@@ -1221,7 +1221,6 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	// ------------- NPC gravity ------------------ //
 	if (!is_player()) {
-
         if (_ignore_gravity == true) {
             return false;
         }
@@ -1411,22 +1410,29 @@ bool character::is_on_screen()
     if (gameControl.get_current_map_obj() == NULL) {
         return false;
     }
+    float pos_x = position.x;
+    float pos_y = position.y;
+    if (!is_player()) {
+        pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+        pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+        //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen[" << name << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
+    }
 
     scroll = gameControl.get_current_map_obj()->getMapScrolling();
 
     // is on screen plus a bit more on both sides
-    if (abs((float)position.x+frameSize.width*2) >= scroll.x && abs((float)position.x-frameSize.width*2) <= scroll.x+RES_W) {
+    if (abs(pos_x+total_frame_size.width*2) >= scroll.x && abs(pos_x-total_frame_size.width*2) <= scroll.x+RES_W) {
+        //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - TRUE #1" << std::endl;
         return true;
     }
-
-
     // regular enemies work only on a limited screen
     if (is_stage_boss() == false) {
+        //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - FALSE #1" << std::endl;
         return false;
     }
 
     // is on left of the screen
-    if (abs((float)position.x) > scroll.x-RES_W/2 && abs((float)position.x) < scroll.x) {
+    if (abs(pos_x) > scroll.x-RES_W/2 && abs(pos_x) < scroll.x) {
         // check wall-lock on the range
         int map_point_start = (scroll.x-RES_W/2)/TILESIZE;
         int map_point_end = scroll.x/TILESIZE;
@@ -1437,12 +1443,13 @@ bool character::is_on_screen()
             }
         }
         if (found_lock == false) {
+            //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - TRUE #2" << std::endl;
             return true;
         }
     }
 
     // is on right to the screen
-    if (abs((float)position.x) > scroll.x+RES_W && abs((float)position.x) < scroll.x+RES_W*1.5) {
+    if (abs(pos_x) > scroll.x+RES_W && abs(pos_x) < scroll.x+RES_W*1.5) {
         int map_point_start = (scroll.x+RES_W)/TILESIZE;
         int map_point_end = (scroll.x*1.5)/TILESIZE;
         bool found_lock = false;
@@ -1452,9 +1459,11 @@ bool character::is_on_screen()
             }
         }
         if (found_lock == false) {
+            //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - TRUE #2" << std::endl;
             return true;
         }
     }
+    //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - FALSE #2" << std::endl;
     return false;
 }
 
@@ -1465,10 +1474,15 @@ bool character::is_on_visible_screen()
     }
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
     // entre scroll.x e scroll.x+RES_W
+    float pos_x = position.x;
+    float pos_y = position.y;
+    if (!is_player()) {
+        pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+        pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+        //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen[" << name << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
+    }
 
-
-
-    if (abs((float)position.x + frameSize.width) >= scroll.x && abs((float)position.x) < scroll.x+RES_W) {
+    if (abs(pos_x + total_frame_size.width) >= scroll.x && abs(pos_x) < scroll.x+RES_W) {
         return true;
     }
     return false;
@@ -1795,19 +1809,21 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             }
             st_map_collision map_col = map_collision(0, speed_y, mapScrolling);
             int map_lock = map_col.block;
+            //std::cout << "CHAR::JUMP - speed[" << i << "], map_lock[" << map_lock << "]" << std::endl;
 
-            if (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER || map_lock == BLOCK_QUICKSAND) {
+            if (abs(speed_y) > 0 && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER || map_lock == BLOCK_QUICKSAND)) {
                 position.y += speed_y;
+                jump_last_moved = speed_y;
                 jump_moved = true;
                 break;
             }
         }
-        //std::cout << "CHAR::JUMP - jump_speed[" << jump_speed << "], abs_jump_speed[" << abs_jump_speed << "], jump_moved[" << jump_moved << "], position.y[" << position.y << "]" << std::endl;
+        //std::cout << "CHAR::JUMP - jump_speed[" << jump_speed << "], jump_last_moved[" << jump_last_moved << "], abs_jump_speed[" << abs_jump_speed << "], jump_moved[" << jump_moved << "], position.y[" << position.y << "]" << std::endl;
         if (jump_speed != 0 && jump_moved == false) {
             if (jump_speed < 0) {
-                //std::cout << "CHAR::JUMP - INTERRUMP" << std::endl;
+                //std::cout << "CHAR::JUMP - INTERRUMP #1" << std::endl;
                 _obj_jump.interrupt();
-            } else {
+            } else if (hit_ground() == true) {
                 //std::cout << "CHAR::JUMP - FINISH" << std::endl;
                 _obj_jump.finish();
             }
@@ -1816,6 +1832,10 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 position.y += TILESIZE;
             }
             _force_jump = false;
+        }
+        if (_obj_jump.is_started() == true && jump_speed < 0.0 && abs(jump_speed) < 1.0 && abs(jump_last_moved) < 1.0) {
+            std::cout << "CHAR::JUMP - INTERRUMP #1" << std::endl;
+            _obj_jump.interrupt();
         }
 
         _obj_jump.execute(water_lock);
@@ -1994,6 +2014,8 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     if (_platform != nullptr && _platform == res_collision_object._object && (_platform->get_type() == OBJ_MOVING_PLATFORM_UP_LOOP || _platform->get_type() == OBJ_MOVING_PLATFORM_DOWN)) {
         is_on_moving_platform = true;
     }
+
+    //if (is_player()) std::cout << "CHAR::map_collision - is_on_moving_platform[" << is_on_moving_platform << "], py[" << position.y << "], py+h[" << (get_hitbox().y + get_hitbox().h) << "]" << std::endl;
 
     if (is_player() == true && res_collision_object._block != 0 && is_on_moving_platform == false) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
@@ -2429,21 +2451,25 @@ st_rectangle character::get_hitbox(int anim_type)
                                     GameMediator::get_instance()->get_enemy(_number)->frame_size.height);
         }
 
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            x = position.x + frameSize.width - col_rect.x - col_rect.w;
+        if (!_has_background) {
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                x = position.x + frameSize.width - col_rect.x - col_rect.w;
+            } else {
+                x += col_rect.x;
+            }
+            y += col_rect.y;
         } else {
-            x += col_rect.x;
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+            } else {
+                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+            }
+            y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
         }
-        y += col_rect.y;
         w = col_rect.w;
         h = col_rect.h;
-        if (w <= 0 || h <= 0) {
-            CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_number);
-        }
     }
-
-
-
+    //if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
     return st_rectangle(x, y, w, h);
 }
 
@@ -2454,23 +2480,24 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     float w = frameSize.width;
     float h = frameSize.height;
 
-    if (vulnerable_area_box.x == 0 && vulnerable_area_box.y == 0 && vulnerable_area_box.w == frameSize.width && vulnerable_area_box.h == frameSize.height) {
-        return st_rectangle(0, 0, 0, 0);
-    }
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
+        y = position.y + vulnerable_area_box.y;
         if (state.direction == ANIM_DIRECTION_LEFT) {
-            //x = position.x + frameSize.width - col_rect.x - col_rect.w;
-            x = position.x + frameSize.width - vulnerable_area_box.x - vulnerable_area_box.w;
+            x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
         } else {
-            x = position.x + frameSize.width - vulnerable_area_box.w;
+            x = position.x - vulnerable_area_box.x;
+            if (_has_background == true) {
+                int diff_left = total_frame_size.width - vulnerable_area_box.w;
+                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x + diff_left;
+                //std::cout << "NPC[" << name << "] - x[" << x << "], diff_left[" << diff_left << "], pos.x[" << position.x << "], total_w[" << total_frame_size.width << "], vulnerable_area_box.w[" << vulnerable_area_box.w << "], vulnerable.x[" << vulnerable_area_box.x << "], calc-x[" << x << "], bg_adjust.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "]" << std::endl;
+            }
         }
-        y += vulnerable_area_box.y;
         w = vulnerable_area_box.w;
         h = vulnerable_area_box.h;
         return st_rectangle(x, y, w, h);
     } else {
-        return st_rectangle(0, 0, 0, 0);
+        return get_hitbox();
     }
 }
 
@@ -3032,6 +3059,18 @@ void character::execute_jump_up()
     _obj_jump.interrupt();
 }
 
+bool character::is_jumping()
+{
+    return _obj_jump.is_started();
+}
+
+void character::interrupt_jump()
+{
+    _obj_jump.interrupt();
+    _obj_jump.finish();
+    set_animation_type(ANIM_TYPE_STAND);
+}
+
 void character::execute_jump()
 {
 	// fall until reaching ground
@@ -3403,9 +3442,9 @@ bool character::is_stage_boss()
     return _is_stage_boss;
 }
 
-bool character::has_final_game_boss()
+bool character::is_final_game_boss()
 {
-    return _has_final_game_boss;
+    return _is_final_game_boss;
 }
 
 bool character::is_weak_to_freeze()

@@ -331,8 +331,10 @@ void projectile::inc_zigzag_status()
 {
     status++;
     if (status > hp) {
+        std::cout << "PROJECTILE::inc_zigzag_status - FINISH" << std::endl;
         is_finished = true;
     } else {
+        std::cout << "PROJECTILE::inc_zigzag_status - INVERT" << std::endl;
         direction = !direction;
     }
 }
@@ -381,6 +383,7 @@ void projectile::set_target_position(st_float_position *pos)
 {
 	_target_position = pos;
 	if (_target_position == NULL && _move_type == TRAJECTORY_FOLLOW) { // if a follow projectile could not find any target, act as zig-zag
+        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #1" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_DIRECTION) { // change type to be the best one to hit player
         // three position (diagonal up, left/right or diagonal down)
@@ -520,6 +523,10 @@ st_float_position projectile::get_position()
 
 st_float_size projectile::move() {
     st_float_size moved;
+
+    if (is_finished) {
+        return st_float_size(0, 0);
+    }
 
 	if (move_timer >= timer.getTimer()) {
         return st_float_size(0, 0);
@@ -705,6 +712,7 @@ st_float_size projectile::move() {
 
 
 	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position == NULL) {
+        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #2" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if ((_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) && _target_position == NULL) { // if do not have a target, act as linear
         //std::cout << "PROJECTILE::MOVE #2 - pos[" << position.x << "][" << position.y << "]" << std::endl;
@@ -933,8 +941,7 @@ st_float_size projectile::move() {
         is_finished = true;
 	}
 
-    realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
-    realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
+    update_real_position();
 
 	// check out of screen
 	if (_move_type != TRAJECTORY_FREEZE && _move_type != TRAJECTORY_QUAKE) { // special effect weapons can work out of screen
@@ -944,10 +951,20 @@ st_float_size projectile::move() {
 	}
 
 
-	return moved;
+    return moved;
+}
+
+void projectile::update_real_position()
+{
+    realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
+    realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
 }
 
 void projectile::draw() {
+    if (is_finished) {
+        return;
+    }
+
     if ((_move_type == TRAJECTORY_BOMB || _move_type == TRAJECTORY_FALL_BOMB) && _effect_n == 1) {
 		graphLib.draw_explosion(realPosition);
 		return;
@@ -958,6 +975,9 @@ void projectile::draw() {
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         return;
     }
+
+    update_real_position();
+    //std::cout << "PROJECTILE::DRAW[" << (int)_id << "] at[" << position.x << "][" << position.y << "]" << std::endl;
 
 	if (animation_pos >= _max_frames) {
         if (_move_type == TRAJECTORY_RING) { // ring will be kept at last two frames

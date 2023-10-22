@@ -42,6 +42,7 @@ public:
     void set_default_values(); // set some common values for all constructors
     ~projectile();
     st_float_size move();
+    void update_real_position();
     void draw();
     bool check_collision(st_rectangle enemy_pos, st_position pos_inc) const;
     bool check_map_collision(st_position pos_inc) const;

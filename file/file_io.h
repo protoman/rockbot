@@ -61,6 +61,7 @@ namespace format_v4 {
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> read_map_enemy_list(int stage_id);
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> read_map_object_list(int stage_id);
 
+        int get_last_stage();
 
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list();

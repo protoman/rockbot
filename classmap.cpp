@@ -1623,6 +1623,10 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
                 if (entered_platform == true) {
 
+                    if (charObj->is_jumping()) {
+                        charObj->interrupt_jump();
+                    }
+
                     if (y_inc > 1 && temp_obj.get_type() == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) { // +1 is gravity or just going from a platform almost same height, so ignore it
                         temp_obj.inc_status();
                     }
@@ -2200,7 +2204,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                 }
 
                 if (npc_ref->is_stage_boss() == false) { // if now the NPC is not the stage boss anymore, continue
-                    gameControl.draw_explosion(npc_pos, true);
+                    gameControl.draw_boss_explosion(npc_pos, true);
                     soundManager.play_boss_music();
                     graphLib.blink_screen(255, 255, 255);
                     continue;
@@ -2210,7 +2214,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     /// @TODO - replace with game_data.final_boss_id
                     if (game_data.final_boss_id == npc_ref->get_number()) {
                         soundManager.stop_music();
-                        gameControl.draw_explosion(npc_pos, true);
+                        gameControl.draw_boss_explosion(npc_pos, true);
                         graphLib.blink_screen(255, 255, 255);
                         graphLib.blank_screen();
                         graphLib.updateScreen();
@@ -2218,7 +2222,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                         gameControl.show_ending();
                         return;
                     } else {
-                        gameControl.draw_explosion(npc_pos, true);
+                        gameControl.draw_boss_explosion(npc_pos, true);
                         gameControl.got_weapon();
                     }
                 }
@@ -2382,6 +2386,9 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
                 return true;
             }
         }
+        std::cout << "MAP::boss_hit_ground - boss.x[" << npc_ref->getPosition().x << "], boss.y[" << npc_ref->getPosition().y << "]" << std::endl;
+    } else {
+        std::cout << "MAP::boss_hit_ground - no boss found" << std::endl;
     }
     return false;
 }

@@ -31,9 +31,11 @@ public:
     short pick_stage(int last_stage);
     Uint8 select_player();
     void boss_intro(short stage_n);
+    void classic_style_boss_intro(short stage_n);
     void game_scenes_show_unbeaten_intro();
     short select_save(bool is_new_game);
     void show_ending_scenes(e_PLAYERS selected_player);
+    void classic_style_castle_intro(short stage_id);
 
 private:
     // preload/unload

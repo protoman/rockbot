@@ -24,6 +24,7 @@ public:
     short get_jumps_number();
     void set_jump_acceleration(double value);
     void set_jump_limit(int value);
+    void set_speed_multiplier(float multi);
 
 
 private:
@@ -39,6 +40,7 @@ private:
     int start_terrain_type;
     bool start_big_jump;
     double JUMP_INITIAL_SPEED;
+    float speed_multiplier = 1.0;
 };
 
 #endif // JUMP_H

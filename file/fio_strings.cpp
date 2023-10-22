@@ -1106,6 +1106,14 @@ namespace format_v4 {
         return credits_list;
     }
 
+    void fio_strings::log_error(std::string error)
+    {
+        std::ofstream outfile;
+        outfile.open(FILEPATH + "/errors.log", std::ios_base::app); // append instead of overwrite
+        outfile << error << std::endl;
+        outfile.close();
+    }
+
     void fio_strings::create_default_common_strings()
     {
 

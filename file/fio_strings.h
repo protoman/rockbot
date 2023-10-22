@@ -54,6 +54,8 @@ public:
 
     std::vector<std::string> get_game_engine_credits();
 
+    void log_error(std::string error);
+
 private:
     // === GAME STRINGS === //
     bool file_exists(std::string filename);

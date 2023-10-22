@@ -566,6 +566,44 @@ namespace format_v4 {
         return res;
     }
 
+    // TODO: improve this in new engine
+    int file_io::get_last_stage()
+    {
+        int res = CASTLE1_STAGE5;
+        CURRENT_FILE_FORMAT::file_game temp_game_data;
+        read_game(temp_game_data);
+        std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> npc_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
+        std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_2> temp_enemy_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat");
+
+        for (unsigned int i=0; i<npc_list.size(); i++) {
+            // TODO: check for spawns that are final boss but not in map-data
+            if (npc_list.at(i).stage_id >= CASTLE1_STAGE1 && temp_game_data.final_boss_id == npc_list.at(i).id_npc) {
+                std::cout << "FOUND final boss[" << temp_enemy_list.at(npc_list.at(i).id_npc).name << "] in stage[" << (int)npc_list.at(i).stage_id << "] at position[" << npc_list.at(i).start_point.x << "][" << npc_list.at(i).start_point.y << "]" << std::endl;
+                return npc_list.at(i).stage_id;
+            }
+        }
+
+        // search through npcs spawn actions or reactions
+        std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat");
+        int spanwer_npc = -1;
+        for (unsigned int i=0; i<ai_list.size(); i++) {
+            if ((ai_list.at(i).reactions[AI_REACTION_DEAD].action == AI_ACTION_REPLACE_NPC || ai_list.at(i).reactions[AI_REACTION_DEAD].action == AI_ACTION_SPAWN_NPC) && ai_list.at(i).reactions[AI_REACTION_DEAD].extra_parameter == temp_game_data.final_boss_id) {
+                spanwer_npc = i;
+                break;
+            }
+        }
+
+        if (spanwer_npc != -1) {
+            for (unsigned int i=0; i<npc_list.size(); i++) {
+                // TODO: check for spawns that are final boss but not in map-data
+                if (npc_list.at(i).id_npc == spanwer_npc) {
+                    return npc_list.at(i).stage_id;
+                }
+            }
+        }
+        return res;
+    }
+
     bool file_io::file_exists(std::string filename) const
     {
         //log::get_instance()->write(std::string("file_io::file_exists.filename[").append(filename).append(std::string("]")));

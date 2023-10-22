@@ -302,7 +302,7 @@ void classPlayer::attack(bool dont_update_colors)
     if (selected_weapon == WEAPON_DEFAULT) {
         /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
 
-        if (SharedData::get_instance()->game_config.auto_charge_mode) {
+        if (SharedData::get_instance()->game_config.auto_charge_mode && !is_dead()) {
             if (moveCommands.attack == 1) {
                 moveCommands.attack = 0;
                 attack_button_released = true;
@@ -538,6 +538,8 @@ void classPlayer::initFrames()
 {
     frameSize.width = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.width;
     frameSize.height = GameMediator::get_instance()->player_list_v3_1[_number].sprite_size.height;
+    total_frame_size.width = frameSize.width;
+    total_frame_size.height = frameSize.height;
 
     add_graphic();
     init_weapon_colors();
@@ -686,9 +688,12 @@ void classPlayer::execute_projectiles()
             }
 
             // collision against whole body
-            st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_hitbox();
+            st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
+                if (gameControl.get_current_map_obj()->_npc_list.at(i).get_name() == "BIG FISH") {
+                    std::cout << ">>>>>>>> projectile-hit-npc" << std::endl;
+                }
                 // shielded NPC: reflects/finishes shot
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                     (*it).consume_projectile();
@@ -930,8 +935,10 @@ int classPlayer::get_teleporter()
 
 void classPlayer::death()
 {
-
+    clean_projectiles();
+    clean_effect_projectiles();
     soundManager.stop_music();
+    soundManager.stop_repeated_sfx();
     soundManager.play_sfx(SFX_PLAYER_DEATH);
     gameControl.draw_player_death(realPosition);
 

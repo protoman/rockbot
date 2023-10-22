@@ -189,7 +189,7 @@ void option_picker::show_reset_config_dialog()
     graphLib.draw_text(20, 60, "OR WAIT 10 SECONDS TO");
     graphLib.draw_text(20, 72, "RETURN.");
     graphLib.updateScreen();
-    long init_timer = timer.getTimer();
+    unsigned long init_timer = timer.getTimer();
     while (input.is_check_input_reset_command_activated() == false) {
         input.read_input(true, false);
         timer.delay(1);

@@ -69,9 +69,16 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
 
     start_point.x = (GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE) + GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
     start_point.y = (GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE) + GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+
+
     static_bg_pos = st_position(GameMediator::get_instance()->map_npc_data[id].start_point.x * TILESIZE, GameMediator::get_instance()->map_npc_data[id].start_point.y * TILESIZE);
     position.x = start_point.x;
     position.y = start_point.y;
+
+    if (name == "BIG FISH") {
+        std::cout << "CLASSNPC.BUILD - start_point[" << GameMediator::get_instance()->map_npc_data[id].start_point.x << "][" << GameMediator::get_instance()->map_npc_data[id].start_point.y << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
+    }
+
     _is_spawn = false;
     _initialized = 0;
     _screen_blinked = false;
@@ -185,14 +192,9 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 		walk_range = TILESIZE*6;
 	}
 
-
-
     graphic_filename = GameMediator::get_instance()->get_enemy(main_id)->graphic_filename;
-
-
     frameSize.width = GameMediator::get_instance()->get_enemy(main_id)->frame_size.width;
     frameSize.height = GameMediator::get_instance()->get_enemy(main_id)->frame_size.height;
-
     is_ghost = (GameMediator::get_instance()->get_enemy(main_id)->is_ghost != 0);
     shield_type = GameMediator::get_instance()->get_enemy(main_id)->shield_type;
 	_is_boss = false;
@@ -215,11 +217,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	// only add graphics if there is no graphic for this NPC yet
 	if (have_frame_graphics() == false) {
 		// load the graphic from file and set it into frameset
-
-
         std::string temp_filename = FILEPATH + "images/sprites/enemies/" + graphic_filename;
-        //printf(">> temp_filename: '%s'\n", temp_filename.c_str());
-
         graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
         if (npc_sprite_surface.get_surface() == NULL) {
             std::cout << "ERROR: initFrames - Error loading player surface from file\n";
@@ -235,10 +233,12 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         }
     }
 
-    if (have_background_graphics() == false) {
-        graphicsLib_gSurface bg_surface;
-        std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
-        if (bg_filename.size() > 0) {
+    std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
+    if (bg_filename.size() > 0) {
+        _has_background = true;
+        if (have_background_graphics() == false) {
+            graphicsLib_gSurface bg_surface;
+            std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
             std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
             graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
             if (bg_surface.get_surface() == NULL) {
@@ -250,6 +250,13 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
             graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
             graphLib.character_graphics_background_list_left.insert(std::pair<std::string, graphicsLib_gSurface>(name, gsurface_flip));
             _has_background = true;
+            total_frame_size.width = bg_surface.width;
+            total_frame_size.height = bg_surface.height;
+        } else {
+            static std::map<std::string, graphicsLib_gSurface>::iterator it;
+            it = graphLib.character_graphics_background_list.find(name);
+            total_frame_size.width = (*it).second.width;
+            total_frame_size.height = (*it).second.height;
         }
     }
 
@@ -261,7 +268,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
         can_fly = true;
     }
 
-    vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->vulnerable_area;
+    vulnerable_area_box = vulnerable_area_box = GameMediator::get_instance()->get_enemy(_number)->vulnerable_area;
 
     if (_is_player_friend == false && GameMediator::get_instance()->get_enemy(main_id)->behavior == NPC_BEHAVIOR_PLAYER_FRIEND) {
         _is_player_friend = true;
@@ -367,18 +374,10 @@ void classnpc::npc_set_hp(st_hit_points new_hp)
 }
 
 
-
-
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
 void classnpc::initFrames()
 {
 }
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
 void classnpc::execute()
 {
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC && is_weak_to_freeze() == true) {

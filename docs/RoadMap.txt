@@ -2,28 +2,8 @@
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
-- ver como fazer um appImage e um snap (colocar na store)
-
-- não pode iniciar um segundo react se ainda esta na chain dele
-
-- problemas em plataforma up/down:
-    # player consegue mudar elas de posição, bloqueando-as
-    # player morre se é "esmagado" por uma mesmo estando do lado e não embaixo
-    # tem que usar direction para definir se vai mover primeiro para baixo ou para cima
-    # plataformas snakeman player entra dentro dela um pouco (tem que ter ajuste fino)
-
-- repetição de fundo esta com problemas na fase do Chill (quando morre e na segunda imagem)
-- efeito wave dá problema depois de transição (talvez precise chamar um draw-backgrounds extra)
-
-- ao morrer tem que resetar todos os objetos tipo destructible de volta
-
-- adicionar efeito sonoro em plataformas ativas quando acionar elas
-
-- adicionar som ao entrar em cápsula de teleporte
-
-- projetil aparece por um instante na posição 0x0 da tela (ver elefantes)
-
-- ao bater a cabeça esta puxando o jogador para baixo ao interromper pulo (deve ser por conta do outro fix)
+- revisar rockbot 1 e 2, e incluir imagens classic, mas diferentes de mm
+- revisar template e incluir todos os arquivos faltantes
 
 - novo objeto: raio temporizado, estatico ou se move zigue-zague (sparkman)
     # quando desativado, dá dano se encostas nas pontas (tilezie), ativo entre elas
@@ -31,12 +11,41 @@ MEGAMIX
 - testar/corrigir rockbot 1 e 2
     # novo sfx objeto quebrável jump+shoot
 
+- não pode iniciar um segundo react se ainda esta na chain dele
+
+- ver como fazer um appImage e um snap (colocar na store)
+
 ===========================================================================================================================
+- classic in-game menu
+- fix classic hud weapon value
+- do not restart auto charging shot if dead
+- music do not stop after dying
+- more fixes for hitarea and vulnerable-area when npc has background
+- added option in cheats menu to change between modern and classic styles
+- adicionar efeito sonoro em plataformas ativas quando acionar elas
+- adicionar som ao entrar em cápsula de teleporte
+- fixes for object platform:
+    # if player is inside object, adjust position when moving him
+    # update map scrolling when moving player
+- projectile appearing in position 0x0 for one frame (missing update-real-pos)
+- improved error display and add log message into file
+- EDITOR: fix vulnerable-area with bg in preview
+- fix hitting enemy outside hit-area if it has background
+- fix for npcs with background not showing when partially outside screen (use bg pos adjust and width)
+- add option for door animation if it has frames in image
+- fix jump interruption when hitting the head on solid
+- fix stairs transitioning back when moving from bottom to top
+- game-style option in editor can use used to bring back some mm-like presentation
+    # stage select
+    # player and boss death explosions
+    # got-weapon screen
+    # skull castle intro
+    # boss intro
+
+---------------------------------------------------------------------------------------------------------------------------
 - implement timed-bombs
 - add sfx for shoot+jump destructible object
 - fix entering stairs pos x adjust for different player sprites sizes
-
----------------------------------------------------------------------------------------------------------------------------
 - player showing above overlay in teleport-in animation
 - decrease enemies intangible time after hit to 200ms
 - block that can be broken by shooting or jumping on it
@@ -46,41 +55,40 @@ MEGAMIX
     - npc amigável via behavior flag
     - nova IA: throw item
     - nova IA: teleport out
-- EDITOR: shuld not be able to select empty tile
+- EDITOR: should not be able to pick empty tile in anim selector
 - map gfx animated bg: splits image into half for frames
 - fix jump limits when inside quicksand
 - new IA para walk ou fly: up to ground, down to inside ground
-- corrigido projetil tipo TARGET_EXACT
-- suporte a goto nas reactions
-- ao trocar de mapa, só deve manter o scroll se o fundo for o mesmo, senao deve resetar
+- fix projectile of type TARGET_EXACT
+- add support for setting goto-next into reactions
+- when changing between maps, keep scroll x position only if same image
 - EDITOR: ask if user wants to same data before loading another game
-- EDITOR: tornar mais fácild e enxergar linhas de tamanho de sala e seleção de tile
-- active platform e destructible item (sem drop), fora da tela, tem que resetar posição e estado
-- ao transicionar tela na horizontal e não fort porta, não mudar para STAND se estiver em slide
+- EDITOR: make easier to see the grid lines
+- active platform and no-drop destructible item, when out of screen must reset state and position
+- do not change to STAND from SLIDE when going through transition unless it has a door
 - use hitbox area defined in editor for players instead of hardcoded one
-- se usar o frog para sair da tela por cima, acaba ficando preso fora dela
-- novo tipo de escudo: usando escudo (anim_type_shield)
-- novo tipo de escudo: back
+- getting locked out if using frog in the top of the screen
+- new shield type: using shield (animation type) and back (as in opposite of front).
 - limit the max of spawned npcs from the origin point of the map-npc instead of the number of the main-npc data.
 - two new object types, destructible (with regular weapons) and same that drops item.
 - try to use ANIM_TYPE_STAND for hitbox if current anim-type is not used, avoiding falling to default frameSize.
     # fix collision against npcs with background.
 - NPC death explosion being shown at start point when falling in hold/ground (should have no explision at all)
-- fly/to-player esta deixando rastro como dash, não é para ter.
+- fly/to-player leaving shadow like dash
 - HIGH: reflected projectiles were not being consumed/finished.
 - AI: use move-speed to determine the range of the jump.
 - new AI: walk ahead even if falls from platform.
 - new AI: shoot projectile in several directions at same time.
 - new AI: fall down in diagonal.
 - new projectile types that fire multiple, 5 way up, 5 way down and 8 way.
-- EDITOR: opção "draw areas" que mostra o retangulo de objetos e inimigos.
 - moving platform up and down.
+- EDITOR: option "draw areas" that show objects and enemies rectangles, used when image has problems.
 - EDITOR: add option for FG auto-scroll.
 - EDITOR: npc with background was not being correctly shown when facing right direction.
-- EDITOR: poder ver o preview em outros idiomas, respeitando a opção do combo em
-- EDITOR: adicionada opção view->tileset.
-- EDITOR: reset do mapa deve ser geral, incluindo links, inimigos e objetos.
-- EFEITO wave no fundo (bubbleman wily wars).
+- EDITOR: show the movie preview in other languages
+- EDITOR: add option view->tileset.
+- EDITOR: map reset must include links, enemies and objects.
+- wave GFX in map background.
 
 ###########################################################################################################################
 0.7.0

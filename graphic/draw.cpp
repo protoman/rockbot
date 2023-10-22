@@ -152,7 +152,11 @@ void draw::preload()
     graphLib.surfaceFromFile(filename, &_death_animation);
     _death_animation_frames_n = _death_animation.width/_death_animation.height;
 
-    filename = FILEPATH + "images/backgrounds/weapon_menu.png";
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        filename = FILEPATH + "images/backgrounds/classic_style_weapon_menu.png";
+    } else {
+        filename = FILEPATH + "images/backgrounds/weapon_menu.png";
+    }
     graphLib.surfaceFromFile(filename, &ingame_menu_bg_img);
 
     filename = FILEPATH + "/images/backgrounds/player_armor_pieces.png";
@@ -893,7 +897,6 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1);
     }
 
-
     if (weapon_n != WEAPON_DEFAULT && weapon_n >= WEAPON_ITEM_ETANK) {
         //std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
         char error_msg[10];
@@ -906,31 +909,48 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
         return;
     }
 
-    // 5 balls, each have 4 possible stages
-    // so each slice of energy is 100 / (5*4) = 5%
-    for (int i=0; i<5; i++) {
-        // less than min1 means black ball
-        int min1 = ENERGY_BALL_PERCENT_SLICE*4*i + 5;     // 1/4
-        int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
-        int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
-        int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
-
-        int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
-
-        if (percent >= min4) {
-            img_origin_x = 0;
-        } else if (percent >= min3) {
-            img_origin_x = ENERGY_BALL_IMG_SIZE;
-        } else if (percent >= min2) {
-            img_origin_x = ENERGY_BALL_IMG_SIZE*2;
-        } else if (percent >= min1) {
-            img_origin_x = ENERGY_BALL_IMG_SIZE*3;
-        }
-
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        st_color bar_color1 = st_color(100, 100, 100);
+        st_color bar_color2 = st_color(70, 70, 70);
         if (selected_weapon_n == weapon_n) {
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(x+i*10, y), &hud_player_wpn_ball, &graphLib.gameScreen);
-        } else {
-            graphLib.copyArea(st_rectangle(img_origin_x, 0, hp_ball_disabled.height, hp_ball_disabled.height), st_position(x+i*10, y), &hp_ball_disabled, &graphLib.gameScreen);
+            bar_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
+            bar_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+        }
+        //graphLib.clear_area(x, y, 51, 10, 230, 230, 230);
+        graphLib.clear_area(x+1, y+1, 49, 8, 0, 0, 0);
+        int bars_n = (24 * percent) / 100;
+        for (int i=0; i<bars_n; i++) {
+            int bar_pos_x = (x+2) + (i * 2);
+            graphLib.clear_area(bar_pos_x, y+1, 1, 8, bar_color1.r, bar_color1.g, bar_color1.b);
+            graphLib.clear_area(bar_pos_x, y+3, 1, 4, bar_color2.r, bar_color2.g, bar_color2.b);
+        }
+    } else {
+        // 5 balls, each have 4 possible stages
+        // so each slice of energy is 100 / (5*4) = 5%
+        for (int i=0; i<5; i++) {
+            // less than min1 means black ball
+            int min1 = ENERGY_BALL_PERCENT_SLICE*4*i + 5;     // 1/4
+            int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
+            int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
+            int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
+
+            int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
+
+            if (percent >= min4) {
+                img_origin_x = 0;
+            } else if (percent >= min3) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE;
+            } else if (percent >= min2) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE*2;
+            } else if (percent >= min1) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE*3;
+            }
+
+            if (selected_weapon_n == weapon_n) {
+                graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(x+i*10, y), &hud_player_wpn_ball, &graphLib.gameScreen);
+            } else {
+                graphLib.copyArea(st_rectangle(img_origin_x, 0, hp_ball_disabled.height, hp_ball_disabled.height), st_position(x+i*10, y), &hp_ball_disabled, &graphLib.gameScreen);
+            }
         }
     }
 }
@@ -1029,6 +1049,96 @@ st_float_position draw::get_radius_point(st_position center_point, int radius, f
     res.x = radius * cos(angle) + center_point.x;
     res.y = radius * sin(angle) + center_point.y;
     return res;
+}
+
+void draw::draw_castle_path(bool instant, st_position initial_point, st_position final_point)
+{
+    if (initial_point.x == 0 && initial_point.y == 0 && final_point.x == 0 && final_point.x == 0) {
+        return;
+    }
+    int dist_x = initial_point.x - final_point.x;
+    int dist_y = initial_point.y - final_point.y;
+    int duration = CASTLE_PATH_DURATION;
+    int step_delay = duration / (abs(dist_x) + abs(dist_y));
+    if (instant == true) {
+        duration = 0;
+        step_delay = 0;
+    }
+
+    std::cout << "step_delay[" << step_delay << "]" << std::endl;
+
+    graphLib.updateScreen();
+
+    int pos_y = initial_point.y - 1;
+    int pos_x = initial_point.x + 2;
+
+    // first, move Y axis
+    if (dist_y < 0) {
+        pos_y += 9;
+    }
+    std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
+    if (dist_y != 0) {
+        for (int i=0; i<abs(dist_y)-2; i++) {
+            // border left
+            graphLib.clear_area(pos_x-1, pos_y, 1, 1, 19, 19, 19);
+            // middle
+            graphLib.clear_area(pos_x, pos_y, 4, 1, 220, 220, 220);
+            // border right
+            graphLib.clear_area(pos_x+4, pos_y, 1, 1, 19, 19, 19);
+
+            if (dist_y > 0) {
+                pos_y--;
+            } else {
+                pos_y++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+    // remove extra bit
+    if (dist_y > 0) {
+        pos_y++;
+    } else {
+        pos_y -= 4;
+    }
+
+    int temp_pos_x = pos_x;
+    int max_dist_x = abs(dist_x)-2;
+    if (dist_x > 0) {
+        temp_pos_x -= 1;
+        max_dist_x -= 4;
+    } else if (dist_x < 0) {
+        temp_pos_x += 4;
+        max_dist_x -= 4;
+    }
+
+    // secondly, move x axis
+    if (dist_x > 0) {
+        pos_x += 3;
+    }
+    std::cout << "ini.x[" << initial_point.x << "], end.x[" << final_point.x << "], dist_x[" << dist_x << "]" << std::endl;
+    if (dist_x != 0) {
+        for (int i=0; i<max_dist_x; i++) {
+            // top
+            graphLib.clear_area(temp_pos_x, pos_y-1, 1, 1, 19, 19, 19);
+            // middle
+            graphLib.clear_area(temp_pos_x, pos_y, 1, 4, 220, 220, 220);
+            // bottom
+            graphLib.clear_area(temp_pos_x, pos_y+4, 1, 1, 19, 19, 19);
+            if (dist_x > 0) {
+                temp_pos_x--;
+            } else {
+                temp_pos_x++;
+            }
+            if (step_delay > 0) {
+                timer.delay(step_delay);
+                graphLib.updateScreen();
+            }
+        }
+    }
+
 }
 
 
@@ -1141,9 +1251,9 @@ void draw::show_hud_vintage(int hp, int player_n, int selected_weapon, int selec
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
     //draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
-    draw_energy_bar(hp, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
+    draw_energy_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
     if (selected_weapon != WEAPON_DEFAULT) {
-        draw_energy_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+        draw_energy_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
     }
 
     // boss HP

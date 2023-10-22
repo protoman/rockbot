@@ -25,6 +25,7 @@ enum e_OBJECT_BOSS_DOOR_STATES {
     e_OBJECT_BOSS_DOOR_STATE_OPENING,
     e_OBJECT_BOSS_DOOR_STATE_OPENED,
     e_OBJECT_BOSS_DOOR_STATE_CLOSING,
+    e_OBJECT_BOSS_DOOR_STATE_CLOSED,
     e_OBJECT_BOSS_DOOR_STATE_COUNT
 };
 
@@ -148,14 +149,14 @@ private:
     int distance;
     int framesize_w;
     int framesize_h;
-    short frame;																	// indicates what is the used frame
+    short frame = 0;																	// indicates what is the used frame
     struct st_position start_point;
     struct st_position position;
     classMap *map;																// reference to the map this object is in
     bool _started;																// some object types will only start to act/move after player interaction
     unsigned int _start_timer;                                                           // holds the time of the activation (used for initial delay)
     bool _finished;																// indicates to map->show() that the object must be deleted
-    Sint8 _state;
+    Sint8 state;
     unsigned int _duration;
     unsigned int _timer_limit;
     bool _command_up;
@@ -165,12 +166,12 @@ private:
     bool _hidden;
     enum collision_modes _collision_mode;
     bool _must_play_appearing_sfx;                                              // used by disappearing blocks to play the sfx just once
-    short _teleport_state;                                                      // used to control when start/finish the teleport
+    short teleport_state;                                                      // used to control when start/finish the teleport
     short _ray_state;                                                           // controls death-ray movement
     st_position _boss_teleporter_dest;
     short _boss_teleporter_map_dest;
     short _obj_map_id;                                                            // used for map-objects, so we can get them in stage_data.objects[N]
-    bool _expanding;
+    bool _expanding = false;
     int _size;
     int max_frames;
     bool is_dropped;

@@ -351,7 +351,7 @@ void game::show_ready()
 // ********************************************************************************************** //
 void game::restart_stage()
 {
-
+    soundManager.stop_music();
     input.clean_all();
 
     if (checkpoint.x < TILESIZE*4) {
@@ -606,7 +606,6 @@ bool game::test_teleport(classPlayer *test_player) {
 		return false;
 	}
 
-
     int currentMap = loaded_stage.get_current_map_number();
 	int temp_x, temp_y;
 	int temp_map_n=0;
@@ -630,7 +629,6 @@ bool game::test_teleport(classPlayer *test_player) {
 				i++;
 				continue;
 			}
-
 
             if (stage_data.links[j].id_map_origin == currentMap) {
                 temp_x = stage_data.links[j].pos_origin.x;
@@ -767,33 +765,37 @@ bool game::test_teleport(classPlayer *test_player) {
 
 bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap, int temp_x, int temp_y, int link_n, int transition_type, int &teleport_count, int &teleporter_dist, int &player_x, int &link_type)
 {
-    int lim1 = temp_x*TILESIZE;
-    int lim2 = temp_x*TILESIZE + stage_data.links[link_n].size*TILESIZE;
+    int lim1 = temp_x * TILESIZE;
+    int lim2 = temp_x * TILESIZE + stage_data.links[link_n].size * TILESIZE;
     int lim3 = (temp_y)*TILESIZE + (TILESIZE*0.5);
-    int lim4 = ((temp_y)*TILESIZE)+TILESIZE;
+    int lim4 = ((temp_y)*TILESIZE) + TILESIZE;
 
     int px = test_player->getPosition().x + (test_player->get_size().width*0.5);
     int py = test_player->getPosition().y + (test_player->get_size().height*0.5) + (test_player->get_size().height*0.25);
 
     // if teleporter is out of screen, ignore it
     st_float_position scroll = loaded_stage.getMapScrolling();
-    int min = scroll.x-RES_W/2;
-    int max = scroll.x+RES_W*1.5;
+    int min = scroll.x - RES_W/2;
+    int max = scroll.x + RES_W*1.5;
     if (abs(px) < min || abs(px) > max) {
         return false;
     }
 
-
+    int lim3_before = lim3;
+    int add_lim3 = TILESIZE * 1.7;
     // give extra pixels in the END-Y, if top to bottom ot bottom to top
     if (is_link_teleporter(stage_data.links[link_n].type) == false) {
         if (transition_type == TRANSITION_TOP_TO_BOTTOM) {
-            lim4 += TILESIZE*1.5;
+            lim4 += TILESIZE * 1.5;
+            lim3 += TILESIZE * 0.5;
         } else if (transition_type == TRANSITION_BOTTOM_TO_TOP) {
-            lim3 -= TILESIZE*1.5;
+            int add_lim3 = TILESIZE * 1.7;
+            lim3 -= TILESIZE * 1.7;
         }
     }
 
     if ((px >= lim1 && px <= lim2) && ((py > lim3 && py < lim4))) {
+        std::cout << "GAME::check_player_is_on_teleport - tile.y[" << temp_y << "], py[" << py << "], lim3_before[" << lim3_before << "], lim3[" << lim3 << "], lim4[" << lim4 << "]" << std::endl;
 
         if (test_player->get_teleporter() == -1) {
 
@@ -860,7 +862,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     // 1. keep showing game screen until player reaches ground
     player1.clear_move_commands();
 	bool loop_run = true;
-    long limit_time = timer.getTimer() + 3000;
+    unsigned long limit_time = timer.getTimer() + 3000;
 	while (loop_run == true) {
         loaded_stage.show_stage();
         player1.charMove();
@@ -884,12 +886,13 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
 	// 3. move boss from top to ground
     classnpc* boss_ref = loaded_stage.get_near_boss();
     if (boss_ref == NULL) {
+        std::cout << "GAME::map_present_boss - no boss found" << std::endl;
         return;
     }
     if (boss_ref != NULL) {
         if (is_static_boss == false) {
             loop_run = true;
-            long limit_time = timer.getTimer() + 3000;
+            unsigned long limit_time = timer.getTimer() + 3000;
             while (loop_run == true) {
                 if (loaded_stage.boss_hit_ground(boss_ref) == true) {
                     loop_run = false;
@@ -900,6 +903,10 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
                 if (timer.getTimer() > limit_time) {
                     loop_run = false;
                 }
+                if (show_fps_enabled == true) {
+                    fps_manager.fps_count();
+                }
+                fps_manager.limit();
             }
         }
     }
@@ -927,6 +934,10 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
             }
             loop_run = false;
         }
+        if (show_fps_enabled == true) {
+            fps_manager.fps_count();
+        }
+        fps_manager.limit();
     }
     // TODO: add a delay here
 
@@ -939,7 +950,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
 
     show_stage(8, false);
 
-    if (boss_ref->has_final_game_boss()) {
+    if (boss_ref->is_final_game_boss()) {
         soundManager.stop_music();
         soundManager.load_music(game_data.final_boss_music_filename);
         soundManager.play_music();
@@ -1216,13 +1227,28 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
     loaded_stage.show_stage();
 }
 
-void game::show_door_animation()
+void game::show_door_animation(object* obj_ref)
 {
     remove_players_slide();
-
     timer.delay(6);
     game_unpause();
-    loaded_stage.show_stage();
+    e_OBJECT_BOSS_DOOR_STATES expected_state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
+    if (obj_ref->get_state() == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
+        expected_state = e_OBJECT_BOSS_DOOR_STATE_CLOSED;
+    }
+    // opening
+    unsigned long end_timer = timer.getTimer() + 1500;
+    while (timer.getTimer() < end_timer) {
+        loaded_stage.show_stage();
+        player1.show();
+        loaded_stage.showAbove();
+        draw_lib.update_screen();
+        fps_manager.limit();
+        timer.delay(100);
+        if (obj_ref->get_state() == expected_state) {
+            break;
+        }
+    }
 }
 
 
@@ -1230,7 +1256,8 @@ void game::show_door_animation()
 
 void game::got_weapon()
 {
-    bool must_show_got_weapon = false;
+    //bool must_show_got_weapon = false;
+    bool must_show_got_weapon = true    ;
 	if (game_save.stages[currentStage] == 0) {
         must_show_got_weapon = true;
 		game_save.finished_stages++;
@@ -1285,7 +1312,53 @@ void game::got_weapon()
 
     game_save.stages[currentStage] = 1;
 
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        classic_style_got_weapon();
+    }
+
     leave_stage();
+}
+
+void game::classic_style_got_weapon()
+{
+    // show the "you got" screen
+    graphLib.blank_screen();
+    graphLib.blink_screen(255, 255, 255);
+    graphLib.blank_screen();
+
+    graphLib.show_config_bg();
+
+    player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
+    player1.set_animation_type(ANIM_TYPE_ATTACK);
+    loaded_stage.set_scrolling(st_float_position(0, 0));
+    player1.char_update_real_position();
+    player1.show();
+
+    std::string weapon_name(game_data.weapons[currentStage].name);
+    for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
+        *p = toupper(*p);
+    }
+
+    // line 1, weapon name; line 2 extra item; line 3 was acquired
+    std::string extra_name = "";
+    if (currentStage == COIL_GOT_STAGE) {
+        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
+        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+    } else if (currentStage == JET_GOT_STAGE) {
+        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
+        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+    }
+    std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular) + " ");
+    graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);
+    short line3_pos = RES_H * 0.5 + 8;
+    if (extra_name.length() > 0) {
+        graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
+        line3_pos = RES_H * 0.5 + 20;
+        phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_plural) + " ");
+    }
+    graphLib.draw_progressive_text((RES_W * 0.5 - 90), line3_pos, phrase, false);
+    player1.show();
+    graphLib.wait_and_update_screen(5000);
 }
 
 void game::leave_stage()
@@ -1434,7 +1507,7 @@ void game::quick_load_game()
         game_save.stages[i] = 1;
     }
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
-        game_save.stages[i] = 1;
+        game_save.stages[i] = 0;
     }
     //data_out.stages[STAGE1] = 1; // APE: coil
     //data_out.stages[STAGE6] = 1; // TECHNO: jet
@@ -1458,7 +1531,7 @@ void game::quick_load_game()
 
     //scenes.select_save(false);
     //scenes.select_player();
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_2;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
@@ -1475,7 +1548,7 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-    //scenes.boss_intro(currentStage);
+    scenes.boss_intro(currentStage);
 
     start_stage();
 
@@ -1508,8 +1581,14 @@ void game::update_stage_scrolling()
 
 
 
-void game::draw_explosion(st_position center, bool show_players) {
+void game::draw_boss_explosion(st_position center, bool show_players) {
     draw_lib.update_screen();
+
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        classic_style_draw_boss_death(center);
+        return;
+    }
+
     int angle_inc = 0;
 
 
@@ -1586,6 +1665,11 @@ void game::draw_player_death(st_position center)
     center.x += player1.get_hitbox().w/2;
     center.y += player1.get_hitbox().h/2;
 
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        classic_style_draw_player_death(center);
+        return;
+    }
+
     for (int i=0; i<draw_lib.get_death_animation_frames_n(); i++) {
         loaded_stage.show_stage();
         loaded_stage.showAbove();
@@ -1603,6 +1687,81 @@ void game::draw_player_death(st_position center)
             draw_lib.draw_player_death(center, i);
             draw_lib.update_screen();
             timer.delay(DEATH_ANIMATION_DELAY);
+        }
+    }
+}
+
+void game::classic_style_draw_player_death(st_position center)
+{
+    st_explosion_status explosion_status;
+    graphicsLib_gSurface classic_death_explosion_surface;
+    std::string classic_death_explosion_filename = FILEPATH + "images/backgrounds/classic_style_death_explosion.png";
+    graphLib.surfaceFromFile(classic_death_explosion_filename, &classic_death_explosion_surface);
+    for (int i=0; i<RES_W; i++) {
+        explosion_status.distance = i;
+        loaded_stage.show_stage();
+        loaded_stage.showAbove();
+        classic_style_draw_explosion(center, classic_death_explosion_surface, explosion_status);
+        graphLib.updateScreen();
+        timer.delay(5);
+    }
+}
+
+void game::classic_style_draw_boss_death(st_position center)
+{
+    st_explosion_status explosion_status;
+    graphicsLib_gSurface classic_death_explosion_surface;
+    std::string classic_death_explosion_filename = FILEPATH + "images/backgrounds/classic_style_death_explosion.png";
+    graphLib.surfaceFromFile(classic_death_explosion_filename, &classic_death_explosion_surface);
+    for (int i=0; i<RES_W; i++) {
+        explosion_status.distance = i;
+        loaded_stage.show_stage();
+        loaded_stage.showAbove();
+        show_player();
+        classic_style_draw_explosion(center, classic_death_explosion_surface, explosion_status);
+        graphLib.updateScreen();
+        timer.delay(5);
+    }
+}
+
+void game::classic_style_draw_explosion(st_position center, graphicsLib_gSurface &classic_death_explosion_surface, st_explosion_status &explosion_status)
+{
+    // right
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(center.x+explosion_status.distance, center.y));
+    // left
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(center.x-explosion_status.distance, center.y));
+    // top
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(center.x, center.y-explosion_status.distance));
+    // bottom
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(center.x, center.y+explosion_status.distance));
+
+    float angle_rad = (45 * 3.14)/180;
+    st_float_position point_pos = draw_lib.get_radius_point(center, explosion_status.distance, angle_rad);
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(point_pos.x, point_pos.y));
+
+    angle_rad = (135 * 3.14)/180;
+    point_pos = draw_lib.get_radius_point(center, explosion_status.distance, angle_rad);
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(point_pos.x, point_pos.y));
+
+    angle_rad = (225 * 3.14)/180;
+    point_pos = draw_lib.get_radius_point(center, explosion_status.distance, angle_rad);
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(point_pos.x, point_pos.y));
+
+    angle_rad = (315 * 3.14)/180;
+    point_pos = draw_lib.get_radius_point(center, explosion_status.distance, angle_rad);
+    graphLib.showSurfaceRegionAt(&classic_death_explosion_surface, st_rectangle(explosion_status.frame_n*24, 0, 24, 24), st_position(point_pos.x, point_pos.y));
+
+    if (explosion_status.frame_expanding == true) {
+        explosion_status.frame_n++;
+        if (explosion_status.frame_n >= 4) {
+            explosion_status.frame_n = 4;
+            explosion_status.frame_expanding = false;
+        }
+    } else {
+        explosion_status.frame_n--;
+        if (explosion_status.frame_n <= 0) {
+            explosion_status.frame_n = 0;
+            explosion_status.frame_expanding = true;
         }
     }
 }
@@ -1640,6 +1799,11 @@ void game::show_player_at(int x, int y)
 st_position game::get_player_position()
 {
     return st_position(player1.getPosition().x, player1.getPosition().y);
+}
+
+st_rectangle game::get_player_hitbox()
+{
+    return player1.get_hitbox();
 }
 
 st_size game::get_player_size()
@@ -1716,18 +1880,19 @@ unsigned short game::get_next_stage()
 
 short game::get_last_castle_stage()
 {
+    int last_staghe_available = fio.get_last_stage();
     if (fio.can_access_castle(game_save) == false && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
         return STAGE8;
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
-    for (int i=CASTLE1_STAGE1; i<=CASTLE1_STAGE5; i++) {
+    for (int i=CASTLE1_STAGE1; i<last_staghe_available; i++) {
         if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
             break;
         }
         pos_n = i+1;
     }
-    if (pos_n > CASTLE1_STAGE5) {
-        pos_n = CASTLE1_STAGE5;
+    if (pos_n > last_staghe_available) {
+        pos_n = last_staghe_available;
     }
     return pos_n;
 }
@@ -1951,6 +2116,7 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
     if (must_return) {
         set_player_teleporter(teleporter_id, st_position(player1.getPosition().x, player1.getPosition().y), true);
     }
+    soundManager.play_sfx_from_file("teleporter_activated.wav", 1);
     draw_lib.fade_out_screen(0, 0, 0, 500);
     draw_lib.update_screen();
     timer.delay(500);

@@ -442,9 +442,9 @@ void artificial_inteligence::ia_action_jump_to_player()
 void artificial_inteligence::ia_action_jump_to_point(st_position point)
 {
     int xinc = 0;
-    int xinx_multiplier = 2;
+    int xinx_multiplier = 1;
     if (move_speed == 1) { // TODO: more adjusts to make jump faster or slower depending on distance and speed
-        xinx_multiplier = 6;
+        xinx_multiplier = 4;
     }
     if (state.direction == ANIM_DIRECTION_LEFT) {
         xinc = -move_speed*xinx_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
@@ -1413,7 +1413,7 @@ void artificial_inteligence::execute_ai_step_fly()
             _ai_state.initial_position.x = 0;
             _ai_state.initial_position.y = position.y;
             _dest_point.y = position.y;
-            if (name == "BOUNCING BALL") std::cout << "### AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD.INIT - direction[" << (int)state.direction << "], pos.x[" << position.x << "], dest.x[" << _dest_point.x << "], dest.y[" << _dest_point.y << "]" << std::endl;
+            //if (name == "BOUNCING BALL") std::cout << "### AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD.INIT - direction[" << (int)state.direction << "], pos.x[" << position.x << "], dest.x[" << _dest_point.x << "], dest.y[" << _dest_point.y << "]" << std::endl;
         } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL) {
             _ai_state.initial_position.x = position.x;
             _ai_state.initial_position.y = position.y;
@@ -1486,7 +1486,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
-            std::cout << "AI_ACTION_FLY_OPTION_TO_SAVED_POINT - point[" << _saved_point.x << "][" << _saved_point.y << "]" << std::endl;
+            //std::cout << "AI_ACTION_FLY_OPTION_TO_SAVED_POINT - point[" << _saved_point.x << "][" << _saved_point.y << "]" << std::endl;
             if (move_to_point(_saved_point, move_speed, move_speed, is_ghost, false) == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
@@ -2001,7 +2001,7 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
 
             if ((can_fall_during_move == false || can_fall_during_move == true && map_lock == TERRAIN_SPIKE) && map_lock != current_map_lock) {
                 if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
-                    std::cout << "AI::check_can_move_to_point - LEAVE #3 - can_fall_during_move[" << can_fall_during_move << "]" << std::endl;
+                    //std::cout << "AI::check_can_move_to_point - LEAVE #3 - can_fall_during_move[" << can_fall_during_move << "]" << std::endl;
                     return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
                 }
             }
@@ -2259,18 +2259,16 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
 
 void artificial_inteligence::execute_ai_step_spawn_npc()
 {
-    // limit for spawned npcs
-
     // still spawning an NPC, leave
     if (gameControl.get_current_map_obj()->_npc_spawn_list.size() > 0) {
-        std::cout << "AI::execute_ai_step_spawn_npc - still waiting for last spawn, LEAVE!" << std::endl;
+        //std::cout << "AI::execute_ai_step_spawn_npc - still waiting for last spawn, LEAVE!" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
 
     int child_count = gameControl.get_current_map_obj()->child_npc_count(start_point);
     if (child_count >= MAX_NPC_SPAWN) {
-        std::cout << "AI::execute_ai_step_spawn_npc - reached MAX_NPC_SPAWN, LEAVE!" << std::endl;
+        //std::cout << "AI::execute_ai_step_spawn_npc - reached MAX_NPC_SPAWN, LEAVE!" << std::endl;
         _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         return;
     }
@@ -2285,7 +2283,6 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
         if (name == "TOP HAT") {
             npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y), state.direction, false, true);
         } else {
-            //npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
             st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number)->attack_arm_pos;
             st_position proj_pos;
             if (state.direction == ANIM_DIRECTION_LEFT) {
@@ -2293,6 +2290,8 @@ void artificial_inteligence::execute_ai_step_spawn_npc()
             } else {
                 proj_pos = st_position(position.x + frameSize.width - attack_arm_pos.x, position.y + attack_arm_pos.y);
             }
+            proj_pos.x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+            proj_pos.y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
             npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, proj_pos, state.direction, false, false);
         }
 

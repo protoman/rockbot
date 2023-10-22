@@ -152,7 +152,6 @@ void scenesLib::main_screen()
     main_picker.enable_check_input_reset_command();
     main_picker.enable_check_input_cheat_command();
 
-
     bool have_save = fio.have_one_save_file();
 
     // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
@@ -206,12 +205,12 @@ void scenesLib::main_screen()
             draw_lib.show_about();
             draw_main();
             main_picker.draw();
-        } else if (picked_n == 5) { // CHEATS //
+        } else if (picked_n == 4) { // CHEATS //
             show_cheats_menu();
             draw_main();
             main_picker.draw();
         } else if (picked_n == MAIN_MENU_CHEAT_RETURN) { // LEAVING CHEATS MENU ITEM //
-            picked_n = 5;
+            picked_n = 4;
             main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
             draw_main();
             main_picker.draw();
@@ -228,7 +227,6 @@ void scenesLib::main_screen()
 
 void scenesLib::show_cheats_menu()
 {
-    short res = 0;
     st_position config_text_pos;
     std::vector<st_menu_option> options;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 20;
@@ -261,6 +259,14 @@ void scenesLib::show_cheats_menu()
         char char_n[50];
         sprintf(char_n, "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_CHARACTER) + ": " + std::string(char_n)));
+
+        std::string game_style_mode = "GAME STYLE: ";
+        if (game_data.game_style == GAME_STYLE_VINTAGE) {
+            game_style_mode += "8BIT VINTAGE";
+        } else {
+            game_style_mode += "MODERN";
+        }
+        options.push_back(st_menu_option(game_style_mode));
 
         option_picker cheat_config_picker(false, config_text_pos, options, true);
         graphLib.show_config_bg();
@@ -295,6 +301,12 @@ void scenesLib::show_cheats_menu()
                 GAME_FLAGS[FLAG_PLAYER2] = false;
                 GAME_FLAGS[FLAG_PLAYER3] = false;
                 GAME_FLAGS[FLAG_PLAYER4] = true;
+            }
+        } else if (selected_option == 3) {
+            if (game_data.game_style == GAME_STYLE_VINTAGE) {
+                game_data.game_style = GAME_STYLE_MODERN;
+            } else {
+                game_data.game_style = GAME_STYLE_VINTAGE;
             }
         }
     }
@@ -522,15 +534,14 @@ short scenesLib::pick_stage(int last_stage)
 
     graphLib.blank_screen();
     stage_select selection(STAGE_SELECT_SURFACES);
-
     short pos_n = selection.pick_stage(last_stage);
-
     timer.delay(100);
     soundManager.stop_music();
 
     return pos_n;
 
 }
+
 
 Uint8 scenesLib::select_player() {
     int selected = 1;
@@ -621,6 +632,10 @@ Uint8 scenesLib::select_player() {
 
 void scenesLib::boss_intro(short stage_n)
 {
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        classic_style_boss_intro(stage_n);
+        return;
+    }
     /*
     if (stage_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
         return;
@@ -660,6 +675,25 @@ void scenesLib::boss_intro(short stage_n)
     graphLib.showSurfaceRegionAt(&boss_intro_img, st_rectangle(2, 0, boss_intro_img.width-4, boss_intro_img.height), st_position(2, 10));
     graphLib.draw_centered_text(217, botname);
     graphLib.wait_and_update_screen(4200);
+}
+
+void scenesLib::classic_style_boss_intro(short stage_n)
+{
+    if (game_save.stages[stage_n] != 0) {
+        return;
+    }
+    if (stage_n >= STAGE8) {
+        classic_style_castle_intro(stage_n);
+    }
+    soundManager.stop_music();
+    soundManager.load_music("classic_style_boss_intro.s3m");
+    soundManager.play_music_once();
+
+    std::string botname = stage_data.boss.name;
+    int boss_id = stage_data.boss.id_npc;
+    draw_lib.show_boss_intro_sprites(boss_id, false);
+    graphLib.draw_centered_text(200, botname);
+    graphLib.wait_and_update_screen(6400);
 }
 
 void scenesLib::game_scenes_show_unbeaten_intro()
@@ -821,6 +855,59 @@ void scenesLib::show_ending_scenes(e_PLAYERS selected_player)
         show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER4]);
     }
 
+}
+
+void scenesLib::classic_style_castle_intro(short stage_id)
+{
+    soundManager.stop_music();
+    soundManager.load_music("classic_style_castle_intro.mp3");
+    soundManager.play_music_once();
+    std::string filename = FILEPATH + "images/backgrounds/classic_style_castle.png";
+    graphicsLib_gSurface skull_castle_bg;
+    graphLib.surfaceFromFile(filename, &skull_castle_bg);
+    graphLib.showSurfaceAt(&skull_castle_bg, st_position(0, 0), false);
+
+    // draw points
+    filename = FILEPATH + "images/backgrounds/classic_style_castle_point.png";
+    graphicsLib_gSurface skull_castle_point;
+    graphLib.surfaceFromFile(filename, &skull_castle_point);
+    graphLib.showSurfaceAt(&skull_castle_point, st_position(11, 223), false);
+    if (stage_id >= CASTLE1_STAGE1) {
+        //bool instant, st_position initial_point, st_position final_point
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE1), st_position(11, 223), st_position(74, 169));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(74, 169), false);
+    }
+    if (stage_id >= CASTLE1_STAGE2) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE2), st_position(74, 169), st_position(92, 100));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(92, 100), false);
+    }
+    if (stage_id >= CASTLE1_STAGE3) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE3), st_position(92, 100), st_position(132, 65));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(132, 65), false);
+    }
+    if (stage_id >= CASTLE1_STAGE4) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE4), st_position(132, 65), st_position(149, 20));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(149, 20), false);
+    }
+    if (stage_id >= CASTLE1_STAGE5) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE5), st_position(149, 20), st_position(212, 78));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(212, 78), false);
+    }
+    if (stage_id >= CASTLE1_STAGE6) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE6), st_position(212, 78), st_position(245, 132));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(245, 132), false);
+    }
+    if (stage_id >= CASTLE2_STAGE1) {
+        draw_lib.draw_castle_path((stage_id > CASTLE2_STAGE1), st_position(245, 132), st_position(160, 197));
+        filename = FILEPATH + "images/backgrounds/classic_style_castle_skull_point.png";
+        graphicsLib_gSurface skull_castle_skull_point;
+        graphLib.surfaceFromFile(filename, &skull_castle_skull_point);
+        graphLib.showSurfaceAt(&skull_castle_skull_point, st_position(160, 197), false);
+    }
+
+    graphLib.updateScreen();
+    timer.delay(4000);
+    soundManager.stop_music();
 }
 
 void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)

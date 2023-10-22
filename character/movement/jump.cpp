@@ -23,6 +23,7 @@ classjump::classjump() : started(false)
 
 void classjump::start(bool bigjump_mode, int terrain_type)
 {
+    //std::cout << "### JUMP::START" << std::endl;
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -65,6 +66,8 @@ void classjump::execute(int terrain_type)
         } else {
             acceleration = JUMP_ACCELERATION * 0.7;
         }
+    } else if (speed_multiplier != 1.0) {
+        acceleration = JUMP_ACCELERATION * speed_multiplier;
     }
 
     speed += acceleration;
@@ -109,6 +112,7 @@ void classjump::interrupt()
 
 void classjump::finish()
 {
+    //std::cout << "### JUMP::finish" << std::endl;
     jumps_number = 0;
     state = NOJUMP;
     speed = 0;
@@ -135,4 +139,9 @@ void classjump::set_jump_limit(int value)
 {
     // ignored for now, as makes jump odd. Better use initial-speed as a way to diff players or enemies jumps
     //JUMP_LIMIT = value;
+}
+
+void classjump::set_speed_multiplier(float multi)
+{
+    speed_multiplier = multi;
 }

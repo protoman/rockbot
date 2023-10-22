@@ -128,6 +128,8 @@ public:
     void set_current_hp(Uint8 inc);
     void execute_jump();								// execute a complete jump
     void execute_jump_up();					// execute jump until reaches the maximum height
+    bool is_jumping();
+    void interrupt_jump();
     void fall();								// falls until reaching ground or leaving screen /// @TODO
     void fall_to_ground();
     void initialize_boss_position_to_ground();
@@ -207,7 +209,7 @@ public:
 
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();
-    bool has_final_game_boss();
+    bool is_final_game_boss();
     void clean_character_graphics_list();
     bool have_background_graphics();
     void cancel_slide();
@@ -276,6 +278,7 @@ protected:
 	// members static that can be moved to use game_data
     std::string name;
     struct st_size frameSize;
+    struct st_size total_frame_size;
     unsigned int max_projectiles; // maximum number of simultaneuous projectiles the character can shot
     float move_speed; // how many pixels the character moves by cycle (default value)
 
@@ -365,7 +368,7 @@ protected:
     bool _check_always_move_ahead;                          // used to prevent setting _always_move_ahead each time we can AI exec
     int _progressive_appear_pos;                            // used by spawn-npc to show just a part of the NPC
     bool _is_stage_boss;                                    // used in NPC class. Indicates if this is the stage-boss
-    bool _has_final_game_boss = false;                      // this enemy is the final game boss or spawns it
+    bool _is_final_game_boss = false;                      // this enemy is the final game boss or spawns it
     bool _dropped_from_stairs;                              // used to avoid grabbing stairs again when dropped from it
     classjump _obj_jump;
     short _jumps_number;                                    // used for double or triple jumping
@@ -386,7 +389,7 @@ protected:
     graphicsLib_gSurface dash_effect_shadow_surface_frame;
     short int facing = ANIM_DIRECTION_LEFT;					    // defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
     bool can_fall_during_move = false;
-
+    float jump_last_moved = 1.0;
 
 };
 

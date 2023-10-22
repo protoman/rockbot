@@ -19,6 +19,21 @@ class classnpc;
 #include "scenes/dialogs.h"
 #include "aux_tools/fps_control.h"
 
+struct st_explosion_status {
+    int distance;
+    int frame_n;
+    int frame_expanding;
+
+    st_explosion_status() {
+        reset();
+    }
+
+    void reset() {
+        distance = 0;
+        frame_n = 0;
+        frame_expanding = true;
+    }
+};
 
 /**
  * @brief
@@ -78,9 +93,10 @@ public:
     void horizontal_screen_move(short direction, bool is_door, short tileX);
 
 
-    void show_door_animation();
+    void show_door_animation(object *obj_ref);
 
     void got_weapon();
+    void classic_style_got_weapon();
 
     void leave_stage();
 
@@ -93,8 +109,11 @@ public:
     bool game_started();
 
 
-    void draw_explosion(st_position center, bool show_players);
+    void draw_boss_explosion(st_position center, bool show_players);
     void draw_player_death(st_position center);
+    void classic_style_draw_player_death(st_position center);
+    void classic_style_draw_boss_death(st_position center);
+    void classic_style_draw_explosion(st_position center, graphicsLib_gSurface &classic_death_explosion_surface, st_explosion_status &explosion_status);
     void show_player();
     /**
      * @brief
@@ -126,6 +145,9 @@ public:
      * @return st_position
      */
     st_position get_player_position();
+
+    st_rectangle get_player_hitbox();
+
     /**
      * @brief
      *

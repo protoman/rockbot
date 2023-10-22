@@ -37,9 +37,15 @@ public:
     void show_stage_face(int x, int y, int stage_n);
     st_position calc_face_pos(int stage_n);
     int pick_stage(int stage_n);
+    short pick_stage_classic_style(int stage_n);
+    void draw_faces_classic_style(graphicsLib_gSurface face_list[STAGE_COUNT]);
+    void classic_style_castle_intro(short stage_id);
 
 private:
     void place_face(std::string face_file, std::string botname, st_position pos) const;
+    std::vector<std::string> build_stage_boss_names_list();
+    std::vector<std::string> build_stage_names_list();
+    void build_stage_faces_surfaces(graphicsLib_gSurface face_list[STAGE_COUNT]);
 
 private:
     graphicsLib_gSurface background;
@@ -53,6 +59,8 @@ private:
     graphicsLib_gSurface stage_select_map_point_surface;
     graphicsLib_gSurface beaten_surface;
     st_map_point_animation map_point_animation;
+    CURRENT_FILE_FORMAT::file_io fio;
+
 };
 
 #endif // STAGE_SELECT_H

@@ -84,7 +84,8 @@ public:
     void draw_weapon_menu_weapon(short selected_weapon_n);
     std::string get_selected_weapon_name(int selected_weapon_n);
     void weapon_menu_show_player(graphicsLib_gSurface *character_sprite);
-
+    st_float_position get_radius_point(st_position center_point, int radius, float angle);
+    void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
@@ -98,7 +99,6 @@ private:
     void show_inferno_effect();
     void free_inferno_surface();
     void show_wave_effect();
-    st_float_position get_radius_point(st_position center_point, int radius, float angle);
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
 
 

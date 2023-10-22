@@ -145,6 +145,7 @@ bool graphicsLib::initGraphics()
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
         // outline-font
         outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
+        error_font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE_ERROR);
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
         TTF_SetFontOutline(outline_font, 1);
 #endif
@@ -960,6 +961,40 @@ void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface 
     render_text(x, y, text, st_color(255, 255, 255), false);
 }
 
+void graphicsLib::draw_error_text(std::string text)
+{
+    SDL_Color font_color = SDL_Color();
+    font_color.r = 250;
+    font_color.g = 250;
+    font_color.b = 250;
+    SDL_Rect text_pos = {5, 10, 0, 0};
+    int max_len = 42;
+    int parts_n = text.length() / max_len;
+
+    if (!error_font) {
+        printf("ERROR: could not load font, message: %s\n", TTF_GetError());
+        show_debug_msg("EXIT #10");
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
+    }
+
+    for (int i=0; i<=parts_n; i++) {
+        std::string sub_text = text.substr(i*max_len, max_len);
+        std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
+        SDL_Surface* textSF = TTF_RenderUTF8_Solid(error_font, sub_text.c_str(), font_color);
+        if (!textSF) {
+            continue;
+        }
+        SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+        SDL_FreeSurface(textSF);
+        if (!textSF_format) {
+            continue;
+        }
+        SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
+        SDL_FreeSurface(textSF_format);
+        text_pos.y += 10;
+    }
+}
+
 void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
 {
     draw_centered_text(y, text, gameScreen, font_color);
@@ -1752,9 +1787,10 @@ void graphicsLib::show_debug_msg(string msg)
 {
     std::cout << "show_debug_msg - msg: " << msg << std::endl;
     std::fflush(stdout);
-
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
-    draw_text(10, _debug_msg_pos*12+10, msg, gameScreen);
+    draw_error_text(msg);
+    CURRENT_FILE_FORMAT::fio_strings fio_str;
+    fio_str.log_error(msg);
     updateScreen();
     timer.delay(DEBUG_MSG_DELAY);
 }

@@ -104,7 +104,7 @@ void inputLib::save()
 //                                                                                                //
 // ********************************************************************************************** //
 
-void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
+void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
 {
     _used_keyboard = false;
     if (check_input_reset == false) {
@@ -177,7 +177,7 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 
 
         if (_used_keyboard == true) { // next commands are all joystick only
-            if (check_input_cheat) {
+            if (must_check_input_cheat == true) {
                 check_cheat_input();
             }
             return;
@@ -346,7 +346,7 @@ void inputLib::read_input(bool check_input_reset, bool check_input_cheat)
 #endif
         }
     }
-    if (check_input_cheat) {
+    if (must_check_input_cheat) {
         check_cheat_input();
     }
 }
@@ -356,11 +356,14 @@ void inputLib::check_cheat_input()
     for (int i=0; i<BTN_COUNT; i++) {
         if (p1_input[i] == 1) {
             if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
+                std::cout << "RESET cheat input - expected-button[" << (int)cheat_input_sequence.at(cheat_input_count).key_n << "], pressed-button[" << i << "]" << std::endl;
                 reset_cheat_input_sequence();
                 return;
             } else {
+                std::cout << "CONTINUE cheat input" << std::endl;
                 cheat_input_count++;
                 if (cheat_input_count >= cheat_input_sequence.size()) {
+                    std::cout << "FINISHED cheat input" << std::endl;
                     cheat_input_is_active = true;
                 }
             }
@@ -371,7 +374,7 @@ void inputLib::check_cheat_input()
 void inputLib::reset_cheat_input_sequence()
 {
     cheat_input_count = 0;
-    for (int i=0; i<cheat_input_sequence.size(); i++) {
+    for (unsigned int i=0; i<cheat_input_sequence.size(); i++) {
         cheat_input_sequence.at(i).activated = false;
     }
 }

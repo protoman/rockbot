@@ -190,6 +190,9 @@ public:
     void draw_text(short int x, short int y, std::string text);
     void draw_text(short int x, short int y, std::string text, st_color color);
     void draw_text(short int x, short int y, std::string text, struct graphicsLib_gSurface& surface);
+
+    void draw_error_text(std::string text);
+
     void draw_centered_text(short int y, std::string text, st_color font_color);
     void draw_centered_text(short int y, std::string text);
     void draw_centered_text(short int y, std::string text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
@@ -314,6 +317,7 @@ private:
     TTF_Font *font;
     TTF_Font *lowercase_font;
     TTF_Font *outline_font;
+    TTF_Font *error_font = nullptr;
 
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
