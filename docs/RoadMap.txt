@@ -7,7 +7,7 @@
 MEGAMIX
 ###########################################################################################################################
 - peixão não esta fazendo nada (acho que desativei a IA para testar)
-- posição esferas HP bosas fora de posição de novo
+- posição esferas HP boss fora de posição de novo
 
 
 - está sem música no boss-intro (rockbot2) classic
@@ -34,6 +34,10 @@ MEGAMIX
 
 
 ===========================================================================================================================
+
+
+
+---------------------------------------------------------------------------------------------------------------------------
 - convert boss hp to classic style also.
 - adjust object execution timer to make them faster
 - show beaten faces as darkned in stage select screen
@@ -48,13 +52,8 @@ MEGAMIX
 - fixed chain projectile position for player and npcs
 - increase star-shield speed a bit
 - fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
-
-
 - improved hit_ground method to theck not only center, but left and right of the character's hitbox also
     # prevents jump not being finished if center is still on air
-
----------------------------------------------------------------------------------------------------------------------------
-
 - classic in-game menu
 - fix classic hud weapon value
 - do not restart auto charging shot if dead
