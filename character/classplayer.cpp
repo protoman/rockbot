@@ -278,6 +278,14 @@ Uint8 classPlayer::get_max_hp()
     return fio.get_heart_pieces_number(game_save);
 }
 
+void classPlayer::block_jump()
+{
+    if (hit_ground() == false) {
+        return;
+    }
+    jump_lock_timer = timer.getTimer() + JUMP_LOCK_DURATION;
+}
+
 
 void classPlayer::attack(bool dont_update_colors)
 {
@@ -408,7 +416,7 @@ void classPlayer::attack(bool dont_update_colors)
             return;
         }
 
-        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, get_attack_position(), is_player()));
+        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, get_attack_position(), is_player(), _number));
         projectile &temp_proj = projectile_list.back();
         temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();

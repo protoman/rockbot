@@ -37,7 +37,7 @@ struct quake_info {
 class projectile
 {
 public:
-    projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player); // common constructor
+    projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool owner_is_player, int owner_number); // common constructor
     void set_is_permanent();
     void set_default_values(); // set some common values for all constructors
     ~projectile();
@@ -163,6 +163,7 @@ private:
     Uint8 original_direction;
     int hp = 0;
     unsigned short animation_status = 0;
+    int _owner_number;
 
 };
 #endif // PROJECTILELIB_H

@@ -943,6 +943,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         if (Mediator::get_instance()->editTool == EDITMODE_ERASER && found_npc != -1) {
             Mediator::get_instance()->maps_data_npc_list[found_npc].id_npc = -1;
         } else if (Mediator::get_instance()->editTool == EDITMODE_NORMAL && found_npc == -1 && Mediator::get_instance()->selectedNPC != -1) {
+            std::cout << ">>>>>>>>>>>> add-npc" << std::endl;
             CURRENT_FILE_FORMAT::file_map_npc_v2 new_npc;
             new_npc.id_npc = Mediator::get_instance()->selectedNPC;
             new_npc.start_point.x = editor_selectedTileX;

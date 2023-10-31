@@ -1,21 +1,60 @@
-﻿
+﻿- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
+    # poder setar "is-jump-frame", "is-turn-frame" (daí não precisa a imagem ter o mirror), etc. Pode chamar de key-frame.
+
+- não armazenar imagem dos sprites, só a posição lógica deles, assim não duplica se repetir frames
+
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
-- revisar rockbot 1 e 2, e incluir imagens classic, mas diferentes de mm
+- peixão não esta fazendo nada (acho que desativei a IA para testar)
+- posição esferas HP bosas fora de posição de novo
+
+
+- está sem música no boss-intro (rockbot2) classic
+
+- terminar estagios em RockMix
+    # Pharaoh Man
+    # Tomahawk Man
+    # Wood Man
+- implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
+
+- testar/revisar rockbot 1 e 2, e incluir imagens classic, mas diferentes de mm
+    # Rockbot 2:
+        # dragonbot: os anéis que ele dispara devem sumir após um tempo (movimento deles pode ser melhor tb)
+        # uma hora, o sapo simplesmente virou um pulo noprmal e não alto (fase beast)
+            # apertando botao de pulo após primeiro, o segundo fica alto
+
+- nova IA:
+    # sub-action de fly, fly shooting (voa a dispara projectile normal alterado para trajetória down) em intervalores regulares)
+
+
 - revisar template e incluir todos os arquivos faltantes
-
-- novo objeto: raio temporizado, estatico ou se move zigue-zague (sparkman)
-    # quando desativado, dá dano se encostas nas pontas (tilezie), ativo entre elas
-
-- testar/corrigir rockbot 1 e 2
-    # novo sfx objeto quebrável jump+shoot
-
-- não pode iniciar um segundo react se ainda esta na chain dele
 
 - ver como fazer um appImage e um snap (colocar na store)
 
+
 ===========================================================================================================================
+- convert boss hp to classic style also.
+- adjust object execution timer to make them faster
+- show beaten faces as darkned in stage select screen
+- show player celebrating victory after defeating boss even if is one that do not give you a weapon
+- AI: fix turn confition for zig-zag-ahead
+- pause game wqhen entering door to prevent rapid movement after it closes
+- improve Rockbot 1 castle 3 tileset with a anim-tile for magnets.
+- created new projectile trajectory, ahead-and-back, so that zig-zag won't stop when reaching initial-x.
+- ground-damage block player jump for a second
+- walk-on-roof should update direction to given destination
+- improved blinking animation when player or enemies are invulnerabvle after being hit
+- fixed chain projectile position for player and npcs
+- increase star-shield speed a bit
+- fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
+
+
+- improved hit_ground method to theck not only center, but left and right of the character's hitbox also
+    # prevents jump not being finished if center is still on air
+
+---------------------------------------------------------------------------------------------------------------------------
+
 - classic in-game menu
 - fix classic hud weapon value
 - do not restart auto charging shot if dead
@@ -41,8 +80,6 @@ MEGAMIX
     # got-weapon screen
     # skull castle intro
     # boss intro
-
----------------------------------------------------------------------------------------------------------------------------
 - implement timed-bombs
 - add sfx for shoot+jump destructible object
 - fix entering stairs pos x adjust for different player sprites sizes

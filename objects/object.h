@@ -11,6 +11,7 @@ class classMap; // forward declaration
 #define STATUS_TIMER_DELAY 500
 #define TIMED_BOMB_DELAY 800
 #define TIMED_BOMB_EXPLOSION_DURATION 2000
+#define EXECUTIION_DELAY 10
 
 enum e_object_teleport_states {
     e_object_teleport_state_initial,

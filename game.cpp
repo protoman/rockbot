@@ -795,8 +795,6 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
     }
 
     if ((px >= lim1 && px <= lim2) && ((py > lim3 && py < lim4))) {
-        std::cout << "GAME::check_player_is_on_teleport - tile.y[" << temp_y << "], py[" << py << "], lim3_before[" << lim3_before << "], lim3[" << lim3 << "], lim4[" << lim4 << "]" << std::endl;
-
         if (test_player->get_teleporter() == -1) {
 
             // avoid using same teleporter to return
@@ -1168,7 +1166,10 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
 {
     st_float_position scroll_move;
 
-    game_pause();
+    bool game_is_already_paused = timer.is_paused();
+    if (game_is_already_paused == false) {
+        game_pause();
+    }
 
     graphLib.set_screen_adjust(st_position(0, 0));
 
@@ -1222,8 +1223,10 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         remove_players_slide();
     }
     timer.delay(6);
-    game_unpause();
     loaded_stage.add_autoscroll_delay();
+    if (game_is_already_paused == false) {
+        game_unpause();
+    }
     loaded_stage.show_stage();
 }
 
@@ -1251,17 +1254,8 @@ void game::show_door_animation(object* obj_ref)
     }
 }
 
-
-
-
-void game::got_weapon()
+void game::player_victory()
 {
-    //bool must_show_got_weapon = false;
-    bool must_show_got_weapon = true    ;
-	if (game_save.stages[currentStage] == 0) {
-        must_show_got_weapon = true;
-		game_save.finished_stages++;
-    }
     invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE]; // store old value in order to not set the flag to false if it is on my command-line parameter
     GAME_FLAGS[FLAG_INVENCIBLE] = true;
 
@@ -1269,53 +1263,59 @@ void game::got_weapon()
     player1.clean_projectiles();
     player1.clear_move_commands();
 
-    if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
-        // check witch is the boss that was killed
+    soundManager.stop_music();
+    // fall to ground
+    soundManager.play_sfx(SFX_BIG_EXPLOSION);
+    player1.fall();
+    player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
 
-        /// @TODO: save game
+    std::vector<st_color> color_list;
+    color_list.push_back(st_color(251, 225, 101));
+    color_list.push_back(st_color(101, 105, 251));
+    color_list.push_back(st_color(112, 251, 101));
+    color_list.push_back(st_color(251, 101, 101));
+    soundManager.load_music(game_data.got_weapon_music_filename);
+    soundManager.play_music();
 
-        /// @TODO: teletransport if capsules
-
-        soundManager.stop_music();
-        // fall to ground
-        soundManager.play_sfx(SFX_BIG_EXPLOSION);
-        player1.fall();
-        player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
-
-        std::vector<st_color> color_list;
-        color_list.push_back(st_color(251, 225, 101));
-        color_list.push_back(st_color(101, 105, 251));
-        color_list.push_back(st_color(112, 251, 101));
-        color_list.push_back(st_color(251, 101, 101));
-        soundManager.load_music(game_data.got_weapon_music_filename);
-        soundManager.play_music();
-
-        for (int i=0; i<2; i++) {
-            for (unsigned int j=0; j<color_list.size(); j++) {
-                graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
-                player1.show();
-                draw_lib.update_screen();
-                timer.delay(300);
-            }
-        }
-        unsigned long end_timer = timer.getTimer() + 3500;
-        while (timer.getTimer() < end_timer) {
-            loaded_stage.show_stage();
+    for (int i=0; i<2; i++) {
+        for (unsigned int j=0; j<color_list.size(); j++) {
+            graphLib.clear_area(0, 0, RES_W, RES_H, color_list.at(j).r, color_list.at(j).g, color_list.at(j).b);
             player1.show();
-            loaded_stage.showAbove();
             draw_lib.update_screen();
-            timer.delay(250);
+            timer.delay(300);
         }
+    }
+    unsigned long end_timer = timer.getTimer() + 3500;
+    while (timer.getTimer() < end_timer) {
+        loaded_stage.show_stage();
+        player1.show();
+        loaded_stage.showAbove();
+        draw_lib.update_screen();
+        timer.delay(250);
+    }
+}
 
-        // @TODO: show map screen //
-	}
 
-    game_save.stages[currentStage] = 1;
 
-    if (game_data.game_style == GAME_STYLE_VINTAGE) {
-        classic_style_got_weapon();
+
+void game::got_weapon()
+{
+    //bool must_show_got_weapon = false;
+    bool must_show_got_weapon = true    ;
+    if (game_save.stages[currentStage] == 0) {
+        must_show_got_weapon = true;
+        game_save.finished_stages++;
     }
 
+    player_victory();
+
+    if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
+        // TODO: create a modern got-weapon screen
+        if (game_data.game_style == GAME_STYLE_VINTAGE) {
+            classic_style_got_weapon();
+        }
+    }
+    game_save.stages[currentStage] = 1;
     leave_stage();
 }
 
@@ -1503,12 +1503,15 @@ void game::quick_load_game()
     game_save.items.weapon_tanks = 9;
     game_save.items.special_tanks = 9;
     game_save.stages[INTRO_STAGE] = 1;
+    //game_save.stages[STAGE1] = 1;
+    //game_save.stages[STAGE2] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
         game_save.stages[i] = 1;
     }
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
         game_save.stages[i] = 0;
     }
+    //*/
     //data_out.stages[STAGE1] = 1; // APE: coil
     //data_out.stages[STAGE6] = 1; // TECHNO: jet
     //data_out.stages[STAGE3] = 1; // TECHNO: jet
@@ -1531,7 +1534,7 @@ void game::quick_load_game()
 
     //scenes.select_save(false);
     //scenes.select_player();
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_3;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;

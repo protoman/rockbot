@@ -103,7 +103,7 @@ void player_preview_area::paintEvent(QPaintEvent *) {
     }
 
     // draw hitarea
-    int inc_x = Mediator::get_instance()->player_graphics_data.frame_size.width*2*2;
+    int inc_x = Mediator::get_instance()->player_graphics_data.frame_size.width*3*2;
     int x = inc_x + Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.x*PREVIEW_SCALE;
     int y = Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.y*PREVIEW_SCALE;
     int w = Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].sprite_hit_area.w*PREVIEW_SCALE;

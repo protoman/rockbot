@@ -4,6 +4,8 @@
 #include "character.h"
 #include "classnpc.h"
 
+#define JUMP_LOCK_DURATION 1000
+
 class classnpc; // advance declaration
 
 /**
@@ -134,6 +136,8 @@ public:
     void restore_input();
 
     Uint8 get_max_hp();
+
+    void block_jump();
 
 
 private:

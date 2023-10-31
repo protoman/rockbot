@@ -72,6 +72,7 @@ public:
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
     void draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int percent, int value);
     void draw_energy_bar(short int hp, short int player_n, short int weapon_n, short int max_hp);
+    void draw_energy_bar_graph(st_position bar_pos, st_color color0, st_color color1, st_color color2, int weapon_n_adjusted, int graph_lenght);
 
     void set_boss_hp(int hp);
     void show_boss_intro_bg();

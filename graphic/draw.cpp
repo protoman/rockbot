@@ -1001,9 +1001,11 @@ string draw::get_selected_weapon_name(int selected_weapon_n)
         weapon_name = std::string(game_data.weapons[selected_weapon_n].name);
     }
     if (selected_weapon_n == WEAPON_ITEM_COIL) {
-        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
+        //weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name;
     } else if (selected_weapon_n == WEAPON_ITEM_JET) {
-        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
+        //weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
     } else if (selected_weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
         sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
@@ -1258,9 +1260,21 @@ void draw::show_hud_vintage(int hp, int player_n, int selected_weapon, int selec
 
     // boss HP
     if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
-        int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
-        graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
-        draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
+        //int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        //graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
+        //draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
+
+        int hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        int graph_lenght = (int)(hp_percent/2);
+
+
+        st_color color0(0, 0, 0); // black
+        st_color color1(100, 100, 100);
+        st_color color2(200, 200, 200);
+        st_position bar_pos(RES_W-15, 2);
+
+        int weapon_n_adjusted = _boss_current_hp;
+        draw_energy_bar_graph(bar_pos, color0, color1, color2, -1, graph_lenght);
     }
 }
 
@@ -1295,7 +1309,6 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
 
 void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
 {
-    short int y;
     int hp_percent = (100 * hp) / max_hp;
     int graph_lenght = (int)(hp_percent/2);
 
@@ -1322,15 +1335,21 @@ void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_h
         weapon_n_adjusted = WEAPON_COUNT;
     }
     if (weapon_n <= WEAPON_ITEM_JET) {
-        graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
-        y = bar_pos.y + 1 + (50 - graph_lenght);
-        graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
-        graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
-        graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
-        for (int i=1; i<graph_lenght; i+=2) {
-            graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
-        }
+        draw_energy_bar_graph(bar_pos, color0, color1, color2, weapon_n_adjusted, graph_lenght);
     }
+}
+
+void draw::draw_energy_bar_graph(st_position bar_pos, st_color color0, st_color color1, st_color color2, int weapon_n_adjusted, int graph_lenght)
+{
+    graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
+    int y = bar_pos.y + 1 + (50 - graph_lenght);
+    graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+    graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
+    graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+    for (int i=1; i<graph_lenght; i+=2) {
+        graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
+    }
+
 }
 
 void draw::set_boss_hp(int hp)

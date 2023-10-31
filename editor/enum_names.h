@@ -54,6 +54,7 @@ void init_enum_names() {
     PROJECTILE_TRAJECTORIES_NAMES.push_back("UP");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("DOWN");
     PROJECTILE_TRAJECTORIES_NAMES.push_back("FALL AND SEEK");
+    PROJECTILE_TRAJECTORIES_NAMES.push_back("TRAJECTORY AHEAD AND BACK");
 
 
     // -------------------------------------------------------------- //
@@ -124,6 +125,8 @@ void init_enum_names() {
     AI_ACTION_FLY_OPTIONS.push_back("DOWN RANDOM DIAGONAL");
     AI_ACTION_FLY_OPTIONS.push_back("UP UNTIL GROUND");
     AI_ACTION_FLY_OPTIONS.push_back("DOWN INTO GROUND");
+    AI_ACTION_FLY_OPTIONS.push_back("DIAGONMAL UP");
+    AI_ACTION_FLY_OPTIONS.push_back("DIAGONMAL DOWN");
 
     // -------------------------------------------------------------- //
 

@@ -153,7 +153,7 @@ void stage_select::build_stage_faces_surfaces(graphicsLib_gSurface face_list[])
         if (fio.file_exists(StringUtils::clean_filename(face_filename))) {
             graphLib.surfaceFromFile(StringUtils::clean_filename(face_filename), &face_list[i]);
         } else {
-            graphLib.initSurface(st_size(32, 32), &face_list[i]);
+            graphLib.initSurface(st_size(32, 64), &face_list[i]);
         }
     }
 }
@@ -230,6 +230,10 @@ int stage_select::pick_stage(int stage_n)
     graphicsLib_gSurface stage_selection_icon;
     graphLib.surfaceFromFile(stage_selection_icon_filename, &stage_selection_icon);
 
+    graphicsLib_gSurface dark_surface;
+    graphLib.initSurface(st_size(32, 30), &dark_surface);
+    graphLib.clear_surface_area(0, 0, 32, 30, 0, 0, 0, dark_surface);
+    graphLib.set_surface_alpha(150, &dark_surface);
 
     graphLib.updateScreen();
 
@@ -265,6 +269,9 @@ int stage_select::pick_stage(int stage_n)
                         graphLib.showSurfaceRegionAt(&stage_selection_icon, st_rectangle(0, 0, 36, 36), st_position(icon_x+(i*48), (j*icon_spacing_y)+icon_y));
                     }
                     graphLib.showSurfaceRegionAt(&face_list[cursor_level_n], st_rectangle(0, 0, 32, 30), st_position(icon_x+2+(i*48), (j*icon_spacing_y)+3+icon_y));
+                    if (game_save.stages[cursor_level_n] == 1) {
+                        graphLib.showSurfaceAt(&dark_surface, st_position(icon_x+2+(i*48), (j*icon_spacing_y)+3+icon_y), false);
+                    }
                 }
                 cursor_level_n++;
                 if (cursor_level_n >= 14) {
@@ -561,6 +568,10 @@ void stage_select::draw_faces_classic_style(graphicsLib_gSurface face_list[STAGE
 {
     int adjust_stage_pos = 0;
     int initial_stage_pos = 0;
+    graphicsLib_gSurface dark_surface;
+    graphLib.initSurface(st_size(32, 32), &dark_surface);
+    graphLib.clear_surface_area(0, 0, 32, 32, 0, 0, 0, dark_surface);
+    graphLib.set_surface_alpha(150, &dark_surface);
     for (int i=0; i<3; i++) {
         for (int j=0; j<3; j++) {
             int cursor_level_n = i + (j * 3);
@@ -576,6 +587,9 @@ void stage_select::draw_faces_classic_style(graphicsLib_gSurface face_list[STAGE
             int pos_y = faces_y_top + (j * faces_y_spacing);
             int face_n = cursor_level_n+adjust_stage_pos+initial_stage_pos + 1;
             graphLib.showSurfaceRegionAt(&face_list[face_n], st_rectangle(0, 0, 32, 30), st_position(pos_x, pos_y));
+            if (game_save.stages[face_n] == 1) {
+                graphLib.showSurfaceAt(&dark_surface, st_position(pos_x, pos_y), false);
+            }
         }
     }
 }

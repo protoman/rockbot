@@ -435,7 +435,7 @@ enum LINK_TYPES { LINK_HORIZONTAL, LINK_VERTICAL, LINK_TELEPORTER, LINK_FADE_TEL
 
 #define BOSS_INITIAL_HP 36 // a bit more HP (8 pts) than player, so it will endure a bit more on the fight
 
-#define HIT_BLINK_ANIMATION_LAPSE 200
+#define HIT_BLINK_ANIMATION_LAPSE 80
 
 #define WATER_SPEED_MULT 0.7
 #define QUICKSAND_SPEED_MULT 0.4
@@ -459,7 +459,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_DIAGONAL_UP,
     TRAJECTORY_DIAGONAL_DOWN,
     TRAJECTORY_CENTERED,                        // centered around character
-    TRAJECTORY_ZIGZAG,                          // linear until reach a wall, then return (repeat until reflection number = 3)
+    TRAJECTORY_ZIGZAG,                          // linear until reach a wall, then invert (repeat until reflection number = 3)
     TRAJECTORY_TARGET_DIRECTION,                // adjust to linear, diagonal up or diagonal down depending on player position when shoot
     TRAJECTORY_ARC_TO_TARGET,                   // forms an arn that will end at player's position
     TRAJECTORY_TARGET_EXACT,                    // will go exactly to the point the target is in
@@ -481,6 +481,7 @@ enum PROJECTILE_TRAJECTORIES {
     TRAJECTORY_UP,
     TRAJECTORY_DOWN,
     TRAJECTORY_FALL_AND_SEEK,                   // fall near to the ground, then moves to player direction
+    TRAJECTORY_AHEAD_AND_BACK,                 // linear until reach a wall or limit, then return to initial position
     PROJECTILE_TRAJECTORIES_COUNT
 };
 
@@ -813,6 +814,8 @@ enum AI_ACTION_FLY_OPTION_LIST {
     AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL,
     AI_ACTION_FLY_OPTION_UP_UNTIL_GROUND,
     AI_ACTION_FLY_OPTION_DOWN_INTO_GROUND,
+    AI_ACTION_FLY_OPTION_DIAGONAL_UP,
+    AI_ACTION_FLY_OPTION_DIAGONAL_DOWN,
     AI_ACTION_FLY_OPTION_COUNT
 };
 

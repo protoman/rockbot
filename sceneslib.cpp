@@ -906,7 +906,7 @@ void scenesLib::classic_style_castle_intro(short stage_id)
     }
 
     graphLib.updateScreen();
-    timer.delay(4000);
+    timer.delay(6500);
     soundManager.stop_music();
 }
 

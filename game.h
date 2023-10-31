@@ -232,56 +232,17 @@ private:
     void start_stage();
     void set_player_position_teleport_in(int initial_pos_x, int initial_pos_y);
     void show_player_teleport(int pos_x, int pos_y);
-
-
     void show_ready();
-
-    /**
-     * @brief
-     *
-     */
     void restart_stage();
-	//void load_game_objects();
-
-    /**
-     * @brief
-     *
-     * @param type
-     * @param map_n
-     * @param adjust_x
-     * @param pObj
-     */
     void transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj);
-    /**
-     * @brief
-     *
-     * @return short
-     */
     Uint8 get_current_map();
-    /**
-     * @brief
-     *
-     * @param char_obj
-     * @param pos_x
-     */
     void walk_character_to_screen_point_x(character* char_obj, short pos_x); // keeps walking (and jumping obstacles) until reaching a given point in screen (not in map, that should have its own function for that)
-    /**
-     * @brief
-     *
-     * @param set_teleport_n
-     * @param set_player_pos
-     */
     void set_player_teleporter(short set_teleport_n, st_position set_player_pos, bool is_object);
-
-
     void finish_player_teleporter();
-
     void show_stage(int wait_time, bool move_npcs);
-
     bool subboss_alive_on_left(short tileX);
-
     void show_mem_debug(int n);
-
+    void player_victory();
 
 
 

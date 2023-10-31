@@ -705,6 +705,14 @@ void npc_edit::on_AddFrame_Button_clicked()
 
 void npc_edit::on_addEnemy_pushButton_clicked()
 {
+    // TODO: remove in the future when we change file_map_npc_v2.id_npc from Sint8
+    if (Mediator::get_instance()->enemy_list.size() >= 128) {
+        QMessageBox msgBox;
+        msgBox.setText("ERROR");
+        msgBox.setInformativeText("Number of enemies reached limit.");
+        msgBox.exec();
+        return;
+    }
     _data_loading = true;
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_2());
     // add equivalent AI for enemy

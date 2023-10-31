@@ -691,7 +691,7 @@ st_position character::get_attack_position(short direction)
     }
     if (is_player() == false) {
         st_position_int8 attack_arm_pos = GameMediator::get_instance()->get_enemy(_number)->attack_arm_pos;
-        if (attack_arm_pos.x >= 1 || attack_arm_pos.y >= 1) {
+        if (attack_arm_pos.x != 0 || attack_arm_pos.y >= 1) {
             if (direction == ANIM_DIRECTION_LEFT) {
                 proj_pos = st_position(position.x + attack_arm_pos.x, position.y + attack_arm_pos.y);
             } else {
@@ -746,7 +746,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
         st_position proj_pos = get_attack_position();
 
-        projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, is_player()));
+        projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, is_player(), _number));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
         temp_proj.play_sfx(!is_player());
@@ -761,7 +761,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
             if (state.direction == ANIM_DIRECTION_RIGHT) {
                 pos_x_second = proj_pos.x-TILESIZE;
             }
-            projectile_list.push_back(projectile(attack_id, state.direction, st_position(pos_x_second, proj_pos.y+5), is_player()));
+            projectile_list.push_back(projectile(attack_id, state.direction, st_position(pos_x_second, proj_pos.y+5), is_player(), _number));
             projectile &temp_proj2 = projectile_list.back();
             temp_proj2.set_is_permanent();
             temp_proj2.set_owner(this);
@@ -1373,22 +1373,31 @@ bool character::hit_ground() // indicates if character is standing above ground
         return _hit_ground;
     }
     */
-    short map_tile_x = (position.x + frameSize.width/2)/TILESIZE;
-    short map_tile_y1 = (position.y + frameSize.height)/TILESIZE;
-    short map_tile_y2 = (position.y + frameSize.height/2)/TILESIZE;
-    int pointLock1 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y1));
+    st_rectangle hitbox = get_hitbox();
+    std::vector<short> map_tile_x;
+    map_tile_x.push_back((hitbox.x + hitbox.w/2)/TILESIZE); // center
+    map_tile_x.push_back((hitbox.x)/TILESIZE); // left
+    map_tile_x.push_back((hitbox.x + hitbox.w)/TILESIZE); // right
+    short map_tile_y1 = (hitbox.y + hitbox.h)/TILESIZE;
+    short map_tile_y2 = (hitbox.y + hitbox.h/2)/TILESIZE;
 
-    _hit_ground = false;
-    if (pointLock1 != TERRAIN_UNBLOCKED && pointLock1 != TERRAIN_WATER && pointLock1 != TERRAIN_STAIR) {
-        _hit_ground = true;
-    } else if (!is_player() && pointLock1 == TERRAIN_STAIR) {
-        _hit_ground = true;
-    } else {
-        int pointLock2 = gameControl.getMapPointLock(st_position(map_tile_x, map_tile_y2));
-        if (pointLock1 != pointLock2) {
+    for (unsigned int i=0; i<map_tile_x.size(); i++) {
+        int pointLock1 = gameControl.getMapPointLock(st_position(map_tile_x.at(i), map_tile_y1));
+        _hit_ground = false;
+        if (pointLock1 != TERRAIN_UNBLOCKED && pointLock1 != TERRAIN_WATER && pointLock1 != TERRAIN_STAIR) {
             _hit_ground = true;
-        }
+            break;
+        } else if (!is_player() && pointLock1 == TERRAIN_STAIR) {
+            _hit_ground = true;
+            break;
+        } else {
+            int pointLock2 = gameControl.getMapPointLock(st_position(map_tile_x.at(i), map_tile_y2));
+            if (pointLock1 != pointLock2) {
+                _hit_ground = true;
+                break;
+            }
 
+        }
     }
     return _hit_ground;
 }
@@ -1602,12 +1611,14 @@ bool character::slide(st_float_position mapScrolling)
     st_map_collision map_col = map_collision(0, adjust, gameControl.get_current_map_obj()->getMapScrolling(), ANIM_TYPE_SLIDE); // slide_adjust is used because of adjustments in slide collision
     int map_lock =  map_col.block;
 
+    /*
     // player have double jump (without being armor) can't use slide in ground
     if (GameMediator::get_instance()->player_list_v3_1[_number].can_double_jump) {
         if (did_hit_ground == true) {
             return false;
         }
     }
+    */
 
 
     int map_lock_above = gameControl.getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y)/TILESIZE));
@@ -1739,6 +1750,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
 
     // can't jump while on air dash
     if (state.animation_type == ANIM_TYPE_SLIDE && hit_ground() == false) {
+        return false;
+    }
+
+    if (timer.getTimer() < jump_lock_timer) { // some effect blocked jumping
+        std::cout << ">>>>>>>>>>>>>>>>> jump blocked!" << std::endl;
         return false;
     }
 
@@ -2435,6 +2451,7 @@ st_rectangle character::get_hitbox(int anim_type)
             y = position.y + GameMediator::get_instance()->player_list_v3_1[_number].sprite_hit_area.y + SLIDE_Y_ADJUST;
             h = GameMediator::get_instance()->player_list_v3_1[_number].sprite_hit_area.h - SLIDE_Y_ADJUST;
         }
+        //std::cout << "CHAT:get_hitbox - pos.x[" << position.x << "], hit.x[" << x << "], adjust.x[" << GameMediator::get_instance()->player_list_v3_1[_number].sprite_hit_area.x << "]" << std::endl;
     } else {
         int anim_n = state.animation_state;
 
@@ -2792,7 +2809,7 @@ st_position character::get_int_position()
 
 void character::add_projectile(short id, st_position pos, int trajectory, int direction)
 {
-    projectile_to_be_added_list.push_back(projectile(id, direction, pos, is_player()));
+    projectile_to_be_added_list.push_back(projectile(id, direction, pos, is_player(), _number));
     projectile &new_projectile = projectile_to_be_added_list.back();
     new_projectile.set_is_permanent();
     new_projectile.set_trajectory(trajectory);

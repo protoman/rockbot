@@ -108,7 +108,6 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     if (type == OBJ_TIMED_BOMB) {
         state = GameMediator::get_instance()->object_list.at(_id).timer;
     } else if (type == OBJ_BOSS_DOOR) {
-        std::cout << "DOOR - set to NONE #1" << std::endl;
         state = e_OBJECT_BOSS_DOOR_STATE_NONE;
     }
 
@@ -853,7 +852,7 @@ void object::move(bool paused)
     if (last_execute_time > timer.getTimer()) {
         return;
     }
-    last_execute_time = timer.getTimer() + 20;
+    last_execute_time = timer.getTimer() + EXECUTIION_DELAY;
 
     if (_duration > 0 && timer.getTimer() > _timer_limit && !(type == OBJ_ITEM_FLY && _started == true)) { // eagle-jet, when active, can't teleport out because of timer
         if (show_teleport == true && teleport_state != e_object_teleport_state_teleport_out) {
@@ -1169,7 +1168,6 @@ void object::move(bool paused)
     } else if (type == OBJ_BOSS_DOOR) {
         if (state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
             if (frame >= max_frames) {
-                std::cout << "DOOR - set to OPENED" << std::endl;
                 state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
                 frame = max_frames-1;
             }
@@ -1180,10 +1178,10 @@ void object::move(bool paused)
                 soundManager.play_sfx_from_file("classic_style_door_open.wav", 1);
             }
             gameControl.show_door_animation(this);
-            std::cout << "DOOR - set to CLOSING" << std::endl;
         } else if (state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
             if (frame <= 0) {
                 std::cout << "DOOR - set to CLOSED" << std::endl;
+                timer.unpause();
                 state = e_OBJECT_BOSS_DOOR_STATE_CLOSED;
                 frame = 0;
             }
@@ -1604,6 +1602,7 @@ void object::start()
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
         if (type == OBJ_BOSS_DOOR && state == e_OBJECT_BOSS_DOOR_STATE_NONE) {
             std::cout << "DOOR - set to OPENING" << std::endl;
+            timer.pause();
             state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
             teleport_state = 0;
             if (game_data.game_style == GAME_STYLE_VINTAGE) {

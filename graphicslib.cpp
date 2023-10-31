@@ -1268,9 +1268,10 @@ void graphicsLib::draw_weapon_changed_tooltip(short weapon_n)
     draw_weapon_tooltip_icon(weapon_n, st_position(14, RES_H-22), true);
     std::string weapon_name(game_data.weapons[weapon_n].name);
     if (weapon_n == WEAPON_ITEM_COIL) {
-        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
+
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name;
     } else if (weapon_n == WEAPON_ITEM_JET) {
-        weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
     } else if (weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
         sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);

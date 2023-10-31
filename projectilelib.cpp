@@ -33,12 +33,14 @@ extern int freeze_weapon_id;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(0), _is_temporary(true)
+projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool owner_is_player, int owner_number) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(0), _is_temporary(true)
 {
     set_default_values();
 	_id = id; // -1 is default projectile
 
     owner = NULL;
+    _owner_is_player = owner_is_player;
+    _owner_number = owner_number;
     position = set_position;
     direction = set_direction;
     original_direction = set_direction;
@@ -331,10 +333,10 @@ void projectile::inc_zigzag_status()
 {
     status++;
     if (status > hp) {
-        std::cout << "PROJECTILE::inc_zigzag_status - FINISH" << std::endl;
+        std::cout << "PROJECTILE::inc_zigzag_status - FINISH, status[" << (int)status << "], hp[" << hp << "]" << std::endl;
         is_finished = true;
     } else {
-        std::cout << "PROJECTILE::inc_zigzag_status - INVERT" << std::endl;
+        std::cout << "PROJECTILE::inc_zigzag_status - INVERT direction" << std::endl;
         direction = !direction;
     }
 }
@@ -624,10 +626,24 @@ st_float_size projectile::move() {
         // do nothing, it is a bomb, it just stays until explodes
 	} else if (_move_type == TRAJECTORY_CHAIN) {
         if (_owner_position != NULL) {
-            position.x = _owner_position->x + 5;
-            position.y = _owner_position->y + 14;
+            //std::cout << "MOVE[CHAIN] - owner.x[" << (int)_owner_position->x << "], owner.direction[" << (int)*_owner_direction << "], owner_is_player[" << _owner_is_player << "]" << std::endl;
             if (_owner_direction != NULL) {
                 direction = *_owner_direction;
+            }
+            if (_owner_is_player == true) {
+                position.x = _owner_position->x + 5;
+                position.y = _owner_position->y + 14;
+                if (direction == ANIM_DIRECTION_RIGHT) {
+                    position.x += TILESIZE;
+                }
+            } else {
+                CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_owner_number);
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    position.x = _owner_position->x + npc_ref->attack_arm_pos.x;
+                } else {
+                    position.x = _owner_position->x - npc_ref->attack_arm_pos.x;
+                }
+                position.y = _owner_position->y + npc_ref->attack_arm_pos.y;
             }
         }
 
@@ -678,6 +694,16 @@ st_float_size projectile::move() {
 			}
 		}
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
+        move_ahead(moved);
+        if (original_direction != direction) {
+            if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
+                inc_zigzag_status();
+            }
+        }
+        if (check_map_collision(st_position(moved.width, moved.height)) == true) {
+            inc_zigzag_status();
+        }
+    } else if (_move_type == TRAJECTORY_AHEAD_AND_BACK) {
         move_ahead(moved);
         if (original_direction != direction) {
             if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
@@ -1003,7 +1029,7 @@ void projectile::draw() {
         }
         if (direction == ANIM_DIRECTION_RIGHT) {
             int show_x = _size.width - show_width;
-            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(show_x, 0, show_width, _size.height), st_position(realPosition.x + 15, realPosition.y));
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(show_x, 0, show_width, _size.height), st_position(realPosition.x, realPosition.y));
         } else {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, 0, show_width, _size.height), st_position(realPosition.x - _chain_width, realPosition.y));
         }

@@ -294,7 +294,7 @@ bool classnpc::is_subboss()
 
 void classnpc::reset_position()
 {
-    std::cout << ">>>>>>>>>> NPC::reset_position[" << name << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
+    //std::cout << ">>>>>>>>>> NPC::reset_position[" << name << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
     position.x = start_point.x;
     position.y = start_point.y;
     // if the NPC uses fly/fall, it means, we need to respawn it inside the hole
@@ -547,7 +547,6 @@ void classnpc::move_projectiles()
                 }
             }
         } else { // NPC attacking other NPCs
-
             for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
                 st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 				//classnpc* enemy = (*enemy_it);
@@ -644,7 +643,6 @@ void classnpc::death()
     if (dead == true) {
         return;
     }
-    //std::cout << ">>>>>>>>>> NPC::death[" << name << "], pos[" << position.x << "][" << position.y << "]" << std::endl;
     _obj_jump.interrupt();
     _obj_jump.finish();
     dead = true;
@@ -714,6 +712,7 @@ void classnpc::revive()
         position.y = -TILESIZE;
     }
 	hitPoints.current = hitPoints.total;
+    dead = false;
 }
 
 

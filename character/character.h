@@ -390,6 +390,7 @@ protected:
     short int facing = ANIM_DIRECTION_LEFT;					    // defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
     bool can_fall_during_move = false;
     float jump_last_moved = 1.0;
+    unsigned long jump_lock_timer = 0;
 
 };
 

@@ -1501,27 +1501,22 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     // TODO: must keep checking against all objects instead of stopping on the first with collision
     for (std::vector<object>::iterator it=object_list.begin(); it!=object_list.end(); it++) {
         object& temp_obj = (*it);
-        //std::cout << "MAP::collision_char_object - CHECK[" << temp_obj.get_name() << "], SKIP #1" << std::endl;
 
         if (temp_obj.is_hidden() == true || temp_obj.is_on_screen() == false || temp_obj.finished() == true || temp_obj.is_teleporting() == true) {
-            //std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #1" << std::endl;
             continue;
         }
 
         if (charObj->is_player() == false && is_obj_ignored_by_enemies(temp_obj.get_type())) {
-            //std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #2" << std::endl;
             continue;
         }
 
         // slim platform won't collide if movement is from bottom to top
         if (temp_obj.get_type() == OBJ_ACTIVE_OPENING_SLIM_PLATFORM && y_inc < 0) {
-            //std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #3" << std::endl;
             continue;
         }
 
         // jumping from inside item-coil must not block player
         if (temp_obj.get_type() == OBJ_ITEM_JUMP && y_inc < 0) {
-            //std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #4" << std::endl;
             continue;
         }
 
@@ -1541,7 +1536,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 charObj->set_platform(&temp_obj);
             } else if (temp_obj.get_type() == OBJ_FLY_PLATFORM) {
                 _obj_collision = object_collision(BLOCK_INSIDE_OBJ, &temp_obj);
-                std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], LEAVE #A" << std::endl;
                 return;
             }
         }
@@ -1566,8 +1560,6 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 checkpoint.y = temp_obj.get_position().y + temp_obj.get_size().height + TILESIZE/2;
                 checkpoint.map = gameControl.get_current_map_obj()->get_number();
                 checkpoint.map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-                //return;
-                std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #5" << std::endl;
                 continue;
             } else if (temp_obj.get_type() == OBJ_BOSS_DOOR && charObj->is_player()) {
                 if (temp_obj.is_started() == false && subboss_alive_on_left(temp_obj.get_position().x/TILESIZE) == false) { // check for sub-boss alive on the left
@@ -1591,23 +1583,19 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 bool entered_platform = false;
 
                 if (temp_obj.get_state() != 0 && temp_obj.get_type() == OBJ_TRACK_PLATFORM) {
-                    std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #6" << std::endl;
                     continue;
                 }
 
                 if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_RAY_VERTICAL || temp_obj.get_type() == OBJ_RAY_HORIZONTAL)) {
                     charObj->damage(TOUCH_DAMAGE_BIG, false);
-                    std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #7" << std::endl;
                     continue;
                 } else if (charObj->is_player() == true && temp_obj.get_state() != 0 && (temp_obj.get_type() == OBJ_DEATHRAY_VERTICAL || temp_obj.get_type() == OBJ_DEATHRAY_HORIZONTAL)) {
-                    std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #8" << std::endl;
                     charObj->damage(999, false);
                     continue;
                 }
 
                 if (charObj->is_player() == true && temp_obj.get_type() == OBJ_CRUSHER && temp_obj.check_player_crushed()) {
                     charObj->damage(999, false);
-                    std::cout << "MAP::collision_char_object[" << temp_obj.get_name() << "], SKIP #9" << std::endl;
                     continue;
                 }
 
@@ -2305,7 +2293,7 @@ void classMap::move_objects(bool paused)
     std::vector<object>::iterator object_it;
 	for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
 		if ((*object_it).finished() == true) {
-            std::cout << "### erased object[" << (*object_it).get_name() << "]" << std::endl;
+            //std::cout << "### erased object[" << (*object_it).get_name() << "]" << std::endl;
             object_list.erase(object_it);
 			break;
 		} else {
@@ -2386,9 +2374,7 @@ bool classMap::boss_hit_ground(classnpc* npc_ref)
                 return true;
             }
         }
-        std::cout << "MAP::boss_hit_ground - boss.x[" << npc_ref->getPosition().x << "], boss.y[" << npc_ref->getPosition().y << "]" << std::endl;
-    } else {
-        std::cout << "MAP::boss_hit_ground - no boss found" << std::endl;
+        //std::cout << "MAP::boss_hit_ground - boss.x[" << npc_ref->getPosition().x << "], boss.y[" << npc_ref->getPosition().y << "]" << std::endl;
     }
     return false;
 }
