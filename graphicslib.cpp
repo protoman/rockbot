@@ -134,6 +134,7 @@ bool graphicsLib::initGraphics()
 	std::strcpy(buffer, filename.c_str());
     SDL_RWops *fileRW = SDL_RWFromFile(buffer, "rb");
     SDL_RWops *fileOutlineRW = SDL_RWFromFile(buffer, "rb");
+    SDL_RWops *fileErrorRW = SDL_RWFromFile(buffer, "rb");
 
     if (!fileRW || !fileOutlineRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
@@ -145,7 +146,7 @@ bool graphicsLib::initGraphics()
         font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
         // outline-font
         outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
-        error_font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE_ERROR);
+        error_font = TTF_OpenFontRW(fileErrorRW, 1, FONT_SIZE_ERROR);
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
         TTF_SetFontOutline(outline_font, 1);
 #endif

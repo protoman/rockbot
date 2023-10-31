@@ -34,10 +34,8 @@ bool background_filled = false;
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), _npcedit_tab_selectednpc(0), _data_loading(false)
 {
 	ui->setupUi(this);
-    QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER);
+    QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER) + QString(" [") + QString(GAMENAME.c_str()) + QString("]");
     setWindowTitle(window_title);
-
-
 
 	// insert NPC tab form
 	npc_edit_tab = new npc_edit();
@@ -174,6 +172,9 @@ void MainWindow::copy_path(QString src, QString dst)
 
 void MainWindow::reload()
 {
+    QString window_title = QString("Rockbot Editor ") + QString(VERSION_NUMBER) + QString(" [") + QString(GAMENAME.c_str()) + QString("]");
+    setWindowTitle(window_title);
+
     Mediator::get_instance()->selectedNPC = 0;
     Mediator::get_instance()->currentMap = 0;
     Mediator::get_instance()->currentGame = 0;

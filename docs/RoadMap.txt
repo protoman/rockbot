@@ -6,35 +6,25 @@
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
-- peixão não esta fazendo nada (acho que desativei a IA para testar)
-- posição esferas HP boss fora de posição de novo
-
-
-- está sem música no boss-intro (rockbot2) classic
-
 - terminar estagios em RockMix
     # Pharaoh Man
     # Tomahawk Man
     # Wood Man
-- implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
+    - implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
 
 - testar/revisar rockbot 1 e 2, e incluir imagens classic, mas diferentes de mm
     # Rockbot 2:
         # dragonbot: os anéis que ele dispara devem sumir após um tempo (movimento deles pode ser melhor tb)
-        # uma hora, o sapo simplesmente virou um pulo noprmal e não alto (fase beast)
-            # apertando botao de pulo após primeiro, o segundo fica alto
 
-- nova IA:
-    # sub-action de fly, fly shooting (voa a dispara projectile normal alterado para trajetória down) em intervalores regulares)
-
-
-- revisar template e incluir todos os arquivos faltantes
+- remover template, que usem o rockbot de base
 
 - ver como fazer um appImage e um snap (colocar na store)
 
 
 ===========================================================================================================================
-
+- fix projectile of type spiral, avoid inc of zero to the radius.
+- do not reused a RW for error font, causes problems in Windows.
+- EDITOR: use opened game in the window title.
 
 
 ---------------------------------------------------------------------------------------------------------------------------
@@ -54,6 +44,7 @@ MEGAMIX
 - fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
 - improved hit_ground method to theck not only center, but left and right of the character's hitbox also
     # prevents jump not being finished if center is still on air
+---
 - classic in-game menu
 - fix classic hud weapon value
 - do not restart auto charging shot if dead

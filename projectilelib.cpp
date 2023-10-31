@@ -843,17 +843,20 @@ st_float_size projectile::move() {
         if (angle <= 0) {
             angle = 360;
         }
-        _speed_x += _speed/3;
+        if (_speed/3 > 0.3) {
+            _speed_x += _speed/3;
+        } else {
+            _speed_x += 0.3;
+        }
         if (_speed_x <= 0) { // prevent zero-speed
-            _speed_x = 0.5;
+            _speed_x = 0.3;
         }
 
         //position.y += 0.5;
         float rad_angle = (angle * 3.1459)/180;
-        position.x = _speed_x*cos(rad_angle) + position0.x;
-        position.y = _speed_x*sin(rad_angle) + position0.y;
-
-
+        position.x = _speed_x * cos(rad_angle) + position0.x;
+        position.y = _speed_x * sin(rad_angle) + position0.y;
+        //std::cout << "PROJECTILE::TRAJECTORY_SPIRAL - _speed_x[" << _speed_x << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
     } else if (_move_type == TRAJECTORY_BOUNCING) {
         // @TODO: bounce condition is hitting ground
         int moved_x = 0;
