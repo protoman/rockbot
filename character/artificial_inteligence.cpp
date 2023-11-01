@@ -767,6 +767,7 @@ void artificial_inteligence::ia_action_jump_teleport_in()
 void artificial_inteligence::ia_action_jump_teleport_out()
 {
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
+        teleporting_out++;
         set_animation_type(ANIM_TYPE_TELEPORT);
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
@@ -775,6 +776,7 @@ void artificial_inteligence::ia_action_jump_teleport_out()
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             hitPoints.current = 0;
             dead = true;
+            teleporting_out++;
         }
     }
 }

@@ -1208,6 +1208,10 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
+    if (!is_player() && teleporting_out > 0) {
+        return false;
+    }
+
     if (is_player()  == false && (game_data.final_boss_id == _number || (GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action ==  AI_ACTION_REPLACE_NPC && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].extra_parameter == game_data.final_boss_id))) {
         _is_final_game_boss = true;
     }
@@ -2632,6 +2636,11 @@ bool character::is_on_quicksand()
     //std::cout << "CHAR::is_on_quicksand - [" << result << "], terrain[" << (int)terrain_type << "]" << std::endl;
     return result;
 
+}
+
+int character::get_teleport_state()
+{
+    return teleporting_out;
 }
 
 bool character::is_in_stairs_frame() const

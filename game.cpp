@@ -386,10 +386,8 @@ void game::restart_stage()
 	graphLib.set_screen_adjust(st_position(0, 0));
     draw_lib.update_screen();
     // if was on stage-boss, mneeds to reload music
-    if (soundManager.get_is_playing_boss_music() == true) {
-        soundManager.load_stage_music(stage_data.bgmusic_filename);
-    }
-    soundManager.restart_music();
+    soundManager.load_stage_music(stage_data.bgmusic_filename);
+    soundManager.play_music();
     if (checkpoint.y == -1) { // did not reached any checkpoint, use the calculated value from stage start
         // find teleport stop point
         show_player_teleport(PLAYER_INITIAL_X_POS, -1);

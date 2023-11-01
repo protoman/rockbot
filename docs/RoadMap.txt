@@ -1,4 +1,16 @@
-﻿- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
+﻿##########################################################################################################################
+FIREFLY
+###########################################################################################################################
+1. tornar externs em singletons
+2. externalizar tudo que usa a SDL em classes do tipo interface
+    # estas classes devem ter apenas o que chama a SDL mesmo (abstraction layer)
+3. reorganização de classes
+4. importar coisas novas do firefly atual
+5. usar json como formato de arquivo para guardar dados
+    # vantagem é flexibilidade, pois não usa número limitado de dados (array)
+    # por exemplo, número de foregrounds e backgrounds de tela não precisa ser fixo
+
+- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
     # poder setar "is-jump-frame", "is-turn-frame" (daí não precisa a imagem ter o mirror), etc. Pode chamar de key-frame.
 
 - não armazenar imagem dos sprites, só a posição lógica deles, assim não duplica se repetir frames
@@ -6,23 +18,30 @@
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
+- rockmix: colocar checkpoints nas fases
+- problema do restart da música ao morrer voltou (pelo menos no modo classic)
+- teleport-out do Eddie esta travado no mesmo lugar (parece q gravity esta agindo)
+    # eddie não pode voltar ao resetar a sala ou fase
+- pulo longo dos inimigos fica muito lento (Stone Man)
+
+- automatizar conversão de mod para mp3 no build Android
+
 - terminar estagios em RockMix
     # Pharaoh Man
     # Tomahawk Man
     # Wood Man
     - implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
 
-- testar/revisar rockbot 1 e 2, e incluir imagens classic, mas diferentes de mm
-    # Rockbot 2:
-        # dragonbot: os anéis que ele dispara devem sumir após um tempo (movimento deles pode ser melhor tb)
-
-- remover template, que usem o rockbot de base
-
 - ver como fazer um appImage e um snap (colocar na store)
 
+40 x 53
 
 ===========================================================================================================================
-- fix projectile of type spiral, avoid inc of zero to the radius.
+- always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
+- fix friend npc teleport-out.
+- friend npc that teleports out should not come back when changing map or dying.
+- added sprites for Dragon Bot's teleporting.
+- fix projectile of type spiral, avoid inc of zero to the radius, fix Dragon Bot's weapon.
 - do not reused a RW for error font, causes problems in Windows.
 - EDITOR: use opened game in the window title.
 

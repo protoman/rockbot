@@ -298,6 +298,7 @@ private:
     std::vector<anim_tile_desc> anim_tile_list;                             // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
     int bg_anim_pos = 0;
     unsigned long bg_anim_timer = 0;
+    std::map<int, std::string> finished_friend_list;
 };
 
 

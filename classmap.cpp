@@ -496,7 +496,12 @@ st_float_position *classMap::get_map_scrolling_ref()
 // ********************************************************************************************** //
 void classMap::load_map_npcs()
 {
-
+    // store friends that have already left into a list to avoid re-adding them
+    for (unsigned int i=0; i<_npc_list.size(); i++) {
+        if (GameMediator::get_instance()->get_enemy(_npc_list.at(i).get_number())->behavior == NPC_BEHAVIOR_PLAYER_FRIEND && _npc_list.at(i).get_teleport_state() > 0) {
+            finished_friend_list.insert(std::pair<int, std::string>(_npc_list.at(i).get_number(), _npc_list.at(i).get_name()));
+        }
+    }
     // remove all elements currently in the list
     if (_npc_list.size() > 0) {
         _npc_list.back().clean_character_graphics_list();
@@ -505,8 +510,7 @@ void classMap::load_map_npcs()
         _npc_list.pop_back();
     }
 
-
-    for (int i=0; i<GameMediator::get_instance()->map_npc_data.size(); i++) {
+    for (unsigned int i=0; i<GameMediator::get_instance()->map_npc_data.size(); i++) {
         if (GameMediator::get_instance()->map_npc_data[i].difficulty_mode == DIFFICULTY_MODE_GREATER && GameMediator::get_instance()->map_npc_data[i].difficulty_level > game_save.difficulty) {
             continue;
         } else if (GameMediator::get_instance()->map_npc_data[i].difficulty_mode == DIFFICULTY_MODE_EQUAL && GameMediator::get_instance()->map_npc_data[i].difficulty_level != game_save.difficulty) {
@@ -515,9 +519,12 @@ void classMap::load_map_npcs()
 
         int npc_ic = GameMediator::get_instance()->map_npc_data[i].id_npc;
 
+        if (finished_friend_list.find(npc_ic) != finished_friend_list.end()) {
+            continue;
+        }
+
         if (npc_ic != -1 && GameMediator::get_instance()->map_npc_data[i].stage_id == stage_number && GameMediator::get_instance()->map_npc_data[i].map_id == number) {
             classnpc new_npc = classnpc(stage_number, number, npc_ic, i);
-
 
             if (stage_data.boss.id_npc == npc_ic) {
                 new_npc.set_stage_boss(true);
@@ -531,8 +538,6 @@ void classMap::load_map_npcs()
 
             _npc_list.push_back(new_npc); // insert new npc at the list-end
         }
-
-
 	}
 }
 

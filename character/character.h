@@ -230,6 +230,7 @@ public:
     bool is_on_last_animation_frame();
     bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
     bool is_on_quicksand();
+    int get_teleport_state();
 
 
 private:
@@ -391,6 +392,7 @@ protected:
     bool can_fall_during_move = false;
     float jump_last_moved = 1.0;
     unsigned long jump_lock_timer = 0;
+    int teleporting_out = 0;
 
 };
 
