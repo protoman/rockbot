@@ -19,12 +19,10 @@ FIREFLY
 MEGAMIX
 ###########################################################################################################################
 - rockmix: colocar checkpoints nas fases
-- problema do restart da música ao morrer voltou (pelo menos no modo classic)
-- teleport-out do Eddie esta travado no mesmo lugar (parece q gravity esta agindo)
-    # eddie não pode voltar ao resetar a sala ou fase
 - pulo longo dos inimigos fica muito lento (Stone Man)
 
 - automatizar conversão de mod para mp3 no build Android
+- remover opção "old music"
 
 - terminar estagios em RockMix
     # Pharaoh Man
