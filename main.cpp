@@ -31,7 +31,7 @@
 #include "strings_map.h"
 
 // ************** CODE AND DEBUG flags ************** //
-//#define PS2LOADFROMFIXEDPOINT 1
+#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 #define PS2LINK 1
 
@@ -462,6 +462,7 @@ int main(int argc, char *argv[])
         //SAVEPATH = "mc0:Rockbot/";
         SAVEPATH = FILEPATH;
 
+
         /*
         if (fioMkdir(SAVEPATH.c_str()) < 0) {
             /// @TODO - check if directory exists
@@ -486,7 +487,7 @@ int main(int argc, char *argv[])
     // === DEBUG === //
     //game_config.volume_sfx = 128;
     //game_config.volume_music = 128;
-    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    GAME_FLAGS[FLAG_QUICKLOAD] = true;
     //GAME_FLAGS[FLAG_INVENCIBLE] = true;
     // === DEBUG === //
 

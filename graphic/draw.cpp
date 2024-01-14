@@ -162,6 +162,7 @@ void draw::preload()
     filename = FILEPATH + "/images/backgrounds/player_armor_pieces.png";
     graphLib.surfaceFromFile(filename, &ingame_menu_player_armor_pieces);
 
+
 }
 
 void draw::show_gfx()

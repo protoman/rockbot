@@ -1139,18 +1139,24 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 
 void graphicsLib::load_icons()
 {
+    std::cout << ">>> graphicsLib::load_icons <<<" << std::endl;
 	struct graphicsLib_gSurface tmp;
     std::string filename = FILEPATH + "images/icons.png";
 
 	// big icon
 	surfaceFromFile(filename, &tmp);
+    std::cout << ">>> graphicsLib::load_icons #1 <<<" << std::endl;
     int icon_size = tmp.height/2;
+    std::cout << ">>> graphicsLib::load_icons #1.1 <<<" << std::endl;
+    weapon_icons.clear();
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
         graphicsLib_gSurface new_surface = graphicsLib_gSurface();
         weapon_icons.push_back(new_surface);
         initSurface(st_size(icon_size, icon_size*2), &weapon_icons.at(weapon_icons.size()-1));
         copyArea(st_rectangle(i*icon_size, 0, icon_size, icon_size*2), st_position(0, 0), &tmp, &(weapon_icons.at(weapon_icons.size()-1)));
+        std::cout << ">>> graphicsLib::load_icons #1.5 <<<" << std::endl;
 	}
+    std::cout << ">>> graphicsLib::load_icons #2 <<<" << std::endl;
 
 	// small icons
     filename = FILEPATH + "images/icons_small.png";
@@ -2051,6 +2057,17 @@ void graphicsLib::set_video_mode()
 #elif defined(PLAYSTATION2)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 16, SDL_SWSURFACE | SDL_DOUBLEBUF );
     _video_filter = VIDEO_FILTER_NOSCALE;
+
+    /*
+    256, 224 - good
+    288, 224 - good (strange colors?)
+    256x256 -
+    320x200 - distortion
+    320x240 - distortion
+    320x256 - distortion (small)
+    400x256 - distortion
+    512x448 - good but small
+    */
 #elif defined(RASPBERRY)
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;
@@ -2250,41 +2267,6 @@ void graphicsLib::place_water_tile(st_position dest)
 void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth)
 {
     SDL_Surface *rotozoom_picture;
-
-    /*
-    // Zoom and display the picture
-    framemax=4*360; frameinc=1;
-    for (framecount=360; framecount<framemax; framecount += frameinc) {
-        if ((framecount % 360)==0) frameinc++;
-        input.read_input();
-        if (input.p1_input[BTN_JUMP] == 1) {
-            SDL_FreeSurface(rotozoom_picture);
-            return;
-        }
-        blank_screen();
-        zoomxf=(float)framecount/(float)framemax;
-        zoomxf=1.5*zoomxf*zoomxf;
-        zoomyf=0.5+fabs(1.0*sin((double)framecount/80.0));
-        if ((framecount % 120)==0) {
-         printf ("  Frame: %i   Zoom: x=%.2f y=%.2f\n",framecount,zoomxf,zoomyf);
-        }
-        if ((rotozoom_picture = zoomSurface(picture.get_surface(), zoomxf, zoomyf, smooth))!=NULL) {
-            dest.x = (gameScreen.get_surface()->w - rotozoom_picture->w)/2;;
-            dest.y = (gameScreen.get_surface()->h - rotozoom_picture->h)/2;
-            dest.w = rotozoom_picture->w;
-            dest.h = rotozoom_picture->h;
-            if (SDL_BlitSurface(rotozoom_picture, NULL, gameScreen.get_surface(), &dest) < 0 ) {
-                fprintf(stderr, "Blit failed: %s\n", SDL_GetError());
-                break;
-            }
-            SDL_FreeSurface(rotozoom_picture);
-        }
-
-        // Display by flipping screens
-        timer.delay(100);
-        updateScreen();
-    }
-    */
     st_position center(dest.x+picture.width/2, dest.y+picture.height/2);
 
     for (float i=0.1; i<1.0; i+=0.03) {

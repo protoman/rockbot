@@ -445,6 +445,7 @@ void projectile::set_target_position(st_float_position *pos)
                 if (dist_y > 0) {
                     angle *= -1;
                 }
+
             }
 
             if (angle != 0.0) {

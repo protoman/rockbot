@@ -222,7 +222,6 @@ struct graphicsLib_gSurface {
     private:
         SDL_Surface *gSurface;
 
-
         SDL_Color get_pixel_color(Uint32 pixel) const {
             if (!gSurface) {
                 return SDL_Color();
@@ -347,7 +346,6 @@ struct graphicsLib_gSurface {
 
         ~graphicsLib_gSurface()
         {
-            setbuf(stdout, NULL);
             freeGraphic();
             colorkey1_points.clear();
             colorkey2_points.clear();

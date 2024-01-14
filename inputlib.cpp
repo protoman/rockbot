@@ -241,11 +241,13 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                         }
                     } else if (SharedData::get_instance()->game_config.button_codes[i].axis_type < 0) {
                         if (event.jaxis.value < -JOYVAL) {
+                            std::cout << "AXIS[" << i << "].NEGATIVE, value[" << event.jaxis.value << "], JOYVAL[" << JOYVAL << "]" << std::endl;
                             p1_input[i] = 1;
                         } else {
                             p1_input[i] = 0;
                         }
                     } else {
+                        std::cout << "AXIS[" << i << "].RESET, value[" << event.jaxis.value << "], JOYVAL[" << JOYVAL << "]" << std::endl;
                         p1_input[i] = 0;
                     }
                 }

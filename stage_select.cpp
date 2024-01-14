@@ -99,7 +99,6 @@ short stage_select::finished_stages() const
 
 
 
-
 //void stage_select::place_face(int face_n, char botname[20], short int posx, short int posy) {
 void stage_select::place_face(std::string face_file, std::string botname, st_position pos) const {
 	// TODO - calculate the text position according to it's strlen
