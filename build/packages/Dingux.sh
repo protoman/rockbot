@@ -1,27 +1,39 @@
 #!/bin/sh
-VERSIONNAME=`cat version_name.txt`
+
+set -x
+
+read -r -p "What is the version number you are building? " version_number
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
+then
+    echo "Invalid version number"
+    exit
+fi
+
+VERSIONNAME=`cat version_name_v$version_number.txt`
+GAME_DIR=rockbot$version_number
 
 rm -r -f ./Dingux
 mkdir ./Dingux
-mkdir ./Dingux/Rockbot2
-mkdir ./Dingux/Rockbot2
-mkdir ./Dingux/Rockbot2/games
-mkdir ./Dingux/Rockbot2/fonts
-mkdir ./Dingux/Rockbot2/shared
+mkdir ./Dingux/$GAME_DIR
+mkdir ./Dingux/$GAME_DIR/games
+mkdir ./Dingux/$GAME_DIR/fonts
+mkdir ./Dingux/$GAME_DIR/shared
 
-cp ../rockbot.dge ./Dingux/Rockbot2/
+cd ..
+make clean
+cd ..
+qmake ../RockDroid.pro CONFIG -=linux CONFIG+=dingux
+cd build
+make
+cd packages
+
+cp ../rockbot.dge ./Dingux/$GAME_DIR/
 
 
-mkdir ././Dingux/Rockbot2/data
-mkdir ././Dingux/Rockbot2/data/games
-rsync -r --exclude=.svn ../fonts ././Dingux/Rockbot2/data
-rsync -r --exclude=.svn ../games/Rockbot$version_number ././Dingux/Rockbot2/data/games
-rsync -r --exclude=.svn ../shared ././Dingux/Rockbot2/data
+rsync -r ../fonts ././Dingux/$GAME_DIR/
+rsync -r ../shared ././Dingux/$GAME_DIR/
+rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
 
-rsync -r --exclude=.svn ../games ./Dingux/Rockbot2
-rsync -r --exclude=.svn ../fonts ./Dingux/Rockbot2
-rsync -r --exclude=.svn ../shared ./Dingux/Rockbot2
-
-cp ./Dingux/Rockbot2/data/images/faces/rockbot.png ./Dingux/Rockbot2/
+cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
 cd ./Dingux
 zip -r ../Rockbot2_Dingux_$VERSIONNAME.zip *

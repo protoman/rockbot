@@ -13,8 +13,6 @@ DialogNPCEdit::DialogNPCEdit(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogNPCEdit)
 {
-	std::cout << "DialogNPCEdit::DialogNPCEdit::START" << std::endl;
-
     ui->setupUi(this);
 
     for (int i=0; i<AI_ACTION_NAMES.size(); i++) {
@@ -28,20 +26,15 @@ DialogNPCEdit::DialogNPCEdit(QWidget *parent) :
     //printf("%%%% DialogNPCEdit::DialogNPCEdit - Mediator::get_instance()->selectedNPC: %d, editMode: %d\n", Mediator::get_instance()->selectedNPC, Mediator::get_instance()->editModeNPC);
     if (Mediator::get_instance()->editModeNPC == 1) {
         loadNPCData(Mediator::get_instance()->selectedNPC);
-        std::cout << "DialogObjectEdit::DialogObjectEdit - editing npc, id: " << Mediator::get_instance()->selectedNPC << std::endl;
-	} else {
-        std::cout << "DialogObjectEdit::DialogObjectEdit - adding new npc, id: " << Mediator::get_instance()->selectedNPC << std::endl;
 	}
 
 
     QObject::connect(ui->npcPreviewAreaWidget, SIGNAL(clickedIn()), this, SLOT(setNPCFrame()));
-	std::cout << "DialogNPCEdit::DialogNPCEdit::END" << std::endl;
 }
 
 
 
 void DialogNPCEdit::loadNPCData(int npc_n) {
-	std::cout << "DialogNPCEdit::loadNPCData::START" << std::endl;
     ui->NpcName->setText(Mediator::get_instance()->enemy_list.at(npc_n).name);
     ui->NpcHP->setValue(Mediator::get_instance()->enemy_list.at(npc_n).hp.total);
     ui->npcGraphicSizeSpin_w->setValue(Mediator::get_instance()->enemy_list.at(npc_n).frame_size.width);
@@ -67,7 +60,6 @@ void DialogNPCEdit::loadNPCData(int npc_n) {
 
     ui->speed_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).speed);
     ui->range_spin->setValue(Mediator::get_instance()->enemy_list.at(npc_n).walk_range);
-	std::cout << "DialogNPCEdit::loadNPCData::END" << std::endl;
 }
 
 
@@ -125,13 +117,6 @@ void DialogNPCEdit::fillNPCGraphicsList() {
     QFileInfoList list = dir.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
-		//printf("DialogNPCEdit::fillNPCGraphicsList - fileName: %s\n", qPrintable(fileInfo.fileName()));
-		if (i == 0) {
-            sprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/enemies/%s", FILEPATH.c_str(), qPrintable(fileInfo.fileName()));
-            printf(">> SET > dataExchanger::fillNPCGraphicsList->addNpcFilename: '%s'\n", Mediator::get_instance()->addNpcFilename);
-		}
-        //Mediator::get_instance()->NpcPreviewFile = new QString(fileInfo.fileName());
-        //sprintf(Mediator::get_instance()->addNpcFilename, "%s", qPrintable(fileInfo.fileName()));
 		ui->npcListCombobox->addItem(fileInfo.fileName());
 	}
     //printf(">> dataExchanger::fillNPCGraphicsList->addNpcFilename: '%s'\n", Mediator::get_instance()->addNpcFilename);

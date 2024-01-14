@@ -11,7 +11,7 @@ class strings_map
 public:
     strings_map();
     static strings_map* get_instance();
-    std::string get_ingame_string(int n, int language);
+    std::string get_ingame_string(int n);
     std::string toupper(const std::string & s);
 
 private:

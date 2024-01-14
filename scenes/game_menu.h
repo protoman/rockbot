@@ -4,14 +4,14 @@
 #include <cstdlib>
 #include <string>
 
-#include "defines.h"
-#include "graphicslib.h"
-#include "strings_map.h"
-#include "game_mediator.h"
-#include "file/file_io.h"
-#include "file/fio_strings.h"
-#include "graphic/option_picker.h"
-#include "options/key_map.h"
+#include "../defines.h"
+#include "../graphicslib.h"
+#include "../strings_map.h"
+#include "../game_mediator.h"
+#include "../file/file_io.h"
+#include "../file/fio_strings.h"
+#include "../graphic/option_picker.h"
+#include "../options/key_map.h"
 
 class game_menu
 {
@@ -35,7 +35,7 @@ public:
     void show_config_warning_android_cloud_save();
     void show_config_warning_android_hide_controls();
     void show_config_extras();
-    void config_int_value(Uint8 &value_ref, int min, int max);
+    int config_int_value(int initial_value_int, int min, int max, std::string title);
 
     void music_player();
     void sfx_player();

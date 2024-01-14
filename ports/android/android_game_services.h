@@ -8,8 +8,9 @@
 #include <SDL_android.h>
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>
-#include "defines.h"
-#include "file/file_io.h"
+#include "../../defines.h"
+#include "../../file/file_io.h"
+#include <sys/system_properties.h>
 
 //### NDK ###//
 /*
@@ -17,10 +18,10 @@
 #include <gpg/android_platform_configuration.h>
 #include <gpg/android_support.h>
 */
-#define TOUCH_KEYBOARD_MARGIN 30
-#define BUTTON_DISTANCE 1.3
-#define MARGIN_DIVISOR 6
-#define SAVE_TITLE "Rockbot Save"
+
+#define ANDROID_OS_BUILD_MODEL               "ro.product.model"
+
+#define MARGIN_DIVISOR 3
 #endif
 
 class android_game_services
@@ -28,23 +29,13 @@ class android_game_services
 public:
     android_game_services();
 #ifdef ANDROID
-    void cloud_load_game(int save_n);
-    void cloud_save_game(int save_n);
-    void connect();
-    void disconnect();
-    void unclock_achievement(std::string achievement_id);
     // stores original size before setting a different size
     void init_android_button_size();
-    void set_android_default_buttons_size(int size);
+    void set_android_default_buttons_size(int size, int spacing);
     void set_touch_controls_visible(bool show);
-    void firebase_log(std::string log_msg);
     void crash_handler(std::string log);
 
-    //### NDK GAME SERVICES ###//
-    //void ndk_connect();
-
 private:
-    std::string get_save_id(int save_n);
     void check_button_size(SDL_Rect &dest_size, SDL_Rect &default_size);
 
 

@@ -1,8 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "draw.h"
+#ifdef ANDROID
+#include <android/log.h>
+#endif
 
-#include "game_mediator.h"
+#include "../graphic/draw.h"
+#include "../game_mediator.h"
+#include "../timerlib.h"
+#include "../game.h"
+#include "../inputlib.h"
+#include "../strings_map.h"
+#include "../file/file_io.h"
+
 
 #define RAIN_DELAY 160
 #define FLASH_DELAY 260
@@ -20,35 +29,33 @@
 #define ENERGY_BALL_IMG_SIZE 10
 #define ENERGY_BALL_PERCENT_SLICE 5
 
-#ifdef ANDROID
-#include <android/log.h>
-#endif
-
 extern graphicsLib graphLib;
 
-#include "timerlib.h"
 extern timerLib timer;
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 
 extern std::string FILEPATH;
 
-#include "game.h"
+
 extern game gameControl;
 
-#include "inputlib.h"
 extern inputLib input;
 
-#include "strings_map.h"
 
 extern soundLib soundManager;
 
 #define FADE_INC 2
 
-#include "file/file_io.h"
 extern CURRENT_FILE_FORMAT::file_io fio;
 extern CURRENT_FILE_FORMAT::st_save game_save;
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
+
+#define ARMOR_PIECES_SPRITE_W 28
+#define ARMOR_PIECES_SPRITE_H 29
+
+#define ARMOR_PIECES_SPRITE_POS_X (RES_W - 36)
+
+#include "data/datautil.h"
 
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
@@ -98,7 +105,6 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/boss_intro_bg.png";
     graphLib.surfaceFromFile(filename, &boss_intro_bg);
 
-
     // DROPABLE OBJECT GRAPHICS
     for (int i=0; i<GameMediator::get_instance()->object_list.size(); i++) {
         for (int j=0; j<DROP_ITEM_COUNT; j++) {
@@ -119,36 +125,48 @@ void draw::preload()
     filename = GAMEPATH + "shared/images/boss_hp_ball.png";
     graphLib.surfaceFromFile(filename, &hud_boss_hp_ball);
 
-    filename = FILEPATH + "/images/1up_icons.png";
-    graphLib.surfaceFromFile(filename, &hud_player_1up);
-
-    filename = FILEPATH + "images/backgrounds/castle_point.png";
-    graphLib.surfaceFromFile(filename, &castle_point);
+    filename = GAMEPATH + "shared/images/hp_ball_disabled.png";
+    graphLib.surfaceFromFile(filename, &hp_ball_disabled);
 
     filename = GAMEPATH + "/shared/images/buttons/d_pad.png";
-    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_DPAD_LEFTRIGHT, graphicsLib_gSurface()));
+
+    for (int i=0; i<INPUT_IMAGES_COUNT; i++) {
+        input_images_map[i] = graphicsLib_gSurface();
+    }
+
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_DPAD_LEFTRIGHT]);
 
     filename = GAMEPATH + "/shared/images/buttons/btn_a.png";
-    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_A, graphicsLib_gSurface()));
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_A]);
 
     filename = GAMEPATH + "/shared/images/buttons/btn_b.png";
-    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_B, graphicsLib_gSurface()));
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_B]);
 
     filename = GAMEPATH + "/shared/images/buttons/btn_x.png";
-    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_X, graphicsLib_gSurface()));
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_X]);
 
     filename = GAMEPATH + "/shared/images/buttons/btn_y.png";
-    input_images_map.insert(std::pair<e_INPUT_IMAGES, graphicsLib_gSurface>(INPUT_IMAGES_Y, graphicsLib_gSurface()));
     graphLib.surfaceFromFile(filename, &input_images_map[INPUT_IMAGES_Y]);
+
+    filename = GAMEPATH + "shared/images/death_animation.png";
+    graphLib.surfaceFromFile(filename, &_death_animation);
+    _death_animation_frames_n = _death_animation.width/_death_animation.height;
+
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        filename = FILEPATH + "images/backgrounds/classic_style_weapon_menu.png";
+    } else {
+        filename = FILEPATH + "images/backgrounds/weapon_menu.png";
+    }
+    graphLib.surfaceFromFile(filename, &ingame_menu_bg_img);
+
+    filename = FILEPATH + "/images/backgrounds/player_armor_pieces.png";
+    graphLib.surfaceFromFile(filename, &ingame_menu_player_armor_pieces);
+
+
 }
 
 void draw::show_gfx()
 {
-    //std::cout << "screen_gfx[" << (int)screen_gfx << "]" << std::endl;
     if (screen_gfx == SCREEN_GFX_RAIN) {
         show_rain();
     } else if (screen_gfx == SCREEN_GFX_SNOW) {
@@ -161,14 +179,13 @@ void draw::show_gfx()
         show_shadow_top_effect();
     } else if (screen_gfx == SCREEN_GFX_INFERNO) {
         show_inferno_effect();
-    } else if (screen_gfx != SCREEN_GFX_NONE) {
-        std::cout << "screen_gfx[" << (int)screen_gfx << "] UNKNOWN" << std::endl;
+    } else if (screen_gfx == SCREEN_GFX_WAVE && screen_gfx_mode == SCREEN_GFX_MODE_BACKGROUND) { // WAVE only works on background for now
+        show_wave_effect();
     }
 
     if (flash_effect_enabled == true || screen_gfx == SCREEN_GFX_FLASH) {
         show_flash();
     }
-    show_weapon_tooltip();
 }
 
 graphicsLib_gSurface *draw::get_input_surface(e_INPUT_IMAGES input)
@@ -236,7 +253,6 @@ void draw::show_rain()
             _rain_pos = 0;
         }
         _effect_timer = timer.getTimer() + RAIN_DELAY;
-        std::cout << "## DRAW::SHOW_RAIN::SET-EFFECT-TIMER: " << _effect_timer << std::endl;
     }
 }
 
@@ -266,21 +282,68 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
     st_position sprite_size;
     graphicsLib_gSurface bgCopy, boss_graphics;
 
+
+    // TODO: background
+    std::string bg_filename_str = std::string(GameMediator::get_instance()->get_enemy(boss_id)->bg_graphic_filename);
+    std::string bg_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename_str;
     std::string graph_filename = FILEPATH + "images/sprites/enemies/" + std::string(GameMediator::get_instance()->get_enemy(boss_id)->graphic_filename);
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "DRAW::show_boss_intro_sprites, id[%d], filename[%s]", boss_id, graph_filename.c_str());
-#endif
+    //std::cout << "### graph_filename[" << graph_filename << "], bg_filename[" << bg_filename << "]" << std::endl;
+
+    graphicsLib_gSurface bg_img;
+    int bg_x = 0;
+    int bg_y = 0;
+    int bg_w = 0;
+    int bg_h = 0;
+    int dest_x = 0;
+    int dest_y = 0;
+    bool show_bg = false;
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        //std::cout << "### HAS_BG" << std::endl;
+        show_bg = true;
+        graphLib.surfaceFromFile(bg_filename.c_str(), &bg_img);
+        // available space is 320x117
+        bg_x = (RES_W - bg_img.width) / 2;
+        bg_y = -(117 - bg_img.height) / 2;
+        bg_w = bg_img.width;
+        if (bg_w > RES_W) {
+            bg_w = RES_W;
+        }
+        bg_h = bg_img.height;
+        if (bg_h > 117) {
+            bg_h = 117;
+        }
+        dest_x = 0;
+        dest_y = 34;
+        if (bg_w < RES_W) {
+            dest_x = (RES_W-bg_w)/2;
+        }
+        if (bg_h < 117) {
+            dest_y = (117-bg_h)/2;
+        }
+
+        bg_x = 0;
+
+        //std::cout << "bg_x[" << bg_x << "], bg_y[" << bg_y << "], bg_w[" << bg_w << "], bg_h[" << bg_h << "], dest_x[" << dest_x << "], dest_y[" << dest_y << "]" << std::endl;
+        graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+
+
+    //} else {
+        //std::cout << "### NO_BG" << std::endl;
+    }
 
 
     sprite_size.x = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.width;
     sprite_size.y = GameMediator::get_instance()->get_enemy(boss_id)->frame_size.height;
 
-    //std::cout << ">>> sprite_size.x[" << sprite_size.x << "], sprite_size.y[" << sprite_size.y << "]" << std::endl;
-
     graphLib.surfaceFromFile(graph_filename.c_str(), &boss_graphics);
     int sprite_pos_y = BOSS_INTRO_BG_POS_Y-sprite_size.y/2;
     st_position boss_pos(RES_W/2-sprite_size.x/2, sprite_pos_y);
+
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        boss_pos.x -= 8;
+        //boss_pos.y = 160;
+    }
 
     graphLib.showSurface(&boss_intro_bg);
 
@@ -295,6 +358,9 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         while (boss_pos.y < sprite_pos_y) {
             boss_pos.y += 4;
             graphLib.showSurface(&boss_intro_bg);
+            if (show_bg) {
+                graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+            }
             graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
             graphLib.updateScreen();
             timer.delay(5);
@@ -305,13 +371,19 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         boss_pos.y = sprite_pos_y;
     }
 
+    if (bg_filename_str.length() > 0 && fio.file_exists(bg_filename)) {
+        boss_pos.y += 26;
+    }
+
 
     // show intro sprites
     if (intro_frames_n > 1) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
             if (GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].used == true) {
-                //std::cout << "i: " << i << ", used: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].used << ", duration: " << GameMediator::get_instance()->get_enemy(boss_id).sprites[ANIM_TYPE_INTRO][i].duration << std::endl;
                 graphLib.showSurface(&boss_intro_bg);
+                if (show_bg) {
+                    graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+                }
                 graphLib.copyArea(st_rectangle(sprite_size.x * GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i].sprite_graphic_pos_x, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
                 // only wait if not last frame
                 if (i<ANIM_FRAMES_COUNT-1 && GameMediator::get_instance()->get_enemy(boss_id)->sprites[ANIM_TYPE_INTRO][i+1].used) {
@@ -322,6 +394,9 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
         }
     } else { // just frow first sprite
         graphLib.showSurface(&boss_intro_bg);
+        if (show_bg) {
+            graphLib.showSurfaceRegionAt(&bg_img, st_rectangle(bg_x, bg_y, bg_w, bg_h), st_position(dest_x, dest_y));
+        }
         graphLib.copyArea(st_rectangle(0, 0, sprite_size.x, sprite_size.y), st_position(boss_pos.x, boss_pos.y), &boss_graphics, &graphLib.gameScreen);
         graphLib.updateScreen();
         timer.delay(200);
@@ -336,7 +411,7 @@ void draw::show_ready()
     graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
 
     for (int i=0; i<6; i++) {
-        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message, game_config.selected_language));
+        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message));
         update_screen();
         timer.delay(200);
         graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
@@ -368,7 +443,6 @@ void draw::show_teleport_small(int x, int y)
             teleport_small_frame++;
             teleport_small_frame_timer = timer.getTimer()+100;
         }
-        //std::cout << "timer[" << timer.getTimer() << "], frame.timer[" << teleport_small_frame_timer << "], frames[" << teleport_small_frame_count << "], current frame[" << teleport_small_frame << "]" << std::endl;
         if (teleport_small_frame >= teleport_small_frame_count) {
             teleport_small_frame = 0;
         }
@@ -379,9 +453,8 @@ void draw::show_teleport_small(int x, int y)
     }
 }
 
-int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text)
+int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text, bool show_new_characters_warning)
 {
-    int line_n=0;
     unsigned int scrolled = 0;
     int posY = RES_H;
     st_rectangle dest;
@@ -397,9 +470,6 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
     graphLib.blank_screen();
 
-
-    std::cout << "draw::show_credits_text::START" << std::endl;
-
     // add the initial lines to screen
     create_engine_credits_text();
 
@@ -410,11 +480,8 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
     update_screen();
 
     // scroll the lines
-    int limit = (credit_text.size()*12)+RES_H/2;
-    std::cout << "credit_text.size[" << credit_text.size() << "]" << std::endl;
+    unsigned int limit = (credit_text.size()*12)+RES_H/2;
     while (scrolled < limit) {
-
-        //std::cout << "scrolled[" << scrolled << "], limit[" << limit << "]" << std::endl;
 
         //@TODO: draw stars fields //
         graphLib.blank_screen();
@@ -430,30 +497,13 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
 
         // @TODO: calculate min and max to trestrain loop number
         for (unsigned int i=0; i<credit_text.size(); i++) {
-            int text_pos = posY+12*i;
-
-            if (text_pos >= -12 && text_pos <= RES_H+12) {
-                std::size_t found_title_blue = credit_text.at(i).find("- ");
-                std::size_t found_title_red = credit_text.at(i).find("# ");
-                if (credit_text.at(i)[0] == '@') { // section
-                    std::string text_out = credit_text.at(i);
-                    text_out = text_out.substr(1, text_out.length()-1);
-                    graphLib.draw_centered_text(text_pos, text_out, graphLib.gameScreen, st_color(102, 255, 181));
-                } else if (found_title_red != std::string::npos) { // main title
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(249, 98, 98));
-                } else if (found_title_blue != std::string::npos) { // sub-title
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
-                } else {
-                    graphLib.draw_centered_text(text_pos, credit_text.at(i));
-                }
-                //std::cout << "text_pos[" << i << "][" << text_pos << "]" << std::endl;
-            }
+            draw_credits_line(i, credit_text, posY);
         }
 
 
         if (can_leave) {
             input.read_input();
-            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_START] == 1) {
+            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_JUMP] == 1) {
                 return 1;
             }
         } else {
@@ -474,16 +524,82 @@ int draw::show_credits_text(bool can_leave, std::vector<std::string> credit_text
         }
         update_screen();
     }
+
+    // keep showing stars and text until user press a key
+    timer.delay(50);
+    input.clean();
+    if (can_leave == false) {
+        bool keep_running = true;
+        while (keep_running) {
+            graphLib.blank_screen();
+            graphLib.copyArea(st_position(0, bg1_pos), &bg1, &graphLib.gameScreen);
+            if (bg1_pos > 0) {
+                graphLib.copyArea(st_rectangle(0, RES_H-bg1_pos, RES_W, bg1_pos), st_position(0, 0), &bg1, &graphLib.gameScreen);
+            }
+            graphLib.copyArea(st_position(0, bg2_pos), &bg2, &graphLib.gameScreen);
+            if (bg2_pos > 0) {
+                graphLib.copyArea(st_rectangle(0, RES_H-bg2_pos, RES_W, bg2_pos), st_position(0, 0), &bg2, &graphLib.gameScreen);
+            }
+            bg1_pos += bg1_speed;
+            bg2_pos += bg2_speed;
+            if (bg1_pos >= RES_H) {
+                bg1_pos = 0;
+            }
+            if (bg2_pos >= RES_H) {
+                bg2_pos = 0;
+            }
+
+            draw_credits_line(credit_text.size()-2, credit_text, posY);
+            draw_credits_line(credit_text.size()-1, credit_text, posY);
+            if (show_new_characters_warning == true) {
+                graphLib.draw_centered_text(RES_H-34, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_AVAILABLE));
+            }
+            graphLib.draw_text(40, RES_H-22, strings_map::get_instance()->get_ingame_string(strings_ending_NEW_CHARACTERS_PRESS_TO_CONTINUE));
+            graphLib.showSurfaceAt(&input_images_map[INPUT_IMAGES_A], st_position(80, RES_H-24), false);
+
+            if (input.wait_scape_time(STARS_DELAY) == 1 || input.p1_input[BTN_JUMP] == 1) {
+                keep_running = false;
+                return 1;
+            }
+
+            update_screen();
+        }
+
+    }
+
     update_screen();
     return 0;
 }
 
-int draw::show_credits(bool can_leave)
+void draw::draw_credits_line(int i, std::vector<string> credit_text, int posY)
+{
+    int text_pos = posY+12*i;
+
+    if (text_pos >= -12 && text_pos <= RES_H+12) {
+        std::size_t found_title_blue = credit_text.at(i).find("- ");
+        std::size_t found_title_red = credit_text.at(i).find("# ");
+        if (credit_text.at(i)[0] == '@') { // section
+            std::string text_out = credit_text.at(i);
+            text_out = text_out.substr(1, text_out.length()-1);
+            graphLib.draw_centered_text(text_pos, text_out, graphLib.gameScreen, st_color(102, 255, 181));
+        } else if (found_title_red != std::string::npos) { // main title
+            graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(249, 98, 98));
+        } else if (found_title_blue != std::string::npos) { // sub-title
+            graphLib.draw_centered_text(text_pos, credit_text.at(i), graphLib.gameScreen, st_color(95, 151, 255));
+        } else {
+            graphLib.draw_centered_text(text_pos, credit_text.at(i));
+        }
+    }
+}
+
+int draw::show_credits(bool can_leave, bool show_new_characters_warning)
 {
     soundManager.stop_music();
     soundManager.load_music("rockbot_endcredits.mod");
     soundManager.play_music();
-    int res = show_credits_text(can_leave, create_engine_credits_text());
+
+    int res = show_credits_text(can_leave, create_engine_credits_text(), show_new_characters_warning);
+
     if (res == 1) {
         soundManager.stop_music();
         soundManager.load_music(game_data.game_start_screen_music_filename);
@@ -493,185 +609,55 @@ int draw::show_credits(bool can_leave)
     //graphLib.blank_screen();// should leave presented by on the screen
     graphLib.updateScreen();
     timer.delay(1000);
-    if (can_leave == false) {
-        graphLib.draw_centered_text(RES_H/2+16, "YOU HAVE UNLOCKED A SECRET.");
-        graphLib.draw_centered_text(RES_H/2+28, "SELECT NEW GAME TO PICK");
-        graphLib.draw_centered_text(RES_H/2+40, "A NEW AVAILABLE CHARACTER.");
+    input.clean();
+    timer.delay(100);
+    input.wait_keypress();
+    return 0;
+}
 
-        graphLib.draw_centered_text(RES_H/2+64, "PRESS A BUTTON TO CONTINUE.");
-        graphLib.updateScreen();
-    }
+void draw::show_about()
+{
+    // show informations about the gameproject
+    graphLib.clear_area(0, 0, RES_W, RES_H, 0, 0, 0);
+    graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(strings_about_site), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(22, "http://rockdot.upperland.net", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(60, strings_map::get_instance()->get_ingame_string(strings_about_bugs), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(72, "bugs@upperland.net", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(strings_about_twitter), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(122, "@RockbotGame", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(160, strings_map::get_instance()->get_ingame_string(strings_about_facebook), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+    graphLib.draw_centered_text(172, "facebook.com/rockbotgame", st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(strings_ingame_config_presstorestart), st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
+
+    graphLib.updateScreen();
+    timer.delay(1000);
+
     input.clean();
     timer.delay(100);
     input.wait_keypress();
 }
 
-void draw::show_unlocked_charsMsg()
-{
-
-}
 
 std::vector<string> draw::create_engine_credits_text()
 {
 
     CURRENT_FILE_FORMAT::fio_strings fio_str;
-    std::vector<string> credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
+    std::vector<string> credits_list;
+    credits_list = fio_str.get_string_list_from_file(FILEPATH + "/game_credits.txt");
 
     if (credits_list.size() > 0) {
         for (int i=0; i<6; i++) {
             credits_list.push_back("");
         }
     }
-
-    credits_list.push_back("- ROCKBOT/ENGINE CREDITS -");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- PLANNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- HELPER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- CHARACTER DESIGNER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("BOBERATU");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- OBJECT DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- GRAPHICS DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("BOBERATU");
-    credits_list.push_back("HFBN2");
-    credits_list.push_back("CAPT. CHRIS AND KB");
-    credits_list.push_back("SURT.OPENGAMEART");
-    credits_list.push_back("AVERAGE-HANZO.DEVIANTART");
-    credits_list.push_back("FUNKY96.DEVIANTART");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- DIALOGS EDITOR -");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- TEST PLAYER -");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- ILLUSTRATION DESIGNER -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- MUSIC COMPOSER -");
-    credits_list.push_back("MODARCHIVE.ORG");
-    credits_list.push_back("FIREAGE");
-    credits_list.push_back("SOLARIS");
-    credits_list.push_back("LEON/EXCESS");
-    credits_list.push_back("DIOMATIC");
-    credits_list.push_back("JASON");
-    credits_list.push_back("DEADLOCK/EXLSD");
-    credits_list.push_back("4MAT");
-    credits_list.push_back("ZANAZAC");
-    credits_list.push_back("AMEGA INDUSTRIESQ");
-    credits_list.push_back("DEATH ADDR");
-    credits_list.push_back("TOBBX");
-    credits_list.push_back("HYOCHAN");
-    credits_list.push_back("DR.BULLY/MAJIC12");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- SFX DESIGNER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-
-    credits_list.push_back("- PROGRAMMER -");
-    credits_list.push_back("IURI FIEDORUK");
-    credits_list.push_back("FARLEY KNIGHT");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- PORTING HELPER -");
-    credits_list.push_back("DINGUX: SHIN-NIL");
-    credits_list.push_back("PANDORA: SIGMA NL");
-    credits_list.push_back("PS2: RAGNAROK2040");
-    credits_list.push_back("PS2: WOON-YUNG LIU");
-    credits_list.push_back("PS2: SP193");
-    credits_list.push_back("ANDROID: PELYA");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- REVIEW & TESTING -");
-    credits_list.push_back("ARISMEIRE KUMMER SILVA FIEDORUK");
-    credits_list.push_back("NELSON ROSENBERG");
-    credits_list.push_back("ANDREW PRZELUCKI");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- SPECIAL THANKS -");
-    credits_list.push_back("FELIPE ZACANI (FPS)");
-    credits_list.push_back("FREE SDK DEVELOPERS");
-    credits_list.push_back("DEVIANTART.COM");
-    credits_list.push_back("PIXELJOINT.COM");
-    credits_list.push_back("OPENGAMEART.ORG");
-    credits_list.push_back("VENOM");
-    credits_list.push_back("JERONIMO");
-    credits_list.push_back("");
-    credits_list.push_back("");
-    credits_list.push_back("");
-
-    credits_list.push_back("- DEVELOPMENT TOOLS -");
-    credits_list.push_back("LIBSDL");
-    credits_list.push_back("DIGIA QT");
-    credits_list.push_back("GCC G+");
-    credits_list.push_back("UBUNTU LINUX");
-    credits_list.push_back("MINT LINUX");
-    credits_list.push_back("GIMP EDITOR");
-    credits_list.push_back("PAINT TOOL SAI");
-    credits_list.push_back("COREL DRAW");
-    credits_list.push_back("SIMPLE SCREEN RECORD");
-    credits_list.push_back("AUDACIOUS PLAYER");
-    credits_list.push_back("AUDACITY EDITOR");
-    credits_list.push_back("BFXR.NET");
-
-    for (int i=0; i<20; i++) {
-        credits_list.push_back("");
+    std::vector<string> credits_engine = fio_str.get_game_engine_credits();
+    for (unsigned int i=0; i<credits_engine.size(); i++) {
+        credits_list.push_back(credits_engine.at(i));
     }
-    credits_list.push_back("- PRESENTED BY -");
-    credits_list.push_back("UPPERLAND STUDIOS");
 
     return credits_list;
 }
@@ -680,15 +666,12 @@ std::vector<string> draw::create_engine_credits_text()
 void draw::draw_credit_line(graphicsLib_gSurface &surface, Uint8 initial_line,std::vector<std::string> credit_text)
 {
     if (initial_line < credit_text.size()) {
-        std::cout << "draw::draw_credit_line - text[" << credit_text.at(initial_line) << "]" << std::endl;
         std::size_t found = credit_text.at(initial_line).find("- ");
         if (found != std::string::npos) {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(95, 151, 255));
         } else {
             graphLib.draw_centered_text(RES_H, credit_text.at(initial_line), surface, st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
         }
-    } else {
-        std::cout << "ERROR draw_credit_line, initial_line[" << initial_line << "], credit_text.size()[" << credit_text.size() << "]" << std::endl;
     }
 }
 
@@ -778,7 +761,6 @@ void draw::fade_out_screen(int r, int g, int b, int total_delay)
     float delay = (total_delay / 25)-10;
 
     for (float i=0; i<=20; i++) {
-        //std::cout << "alpha_value[" << alpha_value << "], i[" << i << "], step[" << step << "]" << std::endl;
         graphLib.showSurface(&screen_copy);
         graphLib.set_surface_alpha((int)alpha_value, transparent_area);
         alpha_value += step;
@@ -834,7 +816,6 @@ void draw::pixelate_screen()
                             pointsCount++;
                         }
                     }
-                    //std::cout << "x[" << x << "], y[" << y << "], xx[" << (i+x) << "]" << std::endl;
                 }
                 if (pointsCount != 0) {
                     avR = avR/pointsCount; //divide all by the amount of samples taken to get an average
@@ -850,12 +831,10 @@ void draw::pixelate_screen()
 
             }
         }
-        //std::cout << "pixelationAmount[" << pixelationAmount << "]" << std::endl;
         graphLib.copyArea(st_position(0, 0), &res_surface, &graphLib.gameScreen);
         graphLib.updateScreen();
         timer.delay(20);
     }
-    std::cout << "END" << std::endl;
     res_surface.freeGraphic();
 
 }
@@ -877,9 +856,194 @@ void draw::show_weapon_tooltip()
         if (direction_value == ANIM_DIRECTION_LEFT) {
             adjust_x = 10;
         }
-        graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(_weapon_tooltip_pos_ref->x+adjust_x, _weapon_tooltip_pos_ref->y+adjust_y), true);
+        graphLib.draw_weapon_changed_tooltip(_weapon_tooltip_n);
+        //graphLib.draw_weapon_tooltip_icon(_weapon_tooltip_n, st_position(20, RES_H-60), true);
     }
 }
+
+void draw::draw_in_game_menu(graphicsLib_gSurface *character_sprite, short selected_weapon_n)
+{
+    graphLib.copyArea(st_rectangle(0, 0, ingame_menu_bg_img.width, ingame_menu_bg_img.height), st_position(0, 0), &ingame_menu_bg_img, &graphLib.gameScreen);
+
+    int config_text_pos_x = RES_W - 10 - (strings_map::get_instance()->get_ingame_string(strings_ingame_config).length()+4)*8;
+    graphLib.draw_text(20, 22, "GAME MENU");
+    graphLib.draw_text(config_text_pos_x, 22, strings_map::get_instance()->get_ingame_string(strings_ingame_config) + std::string(" [R]"));
+
+    draw_weapon_menu_weapon(selected_weapon_n);
+    weapon_menu_show_player(character_sprite);
+
+    graphLib.updateScreen();
+}
+
+void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int percent, int value)
+{
+    if (weapon_n >= WEAPON_ITEM_ETANK && weapon_n < WEAPON_COUNT && value == 0) {
+        return;
+    }
+
+    int row_n = weapon_n/WEAPON_MENU_COL_N;
+    int col_n = 0;
+    int adjusted_weapon_n = 0;
+    if (weapon_n != 0) {
+        adjusted_weapon_n = (weapon_n - row_n*WEAPON_MENU_COL_N);
+        col_n = adjusted_weapon_n;
+    }
+
+    int x = 25 + col_n*76;
+    int y = 60 + row_n*20;
+
+    graphLib.draw_small_weapon_icon_at(weapon_n, st_position(x-10, y+1), selected_weapon_n == weapon_n);
+
+    if (selected_weapon_n == weapon_n && weapon_n < WEAPON_ITEM_ETANK) {
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1);
+    }
+
+    if (weapon_n != WEAPON_DEFAULT && weapon_n >= WEAPON_ITEM_ETANK) {
+        //std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
+        char error_msg[10];
+        if (value < 10) {
+            sprintf(error_msg, "[0%d]", value);
+        } else {
+            sprintf(error_msg, "[%d]", value);
+        }
+        graphLib.draw_text(x, y+1, std::string(error_msg));
+        return;
+    }
+
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        st_color bar_color1 = st_color(100, 100, 100);
+        st_color bar_color2 = st_color(70, 70, 70);
+        if (selected_weapon_n == weapon_n) {
+            bar_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
+            bar_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+        }
+        //graphLib.clear_area(x, y, 51, 10, 230, 230, 230);
+        graphLib.clear_area(x+1, y+1, 49, 8, 0, 0, 0);
+        int bars_n = (24 * percent) / 100;
+        for (int i=0; i<bars_n; i++) {
+            int bar_pos_x = (x+2) + (i * 2);
+            graphLib.clear_area(bar_pos_x, y+1, 1, 8, bar_color1.r, bar_color1.g, bar_color1.b);
+            graphLib.clear_area(bar_pos_x, y+3, 1, 4, bar_color2.r, bar_color2.g, bar_color2.b);
+        }
+    } else {
+        // 5 balls, each have 4 possible stages
+        // so each slice of energy is 100 / (5*4) = 5%
+        for (int i=0; i<5; i++) {
+            // less than min1 means black ball
+            int min1 = ENERGY_BALL_PERCENT_SLICE*4*i + 5;     // 1/4
+            int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
+            int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
+            int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
+
+            int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
+
+            if (percent >= min4) {
+                img_origin_x = 0;
+            } else if (percent >= min3) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE;
+            } else if (percent >= min2) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE*2;
+            } else if (percent >= min1) {
+                img_origin_x = ENERGY_BALL_IMG_SIZE*3;
+            }
+
+            if (selected_weapon_n == weapon_n) {
+                graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_wpn_ball.height, hud_player_wpn_ball.height), st_position(x+i*10, y), &hud_player_wpn_ball, &graphLib.gameScreen);
+            } else {
+                graphLib.copyArea(st_rectangle(img_origin_x, 0, hp_ball_disabled.height, hp_ball_disabled.height), st_position(x+i*10, y), &hp_ball_disabled, &graphLib.gameScreen);
+            }
+        }
+    }
+}
+
+
+void draw::draw_weapon_menu_weapon(short selected_weapon_n)
+{
+    for (int i=0; i<WEAPON_COUNT; i++) {
+        int selected_weapon_value = game_save.items.weapons[i];
+        if (i < WEAPON_ITEM_ETANK) {
+            // draw weapon
+            hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[i].color1);
+            int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
+            //std::cout << "draw::draw_weapon_menu_weapon - wpn_percent[" << i << "][" << wpn_percent << "]" << std::endl;
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.weapons[i]);
+            }
+        } else if (i != WEAPON_DEFAULT && i >= WEAPON_ITEM_ETANK) {
+            hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, st_color(250, 250, 250));
+            int wpn_percent = 0;
+            if (i == WEAPON_ITEM_ETANK) {
+                wpn_percent = game_save.items.energy_tanks*10;
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.energy_tanks);
+            } else if (i == WEAPON_ITEM_WTANK) {
+                wpn_percent = game_save.items.weapon_tanks*10;
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.weapon_tanks);
+            } else if (i == WEAPON_ITEM_STANK) {
+                wpn_percent = game_save.items.special_tanks*10;
+                draw_game_menu_weapon_bar(selected_weapon_n, i, wpn_percent, game_save.items.special_tanks);
+            }
+
+        }
+    }
+
+    graphLib.draw_text(18, 214,  strings_map::get_instance()->get_ingame_string(strings_stage_select_select));
+    graphLib.draw_text(180, 214,  "OK");
+    graphLib.draw_text(220, 214,  strings_map::get_instance()->get_ingame_string(strings_ingame_leavestage));
+
+    graphLib.draw_text(104, 165,  strings_map::get_instance()->get_ingame_string(strings_weapon_selected)+std::string("/")+strings_map::get_instance()->get_ingame_string(strings_ingame_item)+std::string(":"));
+    graphLib.draw_text(104, 179,  get_selected_weapon_name(selected_weapon_n));
+
+}
+
+string draw::get_selected_weapon_name(int selected_weapon_n)
+{
+    std::string weapon_name = "";
+    if (selected_weapon_n < WEAPON_ITEM_COIL) {
+        weapon_name = std::string(game_data.weapons[selected_weapon_n].name);
+    }
+    if (selected_weapon_n == WEAPON_ITEM_COIL) {
+        //weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_COIL);
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name;
+    } else if (selected_weapon_n == WEAPON_ITEM_JET) {
+        //weapon_name = strings_map::get_instance()->get_ingame_string(strings_weapon_name_JET);
+        weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
+    } else if (selected_weapon_n == WEAPON_ITEM_ETANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (selected_weapon_n == WEAPON_ITEM_WTANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
+        weapon_name = std::string(crystal_msg);
+    } else if (selected_weapon_n == WEAPON_ITEM_STANK) {
+        char crystal_msg[50];
+        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
+        weapon_name = std::string(crystal_msg);
+    }
+    return weapon_name;
+}
+
+void draw::weapon_menu_show_player(graphicsLib_gSurface *character_sprite)
+{
+    graphLib.copyArea(st_position(6, 157), character_sprite, &graphLib.gameScreen);
+    char player_lifes[20];
+    sprintf(player_lifes, "x[%d]", game_save.items.lifes);
+    graphLib.draw_text(38, 178, player_lifes);
+
+    // show armor pieces
+    graphLib.copyArea(st_rectangle(0, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    if (game_save.armor_pieces[ARMOR_TYPE_ARMS]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_BODY]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W*2, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+    if (game_save.armor_pieces[ARMOR_TYPE_LEGS]) {
+        graphLib.copyArea(st_rectangle(ARMOR_PIECES_SPRITE_W*3, ARMOR_PIECES_SPRITE_H*game_save.selected_player, ARMOR_PIECES_SPRITE_W, ARMOR_PIECES_SPRITE_H), st_position(ARMOR_PIECES_SPRITE_POS_X, 157), &ingame_menu_player_armor_pieces, &graphLib.gameScreen);
+    }
+
+}
+
 
 st_float_position draw::get_radius_point(st_position center_point, int radius, float angle)
 {
@@ -906,8 +1070,6 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
 
     std::cout << "step_delay[" << step_delay << "]" << std::endl;
 
-    draw_castle_point(initial_point.x, initial_point.y);
-    draw_castle_point(final_point.x, final_point.y);
     graphLib.updateScreen();
 
     int pos_y = initial_point.y - 1;
@@ -915,7 +1077,7 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
 
     // first, move Y axis
     if (dist_y < 0) {
-        pos_y += castle_point.height + 1;
+        pos_y += 9;
     }
     std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
     if (dist_y != 0) {
@@ -982,10 +1144,6 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
 
 }
 
-void draw::draw_castle_point(int x, int y)
-{
-    graphLib.copyArea(st_position(x, y), &castle_point, &graphLib.gameScreen);
-}
 
 void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
 {
@@ -995,16 +1153,24 @@ void draw::draw_explosion(st_position center_point, int radius, int angle_inc)
     float angle_diff = 360 / points_n;
     int frame = 0;
 
-    std::cout << "DRAW::draw_explosion::START, angle_diff[" << angle_diff << "], center[" << center_point.x << "][" << center_point.y << "]" << std::endl;
-
     for (int j=0; j<points_n; j++) {
         float angle = (j*angle_diff)+angle_inc;
         float angle_rad = (angle * 3.14)/180;
         points[j] = get_radius_point(center_point, radius, angle_rad);
-        std::cout << "DRAW::draw_explosion - angle[" << angle_rad << "], point[" << j << "][" << points[j].x << "][" << points[j].y << "]" << std::endl;
         graphLib.copyArea(st_rectangle(frame*32, 0, 32, 32), st_position(points[j].x, points[j].y), graphLib.get_preloaded_image(PRELOADED_IMAGES_EXPLOSION_BUBBLE), &graphLib.gameScreen);
     }
     update_screen();
+}
+
+void draw::draw_player_death(st_position center_point, int frame_n)
+{
+    int frame_size = _death_animation.height;
+    graphLib.copyArea(st_rectangle(frame_n*frame_size, 0, frame_size, frame_size), st_position(center_point.x-frame_size/2, center_point.y-frame_size/2), &_death_animation, &graphLib.gameScreen);
+}
+
+int draw::get_death_animation_frames_n()
+{
+    return _death_animation_frames_n;
 }
 
 
@@ -1046,42 +1212,30 @@ void draw::set_dynamic_bg_alpha(string filename, int alpha)
 
 void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value)
 {
-    // lifes
-    /*
-    graphLib.copyArea(st_rectangle(game_save.selected_player*hud_player_1up.height, 0, hud_player_1up.height, hud_player_1up.height), st_position(6, 20), &hud_player_1up, &graphLib.gameScreen);
-    char lifes_text[125];
-    sprintf(lifes_text, "x0%d", game_save.items.lifes);
-    graphLib.draw_text(26, 24, std::string(lifes_text));
-    */
-
-
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        show_hud_vintage(hp, player_n, selected_weapon, selected_weapon_value);
+        return;
+    }
     // player HP
     int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
     draw_enery_ball(hp_percent, 3, hud_player_hp_ball);
-    /*
-    for (int i=0; i<5; i++) {
-        int min = 20*i;
-        int max2 = min+20;
-        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
-
-        int img_origin_x = 0;
-        if (hp_percent < min) {
-            img_origin_x = hud_player_hp_ball.height*2;
-        } else if (hp_percent < max2) {
-            img_origin_x = hud_player_hp_ball.height;
-        }
-
-        graphLib.copyArea(st_rectangle(img_origin_x, 0, hud_player_hp_ball.height, hud_player_hp_ball.height), st_position(30+10*i, 9), &hud_player_hp_ball, &graphLib.gameScreen);
-    }
-    */
 
 
-    if (selected_weapon != WEAPON_DEFAULT) {
+    if (selected_weapon != WEAPON_DEFAULT && selected_weapon < WEAPON_ITEM_ETANK) {
         // draw weapon
-
         hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
-        //std::cout << "selected_weapon_value[" << selected_weapon_value << "]" << std::endl;
+        draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
+    } else if (selected_weapon != WEAPON_DEFAULT && selected_weapon >= WEAPON_ITEM_ETANK) {
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, st_color(250, 250, 250));
+        int wpn_percent = 0;
+        if (selected_weapon == WEAPON_ITEM_ETANK) {
+            wpn_percent = game_save.items.energy_tanks*10;
+        } else if (selected_weapon == WEAPON_ITEM_WTANK) {
+            wpn_percent = game_save.items.weapon_tanks*10;
+        } else if (selected_weapon == WEAPON_ITEM_STANK) {
+            wpn_percent = game_save.items.special_tanks*10;
+        }
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     }
 
@@ -1089,11 +1243,42 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
         int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
-        graphLib.draw_text(RES_W-95, 10, "BOSS:");
+        int adjust_x = strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).length()*FONT_SIZE;
+        graphLib.draw_text(RES_W-55-4-adjust_x, 4, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
         draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
     }
-
 }
+
+void draw::show_hud_vintage(int hp, int player_n, int selected_weapon, int selected_weapon_value)
+{
+    // player HP
+    int hp_percent = (100 * hp) / fio.get_heart_pieces_number(game_save);
+    //draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
+    draw_energy_bar(hp, player_n, WEAPON_DEFAULT, fio.get_heart_pieces_number(game_save));
+    if (selected_weapon != WEAPON_DEFAULT) {
+        draw_energy_bar(selected_weapon_value, player_n, selected_weapon, fio.get_heart_pieces_number(game_save));
+    }
+
+    // boss HP
+    if (gameControl.must_show_boss_hp() && _boss_current_hp != -99) {
+        //int boss_hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        //graphLib.draw_text(RES_W-95, 10, strings_map::get_instance()->get_ingame_string(strings_stage_select_boss));
+        //draw_enery_ball(boss_hp_percent, RES_W-55, hud_boss_hp_ball);
+
+        int hp_percent = (100 * _boss_current_hp) / BOSS_INITIAL_HP;
+        int graph_lenght = (int)(hp_percent/2);
+
+
+        st_color color0(0, 0, 0); // black
+        st_color color1(100, 100, 100);
+        st_color color2(200, 200, 200);
+        st_position bar_pos(RES_W-15, 2);
+
+        int weapon_n_adjusted = _boss_current_hp;
+        draw_energy_bar_graph(bar_pos, color0, color1, color2, -1, graph_lenght);
+    }
+}
+
 
 void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surface)
 {
@@ -1105,11 +1290,8 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
         int min2 = ENERGY_BALL_PERCENT_SLICE*4*i + 10;    // 2/4
         int min3 = ENERGY_BALL_PERCENT_SLICE*4*i + 15;    // 3/4
         int min4 = ENERGY_BALL_PERCENT_SLICE*4*i + 20;    // full
-        //std::cout << "i[" << i << "], hp_percent[" << hp_percent << "], min[" << min << "], max1[" << max1 << "], max2[" << max2 << "]" << std::endl;
 
         int img_origin_x = ENERGY_BALL_IMG_SIZE*4;
-
-        //std::cout << "value[" << value << "], min1[" << min1 << "], min2[" << min2 << "], min3[" << min3 << "], min4[" << min4 << "]" << std::endl;
 
         if (value >= min4) {
             img_origin_x = 0;
@@ -1123,6 +1305,52 @@ void draw::draw_enery_ball(int value, int x_pos, graphicsLib_gSurface& ball_surf
 
         graphLib.copyArea(st_rectangle(img_origin_x, 0, ball_surface.height, ball_surface.height), st_position(x_pos+(10*i), 3), &ball_surface, &graphLib.gameScreen);
     }
+}
+
+
+void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_hp)
+{
+    int hp_percent = (100 * hp) / max_hp;
+    int graph_lenght = (int)(hp_percent/2);
+
+
+    st_color color0(0, 0, 0); // black
+    st_color color1(10, 10, 10);
+    st_color color2(10, 10, 10);
+    if (player_n != -1) {
+        st_color weapon_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
+        st_color weapon_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+        color1 = st_color(weapon_color1.r, weapon_color1.g, weapon_color1.b);    // player color or weapon color
+        color2 = st_color(weapon_color2.r, weapon_color2.g, weapon_color2.b);    // player color or weapon color
+    }
+
+    st_position bar_pos(1, 2);
+    if (player_n == -1) {
+        bar_pos.x = RES_W-15;
+    } else if (weapon_n != WEAPON_DEFAULT) {
+        bar_pos.x = 10;
+    }
+
+    int weapon_n_adjusted = weapon_n;
+    if (weapon_n == -1) {
+        weapon_n_adjusted = WEAPON_COUNT;
+    }
+    if (weapon_n <= WEAPON_ITEM_JET) {
+        draw_energy_bar_graph(bar_pos, color0, color1, color2, weapon_n_adjusted, graph_lenght);
+    }
+}
+
+void draw::draw_energy_bar_graph(st_position bar_pos, st_color color0, st_color color1, st_color color2, int weapon_n_adjusted, int graph_lenght)
+{
+    graphLib.draw_small_weapon_icon(weapon_n_adjusted, st_position(bar_pos.x, 54), true);
+    int y = bar_pos.y + 1 + (50 - graph_lenght);
+    graphLib.clear_area(bar_pos.x, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+    graphLib.clear_area(bar_pos.x+2, y, 5, graph_lenght, color2.r, color2.g, color2.b);
+    graphLib.clear_area(bar_pos.x+6, y, 2, graph_lenght, color1.r, color1.g, color1.b);
+    for (int i=1; i<graph_lenght; i+=2) {
+        graphLib.clear_area(bar_pos.x, y+i, 8, 1, color0.r, color0.g, color0.b);
+    }
+
 }
 
 void draw::set_boss_hp(int hp)
@@ -1145,24 +1373,13 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
 {
     // only add if not existing in map
     if (maps_dynamic_background_list.find(filename) == maps_dynamic_background_list.end()) {
-
-
-        //std::cout << "DRAW::add_dynamic_background::ADD[" << filename << "]" << std::endl;
-
         maps_dynamic_background_list.insert(std::pair<std::string,graphicsLib_gSurface>(filename, graphicsLib_gSurface()));
         std::string bg1_filename(FILEPATH+"images/map_backgrounds/" + filename);
-
-
         graphicsLib_gSurface temp_surface;
         graphLib.surfaceFromFile(bg1_filename, &temp_surface);
-
-        //std::cout << "MAP::add_bg[" << bg1_filename << "], w[" << (int)temp_surface.width << "], h[" << (int)temp_surface.height << "]" << std::endl;
-
-
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
         graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
         graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
-        //maps_dynamic_background_list.find(filename)->second
     }
 }
 
@@ -1188,9 +1405,6 @@ void draw::show_snow_effect()
     }
     std::vector<st_snow_particle>::iterator it;
 
-
-    //std::cout << "## DRAW::SHOW_SNOW - timer.getTimer(): " << timer.getTimer() << ", _effect_timer: " << _effect_timer << std::endl;
-
     if (timer.getTimer() > _effect_timer) {
 
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
@@ -1215,13 +1429,9 @@ void draw::show_snow_effect()
                 temp_particle->position.y = 0;
 
             }
-            //graphLib.clear_area(temp_particle->position.x, temp_particle->position.y, 3, 3, 230, 230, 255);
             graphLib.showSurfaceRegionAt(&snow_flacke, st_rectangle(0, 0, snow_flacke.width, snow_flacke.height), st_position(temp_particle->position.x, temp_particle->position.y));
         }
         _effect_timer = timer.getTimer() + SNOW_DELAY;
-
-        //std::cout << "## DRAW::SHOW_SNOW::SET-EFFECT-TIMER: " << _effect_timer << ", current timer: " << timer.getTimer() << std::endl;
-
     } else {
         for (it=_snow_particles.begin(); it!=_snow_particles.end(); it++) {
             st_snow_particle *temp_particle = &(*it);
@@ -1233,7 +1443,6 @@ void draw::show_snow_effect()
 void draw::show_train_effect()
 {
     if (_train_effect_timer == 0) {
-        std::cout << "TRAIN_EFFECT-RESET" << std::endl;
         _train_effect_timer = timer.getTimer() + TRAIN_DELAY;
         _train_effect_state = 0;
         if (_train_sfx == NULL) {
@@ -1295,7 +1504,6 @@ void draw::show_shadow_top_effect()
     int alpha_step = alpha/12;
     for (int i=0; i<max; i+=10) {
         graphLib.set_surface_alpha(alpha, &shadow_line);
-        //std::cout << "shadow.y[" << i << "], alpha[" << alpha << "]" << std::endl;
         graphLib.copyArea(st_rectangle(0, 0, shadow_line.width, shadow_line.height), st_position(0, i), &shadow_line, &graphLib.gameScreen);
         alpha -= alpha_step;
     }
@@ -1325,6 +1533,31 @@ void draw::show_inferno_effect()
 void draw::free_inferno_surface()
 {
     _inferno_surface.freeGraphic();
+}
+
+void draw::show_wave_effect()
+{
+    // varia de -2 a +2, a cada 8 pixels (8 partes)
+    // simplesmente mudar o que o valor do ponto inicial, e seguior daí
+    // tipo, onde começa a onde inteira (+ e -)
+    // sequencia = 0, 1, 2, 1, 0, 1, -2, 1
+    for (int j=0; j<4; j++) {
+        for (int i=0; i<8; i++) {
+            int pos_array = i + wave_effect_sin;
+            if (pos_array >= 8) {
+                pos_array -= 8;
+            }
+            int pos_adjust_x = wave_effect_array[pos_array];
+            graphLib.copyArea(st_rectangle(0, i*8+j*64, RES_W, 8), st_position(pos_adjust_x, i*8+j*64), &graphLib.gameScreen, &graphLib.gameScreen);
+        }
+    }
+    if (wave_effect_timer < timer.getTimer()) {
+        wave_effect_sin++;
+        wave_effect_timer = timer.getTimer() + 100;
+    }
+    if (wave_effect_sin >= 8) {
+        wave_effect_sin = 0;
+    }
 }
 
 

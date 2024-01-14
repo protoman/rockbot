@@ -187,7 +187,7 @@ void map_tab::on_mapListCombo_currentIndexChanged(int index)
 void map_tab::on_comboBox_currentIndexChanged(int index)
 {
     int value = 1;
-    if (index == 1) {
+    if (index > 0) {
         value = 3;
     }
     Mediator::get_instance()->layerLevel = value;
@@ -253,7 +253,6 @@ void map_tab::on_bg1_speed_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
-    std::cout << "#3 *** on_bg1_speed_valueChanged - setvalue: " << arg1 << ", bg1.speed: " << (int)Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed << std::endl;
     update_edit_area();
 }
 
@@ -563,7 +562,6 @@ void map_tab::on_fg_speed_doubleSpinBox_valueChanged(double arg1)
 {
     if (_data_loading == true) { return; }
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
-    std::cout << ">> on_FG_speed_valueChanged - setvalue: " << arg1 << ", FG.speed: " << (int)Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed << std::endl;
     update_edit_area();
 }
 
@@ -616,3 +614,10 @@ void map_tab::on_difficultyMode_pushButton_clicked()
 //        ui->difficultyMode_pushButton->setText("<=");
     }
 }
+
+void map_tab::on_FGScrollModeComboBox_currentIndexChanged(int index)
+{
+    if (_data_loading == true) { return; }
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll = index;
+}
+

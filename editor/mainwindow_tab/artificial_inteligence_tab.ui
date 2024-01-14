@@ -361,15 +361,19 @@
      <property name="bottomMargin">
       <number>10</number>
      </property>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Action</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
       <widget class="QLabel" name="label_18">
        <property name="text">
         <string>Extra Parameter</string>
        </property>
       </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="aiReactionAction_comboBox"/>
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label_19">
@@ -378,12 +382,14 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>Action</string>
-       </property>
-      </widget>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="reactionGotoNextComboBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="aiReactionAction_comboBox"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="aiReactionParam_comboBox"/>
      </item>
      <item row="1" column="0">
       <widget class="QComboBox" name="aiReactionType_comboBox">
@@ -414,13 +420,31 @@
        </item>
        <item>
         <property name="text">
-         <string>TBD</string>
+         <string>Player is on same X coord</string>
         </property>
        </item>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QComboBox" name="aiReactionParam_comboBox"/>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Next Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QSpinBox" name="reactionGotoDelaySpinBox">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>Next Action Delay</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

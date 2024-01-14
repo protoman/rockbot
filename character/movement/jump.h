@@ -1,7 +1,8 @@
 #ifndef JUMP_H
 #define JUMP_H
 
-#include "defines.h"
+#include "../../defines.h"
+#include "shareddata.h"
 
 enum E_JUMP_STATE {
     NOJUMP,
@@ -23,6 +24,7 @@ public:
     short get_jumps_number();
     void set_jump_acceleration(double value);
     void set_jump_limit(int value);
+    void set_speed_multiplier(float multi);
 
 
 private:
@@ -31,12 +33,14 @@ private:
     float speed;
     E_JUMP_STATE state;
     short jumps_number;               // how many consecutive jumps used (for double/triple jumping)
-    short moved;                        // this is used to hardcode the number of pixels a jump should move in maximum
+    float moved;                        // this is used to hardcode the number of pixels a jump should move in maximum
     bool is_bigjump;
     double JUMP_ACCELERATION;
-    int JUMP_LIMIT;
+    float JUMP_LIMIT;
     int start_terrain_type;
     bool start_big_jump;
+    double JUMP_INITIAL_SPEED;
+    float speed_multiplier = 1.0;
 };
 
 #endif // JUMP_H

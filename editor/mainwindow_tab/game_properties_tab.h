@@ -2,7 +2,6 @@
 #define GAME_PROPERTIES_TAB_H
 
 #include <QWidget>
-#include "castlepointsdialog.h"
 
 namespace Ui {
 class game_properties_tab;
@@ -53,8 +52,6 @@ private slots:
 
     void on_finalBoss_comboBox_currentIndexChanged(int index);
 
-    void on_editMap_pushButton_clicked();
-
 private:
     void fill_data();
     
@@ -62,7 +59,6 @@ private:
     Ui::game_properties_tab *ui;
     bool _data_loading;
     int _current_stage;
-    CastlePointsDialog* castlePointsDialog;
 };
 
 #endif // GAME_PROPERTIES_TAB_H

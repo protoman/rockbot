@@ -36,18 +36,19 @@ public:
     void reset_scrolling();
     void move_map(const short int move_x, const short int move_y);
     void reload_stage(); // reload maps npc and object list
-    void print_map_objects_number(); // for debugging
     void reset_current_map();
     void reset_current_map_objects();
     void reset_stage_objects();
     void redraw_boss_door(bool is_close, int nTiles, int tileX, int tileY, short player_number);
     void move_npcs();
     void show_npcs();
+    void show_ghost_npcs();
     void show_npcs_to_left(int x);
     void move_objects(bool paused=false);
     void show_objects(int adjust=0);
     void show_above_objects(int adjust=0);
     bool boss_hit_ground(classnpc *npc_ref);
+    bool boss_show_intro_sprites(classnpc *npc_ref);
     classnpc* get_near_boss();
     void reset_stage_maps();
     void reset_stage_npcs();

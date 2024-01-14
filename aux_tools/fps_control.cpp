@@ -1,19 +1,17 @@
 #include "fps_control.h"
 
-#include <iostream>
+#include <algorithm>    // std::find
 
-
-
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
 
 fps_control::fps_control() : fps_timer(0)
 {
-    fps_max = DEFAULT_FPS_MAX;
+    fps_max = SharedData::get_instance()->get_max_fps();
     fps_counter = 0;
     fps_min_fail_count = 0;
     failed_min_fps = false;
@@ -25,12 +23,6 @@ void fps_control::initialize()
     max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
     frame_count = 0;
     last_second_ticks = timer.getTimer();
-    /*
-    fps_max = max;
-    float percent = (100 * fps_max) / DEFAULT_FPS_MAX;
-    std::cout << "FPS_CONTROL.set_max_fps[" << max << "], percent[" << percent << "]" << std::endl;
-    max_frame_ticks = (1000.0/(float)fps_max)+0.00001;
-    */
 }
 
 bool fps_control::limit()
@@ -41,7 +33,6 @@ bool fps_control::limit()
     ++frame_count;
     target_ticks = last_second_ticks + static_cast<unsigned int>(frame_count * max_frame_ticks);
     current_ticks = timer.getTimer();
-    //std::cout << "fps_control::limit::timer.ticks[" << timer.getTimer() << "], sdl.ticks[" << current_ticks << "]" << std::endl;
 
     average_ticks += current_ticks - last_frame_ticks;
     if (current_ticks - last_frame_ticks <= min_ticks)
@@ -93,9 +84,8 @@ void fps_control::fps_count()
     fps_counter++;
     if (fps_timer <= timer.getTimer()) {
         sprintf(_fps_buffer, "FPS: %d", fps_counter);
-        if (fps_counter <= DEFAULT_FPS_MAX-4) {
-            frame_drop_period = DEFAULT_FPS_MAX/(DEFAULT_FPS_MAX-fps_counter);
-            //std::cout << "frame_drop_period[" << frame_drop_period << "], fps_counter[" << fps_counter << "]" << std::endl;
+        if (fps_counter <= fps_timer-4) {
+            frame_drop_period = fps_timer/(fps_timer-fps_counter);
         } else {
             frame_drop_period = 0;
         }
@@ -103,6 +93,7 @@ void fps_control::fps_count()
         fps_timer = timer.getTimer()+1000;
     }
     if (fps_counter > 1) {
+        /*
         if (fps_counter <= FPS_MINIMAL_LIMIT) {
             fps_min_fail_count++;
         } else {
@@ -111,6 +102,7 @@ void fps_control::fps_count()
         if (fps_min_fail_count >= FPS_MINIMAL_MAX_FAIL) {
             failed_min_fps = true;
         }
+        */
         std::string temp_str(_fps_buffer);
         graphLib.draw_text(12, 2, temp_str);
     }
@@ -137,5 +129,40 @@ bool fps_control::get_failed_min_fps()
 void fps_control::reset_failed_min_fps()
 {
     failed_min_fps = false;
+}
+
+void fps_control::set_frameskip(int skip_n)
+{
+    frameskip_list.clear();
+    if (skip_n == 1) {
+        frameskip_list.push_back(1);
+    } else if (skip_n == 2) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(6);
+    } else if (skip_n == 3) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(4);
+        frameskip_list.push_back(7);
+    } else if (skip_n == 4) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(3);
+        frameskip_list.push_back(6);
+        frameskip_list.push_back(9);
+    } else if (skip_n == 5) {
+        frameskip_list.push_back(1);
+        frameskip_list.push_back(3);
+        frameskip_list.push_back(5);
+        frameskip_list.push_back(7);
+        frameskip_list.push_back(9);
+    }
+}
+
+bool fps_control::must_skip_frame()
+{
+    int frame_unit_part = frame_count % 10;
+    if (std::find(frameskip_list.begin(), frameskip_list.end(), frame_unit_part) != frameskip_list.end()) {
+        return true;
+    }
+    return false;
 }
 

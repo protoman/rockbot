@@ -46,21 +46,13 @@ public:
 	void fillNpcList();
 	void fillObjList();
 	void fillStageList();
-
     void show_critial_error(QString error);
-
-
-
 
 
 private:
 	void fill_NPC_edit_tab();
 	void fill_background_list();
     void copy_path(QString src, QString dst);
-
-
-
-
 
 public slots:
     void reload();
@@ -73,12 +65,8 @@ public slots:
 	void on_spinBox_valueChanged(int );
 	void on_listWidget_2_currentRowChanged(int currentRow);
 	void on_toolBox_currentChanged(int index);
-    void on_actionThree_triggered();
-    void on_actionTwo_triggered();
-    void on_actionOne_triggered();
     void on_editNPCButton_clicked();
     void on_listWidget_currentRowChanged(int currentRow);
-    void on_comboBox_currentIndexChanged(int index);
     void on_MainWindow_iconSizeChanged(QSize iconSize);
     void on_actionNew_triggered();
     void on_pallete_signalPalleteChanged();
@@ -124,8 +112,6 @@ public slots:
 
     void on_players_tab_hasshield_toggled(bool checked);
 
-    void on_players_tab_hp_valueChanged(int arg1);
-
     void on_players_tab_name_textChanged(const QString &arg1);
 
     void on_chargedshot_combo_currentIndexChanged(int index);
@@ -149,6 +135,7 @@ public slots:
     void on_scenes_editor_window_closed();
 
 
+
 private slots:
     void on_actionMovie_Editor_triggered();
 
@@ -165,6 +152,19 @@ private slots:
 
 
     void on_actionGRID_toggled(bool arg1);
+
+    void on_actionRun_Stage_2_triggered();
+
+    void on_actionDark_triggered();
+
+    void on_actionDefault_triggered();
+
+    void on_swap_stages_window_closed();
+
+
+    void on_actionShowTileset_toggled(bool arg1);
+
+    void on_actionShow_Rects_toggled(bool arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -190,6 +190,8 @@ private:
     AboutWindow* about_window;
     FilesEditor* files_editor_window;
     StringsEditor* strings_editor_window;
+
+    QProcess process;
 };
 
 

@@ -4,6 +4,7 @@
 #include "character.h"
 #include <cmath>
 
+#define LONG_JUMP_DIST 7
 
 /**
  * @brief AI sub-state, indicates if the current state is starting (must set initial values), executing or finishing (must set next step and set values)
@@ -122,17 +123,15 @@ protected:
      * @brief
      */
     void ia_action_jump_to_player();
-
     void ia_action_jump_to_point(st_position point);
-
     void ia_action_jump_to_random();
-
     void ia_action_jump_ahead();
-
-
+    void ia_action_jump_long_ahead();
+    int calc_jump_pos_x(int distance);
     void ia_action_jump_once();
-
     void ia_action_jump_up();
+    void ia_action_jump_teleport_in();
+    void ia_action_jump_teleport_out();
 
     /**
      * @brief
@@ -190,55 +189,26 @@ protected:
      * @brief
      */
     void execute_ai_step_jump_to_wall();
-
-
     void execute_ai_replace_itself(bool morph);
-
     void execute_ai_step_spawn_npc();
-
     void execute_ai_circle_player();
-
     void ia_action_teleport();
-
     void check_ai_reaction();
-
     void define_ai_next_step();
-
     void execute_ai_step();
-
     void execute_ai_step_walk();
-
-    /**
-     * @brief
-     */
     void execute_ai_action_wait_until_player_in_range();
-
-    /**
-     * @brief
-     * @param n
-     * @param invert_direction
-     */
     void execute_ai_action_trow_projectile(Uint8 n, bool invert_direction);
-
     bool throw_projectile(int projectile_type, bool invert_direction);
-
-    /**
-     * @brief
-     */
+    void throw_direction_projectile(int direction);
     void execute_ai_step_fly();
-
     void execute_ai_save_point();
-
-    /**
-     * @brief
-     */
     void execute_ai_step_dash();
-
     void execute_ai_step_change_animation_type();
-
     void execute_ai_step_change_animation_type_reverse();
-
     void execute_ai_wait_random_time();
+    void execute_ai_wall_walk();
+    void execute_ai_step_jump();
 
     /**
      * @brief moves to a point, returns true when point was reached or can't reach the target
@@ -248,31 +218,23 @@ protected:
      * @param can_pass_walls the NPC can cross walls like a ghost or not
      * @return bool true -> point reached
      */
-    bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
-
-    can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls);
-
-
+    bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
+    can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
+    bool check_moving_along_wall(int xinc, int yinc);
     void randomize_x_point(int max_adjust);
-
     int create_rand_x_point(int max_range);
     int create_rand_y_point(int max_range);
     st_position create_rand_point(int max_range);
-
-    void execute_ai_step_jump();
-
     int find_wall(float initial_x, int direction);
-
     int get_ai_type();
-
     bool always_move_ahead() const; // indicates if this NPC will always go on in AI
-
     bool uses_fly_fall(); // uses to respawn it inside holes
-
     void invert_left_right_direction();
-
-
-
+    void adjust_position_opposite_wall();
+    void execute_play_sfx();
+    void execute_shot_multiple_projectile();
+    void execute_explode_itself();
+    void execute_throw_item();
 
 protected:
     st_size distance; /**< TODO */
@@ -289,18 +251,20 @@ protected:
 
 
 	// "external" members
-    static std::vector<character*> *player_list;					// reference to the players list /**< TODO */
-    unsigned int _ai_timer;										// used to not execute AI before a while /**< TODO */
-    short _ai_chain_n;							// indicates witch one of the four AI actions is the NPC on /**< TODO */
-    short _ghost_move_speed_reducer;           // some NPCs walk slowly when throught walls
-    struct st_position start_point; /**< TODO */
+    static std::vector<character*> *player_list;        // reference to the players list /**< TODO */
+    unsigned int _ai_timer;                             // used to not execute AI before a while /**< TODO */
+    double started_action_timer = 0;
+    short _ai_chain_n;                                  // indicates witch one of the four AI actions is the NPC on /**< TODO */
+    short _ghost_move_speed_reducer;                    // some NPCs walk slowly when throught walls
+    struct st_position start_point;
     unsigned int _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
 
     trajectory_parabola *_trajectory_parabola;          // used for jumping to a specific point
     bool _did_shot;                                         // used to avoid shooting multiple times
+    double shot_timer = 0;                              // used to check if we need to keep the enemy in animation for a given period
     st_float_position _diagonal_speed;
     float _sin_x;                                       // used for sinoidal movement
-    int _reaction_state;                                // used to control reaction so it won't execute two times or over an executing state
+    int _reaction_state = 0;                                // used to control reaction so it won't execute two times or over an executing state
                                                         // 0 - waiting, 1 - executing
     int _reaction_type;                                 // 1: near, 2: hit, 3: dead
     int _parameter;                                     // stores the extra-parameter
@@ -315,6 +279,17 @@ protected:
     int radius;
     short int jump_attack_type;                               // used by jump attack to store attack-type, if any. otherwise, it is set as -1
     bool did_hit_player;                                 // when player collides with this enemy, it will set this flag as on, so the enemy knows it
+    bool is_shooter = false;
+    double shooter_timer = 0;
+    short shoot_direction = ANIM_DIRECTION_LEFT;
+    bool shot_success = false;
+
+    unsigned long execution_timer = 0;                  // used to timeout an operation if the enemy got stuck into something
+    unsigned int move_to_point_tries = 0;               // used to check if an enemy can't move to a point several times to interrupt AI
+    bool move_blocked_y_axis = false;
+    bool move_blocked_x_axis = false;
+    std::vector<int> reaction_loop_check;
+    int first_unlocked_from_bottom = RES_H/2;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

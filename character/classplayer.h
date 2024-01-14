@@ -1,8 +1,10 @@
 #ifndef CLASSPLAYER_H
 #define CLASSPLAYER_H
 
-#include "character/character.h"
-#include "character/classnpc.h"
+#include "character.h"
+#include "classnpc.h"
+
+#define JUMP_LOCK_DURATION 1000
 
 class classnpc; // advance declaration
 
@@ -38,6 +40,7 @@ public:
      * @brief move the projectiles created by this player and damage any npcs that are in it's way
      */
     void execute_projectiles();
+    bool object_is_affected_by_projectile(object* temp_obj, projectile& projectile);
 
     /**
      * @brief this is used when player enters a boss-teleport that teleport the player back to it's origin point
@@ -60,7 +63,7 @@ public:
      * @brief change the weapon player is using
      * @param weapon_n id of the weapon to be set
      */
-    void set_weapon(short weapon_n, bool show_tooltip_icon);
+    void set_weapon(int weapon_n, bool show_tooltip_icon);
 
     /**
      * @brief get the number of energy a given weapon still has (the number decreases as the weapon is used)
@@ -126,11 +129,6 @@ public:
     void damage(unsigned int damage_points, bool ignore_hit_timer);
 
     void damage_spikes(bool ignore_hit_timer);
-
-    /**
-     * @brief changes the colormap of stored frames surfaces for the current weapon color
-     * @param full_change indicates if must update all (true) or only current (false) frame
-     */
     void change_player_color(bool full_change);
 
     // to be used when game is paused
@@ -139,35 +137,15 @@ public:
 
     Uint8 get_max_hp();
 
+    void block_jump();
+
 
 private:
-    /**
-     * @brief called by execute() method, moves player depending on input
-     */
     void move();
-
-    /**
-     * @brief virtual from character, execute actions when player dies (reset map, explosion, etc)
-     */
     void death();
-
-
-    /**
-     * @brief load from game_data into class properties. @TODO: this should be replaced by using game_data directly if possible
-     */
+    void reset_lifes();
     void init_weapon_colors();
-
-    /**
-     * @brief called when player collides with an object. execute the object (like giving more HP) or storer it in player's possessions
-     * @param obj_info information about the object that player collided
-     * @return bool in case object is not executable or storable (like a platform), returns false
-     */
     bool get_item(object_collision& obj_info);
-
-
-    /**
-     * @brief execute an attack, including weapon usage
-     */
     void attack(bool dont_update_colors = false);
 
     /**
@@ -211,7 +189,7 @@ private:
 
     bool have_shoryuken();
 
-    bool shoryuken();
+    bool shouryuken();
 
     void consume_weapon(int value);
 
@@ -219,7 +197,7 @@ private:
 
 private:
     int teleporter_n; /**< current teleporter being used, -1 if none */
-    short selected_weapon; /**< current selected weapon */
+    int selected_weapon; /**< current selected weapon */
     CURRENT_FILE_FORMAT::file_weapon_colors weapon_colors[MAX_WEAPON_N]; /**< TODO */
     bool l_key_released; /**< avoid changing weapon continuously if L key is held */
     bool r_key_released;            // < avoid changing weapon continuously if R key is held

@@ -10,7 +10,7 @@ artificial_inteligence_tab::artificial_inteligence_tab(QWidget *parent) :
 {
     ui->setupUi(this);
     fill_next_combos();
-    fill_data(0);
+    fill_data(Mediator::get_instance()->current_ai);
 }
 
 
@@ -24,7 +24,7 @@ void artificial_inteligence_tab::reload()
 {
     _filling_data = true;
     fill_next_combos();
-    fill_data(0);
+    fill_data(Mediator::get_instance()->current_ai);
     _filling_data = false;
 }
 
@@ -39,7 +39,7 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 
     // if no such AI exists in list yet, create it
     if (Mediator::get_instance()->enemy_list.size() > Mediator::get_instance()->ai_list.size()) {
-        for (int i=Mediator::get_instance()->ai_list.size(); i<Mediator::get_instance()->enemy_list.size(); i++) {
+        for (unsigned int i=Mediator::get_instance()->ai_list.size(); i<Mediator::get_instance()->enemy_list.size(); i++) {
             Mediator::get_instance()->ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
         }
     }
@@ -68,11 +68,13 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 
 
     // REACTIONS //
+    ui->aiReactionType_comboBox->setCurrentIndex(0);
     int action_n = Mediator::get_instance()->ai_list.at(index).reactions[0].action;
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
-    std::cout << ">> #1 action_n[" << action_n << "]" << std::endl;
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).reactions[0].extra_parameter);
+    ui->reactionGotoNextComboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).reactions[0].go_to);
+    ui->reactionGotoDelaySpinBox->setValue(Mediator::get_instance()->ai_list.at(index).reactions[0].go_to_delay);
 
 	// OPTIONS
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[0].action, ui->parameter1);
@@ -85,7 +87,6 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
     common::fill_ai_options_combo(Mediator::get_instance()->ai_list.at(index).states[7].action, ui->parameter8);
 
     ui->parameter1->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[0].extra_parameter);
-    //std::cout << "#0 - AI[" << index << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
     ui->parameter2->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[1].extra_parameter);
     ui->parameter3->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[2].extra_parameter);
     ui->parameter4->setCurrentIndex(Mediator::get_instance()->ai_list.at(index).states[3].extra_parameter);
@@ -120,7 +121,10 @@ void artificial_inteligence_tab::on_ai_selector_currentIndexChanged(int index)
 void artificial_inteligence_tab::fill_data(int index)
 {
 	// ai selector
+
     common::fill_npc_combo(ui->ai_selector);
+    ui->ai_selector->setCurrentIndex(index);
+    ui->aiReactionType_comboBox->setCurrentIndex(0);
 
 	// actions
 	common::fill_ai_actions_combo(ui->action1);
@@ -139,9 +143,6 @@ void artificial_inteligence_tab::fill_data(int index)
 
 void artificial_inteligence_tab::change_action(int index, int action_n)
 {
-
-    std::cout << "AI::change_action - index: " << index << ", action_n: " << action_n << std::endl;
-
     _filling_data = true;
 
     if (index >= 0) {
@@ -149,8 +150,6 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
         Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[index].extra_parameter = 0;
     // -1: near-player, -2: hit, -3: dead
     }
-
-    std::cout << "### AI::change_action #2 ###" << std::endl;
 
     if (index == 0) {
         common::fill_ai_options_combo(action_n, ui->parameter1);
@@ -172,7 +171,6 @@ void artificial_inteligence_tab::change_action(int index, int action_n)
 
     _filling_data = false;
 
-    std::cout << "### AI::change_action #3 ###" << std::endl;
 }
 
 
@@ -316,13 +314,10 @@ void artificial_inteligence_tab::on_parameter1_currentIndexChanged(int index)
 
 void artificial_inteligence_tab::on_parameter2_currentIndexChanged(int index)
 {
-    //std::cout << "AI::on_parameter2_currentIndexChanged - _filling_data: " << _filling_data << std::endl;
 	if (_filling_data == true) {
 		return;
 	}
-    //std::cout << "#1 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
     Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter = index;
-    //std::cout << "#2 - AI[" << Mediator::get_instance()->current_ai << "].states[1].extra_parameter: " << Mediator::get_instance()->ai_list.at(Mediator::get_instance()->current_ai).states[1].extra_parameter << std::endl;
 
 }
 
@@ -527,6 +522,7 @@ void artificial_inteligence_tab::fill_next_combos()
     fill_next_combo(ui->next6);
     fill_next_combo(ui->next7);
     fill_next_combo(ui->next8);
+    fill_next_combo(ui->reactionGotoNextComboBox);
 }
 
 void artificial_inteligence_tab::fill_next_combo(QComboBox *combo)
@@ -542,7 +538,7 @@ void artificial_inteligence_tab::fill_next_combo(QComboBox *combo)
     list.push_back("#6");
     list.push_back("#7");
     list.push_back("#8");
-    for (int i=0; i<list.size(); i++) {
+    for (unsigned int i=0; i<list.size(); i++) {
         std::string temp = list[i];
         QString temp_str = QString("[") + QString::number(i) + QString("] - ") + QString(temp.c_str());
         combo->addItem(temp_str);
@@ -559,6 +555,7 @@ void artificial_inteligence_tab::on_aiReactionAction_comboBox_currentIndexChange
     }
 
     _filling_data = true;
+    std::cout << "reaction current index #1 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
     Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].action = index-1; // less one because of "none"
     common::fill_ai_options_combo(index-1, ui->aiReactionParam_comboBox);
 
@@ -570,6 +567,7 @@ void artificial_inteligence_tab::on_aiReactionParam_comboBox_currentIndexChanged
     if (_filling_data == true) {
         return;
     }
+    std::cout << "reaction current index #2 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
     Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].extra_parameter = index;
 }
 
@@ -578,12 +576,33 @@ void artificial_inteligence_tab::on_aiReactionType_comboBox_currentIndexChanged(
     if (_filling_data == true) {
         return;
     }
+    std::cout << "reaction current index #3 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
 
     _filling_data = true;
     int action_n = Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].action;
     ui->aiReactionAction_comboBox->setCurrentIndex(action_n+1); // plus 1 because of "none"
-    std::cout << ">> #2 action_n[" << action_n << "]" << std::endl;
     common::fill_ai_options_combo(action_n, ui->aiReactionParam_comboBox); // plus one because of "none" option
     ui->aiReactionParam_comboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].extra_parameter);
+    ui->reactionGotoNextComboBox->setCurrentIndex(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].go_to);
+    ui->reactionGotoDelaySpinBox->setValue(Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].go_to_delay);
+
     _filling_data = false;
 }
+
+void artificial_inteligence_tab::on_reactionGotoNextComboBox_currentIndexChanged(int index)
+{
+    if (_filling_data == true) {
+        return;
+    }
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].go_to = index;
+}
+
+
+void artificial_inteligence_tab::on_reactionGotoDelaySpinBox_valueChanged(int arg1)
+{
+    if (_filling_data == true) {
+        return;
+    }
+    Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].go_to_delay = arg1;
+}
+

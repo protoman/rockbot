@@ -7,7 +7,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "defines.h"
+#include "../../defines.h"
 
 /**
  * @brief
@@ -59,10 +59,6 @@ struct st_position {
 
 
 
-/**
- * @brief
- *
- */
 struct st_float_position {
     float x;
     float y;
@@ -70,34 +66,19 @@ struct st_float_position {
         x = 0.0;
         y = 0.0;
     }
-/**
- * @brief
- *
- * @param setX
- * @param setY
- */
-    st_float_position (float setX, float setY) {
+
+    st_float_position(float setX, float setY) {
         x = setX;
         y = setY;
     }
-    /**
-     * @brief
-     *
-     * @param set_pt
-     * @return st_position &operator
-     */
+
     st_float_position& operator=(const st_position &set_pt)
     {
         x = set_pt.x;
         y = set_pt.y;
         return *this;
     }
-    /**
-     * @brief
-     *
-     * @param comp_pt
-     * @return bool operator
-     */
+
     bool operator==(const st_position &comp_pt) const
     {
         if (x == comp_pt.x && y == comp_pt.y) {
@@ -105,24 +86,14 @@ struct st_float_position {
         }
         return false;
     }
-    /**
-     * @brief
-     *
-     * @param set_pt
-     * @return st_position &operator
-     */
+
     st_float_position& operator=(const st_float_position &set_pt)
     {
         x = set_pt.x;
         y = set_pt.y;
         return *this;
     }
-    /**
-     * @brief
-     *
-     * @param comp_pt
-     * @return bool operator
-     */
+
     bool operator==(const st_float_position &comp_pt) const
     {
         if (x == comp_pt.x && y == comp_pt.y) {
@@ -157,6 +128,27 @@ struct st_size {
 	}
 };
 
+
+struct st_float_size {
+    float width;
+    float height;
+    st_float_size()
+    {
+        width = 0;
+        height = 0;
+    }
+/**
+ * @brief
+ *
+ * @param w
+ * @param h
+ */
+    st_float_size(float w, float h)
+    {
+        width = w;
+        height = h;
+    }
+};
 
 /**
  * @brief
@@ -196,7 +188,7 @@ struct st_rectangle {
     }
     bool operator!=(const st_rectangle &comp_pt) const
     {
-        if (x != comp_pt.x || y != comp_pt.y || w != comp_pt.w && h != comp_pt.h) {
+        if (x != comp_pt.x || y != comp_pt.y || (w != comp_pt.w && h != comp_pt.h)) {
             return true;
         }
         return false;
@@ -251,20 +243,10 @@ struct graphicsLib_gSurface {
         st_color get_point_color(int x, int y) {
             Uint32 pixel = this->get_pixel(x, y);
             SDL_Color px_color = get_pixel_color(pixel);
-            /*
-            if (pixel != 0) {
-                std::cout << "pixel[" << pixel << "]: [" << (int)px_color.r << "][" << (int)px_color.g << "][" << (int)px_color.b << "]" << std::endl;
-            }
-            */
             return st_color((int)px_color.r, (int)px_color.g, (int)px_color.b);
         }
 
         void set_point_color(int set_x, int set_y, int set_r, int set_g, int set_b) {
-            /*
-            if (set_r != 0 && set_g != 0 && set_b != 0) {
-                std::cout << "set_point_color[" << set_x << "][" << set_y << "]: [" << set_r << "][" << set_g << "][" << set_b << "]" << std::endl;
-            }
-            */
             if (gSurface == NULL || gSurface->format == NULL) {
                 return;
             }
@@ -294,10 +276,12 @@ struct graphicsLib_gSurface {
             show_debug = false;
             is_rle_enabled = false;
         }
+
         // copy CONSTRUCTOR
         graphicsLib_gSurface(const graphicsLib_gSurface &original)
         {
-            if (original.gSurface == NULL) {
+
+            if (original.width == 0 || original.height == 0) {
                 gSurface = NULL;
                 width = 0;
                 height = 0;
@@ -330,7 +314,7 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
-            if (original.gSurface == NULL) {
+            if (original.width == 0 || original.height == 0) {
                 gSurface = NULL;
                 width = 0;
                 height = 0;
@@ -357,6 +341,7 @@ struct graphicsLib_gSurface {
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
+            return *this;
         }
 
         ~graphicsLib_gSurface()
@@ -385,30 +370,11 @@ struct graphicsLib_gSurface {
         std::vector<st_position> get_color_points(int r, int g, int b) {
             std::vector<st_position> res;
 
-            /*
-            if (show_debug) {
-                std::cout << ">>>>>> get_color_points::START <<<<<<" << std::endl;
-            }
-            */
-
             for (int tolerance=0; tolerance<=6; tolerance++) {
                 for (Sint16 y=0; y<gSurface->h; y++) {
                     for (Sint16 x=0; x<gSurface->w; x++) {
                         Uint32 pixel = get_pixel(x, y);
                         SDL_Color pixel_color = get_pixel_color(pixel);
-
-
-                        //std::cout << "r[" << (int)r << "], point.r[" << (int)pixel_color.r << ", g[" << (int)g << "], point.g[" << (int)pixel_color.g << ", b[" << (int)b << "], point.b[" << (int)pixel_color.b << "]" << std::endl;
-
-                        // ignore colorkey [74][125][123]/[75][125][125]
-                        /*
-                        if (!((int)pixel_color.r == 0 && (int)pixel_color.g == 0 && (int)pixel_color.b == 0)) {
-                            if ((int)pixel_color.r != 74 || (int)pixel_color.g != 125 || (int)pixel_color.b != 123) {
-                                std::cout << "px[" << x << "][" << y << "]: [" << (int)pixel_color.r << "][" << (int)pixel_color.g << "][" << (int)pixel_color.b << "]" << std::endl;
-                            }
-                        }
-                        */
-
                         if (is_on_tolerance(pixel_color, r, g, b, tolerance) == true) {
                             st_position pos = st_position(x, y);
                             res.push_back(pos);
@@ -419,8 +385,6 @@ struct graphicsLib_gSurface {
                     break;
                 }
             }
-
-            //std::cout << ">>>>>> get_color_points::END <<<<<<" << std::endl;
 
             return res;
         }
@@ -440,9 +404,7 @@ struct graphicsLib_gSurface {
         void set_surface(SDL_Surface *surface) {
             // free old surface memory
             if (gSurface != NULL) {
-                try {
-                    SDL_FreeSurface(gSurface);
-                } catch (std::exception e) {}
+                SDL_FreeSurface(gSurface);
             }
             if (surface != NULL) {
                 gSurface = surface;
@@ -459,29 +421,21 @@ struct graphicsLib_gSurface {
             }
 
             if (key_n < 0 || key_n > 3) { // we have only 3 color-keys, ignore everything else
-                if (show_debug == true) {
-                    std::cout << "change_colorkey_color LEAVE #1, key_n: " << (int)key_n << std::endl;
-                }
                 return;
             }
 
             Uint32 new_color_n = SDL_MapRGB(gSurface->format, new_color.r, new_color.g, new_color.b);
 
-            //std::cout << "change_colorkey_color, key_n[" << (int)key_n << "], new_color_n[" << (int)new_color_n << "]" << std::endl;
-
-
-            //std::cout << "change_colorkey_color - colorkey1_points.size[" << colorkey1_points.size() << "], colorkey2_points.size[" << colorkey2_points.size() << "], colorkey3_points.size[" << colorkey3_points.size() << "]" << std::endl;
-
             if (key_n == 0) {
-                for (int i=0; i<colorkey1_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey1_points.size(); i++) {
                     put_pixel(colorkey1_points.at(i).x, colorkey1_points.at(i).y, new_color_n);
                 }
             } else if (key_n == 1) {
-                for (int i=0; i<colorkey2_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey2_points.size(); i++) {
                     put_pixel(colorkey2_points.at(i).x, colorkey2_points.at(i).y, new_color_n);
                 }
             } else {
-                for (int i=0; i<colorkey3_points.size(); i++) {
+                for (unsigned int i=0; i<colorkey3_points.size(); i++) {
                     put_pixel(colorkey3_points.at(i).x, colorkey3_points.at(i).y, new_color_n);
                 }
             }
@@ -500,7 +454,6 @@ struct graphicsLib_gSurface {
         {
             if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
                 if (video_screen == false && gSurface != NULL) {
-                    //std::cout << "GSURFACE::freeGraphic - w: " << width << std::endl;
                     width = -1;
                     height = -1;
                     SDL_FreeSurface(gSurface);
@@ -512,13 +465,12 @@ struct graphicsLib_gSurface {
 
         bool is_null() {
             if (width <= 0 || height <= 0) {
-                //std::cout << "GSURFACE - invalid size[" << width << "][" << height << "]" << std::endl;
                 return true;
             }
             if (gSurface == NULL) {
-                //std::cout << "GSURFACE - SDL-Surface is NULL" << std::endl;
                 return true;
             }
+            return false;
         }
 
 

@@ -17,6 +17,7 @@ public:
 
 public:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> image_list;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_parallax> parallax_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_viewpoint> viewpoint_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_text> text_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_clear_area> cleararea_list;
@@ -28,7 +29,7 @@ public:
 
     std::map<Uint8, Uint8> game_scenes_map;
 
-    int selected_scene;
+    unsigned long selected_scene = 0;
 
 private:
     ScenesMediator();

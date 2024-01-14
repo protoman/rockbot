@@ -1,7 +1,7 @@
 #ifndef FILE_ANIM_BLOCK_H
 #define FILE_ANIM_BLOCK_H
 
-#include "defines.h"
+#include "../../defines.h"
 
 namespace format_v4 {
     struct file_map_anim_block {

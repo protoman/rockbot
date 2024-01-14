@@ -53,7 +53,6 @@ dialog_pick_color::~dialog_pick_color()
 
 void dialog_pick_color::clicked(const int &color_n)
 {
-	std::cout << "dialog_pick_color::clicked - color_n: " << color_n << std::endl;
     Mediator::get_instance()->picked_color_n = color_n;
 }
 

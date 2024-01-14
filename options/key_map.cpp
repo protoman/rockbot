@@ -4,40 +4,38 @@
 #include <android/log.h>
 #endif
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "inputlib.h"
+#include "../inputlib.h"
 extern inputLib input;
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
-#include "graphic/draw.h"
+#include "../graphic/draw.h"
 extern draw draw_lib;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 
-#include "graphic/option_picker.h"
+#include "../graphic/option_picker.h"
 
-#include "strings_map.h"
+#include "../strings_map.h"
 
-#include "defines.h"
+#include "../defines.h"
 
-
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 
 key_map::key_map()
 {
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr, game_config.selected_language) + std::string(": "));
-    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start, game_config.selected_language) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr) + std::string(": "));
+    _keys_list.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start) + std::string(": "));
 }
 
 
@@ -57,11 +55,10 @@ void key_map::draw_screen()
     timer.delay(300);
 
     for (unsigned int i=0; i<_keys_list.size(); i++) {
-        std::cout << "_keys_list[i]: " << _keys_list[i] << std::endl;
         graphLib.draw_text(config_text_pos.x, config_text_pos.y + i*CURSOR_SPACING, _keys_list[i].c_str());
         redraw_line(i);
     }
-    graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING, strings_map::get_instance()->get_ingame_string(strings_config_return, game_config.selected_language));
+    graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING, strings_map::get_instance()->get_ingame_string(strings_config_return));
     draw_lib.update_screen();
 
     graphLib.drawCursor(st_position(cursor_pos.x-CURSOR_SPACING, cursor_pos.y+(_pick_pos*CURSOR_SPACING)));
@@ -72,11 +69,9 @@ void key_map::draw_screen()
             if (_pick_pos == (short)_keys_list.size()) {
                 finished = true;
             } else {
-                graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_pressnew, game_config.selected_language)); //input code (number)
+                graphLib.draw_text(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2, strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_pressnew)); //input code (number)
                 draw_lib.update_screen();
                 graphLib.clear_area(config_text_pos.x, config_text_pos.y + _keys_list.size()*CURSOR_SPACING+CURSOR_SPACING*2-1, 180,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-                ///@TODO - key_config[_pick_pos].key_type = new_key.key_type;
-                ///@TODO - key_config[_pick_pos].key_number = new_key.key_number;
                 redraw_line(_pick_pos);
                 draw_lib.update_screen();
             }
@@ -110,15 +105,11 @@ void key_map::draw_screen()
 
 void key_map::redraw_line(short line) const
 {
-    std::cout << "******* key_map::redraw_line - line: " << line << std::endl;
     st_position config_text_pos;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
     graphLib.clear_area(config_text_pos.x+70-1, config_text_pos.y-1 + line*CURSOR_SPACING, 110,  CURSOR_SPACING+1, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-
     std::stringstream key_n_ss;
-    ///@TODO - key_n_ss << key_config[line].key_number;
-
     graphLib.draw_text(config_text_pos.x + 140, config_text_pos.y + line*CURSOR_SPACING, key_n_ss.str()); //input code (number)
 }
 
@@ -134,35 +125,34 @@ Sint8 key_map::draw_config_input(short current_selection) const
 
     graphLib.show_config_bg();
     std::vector<std::string> options;
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons, game_config.selected_language));
-    if (game_config.input_mode == INPUT_MODE_DIGITAL) {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_digital, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_buttons));
+    if (SharedData::get_instance()->game_config.input_mode == INPUT_MODE_DIGITAL) {
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_digital));
     } else {
-        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_analog, game_config.selected_language));
+        options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_analog));
     }
 
     char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
-    sprintf(temp_char, "%d", (game_config.selected_input_device+1)); // +1 because count start in zero
+    sprintf(temp_char, "%d", (SharedData::get_instance()->game_config.selected_input_device+1)); // +1 because count start in zero
     std::string selected_joystick_str(temp_char);
-
 
     sprintf(temp_char, "%d", input.get_joysticks_number());
     std::string max_joystick_str(temp_char);
 
     // turbo mode //
-    std::string turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language);
-    if (game_config.turbo_mode == true) {
-        turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language);
+    std::string turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
+    if (SharedData::get_instance()->game_config.turbo_mode == true) {
+        turbo_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_turbo_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
     }
     options.push_back(turbo_mode_string);
     // auto-charge mode //
-    std::string autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off, game_config.selected_language);
-    if (game_config.auto_charge_mode == true) {
-        autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode, game_config.selected_language) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on, game_config.selected_language);
+    std::string autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
+    if (SharedData::get_instance()->game_config.auto_charge_mode == true) {
+        autocharge_mode_string = strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_autocharge_mode) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
     }
     options.push_back(autocharge_mode_string);
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick, game_config.selected_language) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_input_selected_joystick) + std::string(": ") + selected_joystick_str + std::string("/") + max_joystick_str);
 
     Sint8 selected_option = -1;
     option_picker main_config_picker(false, st_position(CONFIG_MENU_LEFT_SPACING, CONFIG_MENU_TOP_SPACING), options, true);
@@ -194,7 +184,7 @@ Sint8 key_map::pick_joystick()
 string key_map::build_button_config_line(string prefix, string sufix)
 {
     int total_space = 24;
-    prefix = strings_map::get_instance()->get_ingame_string(strings_ingame_config_set, game_config.selected_language) + std::string(" ") + prefix;
+    prefix = strings_map::get_instance()->get_ingame_string(strings_ingame_config_set) + std::string(" ") + prefix;
     int spaces_to_add = total_space - prefix.length() - sufix.length();
     std::string spaces = "";
     for (int i=0; i<spaces_to_add; i++) {
@@ -256,18 +246,18 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
     sprintf(btn_codes[BTN_LEFT], "[%d]", game_config_copy.button_codes[BTN_LEFT].value);
     sprintf(btn_codes[BTN_RIGHT], "[%d]", game_config_copy.button_codes[BTN_RIGHT].value);
 #endif
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset, game_config.selected_language));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump, game_config.selected_language), std::string(btn_codes[BTN_JUMP])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire, game_config.selected_language), std::string(btn_codes[BTN_ATTACK])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash, game_config.selected_language), std::string(btn_codes[BTN_DASH])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield, game_config.selected_language), std::string(btn_codes[BTN_SHIELD])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl, game_config.selected_language), std::string(btn_codes[BTN_L])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr, game_config.selected_language), std::string(btn_codes[BTN_R])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start, game_config.selected_language), std::string(btn_codes[BTN_START])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_up, game_config.selected_language), std::string(btn_codes[BTN_UP])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_down, game_config.selected_language), std::string(btn_codes[BTN_DOWN])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_left, game_config.selected_language), std::string(btn_codes[BTN_LEFT])));
-    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right, game_config.selected_language), std::string(btn_codes[BTN_RIGHT])));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_reset));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_jump), std::string(btn_codes[BTN_JUMP])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_fire), std::string(btn_codes[BTN_ATTACK])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_dash), std::string(btn_codes[BTN_DASH])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_shield), std::string(btn_codes[BTN_SHIELD])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyl), std::string(btn_codes[BTN_L])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_keyr), std::string(btn_codes[BTN_R])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_start), std::string(btn_codes[BTN_START])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_up), std::string(btn_codes[BTN_UP])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_down), std::string(btn_codes[BTN_DOWN])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_left), std::string(btn_codes[BTN_LEFT])));
+    options.push_back(build_button_config_line(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_right), std::string(btn_codes[BTN_RIGHT])));
 
     Sint8 selected_option = 0;
     option_picker main_config_picker(false, config_text_pos, options, true);
@@ -289,25 +279,25 @@ void key_map::config_input()
         if (selected_option == 0) {
             config_buttons();
         } else if (selected_option == 1) {
-            if (game_config.input_mode == INPUT_MODE_DIGITAL) {
-                game_config.input_mode = INPUT_MODE_ANALOG;
+            if (SharedData::get_instance()->game_config.input_mode == INPUT_MODE_DIGITAL) {
+                SharedData::get_instance()->game_config.input_mode = INPUT_MODE_ANALOG;
             } else {
-                game_config.input_mode = INPUT_MODE_DIGITAL;
+                SharedData::get_instance()->game_config.input_mode = INPUT_MODE_DIGITAL;
             }
         } else if (selected_option == 2) {
-            game_config.turbo_mode = !game_config.turbo_mode;
-            if (game_config.auto_charge_mode && game_config.turbo_mode) {
-                game_config.auto_charge_mode = false;
+            SharedData::get_instance()->game_config.turbo_mode = !SharedData::get_instance()->game_config.turbo_mode;
+            if (SharedData::get_instance()->game_config.auto_charge_mode && SharedData::get_instance()->game_config.turbo_mode) {
+                SharedData::get_instance()->game_config.auto_charge_mode = false;
             }
         } else if (selected_option == 3) {
-            game_config.auto_charge_mode = !game_config.auto_charge_mode;
-            if (game_config.auto_charge_mode && game_config.turbo_mode) {
-                game_config.turbo_mode = false;
+            SharedData::get_instance()->game_config.auto_charge_mode = !SharedData::get_instance()->game_config.auto_charge_mode;
+            if (SharedData::get_instance()->game_config.auto_charge_mode && SharedData::get_instance()->game_config.turbo_mode) {
+                SharedData::get_instance()->game_config.turbo_mode = false;
             }
         } else if (selected_option == 4) {
             int res_pick = pick_joystick();
             if (res_pick != -1) {
-                game_config.selected_input_device = res_pick;
+                SharedData::get_instance()->game_config.selected_input_device = res_pick;
             }
         }
     }
@@ -315,7 +305,7 @@ void key_map::config_input()
 
 void key_map::config_buttons()
 {
-    CURRENT_FILE_FORMAT::st_game_config game_config_copy = game_config;
+    CURRENT_FILE_FORMAT::st_game_config game_config_copy = SharedData::get_instance()->game_config;
     int selected_option = 0;
     st_position menu_pos(graphLib.get_config_menu_pos().x + 24, graphLib.get_config_menu_pos().y + 40);
 
@@ -324,7 +314,7 @@ void key_map::config_buttons()
 
         INPUT_COMMANDS selected_key = BTN_JUMP;
         if (selected_option == 0) {
-            game_config.set_default_keys();
+            SharedData::get_instance()->game_config.set_default_keys();
             return;
         } else if (selected_option != -1) {
             if (selected_option == 1) {
@@ -352,7 +342,7 @@ void key_map::config_buttons()
             }
 
             graphLib.clear_area(menu_pos.x, menu_pos.y, 195,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-            graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey, game_config.selected_language));
+            graphLib.draw_text(menu_pos.x, menu_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_pressanykey));
             draw_lib.update_screen();
             input.clean();
             timer.delay(200);
@@ -364,31 +354,24 @@ void key_map::config_buttons()
         // check if jump/attack/start are set, can't leave if one of those is unset
         if (selected_option == -1) {
 
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @1 ###");
-#else
-std::cout << "### INPUT::config_buttons::FINISHED @1 ###" << std::endl;
-#endif
-timer.delay(200);
-
-
+            timer.delay(200);
 
             if (is_key_set(BTN_JUMP, game_config_copy) == false) {
-                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" JUMP KEY");
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" JUMP KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
                 draw_lib.update_screen();
                 timer.delay(1000);
                 input.clean_all();
                 selected_option = 0;
             } else if (is_key_set(BTN_ATTACK, game_config_copy) == false) {
-                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" ATTACK KEY");
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" ATTACK KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
                 draw_lib.update_screen();
                 timer.delay(1000);
                 input.clean_all();
                 selected_option = 0;
             } else if (is_key_set(BTN_START, game_config_copy) == false) {
-                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet, game_config.selected_language) + std::string(" START KEY");
+                std::string line = strings_map::get_instance()->get_ingame_string(strings_config_keys_unet) + std::string(" START KEY");
                 graphLib.draw_text(menu_pos.x, RES_H-40, line, st_color(180, 0, 0));
                 timer.delay(1000);
                 draw_lib.update_screen();
@@ -397,12 +380,7 @@ timer.delay(200);
             }
         }
 
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::config_buttons::FINISHED @2 ###");
-#else
-std::cout << "### INPUT::config_buttons::FINISHED @2 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
 
 
     }
@@ -413,39 +391,16 @@ timer.delay(200);
 
 bool key_map::is_key_set(INPUT_COMMANDS key, CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
-
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @1 ###");
-#else
-std::cout << "### INPUT::is_key_set @1 ###" << std::endl;
-#endif
-timer.delay(200);
-
     bool have_joystick = false;
     if (input.get_joysticks_number() > 0 && game_config_copy.selected_input_device < input.get_joysticks_number()) {
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @2 ###");
-#else
-std::cout << "### INPUT::is_key_set @2 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
         have_joystick = true;
     }
     if (game_config_copy.keys_codes[key] == -1 && (have_joystick == false || (have_joystick == true && game_config_copy.button_codes[key].value == -1))) {
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @3 ###");
-#else
-std::cout << "### INPUT::is_key_set @3 ###" << std::endl;
-#endif
-timer.delay(200);
+        timer.delay(200);
         return false;
     }
-#ifdef ANDROID
-__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::is_key_set @4 ###");
-#else
-std::cout << "### INPUT::is_key_set @4 ###" << std::endl;
-#endif
-timer.delay(200);
+    timer.delay(200);
     return true;
 }
 
@@ -454,9 +409,6 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
 {
     int default_keys_codes[BTN_COUNT];
     st_input_button_config default_button_codes[BTN_COUNT];
-
-    //std::cout << "KEYMAP::CHECK_DUPLICATES - is_joystick: " << is_joystick << ", set_key: " << (int)set_key << std::endl;
-
     game_config_copy.get_default_keys(default_keys_codes);
     game_config_copy.get_default_buttons(default_button_codes);
 
@@ -464,19 +416,9 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
         if (is_joystick == false) {
             if (i != set_key && game_config_copy.keys_codes[i] == game_config_copy.keys_codes[set_key]) { // found duplicate
                 game_config_copy.keys_codes[i] = -1; // disable key
-                #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::check_key_duplicates RESET[#1]BUTTON[%d] ###", i);
-                #else
-                std::cout << "### INPUT::check_key_duplicates RESET[KEY-CODE][" << i << "]" << std::endl;
-                #endif
             }
         } else {
             if (i != set_key && game_config_copy.button_codes[i].type == game_config_copy.button_codes[set_key].type && game_config_copy.button_codes[i].value == game_config_copy.button_codes[set_key].value && game_config_copy.button_codes[i].axis_type == game_config_copy.button_codes[set_key].axis_type) { // found duplicate
-                #ifdef ANDROID
-                __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::check_key_duplicates RESET[#2]BUTTON[%d] ###", i);
-                #else
-                //std::cout << "### INPUT::check_key_duplicates RESET[JOY-BUTTON][" << i << "]" << std::endl;
-                #endif
                 game_config_copy.button_codes[i].value = -1; // disable key
                 game_config_copy.button_codes[i].type = JOYSTICK_INPUT_TYPE_NONE;
                 game_config_copy.button_codes[i].axis_type = 0;
@@ -487,44 +429,11 @@ void key_map::check_key_duplicates(CURRENT_FILE_FORMAT::st_game_config& game_con
 
 void key_map::apply_key_codes_changes(CURRENT_FILE_FORMAT::st_game_config game_config_copy)
 {
-    #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
-    #else
-    //std::cout << "######################## OLD #########################" << std::endl;
-    #endif
     for (int i=0; i<BTN_COUNT; i++) {
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, game_config.button_codes[i].value, game_config.button_codes[i].type, game_config.button_codes[i].axis_type);
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, game_config.keys_codes[i]);
-        #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[old][" << i << "].value[" << game_config.button_codes[i].value << "].type[" << game_config.button_codes[i].type << "].axis_type[" << game_config.button_codes[i].axis_type << "] ###" << std::endl;
-        #endif
-    }
-    #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "#####################################################");
-    #else
-    //std::cout << "######################## NEW #########################" << std::endl;
-    #endif
-    for (int i=0; i<BTN_COUNT; i++) {
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes button_codes[%d].value[%d].type[%d].axis_type[%d] ###", i, game_config_copy.button_codes[i].value, game_config_copy.button_codes[i].type, game_config_copy.button_codes[i].axis_type);
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes keys_codes[%d].value[%d] ###", i, game_config.keys_codes[i]);
-        #else
-        std::cout << "### KEYMAP::apply_key_codes_changes button_codes[new][" << i << "].value[" << game_config_copy.button_codes[i].value << "].type[" << game_config_copy.button_codes[i].type << "].axis_type[" << game_config_copy.button_codes[i].axis_type << "] ###" << std::endl;
-        #endif
-    }
-
-
-    for (int i=0; i<BTN_COUNT; i++) {
-        game_config.keys_codes[i] = game_config_copy.keys_codes[i];
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### KEYMAP::apply_key_codes_changes old_config.btn[%d][%d], new_config_btn[%d]", i, game_config.button_codes[i].value, game_config_copy.button_codes[i].value);
-        #else
-        //std::cout << "old_config.btn[" << i << "][" << game_config.button_codes[i].value << "], new_config_btn[" << i << "][" << game_config_copy.button_codes[i].value << "]" << std::endl;
-        #endif
-        game_config.button_codes[i].value = game_config_copy.button_codes[i].value;
-        game_config.button_codes[i].type = game_config_copy.button_codes[i].type;
-        game_config.button_codes[i].axis_type = game_config_copy.button_codes[i].axis_type;
+        SharedData::get_instance()->game_config.keys_codes[i] = game_config_copy.keys_codes[i];
+        SharedData::get_instance()->game_config.button_codes[i].value = game_config_copy.button_codes[i].value;
+        SharedData::get_instance()->game_config.button_codes[i].type = game_config_copy.button_codes[i].type;
+        SharedData::get_instance()->game_config.button_codes[i].axis_type = game_config_copy.button_codes[i].axis_type;
     }
 }
 

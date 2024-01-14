@@ -1,8 +1,8 @@
 #ifndef FILE_STAGE_v301H
 #define FILE_STAGE_v301H
 
-#include "file/format/st_common.h"
-#include "defines.h"
+#include "../format/st_common.h"
+#include "../../defines.h"
 #include <stdio.h>
 
 namespace format_v4 {
@@ -37,7 +37,7 @@ struct file_castle {
     file_dialog boss_defeated_dialog;                                       // boss defeated dialog
 
     file_castle() {
-        // default values from Rockbot1
+        // default values from RockBot1
         points[0] = st_position(109, 150);
         points[1] = st_position(177, 138);
         points[2] = st_position(195, 110);

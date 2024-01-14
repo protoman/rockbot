@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "fio_scenes.h"
-#include "aux_tools/exception_manager.h"
+#include "../aux_tools/exception_manager.h"
 
 namespace format_v4 {
 
@@ -41,6 +41,11 @@ namespace format_v4 {
         return load_from_disk<file_scene_show_image>("scenes_show_image.dat");
     }
 
+    std::vector<file_scene_show_parallax> fio_scenes::load_scenes_parallax()
+    {
+        return load_from_disk<file_scene_show_parallax>("scenes_parallax.dat");
+    }
+
     std::vector<file_scene_show_viewpoint> fio_scenes::load_scenes_show_viewpoint()
     {
         return load_from_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat");
@@ -64,6 +69,11 @@ namespace format_v4 {
     void fio_scenes::save_scenes_show_image(std::vector<file_scene_show_image> data)
     {
         save_data_to_disk<file_scene_show_image>("scenes_show_image.dat", data);
+    }
+
+    void fio_scenes::save_scenes_parallax(std::vector<file_scene_show_parallax> data)
+    {
+        save_data_to_disk<file_scene_show_parallax>("scenes_parallax.dat", data);
     }
 
     void fio_scenes::save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint> data)
@@ -113,6 +123,7 @@ namespace format_v4 {
     void fio_scenes::generate_files()
     {
         save_scenes_show_image(std::vector<file_scene_show_image>());
+        save_scenes_parallax(std::vector<file_scene_show_parallax>());
         save_scenes_show_viewpoint(std::vector<file_scene_show_viewpoint>());
         save_scenes_show_text(std::vector<file_scene_show_text>());
         save_scenes_show_animation(std::vector<file_scene_show_animation>());
@@ -129,18 +140,20 @@ namespace format_v4 {
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;
         std::vector<T> res;
+        if (FILEPATH.length() == 0) {
+            return res;
+        }
         FILE *fp = fopen(filename.c_str(), "rb");
         if (!fp) {
-            std::cout << ">>file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
+            std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
             return res;
         }
 
         while (!feof(fp) && !ferror(fp)) {
             T out;
             int res_read = fread(&out, sizeof(T), 1, fp);
-            //std::cout << ">>file_io::load_from_disk - res_read '" << res_read << "'." << std::endl;
             if (res_read == -1) {
-                std::cout << ">>file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
+                std::cout << "ERROR: file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
                 //SDL_Quit();
                 exception_manager::throw_general_exception(std::string("fio_scenes::load_from_disk - Error reading data from file."), filename);
             } else if (res_read == 1) {
@@ -154,10 +167,9 @@ namespace format_v4 {
     template <class T> void fio_scenes::save_data_to_disk(std::string file, std::vector<T> data)
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;
-        std::cout << ">> file_io::save_data_to_disk - filename: '" << filename << "'." << std::endl;
         FILE *fp = fopen(filename.c_str(), "wb");
         if (!fp) {
-            std::cout << ">> file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
+            std::cout << "ERROR: file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
             return;
         }
 

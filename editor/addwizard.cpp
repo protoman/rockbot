@@ -15,17 +15,10 @@ addWizard::addWizard(QWidget *parent) : QWizard(parent) {
 }
 
  void addWizard::pageChanged(int id) {
-     printf("Current page: %d\n", id);
 	 if (id == 3) {
 		 if (done == 0) {
-			 printf("Finishing, must add map or npc\n");
-			 if (type == 0) {
-				 printf("ADD MAP\n");
-                 //Mediator::get_instance()->addMap();
-			 }
 			 done = 1;
 			 emit finishedWizard();
-			 printf("DEBUG - emit signal finishedWizard\n");
 		 }
 	 }
  }
@@ -47,18 +40,14 @@ int addWizard::nextId() const {
 void addWizard::on_comboBox_currentIndexChanged(int value)
 {
 	type = value;
-    printf("DEBUG.addWizard::on_comboBox_currentIndexChanged - value: %d\n", value);
     if (value == 0) {
-        printf("MAP\n");
         nextPageCount=2;
     } else {
-        printf("NOT-MAP\n");
         nextPageCount=1;
     }
 }
 
 void addWizard::fillNPCGraphicsList() {
-    printf("DEBUG - fillNPCGraphicsList - START\n");
     std::string file_dir = FILEPATH+std::string("/images/sprites/enemies/");
     QDir dir = QDir(file_dir.c_str());
     dir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -69,7 +58,6 @@ void addWizard::fillNPCGraphicsList() {
 		//printf("addWizard::fillNPCGraphicsList - fileName: %s\n", qPrintable(fileInfo.fileName()));
 		if (i == 0) {
             sprintf(Mediator::get_instance()->addNpcFilename, "images/sprites/enemies/%s", qPrintable(fileInfo.fileName()));
-            printf(">> SET > dataExchanger::fillNPCGraphicsList->addNpcFilename: '%s'\n", Mediator::get_instance()->addNpcFilename);
 		}
         //Mediator::get_instance()->NpcPreviewFile = new QString(fileInfo.fileName());
         //sprintf(Mediator::get_instance()->addNpcFilename, "%s", qPrintable(fileInfo.fileName()));

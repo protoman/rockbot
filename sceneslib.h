@@ -22,17 +22,20 @@ public:
     void preloadScenes();
     void draw_main();
     void main_screen();
-    short pick_stage(int last_stage);
-    void boss_intro(Uint8 pos_n);
-    void show_castle_boss_intro(Uint8 pos_n);
     void show_cheats_menu();
-    void game_scenes_show_unbeaten_intro();
     void show_game_scene(e_game_scenes_types n);
-    void show_player_ending();
     void show_player_walking_ending();
     void show_enemies_ending();
     void ending_show_single_enemy(int id, std::string name);
     void show_bosses_ending();
+    short pick_stage(int last_stage);
+    Uint8 select_player();
+    void boss_intro(short stage_n);
+    void classic_style_boss_intro(short stage_n);
+    void game_scenes_show_unbeaten_intro();
+    short select_save(bool is_new_game);
+    void show_ending_scenes(e_PLAYERS selected_player);
+    void classic_style_castle_intro(short stage_id);
 
 private:
     // preload/unload
@@ -40,14 +43,7 @@ private:
     void unload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)
     void unload_stage_select();
 
-
-
-
-    void config_int_value(Uint8 &value_ref, int min, int max);
-    Uint8 select_player();
     Uint8 select_difficulty();
-    void draw_lights_select_player(graphicsLib_gSurface& lights, int mode, int adjustX, int adjustY);
-    short select_save(bool is_new_game);
     void draw_save_details(int n, format_v4::st_save save);
 
 

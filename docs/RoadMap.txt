@@ -1,39 +1,270 @@
-﻿=========================================================================================================================================
-VERSION 2.0.0 RELEASE #2
-=========================================================================================================================================
-- para achar a linha de um crash:
-    # http://stackoverflow.com/questions/5314036/how-to-use-addr2line-in-android
-    # ~/Programas/android-studio/sdk/android-ndk-r11c/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-addr2line -C -f -e /home/iuri/Desenvolvimento/rockbot/build/packages/libapplication.so 0003a587
-    # tem que copiar o libapplication.so antes de limpar os símbolos de debug
+﻿##########################################################################################################################
+FIREFLY
+###########################################################################################################################
+1. tornar externs em singletons
+2. externalizar tudo que usa a SDL em classes do tipo interface
+    # estas classes devem ter apenas o que chama a SDL mesmo (abstraction layer)
+3. reorganização de classes
+4. importar coisas novas do firefly atual
+5. usar json como formato de arquivo para guardar dados
+    # vantagem é flexibilidade, pois não usa número limitado de dados (array)
+    # por exemplo, número de foregrounds e backgrounds de tela não precisa ser fixo
 
-###################################################################################################################
-STAGES:
-###################################################################################################################
-- Zodiac:
-    # inimigos
-- Castle1:
-    #importar minecart rockbot1
-    # adicionar animações (máquinas, parafusos, etc)
-    # criar efeito luz piscando (tipo shovel knight)
-    # inimigos
-- Castle3: repensar gráficos/estilo
-- Castle4:
-    # refazer gráficos da parte de cidade
-    # inimigos
-- Castle5:
-    # editar mapa
-    # inimigos
-    # chefe-final
+- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
+    # poder setar "is-jump-frame", "is-turn-frame" (daí não precisa a imagem ter o mirror), etc. Pode chamar de key-frame.
+
+- não armazenar imagem dos sprites, só a posição lógica deles, assim não duplica se repetir frames
+
+##########################################################################################################################
+MEGAMIX
+###########################################################################################################################
+- rockmix: colocar checkpoints nas fases
+- problema do restart da música ao morrer voltou (pelo menos no modo classic)
+- teleport-out do Eddie esta travado no mesmo lugar (parece q gravity esta agindo)
+    # eddie não pode voltar ao resetar a sala ou fase
+- pulo longo dos inimigos fica muito lento (Stone Man)
+
+- automatizar conversão de mod para mp3 no build Android
+
+- terminar estagios em RockMix
+    # Pharaoh Man
+    # Tomahawk Man
+    # Wood Man
+    - implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
+
+- ver como fazer um appImage e um snap (colocar na store)
+
+40 x 53
+
+===========================================================================================================================
+- always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
+- fix friend npc teleport-out.
+- friend npc that teleports out should not come back when changing map or dying.
+- added sprites for Dragon Bot's teleporting.
+- fix projectile of type spiral, avoid inc of zero to the radius, fix Dragon Bot's weapon.
+- do not reused a RW for error font, causes problems in Windows.
+- EDITOR: use opened game in the window title.
 
 
+---------------------------------------------------------------------------------------------------------------------------
+- convert boss hp to classic style also.
+- adjust object execution timer to make them faster
+- show beaten faces as darkned in stage select screen
+- show player celebrating victory after defeating boss even if is one that do not give you a weapon
+- AI: fix turn confition for zig-zag-ahead
+- pause game wqhen entering door to prevent rapid movement after it closes
+- improve Rockbot 1 castle 3 tileset with a anim-tile for magnets.
+- created new projectile trajectory, ahead-and-back, so that zig-zag won't stop when reaching initial-x.
+- ground-damage block player jump for a second
+- walk-on-roof should update direction to given destination
+- improved blinking animation when player or enemies are invulnerabvle after being hit
+- fixed chain projectile position for player and npcs
+- increase star-shield speed a bit
+- fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
+- improved hit_ground method to theck not only center, but left and right of the character's hitbox also
+    # prevents jump not being finished if center is still on air
+---
+- classic in-game menu
+- fix classic hud weapon value
+- do not restart auto charging shot if dead
+- music do not stop after dying
+- more fixes for hitarea and vulnerable-area when npc has background
+- added option in cheats menu to change between modern and classic styles
+- adicionar efeito sonoro em plataformas ativas quando acionar elas
+- adicionar som ao entrar em cápsula de teleporte
+- fixes for object platform:
+    # if player is inside object, adjust position when moving him
+    # update map scrolling when moving player
+- projectile appearing in position 0x0 for one frame (missing update-real-pos)
+- improved error display and add log message into file
+- EDITOR: fix vulnerable-area with bg in preview
+- fix hitting enemy outside hit-area if it has background
+- fix for npcs with background not showing when partially outside screen (use bg pos adjust and width)
+- add option for door animation if it has frames in image
+- fix jump interruption when hitting the head on solid
+- fix stairs transitioning back when moving from bottom to top
+- game-style option in editor can use used to bring back some mm-like presentation
+    # stage select
+    # player and boss death explosions
+    # got-weapon screen
+    # skull castle intro
+    # boss intro
+- implement timed-bombs
+- add sfx for shoot+jump destructible object
+- fix entering stairs pos x adjust for different player sprites sizes
+- player showing above overlay in teleport-in animation
+- decrease enemies intangible time after hit to 200ms
+- block that can be broken by shooting or jumping on it
+- fix projectile trajectories up and down
+- fix replace itself position
+# EDDIE:
+    - npc amigável via behavior flag
+    - nova IA: throw item
+    - nova IA: teleport out
+- EDITOR: should not be able to pick empty tile in anim selector
+- map gfx animated bg: splits image into half for frames
+- fix jump limits when inside quicksand
+- new IA para walk ou fly: up to ground, down to inside ground
+- fix projectile of type TARGET_EXACT
+- add support for setting goto-next into reactions
+- when changing between maps, keep scroll x position only if same image
+- EDITOR: ask if user wants to same data before loading another game
+- EDITOR: make easier to see the grid lines
+- active platform and no-drop destructible item, when out of screen must reset state and position
+- do not change to STAND from SLIDE when going through transition unless it has a door
+- use hitbox area defined in editor for players instead of hardcoded one
+- getting locked out if using frog in the top of the screen
+- new shield type: using shield (animation type) and back (as in opposite of front).
+- limit the max of spawned npcs from the origin point of the map-npc instead of the number of the main-npc data.
+- two new object types, destructible (with regular weapons) and same that drops item.
+- try to use ANIM_TYPE_STAND for hitbox if current anim-type is not used, avoiding falling to default frameSize.
+    # fix collision against npcs with background.
+- NPC death explosion being shown at start point when falling in hold/ground (should have no explision at all)
+- fly/to-player leaving shadow like dash
+- HIGH: reflected projectiles were not being consumed/finished.
+- AI: use move-speed to determine the range of the jump.
+- new AI: walk ahead even if falls from platform.
+- new AI: shoot projectile in several directions at same time.
+- new AI: fall down in diagonal.
+- new projectile types that fire multiple, 5 way up, 5 way down and 8 way.
+- moving platform up and down.
+- EDITOR: option "draw areas" that show objects and enemies rectangles, used when image has problems.
+- EDITOR: add option for FG auto-scroll.
+- EDITOR: npc with background was not being correctly shown when facing right direction.
+- EDITOR: show the movie preview in other languages
+- EDITOR: add option view->tileset.
+- EDITOR: map reset must include links, enemies and objects.
+- wave GFX in map background.
+
+###########################################################################################################################
+0.7.0
+###########################################################################################################################
+- EDITOR: não estava atualizando propriedades dos ncs ao mudar de npc
+
+###########################################################################################################################
+0.62
+###########################################################################################################################
+
+====================
+- #2: Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
+- Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
+- melhor ajuste na posição de Glue.H para grudar na parede
+- Fix hitboxes/vulçnerable-area when facing left.
+- #2: Adjust hitbox for Kurupira so player can jump over him.
+- Alguns efeitos sonoros tocavam mesmo com o audio desabilitado.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Novo tipo de item, crusher (tipo uma marreta que esmaga o player).
+- #2: Ajustes estagio Circo.
+- Adicionada reação de IA faltando, perto do jogador (1/4 distancia-movimento).
+- #2: Correção IA do beast Bot, faz dash até a frente do player antes de usar o dash.
+- #2: Correção nomes chefes final.
+- Editor: update frames when changing between enemies.
+- multiplicador zero para dano estava sendo ignorado.
+- projetil não deve ser consumido se inimigo esta no tempo de intangibilidade.
+- #2: adicionada Destrin Ship ao derrotar Machine.
+- Improve sfx delay by lowering buffer size.
+- #2: Novas músicas de Simone Bernacchia
+- Continuar mostrando "presented by upperland studios" when new characters message is shown.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Quando interromper a boss intro por timeout, precisa setar o anim_type para FLY/STAND senão o chefe fica congelado.
+- Fix HUD'1s boss text position.
+- Tanque de recarga de armas e especial não recarregam armas.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Limpar input antes de mostrar diálogos de chefes.
+- Melhorias sprites Daisie.
 
 
-- MUSICA BOA: http://modarchive.org/index.php?request=view_by_moduleid&query=159890
+====================
+#1
+====================
+<en-US>
+- Several bug fixes, please check site for details.
+- Lifes and continue/game-over are back.
+- Improved weapons menu with weapon list, lifes and armor pieces.
+- Improve sfx delay by lowering buffer size.
+- Show new characters warning only on first game completion.
+- Store up to 9 weapon and special tanks now.
+- Daisie sprites improvements.
+</en-US>
+<pt-BR>
+- Diversas correções de defeitos, veja mais informações no site para detalhes.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Improve sfx delay by lowering buffer size.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Melhorias sprites Daisie.
+</pt-BR>
 
-- tileset stage select map (add credits to ROCKBOT2):
-    # http://opengameart.org/content/js-saga-style-tileset-2-ascent
-    # http://opengameart.org/content/16x16-overworld-tiles# http://opengameart.org/content/overworld-tiles-0
+###########################################################################################################################
+TODO:
+###########################################################################################################################
 
+- vulnerable-area do player esta não batendo com inimigos, dá para "entrar" em parte neles e não toma dano
+(TESTAR) - tentar trocar nome da app android
+
+
+- lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5
+
+- finalizar Rockbot 2:
+    # kurupira: melhorar IA
+        # ao recuperar porco ele deve sumir ao encostar no Kurupira
+        # atirar o porco troca sprites por um instante
+
+
+- adicionar cutscene fim
+     # personagems olhando para o cidade ao longe (estilo ninja gaiden)
+        # so much effort, even building this whole castle
+        # using a parent grief
+        # I will make sure you won't leave prision, ever again, Dr. Destrin
+
+- gráfico do laser não esta certo (invertido) dependendo a direção que reflete
+
+###########################################################################################################################
+
+
+Fix crash with old-style energy bar.
+Fixes for drill-down AI.
+Improved clear of text selection in picker.
+Fix falling from jet when pressing down.
+Fix music stopping after killing sub-boss.
+Add license file.
+Fix projectile being stuck due to screen scrolling.
+Fix Lullaby projectile when enemy is away.
+Allow coil and jet to work over another object like savepoints.
+
+#1: Change giant fly to UFO and fix its behavior.
+#1: Fix for zig-zag in mines that are short of movement.
+
+
+###########################################################################################################################
+v3
+###########################################################################################################################
+- refatorar o código como eu fiz com a engine do project firefly,
+ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e correções
+- rockbot sera um personagem jogavel no project firefly com fases em HD inspiradas no original
+- adicionar "centelhas" ao redor do personagem no tiro carregado - https://www.youtube.com/watch?v=z-bwxtXMnLM
+###########################################################################################################################
+
+
+###########################################################################################################################
+v 0.44
+###########################################################################################################################
+(ver issues do github e log)
+
+- EDITOR: bug no seletor de layer de parallax (duplicou os números de 0 a 10)
+
+===========================================================================================================================
+
+===========================================================================================================================
+
+- EDITOR:
+    # usar opção de game-type para ter Rockbot e Megaman (modern/vintage)
+        # em modo 8 bit vintage as barras de energia e seleção de armas ficam tipo mm
+    # salvar a seleção de theme dark/default
+
+===========================================================================================================================
 - idéias:
     # http://opengameart.org/content/opp2017-sprites-characters-objects-effects
     # https://opengameart.org/content/opp2017-village-and-room
@@ -476,5 +707,3 @@ VERSION 2.0.9
 VERSION 2.0.10
 =========================================================================================================================================
 - megaman 10 features (TBD)
-
-

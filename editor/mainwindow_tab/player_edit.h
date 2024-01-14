@@ -25,16 +25,14 @@ public slots:
     void on_color_selected1(const QColor & color);
     void on_color_selected2(const QColor & color);
     void on_color_selected3(const QColor & color);
-    void pick_player_color1();
-    void pick_player_color2();
-    void pick_player_color3();
+    void pick_player_color1(QColor color);
+    void pick_player_color2(QColor color);
+    void pick_player_color3(QColor color);
 
 private slots:
     void on_players_tab_list_combo_currentIndexChanged(int index);
 
     void on_players_tab_name_textChanged(const QString &arg1);
-
-    void on_players_tab_hp_valueChanged(int arg1);
 
     void on_players_tab_hasshield_toggled(bool checked);
 

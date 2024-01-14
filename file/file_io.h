@@ -1,7 +1,6 @@
 #ifndef FILE_IO_H
 #define FILE_IO_H
 
-#include "format.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -18,7 +17,9 @@
 #include <fileio.h>
 #endif
 
-#include "file/fio_common.h"
+#include "format.h"
+#include "fio_common.h"
+#include "file/v4/file_config_old.h"
 
 extern std::string FILEPATH;
 extern std::string SAVEPATH;
@@ -60,6 +61,7 @@ namespace format_v4 {
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> read_map_enemy_list(int stage_id);
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> read_map_object_list(int stage_id);
 
+        int get_last_stage();
 
         bool file_exists(std::string filename) const;
         std::vector<std::string> read_game_list();

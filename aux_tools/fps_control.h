@@ -2,11 +2,13 @@
 #define FPS_CONTROL_H
 
 #define DEFULT_PLAYER_SPEED 1.2
-#define DEFAULT_FPS_MAX 60
 #define FPS_MINIMAL_LIMIT 50            // if fps is lower or equal this value, we increment fail-count
 #define FPS_MINIMAL_MAX_FAIL 10         // if we have 10 consecutive times fps is under limit, we take action
 
+#include <iostream>
 #include <SDL/SDL.h>
+#include <vector>
+#include "shareddata.h"
 
 // === FPS limiter by Felipe Zacani === //
 
@@ -30,7 +32,8 @@ public:
     int get_frame_drop_n();
     bool get_failed_min_fps();
     void reset_failed_min_fps();
-
+    void set_frameskip(int skip_n);
+    bool must_skip_frame();
 
 private:
     st_fps_data data;
@@ -48,7 +51,7 @@ private:
 
     unsigned short fps_max;
 
-    unsigned int fps_timer;
+    unsigned long fps_timer;
     int fps_counter;
     // if we are getting less than 60 fps, this will tell main loop how many times it will run full until drop one
     unsigned short frame_drop_period;
@@ -57,6 +60,7 @@ private:
     unsigned int fps_min_fail_count; // counts the number of sequential times the FPS is under minumal limit
     bool failed_min_fps;
 
+    std::vector<int> frameskip_list;
 };
 
 #endif // FPS_CONTROL_H

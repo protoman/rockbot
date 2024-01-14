@@ -1,4 +1,4 @@
-#-------------------------------------------------
+''#-------------------------------------------------
 #
 # Project created by QtCreator 2015-09-18T14:43:25
 #
@@ -40,30 +40,27 @@ linux {
 }
 
 win32 {
-        LIBS =  -lSDL_mixer \
-                -lSDL_image \
-                -lSDL_ttf \
-                -lmingw32 -lSDL_gfx -lSDL -mwindows \
-                -LC:\Qt\5.5\mingw492_32\lib
+
+    DEFINES += WIN32
+    LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\5.15.2\mingw81_32\lib\x86 -LC:\Qt\5.15.2\mingw81_32\lib
+    INCLUDES = -IC:\Qt\5.15.2\mingw81_32\include -IC:\Qt\5.15.2\mingw81_32\include\SDL -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib -I.. -I../include -I../.. -I../../include
+    QMAKE_CCFLAGS += -O2 -DWIN32 -DPC
+    QMAKE_CXXFLAGS += -O2 -DWIN32 -DPC -IC:\Qt\5.15.2\mingw81_32\include -IC:\Qt\5.15.2\mingw81_32\include\SDL -LC:\Qt\5.15.2\mingw81_32\lib\x86 C:\Qt\5.15.2\mingw81_32\lib
+    CONFIG -= console
 
 
-                INCLUDES = -I/usr/include/SDL \
-                -I/usr/include \
-                -I. \
-                -I.. \
-                -I../include \
-                -I../.. \
-                -I../../include \
-                -L/usr/lib
-                QMAKE_CCFLAGS += -DWIN32 -DPC $${INCLUDES}
-                QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib $${INCLUDES}
-                #CONFIG -= console
+    #LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lmingw32 -lSDL_gfx -lSDL -mwindows -LC:\Qt\5.5\mingw492_32\lib
+    #INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I.. -I../include -I../.. -I../../include -L/usr/lib
+    #QMAKE_CCFLAGS += -DWIN32 -DPC $${INCLUDES}
+    #QMAKE_CXXFLAGS += -DWIN32 -DPC -IC:\Qt\5.5\mingw492_32\ -IC:\Qt\5.5\mingw492_32\include -LC:\Qt\5.5\mingw492_32\lib $${INCLUDES}
+    #CONFIG -= console
 }
 
 
 SOURCES += main.cpp \
     ../../graphicslib.cpp \
     ../../inputlib.cpp \
+    ../../shareddata.cpp \
     ../../soundlib.cpp \
     ../../timerlib.cpp \
     ../../file/file_io.cpp \
@@ -80,6 +77,7 @@ SOURCES += main.cpp \
 HEADERS += \
     ../../graphicslib.h \
     ../../inputlib.h \
+    ../../shareddata.h \
     ../../soundlib.h \
     ../../timerlib.h \
     ../../file/file_io.h \

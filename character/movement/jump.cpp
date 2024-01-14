@@ -6,17 +6,16 @@
 // if not interrupted, jump takes 700 milisseconds
 // jump max high is 74 px
 
-#define JUMP_INITIAL_SPEED 5.375
-
-#include "game.h"
+#include "../../game.h"
 extern game gameControl;
 
 
 classjump::classjump() : started(false)
 {
-    JUMP_ACCELERATION = 0.25;
-    JUMP_LIMIT = (TILESIZE*3)-6;
-    JUMP_LIMIT = 240;
+    JUMP_INITIAL_SPEED = 5.675 * SharedData::get_instance()->get_movement_multiplier();
+    JUMP_ACCELERATION = 0.25 * SharedData::get_instance()->get_movement_multiplier();
+    JUMP_LIMIT = TILESIZE*3.5;
+    //JUMP_LIMIT = 240;
     state = NOJUMP;
     jumps_number = 0;
     start_terrain_type = TERRAIN_UNBLOCKED;
@@ -24,6 +23,7 @@ classjump::classjump() : started(false)
 
 void classjump::start(bool bigjump_mode, int terrain_type)
 {
+    //std::cout << "### JUMP::START" << std::endl;
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -45,9 +45,6 @@ void classjump::start(bool bigjump_mode, int terrain_type)
         acceleration = JUMP_ACCELERATION;
     }
     jumps_number++;
-
-    //std::cout << "CLASSJUMP::START::speed: " << speed << std::endl;
-
     moved = 0;
 }
 
@@ -69,26 +66,26 @@ void classjump::execute(int terrain_type)
         } else {
             acceleration = JUMP_ACCELERATION * 0.7;
         }
+    } else if (speed_multiplier != 1.0) {
+        acceleration = JUMP_ACCELERATION * speed_multiplier;
     }
 
-
-    //std::cout << "CLASSJUMP::EXECUTE[#1]::speed: " << speed << std::endl;
     speed += acceleration;
-    moved += std::abs((double)speed);
+    moved += abs(speed);
 
-    //std::cout << "CLASSJUMP::EXECUTE[#2]::speed: " << speed << std::endl;
+    //std::cout << "JUMP::execute - moved[" << moved << "], JUMP_LIMIT[" << JUMP_LIMIT << "], speed[" << speed << "], is_bigjump[" << is_bigjump << "]" << std::endl;
 
     if (state == JUMPUP) {
         if (speed >= 0) {
             state = JUMPDOWN;
-        } else if (is_bigjump == false && std::abs((double)moved) > JUMP_LIMIT) { // hardcoded limit of 3 tiles
+        } else if (is_bigjump == false && moved > JUMP_LIMIT) { // hardcoded limit of 3.5 tiles
+            //std::cout << "### JUMP::interrupt - reached LIMIT" << std::endl;
             state = JUMPDOWN;
-            std::cout << "OBJUMP RESET SPEED #3" << std::endl;
             speed = 0;
         }
     } else {
-        if (speed > GRAVITY_MAX_SPEED) { // do not surpass the speed limit
-            speed = GRAVITY_MAX_SPEED;
+        if (speed > GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier()) { // do not surpass the speed limit
+            speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
         }
     }
 }
@@ -98,9 +95,9 @@ void classjump::interrupt()
     if (!started) {
         return;
     }
+    //std::cout << "### JUMP::interrupt" << std::endl;
     if (state != JUMPUP) {
         state = JUMPDOWN;
-        std::cout << "%%%%%%%%%%%%%%%%% OBJUMP RESET SPEED #4 %%%%%%%%%%%%%%%%%%" << std::endl;
         speed = 0;
         return;
     }
@@ -110,15 +107,14 @@ void classjump::interrupt()
     }
 
     state = JUMPDOWN;
-
     speed = 0;
 }
 
 void classjump::finish()
 {
+    //std::cout << "### JUMP::finish" << std::endl;
     jumps_number = 0;
     state = NOJUMP;
-
     speed = 0;
     started = false;
 }
@@ -141,5 +137,11 @@ void classjump::set_jump_acceleration(double value)
 
 void classjump::set_jump_limit(int value)
 {
-    JUMP_LIMIT = value;
+    // ignored for now, as makes jump odd. Better use initial-speed as a way to diff players or enemies jumps
+    //JUMP_LIMIT = value;
+}
+
+void classjump::set_speed_multiplier(float multi)
+{
+    speed_multiplier = multi;
 }

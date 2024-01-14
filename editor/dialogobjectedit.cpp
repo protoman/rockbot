@@ -11,10 +11,7 @@ DialogObjectEdit::DialogObjectEdit(QWidget *parent) :
 	ui->setupUi(this);
 	fillObjectGraphicsList();
 	if (Mediator::get_instance()->editModeNPC == 1) {
-		std::cout << "DialogObjectEdit::DialogObjectEdit - editing existing Obj, id: " << Mediator::get_instance()->selectedNPC << std::endl;
 		loadObjectData(Mediator::get_instance()->selectedNPC);
-	} else {
-		std::cout << "DialogObjectEdit::DialogObjectEdit - adding new Obj, id: " << Mediator::get_instance()->selectedNPC << std::endl;
 	}
 	QObject::connect(ui->npcPreviewAreaWidget, SIGNAL(clickedIn()), this, SLOT(setObjectFrame()));
 }

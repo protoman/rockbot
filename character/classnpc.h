@@ -2,9 +2,9 @@
 #define CLASSNPC_H
 
 #include <string>
+#include "../file/format.h"
 #include "character.h"
-#include "file/format.h"
-#include "character/artificial_inteligence.h"
+#include "artificial_inteligence.h"
 
 class classPlayer;
 
@@ -60,11 +60,11 @@ public:
     void npc_set_position(st_float_position pos);
     void npc_set_direction(short dir);
     void npc_set_initialized(short init);
-    void set_parent_id(int parent_id);
-    int get_parent_id();
+    void set_parent_id(st_position parent_id);
+    st_position get_parent_id();
     void reset_timers();
     bool is_static();
-
+    bool npc_is_ghost();
 
 
 
@@ -93,7 +93,6 @@ protected:
 
 protected:
 	// W A R N I N G -----------------> new members must be reflected in copy() method
-    short int facing;									// defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
     std::string graphic_filename;						// graphic file used on it /**< TODO */
     bool first_run; /**< TODO */
     bool _is_player_friend;								// player spawned npcs must not hit him, but other npcs instead /**< TODO */
@@ -103,7 +102,7 @@ protected:
     // boss member variables
     short _initialized; /**< TODO */
     bool _screen_blinked; /**< TODO */
-    int _parent_id;
+    st_position _parent_id;                             // parent original position in the map is the id
     st_position static_bg_pos;
 };
 

@@ -28,13 +28,10 @@ extern draw draw_lib;
 #include "file/version.h"
 #include "file/file_io.h"
 #include "file/fio_strings.h"
-#include "file/v4/file_castlepoints.h"
 
 #include "options/key_map.h"
 
 #include "graphic/animation.h"
-
-#include "docs/game_manual.h"
 
 #include "game.h"
 extern game gameControl;
@@ -48,7 +45,6 @@ extern android_game_services game_services;
 
 #include "scenes/sceneshow.h"
 
-extern CURRENT_FILE_FORMAT::st_game_config game_config;
 extern CURRENT_FILE_FORMAT::st_save game_save;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
 extern CURRENT_FILE_FORMAT::file_game game_data;
@@ -121,12 +117,7 @@ void scenesLib::draw_main()
 
     graphLib.draw_text(8, 8, VERSION_NUMBER);
 
-    if (gameControl.is_free_version() == true) {
-        graphLib.draw_text(RES_W-12*9, 8, "FREE VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-    } else {
-        graphLib.draw_text(RES_W-12*9, 8, "FULL VERSION", st_color(255, 130, 0)); // 12 chars, font-spacing 9
-    }
-    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline, game_config.selected_language));
+    graphLib.draw_text(40-graphLib.RES_DIFF_W, (RES_H-35), strings_map::get_instance()->get_ingame_string(strings_ingame_copyrightline));
     graphLib.draw_centered_text(220, "http://rockbot.upperland.net");
 
 }
@@ -147,37 +138,23 @@ void scenesLib::main_screen()
 	draw_main();
 
     std::vector<st_menu_option> options;
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_newgame)));
     if (fio.have_one_save_file() == true) {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language)));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame)));
     } else {
-        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame, game_config.selected_language), true));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame), true));
     }
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config, game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_manual, game_config.selected_language)));
-    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about, game_config.selected_language)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
+    options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
-
 
     main_picker.enable_check_input_reset_command();
     main_picker.enable_check_input_cheat_command();
 
-
     bool have_save = fio.have_one_save_file();
 
     // IF HAVE NO SAVE, TRY TO LOAD IT FROM CLOUD //
-#ifdef ANDROID
-    // if config player services is set, and no save is found, get it from cloud
-    /*
-    if (have_save == false && game_config.android_use_play_services == true && game_config.android_use_cloud_save == true) {
-        gameControl.load_save_data_from_cloud();
-        have_save = fio.have_one_save_file();
-    }
-    */
-#endif
-
-
 
     int picked_n = 0;
 
@@ -212,15 +189,6 @@ void scenesLib::main_screen()
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
                     fio.read_save(game_save, gameControl.get_current_save_slot());
-                    if (GAME_FLAGS[FLAG_PLAYER1]) {
-                        game_save.selected_player = PLAYER_1;
-                    } else if (GAME_FLAGS[FLAG_PLAYER2]) {
-                        game_save.selected_player = PLAYER_2;
-                    } else if (GAME_FLAGS[FLAG_PLAYER3]) {
-                        game_save.selected_player = PLAYER_3;
-                    } else if (GAME_FLAGS[FLAG_PLAYER4]) {
-                        game_save.selected_player = PLAYER_4;
-                    }
                     repeat_menu = false;
                 }
             } else {
@@ -232,25 +200,18 @@ void scenesLib::main_screen()
             menu.show_main_config(0, false);
 			draw_main();
 			main_picker.draw();
-        } else if (picked_n == 3) { // MANUAL //
-            game_manual manual;
-            manual.execute();
-            draw_main();
-            main_picker.draw();
-        } else if (picked_n == 4) { // ABOUT/CREDITS //
+        } else if (picked_n == 3) { // ABOUT/CREDITS //
             // only wait for keypress if user did not interrupted credits
-            if (draw_lib.show_credits(true) == 0) {
-                input.wait_keypress();
-            }
+            draw_lib.show_about();
             draw_main();
             main_picker.draw();
-        } else if (picked_n == 5) { // CHEATS //
+        } else if (picked_n == 4) { // CHEATS //
             show_cheats_menu();
             draw_main();
             main_picker.draw();
         } else if (picked_n == MAIN_MENU_CHEAT_RETURN) { // LEAVING CHEATS MENU ITEM //
-            picked_n = 5;
-            main_picker.add_option_item(st_menu_option("CHEATS"));
+            picked_n = 4;
+            main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
             draw_main();
             main_picker.draw();
         }
@@ -259,20 +220,13 @@ void scenesLib::main_screen()
 
     if (picked_n == 0) { // NEW GAME //
         game_save.difficulty = select_difficulty();
-        std::cout << "game_save.difficulty[" << (int)game_save.difficulty << "]" << std::endl;
-        // demo do not have player selection, only rockbot is playable
-        if (gameControl.is_free_version() == false) {
-                game_save.selected_player = select_player();
-        } else {
-                game_save.selected_player = PLAYER_1;
-        }
+        game_save.selected_player = select_player();
         gameControl.save_game();
     }
 }
 
 void scenesLib::show_cheats_menu()
 {
-    short res = 0;
     st_position config_text_pos;
     std::vector<st_menu_option> options;
     config_text_pos.x = graphLib.get_config_menu_pos().x + 20;
@@ -290,23 +244,29 @@ void scenesLib::show_cheats_menu()
 
         options.clear();
 
-
-
-        std::string invencibleStr = "OFF";
+        std::string invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
         if (GAME_FLAGS[FLAG_INVENCIBLE]) {
-            invencibleStr = "ON";
+            invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
-        options.push_back(st_menu_option("INVENCIBLE: " + invencibleStr));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_INVENCIBLE) + ": " + invencibleStr));
 
-        std::string allStagesStr = "OFF";
+        std::string allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
         if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
-            allStagesStr = "ON";
+            allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
-        options.push_back(st_menu_option("ALL BEATEN: " + allStagesStr));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_ALLBEATEN) + ": " + allStagesStr));
 
         char char_n[50];
         sprintf(char_n, "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
-        options.push_back(st_menu_option("CHARACTER: " + std::string(char_n)));
+        options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_CHARACTER) + ": " + std::string(char_n)));
+
+        std::string game_style_mode = "GAME STYLE: ";
+        if (game_data.game_style == GAME_STYLE_VINTAGE) {
+            game_style_mode += "8BIT VINTAGE";
+        } else {
+            game_style_mode += "MODERN";
+        }
+        options.push_back(st_menu_option(game_style_mode));
 
         option_picker cheat_config_picker(false, config_text_pos, options, true);
         graphLib.show_config_bg();
@@ -342,40 +302,18 @@ void scenesLib::show_cheats_menu()
                 GAME_FLAGS[FLAG_PLAYER3] = false;
                 GAME_FLAGS[FLAG_PLAYER4] = true;
             }
+        } else if (selected_option == 3) {
+            if (game_data.game_style == GAME_STYLE_VINTAGE) {
+                game_data.game_style = GAME_STYLE_MODERN;
+            } else {
+                game_data.game_style = GAME_STYLE_VINTAGE;
+            }
         }
     }
 
 
 }
 
-// ********************************************************************************************** //
-//                                                                                                //
-// ********************************************************************************************** //
-short scenesLib::pick_stage(int last_stage) {
-	graphLib.blank_screen();
-	stage_select selection(STAGE_SELECT_SURFACES);
-
-    short pos_n = selection.pick_stage(last_stage);
-
-    timer.delay(100);
-    soundManager.stop_music();
-
-    if (game_save.stages[pos_n] == 0 || pos_n >= CASTLE1_STAGE1) {
-        boss_intro(pos_n);
-    }
-
-    return pos_n;
-
-}
-
-
-
-void scenesLib::game_scenes_show_unbeaten_intro()
-{
-    sceneShow show;
-    show.show_scene(game_scenes_map[GAME_SCENE_TYPES_INTRO_GAME_UNBEATEN]);
-    //std::cout << "game_scenes_show_unbeaten_intro::DONE";
-}
 
 void scenesLib::show_game_scene(e_game_scenes_types n)
 {
@@ -383,25 +321,6 @@ void scenesLib::show_game_scene(e_game_scenes_types n)
     show.show_scene(game_scenes_map[n]);
 }
 
-void scenesLib::show_player_ending()
-{
-    switch (game_save.selected_player) {
-        case PLAYER_1:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER1);
-            break;
-        case PLAYER_2:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER2);
-            break;
-        case PLAYER_3:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER3);
-            break;
-        case PLAYER_4:
-            show_game_scene(GAME_SCENE_TYPES_ENDING_PLAYER4);
-            break;
-        default:
-            break;
-    }
-}
 
 void scenesLib::show_player_walking_ending()
 {
@@ -413,6 +332,11 @@ void scenesLib::show_player_walking_ending()
     float bg3_pos = 0;
     float player_speed = -0.2;
     float player_pos = RES_W + TILESIZE;
+
+    soundManager.stop_music();
+    soundManager.load_music("rockbot_end_animation.mod");
+    soundManager.play_music();
+
 
     graphLib.blank_screen();
     std::string filename = FILEPATH + "images/ending/player_walking_layer1.png";
@@ -467,9 +391,6 @@ void scenesLib::show_player_walking_ending()
         // show player
         gameControl.show_player_at(player_pos, player_y_pos);
 
-
-        //std::cout << "bg1_pos[" << bg1_pos << "], bg1.left[" << bg1.width-bg1_pos << "]" << std::endl;
-
         graphLib.updateScreen();
         timer.delay(10);
     }
@@ -483,7 +404,6 @@ void scenesLib::show_player_walking_ending()
 void scenesLib::show_enemies_ending()
 {
     st_color font_color(250, 250, 250);
-    std::pair<int, std::string> final_boss_data = std::pair<int, std::string>(-1, "");
 
     graphLib.blank_screen();
     draw_lib.show_boss_intro_bg();
@@ -496,7 +416,7 @@ void scenesLib::show_enemies_ending()
     }
     soundManager.play_music();
 
-    // get all stage bosses
+    // get all stage bosses and add to a vector, and show non-bosses
     std::map<int, std::string> stage_boss_id_list;
     for (int i=0; i<FS_MAX_STAGES; i++) {
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
@@ -507,28 +427,20 @@ void scenesLib::show_enemies_ending()
             stage_boss_id_list.insert(temp_data);
         }
     }
+
     for (int i=0; i<GameMediator::get_instance()->get_enemy_list_size(); i++) {
-        if (GameMediator::get_instance()->get_enemy(i)->id == -1) {
+        if (stage_boss_id_list.find(i) != stage_boss_id_list.end()) {
             continue;
         }
-
-        if (stage_boss_id_list.find(GameMediator::get_instance()->get_enemy(i)->id) != stage_boss_id_list.end()) {
-            continue;
-        }
-        // final boss
+        // non-boss
         std::string name = std::string(GameMediator::get_instance()->get_enemy(i)->name);
-
-        if (GameMediator::get_instance()->get_enemy(i)->id == game_data.final_boss_id) {
-            final_boss_data = std::pair<int, std::string>(GameMediator::get_instance()->get_enemy(i)->id, name);
-        } else {
-            ending_show_single_enemy(GameMediator::get_instance()->get_enemy(i)->id, name);
-        }
-
+        ending_show_single_enemy(i, name);
     }
+
     show_bosses_ending();
-    if (final_boss_data.first != -1) {
-        ending_show_single_enemy(final_boss_data.first, final_boss_data.second);
-    }
+
+    // final boss
+    ending_show_single_enemy(game_data.final_boss_id, GameMediator::get_instance()->get_enemy(game_data.final_boss_id)->name);
 
     graphLib.blank_screen();
     graphLib.updateScreen();
@@ -540,22 +452,12 @@ void scenesLib::show_enemies_ending()
 
 void scenesLib::ending_show_single_enemy(int id, std::string name)
 {
-
-    std::cout << "### SCENES::show_enemies_ending [enemy[" << id << "].name[" << name << "]" << std::endl;
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT2###", "### SCENES::show_enemies_ending [enemy[%d].name[%s] ###", id, name.c_str());
-#endif
-
-    int w = GameMediator::get_instance()->get_enemy(id)->frame_size.width;
-    int h = GameMediator::get_instance()->get_enemy(id)->frame_size.height;
-
     std::string temp_filename = FILEPATH + "images/sprites/enemies/" + GameMediator::get_instance()->get_enemy(id)->graphic_filename;
     graphicsLib_gSurface npc_sprite_surface;
     graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
 
     draw_lib.show_boss_intro_bg();
     draw_lib.show_boss_intro_sprites(id, false);
-    //graphLib.draw_progressive_text(120, RES_H/2, name, false);
     graphLib.draw_centered_text(BOSS_INTRO_BG_TEXT_Y, name);
     draw_lib.update_screen();
     timer.delay(3000);
@@ -566,9 +468,6 @@ void scenesLib::show_bosses_ending()
 
     // TODO: error handling //
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending ###");
-#endif
 
     graphLib.blank_screen();
     // read bosses strings
@@ -577,80 +476,49 @@ void scenesLib::show_bosses_ending()
 
     for (short i=0; i<CASTLE1_STAGE5; i++) {
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #1, i[%d] ###", i);
-#endif
 
         CURRENT_FILE_FORMAT::file_stage stage_data_obj;
         fio.read_stage(stage_data_obj, i);
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #2");
-#endif
 
+        int boss_id = stage_data_obj.boss.id_npc;
 
         draw_lib.show_boss_intro_bg();
         graphLib.updateScreen();
-        int boss_id = stage_data_obj.boss.id_npc;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #3");
-#endif
 
         // BOSS POSITION IN DATA - 40y, 111h
         draw_lib.show_boss_intro_sprites(boss_id, false);
         unsigned int boss_pos = i*BOSS_CREDITS_LINES_N;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #4, boss_pos[%d] ###", boss_pos);
-#endif
 
 
         if (boss_pos >= boss_credits_data.size()) {
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "ERROR: boss_pos[%d] is greater than list size[%d]", boss_pos, boss_credits_data.size());
-#endif
-            std::cout << "ERROR: boss_pos[" << boss_pos << "] is greater than list size[" << boss_credits_data.size() << "]" << std::endl;
             continue;
         }
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #5");
-#endif
+
 
         std::string boss_n = boss_credits_data.at(boss_pos) + ":";
-        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT, game_config.selected_language) + ":";
-        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN, game_config.selected_language) + ":";
+        std::string concept_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_CONCEPT) + ":";
+        std::string design_creator = strings_map::get_instance()->get_ingame_string(STRING_ENDING_DESIGN) + ":";
         int delay = 60;
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #6");
-#endif
 
         graphLib.draw_progressive_text(5, 170, boss_n, false, delay);
         graphLib.draw_progressive_text(90, 170, boss_credits_data.at(i*4+1), false, delay);
         draw_lib.update_screen();
-
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #7");
-#endif
 
 
         graphLib.draw_progressive_text(5, 185, concept_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 185, boss_credits_data.at(i*4+2), false, delay);
         draw_lib.update_screen();
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #8");
-#endif
 
         graphLib.draw_progressive_text(5, 201, design_creator.c_str(), false, delay);
         graphLib.draw_progressive_text(90, 201, boss_credits_data.at(i*4+3), false, delay);
         draw_lib.update_screen();
 
-#ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "### ROCKBOT2 ###", "### scenesLib::show_bosses_ending #9");
-#endif
 
         timer.delay(2000);
     }
@@ -658,78 +526,20 @@ void scenesLib::show_bosses_ending()
 
 }
 
-
-
-
-
-
-
-
-
-
-void scenesLib::draw_lights_select_player(graphicsLib_gSurface& lights, int selected, int adjustX, int adjustY) {
-	int posX, invPosX;
-
-	invPosX = 0;
-
-	if (_timer < timer.getTimer()) {
-		_timer = timer.getTimer()+200;
-		if (_state == 0) {
-			_state = 1;
-		} else {
-			_state = 0;
-		}
-	}
-	if (_state != 0) {
-		posX = 6;
-	} else {
-		posX = 0;
-	}
-    int XPos[4];
-    XPos[0] = 2;
-    XPos[1] = 88;
-    XPos[2] = 162;
-    XPos[3] = 248;
-    int YPos[4];
-    YPos[0] = 2;
-    YPos[1] = 88;
-    YPos[2] = 114;
-    YPos[3] = 200;
-
-    // erase previous position
-    for (int i=0; i<2; i++) {
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(invPosX, 0, lights.height, lights.height), st_position(adjustX+XPos[i+1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
+short scenesLib::pick_stage(int last_stage)
+{
+    if (game_save.stages[INTRO_STAGE] == 0) {
+        return 0;
     }
 
-    if (selected == PLAYER_1) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_2) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[0]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[1]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_3) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[0], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[1], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    } else if (selected == PLAYER_4) {
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[2], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[2]), &lights, &graphLib.gameScreen);
-        graphLib.copyArea(st_rectangle(posX, 0, lights.height, lights.height), st_position(adjustX+XPos[3], adjustY+YPos[3]), &lights, &graphLib.gameScreen);
-    }
-    draw_lib.update_screen();
+    graphLib.blank_screen();
+    stage_select selection(STAGE_SELECT_SURFACES);
+    short pos_n = selection.pick_stage(last_stage);
+    timer.delay(100);
+    soundManager.stop_music();
+
+    return pos_n;
+
 }
 
 
@@ -738,10 +548,9 @@ Uint8 scenesLib::select_player() {
     graphicsLib_gSurface bg_surface;
 
     int max_loop = 2;
-    if (game_config.game_finished == true) {
+    if (SharedData::get_instance()->game_config.game_finished == true) {
         max_loop = 4;
     }
-
 
     graphLib.blank_screen();
     std::string filename = FILEPATH + "images/backgrounds/player_selection.png";
@@ -764,9 +573,9 @@ Uint8 scenesLib::select_player() {
     graphLib.surfaceFromFile(filename, &p4_surface);
 
     graphLib.copyArea(st_position(0, 0), &bg_surface, &graphLib.gameScreen);
-    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player, game_config.selected_language));
+    graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(strings_ingame_config_select_player));
     graphLib.draw_centered_text(176, GameMediator::get_instance()->player_list_v3_1[0].name);
-    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select, game_config.selected_language));
+    graphLib.draw_centered_text(217, strings_map::get_instance()->get_ingame_string(strings_ingame_config_press_start_to_select));
     graphLib.copyArea(st_position(0, 50), &p1_surface, &graphLib.gameScreen);
     draw_lib.update_screen();
 
@@ -821,6 +630,79 @@ Uint8 scenesLib::select_player() {
     return (selected-1);
 }
 
+void scenesLib::boss_intro(short stage_n)
+{
+    if (game_data.game_style == GAME_STYLE_VINTAGE) {
+        classic_style_boss_intro(stage_n);
+        return;
+    }
+    /*
+    if (stage_n < CASTLE1_STAGE1 && stage_data.boss.id_npc == -1) {
+        return;
+    }
+    */
+    //std::string botname = GameMediator::get_instance()->get_enemy(stage_data.boss.id_npc)->name;
+    std::string botname = stage_data.boss.name;
+
+    soundManager.play_sfx(SFX_STAGE_SELECTED);
+    graphLib.blank_screen();
+
+    char decimal = '\0';
+    if (stage_n < 10) {
+        decimal = '0';
+    }
+    std::string filename;
+    filename.append(FILEPATH).append("/images/backgrounds/boss_intro/");
+    if (stage_n < 10) {
+        filename.append("0");
+    }
+    char filename_chr[256];
+    sprintf(filename_chr, "%d.png", stage_n);
+    filename.append(std::string(filename_chr));
+
+    if (!fio.file_exists(filename)) {
+        return;
+    }
+
+    graphicsLib_gSurface boss_intro_bg;
+
+    graphLib.surfaceFromFile(FILEPATH + "/images/backgrounds/boss_intro/boss_intro_bg.png", &boss_intro_bg);
+    graphLib.showSurfaceAt(&boss_intro_bg, st_position(0, 0), false);
+
+
+    graphicsLib_gSurface boss_intro_img;
+    graphLib.surfaceFromFile(filename, &boss_intro_img);
+    graphLib.showSurfaceRegionAt(&boss_intro_img, st_rectangle(2, 0, boss_intro_img.width-4, boss_intro_img.height), st_position(2, 10));
+    graphLib.draw_centered_text(217, botname);
+    graphLib.wait_and_update_screen(4200);
+}
+
+void scenesLib::classic_style_boss_intro(short stage_n)
+{
+    if (game_save.stages[stage_n] != 0) {
+        return;
+    }
+    if (stage_n >= STAGE8) {
+        classic_style_castle_intro(stage_n);
+    }
+    soundManager.stop_music();
+    soundManager.load_music("classic_style_boss_intro.s3m");
+    soundManager.play_music_once();
+
+    std::string botname = stage_data.boss.name;
+    int boss_id = stage_data.boss.id_npc;
+    draw_lib.show_boss_intro_sprites(boss_id, false);
+    graphLib.draw_centered_text(200, botname);
+    graphLib.wait_and_update_screen(6400);
+}
+
+void scenesLib::game_scenes_show_unbeaten_intro()
+{
+    sceneShow show;
+    show.show_scene(game_scenes_map[GAME_SCENE_TYPES_INTRO_GAME_UNBEATEN]);
+}
+
+
 
 Uint8 scenesLib::select_difficulty()
 {
@@ -833,14 +715,14 @@ Uint8 scenesLib::select_difficulty()
     input.clean();
     timer.delay(300);
 
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal, game_config.selected_language));
-    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard, game_config.selected_language));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_easy));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_normal));
+    options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_hard));
 
     config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
     config_text_pos.y = graphLib.get_config_menu_pos().y + 60;
 
-    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select, game_config.selected_language).c_str());
+    graphLib.draw_text(config_text_pos.x, graphLib.get_config_menu_pos().y+40, strings_map::get_instance()->get_ingame_string(strings_ingame_difficulty_select).c_str());
 
     short selected_option = -2;
     while (selected_option == -2) {
@@ -855,7 +737,6 @@ Uint8 scenesLib::select_difficulty()
         } else {
             res = selected_option;
         }
-        std::cout << "############ select_difficulty.selected_option[" << selected_option << "]" << std::endl;
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
     }
@@ -864,135 +745,9 @@ Uint8 scenesLib::select_difficulty()
 
 
 
-void scenesLib::boss_intro(Uint8 pos_n)
-{
-    if (pos_n >= CASTLE1_STAGE1) {
-        show_castle_boss_intro(pos_n);
-        return;
-    }
-    if (pos_n == INTRO_STAGE) {
-        return;
-    }
 
 
-    graphicsLib_gSurface boss_img;
-    char boss_filename_chr[12];
-    sprintf(boss_filename_chr, "0%d.png", pos_n);
-    std::string boss_filename = FILEPATH + "images/backgrounds/boss_intro/" + std::string(boss_filename_chr);
-    graphLib.surfaceFromFile(boss_filename, &boss_img);
 
-    int init_pos = -boss_img.width;
-    int end_pos = RES_W-boss_img.width;
-    int pos_y = 151-boss_img.height;
-
-    soundManager.stop_music();
-    // TODO: must set this in game-data //
-    soundManager.load_music("rockbot_stage_start.mod");
-    soundManager.play_music_once();
-    graphLib.blank_screen();
-    draw_lib.show_boss_intro_bg();
-    draw_lib.update_screen();
-
-    for (int i=init_pos; i<=end_pos; i++) {
-        graphLib.clear_area(0, 34, RES_W, 117, 13, 15, 97);
-        graphLib.copyArea(st_position(i, pos_y), &boss_img, &graphLib.gameScreen);
-        draw_lib.update_screen();
-        timer.delay(5);
-
-    }
-
-    CURRENT_FILE_FORMAT::file_stage temp_stage_data;
-    fio.read_stage(temp_stage_data, pos_n);
-    std::string botname = GameMediator::get_instance()->get_enemy(temp_stage_data.boss.id_npc)->name;
-
-    std::string full_stage_str = botname + " [" + std::string(temp_stage_data.name) + "]";
-
-    std::cout << "SCENES::BOSS_INTRO - pos_n[" << (int)pos_n << "], full_stage_str[" << full_stage_str << "]" << std::endl;
-
-    // convert name to uppercase
-    std::locale settings;
-    std::string boss_name;
-    int text_x = RES_W-(full_stage_str.length()*8);
-    text_x = text_x/2;
-
-    //std::cout << "full_stage_str.length()[" << full_stage_str.length() << "], calc.size[" << (full_stage_str.length()*8) << "], text_x[" << text_x << "]" << std::endl;
-    for(unsigned int i = 0; i < full_stage_str.size(); ++i) {
-        boss_name += (std::toupper(full_stage_str[i], settings));
-        graphLib.draw_text(text_x, BOSS_INTRO_BG_TEXT_Y, boss_name);
-        draw_lib.update_screen();
-        timer.delay(100);
-    }
-    graphLib.wait_and_update_screen(2500);
-
-}
-
-void scenesLib::show_castle_boss_intro(Uint8 pos_n)
-{
-    fio_common fio_cmm;
-    CURRENT_FILE_FORMAT::st_file_castle_ponts castle_data = fio_cmm.load_single_object_from_disk<CURRENT_FILE_FORMAT::st_file_castle_ponts>(std::string("/castle1_points.dat"));
-
-    graphicsLib_gSurface spriteCopy;
-
-
-    // set skullcastole number accoring to the save
-    if (pos_n == CASTLE1_STAGE1) {
-        if (game_save.stages[CASTLE1_STAGE5] != 0 || game_save.stages[CASTLE1_STAGE4] != 0) {
-            pos_n = CASTLE1_STAGE5;
-        } else if (game_save.stages[CASTLE1_STAGE3] != 0) {
-            pos_n = CASTLE1_STAGE4;
-        } else if (game_save.stages[CASTLE1_STAGE2] != 0) {
-            pos_n = CASTLE1_STAGE3;
-        } else if (game_save.stages[CASTLE1_STAGE1] != 0) {
-            pos_n = CASTLE1_STAGE2;
-        }
-    }
-
-    if (pos_n == CASTLE1_STAGE1) {
-        graphLib.blank_screen();
-        /// @TODO - use scenes here
-        //show_destrin_ship_intro();
-    }
-
-    std::cout << "####################### pos_n[" << (int)pos_n << "]" << std::endl;
-
-
-    std::string filename = FILEPATH + "images/backgrounds/castle.png";
-    graphLib.surfaceFromFile(filename, &spriteCopy);
-    graphLib.copyArea(st_position(0, 0), &spriteCopy, &graphLib.gameScreen);
-    graphLib.updateScreen();
-    graphLib.blink_screen(255, 255, 255);
-
-
-    // draw previous points/paths
-    draw_lib.draw_castle_point(castle_data.points[0].x, castle_data.points[0].y); // first point is always visible
-    if (pos_n == CASTLE1_STAGE3) {
-        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
-    } else if (pos_n == CASTLE1_STAGE4 || pos_n == CASTLE1_STAGE5) {
-        draw_lib.draw_castle_path(true, castle_data.points[0], castle_data.points[1]);
-        draw_lib.draw_castle_path(true, castle_data.points[1], castle_data.points[2]);
-        draw_lib.draw_castle_path(true, castle_data.points[2], castle_data.points[3]);
-    }
-
-    soundManager.load_music("rockbot_skull_castle_intro.mod");
-    soundManager.play_music_once();
-    graphLib.wait_and_update_screen(7000);
-
-    draw_lib.update_screen();
-    timer.delay(1000);
-
-
-    /// @TODO - instant path for drawing previous ones (do not need a for-loop)
-    if (pos_n == CASTLE1_STAGE2) {
-        draw_lib.draw_castle_path(false, castle_data.points[0], castle_data.points[1]);
-    } else if (pos_n == CASTLE1_STAGE3) {
-        draw_lib.draw_castle_path(false, castle_data.points[1], castle_data.points[2]);
-    } else if (pos_n == CASTLE1_STAGE4) {
-        draw_lib.draw_castle_path(false, castle_data.points[2], castle_data.points[3]);
-    } else if (pos_n == CASTLE1_STAGE5) {
-        draw_lib.draw_castle_path(false, castle_data.points[3], castle_data.points[4]);
-    }
-    timer.delay(1500);
-}
 
 
 short scenesLib::select_save(bool is_new_game)
@@ -1024,12 +779,14 @@ short scenesLib::select_save(bool is_new_game)
         }
     }
 
+
+    strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION);
     if (is_new_game == true) {
-        graphLib.draw_text(10, 10, "CREATE NEW GAME");
+        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NEW_GAME));
     } else {
-        graphLib.draw_text(10, 10, "LOAD GAME FILE");
+        graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_LOAD_GAME));
     }
-    graphLib.draw_text(10, RES_H-12, "PLEASE SELECT SAVE SLOT");
+    graphLib.draw_text(10, RES_H-12, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION));
 
     while (finished == false) {
         // draw screen
@@ -1044,7 +801,7 @@ short scenesLib::select_save(bool is_new_game)
             if (save_slot_exists[i] == true) {
                 draw_save_details(i, save_detail_array[i]);
             } else {
-                graphLib.draw_text(10, i*40+34, "- NO SAVE FILE -");
+                graphLib.draw_text(10, i*40+34, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NO_SAVE));
             }
         }
 
@@ -1085,12 +842,80 @@ short scenesLib::select_save(bool is_new_game)
 
 }
 
+void scenesLib::show_ending_scenes(e_PLAYERS selected_player)
+{
+    sceneShow show;
+    if (selected_player == PLAYER_1) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER1]);
+    } else if (selected_player == PLAYER_2) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER2]);
+    } else if (selected_player == PLAYER_3) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER3]);
+    } else if (selected_player == PLAYER_4) {
+        show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER4]);
+    }
+
+}
+
+void scenesLib::classic_style_castle_intro(short stage_id)
+{
+    soundManager.stop_music();
+    soundManager.load_music("classic_style_castle_intro.mp3");
+    soundManager.play_music_once();
+    std::string filename = FILEPATH + "images/backgrounds/classic_style_castle.png";
+    graphicsLib_gSurface skull_castle_bg;
+    graphLib.surfaceFromFile(filename, &skull_castle_bg);
+    graphLib.showSurfaceAt(&skull_castle_bg, st_position(0, 0), false);
+
+    // draw points
+    filename = FILEPATH + "images/backgrounds/classic_style_castle_point.png";
+    graphicsLib_gSurface skull_castle_point;
+    graphLib.surfaceFromFile(filename, &skull_castle_point);
+    graphLib.showSurfaceAt(&skull_castle_point, st_position(11, 223), false);
+    if (stage_id >= CASTLE1_STAGE1) {
+        //bool instant, st_position initial_point, st_position final_point
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE1), st_position(11, 223), st_position(74, 169));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(74, 169), false);
+    }
+    if (stage_id >= CASTLE1_STAGE2) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE2), st_position(74, 169), st_position(92, 100));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(92, 100), false);
+    }
+    if (stage_id >= CASTLE1_STAGE3) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE3), st_position(92, 100), st_position(132, 65));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(132, 65), false);
+    }
+    if (stage_id >= CASTLE1_STAGE4) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE4), st_position(132, 65), st_position(149, 20));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(149, 20), false);
+    }
+    if (stage_id >= CASTLE1_STAGE5) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE5), st_position(149, 20), st_position(212, 78));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(212, 78), false);
+    }
+    if (stage_id >= CASTLE1_STAGE6) {
+        draw_lib.draw_castle_path((stage_id > CASTLE1_STAGE6), st_position(212, 78), st_position(245, 132));
+        graphLib.showSurfaceAt(&skull_castle_point, st_position(245, 132), false);
+    }
+    if (stage_id >= CASTLE2_STAGE1) {
+        draw_lib.draw_castle_path((stage_id > CASTLE2_STAGE1), st_position(245, 132), st_position(160, 197));
+        filename = FILEPATH + "images/backgrounds/classic_style_castle_skull_point.png";
+        graphicsLib_gSurface skull_castle_skull_point;
+        graphLib.surfaceFromFile(filename, &skull_castle_skull_point);
+        graphLib.showSurfaceAt(&skull_castle_skull_point, st_position(160, 197), false);
+    }
+
+    graphLib.updateScreen();
+    timer.delay(6500);
+    soundManager.stop_music();
+}
+
 void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
 {
     // intro stage is rock buster icon, other are weapons icons
     int y_pos = n*40+34;
     for (int i=0; i<=8; i++) {
-        st_position pos((i+1)*18, y_pos);
+        st_position pos((i+1)*18-14, y_pos);
         if (save.stages[i] == 1) {
             graphLib.draw_weapon_tooltip_icon(i, pos, true);
         } else {
@@ -1098,29 +923,36 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
             graphLib.draw_weapon_tooltip_icon(i, pos, false);
         }
     }
-    // lifes
-    st_position pos_lifes(9*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(11+save.selected_player, pos_lifes, true);
+    int item_adjust_x = 10;
     char buffer[3];
-    sprintf(buffer, "x%d", save.items.lifes);
-    graphLib.draw_text(10*18, y_pos+5, std::string(buffer));
+
+    // character
+    st_position pos_lifes(9*18+item_adjust_x-4, y_pos);
+    graphLib.draw_weapon_tooltip_icon(14+save.selected_player, pos_lifes, true);
+    std::string difficulty = "[M]";
+    if (save.difficulty == DIFFICULTY_EASY) {
+        difficulty = "[E]";
+    } else if (save.difficulty == DIFFICULTY_HARD) {
+        difficulty = "[H]";
+    }
+    graphLib.draw_text(10*18+item_adjust_x-6, y_pos+5, std::string(difficulty));
 
     // e-tank
-    st_position pos_etank(11*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(15, pos_etank, true);
+    st_position pos_etank(11*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(11, pos_etank, true);
     sprintf(buffer, "x%d", save.items.energy_tanks);
-    graphLib.draw_text(12*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(12*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // w-tank
-    st_position pos_wtank(13*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(16, pos_wtank, true);
+    st_position pos_wtank(13*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(12, pos_wtank, true);
     sprintf(buffer, "x%d", save.items.weapon_tanks);
-    graphLib.draw_text(14*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(14*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // s-tank
-    st_position pos_stank(15*18, y_pos);
-    graphLib.draw_weapon_tooltip_icon(17, pos_stank, true);
+    st_position pos_stank(15*18+item_adjust_x, y_pos);
+    graphLib.draw_weapon_tooltip_icon(13, pos_stank, true);
     sprintf(buffer, "x%d", save.items.special_tanks);
-    graphLib.draw_text(16*18, y_pos+5, std::string(buffer));
+    graphLib.draw_text(16*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 }
 

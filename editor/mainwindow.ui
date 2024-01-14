@@ -60,7 +60,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -84,7 +84,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -108,7 +108,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -132,7 +132,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -156,7 +156,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -180,7 +180,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -204,7 +204,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -228,7 +228,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -252,7 +252,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -276,7 +276,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -300,7 +300,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -324,7 +324,7 @@
              <x>0</x>
              <y>0</y>
              <width>828</width>
-             <height>297</height>
+             <height>273</height>
             </rect>
            </property>
           </widget>
@@ -357,7 +357,7 @@
      <x>0</x>
      <y>0</y>
      <width>870</width>
-     <height>19</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFILE">
@@ -367,6 +367,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionRun_Stage_2"/>
     <addaction name="actionSwap_Maps"/>
     <addaction name="actionReset_Stage_Links"/>
     <addaction name="actionReset_Map"/>
@@ -393,14 +394,6 @@
     <property name="title">
      <string>View</string>
     </property>
-    <widget class="QMenu" name="menuLevel">
-     <property name="title">
-      <string>Level</string>
-     </property>
-     <addaction name="actionOne"/>
-     <addaction name="actionTwo"/>
-     <addaction name="actionThree"/>
-    </widget>
     <widget class="QMenu" name="menuZoom">
      <property name="title">
       <string>Zoom</string>
@@ -409,12 +402,21 @@
      <addaction name="actionZoomTwo"/>
      <addaction name="actionZoomThree"/>
     </widget>
-    <addaction name="menuLevel"/>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionDark"/>
+     <addaction name="actionDefault"/>
+    </widget>
     <addaction name="menuZoom"/>
     <addaction name="actionGRID"/>
     <addaction name="actionObjects"/>
     <addaction name="actionNPCs"/>
     <addaction name="actionTeleporters"/>
+    <addaction name="actionShowTileset"/>
+    <addaction name="actionShow_Rects"/>
+    <addaction name="menuTheme"/>
    </widget>
    <addaction name="menuFILE"/>
    <addaction name="menuEdit"/>
@@ -501,21 +503,6 @@
    </property>
    <property name="toolTip">
     <string>Layer Level</string>
-   </property>
-  </action>
-  <action name="actionOne">
-   <property name="text">
-    <string>one</string>
-   </property>
-  </action>
-  <action name="actionTwo">
-   <property name="text">
-    <string>two</string>
-   </property>
-  </action>
-  <action name="actionThree">
-   <property name="text">
-    <string>three</string>
    </property>
   </action>
   <action name="actionReset_Map">
@@ -631,12 +618,55 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>gRID</string>
+    <string>Grid</string>
+   </property>
+  </action>
+  <action name="actionRun_Stage_2">
+   <property name="icon">
+    <iconset resource="resources/icons/icons.qrc">
+     <normaloff>:/toolbar_icons/arrow-right.png</normaloff>:/toolbar_icons/arrow-right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Run Stage</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionDefault">
+   <property name="text">
+    <string>Default</string>
+   </property>
+  </action>
+  <action name="actionShowTileset">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Tileset</string>
+   </property>
+  </action>
+  <action name="actionShow_Rects">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Rects</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
+  <include location="resources/icons/icons.qrc"/>
+  <include location="resources/icons/icons.qrc"/>
   <include location="resources/icons/icons.qrc"/>
  </resources>
  <connections/>

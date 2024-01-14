@@ -1,9 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 
-#include "soundlib.h"
+#include "../soundlib.h"
 
 #define FLASH_POINTS_N 10
 #define SNOW_PARTICLES_NUMBER 20
@@ -46,9 +46,10 @@ public:
     void show_bubble(int x, int y);
     void set_teleport_small_colors(st_color color1, st_color color2);
     void show_teleport_small(int x, int y);
-    int show_credits_text(bool can_leave, std::vector<string> credit_text);
-    int show_credits(bool can_leave);
-    void show_unlocked_charsMsg();
+    int show_credits_text(bool can_leave, std::vector<string> credit_text, bool show_new_characters_warning);
+    void draw_credits_line(int i, std::vector<string> credit_text, int posY);
+    int show_credits(bool can_leave, bool show_new_characters_warning);
+    void show_about();
     std::vector<string> create_engine_credits_text();
     graphicsLib_gSurface* get_object_graphic(int obj_id);
     void remove_object_graphic(int obj_id);
@@ -65,13 +66,27 @@ public:
 
     graphicsLib_gSurface* get_dynamic_background(std::string filename);
     graphicsLib_gSurface* get_dynamic_foreground(std::string filename);
+
     void show_hud(int hp, int player_n, int selected_weapon, int selected_weapon_value);
+    void show_hud_vintage(int hp, int player_n, int selected_weapon, int selected_weapon_value);
     void draw_enery_ball(int value, int x_pos, graphicsLib_gSurface &ball_surface);
+    void draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int percent, int value);
+    void draw_energy_bar(short int hp, short int player_n, short int weapon_n, short int max_hp);
+    void draw_energy_bar_graph(st_position bar_pos, st_color color0, st_color color1, st_color color2, int weapon_n_adjusted, int graph_lenght);
+
     void set_boss_hp(int hp);
     void show_boss_intro_bg();
     void draw_explosion(st_position center_point, int radius, int angle_inc);
+    void draw_player_death(st_position center_point, int frame_n);
+    int get_death_animation_frames_n();
+    void show_weapon_tooltip();
+
+    void draw_in_game_menu(graphicsLib_gSurface *character_sprite, short selected_weapon_n);
+    void draw_weapon_menu_weapon(short selected_weapon_n);
+    std::string get_selected_weapon_name(int selected_weapon_n);
+    void weapon_menu_show_player(graphicsLib_gSurface *character_sprite);
+    st_float_position get_radius_point(st_position center_point, int radius, float angle);
     void draw_castle_path(bool instant, st_position initial_point, st_position final_point);
-    void draw_castle_point(int x, int y);
 
 private:
     void draw_credit_line(graphicsLib_gSurface& surface, Uint8 initial_line, std::vector<string> credit_text);
@@ -84,8 +99,7 @@ private:
     void show_shadow_top_effect();
     void show_inferno_effect();
     void free_inferno_surface();
-    void show_weapon_tooltip();
-    st_float_position get_radius_point(st_position center_point, int radius, float angle);
+    void show_wave_effect();
     //void create_dynamic_background_surface(graphicsLib_gSurface& dest_surface, graphicsLib_gSurface& image_surface, int auto_scroll_mode);
 
 
@@ -105,7 +119,7 @@ private:
     graphicsLib_gSurface _teleport_small_gfx;
     int teleport_small_frame_count;
     int teleport_small_frame;
-    long teleport_small_frame_timer;
+    unsigned long teleport_small_frame_timer;
 
     // GRAPHICS LISTS
     std::map<unsigned int, graphicsLib_gSurface> objects_sprite_list; // object_id, graphic
@@ -135,9 +149,13 @@ private:
     // used in HUD
     graphicsLib_gSurface hud_player_hp_ball;
     graphicsLib_gSurface hud_player_wpn_ball;
-    graphicsLib_gSurface hud_player_1up;
     graphicsLib_gSurface hud_boss_hp_ball;
+    graphicsLib_gSurface hp_ball_disabled;
     int _boss_current_hp;
+
+    // used in weapoins menu
+    struct graphicsLib_gSurface ingame_menu_bg_img;
+    struct graphicsLib_gSurface ingame_menu_player_armor_pieces;
 
     // WEAPON ICON TOOLTIP
     const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type
@@ -148,13 +166,19 @@ private:
     int current_alpha;                                  // used for fade effect that runs each time update-screen is called
     st_color current_alpha_color;
     graphicsLib_gSurface current_alpha_surface;
-    graphicsLib_gSurface castle_point;
 
+    struct graphicsLib_gSurface _death_animation;
+    int _death_animation_frames_n = 0;
 
     // used to avoid having multiple copies of same background for all 3 maps in same stage
     std::map<std::string, graphicsLib_gSurface> maps_dynamic_background_list;
 
-    std::map<e_INPUT_IMAGES, graphicsLib_gSurface> input_images_map;
+    graphicsLib_gSurface input_images_map[INPUT_IMAGES_COUNT];
+
+    int wave_effect_sin = 0;
+    int wave_effect_array[8] = {0, 1, 2, 1, 0, -1, -2, -1};
+    unsigned long wave_effect_timer = 0;
+
 };
 
 #endif // DRAW_H

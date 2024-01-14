@@ -4,10 +4,10 @@
 #include <iostream>
 #include <string>
 
-#include "defines.h"
-#include "graphicslib.h"
-#include "file/v4/file_game_v4.h"
-#include "game_mediator.h"
+#include "../defines.h"
+#include "../graphicslib.h"
+#include "../file/v4/file_game_v4.h"
+#include "../game_mediator.h"
 
 
 class character_animation

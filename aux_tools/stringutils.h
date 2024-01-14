@@ -3,9 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <stdio.h>
 #include <cstdlib>
-#include <string.h>
+#include <cstring>
 
 class StringUtils
 {

@@ -6,6 +6,8 @@ using namespace std;
 
 #include <SDL/SDL_mixer.h>
 #include "defines.h"
+#include "shareddata.h"
+#include "file/file_io.h"
 
 /**
  * @brief
@@ -42,6 +44,7 @@ public:
     void sound_loop();
     void disable_sound() const;
     void enable_sound();
+    std::string get_filename_for_music(std::string filename);
 
     void update_volumes();
 
@@ -63,6 +66,7 @@ private:
     Sint8 _repeated_sfx_channel; /**< TODO */
     Uint8 _repeated_sfx; /**< TODO */
     bool is_playing_boss_music;
+    CURRENT_FILE_FORMAT::file_io fio;
 };
 
 #endif // SOUNDLIB_H

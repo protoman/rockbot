@@ -34,7 +34,6 @@ void trajectory_parabola::set_distance(int dist)
     if (_reducefactor <= 0) {
         _reducefactor = 0.4;
     }
-    //std::cout << ">>>> DEBUG #2 _reducefactor: " << _reducefactor << ", _max_point: " << _max_point << " speed: " << _v << " <<<<<" << std::endl;
 }
 
 int trajectory_parabola::get_y_point(int n) const
@@ -50,9 +49,6 @@ int trajectory_parabola::get_y_point(int n) const
     int reduced_y = 0;
     if (_reducefactor != 0) {
         reduced_y = (int)(y/_reducefactor);
-    }
-    if (reduced_y <= -21474834) {
-        std::cout << ">>>parabola::get_y_point - n: " << n << ", _max_point: " << _reducefactor << ", y: " << y << ", reduced_y: " << reduced_y << std::endl;
     }
     return reduced_y;
 }

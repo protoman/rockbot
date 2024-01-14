@@ -34,6 +34,9 @@ SceneEditorWindow::SceneEditorWindow(QWidget *parent) :
 
     animation_tab = new TabAnimation();
     ui->tabAnimation_scrollArea->setWidget(animation_tab);
+
+    parallax_tab = new tab_parallax();
+    ui->parallax_scrollArea->setWidget(parallax_tab);
 }
 
 SceneEditorWindow::~SceneEditorWindow()
@@ -57,6 +60,7 @@ void SceneEditorWindow::closeEvent(QCloseEvent *event)
 void SceneEditorWindow::reload()
 {
     image_tab->reload();
+    parallax_tab->reload();
     viewpoint_tab->reload();
     text_tab->reload();
     scenes_tab->reload();
@@ -64,6 +68,11 @@ void SceneEditorWindow::reload()
     music_tab->reload();
     cleararea_tab->reload();
     animation_tab->reload();
+}
+
+void SceneEditorWindow::update_app_theme()
+{
+    scenes_tab->update_app_theme();
 }
 
 void SceneEditorWindow::on_actionSave_triggered()
@@ -81,16 +90,19 @@ void SceneEditorWindow::save()
     music_tab->save_data();
     cleararea_tab->save_data();
     animation_tab->save_data();
+    parallax_tab->save_data();
 }
 
 
 void SceneEditorWindow::on_actionPlay_Movie_triggered()
 {
-    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
+    QString file = QString("scenesviewer");
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ScenesMediator::get_instance()->selected_scene);
-    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
+    file += QString(" --gamename \"")  + QString(GAMENAME.c_str()) + QString("\"")
+            + QString(" --language \"")  + QString::number(scenes_tab->get_language()) + QString("\"")
+            + QString(" --scenenumber ") + QString::number(ScenesMediator::get_instance()->selected_scene);
+    std::cout << "SceneEditorWindow::on_actionPlay_Movie_triggered[" << file.toStdString() << "]" << std::endl;
     process.start(file);
 }

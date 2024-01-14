@@ -16,10 +16,7 @@
 #include "file/format/st_common.h"
 #include "file/format.h"
 #include "game_mediator.h"
-
-#ifdef PSP
-#include "ports/psp/psp_ram.h"
-#endif
+#include "shareddata.h"
 
 #define INTRO_STARS_NUMBER 10
 #define ANIM_STARS_BIG_STEP 6
@@ -87,6 +84,7 @@ struct st_spriteFrame {
             frameSurface = other.frameSurface;
         }
         delay = other.delay;
+        return *this;
     }
 
     void setDelay(int newDelay)
@@ -127,7 +125,6 @@ struct st_char_sprite_data {
     // assign copy constructor //
     st_char_sprite_data& operator= (const st_char_sprite_data& other)
     {
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.START <<\n");
         fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -136,8 +133,8 @@ struct st_char_sprite_data {
                 }
             }
         }
-        printf(">> DEBUG.st_char_sprite_data.ASSIGN.END <<\n");
         fflush(stdout);
+        return *this;
     }
 };
 
@@ -148,6 +145,8 @@ public:
     graphicsLib();
     ~graphicsLib();
     bool initGraphics();
+    void set_window_icon();
+    void update_screen_mode();
     void load_shared_graphics();
     void preload();
     void updateScreen();
@@ -162,6 +161,7 @@ public:
     void copyArea(struct st_rectangle rect, struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*);
     void copyArea(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
     void copyAreaWithAdjust(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
+    void copyAreaWithAdjustAndAnimFrame(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*, int frame); // overload, use the whole width and height of given image
     void surfaceFromFile(std::string, graphicsLib_gSurface *);
     void showSurface(struct graphicsLib_gSurface*);
     void showSurfaceRegion(struct graphicsLib_gSurface*, const struct st_rectangle origin_rectangle);
@@ -190,6 +190,9 @@ public:
     void draw_text(short int x, short int y, std::string text);
     void draw_text(short int x, short int y, std::string text, st_color color);
     void draw_text(short int x, short int y, std::string text, struct graphicsLib_gSurface& surface);
+
+    void draw_error_text(std::string text);
+
     void draw_centered_text(short int y, std::string text, st_color font_color);
     void draw_centered_text(short int y, std::string text);
     void draw_centered_text(short int y, std::string text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
@@ -198,18 +201,23 @@ public:
     Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
     void drawCursor(st_position);
     void eraseCursor(st_position);
+    void eraseCursorWithBG(int pick_n, st_position dest);
     void blink_screen(Uint8 r, Uint8 g, Uint8 b);
     void blink_surface_into_screen(struct graphicsLib_gSurface &surface);
     void load_icons();
     void draw_weapon_icon(short, st_position menu_pos, bool active);
+    void draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active);
+    void draw_small_weapon_icon(short wpn_n, st_position pos, bool active);
     void draw_weapon_tooltip_icon(short weapon_n, st_position position, bool disabled);
+    void draw_weapon_changed_tooltip(short weapon_n);
     void draw_menu_item(int x_pos);
     void erase_menu_item(int x_pos);
     void draw_item_icon(enum ITEM_ICONS_ENUM, st_position pos);
-    void draw_weapon_menu_bg(Uint8 current_hp, graphicsLib_gSurface *player_frame, short max_hp);
+    //void draw_weapon_menu_bg_old(short selected_weapon);
+
     void clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
 
-    void clear_area_alpha(short int x, short int y, short int w, short int h, short int r, short int g, short int b, int alpha);
+    void clear_area_alpha(short int x, short int y, short int w, short int h);
 
     void clear_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b);
     void blank_area(short int x, short int y, short int w, short int h);
@@ -239,20 +247,21 @@ public:
     void flip_image(graphicsLib_gSurface original, graphicsLib_gSurface &res, e_flip_type flip_mode);
     void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
     void place_water_tile(st_position dest);
-#ifdef PSP
-    void psp_show_available_ram(int n);
-#endif
 
     void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
+    SDL_Surface *zoom_screen(int scale, SDL_Surface *origin);
     void rotate_image(graphicsLib_gSurface& picture, double angle);
     void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
     graphicsLib_gSurface* get_preloaded_image(e_PRELOADED_IMAGES image_n);
+
+    void copy_picker_bg(int x, int y, int w, int h);
+    void restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
-    void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale) const;
+    void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_star(short int x, short int y, int size);
     void erase_star(short int x, short int y, int size);
@@ -263,7 +272,7 @@ private:
     void set_video_mode();
     void preload_images();
     void preload_anim_tiles();
-    void render_text(short int x, short int y, std::string text, st_color color, struct graphicsLib_gSurface& surface, bool centered);
+    void render_text(short int x, short int y, std::string text, st_color color, bool centered);
 
 
 
@@ -297,8 +306,9 @@ public:
     graphicsLib_gSurface armor_icon_legs;
 
     // character graphics list map, used in order to avoid duplication of graphics
-    static std::map<std::string, st_char_sprite_data> character_graphics_list;
-    static std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
+    std::map<std::string, st_char_sprite_data> character_graphics_list;
+    std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
+    std::map<std::string, graphicsLib_gSurface> character_graphics_background_list_left;
 
 private:
     std::vector<struct anim_tile_timer> ANIM_TILES_TIMERS;
@@ -307,6 +317,7 @@ private:
     TTF_Font *font;
     TTF_Font *lowercase_font;
     TTF_Font *outline_font;
+    TTF_Font *error_font = nullptr;
 
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
@@ -318,13 +329,16 @@ private:
     std::vector<struct graphicsLib_gSurface> faces;				// faces for players and npcs
     std::vector<struct graphicsLib_gSurface> weapon_icons;		// weapon icons, used in menu and energy bars
     std::vector<struct graphicsLib_gSurface> small_weapon_icons;		// weapon icons, used in menu and energy bars
+    std::vector<struct graphicsLib_gSurface> small_weapon_icons_disabled;		// weapon icons, used in menu and energy bars
 
-    struct graphicsLib_gSurface ingame_menu;
     struct graphicsLib_gSurface config_menu;
     struct graphicsLib_gSurface dialog_surface;
     struct graphicsLib_gSurface _btn_a_surface;
     struct graphicsLib_gSurface _easymode_block;
     struct graphicsLib_gSurface _hardmode_block;
+    struct graphicsLib_gSurface _weapn_tooltip_bg;
+
+    struct graphicsLib_gSurface player_image_big[4];
 
     st_position _dialog_pos;
     st_position _config_menu_pos;
@@ -349,12 +363,11 @@ private:
 
     graphicsLib_gSurface preloaded_images[PRELOADED_IMAGES_COUNT];
 
+    int scale_int = 1;
+    int scale_adjust_x = 0;
 
+    graphicsLib_gSurface picker_bg;
 
-#ifdef PSP
-    psp_ram _ram_counter;
-    //std::cout << "unload_stage::RAM::BF='" << ram_counter.ramAvailable() << "'" << std::endl;
-#endif
 };
 
 #endif // GRAPHICSLIB_H

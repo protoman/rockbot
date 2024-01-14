@@ -2,7 +2,7 @@
 #define INPUTLIB_H
 
 #include "defines.h"
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 
 #include "file/format.h"
 
@@ -33,7 +33,7 @@ public:
     void init_joystick();
     void change_joystick();
     int wait_scape_time(int);
-    int clean_and_wait_scape_time(int);
+    void clean_and_wait_scape_time(int);
     void clean();
     void clean_all();     /// removes also the attack state
     void save();
@@ -48,7 +48,7 @@ public:
     std::string get_key_name(int key);
 
     void read_input();
-    void read_input(bool check_input_reset, bool check_input_cheat);
+    void read_input(bool check_input_reset, bool must_check_input_cheat);
     void check_cheat_input();
     void reset_cheat_input_sequence();
     void reset_cheat_input();
@@ -71,7 +71,7 @@ private:
     bool _show_btn_debug;
     int held_button_count;
     bool cheat_input_is_active;
-    short cheat_input_count;
+    unsigned short cheat_input_count;
     short cheat_input_previous;
     std::vector<input_sequence> cheat_input_sequence;
     long held_button_timer;

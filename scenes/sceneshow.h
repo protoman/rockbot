@@ -1,9 +1,18 @@
 #ifndef SCENESHOW_H
 #define SCENESHOW_H
 
-#include "defines.h"
-#include "file/fio_scenes.h"
-#include "file/fio_strings.h"
+#include "../defines.h"
+#include "../file/fio_scenes.h"
+#include "../file/fio_strings.h"
+
+
+struct parallax_run_obj {
+    graphicsLib_gSurface image;
+    int pos_y = 0;
+    int h = 0;
+    int speed = 0;
+    int current_pos = 0;
+};
 
 class sceneShow
 {
@@ -12,6 +21,7 @@ public:
 
     void show_scene(int n);
     void show_image(int n);
+    void show_parallax(int n);
     void show_text(int n);
     void clear_area(int n);
     void clear_screen();
@@ -26,6 +36,7 @@ private:
     void run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene_image);
     void run_text(int n);
     void run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoint viewpoint);
+    void run_parallax_scene(CURRENT_FILE_FORMAT::file_scene_show_parallax parallax);
 
 private:
     CURRENT_FILE_FORMAT::fio_scenes fio_scn;
@@ -39,6 +50,7 @@ private:
     // lists
     std::vector<CURRENT_FILE_FORMAT::file_scene_list> scene_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_image> image_scenes;
+    std::vector<CURRENT_FILE_FORMAT::file_scene_show_parallax> parallax_scenes;
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_text> text_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_clear_area> cleararea_list;
     std::vector<CURRENT_FILE_FORMAT::file_scene_play_sfx> playsfx_list;

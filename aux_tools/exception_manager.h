@@ -13,6 +13,11 @@
 #include <unwind.h>
 #include <dlfcn.h>
 #include <android/log.h>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <sstream>
+
 #endif
 
 struct BacktraceState

@@ -1,57 +1,35 @@
-====================================================================================
-2.0.0 Beta 19:
-====================================================================================
-- several fixes for Rockbot 1
-- improved Coil item animation and hitarea
-- new object type that damages player if he is above it when animation finishes
-- new object type that allows player to jump under it to above it
-- fixes for object animation and reverse-animation
-- increase movement and slide/dash speed a bit
-- fix jump for coild to be smaller
-- both player and objects should not collide with each other when teleporting
-- lowered bosses hit points to lower difficulty
-- fix quake effect animation
-- fix 3rd level of tiles not showing sometimes
-- player selection must be shown only in full-game, not demo
+#######################################################################################################################
+2020-XX-XX
+#######################################################################################################################
+- fix boss music not playing
+- increase default button spacing in Android
 
 
+#######################################################################################################################
+2020-05-24
+#######################################################################################################################
+- use ogg files instead of mod ones in Android to fix audio music issues
+- fix ghost flag not working due to being unset
+- ghost enemies will show under the tileset
 
+#######################################################################################################################
+2020-03-11
+#######################################################################################################################
+- jogo volta a ser chamado RockBot
+- correção para tooltip de arma aparecendo abaixo de tiles
+- correçãod e inimigos se teleportando para fora de sala com objeto porta
+- removida animação de teleporte para o jogador
+- refeitos os sprites do RockBot
+- readicionada seleção de personagem
+- readicionada seleção de armas no menu de jogo
 
+=======================================================================================================================
+- game is now called RockBot again
+- fix weapon tooltip showing under tiles
+- fix enemies teleporting out of room with door object
+- remove player's teleporting animation
+- new sprites for RockBot
+- readded character selection
+- readded weapon selection on in-game menu
 
-
-====================================================================================
-1.20.068:
-====================================================================================
-- In memorian to Ivan Fiedoruk
-- New stage select screen
-- Added Translation for cutscenes
-- Use teleporter-platform for entering boss' rooms
-- Fixes:
-    # unicode text with progressive draw
-    # better teleporter y-position handling
-
-
-
-====================================================================================
-1.20.074:
-====================================================================================
-- new soundtrack by Simone Bernacchia!
-- enemy projectile not moving if he is not on-screen
-- bring back to classic stage selection
-- bring back castle stages intro
-- dash shadow effect
-- AI: fly+dash to player
-- ANDROID: fix crash in boss credits
-- font outline
-- new door object for middle-stage bosses
-- new graphic for stage-boss teleporter
-- show commands (< > ENTER, etc) on manual' bottom
-- separate manual parts between game-specific and general
-- "got weapon" music playing two times, should not play on colors celebration
-
-
-====================================================================================
-2.0.0 Beta 20:
-====================================================================================
-- shield must stop any movement (left, right, up, down)
-- na tela de seleção de fase, tá escrito pra apertar A, mas só entra com start
+#######################################################################################################################

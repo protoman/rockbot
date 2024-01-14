@@ -2,8 +2,8 @@
 #define ANIMATION_H
 
 #include <string>
-#include "file/format/st_common.h"
-#include "graphicslib.h"
+#include "../file/format/st_common.h"
+#include "../graphicslib.h"
 
 /**
  * @brief enum describing animation (like hit or explosions) positioning type (dynamic follows the character)

@@ -3,7 +3,7 @@
 # -------------------------------------------------
 
 #CONFIG += win32
-#CONFIG += linux
+CONFIG += linux
 #CONFIG += macosx
 
 QT += widgets
@@ -35,8 +35,8 @@ macosx {
 }
 
 linux {
-    QMAKE_CCFLAGS += -std=c++0x -g
-    QMAKE_CXXFLAGS += -std=c++0x -g
+    QMAKE_CCFLAGS += -std=c++0x -g -fPIC
+    QMAKE_CXXFLAGS += -std=c++0x -g -fPIC
     CONFIG += console
 }
 
@@ -44,7 +44,7 @@ win32 {
     QMAKE_CCFLAGS += -std=c++0x -fpermissive
     QMAKE_CXXFLAGS += -std=c++0x -fpermissive
     CXXFLAGS += -std=c++0x
-    LIBS = -lmingw32 -mwindows -lqtmaind
+    LIBS = -lmingw32 -mwindows
     QT += core gui
     QMAKE_CCFLAGS += -DWIN32
     QMAKE_CXXFLAGS += -DWIN32
@@ -56,6 +56,8 @@ win32 {
 TARGET = ../build/editor
 TEMPLATE = app
 SOURCES += main.cpp \
+    ../shareddata.cpp \
+    ../strings_map.cpp \
     mainwindow.cpp \
     editorarea.cpp \
     editortilepallete.cpp \
@@ -72,6 +74,7 @@ SOURCES += main.cpp \
     mainwindow_tab/object_tab.cpp \
     mainwindow_tab/weapon_edit.cpp \
     mainwindow_tab/stage_edit.cpp \
+    scenes/tab_parallax.cpp \
     sprite_preview_area.cpp \
     mainwindow_tab/artificial_inteligence_tab.cpp \
     mainwindow_tab/projectile_edit.cpp \
@@ -117,10 +120,11 @@ SOURCES += main.cpp \
     dialog_pick_color.cpp \
     files_editor/gametextcreditstab.cpp \
     ../aux_tools/exception_manager.cpp \
-    mainwindow_tab/castlepointsdialog.cpp \
-    mainwindow_tab/castle_points_editorarea.cpp
+    widgets/parallaxpreviewarea.cpp
 
 HEADERS += mainwindow.h \
+    ../shareddata.h \
+    ../strings_map.h \
     editorarea.h \
     editortilepallete.h \
     mediator.h \
@@ -138,6 +142,7 @@ HEADERS += mainwindow.h \
     mainwindow_tab/object_tab.h \
     mainwindow_tab/weapon_edit.h \
     mainwindow_tab/stage_edit.h \
+    scenes/tab_parallax.h \
     sprite_preview_area.h \
     mainwindow_tab/artificial_inteligence_tab.h \
     mainwindow_tab/projectile_edit.h \
@@ -198,8 +203,7 @@ HEADERS += mainwindow.h \
     dialog_pick_color.h \
     files_editor/gametextcreditstab.h \
     ../aux_tools/exception_manager.h \
-    mainwindow_tab/castlepointsdialog.h \
-    mainwindow_tab/castle_points_editorarea.h
+    widgets/parallaxpreviewarea.h
 
 FORMS += mainwindow.ui \
     addwizard.ui \
@@ -214,6 +218,7 @@ FORMS += mainwindow.ui \
     mainwindow_tab/projectile_edit.ui \
     mainwindow_tab/game_properties_tab.ui \
     mainwindow_tab/map_tab.ui \
+    scenes/tab_parallax.ui \
     stage_swap_dialog.ui \
     mainwindow_tab/player_edit.ui \
     scenes/sceneeditorwindow.ui \
@@ -234,8 +239,7 @@ FORMS += mainwindow.ui \
     mainwindow_tab/anim_tiles_edit.ui \
     mainwindow_tab/anim/animpackimport.ui \
     dialog_pick_color.ui \
-    files_editor/gametextcreditstab.ui \
-    mainwindow_tab/castlepointsdialog.ui
+    files_editor/gametextcreditstab.ui
 
 RESOURCES += resources/icons/icons.qrc
 INCLUDEPATH += ../common

@@ -163,11 +163,12 @@ public:
 
     classnpc *spawn_map_npc(short int npc_id, st_position npc_pos, short direction, bool player_friend, bool progressive_span);
 
-    int child_npc_count(int parent_id);
+    int child_npc_count(st_position parent_id);
 
     void move_npcs();
 
     void show_npcs();
+    void show_ghost_npcs();
     void show_npcs_to_left(int x);
 
     void move_objects(bool paused);
@@ -182,25 +183,31 @@ public:
 
     bool boss_hit_ground(classnpc *npc_ref);
 
+    bool boss_show_intro_sprites(classnpc *npc_ref);
+
     classnpc* get_near_boss();
+
+    bool is_boss_on_extended_screen();
 
     void reset_map_npcs();
 
     void draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surface);
 
-    void add_object(object obj);
+    void add_object(object &obj);
 
     st_position get_first_lock_in_direction(st_position pos, st_size max_dist, int direction);
 
-    int get_first_lock_on_left(int x_pos) const;
+    int get_first_lock_on_left(int x_tile_pos) const;
 
-    int get_first_lock_on_right(int x_pos) const;
+    int get_first_lock_on_right(int x_tile_pos) const;
 
     int get_first_lock_on_bottom(int x_pos, int y_pos);
 
     int get_first_lock_on_bottom(int x_pos, int y_pos, int w, int h);
 
     void drop_item(classnpc *npc_ref);
+    void drop_random_item(st_position position);
+    void drop_great_random_item(st_position position);
 
     void set_bg_scroll(int scrollx);
 
@@ -213,11 +220,11 @@ public:
 
     void reset_objects(); // restore objects to their original position
 
-    void print_objects_number();
-
     void add_bubble_animation(st_position pos);
 
     bool have_player_object();
+
+    void remove_player_objects();
 
     bool subboss_alive_on_left(short tileX);
 
@@ -256,7 +263,6 @@ private:
     graphicsLib_gSurface* get_dynamic_bg();
 
     graphicsLib_gSurface* get_dynamic_foreground();
-    void set_map_enemy_static_background(std::string filename, st_position pos);
 
 
 
@@ -290,6 +296,9 @@ private:
     int _show_map_pos_x;                                                    // this is used to compare the position that the map was drawn last time to the current scrolling to check if map needs to be redrawn
     graphicsLib_gSurface map_screen;                                        // use to avoid having to draw the tilesets each time we update screen
     std::vector<anim_tile_desc> anim_tile_list;                             // list of animated tiles, so we don't need to loop through all tiles when drawing only the animated ones
+    int bg_anim_pos = 0;
+    unsigned long bg_anim_timer = 0;
+    std::map<int, std::string> finished_friend_list;
 };
 
 

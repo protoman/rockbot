@@ -24,33 +24,37 @@ extern int freeze_weapon_id;
 #define BOMB_RAIN_DELAY 1600
 #define BOMB_RAIN_N 4
 
+#define LIGHTING_START_DELAY 400
+
 #define LARGE_BEAM_DELAY 20
+
+#include "shareddata.h"
 
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool _owner_is_player) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(0), _is_temporary(true)
+projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, bool owner_is_player, int owner_number) : _move_type(-1), is_reflected(false), status(0), _effect_timer(0), _effect_n(0), _points(1), _target_position(NULL), _weapon_id(0), _is_temporary(true)
 {
     set_default_values();
 	_id = id; // -1 is default projectile
 
-    //std::cout << ">>>>>>>>>>>>> projectile.id[" << (int)id << "]" << std::endl;
-
     owner = NULL;
-    //std::cout << ">>>>> projectile.constrctor, id[" << (int)id << "], x[" << set_position.x << "], y[" << set_position.y << "]" << std::endl;
-
+    _owner_is_player = owner_is_player;
+    _owner_number = owner_number;
     position = set_position;
     direction = set_direction;
+    original_direction = set_direction;
 	_size = get_size();
 
 	/// @TODO _ move this to game load
-    _speed = PROJECTILE_DEFAULT_SPEED;
+    _speed = PROJECTILE_DEFAULT_SPEED * SharedData::get_instance()->get_movement_multiplier();
 	if (_id == -1) {
 		_size.width = 6;
 		_size.height = 6;
     } else if (GameMediator::get_instance()->get_projectile(_id).speed > 0) {
-        _speed = GameMediator::get_instance()->get_projectile(_id).speed;
+        _speed = GameMediator::get_instance()->get_projectile(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     }
+    hp = GameMediator::get_instance()->get_projectile(_id).hp;
 
     _sin_x = 0;
 
@@ -58,9 +62,10 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 
 	position.y -= _size.height/2;
 	_max_frames = get_surface()->width / _size.width;
-	_move_type = get_trajectory();
+    max_frames_vertical = get_surface()->height / _size.height;
 
-    //std::cout << ">>> projectile::CONSTRUCTOR - x: " << position.x << ", y: " << position.y << ", _size.width: " << (int)_size.width << ", _size.height: " << (int)_size.height << std::endl;
+	_move_type = get_trajectory();
+    //std::cout << "NEW PROJECTILE, type[" << (int)_move_type << "]" << std::endl;
 
     if (_move_type == TRAJECTORY_BOMB) {
         if (direction == ANIM_DIRECTION_LEFT) {
@@ -69,8 +74,6 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
             position.x += 30;
         }
     }
-
-    //std::cout << ">>>>>>>>>>>> PROJECTILE::PROJECTILE::ID: " << (int)_id << ", trajectory: " << (int)_move_type << ", follow: " << TRAJECTORY_FOLLOW << std::endl;
 
     if (_move_type == TRAJECTORY_ARC) {
         position0.x = position.x;
@@ -90,10 +93,8 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
 	} else if (_move_type == TRAJECTORY_FREEZE) {
 		_quake_info.timer = timer.getTimer() + FREEZE_DURATION;
         if (_owner_is_player == true) {
-            //std::cout << "[[[freeze_weapon_effect(SET #A)]]]" << std::endl;
             freeze_weapon_effect = FREEZE_EFFECT_NPC;
         } else {
-            //std::cout << "[[[freeze_weapon_effect(SET #B)]]]" << std::endl;
             freeze_weapon_effect = FREEZE_EFFECT_PLAYER;
         }
         freeze_weapon_id = _id;
@@ -116,8 +117,12 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         position0.y = position.y;
         int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
         position.y = 0;
-        std::cout << "Y: " << position.y << std::endl;
         _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+
+        // add animation into the place it will appear
+        animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position0.x, first_bottom_lock*TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+        gameControl.get_current_map_obj()->add_animation(anim2);
+        lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
     } else if (_move_type == TRAJECTORY_SPIRAL) {
         angle = 360;
         position0.x = position.x;
@@ -131,14 +136,11 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     } else if (_move_type == TRAJECTORY_INVERSE_LINEAR) {
         int map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
         int abs_pos_x = position.x - map_scroll_x;
-        std::cout << ">>>> abs_pos_x[" << abs_pos_x << "], pos.x[" << position.x << "], map.scroll.x[" << map_scroll_x << "]" << std::endl;
 
         if (direction == ANIM_DIRECTION_LEFT) {
             int scroll_diff_x = abs_pos_x - RES_W;
             direction = ANIM_DIRECTION_RIGHT;
             position.x -= abs_pos_x;
-
-            std::cout << ">>>> new_pos.x[" << position.x << "]" << std::endl;
         } else {
             int scroll_diff_x = RES_W - abs_pos_x;
             direction = ANIM_DIRECTION_LEFT;
@@ -147,6 +149,10 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         _move_type = TRAJECTORY_LINEAR;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         status_timer = timer.getTimer();
+        position0.x = RES_W/BOMB_RAIN_N * status  + gameControl.get_current_map_obj()->getMapScrolling().x + TILESIZE;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position0.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x - TILESIZE;
+        }
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
         frame_w = _size.width/3;
         status = 0;
@@ -154,10 +160,19 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
         if (direction == ANIM_DIRECTION_LEFT) {
             position.x -= frame_w*2;
         }
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        frame_w = GameMediator::get_instance()->get_projectile(_id).size.width;
+    } else if (_move_type == TRAJECTORY_DOWN) {
+        position0.x = position.x;
+        position0.y = position.y;
+        direction = ANIM_DIRECTION_DOWN;
+    } else if (_move_type == TRAJECTORY_UP) {
+        position0.x = position.x;
+        position0.y = position.y;
+        direction = ANIM_DIRECTION_UP;
     } else {
 		position0.x = position.x;
 		position0.y = position.y;
-        //std::cout << ">> position0.x: " << position0.x << ", position.x: " << position.x << std::endl;
 	}
 
 
@@ -173,7 +188,6 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _change_direction_counter = 0;
     _chain_width = 0;
 
-    //std::cout << ">> Added projectyle, move_type: " << (int)_move_type << ", TRAJECTORY_TARGET_DIRECTION: " << TRAJECTORY_TARGET_DIRECTION << ", w: " << _size.width << ", h: " << _size.height << std::endl;
 
     // for size, use getsize
     // for speed, use get_speed
@@ -183,7 +197,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     _speed_x = 8;
     _accel_x = 0.95;
 
-    //std::cout << "_accel_x: " << _accel_x << std::endl;
+
 }
 
 void projectile::set_is_permanent()
@@ -204,15 +218,6 @@ void projectile::set_default_values()
 // ********************************************************************************************** //
 projectile::~projectile()
 {
-    /*
-    if (_is_temporary == false && _move_type == TRAJECTORY_FREEZE) {
-        //std::cout << "projectile::projectile - freeze projectile DESTRUCTOR" << std::endl;
-        std::cout << "[[[freeze_weapon_effect(RESET #4)]]] - timer: " << _quake_info.timer << std::endl;
-        //freeze_weapon_effect = FREEZE_EFFECT_NONE;
-        //freeze_weapon_id = -1;
-        draw_lib.set_flash_enabled(false);
-	}
-    */
 }
 
 
@@ -231,12 +236,22 @@ st_size projectile::get_size() const
     return GameMediator::get_instance()->get_projectile(_id).size;
 }
 
-void projectile::move_ahead(st_size &moved)
+void projectile::move_ahead(st_float_size &moved)
 {
+    //std::cout << "PROJECTILE::move_ahead.direction[" << (int)direction << "]" << std::endl;
+    if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_UP_LEFT || direction == ANIM_DIRECTION_UP_RIGHT) {
+        position.y -= get_speed();
+        moved.height -= get_speed();
+    }
+    if (direction == ANIM_DIRECTION_DOWN || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_DOWN_RIGHT) {
+        position.y += get_speed();
+        moved.height += get_speed();
+    }
     if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
         position.x -= get_speed();
         moved.width -= get_speed();
-    } else {
+    }
+    if (direction == ANIM_DIRECTION_RIGHT || direction == ANIM_DIRECTION_DOWN_RIGHT || direction == ANIM_DIRECTION_UP_RIGHT) {
         position.x += get_speed();
         moved.width += get_speed();
     }
@@ -314,6 +329,18 @@ void projectile::set_direction_from_targetpos(int middle_tolerance)
     }
 }
 
+void projectile::inc_zigzag_status()
+{
+    status++;
+    if (status > hp) {
+        std::cout << "PROJECTILE::inc_zigzag_status - FINISH, status[" << (int)status << "], hp[" << hp << "]" << std::endl;
+        is_finished = true;
+    } else {
+        std::cout << "PROJECTILE::inc_zigzag_status - INVERT direction" << std::endl;
+        direction = !direction;
+    }
+}
+
 
 
 Uint8 projectile::get_speed() const
@@ -358,11 +385,10 @@ void projectile::set_target_position(st_float_position *pos)
 {
 	_target_position = pos;
 	if (_target_position == NULL && _move_type == TRAJECTORY_FOLLOW) { // if a follow projectile could not find any target, act as zig-zag
-        //std::cout << "TRAJECTORY_FOLLOW - could not find target" << std::endl;
+        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #1" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_DIRECTION) { // change type to be the best one to hit player
         // three position (diagonal up, left/right or diagonal down)
-        std::cout << ">> _target_position->y: " << _target_position->y << ", pos.y: " << position.y << std::endl;
 		if (_target_position->y < position.y-TILESIZE*2) {
 			_move_type = TRAJECTORY_DIAGONAL_UP;
 		} else if (_target_position->y > position.y+TILESIZE*2) {
@@ -376,51 +402,62 @@ void projectile::set_target_position(st_float_position *pos)
 
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_EXACT) {
         _diagonal_speed.x = get_speed();
+        if (_target_position->x <= position.x) {
+            direction = ANIM_DIRECTION_LEFT;
+        } else {
+            direction = ANIM_DIRECTION_RIGHT;
+        }
         int dist_x = _target_position->x - position.x;
-        int dist_y = _target_position->y - position.y;
+        int dist_y = _target_position->y + TILESIZE - position.y;
+
         _diagonal_speed.y = (_diagonal_speed.x * dist_y) / dist_x;
         if (dist_x < 0) {
             _diagonal_speed.y = _diagonal_speed.y * -1;
         }
-        set_direction_from_targetpos(TILESIZE/2);
 
+        //std::cout << ">>>>>>>>> direction[" << (int)direction << "], diagonal_speed.x[" << _diagonal_speed.x << "], diagonal_speed.y[" << _diagonal_speed.y << "], dist_x[" << dist_x << "], position.x[" << position.x << "], _target_position->x[" << _target_position->x << "]" << std::endl;
+        //std::cout << ">>>>>>>>> dist_y[" << dist_y << "], position.y[" << position.y << "], _target_position->y[" << _target_position->y << "]" << std::endl;
 
-        graphLib.initSurface(st_size(_size.width, _size.height), &rotated_surface);
+        _max_frames = get_surface()->width / _size.width;
+        if (_max_frames < 1) {
+            _max_frames = 1;
+        }
+        graphLib.initSurface(st_size(_size.width*_max_frames, _size.height), &rotated_surface);
         int temp_direction = direction;
         direction  = ANIM_DIRECTION_LEFT;
-        graphLib.copyArea(st_rectangle(0, 0, _size.width, _size.height), st_position(0, 0), get_surface(), &rotated_surface);
+        graphLib.copyArea(st_rectangle(0, 0, _size.width*_max_frames, _size.height), st_position(0, 0), get_surface(), &rotated_surface);
         direction = temp_direction;
 
+        if (_max_frames < 2) {
+            // calculate angle and set image
+            angle = (float) atan2(abs(dist_y), (float) abs(dist_x));
+            angle = (360*angle)/6.28;
+            // TODO: generate an image from the region, not the whole picture
+            // TARGET to the LEFT
+            if (dist_x < 0) {
+                if (dist_y < 0) {
+                    angle *= -1;
+                }
+                // if target is to the left, we need to "flip" image
+            // TARGET to the RIGHT
+            } else {
+                angle += 180;
+                if (dist_y > 0) {
+                    angle *= -1;
+                }
 
-        // calculate angle and set image
-        angle = (float) atan2(abs(dist_y), (float) abs(dist_x));
-        angle = (360*angle)/6.28;
-        std::cout << ">>>>>>>>>>>>> ANGLE[" << angle << "], w[" << get_surface()->width << "]" << std::endl;
-        //angle = 55;
-        // TODO: generate an image from the region, not the whole picture
-        // TARGET to the LEFT
-        if (dist_x < 0) {
-            if (dist_y < 0) {
-                angle *= -1;
             }
-            // if target is to the left, we need to "flip" image
-        // TARGET to the RIGHT
-        } else {
-            angle += 180;
-            if (dist_y > 0) {
-                angle *= -1;
-            }
-        }
 
-        std::cout << "### AJUDSTED-ANGLE[" << angle << "],dist_y[" << dist_y << "]" << std::endl;
-        if (angle != 0.0) {
-            graphLib.rotate_image(rotated_surface, angle);
+            if (angle != 0.0) {
+                graphLib.rotate_image(rotated_surface, angle);
+            }
         }
 
 
     } else if (_target_position != NULL && _move_type == TRAJECTORY_ARC_TO_TARGET) {
         _trajectory_parabola = trajectory_parabola(_target_position->x - position.x);
         position0.y = position.y;
+        _was_parabola_set = true;
     }
 }
 
@@ -435,13 +472,11 @@ graphicsLib_gSurface *projectile::get_surface()
 	if (_id == -1) {
         if (graphLib.projectile_surface[0].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #1");
-            std::cout << "projectile surface error #1 - temp_direction[" << temp_direction << "]" << std::endl;
         }
         return &graphLib.projectile_surface[0].surface[temp_direction];
 	} else {
         if (graphLib.projectile_surface[_id].surface[temp_direction].get_surface() == NULL) {
             graphLib.show_debug_msg("projectile surface error #2");
-            std::cout << "projectile surface error #2 - temp_direction[" << temp_direction << "]" << std::endl;
         }
         return &graphLib.projectile_surface[_id].surface[temp_direction];
     }
@@ -454,6 +489,9 @@ void projectile::inc_status()
 
 st_rectangle projectile::get_area()
 {
+    if (_move_type == TRAJECTORY_LIGHTING && lighting_timer > timer.getTimer()) {
+        return st_rectangle(-RES_W*2, -RES_H*2, 0, 0);
+    }
     return st_rectangle(position.x, position.y, _size.width, _size.height);
 }
 
@@ -486,19 +524,17 @@ st_float_position projectile::get_position()
     return position;
 }
 
-st_size projectile::move() {
-	st_size moved;
+st_float_size projectile::move() {
+    st_float_size moved;
 
-	//std::cout << "projectile::move - TRAJECTORY: " << _move_type << ", x: " << position.x << ", y: " << position.y << ", direction: " << direction << std::endl;
+    if (is_finished) {
+        return st_float_size(0, 0);
+    }
 
 	if (move_timer >= timer.getTimer()) {
-		//std::cout << "projectile::projectile - return #1" << std::endl;
-		return st_size(0, 0);
+        return st_float_size(0, 0);
 	}
     move_timer = timer.getTimer()+ move_delay;
-
-
-
 
     if (_move_type == TRAJECTORY_LINEAR || _move_type == TRAJECTORY_DIAGONAL_UP || _move_type == TRAJECTORY_DIAGONAL_DOWN || _move_type == TRAJECTORY_RING) {
         move_ahead(moved);
@@ -511,9 +547,7 @@ st_size projectile::move() {
         }
     } else if (_move_type == TRAJECTORY_SLASH) {
         // follow owner position
-        if (_owner_position == NULL) {
-            std::cout << "ERROR: owner positoon NOT set in TRAJECTORY_SLASH projectile" << std::endl;
-        } else {
+        if (_owner_position != NULL) {
             if (direction == ANIM_DIRECTION_LEFT) {
                 position.x = _owner_position->x - 20;
                 position.y = _owner_position->y + 6;
@@ -522,16 +556,24 @@ st_size projectile::move() {
                 position.y = _owner_position->y + 6;
             }
             if (_owner_direction != NULL) {
+                short temp = (*_owner_direction);
                 direction = *_owner_direction;
             }
         }
-    } else if (_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) {
+    } else if (_move_type == TRAJECTORY_TARGET_DIRECTION) {
         move_ahead(moved);
+    } else if (_move_type == TRAJECTORY_TARGET_EXACT) {
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= _diagonal_speed.x;
+        } else {
+            position.x += _diagonal_speed.x;
+        }
         position.y += _diagonal_speed.y;
+        //std::cout << "PROJECTILE::MOVE #1 - pos[" << position.x << "][" << position.y << "], speed[" << _diagonal_speed.x << "][" << _diagonal_speed.y << "]" << std::endl;
     } else if (_move_type == TRAJECTORY_ARC) {
         if (position.y < _size.height || position.y > RES_H) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         move_ahead(moved);
         position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
@@ -539,7 +581,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_ARC_SMALL) {
         if (position.y < _size.height || position.y > RES_H) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
 
         if (_speed_x > 0) {
@@ -551,7 +593,6 @@ st_size projectile::move() {
                 moved.width += _speed_x;
             }
             _speed_x -= _accel_x;
-            //std::cout << "ARC::SMALL::speed_x: " << _speed_x << std::endl;
             if (_speed_x < 0) {
                 _speed_x = 0;
             }
@@ -559,12 +600,21 @@ st_size projectile::move() {
         position.y += get_speed();
 
     } else if (_move_type == TRAJECTORY_ARC_TO_TARGET) {
-        move_ahead(moved);
-        position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
+        if (_was_parabola_set == false) {
+            int temp_target_x = position.x + RES_W/2 - TILESIZE*3;
+            if (direction == ANIM_DIRECTION_LEFT) {
+                temp_target_x = position.x - RES_W/2 + TILESIZE*2;
+            }
+            _trajectory_parabola = trajectory_parabola(temp_target_x - position.x);
+            position0.y = position.y;
+            _was_parabola_set = true;
+        } else {
+            move_ahead(moved);
+            position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
+        }
 	} else if (_move_type == TRAJECTORY_SIN) {
         _sin_x += 0.12;
         float sin_value = (TILESIZE*3)*sin(_sin_x);
-        //std::cout << "_sin_x: " << _sin_x << ", sin_value: " << sin_value << std::endl;
         position.y = position0.y + sin_value;
         move_ahead(moved);
 
@@ -572,24 +622,33 @@ st_size projectile::move() {
         if (_effect_n == 0 && (status > 0 || _effect_timer < timer.getTimer())) {
             transform_into_explosion();
         } else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
-            std::cout << "BOMB - FINISH" << std::endl;
             is_finished = true;
         }
-        //std::cout << "projectile::move - BOMB" << std::endl;
         // do nothing, it is a bomb, it just stays until explodes
 	} else if (_move_type == TRAJECTORY_CHAIN) {
-        if (_owner_position == NULL) {
-            std::cout << "ERROR: owner positoon NOT set in TRAJECTORY_CHAIN projectile" << std::endl;
-        } else {
-            position.x = _owner_position->x + 5;
-            position.y = _owner_position->y + 14;
+        if (_owner_position != NULL) {
+            //std::cout << "MOVE[CHAIN] - owner.x[" << (int)_owner_position->x << "], owner.direction[" << (int)*_owner_direction << "], owner_is_player[" << _owner_is_player << "]" << std::endl;
             if (_owner_direction != NULL) {
                 direction = *_owner_direction;
+            }
+            if (_owner_is_player == true) {
+                position.x = _owner_position->x + 5;
+                position.y = _owner_position->y + 14;
+                if (direction == ANIM_DIRECTION_RIGHT) {
+                    position.x += TILESIZE;
+                }
+            } else {
+                CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_owner_number);
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    position.x = _owner_position->x + npc_ref->attack_arm_pos.x;
+                } else {
+                    position.x = _owner_position->x - npc_ref->attack_arm_pos.x;
+                }
+                position.y = _owner_position->y + npc_ref->attack_arm_pos.y;
             }
         }
 
         if (status == 0) { // increasing
-            //std::cout << "position0.x: " << position0.x << ", position.x: " << position.x << std::endl;
             _chain_width += get_speed();
             if (_chain_width > _size.width) {
 				status = 1;
@@ -601,7 +660,6 @@ st_size projectile::move() {
 			}
 		}
 	} else if (_move_type == TRAJECTORY_QUAKE) { // shake the screen
-        //std::cout << "TRAJECTORY_QUAKE - quake.timer: " << _quake_info.timer << ", timer: " << timer.getTimer() << std::endl;
 		if (_quake_info.timer < timer.getTimer()) {
 			if (_quake_info.counter1 == 1) {
 				_quake_info.counter1 = 2;
@@ -619,20 +677,13 @@ st_size projectile::move() {
 			_quake_info.timer = timer.getTimer() + QUAKE_TIMER;
 		}
 	} else if (_move_type == TRAJECTORY_FREEZE) {
-        //std::cout << "projectile::projectile - freeze RUNNING, timer: " << timer.getTimer() << ", should stop at " << _quake_info.timer << std::endl;
 		if (_quake_info.timer < timer.getTimer()) {
-            //std::cout << "projectile::projectile - freeze STOPPED at[" << timer.getTimer() << "], should stop at [" << _quake_info.timer << "]" << std::endl;
-            //std::cout << "[[[freeze_weapon_effect(RESET #5)]]]" << std::endl;
             freeze_weapon_effect = FREEZE_EFFECT_NONE;
             draw_lib.set_flash_enabled(false);
 			is_finished = true;
 		}
 	} else if (_move_type == TRAJECTORY_CENTERED) {
-		//std::cout << "TRAJECTORY_CENTERED CHECK - timer: " << timer.getTimer() << ", _quake_info.timer: " << _quake_info.timer << std::endl;
-
-		if (_owner_position == NULL) {
-            std::cout << "ERROR: owner positoon NOT set in centered projectile" << std::endl;
-		} else {
+        if (_owner_position != NULL) {
             position.x = _owner_position->x - 15;
             position.y = _owner_position->y - 10;
 			if (_owner_direction != NULL) {
@@ -645,15 +696,27 @@ st_size projectile::move() {
 		}
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
         move_ahead(moved);
-		if (check_map_collision(st_position(moved.width, moved.height)) == true) {
-			status++;
-			if (status > 3) {
-				is_finished = true;
-			} else {
-				direction = !direction;
-			}
-		}
-	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position != NULL) {
+        if (original_direction != direction) {
+            if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
+                inc_zigzag_status();
+            }
+        }
+        if (check_map_collision(st_position(moved.width, moved.height)) == true) {
+            inc_zigzag_status();
+        }
+    } else if (_move_type == TRAJECTORY_AHEAD_AND_BACK) {
+        move_ahead(moved);
+        if (original_direction != direction) {
+            if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
+                inc_zigzag_status();
+            } else if (direction == ANIM_DIRECTION_RIGHT && position.x >= position0.x) {
+                inc_zigzag_status();
+            }
+        }
+        if (check_map_collision(st_position(moved.width, moved.height)) == true) {
+            inc_zigzag_status();
+        }
+    } else if (_move_type == TRAJECTORY_FOLLOW && _target_position != NULL) {
 		int xinc = 0;
 		int yinc = 0;
 		if (_target_position->x > position.x) {
@@ -666,7 +729,6 @@ st_size projectile::move() {
 		} else if (_target_position->y < position.y) {
 			yinc = -get_speed();
 		}
-        //std::cout << "TRAJECTORY_FOLLOW - xinc: " << xinc << ", yinc: " << yinc << ", x: " << position.x << ", y: " << position.y << std::endl;
 		position.x += xinc;
 		moved.width += xinc;
 		position.y += yinc;
@@ -677,8 +739,10 @@ st_size projectile::move() {
 
 
 	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position == NULL) {
+        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #2" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if ((_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) && _target_position == NULL) { // if do not have a target, act as linear
+        //std::cout << "PROJECTILE::MOVE #2 - pos[" << position.x << "][" << position.y << "]" << std::endl;
         move_ahead(moved);
     } else if (_move_type == TRAJECTORY_PROGRESSIVE) { // move a bit each time the animation is reset
         if (animation_pos == 0) {
@@ -691,8 +755,8 @@ st_size projectile::move() {
             position.y += get_speed();
             // check if hit ground
             int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
-            if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
-                //std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
+            int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+            if ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
                 /// morph into a bigger explosion
                 _points = 5000;
                 _effect_timer = timer.getTimer()+1600;
@@ -722,27 +786,20 @@ st_size projectile::move() {
         bool collisionX = check_map_collision(st_position(moved.width, 0));
         bool collisionY = check_map_collision(st_position(moved.width, moved.height));
 
-        std::cout << ">>>> collisionX: " << collisionX << ", collisionY: " << collisionY << ", moved.width: " << moved.width << ", moved.height: " << moved.height << std::endl;
-
         if (collisionX == true || collisionY == true) {
             if (_effect_n == 5) { // destroy if rebouncing for the fourth time
-                std::cout << ">>> FINISH-LASER" << std::endl;
                 is_finished = true;
             } else { // rebounce
                 _effect_n++;
                 if (status == TRAJECTORY_LINEAR) {
                     status = TRAJECTORY_DIAGONAL_UP;
                     direction = !direction;
-                    std::cout << ">>> REFLECT #0" << std::endl;
                 // only change trajectory if hit on top/down, otherwise just change direction
                 } else if (status == TRAJECTORY_DIAGONAL_UP && collisionX == false) {
                     status = TRAJECTORY_DIAGONAL_DOWN;
-                    std::cout << ">>> REFLECT #1" << std::endl;
                 } else if (status == TRAJECTORY_DIAGONAL_DOWN && collisionX == false) {
-                    std::cout << ">>> REFLECT #2" << std::endl;
                     status = TRAJECTORY_DIAGONAL_UP;
                 } else {
-                    std::cout << ">>> REFLECT #3" << std::endl;
                     direction = !direction;
                 }
             }
@@ -761,17 +818,25 @@ st_size projectile::move() {
         }
 
     } else if (_move_type == TRAJECTORY_LIGHTING) {
-        if (_effect_n > LIGHTING_FRAMES_N) {
-            play_sfx(false);
-            if (direction == ANIM_DIRECTION_LEFT) {
-                position.x -= RES_W/3;
-            } else {
-                position.x += RES_W/3;
-            }
-            _effect_n = 0;
-            status = 0;
-            if (status > 3) {
-                finish();
+        if (lighting_timer < timer.getTimer()) {
+            if (_effect_n > LIGHTING_FRAMES_N) {
+                play_sfx(false);
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    position.x -= RES_W/3;
+                } else {
+                    position.x += RES_W/3;
+                }
+                int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+                _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+                _effect_n = 0;
+                status = 0;
+                if (status > 3) {
+                    finish();
+                } else {
+                    animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, _size.height-TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+                    gameControl.get_current_map_obj()->add_animation(anim2);
+                    lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
+                }
             }
         }
     } else if (_move_type == TRAJECTORY_SPIRAL) {
@@ -779,17 +844,20 @@ st_size projectile::move() {
         if (angle <= 0) {
             angle = 360;
         }
-        _speed_x += _speed/3;
+        if (_speed/3 > 0.3) {
+            _speed_x += _speed/3;
+        } else {
+            _speed_x += 0.3;
+        }
         if (_speed_x <= 0) { // prevent zero-speed
-            _speed_x = 0.5;
+            _speed_x = 0.3;
         }
 
         //position.y += 0.5;
         float rad_angle = (angle * 3.1459)/180;
-        position.x = _speed_x*cos(rad_angle) + position0.x;
-        position.y = _speed_x*sin(rad_angle) + position0.y;
-
-
+        position.x = _speed_x * cos(rad_angle) + position0.x;
+        position.y = _speed_x * sin(rad_angle) + position0.y;
+        //std::cout << "PROJECTILE::TRAJECTORY_SPIRAL - _speed_x[" << _speed_x << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
     } else if (_move_type == TRAJECTORY_BOUNCING) {
         // @TODO: bounce condition is hitting ground
         int moved_x = 0;
@@ -806,7 +874,6 @@ st_size projectile::move() {
             if (_dist_y < TILESIZE-2) {
                 _dist_y += _gravity;
             }
-            //std::cout << "_dist_y[" << _dist_y << "]" << std::endl;
         } else {
             position.y -= abs(_dist_y);
             // first bounce must be stronger
@@ -824,7 +891,7 @@ st_size projectile::move() {
     } else if (_move_type == TRAJECTORY_DOUBLE_LINEAR || _move_type == TRAJECTORY_DOUBLE_DIAGONAL) {
         if (owner == NULL || is_finished == true) {
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         // @TODO: calc the X position given the direction owner is facing and his projectile-origin
         st_position proj_pos_left = owner->get_attack_position(ANIM_DIRECTION_LEFT);
@@ -843,33 +910,28 @@ st_size projectile::move() {
         }
         is_finished = true;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
-        //std::cout << "TRAJECTORY_BOMB_RAIN::EXECUTE, status[" << (int)status << "], timer[" << timer.getTimer() << "], move_timer[" << move_timer << "]" << std::endl;
         if (owner == NULL || is_finished == true) {
-            std::cout << "TRAJECTORY_BOMB_RAIN::NO-OWNER-ERROR" << std::endl;
             is_finished = true;
-            return st_size(0, 0);
+            return st_float_size(0, 0);
         }
         if (status_timer < timer.getTimer()) {
             // make the projectile owner to add new one into its list
             st_position new_proj_pos;
-            new_proj_pos.x = RES_W/BOMB_RAIN_N * status  + gameControl.get_current_map_obj()->getMapScrolling().x;
+            new_proj_pos.x = (RES_W-TILESIZE*2)/BOMB_RAIN_N * status  + position0.x;
             if (direction == ANIM_DIRECTION_LEFT) {
-                new_proj_pos.x = RES_W - (RES_W/BOMB_RAIN_N * status) + gameControl.get_current_map_obj()->getMapScrolling().x;
+                new_proj_pos.x = position0.x - ((RES_W-TILESIZE*2)/BOMB_RAIN_N * status);
             }
-            std::cout << "TRAJECTORY_BOMB_RAIN::ADD - new_proj_pos.x[" << new_proj_pos.x << "]" << std::endl;
             // adds same type to get properties and graphics, but chances trajectory for a different type
             owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
             status_timer = timer.getTimer() + BOMB_RAIN_DELAY;
             status++;
             if (status > BOMB_RAIN_N) {
-                std::cout << "TRAJECTORY_BOMB_RAIN::FINISHED" << std::endl;
                 is_finished = true;
             }
         }
 
 
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
-        //std::cout << "PROJECTILE::move[TRAJECTORY_LARGE_BEAM] - timer[" << timer.getTimer() << "], status_timer[" << status_timer << "]" << std::endl;
         if (status_timer < timer.getTimer()) {
             status_timer = timer.getTimer() + LARGE_BEAM_DELAY;
             status++;
@@ -880,15 +942,36 @@ st_size projectile::move() {
                 is_finished = true;
             }
         }
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        if (status == 0) {
+            position.y += get_speed()/2;
+            // check if hit ground
+            int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y+TILESIZE)/TILESIZE));
+            if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+                status++;
+            }
+        } else {
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x -= get_speed();
+            } else {
+                position.x += get_speed();
+            }
+        }
+    } else if (_move_type == TRAJECTORY_DOWN) {
+        position.y += get_speed();
+        if (position.y > RES_H + TILESIZE) {
+            is_finished = true;
+        }
+    } else if (_move_type == TRAJECTORY_UP) {
+        position.y -= get_speed();
+        if (position.y > -TILESIZE) {
+            is_finished = true;
+        }
     } else {
-        std::cout << "PROJECTILE::move - UNKNOWN TRAJECTORY #" << (int)_move_type << std::endl;
         is_finished = true;
 	}
 
-    realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
-    realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
-
-    //std::cout << "PROJECTILE::MOVE - y[" << position.y << "], map.scroll.y[" << gameControl.get_current_map_obj()->getMapScrolling().y << "]" << std::endl;
+    update_real_position();
 
 	// check out of screen
 	if (_move_type != TRAJECTORY_FREEZE && _move_type != TRAJECTORY_QUAKE) { // special effect weapons can work out of screen
@@ -896,24 +979,37 @@ st_size projectile::move() {
 			is_finished = true;
 		}
 	}
-	return moved;
+
+
+    return moved;
+}
+
+void projectile::update_real_position()
+{
+    realPosition.x = position.x - gameControl.get_current_map_obj()->getMapScrolling().x;
+    realPosition.y = position.y - gameControl.get_current_map_obj()->getMapScrolling().y;
 }
 
 void projectile::draw() {
+    if (is_finished) {
+        return;
+    }
+
     if ((_move_type == TRAJECTORY_BOMB || _move_type == TRAJECTORY_FALL_BOMB) && _effect_n == 1) {
 		graphLib.draw_explosion(realPosition);
 		return;
 	}
 
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK || _move_type == TRAJECTORY_PULL) { /// QTODO: freeze could use some "sparkling" effect
-		//std::cout << "projectile::draw - invisible type" << std::endl;
 		return;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
         return;
     }
 
+    update_real_position();
+    //std::cout << "PROJECTILE::DRAW[" << (int)_id << "] at[" << position.x << "][" << position.y << "]" << std::endl;
+
 	if (animation_pos >= _max_frames) {
-		//std::cout << "projectile::draw - RESET animation_pos" << std::endl;
         if (_move_type == TRAJECTORY_RING) { // ring will be kept at last two frames
             animation_pos = _max_frames-2;
         } else if (_move_type == TRAJECTORY_SLASH) {
@@ -937,22 +1033,21 @@ void projectile::draw() {
         }
         if (direction == ANIM_DIRECTION_RIGHT) {
             int show_x = _size.width - show_width;
-            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(show_x, 0, show_width, _size.height), st_position(realPosition.x + 15, realPosition.y));
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(show_x, 0, show_width, _size.height), st_position(realPosition.x, realPosition.y));
         } else {
             graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, 0, show_width, _size.height), st_position(realPosition.x - _chain_width, realPosition.y));
         }
-        //std::cout << "CHAIN - x: " << anim_pos << ", show_width: " << show_width << std::endl;
 
     // lighting gets image from bottom to height
     } else if (_move_type == TRAJECTORY_LIGHTING) {
-        int y_pos = get_surface()->height -_size.height;
-        //std::cout << "LIGHTING::SHOW::y: " << y_pos << std::endl;
-        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, y_pos, show_width, _size.height), realPosition);
+        if (lighting_timer < timer.getTimer()) {
+            int y_pos = get_surface()->height -_size.height;
+            graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos, y_pos, show_width, _size.height), realPosition);
 
-        if (animation_pos == _max_frames-1) {
-            _effect_n++;
+            if (animation_pos == _max_frames-1) {
+                _effect_n++;
+            }
         }
-
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
         // @TODO - add animation frames
         // back
@@ -964,9 +1059,21 @@ void projectile::draw() {
         // point
         graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(anim_pos+frame_w*2, 0, frame_w, _size.height), st_position(realPosition.x + (frame_w + frame_w*status), realPosition.y));
 
-    } else if (_move_type == TRAJECTORY_TARGET_EXACT) {
-        //std::cout << "TRAJECTORY_TARGET_EXACT - w[" << rotated_surface.width << "], h[" << rotated_surface.height << "]" << std::endl;
+    } else if (_move_type == TRAJECTORY_TARGET_EXACT && _target_position != NULL && _max_frames < 2) {
         graphLib.showSurfaceAt(&rotated_surface, realPosition, false);
+    } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
+        int graph_start_y = 0;
+        if (status != 0) {
+            if (animation_timer < timer.getTimer()) {
+                animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME*2;
+                animation_status++;
+            }
+            if (animation_status >= max_frames_vertical) {
+                animation_status = 1;
+            }
+            graph_start_y = animation_status * _size.height;
+        }
+        graphLib.showSurfaceRegionAt(get_surface(), st_rectangle(0, graph_start_y, _size.width, _size.height), realPosition);
     } else {
         //printf(">> PROJECTILE::DRAW[%d] - x[%d], y[%d], direction[%d], show_width[%d], _size.height[%d], anim_pos[%d], img.w[%d], img.h[%d] <<\n", _id, realPosition.x, realPosition.y, direction, show_width, _size.height, anim_pos, get_surface()->width, get_surface()->height);
         if (direction == ANIM_DIRECTION_UP && get_surface()->height >= _size.height*2) {
@@ -986,7 +1093,6 @@ void projectile::draw() {
         }
     }
 
-	//std::cout << "projectile::draw - animation_timer: " << animation_timer << ", timer: " << timer.getTimer() << std::endl;
     if (animation_timer < timer.getTimer()) {
         if (_move_type != TRAJECTORY_LASER) {
             animation_pos++;
@@ -999,11 +1105,12 @@ void projectile::draw() {
                 animation_pos = 0;
             }
         }
-		//std::cout << "projectile::draw - inc anim_pos to " << animation_pos << std::endl;
         if (_move_type == TRAJECTORY_CENTERED) {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/2;
         } else if (_move_type == TRAJECTORY_LIGHTING) {
-            animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/3;
+            if (lighting_timer < timer.getTimer()) {
+                animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/3;
+            }
         } else if (_move_type == TRAJECTORY_SPIRAL) {
             animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME/4;
         } else {
@@ -1016,11 +1123,12 @@ void projectile::draw() {
 bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) const
 {
     if (_move_type == TRAJECTORY_QUAKE || _move_type == TRAJECTORY_FREEZE || _move_type == TRAJECTORY_PUSH_BACK || _move_type == TRAJECTORY_PULL) {
-        //std::cout << ">>>> PROJECTILE::check_collision - LEAVE #1" << std::endl;
+        return false;
+    }
+    if (_move_type == TRAJECTORY_LIGHTING && lighting_timer > timer.getTimer()) {
         return false;
     }
 
-    //std::cout << ">>>> PROJECTILE::check_collision - #1 enemy_rect[" << enemy_pos.x << "," << enemy_pos.y << "," << enemy_pos.w << "," << enemy_pos.h << "]" << std::endl;
     collision_detection rect_collision_obj;
 
     int px = position.x;
@@ -1059,7 +1167,6 @@ bool projectile::check_collision(st_rectangle enemy_pos, st_position pos_inc) co
     st_rectangle projectile_rect(px, py, pw, ph);
     bool res = rect_collision_obj.rect_overlap(projectile_rect, p_rect);
 
-    //std::cout << ">>>> PROJECTILE::check_collision - #2, res[" << res << "], proj_rect[" << projectile_rect.x << "," << projectile_rect.y << "," << projectile_rect.w << "," << projectile_rect.h << "], enemy_rect[" << p_rect.x << "," << p_rect.y << "," << p_rect.w << "," << p_rect.h << "]" << std::endl;
     return res;
 }
 
@@ -1077,7 +1184,6 @@ bool projectile::check_map_collision(st_position pos_inc) const
 	}
     for (int i=0; i<3; i++) {
         int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(p_x/TILESIZE, p_y[i]/TILESIZE));// map->map_tiles.tiles[p_x/TILESIZE][p_y[i]/TILESIZE].locked;
-        //std::cout << ">> projectile::check_map_collision - point (" << p_x << ", " << p_y[i] << ") lock: " << lock << std::endl;
         if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
 			return true;
 		}
@@ -1094,7 +1200,11 @@ Uint8 projectile::get_direction() const
 void projectile::reflect()
 {
     // if it is a bomb, don't reflect at all
-    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_SLASH) {
+    if (get_trajectory() == TRAJECTORY_BOMB || get_trajectory() == TRAJECTORY_FALL_BOMB
+            || get_trajectory() == TRAJECTORY_LIGHTING || get_trajectory() == TRAJECTORY_SLASH
+            || get_trajectory() == TRAJECTORY_CENTERED || get_trajectory() == TRAJECTORY_PUSH_BACK
+            || get_trajectory() == TRAJECTORY_RING || get_trajectory() == TRAJECTORY_BOMB_RAIN
+            || get_trajectory() == TRAJECTORY_PULL || get_trajectory() == TRAJECTORY_LARGE_BEAM) {
         return;
     } else if (get_trajectory() == TRAJECTORY_LARGE_BEAM) {
         return;
@@ -1151,7 +1261,6 @@ void projectile::consume_projectile()
 		return;
 	}
 	_points--;
-	//std::cout << "projectile::consume_projectile - _points: " << _points << std::endl;
 	if (_points <= 0) {
 		is_finished = true;
     }
@@ -1161,7 +1270,6 @@ void projectile::transform_into_explosion()
 {
     // if not a bomb, transform into one
     _move_type = TRAJECTORY_BOMB;
-    std::cout << "BOMB - TRANSFORM into explosion" << std::endl;
     /// morph into a bigger explosion
     _points = 5000;
     _effect_timer = timer.getTimer()+3600;
@@ -1179,7 +1287,6 @@ void projectile::finish()
 {
     // @TODO - quake
     if (_is_temporary == false && _move_type == TRAJECTORY_FREEZE) {
-        //std::cout << "[[[freeze_weapon_effect(RESET #4)]]] - timer: " << _quake_info.timer << std::endl;
         freeze_weapon_effect = FREEZE_EFFECT_NONE;
         freeze_weapon_id = -1;
         draw_lib.set_flash_enabled(false);

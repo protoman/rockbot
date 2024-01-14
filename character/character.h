@@ -6,14 +6,14 @@
 #include <map>
 
 // local includes
-#include "file/format/st_hitPoints.h"
-#include "file/format/st_common.h"
-#include "file/format/st_characterState.h"
-#include "graphicslib.h"
-#include "projectilelib.h"
-#include "character/movement/jump.h"
-#include "character/movement/inertia.h"
-#include "character/character_animation.h"
+#include "../file/format/st_hitPoints.h"
+#include "../file/format/st_common.h"
+#include "../file/format/st_characterState.h"
+#include "../graphicslib.h"
+#include "../projectilelib.h"
+#include "movement/jump.h"
+#include "movement/inertia.h"
+#include "character_animation.h"
 
 
 
@@ -103,6 +103,7 @@ public:
     void advance_frameset(); // changes the state for the next (or previous) frame
     void show();
     void show_previous_sprites();
+    void reset_dash_effect();
     void show_at(st_position pos);
     void show_sprite();
     void reset_sprite_animation_timer();
@@ -127,9 +128,11 @@ public:
     void set_current_hp(Uint8 inc);
     void execute_jump();								// execute a complete jump
     void execute_jump_up();					// execute jump until reaches the maximum height
+    bool is_jumping();
+    void interrupt_jump();
     void fall();								// falls until reaching ground or leaving screen /// @TODO
     void fall_to_ground();
-    void initialize_position_to_ground();
+    void initialize_boss_position_to_ground();
     bool change_position(short int xinc, short int yinc);
     void change_position_x(short int xinc);
     int change_position_y(short int yinc);
@@ -206,7 +209,9 @@ public:
 
     void set_progressive_appear_pos(int pos);
     bool is_stage_boss();
+    bool is_final_game_boss();
     void clean_character_graphics_list();
+    bool have_background_graphics();
     void cancel_slide();
     virtual float get_hit_push_back_n();
     virtual bool have_shoryuken();
@@ -222,6 +227,10 @@ public:
     void add_projectile(short id, st_position pos, int trajectory, int direction);
     st_position get_attack_position();
     st_position get_attack_position(short direction);
+    bool is_on_last_animation_frame();
+    bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
+    bool is_on_quicksand();
+    int get_teleport_state();
 
 
 private:
@@ -238,14 +247,12 @@ protected:
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
     bool is_on_teleporter_capsulse(object* object);
     bool is_on_teleport_platform(object* object);
-    void check_map_collision_point(int &map_block, int &new_map_lock, int mode_xy, st_position map_pos);
+    void check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy);
     bool process_special_map_points(int map_lock, int incx, int incy, st_position map_pos);
     void check_platform_move(short map_lock);
     void add_graphic();
     virtual void death() = 0;
     bool have_frame_graphics();
-    bool have_background_graphics();
-    bool have_frame_graphic(int direction, int type, int pos);  // indicates if the given frame graphic exits
     bool is_in_stairs_frame() const; // indicates if the character is on some of the STAIRS animation types
     bool is_on_attack_frame();
     virtual void recharge(e_energy_types _en_type, int value);
@@ -272,6 +279,7 @@ protected:
 	// members static that can be moved to use game_data
     std::string name;
     struct st_size frameSize;
+    struct st_size total_frame_size;
     unsigned int max_projectiles; // maximum number of simultaneuous projectiles the character can shot
     float move_speed; // how many pixels the character moves by cycle (default value)
 
@@ -321,7 +329,7 @@ protected:
     float hit_moved_back_n;
 	// external members
 
-    object* _platform; // used to move player when object moves
+    object* _platform = NULL; // used to move player when object moves
 
     bool dead;
 
@@ -345,6 +353,7 @@ protected:
     short slide_type; // 0 - dash (24 px height), 1 - slide (16px height)
     bool _water_splash;									// used to prevent making a new splash until completaly inside or outside water
     bool _has_background;
+    st_position background_pos;
     short _stairs_stopped_count; // used to prevent stopping stairs animation because of a single frame without player input
     short _charged_shot_projectile_id;
     short _normal_shot_projectile_id;
@@ -360,6 +369,7 @@ protected:
     bool _check_always_move_ahead;                          // used to prevent setting _always_move_ahead each time we can AI exec
     int _progressive_appear_pos;                            // used by spawn-npc to show just a part of the NPC
     bool _is_stage_boss;                                    // used in NPC class. Indicates if this is the stage-boss
+    bool _is_final_game_boss = false;                      // this enemy is the final game boss or spawns it
     bool _dropped_from_stairs;                              // used to avoid grabbing stairs again when dropped from it
     classjump _obj_jump;
     short _jumps_number;                                    // used for double or triple jumping
@@ -370,7 +380,7 @@ protected:
     bool _dashed_jump;                                      // adds horizontal acceleration fo X movement if jump was made during a dash (not slide) until player reaches ground again
     bool _can_execute_airdash;                                 // prevents dashing multiple-times in middle-air
     bool _player_must_reset_colors;                         // inform the player class that he must get back into default-weapon colors
-    int _stairs_falling_timer;                              // controls time when player can again grab the staircase
+    long _stairs_falling_timer;                              // controls time when player can again grab the staircase
     bool is_ghost;                                          // if can shoot or not /**< TODO */
     st_rectangle vulnerable_area_box;                       // hitarea, set by classnpc
     character_animation animation_obj;
@@ -378,6 +388,12 @@ protected:
     std::vector<st_float_position> previous_position_list;
     bool must_show_dash_effect;
     graphicsLib_gSurface dash_effect_shadow_surface_frame;
+    short int facing = ANIM_DIRECTION_LEFT;					    // defines the side npc is facing before start moving (also used by LINEWALK behavior) /**< TODO */
+    bool can_fall_during_move = false;
+    float jump_last_moved = 1.0;
+    unsigned long jump_lock_timer = 0;
+    int teleporting_out = 0;
+
 };
 
 #endif // CHARACTER_H

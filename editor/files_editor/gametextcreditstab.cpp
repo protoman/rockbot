@@ -50,7 +50,6 @@ void GameTextCreditsTab::load_data()
 
 void GameTextCreditsTab::set_stage_data(int stage_n)
 {
-    std::cout << "change-stage, old[" << current_stage << "], new[" << stage_n << "]" << std::endl;
     current_stage = stage_n;
     ui->bossCredits_lineEdit1->setText(boss_credits_data.at(current_stage*3).c_str());
     ui->bossCredits_lineEdit2->setText(boss_credits_data.at(current_stage*3+1).c_str());

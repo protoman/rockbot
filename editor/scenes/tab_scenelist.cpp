@@ -1,6 +1,9 @@
 #include "tab_scenelist.h"
 #include "ui_tab_scenelist.h"
 #include "scenes/comboboxdelegate.h"
+#include "common.h"
+
+#include <mediator.h>
 
 #include <QMessageBox>
 
@@ -19,8 +22,7 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     ui->scenes_tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
     ui->scenes_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    ui->scenes_tableView->setAlternatingRowColors(true);
-    ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff;background-color: #dddddd;");
+    update_app_theme();
 
     ComboBoxDelegate* delegate = new ComboBoxDelegate(this);
     ui->scenes_tableView->setItemDelegateForColumn(2, delegate);
@@ -33,6 +35,8 @@ TabScenelist::TabScenelist(QWidget *parent) : QDialog(parent), ui(new Ui::Scenes
     data_loading = true;
 
     ScenesMediator::get_instance()->scenes_list = fio.load_scenes();
+
+    common::fill_languages_combo(ui->language_comboBox);
 
     fill_data();
     data_loading = false;
@@ -62,8 +66,6 @@ void TabScenelist::fill_data()
 {
     ui->sceneSelector->clear();
 
-    std::cout << "fill_data::ScenesMediator::get_instance()->scenes_list.size(): " << ScenesMediator::get_instance()->scenes_list.size() << std::endl;
-
     for (int i=0; i<ScenesMediator::get_instance()->scenes_list.size(); i++) {
         ui->sceneSelector->addItem(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
     }
@@ -84,6 +86,22 @@ void TabScenelist::reload()
     ScenesMediator::get_instance()->scenes_list = fio.load_scenes();
     fill_data();
     data_loading = false;
+}
+
+void TabScenelist::update_app_theme()
+{
+    ui->scenes_tableView->setAlternatingRowColors(true);
+    std::cout << "LOAD #2 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
+    if (Mediator::get_instance()->app_theme == 0) {
+        ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff; background-color: #dddddd; font-color:black; color:black;");
+    } else {
+        ui->scenes_tableView->setStyleSheet("alternate-background-color: #0c004e; background-color: #313131; font-color:white; color:white;");
+    }
+}
+
+int TabScenelist::get_language()
+{
+    return ui->language_comboBox->currentIndex();
 }
 
 void TabScenelist::change_fields_enabled(bool value)
@@ -135,6 +153,10 @@ void TabScenelist::on_sceneTypeSelector_currentIndexChanged(int index)
                 list.append(QString(ScenesMediator::get_instance()->scenes_list.at(i).name));
             //}
         }
+    } else if (index == CURRENT_FILE_FORMAT::SCENETYPE_PARALLAX) {
+        for (unsigned int i=0; i<ScenesMediator::get_instance()->parallax_list.size(); i++) {
+            list.append(QString(ScenesMediator::get_instance()->parallax_list.at(i).name));
+        }
     }
     model_objects.setStringList(list);
 }
@@ -171,7 +193,6 @@ void TabScenelist::on_addButton_clicked()
         if (ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n == -1) {
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].seek_n = seek_n;
             ScenesMediator::get_instance()->scenes_list.at(n).objects[i].type = ui->sceneTypeSelector->currentIndex();
-            std::cout << "ADDED at row["  << i << "], ScenesMediator::get_instance()->scenes_list.size: " << (ScenesMediator::get_instance()->scenes_list.size()) << std::endl;
 
             ui->scenes_tableView->setModel(&model_scenes);
 
@@ -234,12 +255,11 @@ void TabScenelist::on_removeButton_clicked()
 
 void TabScenelist::on_pushButton_clicked()
 {
-    QString file = QString(GAMEPATH.c_str()) + QString("scenesviewer");
+    QString file = QString("scenesviewer");
 #ifdef WIN32
     file += QString(".exe");
 #endif
-    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex());
-    std::cout << ">>> EXEC: file: '" << file.toStdString() << "'." << std::endl;
+    file += QString(" --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --scenenumber ") + QString::number(ui->sceneSelector->currentIndex()) + QString(" --language ") + QString::number(current_language);
     process.start(file);
 }
 
@@ -293,4 +313,9 @@ void TabScenelist::on_down_pushButton_clicked()
     ui->scenes_tableView->setCurrentIndex(next_index);
 
     model_scenes.update();
+}
+
+void TabScenelist::on_language_comboBox_currentIndexChanged(int index)
+{
+    current_language = index;
 }

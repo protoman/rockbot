@@ -7,7 +7,6 @@
 game_properties_tab::game_properties_tab(QWidget *parent) : QWidget(parent), ui(new Ui::game_properties_tab), _data_loading(false), _current_stage(0)
 {
     ui->setupUi(this);
-    castlePointsDialog = new CastlePointsDialog(this);
     fill_data();
 }
 
@@ -109,7 +108,6 @@ void game_properties_tab::on_stagefaces_stage_combo_currentIndexChanged(int inde
     _data_loading = true;
 
 
-    std::cout << "face-name #2: " << Mediator::get_instance()->game_data.stages_face_name[_current_stage] << std::endl;
     ui->bossName_lineEdit->setText(Mediator::get_instance()->game_data.stages_face_name[_current_stage]);
     _data_loading = false;
     ui->stagefaces_face_combo->setCurrentIndex(combo_n);
@@ -121,7 +119,6 @@ void game_properties_tab::on_stagefaces_face_combo_currentIndexChanged(const QSt
 {
     if (_data_loading == true) return;
     sprintf(Mediator::get_instance()->game_data.stage_face_filename[_current_stage], "%s", arg1.toStdString().c_str());
-    std::cout << "SET stage_filename[" << _current_stage << "]: " << Mediator::get_instance()->game_data.stage_face_filename[_current_stage] << std::endl;
 }
 
 void game_properties_tab::on_lineEdit_textChanged(const QString &arg1)
@@ -189,8 +186,6 @@ void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
     sprintf(Mediator::get_instance()->game_data.stages_face_name[_current_stage], "%s", arg1.toStdString().c_str());
-
-    std::cout << "face-name #3: " << Mediator::get_instance()->game_data.stages_face_name[_current_stage] << std::endl;
 }
 
 
@@ -206,11 +201,4 @@ void game_properties_tab::on_finalBoss_comboBox_currentIndexChanged(int index)
 {
     if (_data_loading == true) return;
     Mediator::get_instance()->game_data.final_boss_id = index;
-}
-
-
-void game_properties_tab::on_editMap_pushButton_clicked()
-{
-    castlePointsDialog->show();
-    castlePointsDialog->load_data();
 }

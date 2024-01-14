@@ -72,18 +72,14 @@ void ButtonDelegate::onButtonClicked(int row)
             return;
         }
         QFileInfo file_info(filename);
-        std::cout << ">>> filename: " << filename.toStdString() << std::endl;
         std::string dest_path = FILEPATH + dir_list.at(row) + std::string("/") + file_info.fileName().toStdString();
-        std::cout << "ButtonDelegate::editorEvent::dest_path: " << dest_path << std::endl;
         if (QFile::copy(filename, QString(dest_path.c_str())) == false) {
-            std::cout << "ButtonDelegate::editorEvent::ERROR: Can't copy file." << std::endl;
+            // TODO: show error
         }
 
         emit data_changed(row);
     } else if (operation_mode == 1) {
-        //QString path = QDir::toNativeSeparators(QApplication::applicationDirPath());
         QString filepath = QString("file:///") + QString(FILEPATH.c_str()) + QString("/") + QString(dir_list.at(row).c_str());
-        std::cout << ">>>>> filepath: " << filepath.toStdString() << std::endl;
         QDesktopServices::openUrl(QUrl(filepath));
     }
 }

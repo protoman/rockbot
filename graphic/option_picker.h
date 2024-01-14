@@ -1,9 +1,10 @@
 #ifndef OPTION_PICKER_H
 #define OPTION_PICKER_H
 
-#include "file/format/st_common.h"
 #include <string>
 #include <vector>
+
+#include "../file/format/st_common.h"
 
 
 /**
@@ -22,7 +23,7 @@ public:
  */
     option_picker(bool draw_border, st_position pos, std::vector<st_menu_option> options, bool show_return);
     option_picker(bool draw_border, st_position pos, std::vector<std::string> options, bool show_return);
-    void change_option_label(int n, std::string label);
+    void change_option_label(unsigned int n, std::string label);
     Sint8 pick(int initial_pick_pos=0);
     void enable_check_input_reset_command();
     void enable_check_input_cheat_command();
@@ -35,8 +36,9 @@ public:
 
 
 private:
+    bool initialized = false;
     st_position _position; /**< TODO */
-    std::vector<st_menu_option> _items; /**< TODO */
+    std::vector<st_menu_option> picker_item_list; /**< TODO */
     bool _draw_border; /**< TODO */
     Uint8 _pick_pos; /**< TODO */
     bool _show_return;

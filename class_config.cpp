@@ -12,7 +12,7 @@ extern soundLib soundManager;
 #include "game.h"
 extern game gameControl;
 
-
+#include "data/datautil.h"
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
 
@@ -45,8 +45,6 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 	// left/right: if position exists, just move. if not then go to first item in nexct column or stays in place
 	bool moved = false;
     st_position res;
-
-    //std::cout << ">>>>> class_config::move_cursor - xinc: " << x_inc << ", y_inc: " << y_inc << std::endl;
 
     if (ingame_menu_pos.y != 6) { // weapons positions
         if (x_inc > 0) {
@@ -103,7 +101,7 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 
 	if (y_inc > 0) {
 		if (ingame_menu_pos.y < 6) {
-            res = move_weapon_curstor_down();
+            res = move_weapon_cursor_down();
             if (res.y != -1) {
                 ingame_menu_pos = res;
                 moved = true;
@@ -115,13 +113,12 @@ void class_config::move_cursor(Sint8 x_inc, Sint8 y_inc) {
 		moved = true;
     } else if (y_inc < 0) {
         if ((ingame_menu_pos.x == 0 && ingame_menu_pos.y == 0) || (ingame_menu_pos.x == 1 && ingame_menu_pos.y == 1)) { // when on top, go to energy drinks section
-            std::cout << "MOVE CURSOR #1" << std::endl;
 			ingame_menu_pos.y = 6;
 		} else {
             if (ingame_menu_pos.y == 6 && ingame_menu_pos.x == 2) { // just fix x, as there is no third column on weapons section as there is in the energy drinks section
 				ingame_menu_pos.x = 1;
 			}
-            res = move_weapon_curstor_up();
+            res = move_weapon_cursor_up();
             if (res.y != -1) {
                 ingame_menu_pos = res;
                 moved = true;
@@ -166,14 +163,11 @@ st_position class_config::move_weapon_curstor_right() const // move from left to
     return move_weapon_curstor_left(); // both are the same code
 }
 
-st_position class_config::move_weapon_curstor_up()
+st_position class_config::move_weapon_cursor_up()
 {
     // from position to top
-    //std::cout << "$$$$$ move_weapon_curstor_up - ini: " << (ingame_menu_pos.y-1) << std::endl;
     for (int i=ingame_menu_pos.y-1; i>=0; i--) {
-        //std::cout << "move_weapon_curstor_up - looking slot [" << ingame_menu_pos.x << "][" << i << "] value: " << _weapons_matrix[ingame_menu_pos.x][i] << std::endl;
         if (_weapons_matrix[ingame_menu_pos.x][i] == true) {
-            //std::cout << "move_weapon_curstor_up - found slot at [" << ingame_menu_pos.x << "][" << i << "]" << std::endl;
             return st_position(ingame_menu_pos.x, i);
         }
     }
@@ -194,15 +188,13 @@ st_position class_config::move_weapon_curstor_up()
 
 }
 
-st_position class_config::move_weapon_curstor_down()
+st_position class_config::move_weapon_cursor_down()
 {
 
     // from position to bottom
     for (int i=ingame_menu_pos.y+1; i<WPN_ROWS; i++) {
         int stage_id = i;
-        //std::cout << "CONFIG::move_weapon_curstor_down - slot[" << ingame_menu_pos.x << "][" << stage_id << "]: " << _weapons_matrix[ingame_menu_pos.x][stage_id] << std::endl;
         if (_weapons_matrix[ingame_menu_pos.x][stage_id] == true) {
-            //std::cout << "CONFIG::move_weapon_curstor_down - found slot at [" << ingame_menu_pos.x << "][" << i << "]" << std::endl;
             return st_position(ingame_menu_pos.x, stage_id);
         }
     }
@@ -222,10 +214,6 @@ st_position class_config::move_weapon_curstor_down()
 
 }
 
-void class_config::weapon_menu_show_player()
-{
-    graphLib.copyArea(st_position(16, 195), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), &graphLib.gameScreen);
-}
 
 void class_config::use_tank(int tank_type)
 {
@@ -247,21 +235,17 @@ void class_config::use_tank(int tank_type)
 		return;
 	}
 	if (tank_type == TANK_ENERGY || tank_type == TANK_SPECIAL) {
-		while (player_ref->get_hp().current < player_ref->get_hp().total) {
-            input.read_input();
-			player_ref->set_current_hp(1);
-			if (n == 0 || n % 6 == 0) {
-				soundManager.play_sfx(SFX_GOT_ENERGY);
-			}
-			n++;
-            graphLib.draw_weapon_cursor(st_position(0, 0), player_ref->get_hp().current, -1, player_ref->get_max_hp());
-            draw_lib.update_screen();
-			timer.delay(50);
-		}
+        int diff = player_ref->get_hp().current - player_ref->get_hp().total;
+        int play_times = diff/6;
+        if (play_times < 2) {
+            play_times = 2;
+        }
+        player_ref->set_current_hp(player_ref->get_hp().total);
+        soundManager.play_sfx(SFX_GOT_ENERGY);
 	}
 	if (tank_type == TANK_SPECIAL || tank_type == TANK_WEAPON) {
 		st_position weapon_pos(0, 0);
-		for (int i=0; i<WEAPON_COUNT; i++) {
+        for (int i=WEAPON_APEBOT; i<WEAPON_ITEM_COIL; i++) {
 			n = 0;
 			short unsigned int value = player_ref->get_weapon_value(i);
 			if (value < player_ref->get_hp().total) {
@@ -273,8 +257,6 @@ void class_config::use_tank(int tank_type)
 						soundManager.play_sfx(SFX_GOT_ENERGY);
 					}
 					n++;
-                    graphLib.draw_weapon_cursor(weapon_pos, player_ref->get_weapon_value(i), -1, player_ref->get_max_hp());
-                    draw_lib.update_screen();
 					timer.delay(50);
 				}
 			}
@@ -302,9 +284,7 @@ void class_config::use_tank(int tank_type)
 void class_config::draw_ingame_menu()
 {
     ingame_menu_pos = convert_stage_n_to_menu_pos(player_ref->get_selected_weapon());
-    graphLib.draw_weapon_menu_bg(player_ref->get_current_hp(), player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_max_hp());
-    graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-    graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
+    draw_lib.draw_in_game_menu(player_ref->get_char_frame(ANIM_DIRECTION_RIGHT, ANIM_TYPE_ATTACK, 0), player_ref->get_selected_weapon());
 }
 
 bool class_config::execute_ingame_menu()
@@ -312,7 +292,7 @@ bool class_config::execute_ingame_menu()
     st_position old_pos;
 
 
-    if (input.p1_input[BTN_START] == 1) {
+    if (input.p1_input[BTN_START] == 1 || (ingame_menu_active == true && input.p1_input[BTN_JUMP] == 1)) {
 
         input.clean();
         timer.delay(100);
@@ -325,17 +305,7 @@ bool class_config::execute_ingame_menu()
             draw_lib.fade_out_screen(0, 0, 0, 300);
             draw_ingame_menu();
         } else {
-            // left menu, change player color/weapon and remove pause
-            if (ingame_menu_pos.y != 6) {
-                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
-                gameControl.game_unpause();
-            } else {
-                // use item
-                use_tank(ingame_menu_pos.x);
-                ingame_menu_active = !ingame_menu_active; // keep itself inside the menu
-                generate_weapons_matrix();
-                draw_ingame_menu();
-            }
+            gameControl.game_unpause();
         }
     }
 
@@ -343,13 +313,33 @@ bool class_config::execute_ingame_menu()
         old_pos.x = ingame_menu_pos.x;
         old_pos.y = ingame_menu_pos.y;
         if (input.p1_input[BTN_UP] == 1) {
-            move_cursor(0, -1);
+            soundManager.play_sfx(SFX_CURSOR);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -WEAPON_MENU_COL_N);
+            if (selected_weapon_c != -1) {
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_DOWN] == 1) {
-            move_cursor(0, 1);
+            soundManager.play_sfx(SFX_CURSOR);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), WEAPON_MENU_COL_N);
+            if (selected_weapon_c != -1) {
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_LEFT] == 1) {
-            move_cursor(-1, 0);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), -1);
+            if (selected_weapon_c != -1) {
+                soundManager.play_sfx(SFX_CURSOR);
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_RIGHT] == 1) {
-            move_cursor(1, 0);
+            int selected_weapon_c = find_next_weapon(player_ref->get_selected_weapon(), 1);
+            if (selected_weapon_c != -1) {
+                soundManager.play_sfx(SFX_CURSOR);
+                player_ref->set_weapon(selected_weapon_c, true);
+                draw_ingame_menu();
+            }
         } else if (input.p1_input[BTN_R] == 1) {
             if (gameControl.show_config(game_save.stages[gameControl.currentStage]) == true) { // player picked "leave stage" option
                 ingame_menu_active = false;
@@ -357,26 +347,13 @@ bool class_config::execute_ingame_menu()
                 return true;
             }
             draw_ingame_menu();
-        }
-        if (old_pos.x != ingame_menu_pos.x || old_pos.y != ingame_menu_pos.y) {
-            //std::cout << ">> old_pos.y: " << old_pos.y << ", ingame_menu_pos.y: " << ingame_menu_pos.y << std::endl;
-            if (old_pos.y != 6) {
-                graphLib.draw_weapon_cursor(old_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(old_pos)), -1, player_ref->get_max_hp());
-                graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(old_pos), old_pos, false);
-            } else {
-                graphLib.erase_menu_item(old_pos.x);
-            }
-            if (ingame_menu_pos.y != 6) {
-                graphLib.draw_weapon_cursor(ingame_menu_pos, player_ref->get_weapon_value(convert_menu_pos_to_weapon_n(ingame_menu_pos)), player_ref->get_number(), player_ref->get_max_hp());
-                graphLib.draw_weapon_icon(convert_menu_pos_to_weapon_n(ingame_menu_pos), ingame_menu_pos, true);
-                player_ref->set_weapon(convert_menu_pos_to_weapon_n(ingame_menu_pos), false);
-                weapon_menu_show_player();
-            } else {
-                graphLib.draw_menu_item(ingame_menu_pos.x);
-            }
+        } else if (input.p1_input[BTN_DASH] == 1) {
+            SharedData::get_instance()->leave_stage_request = true;
+            ingame_menu_active = false;
+            gameControl.game_unpause();
+            return true;
         }
         input.clean();
-        //timer.delay(MENU_CHANGE_DELAY);
     }
 
     return ingame_menu_active;
@@ -390,7 +367,6 @@ short class_config::convert_menu_pos_to_weapon_n(st_position menu_pos) const
     } else {
         res = menu_pos.y + 5;
     }
-    //std::cout << "*** CONFIG::convert_menu_pos_to_weapon_n - res: " << res << ", menu_pos.x: " << menu_pos.x << ", menu_pos.y: " << menu_pos.y << std::endl;
     return res;
 
     /*
@@ -415,37 +391,52 @@ st_position class_config::convert_stage_n_to_menu_pos(short stage_n) const
         res_pos.y = stage_n - 5;
     }
 
-    //std::cout << "*** CONFIG::convert_menu_pos_to_weapon_n - res.x: " << res_pos.x << ", res.y: " << res_pos.y << std::endl;
-
     return res_pos;
 }
 
-
-Sint8 class_config::find_next_weapon(Uint8 current, Uint8 move) const
+/*
+// comportamento cima/baixo: move para aquela posição, se não tiver, continua andando, de 1 em 1, até achar a próxima/anterior
+int class_config::find_next_weapon(int current, int move) const
 {
-    if (move == 1) {
-        for (int i=current+1; i<WEAPON_COUNT; i++) { // from position to end
-            //std::cout << "#0 CONFIG::find_next_weapon - wpnId: " << i << ", save: " << game_save.stages[i] << std::endl;
-            if (game_save.stages[i] == 1) {
-                //std::cout << "#0 CONFIG::find_next_weapon - OK[" << i << "]" << std::endl;
+    int result = -1;
+    for (int i=abs(move); i>=1; i--) {
+        int new_weapon_n = current + move;
+        if (new_weapon_n >= WEAPON_COUNT) {
+            new_weapon_n = new_weapon_n-WEAPON_COUNT;
+        }
+        if (new_weapon_n < 0) {
+            new_weapon_n = WEAPON_COUNT - new_weapon_n;
+        }
+        int move_n = 1;
+        if (move < 0) {
+            move_n = -1;
+        }
+    }
+    return result;
+}
+*/
+
+int class_config::find_next_weapon(int current, int move) const
+{
+    if (move > 0) {
+        for (int i=current+move; i<WEAPON_COUNT; i++) { // from position to end
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
         for (int i=0; i<current; i++) { // from start to position
-            if (game_save.stages[i] == 1) {
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
     } else {
-        for (int i=current-1; i>=0; i--) { // from position to start
-            if (game_save.stages[i] == 1) {
-                //std::cout << ">>#1 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
+        for (int i=current+move; i>=0; i--) { // from position to start
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
         for (int i=WEAPON_COUNT-1; i>current; i--) { // from end to position
-            if (game_save.stages[i] == 1) {
-                //std::cout << ">>#2 CONFIG::find_next_weapon - wpnId: " << i << std::endl;
+            if (dataUtil::get_instance()->has_weapon(i) == true) {
                 return i;
             }
         }
@@ -496,7 +487,6 @@ void class_config::generate_weapons_matrix()
 
         if (game_save.stages[i] == 1) {
             st_position pos = convert_stage_n_to_menu_pos(i);
-            //std::cout << "CONFIG::generate_weapons_matrix - stage[" << i << "]: " << game_save.stages[i] << ", pos.x: " << pos.x << ", pos.y: " << pos.y << std::endl;
             _weapons_matrix[pos.x][pos.y] = true;
         }
     }

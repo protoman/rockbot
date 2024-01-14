@@ -1,5 +1,7 @@
 #include "strings_map.h"
 
+#include "shareddata.h"
+
 // Global static pointer used to ensure a single instance of the class.
 strings_map* strings_map::_instance = NULL;
 
@@ -17,9 +19,9 @@ strings_map *strings_map::get_instance()
 
 }
 
-std::string strings_map::get_ingame_string(int n, int language)
+std::string strings_map::get_ingame_string(int n)
 {
-    std::string str_out = fio_str.get_ingame_string(n, language, true);
+    std::string str_out = fio_str.get_ingame_string(n, SharedData::get_instance()->current_language, true);
     return str_out;
 }
 

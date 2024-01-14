@@ -36,11 +36,13 @@ public:
     static void fill_languages_combo(QComboBox *combo);
     static void fill_sfx_combo(QComboBox *combo);
     static void fill_numbered_combo(QComboBox *combo, int start, int end);
+    static void fill_direction_combo(QComboBox *combo);
     static std::vector<std::string> get_npc_names_list();
     static std::vector<std::string> get_weapon_names_list();
     static st_size calc_image_size(std::string file);
-
     static void fill_anim_block_combo(QComboBox *combo);
+    static void show_directory_error_message(std::string directory);
+    static std::vector<std::string> get_throw_object_options();
 
 private:
 

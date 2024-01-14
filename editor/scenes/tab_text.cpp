@@ -2,6 +2,7 @@
 #include "ui_tab_text.h"
 #include "../file/format.h"
 #include "common.h"
+#include "shareddata.h"
 
 TabText::TabText(QWidget *parent) :
     QDialog(parent),
@@ -9,7 +10,7 @@ TabText::TabText(QWidget *parent) :
 {
     dataLoading = true;
     currentIndex = -1;
-    currentLanguage = LANGUAGE_ENGLISH;
+    SharedData::get_instance()->current_language = LANGUAGE_ENGLISH;
 
     ui->setupUi(this);
 
@@ -27,7 +28,6 @@ TabText::~TabText()
 void TabText::save_data()
 {
     fio_scenes.save_scenes_show_text(ScenesMediator::get_instance()->text_list);
-
     save_data(currentIndex);
 }
 
@@ -37,11 +37,12 @@ void TabText::save_data(int n)
     for (int i=0; i<SCENE_TEXT_LINES_N; i++) {
         text_list.push_back(scene_text_list[i]);
     }
-    fio_str.write_scene_text_file(currentIndex, text_list, currentLanguage);
+    fio_str.write_scene_text_file(currentIndex, text_list, SharedData::get_instance()->current_language);
 }
 
 void TabText::reload()
 {
+    currentIndex = 0;
     fill_data();
 }
 
@@ -69,7 +70,7 @@ void TabText::fill_data()
 
 void TabText::set_fields(int index)
 {
-    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index, currentLanguage);
+    std::vector<std::string> text_list = fio_str.get_string_list_from_scene_text_file(index);
     for (int i=0; i<text_list.size(); i++) {
         scene_text_list[i] = text_list.at(i);
     }
@@ -154,7 +155,6 @@ void TabText::on_select_comboBox_currentIndexChanged(int index)
     // save previous entry
     if (data_loading == false && currentIndex != -1) {
         save_data(currentIndex);
-        std::cout << "SAVING..." << std::endl;
     }
 
     data_loading = true;
@@ -246,6 +246,6 @@ void TabText::on_languageComboBox_currentIndexChanged(int index)
         return;
     }
     save_data();
-    currentLanguage = index;
+    SharedData::get_instance()->current_language = index;
     set_fields(currentIndex);
 }

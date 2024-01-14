@@ -36,7 +36,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -60,7 +60,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -84,7 +84,31 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
+            </rect>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="parallax_tab">
+       <attribute name="title">
+        <string>Parallax</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="parallax_scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="parallax_scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1009</width>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -108,7 +132,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -132,7 +156,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -156,7 +180,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -180,7 +204,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -204,7 +228,7 @@
              <x>0</x>
              <y>0</y>
              <width>1009</width>
-             <height>423</height>
+             <height>411</height>
             </rect>
            </property>
           </widget>
@@ -222,7 +246,7 @@
      <x>0</x>
      <y>0</y>
      <width>1051</width>
-     <height>19</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -276,6 +300,8 @@
   </action>
  </widget>
  <resources>
+  <include location="../resources/icons/icons.qrc"/>
+  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>
  <connections/>

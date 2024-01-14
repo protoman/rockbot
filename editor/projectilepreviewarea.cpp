@@ -24,12 +24,12 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 
 	QPixmap image(projectile_filename.c_str());
     if (image.isNull() == true || image.width() <= 0) {
-		std::cout << "projectilePreviewArea::paintEvent - Could not load image file '" << Mediator::get_instance()->addProjectileFilename << "'" << std::endl;
+        // TODO: show error
 		return;
 	}
 	image_w = image.width();
 	image_h = image.height();
-	image = image.scaled(image.width()*2, image.height()*2);
+    image = image.scaled(image.width()*zoom, image.height()*zoom);
 	this->resize(QSize(image.size().width()+1, image.size().height()+1));
 	myParent->adjustSize();
 
@@ -40,7 +40,7 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
 	//printf("projectilePreviewArea::paintEvent - gSize: %d\n", Mediator::get_instance()->projectileGraphicSize_w);
 
    painter.setPen(QColor(0, 120, 0));
-   int step = Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).size.width*2;
+   int step = Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).size.width*zoom;
    int max = this->width()+1;
    if (step < 1) {
        step = 1;
@@ -51,7 +51,7 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
       painter.drawLine(line);
    }
    max = this->height()+1;
-   step = Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).size.height*2;
+   step = Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).size.height*zoom;
    if (step < 1) {
        step = 1;
    }
@@ -60,6 +60,25 @@ void projectilePreviewArea::paintEvent(QPaintEvent *) {
       line = QLineF(0, i, this->width()+100, i);
       painter.drawLine(line);
    }
+}
+
+void projectilePreviewArea::wheelEvent(QWheelEvent *event)
+{
+    int numDegrees = event->delta() / 8;
+    int numSteps = numDegrees / 15;
+
+    if (numSteps > 0) {
+        if (zoom < 8) {
+            zoom++;
+            repaint();
+        }
+    } else if (numSteps < 0) {
+        if (zoom > 2) {
+            zoom--;
+            repaint();
+        }
+    }
+
 }
 
 

@@ -48,9 +48,7 @@ void stage_swap_dialog::on_buttonBox_accepted()
     }
 
     // ### SWAP DIALOGS ### //
-
-    // load data, if needed
-    for (int i=0; i<LANGUAGE_COUNT; i++) {
+    for (int i=0; i<LANGUAGE_COUNT; i++) { // load data, if needed
         CURRENT_FILE_FORMAT::fio_strings fio_str;
         if (Mediator::get_instance()->stage_dialog_list[i].find(dest_n) == Mediator::get_instance()->stage_dialog_list[i].end()) {
             Mediator::get_instance()->stage_dialog_list[i].insert(std::pair<int, std::vector<std::string> >(dest_n, fio_str.get_stage_dialogs(dest_n, LANGUAGE_ENGLISH, false)));
@@ -85,10 +83,37 @@ void stage_swap_dialog::on_buttonBox_accepted()
     sprintf(Mediator::get_instance()->game_data.stages_face_name[dest_n], "%s", Mediator::get_instance()->game_data.stages_face_name[origin_n]);
     sprintf(Mediator::get_instance()->game_data.stages_face_name[origin_n], "%s", temp_face_name);
 
-    char temp_face_filename[FS_CHAR8_NAME_SIZE];
+    char temp_face_filename[FS_FACE_FILENAME_MAX];
     sprintf(temp_face_filename, "%s", Mediator::get_instance()->game_data.stage_face_filename[dest_n]);
     sprintf(Mediator::get_instance()->game_data.stage_face_filename[dest_n], "%s", Mediator::get_instance()->game_data.stage_face_filename[origin_n]);
     sprintf(Mediator::get_instance()->game_data.stage_face_filename[origin_n], "%s", temp_face_filename);
 
 
+    // SWAP OBJECTS
+    for (unsigned int i=0; i<Mediator::get_instance()->maps_data_object_list.size(); i++) {
+        if (Mediator::get_instance()->maps_data_object_list.at(i).stage_id == origin_n) {
+            Mediator::get_instance()->maps_data_object_list.at(i).stage_id = dest_n;
+        } else if (Mediator::get_instance()->maps_data_object_list.at(i).stage_id == dest_n) {
+            Mediator::get_instance()->maps_data_object_list.at(i).stage_id = origin_n;
+        }
+    }
+
+    // SWAP ENEMIES
+    for (unsigned int i=0; i<Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+        if (Mediator::get_instance()->maps_data_npc_list.at(i).stage_id == origin_n) {
+            Mediator::get_instance()->maps_data_npc_list.at(i).stage_id = dest_n;
+        } else if (Mediator::get_instance()->maps_data_npc_list.at(i).stage_id == dest_n) {
+            Mediator::get_instance()->maps_data_npc_list.at(i).stage_id = origin_n;
+        }
+    }
+
+    QString tileset(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename);
+    if (tileset.length() > 0) {
+        Mediator::get_instance()->setPallete(tileset.toStdString());
+    } else {
+        Mediator::get_instance()->setPallete("default.png");
+    }
+
+
+    emit finished_swap_stages();
 }

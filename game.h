@@ -19,10 +19,21 @@ class classnpc;
 #include "scenes/dialogs.h"
 #include "aux_tools/fps_control.h"
 
+struct st_explosion_status {
+    int distance;
+    int frame_n;
+    int frame_expanding;
 
-#ifdef PSP
-#include "ports/psp/psp_ram.h"
-#endif
+    st_explosion_status() {
+        reset();
+    }
+
+    void reset() {
+        distance = 0;
+        frame_n = 0;
+        frame_expanding = true;
+    }
+};
 
 /**
  * @brief
@@ -82,34 +93,27 @@ public:
     void horizontal_screen_move(short direction, bool is_door, short tileX);
 
 
-    void show_door_animation();
+    void show_door_animation(object *obj_ref);
 
     void got_weapon();
-    /**
-     * @brief
-     *
-     */
+    void classic_style_got_weapon();
+
     void leave_stage();
 
     void return_to_intro_screen();
 
     void game_pause();
     void game_unpause();
-
-    /**
-     * @brief
-     *
-     */
-    void game_over();
-    /**
-     * @brief
-     *
-     */
     void show_ending();
-    void show_demo_ending();
+
+    bool game_started();
 
 
-    void draw_explosion(st_position center, bool show_players);
+    void draw_boss_explosion(st_position center, bool show_players);
+    void draw_player_death(st_position center);
+    void classic_style_draw_player_death(st_position center);
+    void classic_style_draw_boss_death(st_position center);
+    void classic_style_draw_explosion(st_position center, graphicsLib_gSurface &classic_death_explosion_surface, st_explosion_status &explosion_status);
     void show_player();
     /**
      * @brief
@@ -141,6 +145,9 @@ public:
      * @return st_position
      */
     st_position get_player_position();
+
+    st_rectangle get_player_hitbox();
+
     /**
      * @brief
      *
@@ -155,7 +162,7 @@ public:
      * @param player_n
      */
     void set_player_direction(Uint8 direction);
-    void map_present_boss(bool show_dialog, bool is_static_boss);
+    void map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage_boss);
 
     character* get_player();
 
@@ -191,10 +198,6 @@ public:
     void set_current_stage(int stage);
     void set_current_map(int);
     st_float_position get_current_stage_scroll();
-    /**
-     * @brief
-     *
-     */
     void reset_scroll();
     short get_drop_item_id(short type);
     void get_drop_item_ids();
@@ -205,20 +208,21 @@ public:
     void remove_current_teleporter_from_list(); // used when player dies
     void select_game_screen();
     std::string get_selected_game();
-    bool is_free_version();
     classMap* get_current_map_obj();
     bool is_player_on_teleporter();
+
+    unsigned short get_next_stage();
     short get_last_castle_stage();
+
     short get_current_save_slot();
     void set_current_save_slot(short n);
     void save_game();
     void set_show_fps_enabled(bool enabled);
     bool get_show_fps_enabled();
+    void set_selected_game(std::string game_name);
+    void restart_stage_music();
 
-#ifdef ANDROID
-    bool load_save_data_from_cloud();
-#endif
-
+    void game_over();
 
 private:
     void exit_game();
@@ -228,61 +232,23 @@ private:
     void start_stage();
     void set_player_position_teleport_in(int initial_pos_x, int initial_pos_y);
     void show_player_teleport(int pos_x, int pos_y);
-
-
     void show_ready();
-
-    /**
-     * @brief
-     *
-     */
     void restart_stage();
-	//void load_game_objects();
-
-    /**
-     * @brief
-     *
-     * @param type
-     * @param map_n
-     * @param adjust_x
-     * @param pObj
-     */
     void transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj);
-    /**
-     * @brief
-     *
-     * @return short
-     */
     Uint8 get_current_map();
-    /**
-     * @brief
-     *
-     * @param char_obj
-     * @param pos_x
-     */
     void walk_character_to_screen_point_x(character* char_obj, short pos_x); // keeps walking (and jumping obstacles) until reaching a given point in screen (not in map, that should have its own function for that)
-    /**
-     * @brief
-     *
-     * @param set_teleport_n
-     * @param set_player_pos
-     */
     void set_player_teleporter(short set_teleport_n, st_position set_player_pos, bool is_object);
-
-
     void finish_player_teleporter();
-
     void show_stage(int wait_time, bool move_npcs);
-
     bool subboss_alive_on_left(short tileX);
-
     void show_mem_debug(int n);
+    void player_victory();
 
 
 
 public:
-    Uint8 currentStage;
-    bool is_showing_boss_intro;
+    Uint8 currentStage = 0;
+
 
 
 
@@ -299,7 +265,7 @@ private:
     float _frame_duration;
     std::map<short, bool> _last_stage_used_teleporters; // list of used teleportes (they do not work anymore after added to this list)
     used_teleporter _player_teleporter;
-    bool _show_boss_hp; // after set to true, will keep showing the boss HP bar on screen right side
+    bool _show_boss_hp = false; // after set to true, will keep showing the boss HP bar on screen right side
 
     short _drop_item_list[DROP_ITEM_COUNT];
     bool invencible_old_value; // used to store flag value in order we don't loose it when setting to true due to temporary "got weapon" invencibility
@@ -313,11 +279,12 @@ private:
 
     bool show_fps_enabled;
 
+    std::vector<st_position> map_interstage_points;
 
-#ifdef PSP
-    psp_ram _ram_counter;
-    //std::cout << "unload_stage::RAM::BF='" << ram_counter.ramAvailable() << "'" << std::endl;
-#endif
+    bool is_game_started;
+
+    bool is_game_selected = false;
+    bool is_stage_selected = false;
 
 };
 

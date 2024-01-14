@@ -1,19 +1,20 @@
 #include <cstdlib>
+
 #include "object.h"
-#include "file/format.h"
-#include "classmap.h"
-#include "file/format/st_common.h"
+#include "../file/format.h"
+#include "../classmap.h"
+#include "../file/format/st_common.h"
 
 extern graphicsLib graphLib;
 extern std::string FILEPATH;
 
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
-#include "graphicslib.h"
+#include "../graphicslib.h"
 extern graphicsLib graphLib;
 
-#include "soundlib.h"
+#include "../soundlib.h"
 extern soundLib soundManager;
 
 extern CURRENT_FILE_FORMAT::st_save game_save;
@@ -26,7 +27,7 @@ extern FREEZE_EFFECT_TYPES freeze_weapon_effect;
 #define DELAY_RAY 1500
 #define FRAMETIMER_DEATHRAY 30
 
-#include "game.h"
+#include "../game.h"
 extern game gameControl;
 
 #define DISAPPEARNING_VISIBLE_TIME 1500
@@ -34,11 +35,17 @@ extern game gameControl;
 #define DAMAGING_PLATFORM_TIME 100
 #define INITIAL_ACTIVATION_DELAY 220
 
+#define CRUSHER_X_TOLERANCE 3
+#define CRUSHER_Y_TOLERANCE 4
+#define CRUSHER_DELAY 800
+
+#define EXPANDING_SPIKE_INACTIVE_DELAY 800
+
 // constructor for game_object
 
 
 // constructor for map_object
-object::object(short set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest) : _finished(false), _state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
+object::object(short set_id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest, short set_direction) : _finished(false), state(0), _duration(0), _timer_limit(0), _started(false), _animation_finished(false), _animation_reversed(false), _hidden(false)
 {
 	map = set_map;
 	_id = set_id;
@@ -46,9 +53,10 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     graphic_filename = GameMediator::get_instance()->object_list.at(_id).graphic_filename;
     type = GameMediator::get_instance()->object_list.at(_id).type;
     obj_timer = GameMediator::get_instance()->object_list.at(_id).timer;
-    speed = GameMediator::get_instance()->object_list.at(_id).speed;
+    speed = GameMediator::get_instance()->object_list.at(_id).speed * SharedData::get_instance()->get_movement_multiplier();
     limit = GameMediator::get_instance()->object_list.at(_id).limit;
-	direction = 0;
+    original_direction = set_direction;
+    direction = set_direction;
 	distance = 0;
     framesize_w = GameMediator::get_instance()->object_list.at(_id).size.width;
     framesize_h = GameMediator::get_instance()->object_list.at(_id).size.height;
@@ -70,6 +78,14 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
         _started = true;
     }
 
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        if (direction != ANIM_DIRECTION_RIGHT) {
+            direction = ANIM_DIRECTION_DOWN;
+        } else {
+            direction = ANIM_DIRECTION_UP;
+        }
+    }
+
     _command_up = false;
 	_command_down = false;
     _start_timer = 0;
@@ -78,7 +94,7 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     frame = 0;
     _timer_limit = 0;
     _must_play_appearing_sfx = false;
-    _teleport_state = 0;
+    teleport_state = 0;
     _ray_state = 0;
     _collision_mode = COLlISION_MODE_XY;
     reset_timer();
@@ -88,27 +104,38 @@ object::object(short set_id, classMap *set_map, st_position map_pos, st_position
     is_dropped = false;
     show_teleport = false;
     teleport_max_timer = 0;
+
+    if (type == OBJ_TIMED_BOMB) {
+        state = GameMediator::get_instance()->object_list.at(_id).timer;
+    } else if (type == OBJ_BOSS_DOOR) {
+        state = e_OBJECT_BOSS_DOOR_STATE_NONE;
+    }
+
     add_graphic();
 }
 
 object::~object()
 {
-    //std::cout << "object[" << name << "] destructor" << std::endl;
 }
 
 void object::reset()
 {
     _finished = false;
-    _state = 0;
     _size = 0;
-    //_duration = 0;
-    //std::cout << "OBJECT - set_start_false[RESET]" << std::endl;
     _started = false;
     _animation_finished = false;
     _animation_reversed = false;
     _hidden = false;
-    if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_TRACK_PLATFORM) {
+    if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_TRACK_PLATFORM) {
         direction = 0;
+    }
+    direction = original_direction;
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        if (direction != ANIM_DIRECTION_RIGHT) {
+            direction = ANIM_DIRECTION_DOWN;
+        } else {
+            direction = ANIM_DIRECTION_UP;
+        }
     }
     distance = 0;
     position.x = start_point.x;
@@ -123,6 +150,22 @@ void object::reset()
     frame = 0;
     //show_teleport = false;
     reset_timer();
+
+    // execute gravity until out of screen or stops moving
+    int pos_y_before = position.y;
+    int n = 0;
+    while (true) {
+        gravity();
+        if (pos_y_before == position.y || position.y > RES_H+TILESIZE || n > RES_H+TILESIZE) {
+            break;
+        }
+        pos_y_before = position.y;
+        n++;
+    }
+    state = 0;
+    if (type == OBJ_TIMED_BOMB) {
+        state = GameMediator::get_instance()->object_list.at(_id).timer;
+    }
 }
 
 void object::reset_timer()
@@ -140,15 +183,14 @@ void object::reset_timer()
         _timer_limit = 1000;
         _obj_frame_timer = timer.getTimer() + RAYFRAME_DELAY;
         _ray_state = 0;
-        _state = 0;
+        state = 0;
     } else if (type == OBJ_TRACK_PLATFORM) {
         _timer_limit = 100;
         direction = ANIM_DIRECTION_LEFT;
     } else if (type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DEATHRAY_VERTICAL) {
         _timer_limit = timer.getTimer() + obj_timer;
-        //std::cout << "OBJ[" << name << "] INIT, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
         _ray_state = 0;
-        _state = 0;
+        state = 0;
     } else {
         _obj_frame_timer = timer.getTimer() + _frame_duration;
         _timer_limit = timer.getTimer() + obj_timer;
@@ -181,8 +223,6 @@ void object::add_graphic()
 
 void object::remove_graphic()
 {
-///@TODO
-
 }
 
 void object::gravity()
@@ -191,12 +231,17 @@ void object::gravity()
         return;
     }
 	// non-falling object types
-    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_ACTIVE_DISAPPEARING_BLOCK|| type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP_LOOP
+            || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK
+            || type == OBJ_FALL_PLATFORM || type == OBJ_ITEM_FLY || type == OBJ_FLY_PLATFORM || type == OBJ_TIMED_BOMB
+            || type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM
+            || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DAMAGING_PLATFORM
+            || type == OBJ_CRUSHER || type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP || type == OBJ_EXPANDING_SPIKE
+            || is_active_platform() == true) {
 		return;
 	}
-    for (int i=GRAVITY_SPEED; i>0; i--) {
+    for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
         bool can_fall = test_change_position(0, i);
-        //std::cout << "OBJECT::gravity[" << name << "], i[" << i << "], y[" << position.y << "], can_fall[" << can_fall << "]" << std::endl;
         if (can_fall == true) {
 			position.y += i;
 			check_player_move(0, i);
@@ -217,10 +262,11 @@ bool object::test_change_position(short xinc, short yinc)
 		return true;
 	}
 
+    // TODO - OBJ_CRUSHER ignore walls until it leaves inside it. It accelerated until hit a ghround after leaving the wall
+
     if (yinc > 0 && position.y > RES_H) { // check if item felt out of screen
-        //std::cout << "OBJ::test_change_position - out of screen(down)" << std::endl;
         if (position.y < RES_H+TILESIZE*2) {
-            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+            if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP_LOOP && type != OBJ_MOVING_PLATFORM_DOWN) {
                 _finished = true;
                 return false;
             } else {
@@ -234,12 +280,9 @@ bool object::test_change_position(short xinc, short yinc)
     if (is_consumable() == false) {
         // collision against player when player is not using a platform
         int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, xinc, yinc);
-        //if (blocked != 0) std::cout << "obj.blocked: " << blocked << std::endl;
         /// @TODO - consumable items should not stop if blocked by player
-        ///
-        if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false) {
-            //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
-            return false;
+        if (gameControl.get_player_platform() != this && blocked != 0 && is_teleporting() == false && !(type == OBJ_ITEM_JUMP && yinc > 0) && is_consumable() == false && type != OBJ_CHECKPOINT) {
+            //return false;
         }
     }
 
@@ -249,9 +292,8 @@ bool object::test_change_position(short xinc, short yinc)
 
 	short p1 = map->getMapPointLock(st_position((position.x+2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
 	short p2 = map->getMapPointLock(st_position((position.x+framesize_w-2+xinc)/TILESIZE, (position.y+yinc+framesize_h-2)/TILESIZE));
-    //std::cout << "object::test_change_position[" << name << "] - p1: " << p1 << ", p2: " << p2 << std::endl;
 
-    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN) {
+    if (type != OBJ_FALL_PLATFORM && type != OBJ_MOVING_PLATFORM_UPDOWN && type != OBJ_MOVING_PLATFORM_UP_LOOP && type != OBJ_MOVING_PLATFORM_DOWN) {
         if (p1 == TERRAIN_SPIKE && p2 == TERRAIN_SPIKE) {
             return false;
         }
@@ -262,28 +304,43 @@ bool object::test_change_position(short xinc, short yinc)
         return true;
 	}
 
-
-
 	return false;
 }
 
-void object::check_player_move(int xinc, int yinc) const
+void object::check_player_move(int xinc, int yinc)
 {
-	//std::cout << "object::check_player_move::START - p.platform: " << gameControl.get_player_platform() << ", this: " << this << std::endl;
+    if (!is_on_screen()) {
+        return;
+    }
+    //std::cout << ">>>>>>>> OBJECT::check_player_move #1" << std::endl;
 	if (xinc == 0 && yinc == 0) {
-        //std::cout << "object::check_player_move::LEAVE" << std::endl;
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #1" << std::endl;
 		return;
 	}
 	if (yinc < 0 && position.y+framesize_h < 0) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #2" << std::endl;
 		return;
 	}
 	if (yinc > 0 && position.y > RES_H) {
+        //std::cout << ">>>>>>>> OBJECT::check_player_move LEAVE #3" << std::endl;
 		return;
     }
 	if (gameControl.get_player_platform() == this) {
-        //std::cout << "************* object::check_player_move - MOVE xinc: " << xinc << ", yinc: " << yinc << " **************" << std::endl;
+        //std::cout << ">>>>>>>> OBJECT::check_player_move #2, yinc[" << yinc << "]" << std::endl;
         gameControl.change_player_position(xinc, yinc);
+        if (!item_jet_started) {
+            item_jet_started = true;
+        }
+        // correction for player y if inside object
+        st_rectangle player_hitbox = gameControl.get_player_hitbox();
+        int player_feet = player_hitbox.y + player_hitbox.h;
+        if (player_feet > (position.y+1) && yinc != 0) {
+            int diff_player_feet = player_feet - (position.y+1);
+            gameControl.change_player_position(0, -diff_player_feet);
+        }
+        gameControl.update_stage_scrolling();
     }
+    //std::cout << ">>>>>>>> OBJECT::check_player_move #3" << std::endl;
 }
 
 void object::set_collision_mode(collision_modes collision_mode)
@@ -304,7 +361,7 @@ void object::reset_timers()
 
 bool object::is_consumable()
 {
-    if (type == OBJ_ENERGY_PILL_BIG || type == OBJ_ENERGY_PILL_SMALL || type == OBJ_ENERGY_TANK || type == OBJ_LIFE || type == OBJ_WEAPON_PILL_BIG || type == OBJ_WEAPON_PILL_SMALL || type == OBJ_WEAPON_TANK) {
+    if (type == OBJ_ENERGY_PILL_BIG || type == OBJ_ENERGY_PILL_SMALL || type == OBJ_ENERGY_TANK || type == OBJ_WEAPON_PILL_BIG || type == OBJ_WEAPON_PILL_SMALL || type == OBJ_WEAPON_TANK) {
         return true;
     }
     return false;
@@ -314,14 +371,14 @@ void object::enable_teleport_animation()
 {
     show_teleport = true;
     if (type == OBJ_ITEM_FLY) {
-        draw_lib.set_teleport_small_colors(st_color(219, 43, 0), st_color(235, 235, 235));
+        draw_lib.set_teleport_small_colors(st_color(255, 155, 59), st_color(235, 235, 235));
     } else if (type == OBJ_ITEM_JUMP) {
-        draw_lib.set_teleport_small_colors(st_color(235, 235, 235), st_color(219, 43, 0));
+        draw_lib.set_teleport_small_colors(st_color(0, 151, 0), st_color(227, 255, 163));
     } else {
         draw_lib.set_teleport_small_colors(st_color(112, 110, 110), st_color(235, 235, 235));
     }
     teleport_max_timer = timer.getTimer()+TELEPORT_TIME;
-    _teleport_state = e_object_teleport_state_initial;
+    teleport_state = e_object_teleport_state_initial;
 }
 
 void object::set_precise_position(st_position pos, int direction)
@@ -363,21 +420,16 @@ void object::show(int adjust_y, int adjust_x)
     }
 
     if (draw_lib.get_object_graphic(_id) == NULL) {
-        std::cout << "### OBJECT::SHOW - can't find graphic' ###" << std::endl;
 		return;
 	}
 
-    if (_hidden == true && type != OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
-        //std::cout << "### OBJECT::SHOW::HIDDEN ###" << std::endl;
+    if (_hidden == true && type != OBJ_ACTIVE_OPENING_SLIM_PLATFORM && type != OBJ_TIMED_BOMB) {
 		return;
 	}
-
-
-    //std::cout << "LOOP: obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
 
     if (freeze_weapon_effect == FREEZE_EFFECT_NPC) {
         _ray_state = 0;
-        _state = 0;
+        state = 0;
     }
 
 
@@ -397,23 +449,61 @@ void object::show(int adjust_y, int adjust_x)
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         show_deathray_horizontal(adjust_x, adjust_y);
         return;
-    } else if (type == OBJ_BOSS_DOOR) {
+    } else if (type == OBJ_BOSS_DOOR && state != e_OBJECT_BOSS_DOOR_STATE_NONE) {
         show_boss_door(adjust_x, adjust_y);
+        return;
+    } else if (type == OBJ_CRUSHER) {
+        show_crusher();
+        return;
+    } else if (type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+        int graphic_x = 0;
+        if (state == 1) {
+            graphic_x = framesize_w;
+        } else if (state > 1) {
+            _hidden = true;
+            //_finished = true;
+            return;
+        }
+        if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
+            graphic_destiny.x = position.x - scroll_x;
+            graphic_destiny.y = adjust_y + position.y;
+            graphLib.copyArea(st_rectangle(graphic_x, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        }
+        return;
+    } else if (type == OBJ_TIMED_BOMB) {
+        if (state == -1) {
+            st_position explosion_pos(position.x - TILESIZE - scroll_x, position.y - TILESIZE);
+            graphLib.draw_explosion(explosion_pos);
+        } else if (state >= 0) {
+            graphic_destiny.x = position.x - scroll_x;
+            graphic_destiny.y = adjust_y + position.y;
+            int active_bomb_graph_y_adjust = 0;
+            if (_started == true) {
+                active_bomb_graph_y_adjust = framesize_h;
+            }
+            graphLib.copyArea(st_rectangle(state*framesize_w, (direction*framesize_h)*2+active_bomb_graph_y_adjust, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        }
+        return;
+    } else if (type == OBJ_EXPANDING_SPIKE) {
+        if (state > 0) {
+            graphic_destiny.x = position.x - scroll_x;
+            graphic_destiny.y = adjust_y + position.y;
+            graphLib.copyArea(st_rectangle((state-1)*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        }
         return;
     }
 
     if (show_teleport) {
-        if (_teleport_state == e_object_teleport_state_initial) {
-            _teleport_state = e_object_teleport_state_teleport_in;
+        if (teleport_state == e_object_teleport_state_initial) {
+            teleport_state = e_object_teleport_state_teleport_in;
         }
-        if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
+        if (teleport_state == e_object_teleport_state_teleport_in || teleport_state == e_object_teleport_state_teleport_out) {
             if (timer.getTimer() < teleport_max_timer) {
-                //std::cout << "obj.show.pos.x[" << position.x << "]" << std::endl;
                 draw_lib.show_teleport_small(position.x-scroll_x, position.y);
                 return;
             } else {
-                if (_teleport_state == e_object_teleport_state_teleport_in) {
-                    _teleport_state = e_object_teleport_state_waiting;
+                if (teleport_state == e_object_teleport_state_teleport_in) {
+                    teleport_state = e_object_teleport_state_waiting;
                 } else {
                     _finished = true;
                 }
@@ -426,18 +516,11 @@ void object::show(int adjust_y, int adjust_x)
 
         // animation
         if ((GameMediator::get_instance()->object_list.at(_id).animation_auto_start == true || (GameMediator::get_instance()->object_list.at(_id).animation_auto_start == false && _started == true)) && framesize_w * 2 <= (draw_lib.get_object_graphic(_id)->width))  { // have at least two frames
-
-            //std::cout << "OBJECT::SHOW::ANIM[#1], _obj_frame_timer[" << _obj_frame_timer << "], timer[" << timer.getTimer() << "]" << std::endl;
-
 			graphic_origin.x = frame * framesize_w;
             if (_obj_frame_timer < timer.getTimer()) {
-
-                //std::cout << "OBJECT::SHOW - timer passed, _animation_finished[" << _animation_finished << "]" << std::endl;
-
                 if (_animation_finished == false) {
 					if (_animation_reversed == false) {
 						frame++;
-                        //std::cout << "obj[" << name << "].show.frame++[" << (int)frame << "]" << std::endl;
                     } else {
 						frame--;
 					}
@@ -449,10 +532,9 @@ void object::show(int adjust_y, int adjust_x)
 				if (_animation_reversed == true) {
 					_animation_finished = false;
 					_animation_reversed = false;
-                    //std::cout << "OBJECT - set_start_false[FRAME]" << std::endl;
                     _started = false;
                     // force stop if active block
-                    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
+                    if (is_active_platform() == true) {
                         _hidden = false;
                         _obj_frame_timer = timer.getTimer() + _frame_duration;
                         _animation_finished = false;
@@ -460,7 +542,6 @@ void object::show(int adjust_y, int adjust_x)
 				}
 				frame = 0;
 			}
-            //std::cout << "obj[" << name << "].show.frame[" << (int)frame << "]" << std::endl;
 
 			if	(_animation_reversed == false && frame > max_frames) {
                 if (GameMediator::get_instance()->object_list.at(_id).animation_loop == false) { // if animation loop is set to false, set this to show always the last frame
@@ -476,28 +557,18 @@ void object::show(int adjust_y, int adjust_x)
 				}
 			}
 		} else {
-            //std::cout << "obj[" << name << "].show - using frame zero, because!" << std::endl;
 			graphic_origin.x = 0;
             frame = 0;
 		}
 
-        if (type == OBJ_FINAL_BOSS_TELEPORTER && _started == false) {
-            frame = 0;
-        }
-
-
-
-		//std::cout << "object::show - frame_n: " << frame << ", _animation_reversed: " << _animation_reversed << ", max_frames: " << max_frames << std::endl;
 		// direction
         if (framesize_h*2 <= draw_lib.get_object_graphic(_id)->height)  {
-			//std::cout << ">>>> object height is enought for direction-right";
 			if (direction != ANIM_DIRECTION_RIGHT) {
 				graphic_origin.y = 0;
 			} else {
 				graphic_origin.y = framesize_h;
 			}
 		} else {
-            //std::cout << ">>>> NOT object image-height(" << (objects_sprite_list.find(name)->second).height << ") is NOT enought for direction-right. framesize_h: " << framesize_h << std::endl;
 			graphic_origin.y = 0;
 		}
 
@@ -506,27 +577,10 @@ void object::show(int adjust_y, int adjust_x)
 
 		// parte que vai ser colada
         graphic_destiny.x = position.x - scroll_x;
-        //graphic_destiny.y = adjust_y + position.y - map->getMapScrolling().y;
         graphic_destiny.y = adjust_y + position.y;
 
-        // -240 -> (160) -> -80
-
-        //std::cout << "object::show::name[" << name << "]::adjust_y[" << adjust_y << "]::graphic_destiny.y[" << graphic_destiny.y << "]::position.y[" << position.y << "]" << std::endl;
-
-        //std::cout << "obj[" << name << "] position.x: " << position.x << ", scroll_x: " << scroll_x << ", dest.x: " << graphic_destiny.x << ", dest.y: " << graphic_destiny.y << std::endl;
-        if (type == OBJ_LIFE) {
-            int init_x = graphic_origin.w*game_save.selected_player;
-            // avoid drawing something we don't have
-            if (draw_lib.get_object_graphic(_id)->width < init_x + framesize_w) {
-                init_x = 0;
-            }
-            graphLib.copyArea(st_rectangle(init_x, 0, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-            return;
-        }
-
-
         if (draw_lib.get_object_graphic(_id) != NULL) { // there is no graphic with this key yet, add it
-            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+            graphLib.copyArea(st_rectangle(graphic_origin.x, graphic_origin.y, graphic_origin.w, graphic_origin.h), st_position(graphic_destiny.x+zigzag_graph_pos_x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // disappearning block has a shadow under it
             if (type == OBJ_DISAPPEARING_BLOCK) {
                 graphLib.clear_area(graphic_destiny.x, graphic_destiny.y+framesize_h, framesize_w, 6, 0, 0, 0);
@@ -538,7 +592,7 @@ void object::show(int adjust_y, int adjust_x)
 		}
 
 	// remove item that is out of vision
-    } else if (_teleport_state == e_object_teleport_state_waiting && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
+    } else if (teleport_state == e_object_teleport_state_waiting && (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP)) {
 		_finished = true;
     }
 }
@@ -562,30 +616,28 @@ void object::show_deathray_vertical(int adjust_x, int adjust_y)
             _ray_state = !_ray_state;
         }
 
-        //std::cout << "OBJECT::show_deathray_vertical, _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
-
         // draw base
         graphLib.copyArea(st_rectangle(framesize_w*_ray_state, 0, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-        if (_state == 1) {
+        if (state == 1) {
             // point
             graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-        } else if (_state == 2) {
+        } else if (state == 2) {
             // point
             graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*2), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
             // body
             graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
-        } else if (_state > 2) {
+        } else if (state > 2) {
             if (_expanding == true) {
                 // point
-                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*_state), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*3, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*state), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 // body
-                for (int i=1; i<_state; i++) {
+                for (int i=1; i<state; i++) {
                     graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
             } else {
-                int start_x = _state - MAP_H;
+                int start_x = state - MAP_H;
                 // body
-                for (int i=start_x+1; i<_state; i++) {
+                for (int i=start_x+1; i<state; i++) {
                     graphLib.copyArea(st_rectangle(framesize_w*_ray_state, TILESIZE*2, framesize_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y+TILESIZE*i), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
                 }
                 // tail
@@ -659,7 +711,7 @@ void object::show_deathray_horizontal(int adjust_x, int adjust_y)
 
 void object::show_boss_door(int adjust_x, int adjust_y)
 {
-    if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
+    if (state == e_OBJECT_BOSS_DOOR_STATE_OPENED) { // nothing to show when open
         return;
     }
     st_position graphic_destiny;
@@ -671,23 +723,51 @@ void object::show_boss_door(int adjust_x, int adjust_y)
     graphic_destiny.x = position.x - scroll_x;
     graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
 
-    int graph_h = framesize_h;
-    if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENING || _state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
-        graph_h = framesize_h - _ray_state;
-        std::cout << "object::show_boss_door::graph_h[" << graph_h << "]" << std::endl;
+    int graph_x = frame * framesize_w;
+    if (state == e_OBJECT_BOSS_DOOR_STATE_CLOSED) {
+        graph_x = 0;
     }
 
     if (draw_lib.get_object_graphic(_id) != NULL) {
-        graphLib.copyArea(st_rectangle(0, 0, framesize_w, graph_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(graph_x, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
+    if (state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
+        frame++;
+    } else if (state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
+        frame--;
+        if (frame < 0) {
+            frame = 0;
+        }
+    }
+}
 
+void object::show_crusher()
+{
+    float scroll_x = (float)map->getMapScrolling().x;
+    float scroll_y = (float)map->getMapScrolling().y;
+    st_position graphic_destiny = st_position(position.x - scroll_x, position.y + scroll_y);
+    // first frame is the lower part
+    graphLib.copyArea(st_rectangle(0, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    // second frame repeats to fill the area above
+    int repeat_n = (position.y - start_point.y)/framesize_h;
+    //std::cout << "OBJ::show_crusher - repeat_n[" << repeat_n << "], start_point.y[" << start_point.y << "], position.y[" << position.y << "]" << std::endl;
+    for (int i=0; i<repeat_n; i++) {
+        graphLib.copyArea(st_rectangle(framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y-(framesize_h*(i+1))), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    }
+    // draw the remaining, if needed
+    int remaining = position.y - framesize_h*repeat_n - start_point.y;
+    graphLib.copyArea(st_rectangle(framesize_w, 0, framesize_w, remaining), st_position(start_point.x-scroll_x, start_point.y-scroll_y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
 }
 
 bool object::is_platform()
 {
-    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
+    if (type == OBJ_ITEM_FLY || type == OBJ_ITEM_JUMP || is_active_platform() == true || type == OBJ_FALL_PLATFORM || type == OBJ_FLY_PLATFORM || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP_LOOP  || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM) {
         return true;
     }
+    if (is_active_platform()) {
+        return true;
+    }
+    return false;
 }
 
 void object::show_vertical_ray(int adjust_x, int adjust_y)
@@ -707,12 +787,9 @@ void object::show_vertical_ray(int adjust_x, int adjust_y)
             _ray_state = !_ray_state;
         }
 
-        int dest_y = draw_lib.get_object_graphic(_id)->height-(TILESIZE*(_state+1));
+        int dest_y = draw_lib.get_object_graphic(_id)->height-(TILESIZE*(state+1));
 
-        //std::cout << "OBJECT::show_vertical_ray, timer[" << timer.getTimer() << "], obj.timer[" << _obj_frame_timer << "], _ray_state[" << (int)_ray_state << "], _state[" << (int)_state << "]" << std::endl;
-
-        //std::cout << "OBJECT::show_vertical_ray - dest_y: " << dest_y << ", _state: " << _state << std::endl;
-        graphLib.copyArea(st_rectangle(TILESIZE*_ray_state, dest_y, TILESIZE, TILESIZE*(_state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(_state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(TILESIZE*_ray_state, dest_y, TILESIZE, TILESIZE*(state+1)), st_position(graphic_destiny.x, graphic_destiny.y-TILESIZE*(state)), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
 }
 
@@ -734,13 +811,13 @@ void object::show_horizontal_ray(int adjust_x, int adjust_y)
         }
 
         if (direction == ANIM_DIRECTION_LEFT) {
-            int graphic_x = framesize_w - TILESIZE*(_state+1) + framesize_w*_ray_state;
-            int graphic_w = TILESIZE*(_state+1);
+            int graphic_x = framesize_w - TILESIZE*(state+1) + framesize_w*_ray_state;
+            int graphic_w = TILESIZE*(state+1);
             int dest_x = graphic_destiny.x - graphic_w + TILESIZE;
             graphLib.copyArea(st_rectangle(graphic_x, 0, graphic_w, TILESIZE), st_position(dest_x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         } else {
             int graphic_x = framesize_w*_ray_state;
-            int graphic_w = TILESIZE*(_state+1);
+            int graphic_w = TILESIZE*(state+1);
             graphLib.copyArea(st_rectangle(graphic_x, framesize_h, graphic_w, TILESIZE), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         }
     }
@@ -757,8 +834,7 @@ void object::show_track_platform(int adjust_x, int adjust_y)
     graphic_destiny.x = position.x - scroll_x;
     graphic_destiny.y = position.y + map->getMapScrolling().y + adjust_y;
     if (draw_lib.get_object_graphic(_id) != NULL) {
-        //std::cout << "show_track_platform - _state: " << _state << std::endl;
-        graphLib.copyArea(st_rectangle(_state*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        graphLib.copyArea(st_rectangle(state*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
     }
 }
 
@@ -773,17 +849,20 @@ void object::move(bool paused)
         return;
     }
 
-    //std::cout << "name: " << name << ", _duration: " << _duration << ", time-limit: " << _timer_limit << ", timer: " << timer.getTimer() << std::endl;
+    if (last_execute_time > timer.getTimer()) {
+        return;
+    }
+    last_execute_time = timer.getTimer() + EXECUTIION_DELAY;
+
     if (_duration > 0 && timer.getTimer() > _timer_limit && !(type == OBJ_ITEM_FLY && _started == true)) { // eagle-jet, when active, can't teleport out because of timer
-        if (show_teleport == true && _teleport_state != e_object_teleport_state_teleport_out) {
-            _teleport_state = e_object_teleport_state_teleport_out;
+        if (show_teleport == true && teleport_state != e_object_teleport_state_teleport_out) {
+            teleport_state = e_object_teleport_state_teleport_out;
             teleport_max_timer = timer.getTimer() + TELEPORT_TIME;
         } else if (show_teleport == false) {
             _finished = true;
         }
         return;
     }
-	//std::cout << "object::move::START" << std::endl;
 	if (type == OBJ_MOVING_PLATFORM_LEFTRIGHT) {
 		if (distance > limit) {
 			invert_direction_x();
@@ -796,7 +875,6 @@ void object::move(bool paused)
             xinc = speed;
 		}
 		bool can_move = test_change_position(xinc, 0);
-		//std::cout << "object::move::OBJ_MOVING_PLATFORM_LEFTRIGHT - xinc: " << xinc << ", can_move: " << can_move << ", distance: " << distance << ", limit: " << limit << std::endl;
 		if (can_move) {
 			position.x += xinc;
 			check_player_move(xinc, 0);
@@ -807,8 +885,9 @@ void object::move(bool paused)
             distance = limit - distance;
 		}
 	} else if (type == OBJ_MOVING_PLATFORM_UPDOWN) {
+        //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - distance[" << distance << "], limit[" << limit << "]" << std::endl;
 		if (distance > limit) {
-			//std::cout << "OBJ_MOVING_PLATFORM_UPDOWN - limit reached - distance: " << distance << ", limit: " << limit << ", invert" << std::endl;
+            //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - INVERT" << std::endl;
 			invert_direction_y();
 			distance = 0;
 		}
@@ -819,13 +898,12 @@ void object::move(bool paused)
             yinc = speed;
 		}
 		bool can_move = test_change_position(0, yinc);
-		//std::cout << "object::move::OBJ_MOVING_PLATFORM_LEFTRIGHT - xinc: " << xinc << ", can_move: " << can_move << ", distance: " << distance << ", limit: " << limit << std::endl;
+        //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - yinc[" << yinc << "], can_move[" << can_move << "]" << std::endl;
 		if (can_move) {
 			position.y += yinc;
 			check_player_move(0, yinc);
 			distance += abs((float)yinc);
 		} else {
-            std::cout << "object is blocked, yinc: " << yinc << ", current-dist: " << distance << ", limit: " << limit << ", new-dist: " << (limit-distance) << std::endl;
             distance = limit - distance + yinc;
             invert_direction_y();
         }
@@ -833,19 +911,17 @@ void object::move(bool paused)
         if (timer.getTimer() < _start_timer) { // initial delay
             return;
         }
-		if (_state == OBJ_STATE_MOVE) { // falling state
+        if (state == OBJ_STATE_MOVE) { // falling state
             int yinc = speed;
 			bool can_move = test_change_position(0, yinc);
 			if (can_move) {
-                //std::cout << "OBJ_FALL_PLATFORM - yinc: " << yinc << ", pos.y: " << position.y << std::endl;
 				position.y += yinc;
 				check_player_move(0, yinc);
 				distance += abs((float)yinc);
 			} else {
-                //std::cout << "OBJ_FALL_PLATFORM - RETURN " << std::endl;
-				_state = OBJ_STATE_RETURN;
+                state = OBJ_STATE_RETURN;
 			}
-		} else if (_state == OBJ_STATE_RETURN) { // returning state
+        } else if (state == OBJ_STATE_RETURN) { // returning state
             if (gameControl.get_player_platform() != this) { // do not return if player is on it
                 if (distance == 0) { // added because of initial delay
                     stop();
@@ -864,14 +940,14 @@ void object::move(bool paused)
             }
 		}
 		// check out of screen
-		if (_state == 1 && position.y > RES_H+TILESIZE*3) {
-			_state = OBJ_STATE_RETURN;
+        if (state == 1 && position.y > RES_H+TILESIZE*3) {
+            state = OBJ_STATE_RETURN;
 		}
 	} else if (type == OBJ_FLY_PLATFORM) {
         if (timer.getTimer() < _start_timer) { // initial delay
             return;
         }
-        if (_state == OBJ_STATE_MOVE) { // flying state
+        if (state == OBJ_STATE_MOVE) { // flying state
             int yinc = -speed;
             bool can_move = test_change_position(0, yinc);
             if (can_move) {
@@ -879,17 +955,14 @@ void object::move(bool paused)
                 position.y += yinc;
                 distance += abs((float)yinc);
             } else {
-                _state = OBJ_STATE_RETURN;
+                state = OBJ_STATE_RETURN;
             }
             // check out of screen
-            //std::cout << "FLY PLATFORM, position.y: " << position.y << ", framesize_h+TILESIZE: " << (framesize_h+TILESIZE) << std::endl;
-            if (_state == 1 && position.y < -(framesize_h+TILESIZE)) {
-                //std::cout << "FLY PLATFORM -> RETURN" << std::endl;
-                _state = OBJ_STATE_RETURN;
+            if (state == 1 && position.y < -(framesize_h+TILESIZE)) {
+                state = OBJ_STATE_RETURN;
             }
-        } else if (_state == OBJ_STATE_RETURN) { // returning state
+        } else if (state == OBJ_STATE_RETURN) { // returning state
             if (distance == 0) { // added because of initial delay
-                //std::cout << "FLY_PLATFORM::RETURN::STOP#1" << std::endl;
                 stop();
             } else {
                 int yinc = (speed)/2;
@@ -897,18 +970,16 @@ void object::move(bool paused)
                     yinc = -1;
                 }
                 position.y += yinc;
-                //std::cout << "FLY_PLATFORM::RETURN::MOVE, yinc: " << yinc << ", pos.y: " << position.y << std::endl;
                 check_player_move(0, yinc);
                 distance -= abs((float)yinc);
                 if (distance == 0) {
-                    //std::cout << "FLY_PLATFORM::RETURN::STOP#2" << std::endl;
                     stop();
                 }
             }
         }
 	} else if (type == OBJ_ITEM_FLY && _started == true) {
         if (speed < 1) {
-            speed = 3;
+            speed = 3 * SharedData::get_instance()->get_movement_multiplier();
 		}
         int xinc = speed;
 		int yinc = 0;
@@ -920,22 +991,21 @@ void object::move(bool paused)
 		}
 		if (_command_down == true) {
             yinc = speed;
-		}
-		position.x += xinc;
-		position.y += yinc;
-        //std::cout << "OBJ FLY STARTED - move - xinc: " << xinc << ", position.x: " << position.x << std::endl;
-		check_player_move(xinc, yinc); // @TODO - player can move up/down
-		distance += abs((float)xinc);
-		_command_up = false;
-		_command_down = false;
+        }
+        check_player_move(xinc, yinc); // @TODO - player can move up/down
+        if (item_jet_started == true) {
+            position.x += xinc;
+            position.y += yinc;
+            distance += abs((float)xinc);
+            _command_up = false;
+            _command_down = false;
+        }
     } else if (type == OBJ_DISAPPEARING_BLOCK) { // 1500 is visible time and 2000 is hidden time. initial delay is defined by obj_timer
         /// @TODO - this must be "static" for all objects of this type
         if (_timer_limit < timer.getTimer()) {
             if (_timer_limit == 0) {
-                //std::cout << "OBJ::move() - init timer[" << _id << "]: " << obj_timer << std::endl;
                 _timer_limit = timer.getTimer() + obj_timer;
             } else {
-                //std::cout << "OBJ_DISAPPEARING_BLOCK - obj_timer: " << obj_timer << ", limit: " << limit << std::endl;
                 int timer_add = DISAPPEARNING_HIDDEN_TIME;
                 if (_hidden == false) {
                     timer_add = DISAPPEARNING_VISIBLE_TIME;
@@ -949,14 +1019,11 @@ void object::move(bool paused)
             }
         }
     } else if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM) {
-        //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - MOVE - _started: " << _started << ", _timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
         if (_started == true && _timer_limit < timer.getTimer()) {
             if (_hidden == false) { // turn hidden
-                std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - HIDE" << std::endl;
                 _hidden = true;
                 _timer_limit = timer.getTimer() + DISAPPEARNING_HIDDEN_TIME;
             } else { // return to visible state
-                std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - SHOW" << std::endl;
                 _started = false;
                 _hidden = false;
                 _obj_frame_timer = timer.getTimer() + _frame_duration;
@@ -964,23 +1031,19 @@ void object::move(bool paused)
             }
         }
     } else if (type == OBJ_DAMAGING_PLATFORM) {
-        //std::cout << "OBJ_ACTIVE_DISAPPEARING_BLOCK - MOVE - _started: " << _started << ", _timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
         if (_started == true && _timer_limit < timer.getTimer()) {
-            if (_state == 0) {
+            if (state == 0) {
                 // check is player is above it
                 int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 2, 0, 0);
 
-                std::cout << "OBJ_DAMAGING_PLATFORM - DAMAGE-CHECK, blocked[" << blocked << "]" << std::endl;
-
                 /// @TODO - consumable items should not stop if blocked by player
                 if (blocked != 0) {
-                    //std::cout << "OBJ::test_change_position - can't move, BLOCKED by player" << std::endl;
                     gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
                 }
-                _state++;
+                state++;
                 _timer_limit = timer.getTimer() + DAMAGING_PLATFORM_TIME;
             } else {
-                _state = 0;
+                state = 0;
                 _started = false;
                 reset_animation();
             }
@@ -988,27 +1051,26 @@ void object::move(bool paused)
     } else if (type == OBJ_RAY_VERTICAL || type == OBJ_RAY_HORIZONTAL) {
         if (_timer_limit < timer.getTimer()) {
             if (_expanding == true) {
-                _state++;
+                state++;
                 _timer_limit = timer.getTimer() + FRAMETIMER_RAY;
                 if (draw_lib.get_object_graphic(_id) != NULL) {
                     int limit = framesize_w/TILESIZE - 1;
                     if (type == OBJ_RAY_VERTICAL) {
                         limit = framesize_h/TILESIZE - 1;
                     }
-                    if (_state >= limit) {
-                        //if (type == OBJ_RAY_HORIZONTAL) std::cout << "_state: " << _state << ", LIMIT: " << limit << ", framesize_h: " << framesize_h << std::endl;
+                    if (state >= limit) {
                         _expanding = false;
                         _timer_limit = timer.getTimer() + DELAY_RAY;
                     }
                 } else {
-                    _state = 0;
+                    state = 0;
                     _timer_limit = timer.getTimer() + DELAY_RAY;
                 }
             } else {
-                _state--;
+                state--;
                 _timer_limit = timer.getTimer() + FRAMETIMER_RAY;
-                if (_state < 0) {
-                    _state = 0;
+                if (state < 0) {
+                    state = 0;
                     _timer_limit = timer.getTimer() + DELAY_RAY;
                     _expanding = true;
                 }
@@ -1016,18 +1078,17 @@ void object::move(bool paused)
         }
     } else if (is_on_screen() == false && (type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL)) { // keep timers correct, soo when it enters screen, it will have those fine
         _timer_limit = timer.getTimer() + obj_timer;
-        //std::cout << "OBJ[" << name << "] out of screen, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_timer_limit < timer.getTimer()) {
-            if (_state == 0 && is_on_visible_screen()) {
+            if (state == 0 && is_on_visible_screen()) {
                 soundManager.play_sfx(SFX_BEAM);
             }
-            _state++;
-            if (_state > MAP_H*2) {
-                _state = 0;
+            state++;
+            if (state > MAP_H*2) {
+                state = 0;
                 _timer_limit = timer.getTimer() + DELAY_RAY;
             } else {
-                if (_state > MAP_H) {
+                if (state > MAP_H) {
                     _expanding = false;
                 } else {
                     _expanding = true;
@@ -1037,12 +1098,11 @@ void object::move(bool paused)
         }
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         if (_timer_limit < timer.getTimer()) {
-            if (_state == 0 && is_on_visible_screen() == true) {
-                std::cout << "OBJ[" << name << "] EXECUTING, timer_limit: " << _timer_limit << ", timer.now: " << timer.getTimer() << std::endl;
+            if (state == 0 && is_on_visible_screen() == true) {
                 soundManager.play_sfx(SFX_BEAM);
             }
 
-            _state++;
+            state++;
             int objx = 0;
             if (direction == ANIM_DIRECTION_LEFT) {
                 objx = (position.x - (_size+1) * TILESIZE) / TILESIZE;
@@ -1051,20 +1111,16 @@ void object::move(bool paused)
             }
             int objy = (position.y+framesize_h/2)/TILESIZE;
             int map_lock = map->getMapPointLock(st_position(objx, objy));
-            //std::cout << "map_lock: " << map_lock << ", _state: " << (int)_state << ", objx: " << objx << std::endl;
             if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER) {
-                _size = _state;
-            //} else {
-                //std::cout << "<<<<<<<<<<<<<<<<<<< LOCK >>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+                _size = state;
             }
 
-            if (_state > (RES_W/TILESIZE)*2) {
-                std::cout << "RESET OBJ_DEATHRAY_HORIZONTAL" << std::endl;
-                _state = 0;
+            if (state > (RES_W/TILESIZE)*2) {
+                state = 0;
                 _size = 0;
                 _timer_limit = timer.getTimer() + DELAY_RAY;
             } else {
-                if (_state > (RES_W/TILESIZE)) {
+                if (state > (RES_W/TILESIZE)) {
                     _expanding = false;
                 } else {
                     int xinc = TILESIZE;
@@ -1100,33 +1156,198 @@ void object::move(bool paused)
             p3 = map->get_map_point_tile1(st_position(((position.x+TILESIZE/3)/TILESIZE)+1, (position.y+1)/TILESIZE));
         }
         check_player_move(xinc, 0);
-        //std::cout << "MOVE::OBJ_TRACK_PLATFORM - p1: " << p1 << ", p2: " << p2 << ", p3: " << p3 << std::endl;
         // next two points have a different tile than origin point -invert direction
         if (p1 != p2 && p1 != p3) {
             direction = !direction;
-            _state = 0;
+            state = 0;
         } else if (p1 != p2 && p1 == p3) {
-            _state = 1;
+            state = 1;
         } else {
-            _state = 0;
+            state = 0;
         }
     } else if (type == OBJ_BOSS_DOOR) {
-        if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
-            _ray_state++;
-            if (_ray_state >= framesize_h) {
-                _state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
+        if (state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
+            if (frame >= max_frames) {
+                state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
+                frame = max_frames-1;
             }
-        } else if (_state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
+        } else if (state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
             gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x/TILESIZE);
-            _state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
-            gameControl.show_door_animation();
-        } else if (_state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
-            _ray_state--;
-            if (_ray_state <= 0) {
-                _state = e_OBJECT_BOSS_DOOR_STATE_NONE;
+            state = e_OBJECT_BOSS_DOOR_STATE_CLOSING;
+            if (game_data.game_style == GAME_STYLE_VINTAGE) {
+                soundManager.play_sfx_from_file("classic_style_door_open.wav", 1);
+            }
+            gameControl.show_door_animation(this);
+        } else if (state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
+            if (frame <= 0) {
+                std::cout << "DOOR - set to CLOSED" << std::endl;
+                timer.unpause();
+                state = e_OBJECT_BOSS_DOOR_STATE_CLOSED;
+                frame = 0;
+            }
+        }
+    } else if (type == OBJ_CRUSHER) {
+        move_crusher();
+    } else if (type == OBJ_MOVING_PLATFORM_UP_LOOP && is_on_visible_screen()) {
+        if (position.y < -framesize_h) {
+            position.y = RES_H;
+            distance = 0;
+        }
+        int yinc = -speed;
+        position.y += yinc;
+        //std::cout << ">>>>>>>> OBJ_MOVING_PLATFORM_UP" << std::endl;
+        check_player_move(0, yinc);
+
+        if (state == 0) {
+            zigzag_graph_pos_x--;
+            if (zigzag_graph_pos_x <= -limit) {
+                state = 1;
+            }
+        } else {
+            zigzag_graph_pos_x++;
+            if (zigzag_graph_pos_x >= limit) {
+                state = 0;
+            }
+        }
+    } else if (type == OBJ_MOVING_PLATFORM_DOWN) {
+        if (position.y > RES_H) {
+            position.y = -framesize_h;
+            distance = 0;
+        }
+        int yinc = speed;
+        position.y += yinc;
+        check_player_move(0, yinc);
+    } else if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_UP) {
+        if (_started == true && state == e_OBJECT_DIAGONAL_PLATFORM_STATE_INIT) {
+            state = e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING;
+            distance = 0;
+        } else if (state == e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING) {
+            int xinc = 0;
+            int yinc = 0;
+            if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_UP) {
+                yinc = -speed;
+            } else if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN) {
+                yinc = speed;
+            }
+            if (type != OBJ_ACTIVE_PLATFORM_UP) {
+                if (direction == ANIM_DIRECTION_LEFT) {
+                    xinc  = -speed;
+                } else {
+                    xinc = speed;
+                }
+            }
+            position.x += xinc;
+            position.y += yinc;
+            //std::cout << "OBJECT::move[" << name << "], #1 pos.x[" << position.x << "], xinc[" << xinc << "]" << std::endl;
+            distance += speed;
+            check_player_move(xinc, yinc);
+            if (distance > limit) {
+                state = e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL;
+                active_platform_timer = timer.getTimer() + 300;
+            }
+        } else if (state == e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL) {
+            if (timer.getTimer() > active_platform_timer) {
+                state = e_OBJECT_DIAGONAL_PLATFORM_STATE_FALLING;
+            }
+        } else if (state == e_OBJECT_DIAGONAL_PLATFORM_STATE_FALLING) {
+            position.y += GRAVITY_SPEED;
+            if (position.y > RES_H) {
+                _hidden = true;
+            }
+        }
+    } else if (type == OBJ_TIMED_BOMB) {
+        if (_started == true && status_timer < timer.getTimer()) {
+            if (state >= 0) {
+                status_timer = timer.getTimer() + TIMED_BOMB_DELAY;
+                state--;
+                soundManager.play_sfx(SFX_TIMED_BOMB_TICK);
+                if (state == -1) { // turn into explosion
+                    status_timer = timer.getTimer() + TIMED_BOMB_EXPLOSION_DURATION;
+                    _hidden = true;
+                    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
+                }
+            } else {
+                state--;
+            }
+        }
+        if (state == -1) {
+            int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 2, 0, 0);
+            if (blocked != 0) {
+                gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
+            }
+       }
+    } else if (type == OBJ_EXPANDING_SPIKE) {
+        if (status_timer < timer.getTimer()) {
+            status_timer = timer.getTimer() + _frame_duration;
+            if (_expanding == true) {
+                state++;
+                if (state > max_frames) {
+                    _expanding = false;
+                }
+            } else {
+                state--;
+                if (state < 0) {
+                    _expanding = true;
+                    status_timer = timer.getTimer() + EXPANDING_SPIKE_INACTIVE_DELAY;
+                }
+            }
+            if (state > 0) {
+                int blocked = map->collision_rect_player_obj(gameControl.get_player()->get_hitbox(), this, 0, 0, 0, 0);
+                if (blocked != 0) {
+                    gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
+                }
             }
         }
     }
+}
+
+void object::move_crusher()
+{
+    if (state == e_OBJECT_CRUSHER_STATE_INIT) {
+        position.y += crusher_speed;
+        crusher_speed += 0.1;
+        short p1 = map->getMapPointLock(st_position((position.x+(framesize_w/2))/TILESIZE, (position.y+framesize_h)/TILESIZE));
+        if (p1 == TERRAIN_UNBLOCKED) {
+            state = e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL;
+        }
+    } else if (state == e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL) {
+        position.y += crusher_speed;
+        crusher_speed += 0.1;
+        short p1 = map->getMapPointLock(st_position((position.x+(framesize_w/2))/TILESIZE, (position.y+framesize_h)/TILESIZE));
+        if (p1 != TERRAIN_UNBLOCKED) {
+            state = e_OBJECT_CRUSHER_STATE_FOUND_HIT_GROUND;
+            obj_timer = timer.getTimer() + CRUSHER_DELAY;
+        }
+    } else if (state == e_OBJECT_CRUSHER_STATE_FOUND_HIT_GROUND) {
+        crusher_speed = 0.0;
+        if (timer.getTimer() > obj_timer) {
+            state = e_OBJECT_CRUSHER_STATE_RETURNING;
+        }
+    } else if (state == e_OBJECT_CRUSHER_STATE_RETURNING) {
+        position.y -= speed;
+        if (position.y <= start_point.y) {
+            position.y = start_point.y;
+            state = e_OBJECT_CRUSHER_STATE_INIT;
+            // TODO: add timer
+        }
+    }
+
+}
+
+bool object::check_player_crushed()
+{
+    if (state != e_OBJECT_CRUSHER_STATE_INIT && state != e_OBJECT_CRUSHER_STATE_FOUND_FREE_WALL) {
+        return false;
+    }
+    st_rectangle p_rect = gameControl.get_player()->get_hitbox();
+    std::cout << "check_player_crushed - p_rect.x[" << p_rect.x << "], position.x[" << position.x << "]" << std::endl;
+    if (p_rect.x >= position.x+CRUSHER_X_TOLERANCE && p_rect.x <= position.x+framesize_w-CRUSHER_X_TOLERANCE && p_rect.y <= position.y+framesize_h-CRUSHER_Y_TOLERANCE) {
+        return true;
+    }
+    if (p_rect.x+p_rect.w >= position.x+CRUSHER_X_TOLERANCE && p_rect.x+p_rect.w <= position.x+framesize_w-CRUSHER_X_TOLERANCE && p_rect.y <= position.y+framesize_h-CRUSHER_Y_TOLERANCE) {
+        return true;
+    }
+    return false;
 }
 
 void object::reset_animation()
@@ -1138,8 +1359,7 @@ void object::reset_animation()
 
 void object::stop()
 {
-    _state = OBJ_STATE_STAND;
-    //std::cout << "OBJECT - set_start_false[STOP]" << std::endl;
+    state = OBJ_STATE_STAND;
     _started = false;
     reset_animation();
 }
@@ -1152,7 +1372,20 @@ void object::execute(bool paused)
 {
     move(paused);
     gravity();
-	/// @TODO: finish items
+
+    if (object_type_needs_reset_offscreen() == true && is_on_expanded_visible_screen() == false && (_started == true || state != 0 || is_hidden() == true)) {
+        reset();
+    }
+
+    /// @TODO: finish items
+}
+
+bool object::object_type_needs_reset_offscreen()
+{
+    if (is_active_platform() || type == OBJ_DESTRUCTIBLE_NO_DROP || type == OBJ_FALL_PLATFORM) {
+        return true;
+    }
+    return false;
 }
 
 // ********************************************************************************************** //
@@ -1161,12 +1394,12 @@ void object::execute(bool paused)
 st_position object::get_position() const
 {
     if (type == OBJ_RAY_VERTICAL) {
-        int y = position.y - _state*TILESIZE;
+        int y = position.y - state*TILESIZE;
         return st_position(position.x, y);
     } else if (type == OBJ_RAY_HORIZONTAL) {
         int x = 0;
         if (direction == ANIM_DIRECTION_LEFT) {
-            x = position.x - _state*TILESIZE;
+            x = position.x - state*TILESIZE;
         } else {
             x = position.x + TILESIZE;
         }
@@ -1174,19 +1407,30 @@ st_position object::get_position() const
         return st_position(x, y);
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_expanding == false) {
-            return st_position(position.x+TILESIZE/2, (_state - MAP_H)); // TILESIZE/2 is because of lava graphic not taking the whole width
+            return st_position(position.x+TILESIZE/2, (state - MAP_H)); // TILESIZE/2 is because of lava graphic not taking the whole width
         } else {
             return st_position(position.x+TILESIZE/2, position.y); // TILESIZE/2 is because of lava graphic not taking the whole width
         }
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         if (direction == ANIM_DIRECTION_LEFT) {
             st_position res = st_position(position.x-(_size*TILESIZE) + TILESIZE, position.y+TILESIZE/2);
-            //std::cout << "_state: " << _state << ", position.x: " << position.x << ", res.x: " << res.x << std::endl;
             return res; // TILESIZE/2 is because of lava graphic not taking the whole width
         } else {
-            //std::cout << "start_x"
             return st_position(position.x+TILESIZE, position.y+TILESIZE/2); // TILESIZE/2 is because of lava graphic not taking the whole width
         }
+    } else if (type == OBJ_TIMED_BOMB) {
+        int x = position.x;
+        int y = position.y;
+        if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN) {
+            x += 4;
+        }
+        if (direction == ANIM_DIRECTION_UP && _started == true)  {
+            y += 2;
+        }
+        if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_RIGHT) {
+            y += 4;
+        }
+        return st_position(x, y);
     }
     return position;
 }
@@ -1198,8 +1442,7 @@ st_position object::get_start_position() const
 
 st_rectangle object::get_area()
 {
-    st_size size = get_size();
-    return st_rectangle(position.x, position.y, size.width, size.height);
+    return st_rectangle(get_position().x, get_position().y, get_size().width, get_size().height);
 }
 
 
@@ -1209,14 +1452,14 @@ st_rectangle object::get_area()
 st_size object::get_size()
 {
     if (type == OBJ_RAY_VERTICAL) {
-        int h = _state*TILESIZE;
+        int h = state*TILESIZE;
         return st_size(framesize_w, h);
     } else if (type == OBJ_RAY_HORIZONTAL) {
-        int w = _state*TILESIZE;
+        int w = state*TILESIZE;
         return st_size(w, framesize_h-4);
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_expanding == true) {
-            return st_size(framesize_w-TILESIZE, TILESIZE*_state); // -TILESIZE in width is because of lava graphic not taking the whole width
+            return st_size(framesize_w-TILESIZE, TILESIZE*state); // -TILESIZE in width is because of lava graphic not taking the whole width
         } else {
             return st_size(framesize_w-TILESIZE, MAP_H); // -TILESIZE in width is because of lava graphic not taking the whole width
         }
@@ -1226,6 +1469,21 @@ st_size object::get_size()
         } else {
             return st_size((_size*TILESIZE), framesize_h-TILESIZE); // -TILESIZE in width is because of lava graphic not taking the whole width
         }
+    } else if (type == OBJ_TIMED_BOMB) {
+        int w = framesize_w;
+        int h= framesize_h;
+        if (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN) {
+            w -= 8;
+        }
+        if (_started == true && (direction == ANIM_DIRECTION_UP || direction == ANIM_DIRECTION_DOWN)) {
+            h -= 2;
+        }
+        if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_RIGHT) {
+            h -= 8;
+        }
+        return st_size(w, h);
+    } else if (type == OBJ_EXPANDING_SPIKE) {
+        return st_size(framesize_w, TILESIZE * state);
     }
 	return st_size(framesize_w, framesize_h);
 }
@@ -1239,10 +1497,20 @@ Uint8 object::get_type() const
     return type;
 }
 
+bool object::is_active_platform()
+{
+    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_ACTIVE_PLATFORM_UP) {
+        return true;
+    }
+    return false;
+}
+
 Uint8 object::get_id() const
 {
     return _id;
 }
+
+
 
 // ********************************************************************************************** //
 //                                                                                                //
@@ -1257,7 +1525,7 @@ Uint8 object::get_direction() const
 // ********************************************************************************************** //
 void object::set_direction(int new_dir)
 {
-	direction = new_dir;
+    direction = new_dir;
 }
 
 int object::get_distance() const
@@ -1296,33 +1564,28 @@ void object::set_finished(bool is_finished)
 void object::invert_direction_x()
 {
 	if (direction == ANIM_DIRECTION_LEFT) {
-		//std::cout << "invert left->right" << std::endl;
 		direction = ANIM_DIRECTION_RIGHT;
 	} else {
-		//std::cout << "invert right->left" << std::endl;
 		direction = ANIM_DIRECTION_LEFT;
 	}
 }
 
 void object::invert_direction_y() {
 	if (direction == ANIM_DIRECTION_UP) {
-		//std::cout << "invert up->down" << std::endl;
 		direction = ANIM_DIRECTION_DOWN;
 	} else {
-		//std::cout << "invert down->up" << std::endl;
 		direction = ANIM_DIRECTION_UP;
 	}
 }
 
 void object::set_state(short obj_state)
 {
-	_state = obj_state;
-	//std::cout << "********* object::set_state::state: " << _state << std::endl;
+    state = obj_state;
 }
 
 short object::get_state() const
 {
-	return _state;
+    return state;
 }
 
 void object::set_duration(int duration)
@@ -1336,22 +1599,48 @@ void object::start()
 	_started = true;
     _start_timer = timer.getTimer() + INITIAL_ACTIVATION_DELAY;
     _obj_frame_timer = timer.getTimer() + _frame_duration;
-    std::cout << "OBJECT::start - _start_timer: " << _start_timer << std::endl;
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
-        std::cout << "OBJ_ACTIVE_OBJECT - STARTED - obj_timer: " << obj_timer << std::endl;
-        if (type == OBJ_BOSS_DOOR) {
-            _state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
-            _teleport_state = 0;
-            gameControl.show_door_animation();
+        if (type == OBJ_BOSS_DOOR && state == e_OBJECT_BOSS_DOOR_STATE_NONE) {
+            std::cout << "DOOR - set to OPENING" << std::endl;
+            timer.pause();
+            state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
+            teleport_state = 0;
+            if (game_data.game_style == GAME_STYLE_VINTAGE) {
+                soundManager.play_sfx_from_file("classic_style_door_open.wav", 1);
+            }
+            gameControl.show_door_animation(this);
         }
         _timer_limit = timer.getTimer() + obj_timer;
+    }
+    if (is_active_platform()) {
+        soundManager.play_sfx_from_file("enter_platform.wav", 1);
+    }
+}
+
+void object::start_timed_bomb(int xinc, int yinc, st_rectangle player_hitbox)
+{
+    // TODO: add bom start, ticking and explosion sfx
+    if (direction == ANIM_DIRECTION_LEFT && xinc > 0 && player_hitbox.x+player_hitbox.w <= position.x) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_RIGHT && xinc < 0 && player_hitbox.x >= position.x+framesize_w) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_UP && yinc > 0 && player_hitbox.y+player_hitbox.h >= position.y) {
+        start();
+        return;
+    }
+    if (direction == ANIM_DIRECTION_DOWN && yinc < 0 && player_hitbox.y >= position.y+framesize_h) {
+        start();
+        return;
     }
 }
 
 void object::command_up()
 {
 	_command_up = true;
-    //std::cout << ">>>>> SET COMMAND UP" << std::endl;
 }
 
 void object::command_down()
@@ -1366,8 +1655,12 @@ std::string object::get_name() const
 
 bool object::is_hidden() const
 {
-    //std::cout << "object::is_hidden - _hidden: " << _hidden << std::endl;
     return _hidden;
+}
+
+void object::set_hidden(bool hide)
+{
+    _hidden = hide;
 }
 
 bool object::is_started() const
@@ -1380,7 +1673,6 @@ bool object::is_on_screen()
     st_float_position scroll = map->getMapScrolling();
     // entre scroll.x-RES_W/2 e scroll.x+RES_W+RES_W/2
 
-    //if (realPosition.x < -TILESIZE*2 || realPosition.x > (RES_W+TILESIZE*2)) {
     if (abs((float)position.x) > scroll.x-RES_W/2 && abs((float)position.x) < scroll.x+RES_W*1.5) {
         return true;
     }
@@ -1392,6 +1684,16 @@ bool object::is_on_visible_screen()
     st_float_position scroll = map->getMapScrolling();
 
     if (abs((float)position.x) > scroll.x && abs((float)position.x) < scroll.x+RES_W) {
+        return true;
+    }
+    return false;
+}
+
+bool object::is_on_expanded_visible_screen()
+{
+    st_float_position scroll = map->getMapScrolling();
+
+    if (abs((float)position.x) > scroll.x-RES_W/2 && abs((float)position.x) < scroll.x+RES_W*1.5) {
         return true;
     }
     return false;
@@ -1419,7 +1721,7 @@ void object::set_obj_map_id(Uint8 id)
 
 bool object::is_teleporting()
 {
-    if (_teleport_state == e_object_teleport_state_teleport_in || _teleport_state == e_object_teleport_state_teleport_out) {
+    if (teleport_state == e_object_teleport_state_teleport_in || teleport_state == e_object_teleport_state_teleport_out) {
         return true;
     }
     return false;
@@ -1433,5 +1735,17 @@ void object::set_is_dropped(bool dropped)
 bool object::get_is_dropped()
 {
     return is_dropped;
+}
+
+void object::inc_status()
+{
+    // TODO: play sfx and show mreak animation
+    if (timer.getTimer() > status_timer) {
+        state++;
+        status_timer = timer.getTimer() + STATUS_TIMER_DELAY;
+        if (type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+            soundManager.play_sfx(SFX_OBJECT_BREAK);
+        }
+    }
 }
 

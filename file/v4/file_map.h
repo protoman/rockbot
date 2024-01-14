@@ -1,7 +1,7 @@
 #ifndef FILE_MAP_H
 #define FILE_MAP_H
 
-#include "file/format/st_common.h"
+#include "../format/st_common.h"
 #include "defines.h"
 
 #define MAP_BACKGROUND_COUNT 2
@@ -158,6 +158,7 @@ struct file_map_v2 {
     st_map_background backgrounds[MAP_BACKGROUND_COUNT];
     st_color background_color;
     map_tile tiles[MAP_W][MAP_H];		// map tiles
+
     file_map_v2() {
         // add ground to new map
         for (int i=0; i<MAP_W; i++) {
@@ -165,6 +166,7 @@ struct file_map_v2 {
             tiles[i][MAP_H-1].locked = TERRAIN_SOLID;
         }
     }
+
     file_map_v2(file_map original) {
         for (int i=0; i<MAP_BACKGROUND_COUNT; i++) {
             backgrounds[i] = original.backgrounds[i];

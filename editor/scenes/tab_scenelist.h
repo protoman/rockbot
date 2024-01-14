@@ -23,6 +23,8 @@ public:
     ~TabScenelist();
     void save_data();
     void reload();
+    void update_app_theme();
+    int get_language();
 
 private:
     void fill_data();
@@ -47,6 +49,8 @@ private slots:
 
     void on_down_pushButton_clicked();
 
+    void on_language_comboBox_currentIndexChanged(int index);
+
 private:
     Ui::ScenesList *ui;
     QStringListModel model_objects;
@@ -54,6 +58,7 @@ private:
     bool data_loading;
     CURRENT_FILE_FORMAT::fio_scenes fio;
     QProcess process;
+    int current_language = LANGUAGE_ENGLISH;
 };
 
 #endif // SCENESLIST_H

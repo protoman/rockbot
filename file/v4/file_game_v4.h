@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 #include <iostream>
-#include "defines.h"
-#include "file/format/st_common.h"
-#include "file/format/st_hitPoints.h"
+#include "../../defines.h"
+#include "../format/st_common.h"
+#include "../format/st_hitPoints.h"
 
-#include "file/v4/file_stage_v4.h"
-#include "file/v4/file_save_v4.h"
-#include "file/v4/file_config_v4.h"
-#include "file/v4/file_scene_v4.h"
+#include "file_stage_v4.h"
+#include "file_save_v4.h"
+#include "file_config_v4.h"
+#include "file_scene_v4.h"
 
 
 // @NOTE: all defines related to filesystem must contain a "FS_" prefix
@@ -380,8 +380,8 @@ namespace format_v4 {
 
         file_player_v3_1(file_player obj) {
             sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s%", obj.graphic_filename);
-            sprintf(face_filename, "%s%", obj.face_filename);
+            sprintf(graphic_filename, "%s", obj.graphic_filename);
+            sprintf(face_filename, "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;
@@ -585,8 +585,8 @@ namespace format_v4 {
 
         file_player_v3_1_1(file_player_v3_1 obj) {
             sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s%", obj.graphic_filename);
-            sprintf(face_filename, "%s%", obj.face_filename);
+            sprintf(graphic_filename, "%s", obj.graphic_filename);
+            sprintf(face_filename, "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;
@@ -741,7 +741,7 @@ namespace format_v4 {
         st_position_int8 attack_arm_pos;
         Uint8 attack_frame;
         st_rectangle vulnerable_area;
-        Sint8 gfx_effect;                                         // can cause snow, rain, darkned roon, etc
+        Sint8 behavior;                                            // can be player friend, cause snow, rain, darkned roon, etc
 
 
         file_npc_v3_1_2() {
@@ -765,7 +765,7 @@ namespace format_v4 {
             is_sub_boss = false;
             respawn_delay = 0;
             attack_frame = -1;
-            gfx_effect = -1;
+            behavior = -1;
         }
 
         file_npc_v3_1_2(file_npc_v3_1_1 old) {
@@ -808,7 +808,7 @@ namespace format_v4 {
             vulnerable_area.y = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.y;
             vulnerable_area.w = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.w;
             vulnerable_area.h = old.sprites[ANIM_TYPE_TELEPORT][0].collision_rect.h;
-            gfx_effect = -1;
+            behavior = -1;
         }
 
     };
@@ -859,16 +859,6 @@ namespace format_v4 {
             animation_loop = true;
         }
     };
-
-
-
-
-
-
-
-
-
-
 
     struct file_ai_action {
         int chance;

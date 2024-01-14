@@ -1,5 +1,19 @@
+.ifdef .gasversion.
+.section .mdebug.abiN32
+.else
+.section .mdebug.eabi64
+.endif
+.previous
+.ifdef .gasversion.
+.nan legacy
+.module singlefloat
+.module oddspreg
+.endif
 .sdata
 
+.align 2
+.type size_cdvd,@object
+.size size_cdvd,4
 .globl size_cdvd
 size_cdvd:	.word 32263
 
@@ -8,6 +22,8 @@ size_cdvd:	.word 32263
 .balign 16
 
 .globl cdvd
+.type cdvd,@object
+.size cdvd,32263
 cdvd:
 
 

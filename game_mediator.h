@@ -32,7 +32,7 @@ public:
 private:
     GameMediator();
     GameMediator(GameMediator const&){};             // copy constructor is private
-    GameMediator& operator=(GameMediator const&){};  // assignment operator is private
+    GameMediator& operator=(GameMediator const&){return *this;};  // assignment operator is private
 #ifdef WII
     void wii_convert_npc_list();
     void wii_convert_object_list();

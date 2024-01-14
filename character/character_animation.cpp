@@ -1,7 +1,7 @@
 #include "character_animation.h"
 
 extern graphicsLib graphLib;
-#include "timerlib.h"
+#include "../timerlib.h"
 extern timerLib timer;
 
 // @TODO: flip on direction //
