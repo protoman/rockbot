@@ -1,40 +1,20 @@
 ﻿##########################################################################################################################
-FIREFLY
-###########################################################################################################################
-1. tornar externs em singletons
-2. externalizar tudo que usa a SDL em classes do tipo interface
-    # estas classes devem ter apenas o que chama a SDL mesmo (abstraction layer)
-3. reorganização de classes
-4. importar coisas novas do firefly atual
-5. usar json como formato de arquivo para guardar dados
-    # vantagem é flexibilidade, pois não usa número limitado de dados (array)
-    # por exemplo, número de foregrounds e backgrounds de tela não precisa ser fixo
-
-- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
-    # poder setar "is-jump-frame", "is-turn-frame" (daí não precisa a imagem ter o mirror), etc. Pode chamar de key-frame.
-
-- não armazenar imagem dos sprites, só a posição lógica deles, assim não duplica se repetir frames
-
-##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
 - rockmix: colocar checkpoints nas fases
 - pulo longo dos inimigos fica muito lento (Stone Man)
 
 - automatizar conversão de mod para mp3 no build Android
-- remover opção "old music"
+    # ffmpeg -i classic_style_boss_intro.s3m -acodec mp3 classic_style_boss_intro.mp3
 
 - terminar estagios em RockMix
     # Pharaoh Man
     # Tomahawk Man
     # Wood Man
-    - implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
-
-- ver como fazer um appImage e um snap (colocar na store)
-
-40 x 53
+    # implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
 
 ===========================================================================================================================
+- removed option "use old music"
 - always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
 - fix friend npc teleport-out.
 - friend npc that teleports out should not come back when changing map or dying.
