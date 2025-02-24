@@ -11,7 +11,10 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 
+export ANDROIDSDK=/media/iuri/SamsungEXT4/development/SDK/AndroidBuild/
 export ANDROID_SDK_ROOT=$ANDROIDSDK
+# add NDK to path
+export PATH=$PATH:/media/iuri/SamsungEXT4/development/SDK/Android/Sdk/android-ndk-r25c/
 
 
 read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
@@ -30,6 +33,11 @@ case $response in
 		rsync -r --exclude=.svn ../fonts ./Android/data
 		rsync -r --exclude=.svn ../shared ./Android/data
 		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
+
+		mkdir $ANDROIDSDK/commandergenius/project/jni/application/rockbot
+		cp -r ./files/android $ANDROIDSDK/commandergenius/project/jni/application/rockbot
+		cp ./files/android/AndroidAppSettings.cfg $ANDROIDSDK/commandergenius/project/jni/application/src/
+
 		#export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
 		### TEST ###
 		rm ./Android/data/games/RockDroid$version_number/music/ogg/*
@@ -83,12 +91,14 @@ case $response in
 			sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
 		fi
 		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
+
+		read -p "Press any key to continue... " -n1 -s
 		
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
 		./build.sh rockbot debug
-		
+
 		# build release
 		./build.sh rockbot release
 		rm $ROCKDROIDDIR/RockBot_Android_$VERSIONNAME.apk

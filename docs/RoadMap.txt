@@ -1,4 +1,6 @@
-﻿- objetos estãoa cima do efeito de tela
+﻿- apagar Rockbot.pro, é outdated.
+
+- objetos estão acima do efeito de tela
 
 ##########################################################################################################################
 MEGAMIX
