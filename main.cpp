@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
     // === DEBUG === //
     //game_config.volume_sfx = 128;
     //game_config.volume_music = 128;
-    GAME_FLAGS[FLAG_QUICKLOAD] = true;
+    //GAME_FLAGS[FLAG_QUICKLOAD] = true;
     //GAME_FLAGS[FLAG_INVENCIBLE] = true;
     // === DEBUG === //
 

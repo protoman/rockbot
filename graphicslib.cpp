@@ -1139,30 +1139,25 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
 
 void graphicsLib::load_icons()
 {
-    std::cout << ">>> graphicsLib::load_icons <<<" << std::endl;
 	struct graphicsLib_gSurface tmp;
     std::string filename = FILEPATH + "images/icons.png";
 
 	// big icon
 	surfaceFromFile(filename, &tmp);
-    std::cout << ">>> graphicsLib::load_icons #1 <<<" << std::endl;
     int icon_size = tmp.height/2;
-    std::cout << ">>> graphicsLib::load_icons #1.1 <<<" << std::endl;
     weapon_icons.clear();
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
         graphicsLib_gSurface new_surface = graphicsLib_gSurface();
         weapon_icons.push_back(new_surface);
         initSurface(st_size(icon_size, icon_size*2), &weapon_icons.at(weapon_icons.size()-1));
         copyArea(st_rectangle(i*icon_size, 0, icon_size, icon_size*2), st_position(0, 0), &tmp, &(weapon_icons.at(weapon_icons.size()-1)));
-        std::cout << ">>> graphicsLib::load_icons #1.5 <<<" << std::endl;
 	}
-    std::cout << ">>> graphicsLib::load_icons #2 <<<" << std::endl;
 
 	// small icons
     filename = FILEPATH + "images/icons_small.png";
 	surfaceFromFile(filename, &tmp);
-    int total_icons_small = tmp.width/8;
-	for (int i=0; i<(tmp.width/8); i++) {
+
+    for (int i=0; i<(tmp.width/8); i++) {
 		small_weapon_icons.push_back(graphicsLib_gSurface());
 		initSurface(st_size(8, 8), &small_weapon_icons.at(small_weapon_icons.size()-1));
 		copyArea(st_rectangle(i*8, 0, 8, 8), st_position(0, 0), &tmp, &(small_weapon_icons.at(small_weapon_icons.size()-1)));

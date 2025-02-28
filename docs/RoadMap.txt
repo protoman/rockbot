@@ -1,15 +1,18 @@
-﻿- apagar Rockbot.pro, é outdated.
-
+﻿- ver se é possível criar mais de 128 inimigos.
+- fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
 - objetos estão acima do efeito de tela
+- dash do darkbot passa pelo player sem causar dano (problemas de colisão)
 
 ##########################################################################################################################
 MEGAMIX
 ###########################################################################################################################
+- Bubbleman entra para dentro do chão
+DONE - pontos de vida do peixão estão baixos
+DONE - bombas do bubbleman devem ser indestrutíveis (intangíveis)
+- bombas bubbleman devem explodir ao chegar perto
+
 - rockmix: colocar checkpoints nas fases
 - pulo longo dos inimigos fica muito lento (Stone Man)
-
-- automatizar conversão de mod para mp3 no build Android
-    # ffmpeg -i classic_style_boss_intro.s3m -acodec mp3 classic_style_boss_intro.mp3
 
 - terminar estagios em RockMix
     # Pharaoh Man
@@ -45,7 +48,7 @@ MEGAMIX
 - fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
 - improved hit_ground method to theck not only center, but left and right of the character's hitbox also
     # prevents jump not being finished if center is still on air
----
+---------------------------------------------------------------------------------------------------------------------------
 - classic in-game menu
 - fix classic hud weapon value
 - do not restart auto charging shot if dead

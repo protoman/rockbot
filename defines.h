@@ -1459,7 +1459,7 @@ enum e_INPUT_IMAGES {
 #define QUICKSAND_GRAVITY 0.2
 
 
-//#define SHOW_HITBOXES 1
+#define SHOW_HITBOXES 1
 //#define SHOW_VULNERABLE_AREAS
 
 #endif // DEFINES_H

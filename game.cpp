@@ -1532,7 +1532,7 @@ void game::quick_load_game()
 
     //scenes.select_save(false);
     //scenes.select_player();
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_3;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;

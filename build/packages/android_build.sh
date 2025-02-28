@@ -11,15 +11,16 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 
-export ANDROIDSDK=/media/iuri/SamsungEXT4/development/SDK/AndroidBuild/
-export ANDROID_SDK_ROOT=$ANDROIDSDK
+export PELYA_ANDROID_SDK=/home/iuri/Devel/commandergenius
+export ANDROID_HOME=/home/iuri/Devel/Sdk/AndroidSdk/
+export ANDROID_NDK_HOME=/home/iuri/Devel/Sdk/android-ndk-r25c/
 # add NDK to path
-export PATH=$PATH:/media/iuri/SamsungEXT4/development/SDK/Android/Sdk/android-ndk-r25c/
+export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/30.0.3/
 
 
 read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
 case $response in
-	[yY][eE][sS]|[yY]) 
+	[yY][eE][sS]|[yY])
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
 		#copy icon
@@ -33,10 +34,20 @@ case $response in
 		rsync -r --exclude=.svn ../fonts ./Android/data
 		rsync -r --exclude=.svn ../shared ./Android/data
 		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
+		mkdir ./Android/data/games/RockDroid$version_number/music/mp3/
 
-		mkdir $ANDROIDSDK/commandergenius/project/jni/application/rockbot
-		cp -r ./files/android $ANDROIDSDK/commandergenius/project/jni/application/rockbot
-		cp ./files/android/AndroidAppSettings.cfg $ANDROIDSDK/commandergenius/project/jni/application/src/
+		### Convert MOD music to MP3 ###
+		for filename in ../games/RockDroid$version_number/music/*; do
+			basename=${filename##*/}
+			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
+				ffmpeg -i "$filename" -vn -ar 22050 -ac 2 -b:a 32k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+			fi
+		done
+
+		mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot
+		cp -r ./files/android $PELYA_ANDROID_SDK/project/jni/application/rockbot
+		cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/src/
+        cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/rockbot/
 
 		#export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
 		### TEST ###
@@ -46,10 +57,10 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
-		rm $ANDROIDSDK/commandergenius/project/jni/application/rockbot/AndroidData/*.zip
-		cp ./data_$VERSIONNAME.zip $ANDROIDSDK/commandergenius/project/jni/application/rockbot/AndroidData/
-		cd $ANDROIDSDK/commandergenius
-		
+		rm $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/*.zip
+		cp ./data_$VERSIONNAME.zip $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
+		cd $PELYA_ANDROID_SDK
+
 		#read -p "Press any key to continue... " -n1 -s
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
@@ -60,7 +71,7 @@ case $response in
 
 		LINEVERSIONSTRING=`echo "$VERSIONNAME" | sed -e 's/\.//g'`
 		echo "$LINEVERSIONSTRING"
-		
+
 		if [[ -z "$LINENUMBER" ]]
 		then
                     echo "Error getting LINENUMBER"
@@ -81,7 +92,7 @@ case $response in
                     echo "Error getting LINENUMBERFULLNAME"
                     return
 		fi
-		
+
 		sed $LINENUMBER'c\'"AppDataDownloadUrl=\"!Game Data|data_$VERSIONNAME.zip\"" ./AndroidAppSettings.cfg > ./AndroidAppSettings.cfg.temp1
 		sed $LINENUMBERVERSION'c\'"AppVersionName=\"$VERSIONNAME\"" AndroidAppSettings.cfg.temp1 > AndroidAppSettings.cfg.temp2
 		sed $LINENUMBERAPPNAME'c\'"AppName=\"Rockbot $version_number\"" AndroidAppSettings.cfg.temp2 > AndroidAppSettings.cfg.temp3
@@ -92,8 +103,11 @@ case $response in
 		fi
 		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
 
-		read -p "Press any key to continue... " -n1 -s
-		
+
+        cd $PELYA_ANDROID_SDK
+#       pwd
+#		read -p "Press any key to continue... " -n1 -s
+
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
 		# build debug and copy library so we can track
