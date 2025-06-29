@@ -30,7 +30,7 @@ jobs:
       - name: Compress
         run: |
           ARCH=$(uname -m) 
-          zip -9 -r rockbox-linux.zip build
+          zip -9 -r rockbox-linux-${ARCH}.zip build
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
