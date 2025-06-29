@@ -37,3 +37,5 @@ cov-int
 *.so
 *.tar.gz
 *.dol
+
+.qmake.stash
