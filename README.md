@@ -1,4 +1,4 @@
-[![CI](https://github.com/protoman/rockbot/actions/workflows/ci.yml/badge.svg)](https://github.com/protoman/rockbot/actions/workflows/ci.yml)
+[![CD](https://github.com/protoman/rockbot/actions/workflows/cd.yml/badge.svg)](https://github.com/protoman/rockbot/actions/workflows/cd.yml)
 ![GitHub all downloads](https://img.shields.io/github/downloads/protoman/rockbot/total)
 
 ## Rockbox
