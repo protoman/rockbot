@@ -9,6 +9,7 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
+
 CONFIG += linux
 
 #CONFIG += win32

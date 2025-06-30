@@ -22,7 +22,7 @@ export QT_SELECT=qt6
 
 # Assume we are already in the project directory
 echo "📁 Building the project..."
-qmake6 RockDroid.pro DESTDIR=build
+qmake6 RockDroid.pro CONFIG=linux DESTDIR=build
 make
 
 echo "📦 Copying files to build directory..."
