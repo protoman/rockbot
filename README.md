@@ -1,26 +1,33 @@
 [![CD](https://github.com/protoman/rockbot/actions/workflows/cd.yml/badge.svg)](https://github.com/protoman/rockbot/actions/workflows/cd.yml)
 ![GitHub all downloads](https://img.shields.io/github/downloads/protoman/rockbot/total)
 
-## Rockbox
+# Rockbot Engine
 
-An open-source, SDL based, game engine to replicate old style NES games, mostly Megaman ones, and an editor made with Qt, for custom graphics, weapons, bosses, enemies and level creation.
+**Rockbot** is an open-source SDL game engine inspired by classic NES titles like **Mega Man**. It includes a Qt-based editor to create custom stages, enemies, weapons, and graphics.
 
-[MANUAL](docs/manual.pdf) | [MANUAL FAMICOM](docs/manual_famicom.pdf)
+See [manual](docs/manual.pdf) or [manual\_famicom](docs/manual_famicom.pdf)
 
 ## Requirements
 
 * SDL 1.2
-* QT6+
+* Qt 6+
 
 ## Build
 
-```shell
+```bash
 ./build-ubuntu.sh
 ```
+
 ## Run
 
-```shell
+```bash
 (cd build && ./rockbot)
 ```
 
-![](docs/initial.png)
+## Screenshot
+
+![Initial screen](docs/screenshot.png)
+
+## Supported Platforms
+
+Linux, Windows, Raspberry Pi, Dingux, PocketGo, PS2, PS3, PSP, OpenPandora, Wii, Dreamcast
