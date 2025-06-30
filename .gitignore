@@ -8,6 +8,8 @@ Makefile
 # Game artifiacts
 rockbot
 editor/moc_*.cpp
+editor/moc_*.h
+editor/ui_*.h
 build/*.cpp
 build/*.h
 build/editor
@@ -40,3 +42,4 @@ cov-int
 
 .qmake.stash
 .idea
+.qtc_clangd

@@ -4,12 +4,13 @@ set -e
 # Set non-interactive mode for apt
 export DEBIAN_FRONTEND=noninteractive
 
+
 echo "🛠️ Updating packages and installing dependencies..."
 sudo apt update && sudo apt install -y \
     build-essential \
-    qt6-base-dev \
-    qt6-tools-dev \
-    qt6-tools-dev-tools \
+    qtbase5-dev \
+    qttools5-dev \
+    qttools5-dev-tools \
     libgl1-mesa-dev \
     libsdl1.2-dev \
     libsdl-image1.2-dev \
@@ -17,17 +18,19 @@ sudo apt update && sudo apt install -y \
     libsdl-mixer1.2-dev \
     libsdl-gfx1.2-dev
 
-# Set Qt6 as default
-export QT_SELECT=qt6
+export QT_SELECT=qt5
 
-# Assume we are already in the project directory
-echo "📁 Building the project..."
-qmake6 RockDroid.pro CONFIG=linux DESTDIR=build
+echo "📁 Building rockbot the project..."
+qmake RockDroid.pro CONFIG=linux DESTDIR=build
 make
 
-echo "📦 Copying files to build directory..."
-pkill -9 rockbot && sleep 1 
-
+echo "📁 Building rockbot-editor the project..."
+(cd editor && \
+qmake Rockbot_Editor.pro CONFIG+=linux && \
+make)
 echo "✅ Build completed successfully. Files are in ./build"
 
-echo "Execute to run: cd build && ./rockbot"
+
+echo "Execute:"
+echo "cd build && ./rockbot"
+echo "GTK_PATH= ./editor"
