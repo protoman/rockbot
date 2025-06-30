@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+
+# Set non-interactive mode for apt
+export DEBIAN_FRONTEND=noninteractive
+
+
+echo "🛠️ Updating packages and installing dependencies..."
+sudo apt update && sudo apt install -y \
+    build-essential \
+    qtbase5-dev \
+    qttools5-dev \
+    qttools5-dev-tools \
+    libgl1-mesa-dev \
+    libsdl1.2-dev \
+    libsdl-image1.2-dev \
+    libsdl-ttf2.0-dev \
+    libsdl-mixer1.2-dev \
+    libsdl-gfx1.2-dev
+
+export QT_SELECT=qt5
+
+echo "📁 Building rockbot the project..."
+qmake RockDroid.pro CONFIG=linux DESTDIR=build
+make
+
+echo "📁 Building rockbot-editor the project..."
+(cd editor && \
+qmake Rockbot_Editor.pro CONFIG+=linux && \
+make)
+echo "✅ Build completed successfully. Files are in ./build"
+
+
+echo "Execute:"
+echo "cd build && ./rockbot"
+echo "GTK_PATH= ./editor"
