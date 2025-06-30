@@ -5,6 +5,8 @@
 
 An open-source, SDL based, game engine to replicate old style NES games, mostly Megaman ones, and an editor made with Qt, for custom graphics, weapons, bosses, enemies and level creation.
 
+[MANUAL](docs/manual.pdf) | [MANUAL FAMICOM](docs/manual_famicom.pdf)
+
 ## Requirements
 
 * SDL 1.2
