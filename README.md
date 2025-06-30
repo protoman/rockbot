@@ -20,13 +20,21 @@ See [manual](docs/manual.pdf) or [manual\_famicom](docs/manual_famicom.pdf)
 
 ## Run
 
+* Game
 ```bash
 (cd build && ./rockbot)
 ```
 
-## Screenshot
+![Game screenshot](docs/screenshot-game.png)
 
-![Initial screen](docs/screenshot.png)
+* Editor
+
+```bash
+(cd build && GTK_PATH= ./editor)
+```
+
+![Editor screenshot](docs/screenshot-editor.png)
+
 
 ## Supported Platforms
 
