@@ -9,9 +9,6 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
-# Set output directory
-DESTDIR = $$OUT_PWD/build
-
 CONFIG += linux
 
 #CONFIG += win32
