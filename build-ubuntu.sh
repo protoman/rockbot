@@ -27,7 +27,6 @@ make
 
 echo "📦 Copying files to build directory..."
 pkill -9 rockbot && sleep 1 
-cp rockbot build
 
 echo "✅ Build completed successfully. Files are in ./build"
 
