@@ -2,7 +2,7 @@
 #define EXCEPTION_MANAGER_H
 
 #include <string>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <iostream>
 #include <stdexcept>
 

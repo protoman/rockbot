@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include <SDL/SDL.h>				//Include da SDL
-#include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
-#include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL.h>				//Include da SDL
+#include <SDL2/SDL_image.h>		//Include da biblioteca SDL_Image
+#include <SDL2/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
+#include <SDL2/SDL_ttf.h>		// Include da biblioteca SDL_ttf
+#include <SDL2/SDL_endian.h>
+#include <SDL2/SDL_mixer.h>
 
 // GLOBAL/EXTERN VARIABLES
 std::string FILEPATH;

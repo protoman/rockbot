@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 #include "defines.h"
 #include "shareddata.h"
 #include "file/file_io.h"

@@ -6,7 +6,7 @@
 #define FPS_MINIMAL_MAX_FAIL 10         // if we have 10 consecutive times fps is under limit, we take action
 
 #include <iostream>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <vector>
 #include "shareddata.h"
 

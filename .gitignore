@@ -39,3 +39,4 @@ cov-int
 *.dol
 
 .qmake.stash
+.idea

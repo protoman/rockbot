@@ -7,7 +7,7 @@
  * This code is free software, available under zlib/libpng license.
  * http://www.libpng.org/pub/png/src/libpng-LICENSE.txt
  */
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <png.h>
 
 #define SUCCESS 0

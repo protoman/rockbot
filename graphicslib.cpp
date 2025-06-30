@@ -159,7 +159,8 @@ bool graphicsLib::initGraphics()
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
-    SDL_WM_SetCaption("RockBot", "RockBot");
+    // SDL_WM_SetCaption("RockBot", "RockBot");
+    SDL_SetWindowTitle(window, "RockBot");
 #endif
     set_video_mode();
 	// other loading methods
@@ -184,26 +185,96 @@ void graphicsLib::set_window_icon()
     }
 }
 
+// void graphicsLib::update_screen_mode()
+// {
+//     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
+//         scale_int = SharedData::get_instance()->game_config.scale_int;
+//         if (scale_int < 1) {
+//             scale_int = 1;
+//         }
+//         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+//     } else {
+//         game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+//     }
+// }
+
 void graphicsLib::update_screen_mode()
 {
+    if (window) {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        window = nullptr;
+        renderer = nullptr;
+    }
+
+    int width, height;
+
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
             scale_int = 1;
         }
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        width = RES_W * scale_int;
+        height = RES_H * scale_int;
+
+        window = SDL_CreateWindow("RockBot",
+                                  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                  width, height,
+                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     } else {
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        width = RES_W;
+        height = RES_H;
+
+        window = SDL_CreateWindow("RockBot",
+                                  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                  width, height,
+                                  SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
+    }
+
+    if (!window) {
+        SDL_Log("Failed to create window: %s", SDL_GetError());
+        return;
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        SDL_Log("Failed to create renderer: %s", SDL_GetError());
+        SDL_DestroyWindow(window);
+        window = nullptr;
+        return;
+    }
+
+    // recria a textura que será usada como "game_screen"
+    if (game_screen) {
+        SDL_DestroyTexture(game_screen);
+    }
+
+    game_screen = SDL_CreateTexture(renderer,
+                                    SDL_PIXELFORMAT_RGBA8888,
+                                    SDL_TEXTUREACCESS_TARGET,
+                                    RES_W, RES_H);
+    if (!game_screen) {
+        SDL_Log("Failed to create game_screen texture: %s", SDL_GetError());
     }
 }
+
+
 
 void graphicsLib::load_shared_graphics()
 {
     std::string filename = GAMEPATH + "shared/images/config_bg.png";
     surfaceFromFile(filename, &config_menu);
 
-    water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
-    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+    // water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
+    // SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+
+    SDL_Surface* water_surface = SDLSurfaceFromFile(GAMEPATH + "shared/images/water_tile.png");
+    if (water_surface) {
+        SDL_SetSurfaceAlphaMod(water_surface, 120);  // Transparência com SDL2
+        water_tile = SDL_CreateTextureFromSurface(renderer, water_surface);  // SDL_Texture*
+        SDL_FreeSurface(water_surface);
+    }
+
     _config_menu_pos.x = 0;
 
     filename = GAMEPATH + "shared/images/backgrounds/weapon_tooltip.png";
@@ -305,7 +376,8 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 
     SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
     SDL_FreeSurface(spriteCopy);
-    SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    // SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
 }
@@ -356,7 +428,8 @@ void graphicsLib::loadTileset(std::string file)
 }
 
 
-void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
+// void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
+void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true)
 {
     UNUSED(fix_colors);
 
@@ -373,7 +446,8 @@ void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_po
     copySDLPortion(origin_rectangle, st_rectangle(destiny_pos.x, destiny_pos.y, origin_rectangle.w, origin_rectangle.h), surfaceOrigin, surfaceDestiny);
 }
 
-void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Surface *surfaceOrigin, SDL_Surface *surfaceDestiny)
+// void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Surface *surfaceOrigin, SDL_Surface *surfaceDestiny)
+void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny)
 {
     SDL_Rect src, dest;
     src.x = original_rect.x;
@@ -729,7 +803,9 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    // SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDL_SetColorKey(temp_surface, SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+
 
     gSurface->set_surface(temp_surface);
 
@@ -749,7 +825,9 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
     }
 
     SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    // SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+
 }
 
 
@@ -759,7 +837,9 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
         return;
     }
     if (surface.is_rle_enabled == false) {
-        SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        // SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+
         surface.is_rle_enabled = true;
     }
     SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -771,7 +851,9 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
         return;
     }
     if (surface->is_rle_enabled == false) {
-        SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        // SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+
         surface->is_rle_enabled = true;
     }
     SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -2296,12 +2378,17 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
     SDL_Surface *rotozoom_picture;
 
-    SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
+    // SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
+    SDL_Surface *alpha_surface = SDL_ConvertSurfaceFormat(picture.get_surface(), SDL_PIXELFORMAT_RGBA8888, 0);
 
     if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
-        SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
+        // SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
+
+        SDL_Surface *res_surface = SDL_ConvertSurfaceFormat(rotozoom_picture, SDL_PIXELFORMAT_RGBA8888, 0);
+
         SDL_FreeSurface(rotozoom_picture);
-        SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        // SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, 255, 0, 255));
         picture.set_surface(res_surface);
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;

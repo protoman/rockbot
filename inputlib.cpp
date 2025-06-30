@@ -1,7 +1,7 @@
 #include "inputlib.h"
 
 #include<iostream>
-#include <SDL/SDL_joystick.h>
+#include <SDL2/SDL_joystick.h>
 
 extern SDL_Event event;
 

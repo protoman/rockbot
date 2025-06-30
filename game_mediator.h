@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>
 
 #include "file/format.h"
 #include "file/fio_common.h"

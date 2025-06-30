@@ -11,17 +11,18 @@ sudo apt update && sudo apt install -y \
     qt6-tools-dev \
     qt6-tools-dev-tools \
     libgl1-mesa-dev \
-    libsdl1.2-dev \
-    libsdl-image1.2-dev \
-    libsdl-ttf2.0-dev \
-    libsdl-mixer1.2-dev \
-    libsdl-gfx1.2-dev
+    libsdl2-dev \
+    libsdl2-image-dev \
+    libsdl2-ttf-dev \
+    libsdl2-mixer-dev \
+    libsdl2-gfx-dev
 
 # Set Qt6 as default
 export QT_SELECT=qt6
 
 # Assume we are already in the project directory
 echo "📁 Building the project..."
+rm Makefile
 qmake6 RockDroid.pro
 make
 
