@@ -40,7 +40,7 @@ case $response in
 		for filename in ../games/RockDroid$version_number/music/*; do
 			basename=${filename##*/}
 			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
-				ffmpeg -i "$filename" -vn -ar 22050 -ac 2 -b:a 32k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
 			fi
 		done
 
