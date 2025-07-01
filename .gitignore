@@ -7,6 +7,7 @@ Makefile
 
 # Game artifiacts
 rockbot
+PSP/
 editor/moc_*.cpp
 editor/moc_*.h
 editor/ui_*.h
@@ -24,6 +25,13 @@ build/packages/Android/
 build/packages/Dingux/
 build/packages/PS2/
 build/packages/PSP/
+build/packages/linux/
+build/packages/pocketgo/
+build/packages/Rockbot1/
+build/packages/RockBot_Android*.apk.idsig
+build/packages/rockbot1/
+build/games/MM GV/
+build/games/RockMix/
 stages_v301.dat
 cpp_rockbot.pro.user.3.3-pre1
 editor/Rockbot_Editor.pro.user.3.3-pre1
