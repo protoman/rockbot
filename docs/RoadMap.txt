@@ -1,4 +1,5 @@
 ﻿
+
 - o que aconteceu com o Boss do old castle octopus ele NÃO toma dano
     # bg.w: 288
     # enemy pos deve ser 144 - spriteSize.w/2 -> 144 - 39/2 = 124
@@ -11,7 +12,6 @@ CLASSNPC.BUILD[BUBBLEMAN BIG FISH] - start_point[14][4], pos[301][68]
 
 - crash ao apertar esc (antes do menu aparecer)
 
-- rush coil está fazendo um pulo curto e não longo
 
 - melhorar posição de origem do tiro de inimigo bola do concrete
 

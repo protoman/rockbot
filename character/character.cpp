@@ -1783,13 +1783,15 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
-                    //std::cout << "### CHARACTER::REMOVE PLATFORM #1" << std::endl;
+                    std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
                     set_platform(nullptr);
                     _obj_jump.start(true, water_lock);
                 } else {
-                    //std::cout << "### CHARACTER::REMOVE PLATFORM #2" << std::endl;
+                    std::cout << "### CHARACTER::REMOVE PLATFORM #2" << std::endl;
                     set_platform(nullptr);
-                    _obj_jump.start(false, water_lock);
+                    if (_obj_jump.is_started() == false) { // fixed coil not jumping high (was starting a new jump)
+                        _obj_jump.start(false, water_lock);
+                    }
                 }
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
