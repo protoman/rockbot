@@ -406,18 +406,7 @@ void draw::show_boss_intro_sprites(int boss_id, bool show_fall)
 void draw::show_ready()
 {
     st_position dest_pos((RES_W/2)-26, (RES_H/2)-6);
-    graphicsLib_gSurface screen_copy;
-    graphLib.initSurface(st_size(RES_W, RES_H), &screen_copy);
-    graphLib.copyArea(st_position(0, 0), &graphLib.gameScreen, &screen_copy);
-
-    for (int i=0; i<6; i++) {
-        graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message));
-        update_screen();
-        timer.delay(200);
-        graphLib.copyArea(st_position(0, 0), &screen_copy, &graphLib.gameScreen);
-        update_screen();
-        timer.delay(200);
-    }
+    graphLib.draw_centered_text(dest_pos.y, strings_map::get_instance()->get_ingame_string(strings_ingame_ready_message));
 }
 
 void draw::show_bubble(int x, int y)
@@ -1068,8 +1057,6 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
         step_delay = 0;
     }
 
-    std::cout << "step_delay[" << step_delay << "]" << std::endl;
-
     graphLib.updateScreen();
 
     int pos_y = initial_point.y - 1;
@@ -1079,7 +1066,7 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
     if (dist_y < 0) {
         pos_y += 9;
     }
-    std::cout << "ini.y[" << initial_point.y << "], end.y[" << final_point.y << "], dist_y[" << dist_y << "]" << std::endl;
+
     if (dist_y != 0) {
         for (int i=0; i<abs(dist_y)-2; i++) {
             // border left
@@ -1121,7 +1108,7 @@ void draw::draw_castle_path(bool instant, st_position initial_point, st_position
     if (dist_x > 0) {
         pos_x += 3;
     }
-    std::cout << "ini.x[" << initial_point.x << "], end.x[" << final_point.x << "], dist_x[" << dist_x << "]" << std::endl;
+
     if (dist_x != 0) {
         for (int i=0; i<max_dist_x; i++) {
             // top

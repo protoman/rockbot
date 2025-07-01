@@ -613,7 +613,7 @@ st_float_size projectile::move() {
             position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
         }
 	} else if (_move_type == TRAJECTORY_SIN) {
-        _sin_x += 0.12;
+        _sin_x += 0.18;
         float sin_value = (TILESIZE*3)*sin(_sin_x);
         position.y = position0.y + sin_value;
         move_ahead(moved);

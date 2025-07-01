@@ -716,7 +716,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     gSurface->freeGraphic();
     SDL_Surface* temp_surface = NULL;
     SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
-    if (rgb_surface != NULL) {
+    if (rgb_surface != nullptr) {
         temp_surface = SDL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
@@ -1235,7 +1235,7 @@ void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, boo
 void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)
 {
     if (wpn_n >= small_weapon_icons.size()) {
-        std::cout << "DEBUG wpn_n[" << wpn_n << "], small_weapon_icons.size[" << small_weapon_icons.size() << "]" << std::endl;
+        //std::cout << "DEBUG wpn_n[" << wpn_n << "], small_weapon_icons.size[" << small_weapon_icons.size() << "]" << std::endl;
         return;
     }
     int icon_size = small_weapon_icons.at(wpn_n).width;
@@ -2451,4 +2451,9 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
     if (picker_bg.is_null() == false) {
         graphLib.copyArea(st_rectangle(x, y, w, h), st_position(dest_x, dest_y), &picker_bg, &graphLib.gameScreen);
     }
+}
+
+void graphicsLib::set_window_title(std::string name)
+{
+    SDL_WM_SetCaption(name.c_str(), "RockBot");
 }
