@@ -258,13 +258,18 @@ public:
     void restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y);
 
 private:
-    // void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
-    void copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true)
+    void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
+    // void copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true);
 
-    // void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
-    void copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny);
+    void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
+    // void copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny);
 
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
+    // SDL_Texture* loadTextureFromFile(std::string filename);
+
+    SDL_Surface* textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height);
+
+
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_star(short int x, short int y, int size);
@@ -325,13 +330,13 @@ private:
 
     SDL_Window* window;
     SDL_Renderer* renderer;
-    SDL_Texture* game_screen;
+    SDL_Texture* game_screen_texture;
 
-    // SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
+    SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
+    SDL_Texture *game_screen_scaled_texture;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
-    // SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
-    SDL_Texture *water_tile;                                    // transparent blue surface used for water effect
+    SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
     std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface

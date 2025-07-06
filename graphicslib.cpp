@@ -178,7 +178,10 @@ void graphicsLib::set_window_icon()
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
         if (icon_img != NULL) {
-            SDL_WM_SetIcon(icon_img, NULL);
+            // SDL_WM_SetIcon(icon_img, NULL);
+            // SDL2
+            SDL_SetWindowIcon(window, icon_img);
+            SDL_FreeSurface(icon_img);
         }
     } else {
         std::cout << "ERROR::graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
@@ -245,15 +248,15 @@ void graphicsLib::update_screen_mode()
     }
 
     // recria a textura que será usada como "game_screen"
-    if (game_screen) {
-        SDL_DestroyTexture(game_screen);
+    if (game_screen_texture) {
+        SDL_DestroyTexture(game_screen_texture);
     }
 
-    game_screen = SDL_CreateTexture(renderer,
+    game_screen_texture = SDL_CreateTexture(renderer,
                                     SDL_PIXELFORMAT_RGBA8888,
                                     SDL_TEXTUREACCESS_TARGET,
                                     RES_W, RES_H);
-    if (!game_screen) {
+    if (!game_screen_texture) {
         SDL_Log("Failed to create game_screen texture: %s", SDL_GetError());
     }
 }
@@ -265,15 +268,18 @@ void graphicsLib::load_shared_graphics()
     std::string filename = GAMEPATH + "shared/images/config_bg.png";
     surfaceFromFile(filename, &config_menu);
 
-    // water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
+    water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
     // SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
-
-    SDL_Surface* water_surface = SDLSurfaceFromFile(GAMEPATH + "shared/images/water_tile.png");
-    if (water_surface) {
-        SDL_SetSurfaceAlphaMod(water_surface, 120);  // Transparência com SDL2
-        water_tile = SDL_CreateTextureFromSurface(renderer, water_surface);  // SDL_Texture*
-        SDL_FreeSurface(water_surface);
-    }
+    // Enable alpha blending and set alpha modulation (120 out of 255)
+    SDL_SetSurfaceBlendMode(water_tile, SDL_BLENDMODE_BLEND);
+    SDL_SetSurfaceAlphaMod(water_tile, 120);
+    
+    // SDL_Surface* water_surface = SDLSurfaceFromFile(GAMEPATH + "shared/images/water_tile.png");
+    // if (water_surface) {
+    //     SDL_SetSurfaceAlphaMod(water_surface, 120);  // Transparência com SDL2
+    //     water_tile = SDL_CreateTextureFromSurface(renderer, water_surface);  // SDL_Texture*
+    //     SDL_FreeSurface(water_surface);
+    // }
 
     _config_menu_pos.x = 0;
 
@@ -330,7 +336,12 @@ void graphicsLib::updateScreen()
         }
         SharedData::get_instance()->game_config.scale_int = scale_int;
         fio.save_config(SharedData::get_instance()->game_config);
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        // game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        // SDL2
+        game_screen_texture = SDL_CreateTexture(renderer,
+                                SDL_PIXELFORMAT_RGBA8888,
+                                SDL_TEXTUREACCESS_TARGET,
+                                RES_W*scale, RES_H*scale);
         SharedData::get_instance()->changed_window_size = false;
     }
     if (scale_int != 1) {
@@ -339,17 +350,63 @@ void graphicsLib::updateScreen()
         Uint16 scalex_int = RES_W*scale_int;
         Uint16 scaley_int = RES_H*scale_int;
         SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
-        SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+        // SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+
+        // int SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect);
+
+        game_screen_scaled_texture = SDL_CreateTextureFromSurface(renderer, game_screen);
+        SDL_RenderCopy(renderer, game_screen_scaled_texture, &origin_rect, &dest_rect);
+//        SDL_DestroyTexture(texture);
+
     } else {
         copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
     }
-    SDL_Flip(game_screen_scaled);
+    // SDL_Flip(game_screen_scaled);
+    // SDL2
+    SDL_RenderPresent(renderer);
 #else
-    SDL_Flip(game_screen);
+    // SDL_Flip(game_screen);
+    // SDL2
+    SDL_RenderPresent(renderer);
 #endif
 
 }
 
+SDL_Surface* graphicsLib::textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height) {
+    Uint32 format = SDL_PIXELFORMAT_ARGB8888;
+
+    SDL_Texture* target = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_TARGET, width, height);
+    if (!target) {
+        SDL_Log("Failed to create render target: %s", SDL_GetError());
+        return nullptr;
+    }
+
+    SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
+
+    SDL_SetRenderTarget(renderer, target);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer); // optional, only needed for screen
+
+    void* pixels = malloc(width * height * SDL_BYTESPERPIXEL(format));
+    int pitch = width * SDL_BYTESPERPIXEL(format);
+
+    if (SDL_RenderReadPixels(renderer, nullptr, format, pixels, pitch) != 0) {
+        SDL_Log("Failed to read pixels: %s", SDL_GetError());
+        free(pixels);
+        SDL_DestroyTexture(target);
+        return nullptr;
+    }
+
+    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
+        pixels, width, height, 32, pitch, format);
+
+    SDL_SetRenderTarget(renderer, old_target);
+    SDL_DestroyTexture(target);
+
+    // SDL_FreeSurface(surface) will free the 'pixels' memory too
+    return surface;
+}
 
 
 
@@ -374,13 +431,51 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         return NULL;
     }
 
-    SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
-    SDL_FreeSurface(spriteCopy);
+    // SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
+    // SDL_FreeSurface(spriteCopy);
     // SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
+    // SDL2 does not have SDL_DisplayFormat. You should convert to the display format manually if needed.
+    SDL_Surface* res_surface = SDL_ConvertSurfaceFormat(spriteCopy, SDL_PIXELFORMAT_RGBA32, 0); // or ARGB8888 if you prefer
+    SDL_FreeSurface(spriteCopy);
+
+    // Set the color key (transparency)
+    if (res_surface) {
+        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    }
     return res_surface;
 }
+
+// SDL2
+// SDL_Texture* graphicsLib::loadTextureFromFile(std::string filename)
+// {
+//     filename = StringUtils::clean_filename(filename);
+//     SDL_RWops* rwop = SDL_RWFromFile(filename.c_str(), "rb");
+
+//     if (!rwop) {
+//         std::cout << "ERROR::loadTextureFromFile - File '" << filename << "' not found.\n";
+//         return nullptr;
+//     }
+
+//     SDL_Surface* spriteSurface = IMG_Load_RW(rwop, 1); // Automatically closes rwop
+//     if (spriteSurface == nullptr) {
+//         std::cout << "ERROR::loadTextureFromFile - IMG_Load_RW failed for '" << filename << "'. Details: " << IMG_GetError() << std::endl;
+//         return nullptr;
+//     }
+
+//     // Set transparency color key (optional)
+//     Uint32 colorKey = SDL_MapRGB(spriteSurface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B);
+//     SDL_SetColorKey(spriteSurface, SDL_TRUE, colorKey);
+
+//     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
+//     if (!texture) {
+//         std::cout << "ERROR::loadTextureFromFile - Failed to create texture. SDL_Error: " << SDL_GetError() << std::endl;
+//     }
+
+//     SDL_FreeSurface(spriteSurface);
+//     return texture;
+// }
+
 
 
 void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
@@ -428,8 +523,8 @@ void graphicsLib::loadTileset(std::string file)
 }
 
 
-// void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
-void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true)
+void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
+// void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true)
 {
     UNUSED(fix_colors);
 
@@ -446,8 +541,8 @@ void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_po
     copySDLPortion(origin_rectangle, st_rectangle(destiny_pos.x, destiny_pos.y, origin_rectangle.w, origin_rectangle.h), surfaceOrigin, surfaceDestiny);
 }
 
-// void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Surface *surfaceOrigin, SDL_Surface *surfaceDestiny)
-void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny)
+void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Surface *surfaceOrigin, SDL_Surface *surfaceDestiny)
+// void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny)
 {
     SDL_Rect src, dest;
     src.x = original_rect.x;
@@ -791,7 +886,8 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     SDL_Surface* temp_surface = NULL;
     SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != NULL) {
-        temp_surface = SDL_DisplayFormat(rgb_surface);
+        // temp_surface = SDL_DisplayFormat(rgb_surface);
+        temp_surface = SDL_ConvertSurfaceFormat(rgb_surface, SDL_PIXELFORMAT_RGBA32, 0);
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
             show_debug_msg("EXIT #41.2");
@@ -842,7 +938,9 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
 
         surface.is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    // SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDL_SetSurfaceAlphaMod(surface.get_surface(), alpha);
+    
 }
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
@@ -852,16 +950,20 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     }
     if (surface->is_rle_enabled == false) {
         // SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        // SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDL_SetColorKey(surface->get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
         surface->is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    // SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDL_SetSurfaceAlphaMod(surface->get_surface(), alpha);
+
 }
 
 void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
 {
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    // SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDL_SetSurfaceAlphaMod(surface.get_surface(), alpha);
 }
 
 
@@ -1067,7 +1169,8 @@ void graphicsLib::draw_error_text(std::string text)
         if (!textSF) {
             continue;
         }
-        SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+        // SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+        SDL_Surface* textSF_format = SDL_ConvertSurfaceFormat(textSF, SDL_PIXELFORMAT_RGBA32, 0);
         SDL_FreeSurface(textSF);
         if (!textSF_format) {
             continue;
@@ -1116,7 +1219,8 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
         SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
 
         if (text_outlineSF) {
-            SDL_Surface* text_outlineSF_format = SDL_DisplayFormat(text_outlineSF);
+            // SDL_Surface* text_outlineSF_format = SDL_DisplayFormat(text_outlineSF);
+            SDL_Surface* text_outlineSF_format = SDL_ConvertSurfaceFormat(text_outlineSF, SDL_PIXELFORMAT_RGBA32, 0);
             SDL_FreeSurface(text_outlineSF);
 
             if (text_outlineSF_format) {
@@ -1139,7 +1243,9 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
     if (!textSF) {
         return;
     }
-    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+    // SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+    SDL_Surface* textSF_format = SDL_ConvertSurfaceFormat(textSF, SDL_PIXELFORMAT_RGBA32, 0);
+
     SDL_FreeSurface(textSF);
 
     if (!textSF_format) {
@@ -2156,16 +2262,37 @@ void graphicsLib::set_video_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        // game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+
+        window = SDL_CreateWindow(
+                    "Window Title", 
+                    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                    RES_W * scale_int,
+                    RES_H * scale_int,
+                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+                );
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     } else {
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        // game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+                window = SDL_CreateWindow(
+                    "Window Title", 
+                    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                    RES_W,
+                    RES_H,
+                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+                );
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
     }
     if (game_screen != NULL) {
         SDL_FreeSurface(game_screen);
     }
-    SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
-    game_screen = SDL_DisplayFormat(temp_screen);
-    SDL_FreeSurface(temp_screen);
+    // SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    // game_screen = SDL_DisplayFormat(temp_screen);
+
+    SDL_Surface* temp_screen = SDL_CreateRGBSurfaceWithFormat(0, RES_W, RES_H, 32, SDL_PIXELFORMAT_RGBA32);
+    game_screen = temp_screen;
+    // SDL_FreeSurface(temp_screen);
 #endif
 
 	if (!game_screen) {
