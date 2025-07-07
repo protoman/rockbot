@@ -43,3 +43,4 @@ cov-int
 .qmake.stash
 .idea
 .qtc_clangd
+.vscode

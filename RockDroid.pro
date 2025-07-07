@@ -61,6 +61,16 @@ linux {
     QMAKE_CXXFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
 }
 
+macosx {
+    DEFINES += OSX
+    LIBS = -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx -lSDL2 -ldl -lstdc++ -fstack-protector-all `sdl2-config --libs`
+    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags`
+    # error: SDL for Mac OS X only supports deploying on 10.7 and above.
+    QMAKE_CCFLAGS += -mmacosx-version-min=10.7
+    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+}
+
 win32 {
     DEFINES += WIN32
     LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\5.15.2\mingw81_32\lib -LC:\Qt\5.15.2\mingw81_32\lib\x86 -L/usr/lib -L/usr/lib/x86 -LC:\MinGW\lib -LC:\MinGW\lib\x86
