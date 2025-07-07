@@ -305,6 +305,7 @@ struct graphicsLib_gSurface {
                     // copy surface
                     // gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                     gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
+                    //SDL_SetSurfaceBlendMode(gSurface, SDL_BLENDMODE_BLEND);
                     if (!gSurface) {
                         SDL_Log("Erro ao converter surface: %s", SDL_GetError());
                     }
@@ -341,6 +342,7 @@ struct graphicsLib_gSurface {
                     // copy surface
                     // gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                     gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
+                    //SDL_SetSurfaceBlendMode(gSurface, SDL_BLENDMODE_BLEND);
                 } else {
                     gSurface = NULL;
                 }

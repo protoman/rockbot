@@ -259,15 +259,13 @@ public:
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
-    // void copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true);
 
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
-    // void copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny);
 
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
     // SDL_Texture* loadTextureFromFile(std::string filename);
 
-    SDL_Surface* textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height);
+    //SDL_Surface* textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height);
 
 
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
@@ -337,6 +335,8 @@ private:
     SDL_Texture *game_screen_scaled_texture;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
+
+    SDL_Surface * SDL_SetVideoMode(int width, int height, int bpp, Uint32 flags);
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
     std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface

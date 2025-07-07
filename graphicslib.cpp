@@ -255,10 +255,13 @@ void graphicsLib::update_screen_mode()
     game_screen_texture = SDL_CreateTexture(renderer,
                                     SDL_PIXELFORMAT_RGBA8888,
                                     SDL_TEXTUREACCESS_TARGET,
-                                    RES_W, RES_H);
+                                    width, height);
     if (!game_screen_texture) {
         SDL_Log("Failed to create game_screen texture: %s", SDL_GetError());
     }
+
+    SDL_SetTextureAlphaMod(game_screen_texture, 128); 
+    //SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
 }
 
 
@@ -270,16 +273,10 @@ void graphicsLib::load_shared_graphics()
 
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
     // SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+
     // Enable alpha blending and set alpha modulation (120 out of 255)
     SDL_SetSurfaceBlendMode(water_tile, SDL_BLENDMODE_BLEND);
     SDL_SetSurfaceAlphaMod(water_tile, 120);
-    
-    // SDL_Surface* water_surface = SDLSurfaceFromFile(GAMEPATH + "shared/images/water_tile.png");
-    // if (water_surface) {
-    //     SDL_SetSurfaceAlphaMod(water_surface, 120);  // Transparência com SDL2
-    //     water_tile = SDL_CreateTextureFromSurface(renderer, water_surface);  // SDL_Texture*
-    //     SDL_FreeSurface(water_surface);
-    // }
 
     _config_menu_pos.x = 0;
 
@@ -342,6 +339,7 @@ void graphicsLib::updateScreen()
                                 SDL_PIXELFORMAT_RGBA8888,
                                 SDL_TEXTUREACCESS_TARGET,
                                 RES_W*scale, RES_H*scale);
+        // SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
         SharedData::get_instance()->changed_window_size = false;
     }
     if (scale_int != 1) {
@@ -352,9 +350,9 @@ void graphicsLib::updateScreen()
         SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
         // SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
 
-        // int SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect);
-
         game_screen_scaled_texture = SDL_CreateTextureFromSurface(renderer, game_screen);
+        // SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
+
         SDL_RenderCopy(renderer, game_screen_scaled_texture, &origin_rect, &dest_rect);
 //        SDL_DestroyTexture(texture);
 
@@ -371,7 +369,7 @@ void graphicsLib::updateScreen()
 #endif
 
 }
-
+/*
 SDL_Surface* graphicsLib::textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height) {
     Uint32 format = SDL_PIXELFORMAT_ARGB8888;
 
@@ -407,7 +405,7 @@ SDL_Surface* graphicsLib::textureToSurface(SDL_Renderer* renderer, SDL_Texture* 
     // SDL_FreeSurface(surface) will free the 'pixels' memory too
     return surface;
 }
-
+*/
 
 
 
@@ -436,13 +434,11 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     // SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     // SDL2 does not have SDL_DisplayFormat. You should convert to the display format manually if needed.
-    SDL_Surface* res_surface = SDL_ConvertSurfaceFormat(spriteCopy, SDL_PIXELFORMAT_RGBA32, 0); // or ARGB8888 if you prefer
+    SDL_Surface* res_surface = SDL_ConvertSurfaceFormat(spriteCopy, SDL_PIXELFORMAT_ARGB8888, 0); // or ARGB8888 if you prefer
     SDL_FreeSurface(spriteCopy);
-
     // Set the color key (transparency)
-    if (res_surface) {
-        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    }
+    SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+
     return res_surface;
 }
 
@@ -524,7 +520,6 @@ void graphicsLib::loadTileset(std::string file)
 
 
 void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Surface* surfaceOrigin, SDL_Surface* surfaceDestiny, bool fix_colors=true)
-// void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_position destiny_pos, SDL_Texture* surfaceOrigin, SDL_Texture* surfaceDestiny, bool fix_colors=true)
 {
     UNUSED(fix_colors);
 
@@ -542,7 +537,6 @@ void graphicsLib::copySDLArea(struct st_rectangle origin_rectangle, struct st_po
 }
 
 void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Surface *surfaceOrigin, SDL_Surface *surfaceDestiny)
-// void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destiny_rect, SDL_Texture *surfaceOrigin, SDL_Texture *surfaceDestiny)
 {
     SDL_Rect src, dest;
     src.x = original_rect.x;
@@ -2263,25 +2257,10 @@ void graphicsLib::set_video_mode()
             scale_int = 1;
         }
         // game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-
-        window = SDL_CreateWindow(
-                    "Window Title", 
-                    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                    RES_W * scale_int,
-                    RES_H * scale_int,
-                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-                );
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
     } else {
         // game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-                window = SDL_CreateWindow(
-                    "Window Title", 
-                    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                    RES_W,
-                    RES_H,
-                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-                );
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
 
     }
     if (game_screen != NULL) {
@@ -2318,6 +2297,19 @@ void graphicsLib::set_video_mode()
     }
 
 
+}
+
+// SDL2
+SDL_Surface * graphicsLib::SDL_SetVideoMode(int width, int height, int bpp, Uint32 flags){
+    window = SDL_CreateWindow(
+                    "RockBot", 
+                    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                    width,
+                    height,
+                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
+                );
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, VIDEO_MODE_COLORS, 0, 0, 0, 255);
 }
 
 void graphicsLib::preload_images()
@@ -2507,15 +2499,19 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 
     // SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
     SDL_Surface *alpha_surface = SDL_ConvertSurfaceFormat(picture.get_surface(), SDL_PIXELFORMAT_RGBA8888, 0);
+    SDL_SetSurfaceBlendMode(alpha_surface, SDL_BLENDMODE_BLEND);
 
     if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
         // SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
 
         SDL_Surface *res_surface = SDL_ConvertSurfaceFormat(rotozoom_picture, SDL_PIXELFORMAT_RGBA8888, 0);
+        SDL_SetSurfaceBlendMode(res_surface, SDL_BLENDMODE_BLEND);
 
         SDL_FreeSurface(rotozoom_picture);
-        // SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, 255, 0, 255));
+        
+        //SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        
         picture.set_surface(res_surface);
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;

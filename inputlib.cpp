@@ -146,6 +146,20 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE || SharedData::get_instance()->game_config.input_type == INPUT_TYPE_KEYBOARD) {
             int *key_config_tmp = SharedData::get_instance()->game_config.keys_codes;
 
+            // MINE
+            // key_config_tmp[BTN_ATTACK] = SDLK_a;
+            // key_config_tmp[BTN_JUMP] = SDLK_x;
+            // key_config_tmp[BTN_DASH] = SDLK_c;
+            // key_config_tmp[BTN_SHIELD] = SDLK_z;
+            // key_config_tmp[BTN_L] = SDLK_q;
+            // key_config_tmp[BTN_R] = SDLK_w;
+            // key_config_tmp[BTN_QUIT] = SDLK_ESCAPE;
+            // key_config_tmp[BTN_START] = SDLK_RETURN;
+            // key_config_tmp[BTN_LEFT] = SDLK_LEFT;
+            // key_config_tmp[BTN_RIGHT] = SDLK_RIGHT;
+            // key_config_tmp[BTN_UP] = SDLK_UP;
+            // key_config_tmp[BTN_DOWN] = SDLK_DOWN;
+
             if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 #ifdef ANDROID
                 //__android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### event.key.which[%d] ###", event.key.which);
