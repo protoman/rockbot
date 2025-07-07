@@ -13,6 +13,8 @@ CONFIG += debug
 
 CONFIG += linux
 
+#CONFIG += macosx
+
 #CONFIG += win32
 
 #CONFIG += raspberry
@@ -63,9 +65,16 @@ linux {
 }
 
 macosx {
-    DEFINES += OSX
-    LIBS = -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx -lSDL2 -ldl -lstdc++ -fstack-protector-all `sdl2-config --libs`
+    DEFINES = OSX
+    LIBS += `sdl2-config --libs`
+    LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
+
+    LIBS += -framework OpenGL
+
     INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags`
+
+    INCLUDEPATH += /opt/homebrew/include /opt/homebrew/opt/qt@5
+    
     # error: SDL for Mac OS X only supports deploying on 10.7 and above.
     QMAKE_CCFLAGS += -mmacosx-version-min=10.7
     QMAKE_CXXFLAGS += -mmacosx-version-min=10.7

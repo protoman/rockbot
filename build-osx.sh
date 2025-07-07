@@ -24,6 +24,11 @@ make
 echo "📁 Building rockbot-editor the project..."
 (cd editor && \
 qmake Rockbot_Editor.pro CONFIG=macosx && \
+for f in $(find . -name '*.ui'); do \
+  base=$(basename "$f" .ui); \
+  echo "Generating ui_${base}.h from $f"; \
+  uic "$f" -o "ui_${base}.h"; \
+done && \
 make)
 echo "✅ Build completed successfully. Files are in ./build"
 
