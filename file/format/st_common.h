@@ -2,7 +2,7 @@
 #define ST_COMMON_H
 
 // some small structures that do not need a separated file for each one
-#include <SDL2/SDL.h>
+#include "sdl_layer.h"
 #include <vector>
 #include <iostream>
 #include <stdio.h>
@@ -303,12 +303,11 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    // gSurface = SDL_DisplayFormatAlpha(original.gSurface);
+                    #ifdef SDL2
                     gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
-                    //SDL_SetSurfaceBlendMode(gSurface, SDL_BLENDMODE_BLEND);
-                    if (!gSurface) {
-                        SDL_Log("Erro ao converter surface: %s", SDL_GetError());
-                    }
+                    #else
+                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
+                    #endif
                 } else {
                     gSurface = NULL;
                 }
@@ -340,9 +339,11 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    // gSurface = SDL_DisplayFormatAlpha(original.gSurface);
+                    #ifdef SDL2
                     gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
-                    //SDL_SetSurfaceBlendMode(gSurface, SDL_BLENDMODE_BLEND);
+                    #else
+                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
+                    #endif
                 } else {
                     gSurface = NULL;
                 }

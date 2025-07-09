@@ -6,11 +6,7 @@
 #include <map>
 #include <climits>
 
-#include <SDL2/SDL.h>				//Include da SDL
-#include <SDL2/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL2/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL2/SDL_endian.h>
-#include <SDL2/SDL2_rotozoom.h>
+#include "sdl_layer.h"
 
 #include "defines.h"
 #include "file/format/st_common.h"
@@ -321,15 +317,17 @@ private:
     TTF_Font *outline_font;
     TTF_Font *error_font = nullptr;
 
+    #ifdef SDL2
     SDL_Window* window;
     SDL_Renderer* renderer;
+    #endif
 
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
 
-    SDL_Surface * SDL_SetVideoMode(int width, int height, int bpp, Uint32 flags);
+    SDL_Surface * SDL_SetVideoMode2(int width, int height, int bpp, Uint32 flags);
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
     std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface

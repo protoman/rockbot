@@ -20,13 +20,8 @@
 
 
 #include <iostream>
-#include <SDL2/SDL.h>				//Include da SDL
-#include <SDL2/SDL_main.h>
-#include <SDL2/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL2/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
-#include <SDL2/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL2/SDL_endian.h>
-#include <SDL2/SDL_mixer.h>
+
+#include "sdl_layer.h"
 
 #include "strings_map.h"
 

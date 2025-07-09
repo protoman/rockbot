@@ -9,7 +9,7 @@ See [manual](docs/manual.pdf) or [manual\_famicom](docs/manual_famicom.pdf)
 
 ## Requirements
 
-* SDL 2
+* SDL 1.2 / 2
 * Qt5
 
 ## Build
@@ -17,7 +17,11 @@ See [manual](docs/manual.pdf) or [manual\_famicom](docs/manual_famicom.pdf)
 ```bash
 ./build-ubuntu.sh
 ```
+or
 
+```bash
+./build-ubuntu.sh sdl2
+```
 ## Run
 
 * Game

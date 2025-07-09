@@ -1,7 +1,6 @@
 #include "inputlib.h"
 
 #include <iostream>
-#include <SDL2/SDL_joystick.h>
 #include <string>
 #include <algorithm>
 
@@ -120,24 +119,27 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
     }
 
     while (SDL_PollEvent(&event)) {
-        // if (event.type == SDL_VIDEORESIZE) {
-        //     SharedData::get_instance()->scaleX = event.resize.w / RES_W;
-        //     SharedData::get_instance()->scaleY = event.resize.h / RES_H;
-        //     SharedData::get_instance()->scale_window_size.width = event.resize.w;
-        //     SharedData::get_instance()->scale_window_size.height = event.resize.h;
-        //     SharedData::get_instance()->changed_window_size = true;
-        // }
-    // SDL2    
-    if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-        int newWidth = event.window.data1;
-        int newHeight = event.window.data2;
 
-        SharedData::get_instance()->scaleX = newWidth / static_cast<float>(RES_W);
-        SharedData::get_instance()->scaleY = newHeight / static_cast<float>(RES_H);
-        SharedData::get_instance()->scale_window_size.width = newWidth;
-        SharedData::get_instance()->scale_window_size.height = newHeight;
-        SharedData::get_instance()->changed_window_size = true;
-    }        
+    #ifdef SDL2    
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            int newWidth = event.window.data1;
+            int newHeight = event.window.data2;
+
+            SharedData::get_instance()->scaleX = newWidth / static_cast<float>(RES_W);
+            SharedData::get_instance()->scaleY = newHeight / static_cast<float>(RES_H);
+            SharedData::get_instance()->scale_window_size.width = newWidth;
+            SharedData::get_instance()->scale_window_size.height = newHeight;
+            SharedData::get_instance()->changed_window_size = true;
+        }
+    #else
+        if (event.type == SDL_VIDEORESIZE) {
+            SharedData::get_instance()->scaleX = event.resize.w / RES_W;
+            SharedData::get_instance()->scaleY = event.resize.h / RES_H;
+            SharedData::get_instance()->scale_window_size.width = event.resize.w;
+            SharedData::get_instance()->scale_window_size.height = event.resize.h;
+            SharedData::get_instance()->changed_window_size = true;
+        }
+    #endif        
 
         if (_show_btn_debug == false) {
             _show_btn_debug = true;
@@ -559,15 +561,17 @@ string inputLib::get_joystick_name(int n)
 
 std::string inputLib::get_key_name(int key)
 {
-    // SDLKey keysym = (SDLKey)key;
-
     if (key == -1) {
         return std::string("UNSET");
     }
 
-    // std::string res = SDL_GetKeyName(keysym);
+    #ifdef SDL2
     const char* name = SDL_GetKeyName(static_cast<SDL_Keycode>(key));
     std::string res = name ? name : "";
+    #else
+    SDLKey keysym = (SDLKey)key;
+    std::string res = SDL_GetKeyName(keysym);
+    #endif
 
     // convert common keys to 3 letter
     if (res.length() > 6) {

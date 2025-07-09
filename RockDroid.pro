@@ -58,14 +58,14 @@ TARGET = rockbot
 
 linux {
     DEFINES += LINUX
-    LIBS = -L/usr/X11R6/lib -lX11 -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
-    INCLUDES = -I/usr/include/SDL2 -I/usr/include -I. -I./include -L/usr/lib
+    LIBS += -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
+    INCLUDES += -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
     QMAKE_CXXFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
 }
 
 macosx {
-    DEFINES += OSX
+    DEFINES += OSX SDL2
     LIBS += `sdl2-config --libs`
     LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
     DESTDIR = ../
@@ -434,7 +434,8 @@ HEADERS += \
     character/character_animation.h \
     aux_tools/exception_manager.h \
     scenes/game_menu.h \
-    ports/android/android_game_services.h
+    ports/android/android_game_services.h \
+    sdl_layer.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

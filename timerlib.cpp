@@ -1,7 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include "timerlib.h"
-#include <SDL2/SDL.h>
+#include "sdl_layer.h"
 #include <unistd.h>
 
 timerLib::timerLib()
