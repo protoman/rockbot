@@ -579,8 +579,6 @@ std::string inputLib::get_key_name(int key)
         *p = toupper(*p);
     }
 
-    cout << "KEY" << res << endl;
-
     return res;
 }
 
