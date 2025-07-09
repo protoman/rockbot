@@ -251,20 +251,6 @@ void graphicsLib::update_screen_mode()
     SDL_GetRendererInfo(renderer, &info);
     printf("Renderer backend: %s\n", info.name);
 
-    if (game_screen_texture) {
-        SDL_DestroyTexture(game_screen_texture);
-    }
-
-    game_screen_texture = SDL_CreateTexture(renderer,
-                                    SDL_PIXELFORMAT_RGBA8888,
-                                    SDL_TEXTUREACCESS_TARGET,
-                                    width, height);
-    if (!game_screen_texture) {
-        SDL_Log("Failed to create game_screen texture: %s", SDL_GetError());
-    }
-
-    SDL_SetTextureAlphaMod(game_screen_texture, 128); 
-    //SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
 }
 
 

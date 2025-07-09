@@ -325,11 +325,9 @@ private:
 
     SDL_Window* window;
     SDL_Renderer* renderer;
-    SDL_Texture* game_screen_texture;
 
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
-    SDL_Texture *game_screen_scaled_texture;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
 
