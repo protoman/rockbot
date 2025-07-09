@@ -247,7 +247,10 @@ void graphicsLib::update_screen_mode()
         return;
     }
 
-    // recria a textura que será usada como "game_screen"
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(renderer, &info);
+    printf("Renderer backend: %s\n", info.name);
+
     if (game_screen_texture) {
         SDL_DestroyTexture(game_screen_texture);
     }
@@ -335,11 +338,7 @@ void graphicsLib::updateScreen()
         fio.save_config(SharedData::get_instance()->game_config);
         // game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         // SDL2
-        game_screen_texture = SDL_CreateTexture(renderer,
-                                SDL_PIXELFORMAT_RGBA8888,
-                                SDL_TEXTUREACCESS_TARGET,
-                                RES_W*scale, RES_H*scale);
-        // SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, 0);
         SharedData::get_instance()->changed_window_size = false;
     }
     if (scale_int != 1) {
@@ -349,12 +348,9 @@ void graphicsLib::updateScreen()
         Uint16 scaley_int = RES_H*scale_int;
         SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
         // SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
-
-        game_screen_scaled_texture = SDL_CreateTextureFromSurface(renderer, game_screen);
-        // SDL_SetTextureBlendMode(game_screen_texture, SDL_BLENDMODE_BLEND);
-
-        SDL_RenderCopy(renderer, game_screen_scaled_texture, &origin_rect, &dest_rect);
-//        SDL_DestroyTexture(texture);
+        
+        // SDL2
+        SDL_BlitScaled(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
 
     } else {
         copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
@@ -515,6 +511,9 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
     }
 
     SDL_BlitSurface(surfaceOrigin, &src, surfaceDestiny, &dest);
+    // SDL2
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surfaceOrigin);
+    SDL_RenderCopy(renderer, texture, &src, &dest);
 }
 
 void graphicsLib::copy_gamescreen_area(st_rectangle origin_rectangle, st_position pos, graphicsLib_gSurface *surfaceDestiny)
@@ -2183,7 +2182,7 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
-
+    cout << "Unknown platform" << endl;
     /// @TODO - do we need scale on fullscreen if no filter?
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
@@ -2243,7 +2242,14 @@ SDL_Surface * graphicsLib::SDL_SetVideoMode(int width, int height, int bpp, Uint
                     SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
                 );
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+
+    SDL_RendererInfo info;
+    SDL_GetRendererInfo(renderer, &info);
+    printf("Renderer backend: %s\n", info.name);
+
+    SDL_RenderClear(renderer);
+
+    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, VIDEO_MODE_COLORS, 0, 255, 0, 255);
 }
 
 void graphicsLib::preload_images()

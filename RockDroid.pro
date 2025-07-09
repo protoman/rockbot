@@ -65,20 +65,22 @@ linux {
 }
 
 macosx {
-    DEFINES = OSX
+    DEFINES += OSX
     LIBS += `sdl2-config --libs`
     LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
+    DESTDIR = ../
 
-    LIBS += -framework OpenGL
+#    LIBS += -framework OpenGL
 
-    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags`
+    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags` -I.
 
     INCLUDEPATH += /opt/homebrew/include /opt/homebrew/opt/qt@5
     
     # error: SDL for Mac OS X only supports deploying on 10.7 and above.
-    QMAKE_CCFLAGS += -mmacosx-version-min=10.7
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
+    QMAKE_CCFLAGS += -mmacosx-version-min=10.7 -DOSX -DPC
+    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -DOSX -DPC
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+    CONFIG -= console
 }
 
 win32 {
