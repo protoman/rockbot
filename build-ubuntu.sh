@@ -49,7 +49,7 @@ if $USE_SDL2; then
 else
     qmake RockDroid.pro CONFIG=linux DESTDIR=build
 fi
-make 
+make clean build/rockbot
 
 echo "📁 Building rockbot-editor the project..."
 cd editor
