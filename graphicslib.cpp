@@ -369,45 +369,6 @@ void graphicsLib::updateScreen()
 #endif
 
 }
-/*
-SDL_Surface* graphicsLib::textureToSurface(SDL_Renderer* renderer, SDL_Texture* texture, int width, int height) {
-    Uint32 format = SDL_PIXELFORMAT_ARGB8888;
-
-    SDL_Texture* target = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_TARGET, width, height);
-    if (!target) {
-        SDL_Log("Failed to create render target: %s", SDL_GetError());
-        return nullptr;
-    }
-
-    SDL_Texture* old_target = SDL_GetRenderTarget(renderer);
-
-    SDL_SetRenderTarget(renderer, target);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-    SDL_RenderPresent(renderer); // optional, only needed for screen
-
-    void* pixels = malloc(width * height * SDL_BYTESPERPIXEL(format));
-    int pitch = width * SDL_BYTESPERPIXEL(format);
-
-    if (SDL_RenderReadPixels(renderer, nullptr, format, pixels, pitch) != 0) {
-        SDL_Log("Failed to read pixels: %s", SDL_GetError());
-        free(pixels);
-        SDL_DestroyTexture(target);
-        return nullptr;
-    }
-
-    SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(
-        pixels, width, height, 32, pitch, format);
-
-    SDL_SetRenderTarget(renderer, old_target);
-    SDL_DestroyTexture(target);
-
-    // SDL_FreeSurface(surface) will free the 'pixels' memory too
-    return surface;
-}
-*/
-
-
 
 SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 {
@@ -441,37 +402,6 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 
     return res_surface;
 }
-
-// SDL2
-// SDL_Texture* graphicsLib::loadTextureFromFile(std::string filename)
-// {
-//     filename = StringUtils::clean_filename(filename);
-//     SDL_RWops* rwop = SDL_RWFromFile(filename.c_str(), "rb");
-
-//     if (!rwop) {
-//         std::cout << "ERROR::loadTextureFromFile - File '" << filename << "' not found.\n";
-//         return nullptr;
-//     }
-
-//     SDL_Surface* spriteSurface = IMG_Load_RW(rwop, 1); // Automatically closes rwop
-//     if (spriteSurface == nullptr) {
-//         std::cout << "ERROR::loadTextureFromFile - IMG_Load_RW failed for '" << filename << "'. Details: " << IMG_GetError() << std::endl;
-//         return nullptr;
-//     }
-
-//     // Set transparency color key (optional)
-//     Uint32 colorKey = SDL_MapRGB(spriteSurface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B);
-//     SDL_SetColorKey(spriteSurface, SDL_TRUE, colorKey);
-
-//     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
-//     if (!texture) {
-//         std::cout << "ERROR::loadTextureFromFile - Failed to create texture. SDL_Error: " << SDL_GetError() << std::endl;
-//     }
-
-//     SDL_FreeSurface(spriteSurface);
-//     return texture;
-// }
-
 
 
 void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
