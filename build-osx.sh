@@ -9,9 +9,7 @@ brew install \
     sdl2_image \
     sdl2_ttf \
     sdl2_mixer \
-    sdl2_gfx \
-    pkg-config \
-    mesa
+    sdl2_gfx
 
 # Garantir que o qmake do Qt5 seja usado (ajuste conforme o caminho do brew)
 export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
