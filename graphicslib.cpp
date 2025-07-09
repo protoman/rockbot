@@ -2189,12 +2189,15 @@ void graphicsLib::set_video_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
+
+        // TODO: scale not working
+        scale_int = 1;
+
         // game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
     } else {
         // game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
         game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
-
     }
     if (game_screen != NULL) {
         SDL_FreeSurface(game_screen);
@@ -2202,9 +2205,7 @@ void graphicsLib::set_video_mode()
     // SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
     // game_screen = SDL_DisplayFormat(temp_screen);
 
-    SDL_Surface* temp_screen = SDL_CreateRGBSurfaceWithFormat(0, RES_W, RES_H, 32, SDL_PIXELFORMAT_RGBA32);
-    game_screen = temp_screen;
-    // SDL_FreeSurface(temp_screen);
+    game_screen = SDL_CreateRGBSurfaceWithFormat(0, RES_W, RES_H, 32, SDL_PIXELFORMAT_RGBA32);
 #endif
 
 	if (!game_screen) {
