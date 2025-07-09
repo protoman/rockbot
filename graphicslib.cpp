@@ -708,7 +708,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     if (tile_ref->get_surface() == NULL) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
         char debug_msg[255];
-        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%d]", anim_tile_id, ANIM_TILES_SURFACES.size());
+        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
 #endif
