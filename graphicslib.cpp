@@ -2599,5 +2599,6 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
 
 void graphicsLib::set_window_title(std::string name)
 {
-    SDL_WM_SetCaption(name.c_str(), "RockBot");
+    // SDL_WM_SetCaption(name.c_str(), "RockBot");
+    SDL_SetWindowTitle(window, name.c_str());
 }
