@@ -72,7 +72,7 @@ struct file_boss { // DONE - Stage
     file_boss() {
         id_npc = -1;
         id_weapon = -1;
-        sprintf(name, "%s", "Boss");
+        snprintf(name, sizeof(name), "%s", "Boss");
     }
 };
 
@@ -95,7 +95,7 @@ struct file_stage {
             autoscroll[i] = false;
         }
         boss = file_boss();
-        sprintf(name, "%s", "Stage");
+        snprintf(name, sizeof(name), "%s", "Stage");
         bgmusic_filename[0] = '\0';
         tileset_filename[0] = '\0';
         cutscene_pre = -1;
@@ -115,13 +115,13 @@ struct file_stages {
     file_stages() {
         for (int i=0; i<FS_MAX_STAGES; i++) {
             if (i == 0) {
-                sprintf(stages[i].name, "#%d INTRO STAGE", i);
+                snprintf(stages[i].name, sizeof(stages[i].name), "#%d INTRO STAGE", i);
             } else if (i < 9) {
-                sprintf(stages[i].name, "#%d 8-Bosses-Stage", i);
+                snprintf(stages[i].name, sizeof(stages[i].name), "#%d 8-Bosses-Stage", i);
             } else if (i <14) {
-                sprintf(stages[i].name, "Castle #1 Stage #%d", i);
+                snprintf(stages[i].name, sizeof(stages[i].name), "Castle #1 Stage #%d", i);
             } else {
-                sprintf(stages[i].name, "Castle #2 Stage #%d", i);
+                snprintf(stages[i].name, sizeof(stages[i].name), "Castle #2 Stage #%d", i);
             }
         }
     }
