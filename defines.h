@@ -405,6 +405,7 @@ enum OBJECT_TYPE {
     OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP,
     OBJ_TIMED_BOMB,
     OBJ_EXPANDING_SPIKE,
+    OBJ_PLATFORM_WALKER,                // walk over spikes, disappears when hitting a wall
     OBJ_TYPE_COUNT
 };
 
@@ -1459,8 +1460,8 @@ enum e_INPUT_IMAGES {
 #define QUICKSAND_GRAVITY 0.2
 
 
-#define SHOW_HITBOXES 1
-//#define SHOW_VULNERABLE_AREAS
+//#define SHOW_HITBOXES 1
+//#define SHOW_VULNERABLE_AREAS 1
 
 #endif // DEFINES_H
 

@@ -237,14 +237,14 @@ void object::gravity()
             || type == OBJ_RAY_HORIZONTAL || type == OBJ_RAY_VERTICAL || type == OBJ_TRACK_PLATFORM
             || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DAMAGING_PLATFORM
             || type == OBJ_CRUSHER || type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP || type == OBJ_EXPANDING_SPIKE
-            || is_active_platform() == true) {
+            || (type != OBJ_PLATFORM_WALKER && is_active_platform() == true)) {
 		return;
 	}
     for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
         bool can_fall = test_change_position(0, i);
         if (can_fall == true) {
 			position.y += i;
-			check_player_move(0, i);
+            obj_move_player(0, i);
 			break;
 		}
 	}
@@ -307,7 +307,7 @@ bool object::test_change_position(short xinc, short yinc)
 	return false;
 }
 
-void object::check_player_move(int xinc, int yinc)
+void object::obj_move_player(int xinc, int yinc)
 {
     if (!is_on_screen()) {
         return;
@@ -489,6 +489,24 @@ void object::show(int adjust_y, int adjust_x)
             graphic_destiny.x = position.x - scroll_x;
             graphic_destiny.y = adjust_y + position.y;
             graphLib.copyArea(st_rectangle((state-1)*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        }
+        return;
+    } else if (type == OBJ_PLATFORM_WALKER) {
+        graphic_destiny.x = position.x - scroll_x;
+        graphic_destiny.y = adjust_y + position.y;
+        if (_started == false) {
+            // show only first frame
+            graphLib.copyArea(st_rectangle(0, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+        } else {
+            if (_obj_frame_timer < timer.getTimer()) {
+                _obj_frame_timer = timer.getTimer() + 100;
+                state++;
+                // animation
+                if (state > 2) {
+                    state = 1;
+                }
+            }
+            graphLib.copyArea(st_rectangle(state*framesize_w, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
         }
         return;
     }
@@ -877,7 +895,7 @@ void object::move(bool paused)
 		bool can_move = test_change_position(xinc, 0);
 		if (can_move) {
 			position.x += xinc;
-			check_player_move(xinc, 0);
+            obj_move_player(xinc, 0);
 			distance += abs((float)xinc);
 		} else {
 			invert_direction_x();
@@ -901,7 +919,7 @@ void object::move(bool paused)
         //if (name == "SNAKE PLATFORM") std::cout << "OBJ::MOVE::OBJ_MOVING_PLATFORM_UPDOWN - yinc[" << yinc << "], can_move[" << can_move << "]" << std::endl;
 		if (can_move) {
 			position.y += yinc;
-			check_player_move(0, yinc);
+            obj_move_player(0, yinc);
 			distance += abs((float)yinc);
 		} else {
             distance = limit - distance + yinc;
@@ -916,7 +934,7 @@ void object::move(bool paused)
 			bool can_move = test_change_position(0, yinc);
 			if (can_move) {
 				position.y += yinc;
-				check_player_move(0, yinc);
+                obj_move_player(0, yinc);
 				distance += abs((float)yinc);
 			} else {
                 state = OBJ_STATE_RETURN;
@@ -931,7 +949,7 @@ void object::move(bool paused)
                         yinc = -1;
                     }
                     position.y += yinc;
-                    check_player_move(0, yinc);
+                    obj_move_player(0, yinc);
                     distance -= abs((float)yinc);
                     if (distance == 0) {
                         stop();
@@ -951,7 +969,7 @@ void object::move(bool paused)
             int yinc = -speed;
             bool can_move = test_change_position(0, yinc);
             if (can_move) {
-                check_player_move(0, yinc);
+                obj_move_player(0, yinc);
                 position.y += yinc;
                 distance += abs((float)yinc);
             } else {
@@ -970,7 +988,7 @@ void object::move(bool paused)
                     yinc = -1;
                 }
                 position.y += yinc;
-                check_player_move(0, yinc);
+                obj_move_player(0, yinc);
                 distance -= abs((float)yinc);
                 if (distance == 0) {
                     stop();
@@ -992,7 +1010,7 @@ void object::move(bool paused)
 		if (_command_down == true) {
             yinc = speed;
         }
-        check_player_move(xinc, yinc); // @TODO - player can move up/down
+        obj_move_player(xinc, yinc); // @TODO - player can move up/down
         if (item_jet_started == true) {
             position.x += xinc;
             position.y += yinc;
@@ -1155,7 +1173,7 @@ void object::move(bool paused)
             p2 = map->get_map_point_tile1(st_position((position.x+TILESIZE/3)/TILESIZE, (position.y+1)/TILESIZE));
             p3 = map->get_map_point_tile1(st_position(((position.x+TILESIZE/3)/TILESIZE)+1, (position.y+1)/TILESIZE));
         }
-        check_player_move(xinc, 0);
+        obj_move_player(xinc, 0);
         // next two points have a different tile than origin point -invert direction
         if (p1 != p2 && p1 != p3) {
             direction = !direction;
@@ -1180,7 +1198,7 @@ void object::move(bool paused)
             gameControl.show_door_animation(this);
         } else if (state == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
             if (frame <= 0) {
-                std::cout << "DOOR - set to CLOSED" << std::endl;
+                //std::cout << "DOOR - set to CLOSED" << std::endl;
                 timer.unpause();
                 state = e_OBJECT_BOSS_DOOR_STATE_CLOSED;
                 frame = 0;
@@ -1196,7 +1214,7 @@ void object::move(bool paused)
         int yinc = -speed;
         position.y += yinc;
         //std::cout << ">>>>>>>> OBJ_MOVING_PLATFORM_UP" << std::endl;
-        check_player_move(0, yinc);
+        obj_move_player(0, yinc);
 
         if (state == 0) {
             zigzag_graph_pos_x--;
@@ -1216,7 +1234,7 @@ void object::move(bool paused)
         }
         int yinc = speed;
         position.y += yinc;
-        check_player_move(0, yinc);
+        obj_move_player(0, yinc);
     } else if (type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_UP) {
         if (_started == true && state == e_OBJECT_DIAGONAL_PLATFORM_STATE_INIT) {
             state = e_OBJECT_DIAGONAL_PLATFORM_STATE_MOVING;
@@ -1240,7 +1258,7 @@ void object::move(bool paused)
             position.y += yinc;
             //std::cout << "OBJECT::move[" << name << "], #1 pos.x[" << position.x << "], xinc[" << xinc << "]" << std::endl;
             distance += speed;
-            check_player_move(xinc, yinc);
+            obj_move_player(xinc, yinc);
             if (distance > limit) {
                 state = e_OBJECT_DIAGONAL_PLATFORM_STATE_START_FALL;
                 active_platform_timer = timer.getTimer() + 300;
@@ -1296,6 +1314,27 @@ void object::move(bool paused)
                 if (blocked != 0) {
                     gameControl.get_player()->damage(TOUCH_DAMAGE_SMALL, false);
                 }
+            }
+        }
+    } else if (type == OBJ_PLATFORM_WALKER) {
+        if (_started == true && status_timer < timer.getTimer() ) {
+            status_timer = timer.getTimer() + _frame_duration;
+            int xinc = 0;
+            int x_pos_adjust = 0;
+            if (direction == ANIM_DIRECTION_LEFT) {
+                xinc = -speed;
+            } else {
+                xinc = speed;
+                x_pos_adjust = framesize_w;
+            }
+            short p1 = map->getMapPointLock(st_position((position.x+xinc+x_pos_adjust)/TILESIZE, (position.y+(framesize_h/2))/TILESIZE));
+            if (p1 != TERRAIN_UNBLOCKED) {
+                _hidden = true;
+            } else {
+                position.x += xinc;
+            }
+            if (gameControl.get_player_platform() == this) {
+                obj_move_player(xinc, 0);
             }
         }
     }
@@ -1499,7 +1538,7 @@ Uint8 object::get_type() const
 
 bool object::is_active_platform()
 {
-    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_ACTIVE_PLATFORM_UP) {
+    if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_UP || type == OBJ_ACTIVE_PLATFORM_DIAGONAL_DOWN || type == OBJ_ACTIVE_PLATFORM_AHEAD || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_ACTIVE_PLATFORM_UP || type == OBJ_PLATFORM_WALKER) {
         return true;
     }
     return false;
@@ -1601,7 +1640,7 @@ void object::start()
     _obj_frame_timer = timer.getTimer() + _frame_duration;
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
         if (type == OBJ_BOSS_DOOR && state == e_OBJECT_BOSS_DOOR_STATE_NONE) {
-            std::cout << "DOOR - set to OPENING" << std::endl;
+            //std::cout << "DOOR - set to OPENING" << std::endl;
             timer.pause();
             state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
             teleport_state = 0;

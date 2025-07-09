@@ -940,6 +940,7 @@ void character::show_at(st_position pos)
     // show background, if any
     if (is_player() == false && have_background_graphics() == true) {
         st_position bg_pos = st_position(pos.x-background_pos.x, pos.y-background_pos.y);
+        //std::cout << "### SHOW - bg_pos.x[" << bg_pos.x << "]" << std::endl;
         if (state.direction != ANIM_DIRECTION_LEFT) {
             graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), bg_pos, false);
         } else {
@@ -977,20 +978,20 @@ void character::show_at(st_position pos)
         if (freeze_weapon_effect != FREEZE_EFFECT_NPC || is_weak_to_freeze() == false) {
             show_sprite();
 #ifdef SHOW_HITBOXES
-        graphLib.draw_rectangle(hitbox, 255, 0, 255, 100);
+        graphLib.draw_rectangle(hitbox, 0, 255, 0, 100);
 #endif
         }
     } else {
         show_sprite();
 #ifdef SHOW_HITBOXES
-        graphLib.draw_rectangle(hitbox, 0, 0, 255, 100);
+        graphLib.draw_rectangle(hitbox, 0, 255, 0, 100);
 #endif
     }
 #ifdef SHOW_VULNERABLE_AREAS
     st_rectangle vulnerable_area = get_vulnerable_area();
     if (!is_player()) {
-        //std::cout << "DRAW_VUL-AREA[" << name << "][" << vulnerable_area.x << "][" << vulnerable_area.y << "][" << vulnerable_area.w << "][" << vulnerable_area.h << "], scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl;
         vulnerable_area.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
+        if (name == "OCTOPUS") std::cout << "DRAW_VUL-AREA[" << name << "]pos[" << position.x - gameControl.get_current_map_obj()->getMapScrolling().x << "][" << position.y << "], vul-area[" << vulnerable_area.x << "][" << vulnerable_area.y << "][" << vulnerable_area.w << "][" << vulnerable_area.h << "], scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl;
         graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 180);
     }
 #endif
@@ -1758,7 +1759,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
     }
 
     if (timer.getTimer() < jump_lock_timer) { // some effect blocked jumping
-        std::cout << ">>>>>>>>>>>>>>>>> jump blocked!" << std::endl;
+        //std::cout << ">>>>>>>>>>>>>>>>> jump blocked[" << name << "]. Lock-Time: [" << jump_lock_timer << "], timer: {" << timer.getTimer() << "]" << std::endl;
         return false;
     }
 
@@ -1782,11 +1783,15 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
+                    std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
                     set_platform(nullptr);
                     _obj_jump.start(true, water_lock);
                 } else {
+                    std::cout << "### CHARACTER::REMOVE PLATFORM #2" << std::endl;
                     set_platform(nullptr);
-                    _obj_jump.start(false, water_lock);
+                    if (_obj_jump.is_started() == false) { // fixed coil not jumping high (was starting a new jump)
+                        _obj_jump.start(false, water_lock);
+                    }
                 }
                 if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
@@ -2480,17 +2485,17 @@ st_rectangle character::get_hitbox(int anim_type)
             }
             y += col_rect.y;
         } else {
-            if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
-            } else {
-                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+            //if (name == "OCTOPUS") std::cout << "ADJUST-FOR-BG - x: " << (x - gameControl.get_current_map_obj()->getMapScrolling().x) << ", y: " << y << ", bg-x: " << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << ", bg-y: " << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y << std::endl;
+            if (vulnerable_area_box.w > frameSize.width) {
+                x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+                y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
             }
-            y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
         }
         w = col_rect.w;
         h = col_rect.h;
     }
-    //if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
+
+    if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
     return st_rectangle(x, y, w, h);
 }
 
@@ -2501,23 +2506,38 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     float w = frameSize.width;
     float h = frameSize.height;
 
+    // TODO: fix position for NPC with background //
 
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
         y = position.y + vulnerable_area_box.y;
-        if (state.direction == ANIM_DIRECTION_LEFT) {
-            x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
-        } else {
-            x = position.x - vulnerable_area_box.x;
-            if (_has_background == true) {
-                int diff_left = total_frame_size.width - vulnerable_area_box.w;
-                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x + diff_left;
-                //std::cout << "NPC[" << name << "] - x[" << x << "], diff_left[" << diff_left << "], pos.x[" << position.x << "], total_w[" << total_frame_size.width << "], vulnerable_area_box.w[" << vulnerable_area_box.w << "], vulnerable.x[" << vulnerable_area_box.x << "], calc-x[" << x << "], bg_adjust.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "]" << std::endl;
+        if (have_background_graphics() == false) {
+            if (state.direction == ANIM_DIRECTION_LEFT) {
+                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+            } else {
+                x = position.x - vulnerable_area_box.x;
             }
+            //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area, no BG) - NPC[" << name << "] - x[" << x << "], y[" << y << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
+        } else {
+            x = position.x;
+            y = position.y;
+            // if hitbox-area.w is smaller than the bg-width or sprite-width, we need to take it into account
+            if (vulnerable_area_box.w > frameSize.width) {
+                st_position bg_pos = st_position(position.x-background_pos.x, position.y-background_pos.y);
+                if (state.direction == ANIM_DIRECTION_RIGHT) {
+                    int bg_pos_with_w = bg_pos.x + graphLib.character_graphics_background_list.find(name)->second.width;
+                    x -= (position.x + vulnerable_area_box.w) - bg_pos_with_w;
+                } else {
+                    x = bg_pos.x;
+                }
+            }
+            //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction << "], x[" << x << "], y[" << y << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
         }
+        //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area) - NPC[" << name << "] - x[" << x << "], y[" << y << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
         w = vulnerable_area_box.w;
         h = vulnerable_area_box.h;
         return st_rectangle(x, y, w, h);
     } else {
+        //if (!is_player()) std::cout << "### HITAREA (no-bg, no-hitarea custom) - NPC[" << name << "]" << std::endl;
         return get_hitbox();
     }
 }
@@ -2881,6 +2901,7 @@ void character::set_platform(object* obj)
     }
     _obj_jump.finish();
     if (obj != nullptr) {
+        std::cout << "### CHARACTER[" << name << "].set_platform[" << obj->get_name() << "]" << std::endl;
 		if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_STAND);
         } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {

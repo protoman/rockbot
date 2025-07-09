@@ -407,7 +407,8 @@ int main(int argc, char *argv[])
 #endif
 
     detect_language();
-
+    // force disable old music flag
+    SharedData::get_instance()->game_config.android_use_mod_music = 0;
 
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
@@ -427,6 +428,7 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
+    graphLib.set_window_title(GAMENAME);
 
     fflush(stdout);
 

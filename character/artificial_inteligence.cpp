@@ -201,9 +201,11 @@ void artificial_inteligence::check_ai_reaction()
         _reaction_type = AI_REACTION_HIT;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
+        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_Y" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_Y;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_x < TILESIZE && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_X].action > 0) {
+        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_X" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_X;
         start_reaction = true;
     } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action > 0) {

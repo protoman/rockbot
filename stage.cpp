@@ -68,7 +68,7 @@ void stage::load_stage() {
 		return;
 	}
     if (number >= MAX_STAGES) {
-        graphLib.show_debug_msg("ERROR::loadStage invalid number");
+        graphLib.show_debug_msg("ERROR::loadStage invalid number (greater than max)");
         return;
 	}
 

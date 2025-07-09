@@ -256,6 +256,7 @@ public:
 
     void copy_picker_bg(int x, int y, int w, int h);
     void restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y);
+    void set_window_title(std::string name);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);

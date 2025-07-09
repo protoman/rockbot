@@ -257,7 +257,6 @@ private:
     classPlayer player1;
     scenesLib scenes;
     std::stringstream fps_msg;
-    struct CURRENT_FILE_FORMAT::st_game_config config;
     st_position selected_stage;
     class_config config_manager;
     dialogs game_dialogs;
