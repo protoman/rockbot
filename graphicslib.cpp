@@ -436,7 +436,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
     // SDL2 does not have SDL_DisplayFormat. You should convert to the display format manually if needed.
     SDL_Surface* res_surface = SDL_ConvertSurfaceFormat(spriteCopy, SDL_PIXELFORMAT_ARGB8888, 0); // or ARGB8888 if you prefer
     SDL_FreeSurface(spriteCopy);
-    // Set the color key (transparency)
+    SDL_SetSurfaceBlendMode(res_surface, SDL_BLENDMODE_BLEND);
     SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
@@ -926,6 +926,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
     if (surface.width <= 0 || surface.get_surface() == NULL) {
         return;
     }
+    SDL_SetSurfaceBlendMode(surface.get_surface(), SDL_BLENDMODE_BLEND);
     if (surface.is_rle_enabled == false) {
         // SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
@@ -942,9 +943,10 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     if (surface->width <= 0 || surface->get_surface() == NULL) {
         return;
     }
+
+    SDL_SetSurfaceBlendMode(surface->get_surface(), SDL_BLENDMODE_BLEND);
     if (surface->is_rle_enabled == false) {
         // SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        // SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         SDL_SetColorKey(surface->get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
         surface->is_rle_enabled = true;
@@ -957,6 +959,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
 {
     // SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDL_SetSurfaceBlendMode(surface.get_surface(), SDL_BLENDMODE_BLEND);
     SDL_SetSurfaceAlphaMod(surface.get_surface(), alpha);
 }
 
