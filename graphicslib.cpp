@@ -2190,9 +2190,6 @@ void graphicsLib::set_video_mode()
             scale_int = 1;
         }
 
-        // TODO: scale not working
-        scale_int = 1;
-
         // game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
     } else {
