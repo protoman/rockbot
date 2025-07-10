@@ -198,53 +198,16 @@ void graphicsLib::set_window_icon()
 void graphicsLib::update_screen_mode()
 {
     #ifdef SDL2
-    if (window) {
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        window = nullptr;
-        renderer = nullptr;
-    }
-
-    int width, height;
 
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
             scale_int = 1;
         }
-        width = RES_W * scale_int;
-        height = RES_H * scale_int;
-
-        window = SDL_CreateWindow("RockBot",
-                                  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  width, height,
-                                  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        game_screen_scaled = SDL_SetVideoMode2(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
     } else {
-        width = RES_W;
-        height = RES_H;
-
-        window = SDL_CreateWindow("RockBot",
-                                  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  width, height,
-                                  SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
+        game_screen_scaled = SDL_SetVideoMode2(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
     }
-
-    if (!window) {
-        SDL_Log("Failed to create window: %s", SDL_GetError());
-        return;
-    }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!renderer) {
-        SDL_Log("Failed to create renderer: %s", SDL_GetError());
-        SDL_DestroyWindow(window);
-        window = nullptr;
-        return;
-    }
-
-    SDL_RendererInfo info;
-    SDL_GetRendererInfo(renderer, &info);
-    printf("Renderer backend: %s\n", info.name);
 
     #else
 

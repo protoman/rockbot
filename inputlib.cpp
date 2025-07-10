@@ -555,7 +555,7 @@ string inputLib::get_joystick_name(int n)
         SDL_JoystickClose(joy);
         return name;
     } else {
-        return "Unknown Joystick";
+        return "NONE";
     }
     #else
     return std::string(SDL_JoystickName(n));
