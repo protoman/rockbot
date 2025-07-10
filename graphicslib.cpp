@@ -178,12 +178,7 @@ void graphicsLib::set_window_icon()
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
         if (icon_img != NULL) {
             
-            #ifdef SDL2
-            SDL_SetWindowIcon(window, icon_img);
-            #else
-            SDL_WM_SetIcon(icon_img, NULL);
-            #endif
-
+            SDLL_WM_SetIcon(icon_img, NULL);
             SDL_FreeSurface(icon_img);
         }
     } else {
@@ -319,17 +314,9 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         return NULL;
     }
 
-
-    #ifdef SDL2
-    SDL_Surface* res_surface = SDL_ConvertSurfaceFormat(spriteCopy, SDL_PIXELFORMAT_ARGB8888, 0); // or ARGB8888 if you prefer
-    SDL_FreeSurface(spriteCopy);
-    SDL_SetSurfaceBlendMode(res_surface, SDL_BLENDMODE_BLEND);
-    SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #else
-    SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
+    SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
     SDL_FreeSurface(spriteCopy);
     SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #endif
 
     return res_surface;
 }
@@ -760,11 +747,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #ifdef SDL2
-    SDL_SetColorKey(temp_surface, SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #else
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #endif
 
     gSurface->set_surface(temp_surface);
 
@@ -784,12 +767,7 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
     }
 
     SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #ifdef SDL2
-    SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #else
     SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    #endif
-
 
 }
 
@@ -799,20 +777,11 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
     if (surface.width <= 0 || surface.get_surface() == NULL) {
         return;
     }
-    #ifdef SDL2
-    SDL_SetSurfaceBlendMode(surface.get_surface(), SDL_BLENDMODE_BLEND);
-    if (surface.is_rle_enabled == false) {
-        SDL_SetColorKey(surface.get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        surface.is_rle_enabled = true;
-    }
-    SDL_SetSurfaceAlphaMod(surface.get_surface(), alpha);
-    #else
     if (surface.is_rle_enabled == false) {
         SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface.is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
-    #endif
+    SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
     
 }
 
@@ -821,20 +790,11 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     if (surface->width <= 0 || surface->get_surface() == NULL) {
         return;
     }
-    #ifdef SDL2
-    SDL_SetSurfaceBlendMode(surface->get_surface(), SDL_BLENDMODE_BLEND);
-    if (surface->is_rle_enabled == false) {
-        SDL_SetColorKey(surface->get_surface(), SDL_TRUE, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        surface->is_rle_enabled = true;
-    }
-    SDL_SetSurfaceAlphaMod(surface->get_surface(), alpha);
-    #else
     if (surface->is_rle_enabled == false) {
         SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface->is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
-    #endif
+    SDLL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 
 }
 
@@ -2361,29 +2321,15 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
     SDL_Surface *rotozoom_picture;
 
-    #ifdef SDL2
-    SDL_Surface *alpha_surface = SDL_ConvertSurfaceFormat(picture.get_surface(), SDL_PIXELFORMAT_RGBA8888, 0);
-    SDL_SetSurfaceBlendMode(alpha_surface, SDL_BLENDMODE_BLEND);
-    #else
-    SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
-    #endif
+    SDL_Surface *alpha_surface = SDLL_DisplayFormatAlpha(picture.get_surface());
 
     if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
         
-        #ifdef SDL2
-        SDL_Surface *res_surface = SDL_ConvertSurfaceFormat(rotozoom_picture, SDL_PIXELFORMAT_RGBA8888, 0);
-        SDL_SetSurfaceBlendMode(res_surface, SDL_BLENDMODE_BLEND);
-        #else
-        SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
-        #endif
+        SDL_Surface *res_surface = SDLL_DisplayFormatAlpha(rotozoom_picture);
 
         SDL_FreeSurface(rotozoom_picture);
-        
-        #ifdef SDL2
-        SDL_SetColorKey(res_surface, SDL_TRUE, SDL_MapRGB(res_surface->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        #else
+       
         SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-        #endif
 
         picture.set_surface(res_surface);
     } else {

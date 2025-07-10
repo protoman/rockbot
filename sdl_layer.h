@@ -14,13 +14,19 @@
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 
-// fallback
-#define SDL_HWSURFACE 0
-#define SDL_DOUBLEBUF 1
-#define SDL_RESIZABLE 2
-#define SDL_FULLSCREEN 3
+// fallback sdl1
+#define SDL_SWSURFACE    0x00000000
+#define SDL_HWSURFACE    0x00000001
+#define SDL_ASYNCBLIT    0x00000004
+#define SDL_ANYFORMAT    0x10000000
+#define SDL_HWPALETTE    0x20000000
+#define SDL_DOUBLEBUF    0x40000000
+#define SDL_FULLSCREEN   0x80000000
+#define SDL_RESIZABLE    0x00000010
+#define SDL_NOFRAME      0x00000020
 
-#define SDL_SRCALPHA 4
+#define SDL_SRCALPHA     0x00010000
+#define SDL_SRCCOLORKEY  0x00001000
 
 #else 
 
@@ -39,3 +45,5 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
                      SDL_Surface *dst, SDL_Rect *dstrect);
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface);
 void SDLL_WM_SetCaption(const char *title, const char *icon);
+SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface);
+void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask);
