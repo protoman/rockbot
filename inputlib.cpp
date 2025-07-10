@@ -118,28 +118,33 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         p1_previous_input[i] = p1_input[i];
     }
 
+    int newWidth = 0, newHeight = 0;
+    bool resized = false;
+
     while (SDL_PollEvent(&event)) {
 
-    #ifdef SDL2    
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
-            int newWidth = event.window.data1;
-            int newHeight = event.window.data2;
+        #ifdef SDL2
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                newWidth = event.window.data1;
+                newHeight = event.window.data2;
+                resized = true;
+            }
+        #else
+            if (event.type == SDL_VIDEORESIZE) {
+                newWidth = event.resize.w;
+                newHeight = event.resize.h;
+                resized = true;
+            }
+        #endif
 
-            SharedData::get_instance()->scaleX = newWidth / static_cast<float>(RES_W);
-            SharedData::get_instance()->scaleY = newHeight / static_cast<float>(RES_H);
-            SharedData::get_instance()->scale_window_size.width = newWidth;
-            SharedData::get_instance()->scale_window_size.height = newHeight;
-            SharedData::get_instance()->changed_window_size = true;
+        if (resized) {
+            SharedData* data = SharedData::get_instance();
+            data->scaleX = newWidth / static_cast<float>(RES_W);
+            data->scaleY = newHeight / static_cast<float>(RES_H);
+            data->scale_window_size.width = newWidth;
+            data->scale_window_size.height = newHeight;
+            data->changed_window_size = true;
         }
-    #else
-        if (event.type == SDL_VIDEORESIZE) {
-            SharedData::get_instance()->scaleX = event.resize.w / RES_W;
-            SharedData::get_instance()->scaleY = event.resize.h / RES_H;
-            SharedData::get_instance()->scale_window_size.width = event.resize.w;
-            SharedData::get_instance()->scale_window_size.height = event.resize.h;
-            SharedData::get_instance()->changed_window_size = true;
-        }
-    #endif        
 
         if (_show_btn_debug == false) {
             _show_btn_debug = true;
