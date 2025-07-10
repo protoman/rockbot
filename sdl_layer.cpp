@@ -90,3 +90,24 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
     SDL_WM_SetIcon(icon, NULL);
 #endif
 }
+
+int SDLL_Flip(SDL_Surface *screen)
+{
+#ifdef SDL2
+    SDL_RenderPresent(renderer);
+    return 0;
+#else
+    return SDL_Flip(screen);
+#endif
+}
+
+const char* SDLL_GetKeyName(int key)
+{
+#ifdef SDL2
+    SDL_Keycode key_code = static_cast<SDL_Keycode>(key);
+    return SDL_GetKeyName(key_code);
+#else
+    SDLKey keysym = (SDLKey)key;
+    return SDL_GetKeyName(keysym);
+#endif
+}

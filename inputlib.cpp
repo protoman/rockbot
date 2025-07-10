@@ -568,13 +568,7 @@ std::string inputLib::get_key_name(int key)
         return std::string("UNSET");
     }
 
-    #ifdef SDL2
-    const char* name = SDL_GetKeyName(static_cast<SDL_Keycode>(key));
-    std::string res = name ? name : "";
-    #else
-    SDLKey keysym = (SDLKey)key;
-    std::string res = SDL_GetKeyName(keysym);
-    #endif
+    std::string res = std::string(SDLL_GetKeyName(key));
 
     // convert common keys to 3 letter
     if (res.length() > 6) {

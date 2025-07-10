@@ -279,17 +279,9 @@ void graphicsLib::updateScreen()
     } else {
         copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
     }
-    #ifdef SDL2
-    SDL_RenderPresent(renderer);
-    #else
-    SDL_Flip(game_screen_scaled);
-    #endif
+    SDLL_Flip(game_screen_scaled);
 #else
-    #ifdef SDL2
-    SDL_RenderPresent(renderer);
-    #else
-    SDL_Flip(game_screen);
-    #endif
+    SDLL_Flip(game_screen);
 #endif
 
 }
