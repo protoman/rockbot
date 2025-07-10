@@ -197,35 +197,25 @@ void graphicsLib::set_window_icon()
 
 void graphicsLib::update_screen_mode()
 {
-    #ifdef SDL2
-
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
             scale_int = 1;
         }
+        #ifdef SDL2
         game_screen_scaled = SDL_SetVideoMode2(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
-    } else {
-        game_screen_scaled = SDL_SetVideoMode2(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
-    }
-
-    #else
-
-    if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-        scale_int = SharedData::get_instance()->game_config.scale_int;
-        if (scale_int < 1) {
-            scale_int = 1;
-        }
+        #else
         game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        #endif
     } else {
+        #ifdef SDL2
+        game_screen_scaled = SDL_SetVideoMode2(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
+        #else
         game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        #endif
     }
-
-    #endif
 
 }
-
-
 
 void graphicsLib::load_shared_graphics()
 {
