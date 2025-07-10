@@ -1,7 +1,9 @@
 #include "sdl_layer.h"
 
+#ifdef SDL2
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
+#endif
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha) 
 {
