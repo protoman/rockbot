@@ -11,7 +11,7 @@ QT       -= gui
 
 CONFIG += debug
 
-CONFIG += linux
+#CONFIG += linux
 
 #CONFIG += macosx
 
