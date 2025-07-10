@@ -159,7 +159,7 @@ bool graphicsLib::initGraphics()
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
-    SDL_WM_SetCaption("RockBot", "RockBot");
+    SDLL_WM_SetCaption("RockBot", "RockBot");
 #endif
     set_video_mode();
 	// other loading methods
@@ -2538,5 +2538,5 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
 
 void graphicsLib::set_window_title(std::string name)
 {
-    SDL_WM_SetCaption(name.c_str(), "RockBot");   
+    SDLL_WM_SetCaption(name.c_str(), "RockBot");   
 }

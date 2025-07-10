@@ -64,11 +64,11 @@ return SDL_DisplayFormatAlpha(surface);
 #endif
 }
 
-void SDL_WM_SetCaption(const char *title, const char *icon)
+void SDLL_WM_SetCaption(const char *title, const char *icon)
 {
     #ifdef SDL2
     SDL_SetWindowTitle(window, title);
     #else
-    SDL_WM_SetCaption(title, "RockBot");
+    SDL_WM_SetCaption(title, icon);
     #endif
 }
