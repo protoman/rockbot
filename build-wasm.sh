@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Install Emscripten SDK:
+# git clone https://github.com/emscripten-core/emsdk.git
+# cd emsdk
+# ./emsdk install latest
+# ./emsdk activate latest
+# source ./emsdk_env.sh
+# Check with: emcc -v
+
+# Compile all C++ files to WebAssembly (index.html output)
 emcc main.cpp \
 ./shareddata.cpp \
 ./game.cpp \
@@ -59,4 +68,5 @@ emcc main.cpp \
 --preload-file build@/ \
 -o index.html
 
+# Serve files locally at http://localhost:8000
 python3 -m http.server
