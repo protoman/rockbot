@@ -550,21 +550,12 @@ int inputLib::get_joysticks_number()
 
 string inputLib::get_joystick_name(int n)
 {
-    if (n >= SDL_NumJoysticks()) {
+    const char * name = SDLL_JoystickName(n);
+    if (name) {
+        return std::string(name);
+    } else {
         return std::string("NONE");
     }
-    #ifdef SDL2
-    SDL_Joystick *joy = SDL_JoystickOpen(n);
-    if (joy) {
-        std::string name = SDL_JoystickName(joy);
-        SDL_JoystickClose(joy);
-        return name;
-    } else {
-        return "NONE";
-    }
-    #else
-    return std::string(SDL_JoystickName(n));
-    #endif
 }
 
 std::string inputLib::get_key_name(int key)

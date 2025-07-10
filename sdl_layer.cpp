@@ -111,3 +111,14 @@ const char* SDLL_GetKeyName(int key)
     return SDL_GetKeyName(keysym);
 #endif
 }
+
+const char *SDLL_JoystickName(int device_index)
+{
+#ifdef SDL2
+    const char *name = SDL_JoystickNameForIndex(device_index);
+    return name;
+#else
+    const char *name = SDL_JoystickName(device_index);
+    return name;
+#endif
+}
