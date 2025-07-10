@@ -52,6 +52,7 @@ emcc main.cpp \
 ./aux_tools/fps_control.cpp \
 ./aux_tools/exception_manager.cpp \
 ./aux_tools/trajectory_parabola.cpp \
+./sdl_layer.cpp \
 -I. \
 -DSDL2 \
 -sUSE_SDL=2 \

@@ -224,12 +224,7 @@ void graphicsLib::load_shared_graphics()
 
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
 
-    #ifdef SDL2
-    SDL_SetSurfaceBlendMode(water_tile, SDL_BLENDMODE_BLEND);
-    SDL_SetSurfaceAlphaMod(water_tile, 120);
-    #else
-    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
-    #endif
+    SDLL_SetAlpha(water_tile, 120);
 
     _config_menu_pos.x = 0;
 

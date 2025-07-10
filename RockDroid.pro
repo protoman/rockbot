@@ -76,10 +76,12 @@ macosx {
 
     INCLUDEPATH += /opt/homebrew/include /opt/homebrew/opt/qt@5
     
-    # error: SDL for Mac OS X only supports deploying on 10.7 and above.
-    QMAKE_CCFLAGS += -mmacosx-version-min=10.7 -DOSX -DPC
-    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7 -DOSX -DPC
+    QMAKE_CCFLAGS += -DOSX -DPC
+    QMAKE_CXXFLAGS += -DOSX -DPC
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+    # xcodebuild -showsdks
+    # error: SDL for Mac OS X only supports deploying on 10.7 and above.
+    QMAKE_MAC_SDK = macosx15.5
     CONFIG -= console
 }
 
@@ -368,7 +370,8 @@ SOURCES += main.cpp \
     character/character_animation.cpp \
     aux_tools/exception_manager.cpp \
     scenes/game_menu.cpp \
-    ports/android/android_game_services.cpp
+    ports/android/android_game_services.cpp \
+    sdl_layer.cpp
 
 
 HEADERS += \

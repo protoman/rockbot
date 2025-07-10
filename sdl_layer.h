@@ -1,5 +1,4 @@
-#ifndef SDL_LAYER_H
-#define SDL_LAYER_H
+#pragma once
 
 #ifdef SDL2
 
@@ -22,4 +21,4 @@
 
 #endif
 
-#endif
+int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
