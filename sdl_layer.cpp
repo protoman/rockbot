@@ -35,3 +35,16 @@ SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
         return SDL_SetVideoMode(width, height, bpp, flags);
     #endif
 }
+
+int SDLL_SoftStretch(SDL_Surface * src,
+                    const SDL_Rect * srcrect,
+                    SDL_Surface * dst,
+                    const SDL_Rect * dstrect) {
+
+#ifdef SDL2
+SDL_BlitScaled(src, srcrect, dst, dstrect);
+#else
+SDL_SoftStretch(src, srcrect, dst, dstrect);
+#endif
+
+}

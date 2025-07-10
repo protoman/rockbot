@@ -283,11 +283,7 @@ void graphicsLib::updateScreen()
         Uint16 scaley_int = RES_H*scale_int;
         SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
         
-        #ifdef SDL2
-        SDL_BlitScaled(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
-        #else
-        SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
-        #endif
+        SDLL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
 
     } else {
         copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
