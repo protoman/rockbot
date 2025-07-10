@@ -317,17 +317,10 @@ private:
     TTF_Font *outline_font;
     TTF_Font *error_font = nullptr;
 
-    #ifdef SDL2
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    #endif
-
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;
     SDL_Surface *tileset;										// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *water_tile;                                    // transparent blue surface used for water effect
-
-    SDL_Surface * SDL_SetVideoMode2(int width, int height, int bpp, Uint32 flags);
 
     std::map<std::string, graphicsLib_gSurface> FACES_SURFACES;
     std::vector<struct graphicsLib_gSurface> ANIM_TILES_SURFACES;   // hold animated-tiles surface

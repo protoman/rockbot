@@ -202,17 +202,10 @@ void graphicsLib::update_screen_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
-        #ifdef SDL2
-        game_screen_scaled = SDL_SetVideoMode2(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
-        #else
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-        #endif
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+
     } else {
-        #ifdef SDL2
-        game_screen_scaled = SDL_SetVideoMode2(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
-        #else
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
-        #endif
+        game_screen_scaled = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
 
 }
@@ -281,11 +274,7 @@ void graphicsLib::updateScreen()
         }
         SharedData::get_instance()->game_config.scale_int = scale_int;
         fio.save_config(SharedData::get_instance()->game_config);
-        #ifdef SDL2
-        game_screen_scaled = SDL_SetVideoMode2(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, 0);
-        #else
-        game_screen_scaled = SDL_SetVideoMode2(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-        #endif
+        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
     }
     if (scale_int != 1) {
@@ -2172,29 +2161,16 @@ void graphicsLib::set_video_mode()
 #else
     cout << "Unknown platform" << endl;
 
-    /// @TODO - do we need scale on fullscreen if no filter?
-    #ifdef SDL2
-    if (SharedData::get_instance()->game_config.video_fullscreen == false) {
-        scale_int = SharedData::get_instance()->game_config.scale_int;
-        if (scale_int < 1) {
-            scale_int = 1;
-        }
-        game_screen_scaled = SDL_SetVideoMode2(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, 0);
-    } else {
-        game_screen_scaled = SDL_SetVideoMode2(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
-    }
-    game_screen = SDL_CreateRGBSurfaceWithFormat(0, RES_W, RES_H, 32, SDL_PIXELFORMAT_RGBA32);
-
-    #else
+    // @TODO - do we need scale on fullscreen if no filter?
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
             scale_int = 1;
         }
 
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
     if (game_screen != NULL) {
         SDL_FreeSurface(game_screen);
@@ -2202,8 +2178,6 @@ void graphicsLib::set_video_mode()
 
     SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
     game_screen = SDL_DisplayFormat(temp_screen);
-    
-    #endif
 
 #endif
 
@@ -2230,29 +2204,6 @@ void graphicsLib::set_video_mode()
     }
 
 
-}
-
-SDL_Surface * graphicsLib::SDL_SetVideoMode2(int width, int height, int bpp, Uint32 flags){
-    #ifdef SDL2
-        window = SDL_CreateWindow(
-                        "RockBot", 
-                        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                        width,
-                        height,
-                        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
-                    );
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-        SDL_RendererInfo info;
-        SDL_GetRendererInfo(renderer, &info);
-        printf("Renderer backend: %s\n", info.name);
-
-        SDL_RenderClear(renderer);
-
-        return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, VIDEO_MODE_COLORS, 0, 255, 0, 255);
-    #else
-        return NULL;
-    #endif
 }
 
 void graphicsLib::preload_images()
