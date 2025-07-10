@@ -303,11 +303,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    #ifdef SDL2
-                    gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
-                    #else
-                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
-                    #endif
+                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
                 } else {
                     gSurface = NULL;
                 }
@@ -339,11 +335,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    #ifdef SDL2
-                    gSurface = SDL_ConvertSurfaceFormat(original.gSurface, SDL_PIXELFORMAT_RGBA8888, 0);
-                    #else
-                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
-                    #endif
+                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
                 } else {
                     gSurface = NULL;
                 }
