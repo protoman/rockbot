@@ -14,7 +14,7 @@ EQ            = =
 
 CC            = /Library/Developer/CommandLineTools/usr/bin/clang
 CXX           = /Library/Developer/CommandLineTools/usr/bin/clang++
-DEFINES       = -DOSX -DPC
+DEFINES       = -DOSX -DPC -DSDL2
 CFLAGS        = -pipe -O2 $(EXPORT_ARCH_ARGS) -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=10.7 -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -stdlib=libc++ -O2 $(EXPORT_ARCH_ARGS) -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk -mmacosx-version-min=10.7 -fPIC $(DEFINES)
 INCPATH       = -I. -I/opt/homebrew/Cellar/qt@5/5.15.16_2/mkspecs/macx-clang -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 /opt/homebrew/include/SDL2
