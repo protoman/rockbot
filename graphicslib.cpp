@@ -217,7 +217,7 @@ void graphicsLib::load_shared_graphics()
 
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
 
-    SDLL_SetAlpha(water_tile, 120);
+    SDLL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
 
     _config_menu_pos.x = 0;
 
@@ -274,7 +274,7 @@ void graphicsLib::updateScreen()
         }
         SharedData::get_instance()->game_config.scale_int = scale_int;
         fio.save_config(SharedData::get_instance()->game_config);
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
     }
     if (scale_int != 1) {
@@ -751,11 +751,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
     if (rgb_surface != NULL) {
         
-        #ifdef SDL2
-        temp_surface = SDL_ConvertSurfaceFormat(rgb_surface, SDL_PIXELFORMAT_RGBA32, 0);
-        #else
-        temp_surface = SDL_DisplayFormat(rgb_surface);
-        #endif
+        temp_surface = SDLL_DisplayFormat(rgb_surface);
 
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
@@ -1059,11 +1055,7 @@ void graphicsLib::draw_error_text(std::string text)
         if (!textSF) {
             continue;
         }
-        #ifdef SDL2
-        SDL_Surface* textSF_format = SDL_ConvertSurfaceFormat(textSF, SDL_PIXELFORMAT_RGBA32, 0);
-        #else
-        SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-        #endif
+        SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
         SDL_FreeSurface(textSF);
         if (!textSF_format) {
             continue;
@@ -1112,11 +1104,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
         SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
 
         if (text_outlineSF) {
-            #ifdef SDL2
-            SDL_Surface* text_outlineSF_format = SDL_ConvertSurfaceFormat(text_outlineSF, SDL_PIXELFORMAT_RGBA32, 0);
-            #else
-            SDL_Surface* text_outlineSF_format = SDL_DisplayFormat(text_outlineSF);
-            #endif
+            SDL_Surface* text_outlineSF_format = SDLL_DisplayFormat(text_outlineSF);
             SDL_FreeSurface(text_outlineSF);
 
             if (text_outlineSF_format) {
@@ -1139,12 +1127,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
     if (!textSF) {
         return;
     }
-    #ifdef SDL2
-    SDL_Surface* textSF_format = SDL_ConvertSurfaceFormat(textSF, SDL_PIXELFORMAT_RGBA32, 0);
-    #else
-    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
-    #endif
-
+    SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
 
     SDL_FreeSurface(textSF);
 
@@ -2173,7 +2156,7 @@ void graphicsLib::set_video_mode()
     }
 
     SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
-    game_screen = SDL_DisplayFormat(temp_screen);
+    game_screen = SDLL_DisplayFormat(temp_screen);
 
 #endif
 

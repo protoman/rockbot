@@ -1,5 +1,8 @@
 #include "sdl_layer.h"
 
+SDL_Window* window = nullptr;
+SDL_Renderer* renderer = nullptr;
+
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha) {
     if (!surface) return -1;
 
@@ -30,21 +33,27 @@ SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
 
         SDL_RenderClear(renderer);
 
-        return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, VIDEO_MODE_COLORS, 0, 255, 0, 255);
+        return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, bpp, 0, 255, 0, 255);
     #else
         return SDL_SetVideoMode(width, height, bpp, flags);
     #endif
 }
 
-int SDLL_SoftStretch(SDL_Surface * src,
-                    const SDL_Rect * srcrect,
-                    SDL_Surface * dst,
-                    const SDL_Rect * dstrect) {
+int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
+                     SDL_Surface *dst, SDL_Rect *dstrect) {
 
 #ifdef SDL2
-SDL_BlitScaled(src, srcrect, dst, dstrect);
+return SDL_BlitScaled(src, srcrect, dst, dstrect);
 #else
-SDL_SoftStretch(src, srcrect, dst, dstrect);
+return SDL_SoftStretch(src, srcrect, dst, dstrect);
 #endif
 
+}
+
+SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface){
+#ifdef SDL2
+return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+#else
+return SDL_DisplayFormatAlpha(surface);
+#endif
 }

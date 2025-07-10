@@ -65,10 +65,10 @@ linux {
 }
 
 macosx {
-    DEFINES += OSX SDL2
+    DEFINES += OSX
     LIBS += `sdl2-config --libs`
     LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
-    DESTDIR = ../
+#    DESTDIR = ../
 
 #    LIBS += -framework OpenGL
 

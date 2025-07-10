@@ -15,9 +15,11 @@ export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
 export QT_SELECT=qt5
 
 echo "📁 Building rockbot the project..."
-qmake RockDroid.pro CONFIG=macosx CONFIG+=sdk_no_version_check DESTDIR=build DEFINES+=SDL2 QMAKE_CCFLAGS+=-DSDL2 QMAKE_CXXFLAGS+=-DSDL2
+qmake RockDroid.pro CONFIG=macosx CONFIG+=sdk_no_version_check DESTDIR=build DEFINES+=SDL2 QMAKE_CCFLAGS+=-DSDL2 QMAKE_CXXFLAGS+=-DSDL2 LIBS="-lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs`"
 gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
-make clean build/rockbot
+rm -f build/rockbot
+make clean
+make
 
 # echo "📁 Building rockbot-editor the project..."
 # cd editor
@@ -28,6 +30,7 @@ make clean build/rockbot
 #   echo "Generating ui_${base}.h from $f"; 
 #   uic "$f" -o "ui_${base}.h";
 # done
+# rm -f build/editor
 # make
 
 echo "✅ Build completed successfully"
