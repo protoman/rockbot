@@ -159,11 +159,7 @@ bool graphicsLib::initGraphics()
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
-    #ifdef SDL2
-    SDL_SetWindowTitle(window, "RockBot");
-    #else
     SDL_WM_SetCaption("RockBot", "RockBot");
-    #endif
 #endif
     set_video_mode();
 	// other loading methods
@@ -844,12 +840,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
 
 void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
 {
-    #ifdef SDL2
-    SDL_SetSurfaceBlendMode(surface.get_surface(), SDL_BLENDMODE_BLEND);
-    SDL_SetSurfaceAlphaMod(surface.get_surface(), alpha);
-    #else
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
-    #endif
+    SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 
@@ -2138,7 +2129,6 @@ void graphicsLib::set_video_mode()
     game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
-    cout << "Unknown platform" << endl;
 
     // @TODO - do we need scale on fullscreen if no filter?
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
@@ -2157,6 +2147,7 @@ void graphicsLib::set_video_mode()
 
     SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
     game_screen = SDLL_DisplayFormat(temp_screen);
+    SDL_FreeSurface(temp_screen);
 
 #endif
 
@@ -2547,9 +2538,5 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
 
 void graphicsLib::set_window_title(std::string name)
 {
-    #ifdef SDL2
-    SDL_SetWindowTitle(window, name.c_str());
-    #else
-    SDL_WM_SetCaption(name.c_str(), "RockBot");
-    #endif
+    SDL_WM_SetCaption(name.c_str(), "RockBot");   
 }

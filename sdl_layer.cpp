@@ -3,7 +3,8 @@
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 
-int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha) {
+int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha) 
+{
     if (!surface) return -1;
 
 #ifdef SDL2
@@ -16,7 +17,8 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha) {
 #endif
 }
 
-SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
+SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags) 
+{
     #ifdef SDL2
         window = SDL_CreateWindow(
                         "RockBot", 
@@ -40,7 +42,8 @@ SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags) {
 }
 
 int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
-                     SDL_Surface *dst, SDL_Rect *dstrect) {
+                     SDL_Surface *dst, SDL_Rect *dstrect) 
+{
 
 #ifdef SDL2
 return SDL_BlitScaled(src, srcrect, dst, dstrect);
@@ -50,10 +53,20 @@ return SDL_SoftStretch(src, srcrect, dst, dstrect);
 
 }
 
-SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface){
+SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
+{
 #ifdef SDL2
 return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
 #else
 return SDL_DisplayFormatAlpha(surface);
 #endif
+}
+
+void SDL_WM_SetCaption(const char *title, const char *icon)
+{
+    #ifdef SDL2
+    SDL_SetWindowTitle(window, title);
+    #else
+    SDL_WM_SetCaption(title, "RockBot");
+    #endif
 }

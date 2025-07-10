@@ -38,3 +38,4 @@ SDL_Surface * SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags);
 int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
                      SDL_Surface *dst, SDL_Rect *dstrect);
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface);
+void SDL_WM_SetCaption(const char *title, const char *icon);
