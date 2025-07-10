@@ -60,6 +60,7 @@ emcc main.cpp \
 -sUSE_SDL_TTF=2 \
 -sUSE_SDL_GFX=2 \
 -sSDL2_IMAGE_FORMATS='["png"]' \
+-sSDL2_MIXER_FORMATS='["mod","wav"]' \
 -sFULL_ES3=1 \
 -sASYNCIFY \
 -sINITIAL_MEMORY=134217728 \
