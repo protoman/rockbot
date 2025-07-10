@@ -15,7 +15,6 @@ extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
 // fallback sdl1
-#define SDL_SWSURFACE 0x00000000
 #define SDL_HWSURFACE 0x00000001
 #define SDL_ASYNCBLIT 0x00000004
 #define SDL_ANYFORMAT 0x10000000
