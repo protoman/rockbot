@@ -3,6 +3,7 @@
 #ifdef SDL2
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
+SDL_Texture* framebuffer = nullptr;
 #endif
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
@@ -28,14 +29,13 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
         height,
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
+    framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    
     SDL_RendererInfo info;
     SDL_GetRendererInfo(renderer, &info);
     printf("Renderer backend: %s\n", info.name);
 
-    SDL_RenderClear(renderer);
-
-    return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, bpp, 0, 255, 0, 255);
+    return SDL_CreateRGBSurfaceWithFormat(0, width, height, bpp, SDL_PIXELFORMAT_RGBA8888);
 #else
     return SDL_SetVideoMode(width, height, bpp, flags);
 #endif
@@ -91,6 +91,9 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 int SDLL_Flip(SDL_Surface *screen)
 {
 #ifdef SDL2
+    SDL_UpdateTexture(framebuffer, NULL, screen->pixels, screen->pitch);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
     SDL_RenderPresent(renderer);
     return 0;
 #else
@@ -116,15 +119,4 @@ const char *SDLL_JoystickName(int device_index)
 #else
     return SDL_JoystickName(device_index);
 #endif
-}
-
-int SDLL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
-{
-    int result = SDL_BlitSurface(src, srcrect, dst, dstrect);
-#ifdef SDL2
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, src);
-    SDL_RenderCopy(renderer, texture, srcrect, dstrect);
-    SDL_DestroyTexture(texture);
-#endif
-    return result;
 }

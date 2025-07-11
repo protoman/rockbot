@@ -421,7 +421,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         dest.y += _screen_resolution_adjust.y;
     }
 
-    SDLL_BlitSurface(surfaceOrigin, &src, surfaceDestiny, &dest);
+    SDL_BlitSurface(surfaceOrigin, &src, surfaceDestiny, &dest);
 }
 
 void graphicsLib::copy_gamescreen_area(st_rectangle origin_rectangle, st_position pos, graphicsLib_gSurface *surfaceDestiny)
@@ -990,7 +990,7 @@ void graphicsLib::draw_error_text(std::string text)
         if (!textSF_format) {
             continue;
         }
-        SDLL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
+        SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
         SDL_FreeSurface(textSF_format);
         text_pos.y += 10;
     }
@@ -1041,7 +1041,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
                 if (centered == true && text.size() > 0) {
                     text_pos.x = RES_W/2 - text_outlineSF_format->w/2;
                 }
-                SDLL_BlitSurface(text_outlineSF_format, 0, game_screen, &text_pos);
+                SDL_BlitSurface(text_outlineSF_format, 0, game_screen, &text_pos);
                 SDL_FreeSurface(text_outlineSF_format);
             }
         }
@@ -1064,7 +1064,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
         return;
     }
 
-    SDLL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
+    SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
     SDL_FreeSurface(textSF_format);
 }
 
@@ -1111,7 +1111,7 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 		updateScreen();
         timer.delay(80);
 
-        SDLL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
+        SDL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
 		updateScreen();
         timer.delay(80);
     }
