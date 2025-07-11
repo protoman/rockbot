@@ -15,6 +15,7 @@ export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
 export QT_SELECT=qt5
 
 echo "📁 Building rockbot the project..."
+gsed -i 's/^CONFIG += linux/#CONFIG += linux/g' RockDroid.pro
 qmake RockDroid.pro CONFIG=macosx CONFIG+=sdk_no_version_check DESTDIR=build DEFINES+=SDL2 QMAKE_CCFLAGS+=-DSDL2 QMAKE_CXXFLAGS+=-DSDL2 LIBS="-lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs`"
 gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
 rm -f build/rockbot
