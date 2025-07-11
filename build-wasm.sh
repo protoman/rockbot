@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Install Emscripten SDK:
 # git clone https://github.com/emscripten-core/emsdk.git
 # cd emsdk
@@ -9,7 +11,8 @@
 # Check with: emcc -v
 
 # Compile all C++ files to WebAssembly (index.html output)
-emcc main.cpp \
+emcc -flto -O3 -fno-exceptions -fno-rtti \
+main.cpp \
 ./shareddata.cpp \
 ./game.cpp \
 ./timerlib.cpp \
@@ -62,11 +65,13 @@ emcc main.cpp \
 -sUSE_SDL_GFX=2 \
 -sSDL2_IMAGE_FORMATS='["png"]' \
 -sSDL2_MIXER_FORMATS='["mod","wav"]' \
+-sASSERTIONS \
 -sASYNCIFY \
 -sENVIRONMENT=web \
--sSTACK_SIZE=131072 \
+-sSTACK_SIZE=50mb \
 -sTOTAL_MEMORY=128mb \
---preload-file build@/ \
+--preload-file build/fonts/@fonts/ --preload-file build/games/@games/ --preload-file build/shared/@shared/ \
+--closure 1 -sEXPORTED_RUNTIME_METHODS=['allocate','ALLOC_NORMAL'] \
 -o index.html
 
 # Serve files locally at http://localhost:8000

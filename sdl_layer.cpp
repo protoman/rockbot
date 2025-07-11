@@ -3,7 +3,6 @@
 #ifdef SDL2
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
-SDL_Texture* framebuffer = nullptr;
 #endif
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
@@ -29,13 +28,16 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
         height,
         SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    framebuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
     
     SDL_RendererInfo info;
     SDL_GetRendererInfo(renderer, &info);
     printf("Renderer backend: %s\n", info.name);
 
-    return SDL_CreateRGBSurfaceWithFormat(0, width, height, bpp, SDL_PIXELFORMAT_RGBA8888);
+    #ifdef __EMSCRIPTEN__
+        return SDL_CreateRGBSurfaceWithFormat(0, width, height, bpp, SDL_PIXELFORMAT_RGBA8888);
+    #else
+        return SDL_GetWindowSurface(window);
+    #endif
 #else
     return SDL_SetVideoMode(width, height, bpp, flags);
 #endif
@@ -91,9 +93,8 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 int SDLL_Flip(SDL_Surface *screen)
 {
 #ifdef SDL2
-    SDL_UpdateTexture(framebuffer, NULL, screen->pixels, screen->pitch);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, screen);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
     return 0;
 #else
