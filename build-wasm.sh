@@ -62,11 +62,10 @@ emcc main.cpp \
 -sUSE_SDL_GFX=2 \
 -sSDL2_IMAGE_FORMATS='["png"]' \
 -sSDL2_MIXER_FORMATS='["mod","wav"]' \
--sFULL_ES3=1 \
 -sASYNCIFY \
--sINITIAL_MEMORY=134217728 \
--sMAXIMUM_MEMORY=268435456 \
--sALLOW_MEMORY_GROWTH=1 \
+-sENVIRONMENT=web \
+-sSTACK_SIZE=131072 \
+-sTOTAL_MEMORY=128mb \
 --preload-file build@/ \
 -o index.html
 
