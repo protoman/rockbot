@@ -35,7 +35,7 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
     printf("Renderer backend: %s\n", info.name);
 
     texture = SDL_CreateTexture(renderer,
-                                    SDL_PIXELFORMAT_RGBA32,
+                                    SDL_PIXELFORMAT_ARGB8888,
                                     SDL_TEXTUREACCESS_STREAMING,
                                     width, height);
 
@@ -59,7 +59,7 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
 #ifdef SDL2
-    return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+    return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #else
     return SDL_DisplayFormat(surface);
 #endif
@@ -77,7 +77,7 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
 #ifdef SDL2
-    return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
+    return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #else
     return SDL_DisplayFormatAlpha(surface);
 #endif
