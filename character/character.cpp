@@ -2494,8 +2494,8 @@ st_rectangle character::get_hitbox(int anim_type)
         w = col_rect.w;
         h = col_rect.h;
     }
-
-    if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
+    
+    // if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
     return st_rectangle(x, y, w, h);
 }
 
