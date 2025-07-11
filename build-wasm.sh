@@ -74,5 +74,8 @@ main.cpp \
 --closure 1 -sEXPORTED_RUNTIME_METHODS=['allocate','ALLOC_NORMAL'] \
 -o index.html
 
+# Replace index template
+cp wasm.index.html index.html
+
 # Serve files locally at http://localhost:8000
 python3 -m http.server
