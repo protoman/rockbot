@@ -262,6 +262,9 @@ void graphicsLib::updateScreen()
         game_screen_scaled = SDLL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
     }
+    if (game_screen_scaled == NULL) {
+        game_screen_scaled = game_screen;
+    }
     if (scale_int != 1) {
         //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
         SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
