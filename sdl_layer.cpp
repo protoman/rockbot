@@ -7,9 +7,6 @@ SDL_Renderer *renderer = nullptr;
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
-    if (!surface)
-        return -1;
-
 #ifdef SDL2
     if (SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND) != 0)
     {
@@ -115,10 +112,8 @@ const char* SDLL_GetKeyName(int key)
 const char *SDLL_JoystickName(int device_index)
 {
 #ifdef SDL2
-    const char *name = SDL_JoystickNameForIndex(device_index);
-    return name;
+    return SDL_JoystickNameForIndex(device_index);
 #else
-    const char *name = SDL_JoystickName(device_index);
-    return name;
+    return SDL_JoystickName(device_index);
 #endif
 }

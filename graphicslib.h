@@ -258,7 +258,6 @@ private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
     SDL_Surface *SDLSurfaceFromFile(std::string filename);
-
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_star(short int x, short int y, int size);
