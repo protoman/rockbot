@@ -1617,7 +1617,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
                     if (dist_y > 0.2) {
 
-                        int move_adjust_y = 0.1;
+                        double move_adjust_y = 0.1;
                         if (dist_y > sin_value) {
                             move_adjust_y = sin_value;
                         } else {

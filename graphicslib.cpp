@@ -261,8 +261,7 @@ void graphicsLib::updateScreen()
         fio.save_config(SharedData::get_instance()->game_config);
         game_screen_scaled = SDLL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
-    }
-    if (game_screen_scaled == NULL) {
+    } else {
         game_screen_scaled = game_screen;
     }
     if (scale_int != 1) {
@@ -2228,7 +2227,7 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
             Uint32 pixel = original.get_pixel(x, y);
 
             //Copy pixel
-            if ((flip_mode == flip_type_both)) {
+            if (flip_mode == flip_type_both) {
                 res.put_pixel(rx, ry, pixel);
             } else if (flip_mode == flip_type_horizontal) {
                 res.put_pixel(rx, y, pixel );
