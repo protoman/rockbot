@@ -77,5 +77,5 @@ main.cpp \
 # Replace index template
 cp wasm.index.html index.html
 
-# Serve files locally at http://localhost:8000
+echo "Serve files locally at http://localhost:8000"
 python3 -m http.server
