@@ -3,6 +3,7 @@
 #ifdef SDL2
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
+SDL_Texture *texture = nullptr;
 #endif
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
@@ -33,11 +34,12 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
     SDL_GetRendererInfo(renderer, &info);
     printf("Renderer backend: %s\n", info.name);
 
-    #ifdef __EMSCRIPTEN__
-        return SDL_CreateRGBSurfaceWithFormat(0, width, height, bpp, SDL_PIXELFORMAT_RGBA8888);
-    #else
-        return SDL_GetWindowSurface(window);
-    #endif
+    texture = SDL_CreateTexture(renderer,
+                                    SDL_PIXELFORMAT_RGBA32,
+                                    SDL_TEXTUREACCESS_STREAMING,
+                                    width, height);
+
+    return SDL_GetWindowSurface(window);
 #else
     return SDL_SetVideoMode(width, height, bpp, flags);
 #endif
@@ -93,7 +95,8 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 int SDLL_Flip(SDL_Surface *screen)
 {
 #ifdef SDL2
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, screen);
+    SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
     return 0;
@@ -105,7 +108,7 @@ int SDLL_Flip(SDL_Surface *screen)
 const char* SDLL_GetKeyName(int key)
 {
 #ifdef SDL2
-    SDL_Keycode key_code = static_cast<SDL_Keycode>(key);
+    SDL_Keycode key_code = (SDL_Keycode)key;
     return SDL_GetKeyName(key_code);
 #else
     SDLKey keysym = (SDLKey)key;
