@@ -9,11 +9,8 @@ SDL_Texture *texture = nullptr;
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
 #ifdef SDL2
-    if (SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND) != 0)
-    {
-        return -1;
-    }
-    return SDL_SetSurfaceAlphaMod(surface, alpha);
+    SDL_SetSurfaceAlphaMod(surface, alpha);
+    return SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 #else
     return SDL_SetAlpha(surface, flag, alpha);
 #endif
