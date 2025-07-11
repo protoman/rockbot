@@ -57,7 +57,7 @@ SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 #ifdef SDL2
     return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
 #else
-    return SDL_DisplayFormatAlpha(surface);
+    return SDL_DisplayFormat(surface);
 #endif
 }
 
