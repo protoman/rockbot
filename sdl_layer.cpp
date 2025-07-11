@@ -117,3 +117,14 @@ const char *SDLL_JoystickName(int device_index)
     return SDL_JoystickName(device_index);
 #endif
 }
+
+int SDLL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect)
+{
+    int result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+#ifdef SDL2
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, src);
+    SDL_RenderCopy(renderer, texture, srcrect, dstrect);
+    SDL_DestroyTexture(texture);
+#endif
+    return result;
+}

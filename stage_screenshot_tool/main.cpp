@@ -80,7 +80,7 @@ void copy_surface_area(SDL_Surface *surface, st_position origin, st_position des
         std::cout << "copySDLPortion - ERROR surfaceDestiny is NULL - ignoring..." << std::endl;
         exit(-1);
     }
-    SDL_BlitSurface(surface, &src, screen, &dest);
+    SDLL_BlitSurface(surface, &src, screen, &dest);
 
 }
 
