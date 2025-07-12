@@ -98,7 +98,7 @@ bool graphicsLib::initGraphics()
 #ifdef DREAMCAST
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) < 0 ) {
         std::cout << "ERROR: Unable to init SDL. Error: " << SDL_GetError() << std::endl;
-        SDLL_Quit();
+        SDL_Quit();
 		exit(-1);
     }
 #else
@@ -109,14 +109,14 @@ bool graphicsLib::initGraphics()
         exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDL_GetError());
     }
 #endif
-	atexit(SDLL_Quit);
+	atexit(SDL_Quit);
 
 #if defined(PLAYSTATION2) || defined(WII)
     if (SDL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 
-        SDLL_Quit();
+        SDL_Quit();
         exit(-1);
     }
 #endif

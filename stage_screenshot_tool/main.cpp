@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(screen);
     SDL_FreeSurface(tileset);
     SDL_FreeSurface(tileset_beaten);
-    SDLL_Quit();
+    SDL_Quit();
 	return 1;
 }
 

@@ -312,7 +312,9 @@ void main_loop()
     if (input.p1_input[BTN_QUIT] == 1) {
         std::fflush(stdout);
         leave_game = true;
-        SDLL_Quit();
+        #ifdef __EMSCRIPTEN__
+        emscripten_cancel_main_loop();
+        #endif
     }
 }
 
@@ -457,7 +459,7 @@ int main(int argc, char *argv[])
         graphLib.draw_text(20, 44, filename);
 
         input.wait_keypress();
-        SDLL_Quit();
+        SDL_Quit();
         return 0;
     }
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
@@ -533,7 +535,7 @@ int main(int argc, char *argv[])
     while (run_game) {
         main_loop();
     }
-    SDLL_Quit();
+    SDL_Quit();
 #endif
     return 0;
 }

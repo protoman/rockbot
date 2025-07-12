@@ -154,7 +154,7 @@ namespace format_v4 {
             int res_read = fread(&out, sizeof(T), 1, fp);
             if (res_read == -1) {
                 std::cout << "ERROR: file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
-                //SDLL_Quit();
+                //SDL_Quit();
                 exception_manager::throw_general_exception(std::string("fio_scenes::load_from_disk - Error reading data from file."), filename);
             } else if (res_read == 1) {
                 res.push_back(out);

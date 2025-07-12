@@ -286,7 +286,7 @@ int stage_select::pick_stage(int stage_n)
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 soundManager.stop_music();
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
 #endif
@@ -439,7 +439,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 soundManager.stop_music();
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
 #endif

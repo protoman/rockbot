@@ -444,7 +444,7 @@ int inputLib::wait_scape_time(int wait_period) {
             /*
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
             */

@@ -168,7 +168,7 @@ void scenesLib::main_screen()
 		if (picked_n == -1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
         } else if (picked_n == 0) { // NEW GAME
@@ -613,7 +613,7 @@ Uint8 scenesLib::select_player() {
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
         } else if (input.p1_input[BTN_START] == 1) {
@@ -731,7 +731,7 @@ Uint8 scenesLib::select_difficulty()
         if (selected_option == -1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
         } else {
@@ -830,7 +830,7 @@ short scenesLib::select_save(bool is_new_game)
         } else if (input.p1_input[BTN_QUIT] == 1) {
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDLL_Quit();
+                SDL_Quit();
                 exit(0);
             }
         }
