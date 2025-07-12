@@ -25,6 +25,8 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
     SDL_GetRendererInfo(renderer, &info);
     printf("Renderer backend: %s\n", info.name);
 
+    printf("SDL version: %s\n", SDLL_GetCompiledVersion());
+
     texture = SDL_CreateTexture(renderer,
                                 SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STREAMING,
@@ -140,11 +142,13 @@ const char *SDLL_JoystickName(int device_index)
 #endif
 
 // SDL 1 & 2
-void SDLL_ShowVersion()
+const char *SDLL_GetCompiledVersion()
 {
+    static char version[32];
     SDL_version compiled;
     SDL_VERSION(&compiled);
 
-    printf("Compiled SDL version: %d.%d.%d\n",
-           compiled.major, compiled.minor, compiled.patch);
+    snprintf(version, sizeof(version), "%d.%d.%d",
+             compiled.major, compiled.minor, compiled.patch);
+    return version;
 }

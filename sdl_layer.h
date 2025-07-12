@@ -58,4 +58,4 @@ const char* SDLL_GetKeyName(int key);
 
 const char *SDLL_JoystickName(int device_index);
 
-void SDLL_ShowVersion();
+const char *SDLL_GetCompiledVersion();

@@ -306,8 +306,6 @@ void detect_language() {
 
 void main_loop()
 {
-    SDLL_ShowVersion();
-    
     timer.start_ticker();
     gameControl.show_game(true, true);
     draw_lib.update_screen();
