@@ -172,7 +172,7 @@ void artificial_inteligence::check_ai_reaction()
     }
 
     if (state.direction == ANIM_DIRECTION_LEFT && dist_players.pObj->get_direction() == ANIM_DIRECTION_RIGHT) {
-        abs((dist_players.pObj->getPosition().x+dist_players.pObj->get_size().width) - position.x);
+        diff_x = abs((dist_players.pObj->getPosition().x+dist_players.pObj->get_size().width) - position.x);
     }
 
     if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {

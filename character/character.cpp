@@ -2117,7 +2117,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
     }
 
-    if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
+    if (_always_move_ahead == false &&
+        ((incx < 0 && (position.x + incx < 0)) ||
+        (incx > 0 && (position.x + incx > MAP_W * TILESIZE)))) {
         if (map_block == BLOCK_UNBLOCKED) {
             map_block = BLOCK_X;
         } else {
