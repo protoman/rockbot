@@ -261,8 +261,10 @@ void graphicsLib::updateScreen()
         fio.save_config(SharedData::get_instance()->game_config);
         game_screen_scaled = SDLL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
-    } else {
-        game_screen_scaled = game_screen;
+    }
+    if (game_screen_scaled == NULL) {
+        SDLL_Flip(game_screen);
+        return;
     }
     if (scale_int != 1) {
         //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
