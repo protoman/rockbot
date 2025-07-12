@@ -121,3 +121,17 @@ const char *SDLL_JoystickName(int device_index)
     return SDL_JoystickName(device_index);
 #endif
 }
+
+void SDLL_Quit()
+{
+#ifdef SDL2
+    if (texture) SDL_DestroyTexture(texture);
+    if (renderer) SDL_DestroyRenderer(renderer);
+    if (window) SDL_DestroyWindow(window);
+#endif
+#ifdef __EMSCRIPTEN__
+    emscripten_cancel_main_loop();
+#else
+    SDL_Quit();
+#endif
+}

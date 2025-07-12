@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #ifdef SDL2
 
 #include <SDL2/SDL.h>
@@ -57,3 +61,5 @@ int SDLL_Flip(SDL_Surface *screen);
 const char* SDLL_GetKeyName(int key);
 
 const char *SDLL_JoystickName(int device_index);
+
+void SDLL_Quit();
