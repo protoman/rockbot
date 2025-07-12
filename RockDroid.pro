@@ -60,6 +60,12 @@ linux {
     DEFINES += LINUX
     LIBS += -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
     INCLUDES += -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+
+    # SDL2
+    #DEFINES += LINUX SDL2
+    #LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
+    #INCLUDES += -I/usr/include -I. -I./include -L/usr/lib
+
     QMAKE_CCFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
     QMAKE_CXXFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
 }

@@ -57,3 +57,5 @@ int SDLL_Flip(SDL_Surface *screen);
 const char* SDLL_GetKeyName(int key);
 
 const char *SDLL_JoystickName(int device_index);
+
+void SDLL_ShowVersion();

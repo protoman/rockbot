@@ -320,6 +320,7 @@ void main_loop()
 
 int main(int argc, char *argv[])
 {
+    SDLL_ShowVersion();
 
 #ifdef PSP
     SetupCallbacks();
@@ -527,7 +528,6 @@ int main(int argc, char *argv[])
     }
 
     fflush(stdout);
-
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(main_loop, 0, 1);

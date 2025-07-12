@@ -121,3 +121,12 @@ const char *SDLL_JoystickName(int device_index)
     return SDL_JoystickName(device_index);
 #endif
 }
+
+void SDLL_ShowVersion()
+{
+    SDL_version compiled;
+    SDL_VERSION(&compiled);
+
+    printf("Compiled SDL version: %d.%d.%d\n",
+           compiled.major, compiled.minor, compiled.patch);
+}
