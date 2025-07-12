@@ -305,10 +305,7 @@ void detect_language() {
 
 
 void main_loop()
-{
-
-    fflush(stdout);
-    
+{    
     timer.start_ticker();
     gameControl.show_game(true, true);
     draw_lib.update_screen();
@@ -528,6 +525,8 @@ int main(int argc, char *argv[])
     } else {
         gameControl.quick_load_game();
     }
+
+    fflush(stdout);
 
 
 #ifdef __EMSCRIPTEN__
