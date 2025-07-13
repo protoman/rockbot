@@ -312,9 +312,6 @@ void main_loop()
     if (input.p1_input[BTN_QUIT] == 1) {
         std::fflush(stdout);
         leave_game = true;
-        #ifdef __EMSCRIPTEN__
-        emscripten_cancel_main_loop();
-        #endif
     }
 }
 
@@ -332,7 +329,6 @@ int main(int argc, char *argv[])
 
     string argvString = "";
     argvString = string(argv[0]);
-
 
     fflush(stdout);
 
