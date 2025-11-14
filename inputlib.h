@@ -2,7 +2,9 @@
 #define INPUTLIB_H
 
 #include "defines.h"
-#include <SDL/SDL.h>
+#include "sdl_layer.h"
+
+
 
 #include "file/format.h"
 

@@ -1,7 +1,8 @@
 #include "inputlib.h"
 
-#include<iostream>
-#include <SDL/SDL_joystick.h>
+#include <iostream>
+#include <string>
+#include <algorithm>
 
 extern SDL_Event event;
 
@@ -117,15 +118,33 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         p1_previous_input[i] = p1_input[i];
     }
 
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_VIDEORESIZE) {
-            SharedData::get_instance()->scaleX = event.resize.w / RES_W;
-            SharedData::get_instance()->scaleY = event.resize.h / RES_H;
-            SharedData::get_instance()->scale_window_size.width = event.resize.w;
-            SharedData::get_instance()->scale_window_size.height = event.resize.h;
-            SharedData::get_instance()->changed_window_size = true;
-        }
+    int newWidth = 0, newHeight = 0;
+    bool resized = false;
 
+    while (SDL_PollEvent(&event)) {
+
+        #ifdef SDL2
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                newWidth = event.window.data1;
+                newHeight = event.window.data2;
+                resized = true;
+            }
+        #else
+            if (event.type == SDL_VIDEORESIZE) {
+                newWidth = event.resize.w;
+                newHeight = event.resize.h;
+                resized = true;
+            }
+        #endif
+
+        if (resized) {
+            SharedData* data = SharedData::get_instance();
+            data->scaleX = newWidth / static_cast<float>(RES_W);
+            data->scaleY = newHeight / static_cast<float>(RES_H);
+            data->scale_window_size.width = newWidth;
+            data->scale_window_size.height = newHeight;
+            data->changed_window_size = true;
+        }
 
         if (_show_btn_debug == false) {
             _show_btn_debug = true;
@@ -531,21 +550,21 @@ int inputLib::get_joysticks_number()
 
 string inputLib::get_joystick_name(int n)
 {
-    if (n >= SDL_NumJoysticks()) {
+    const char * name = SDLL_JoystickName(n);
+    if (name) {
+        return std::string(name);
+    } else {
         return std::string("NONE");
     }
-    return std::string(SDL_JoystickName(n));
 }
 
 std::string inputLib::get_key_name(int key)
 {
-    SDLKey keysym = (SDLKey)key;
-
     if (key == -1) {
         return std::string("UNSET");
     }
 
-    std::string res = SDL_GetKeyName(keysym);
+    std::string res = std::string(SDLL_GetKeyName(key));
 
     // convert common keys to 3 letter
     if (res.length() > 6) {

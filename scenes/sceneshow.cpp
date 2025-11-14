@@ -102,7 +102,7 @@ void sceneShow::show_image(int n)
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << image_scenes.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.0");
         char number_str[20];
-        sprintf(number_str, "%d", image_scenes.size());
+        sprintf(number_str, "%zu", image_scenes.size());
         exception_manager::throw_general_exception(std::string("sceneShow::show_image - Invalid list position."), std::string(number_str));
     }
     speed_x = 1;
@@ -138,7 +138,7 @@ void sceneShow::show_parallax(int n)
         std::cout << "ERROR: Scene parallax[" << n << "] invalid. List size is " << parallax_scenes.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.0");
         char number_str[20];
-        sprintf(number_str, "%d", parallax_scenes.size());
+        sprintf(number_str, "%zu", parallax_scenes.size());
         exception_manager::throw_general_exception(std::string("sceneShow::show_parallax - Invalid list position."), std::string(number_str));
     }
 
@@ -265,7 +265,7 @@ void sceneShow::show_text(int n)
         std::cout << "ERROR: Scene Text[" << n << "] invalid. List size is " << text_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.1");
         char number_str[20];
-        sprintf(number_str, "%d", text_list.size());
+        sprintf(number_str, "%zu", text_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::show_text - Invalid list position."), std::string(number_str));
     }
     run_text(n);
@@ -277,7 +277,7 @@ void sceneShow::clear_area(int n)
         std::cout << "ERROR: Scene ClearArea[" << n << "] invalid. List size is " << cleararea_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.2");
         char number_str[20];
-        sprintf(number_str, "%d", cleararea_list.size());
+        sprintf(number_str, "%zu", cleararea_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::clear_area - Invalid list position."), std::string(number_str));
     }
     graphLib.clear_area(cleararea_list.at(n).x, cleararea_list.at(n).y, cleararea_list.at(n).w, cleararea_list.at(n).h, cleararea_list.at(n).r, cleararea_list.at(n).g, cleararea_list.at(n).b);
@@ -296,7 +296,7 @@ void sceneShow::play_sfx(int n)
         std::cout << "ERROR: Scene PlaySFX[" << n << "] invalid. List size is " << playsfx_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.3");
         char number_str[20];
-        sprintf(number_str, "%d", playsfx_list.size());
+        sprintf(number_str, "%zu", playsfx_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::play_sfx - Invalid list position."), std::string(number_str));
     }
     if (playsfx_list.at(n).repeat_times < 1) {
@@ -311,7 +311,7 @@ void sceneShow::play_music(int n)
         std::cout << "ERROR: Scene PlayMusic[" << n << "] invalid. List size is " << playmusic_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.4");
         char number_str[20];
-        sprintf(number_str, "%d", playmusic_list.size());
+        sprintf(number_str, "%zu", playmusic_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::play_music - Invalid list position."), std::string(number_str));
     }
     soundManager.stop_music();
@@ -437,7 +437,7 @@ void sceneShow::show_viewpoint(int n)
         std::cout << "ERROR: Scene image[" << n << "] invalid. List size is " << viewpoint_list.size() << "." << std::endl;
         graphLib.show_debug_msg("EXIT #42.5");
         char number_str[20];
-        sprintf(number_str, "%d", viewpoint_list.size());
+        sprintf(number_str, "%zu", viewpoint_list.size());
         exception_manager::throw_general_exception(std::string("sceneShow::play_music - Invalid list position."), std::string(number_str));
     }
     speed_x = 1;

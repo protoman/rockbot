@@ -6,11 +6,7 @@
 #include <map>
 #include <climits>
 
-#include <SDL/SDL.h>				//Include da SDL
-#include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_rotozoom.h>
+#include "sdl_layer.h"
 
 #include "defines.h"
 #include "file/format/st_common.h"

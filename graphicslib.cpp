@@ -159,7 +159,7 @@ bool graphicsLib::initGraphics()
 	// GAME SCREEN
 	SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
-    SDL_WM_SetCaption("RockBot", "RockBot");
+    SDLL_WM_SetCaption("RockBot", "RockBot");
 #endif
     set_video_mode();
 	// other loading methods
@@ -177,7 +177,7 @@ void graphicsLib::set_window_icon()
     if (rwop) {
         SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
         if (icon_img != NULL) {
-            SDL_WM_SetIcon(icon_img, NULL);
+            SDLL_WM_SetIcon(icon_img, NULL);
         }
     } else {
         std::cout << "ERROR::graphicsLib::initGraphics(set-window-icon): rwop for [" << icon_filename << "] is NULL " << std::endl;
@@ -191,9 +191,9 @@ void graphicsLib::update_screen_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
 }
 
@@ -203,7 +203,7 @@ void graphicsLib::load_shared_graphics()
     surfaceFromFile(filename, &config_menu);
 
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
-    SDL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+    SDLL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
     _config_menu_pos.x = 0;
 
     filename = GAMEPATH + "shared/images/backgrounds/weapon_tooltip.png";
@@ -259,8 +259,12 @@ void graphicsLib::updateScreen()
         }
         SharedData::get_instance()->game_config.scale_int = scale_int;
         fio.save_config(SharedData::get_instance()->game_config);
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale, RES_H*scale, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
         SharedData::get_instance()->changed_window_size = false;
+    }
+    if (game_screen_scaled == NULL) {
+        SDLL_Flip(game_screen);
+        return;
     }
     if (scale_int != 1) {
         //SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect
@@ -268,13 +272,13 @@ void graphicsLib::updateScreen()
         Uint16 scalex_int = RES_W*scale_int;
         Uint16 scaley_int = RES_H*scale_int;
         SDL_Rect dest_rect = {0, 0, scalex_int, scaley_int};
-        SDL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+        SDLL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
     } else {
         copySDLArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), game_screen, game_screen_scaled, true);
     }
-    SDL_Flip(game_screen_scaled);
+    SDLL_Flip(game_screen_scaled);
 #else
-    SDL_Flip(game_screen);
+    SDLL_Flip(game_screen);
 #endif
 
 }
@@ -303,7 +307,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
         return NULL;
     }
 
-    SDL_Surface *res_surface = SDL_DisplayFormat(spriteCopy);
+    SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
     SDL_FreeSurface(spriteCopy);
     SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
@@ -545,7 +549,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     if (tile_ref->get_surface() == NULL) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
         char debug_msg[255];
-        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%d]", anim_tile_id, ANIM_TILES_SURFACES.size());
+        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
 #endif
@@ -717,7 +721,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     SDL_Surface* temp_surface = NULL;
     SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != nullptr) {
-        temp_surface = SDL_DisplayFormat(rgb_surface);
+        temp_surface = SDLL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
             show_debug_msg("EXIT #41.2");
@@ -762,7 +766,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
         SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface.is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
@@ -774,12 +778,12 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
         SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface->is_rle_enabled = true;
     }
-    SDL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDLL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
 {
-    SDL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
+    SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
 
@@ -985,7 +989,7 @@ void graphicsLib::draw_error_text(std::string text)
         if (!textSF) {
             continue;
         }
-        SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+        SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
         SDL_FreeSurface(textSF);
         if (!textSF_format) {
             continue;
@@ -1034,7 +1038,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
         SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
 
         if (text_outlineSF) {
-            SDL_Surface* text_outlineSF_format = SDL_DisplayFormat(text_outlineSF);
+            SDL_Surface* text_outlineSF_format = SDLL_DisplayFormat(text_outlineSF);
             SDL_FreeSurface(text_outlineSF);
 
             if (text_outlineSF_format) {
@@ -1057,7 +1061,7 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
     if (!textSF) {
         return;
     }
-    SDL_Surface* textSF_format = SDL_DisplayFormat(textSF);
+    SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
 
     if (!textSF_format) {
@@ -2034,23 +2038,23 @@ void graphicsLib::anim_stars() {
 void graphicsLib::set_video_mode()
 {
 #ifdef DINGUX
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif POCKETGO
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
 #elif defined(OPEN_PANDORA)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(ANDROID)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
 #elif defined(WII)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
 #elif defined(DREAMCAST)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 16, SDL_SWSURFACE | SDL_DOUBLEBUF );
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, 16, SDL_SWSURFACE | SDL_DOUBLEBUF );
     _video_filter = VIDEO_FILTER_NOSCALE;
 
     /*
@@ -2064,7 +2068,7 @@ void graphicsLib::set_video_mode()
     512x448 - good but small
     */
 #elif defined(RASPBERRY)
-    game_screen = SDL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 
@@ -2074,15 +2078,15 @@ void graphicsLib::set_video_mode()
         if (scale_int < 1) {
             scale_int = 1;
         }
-        game_screen_scaled = SDL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W*scale_int, RES_H*scale_int, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
     } else {
-        game_screen_scaled = SDL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+        game_screen_scaled = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
     if (game_screen != NULL) {
         SDL_FreeSurface(game_screen);
     }
     SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
-    game_screen = SDL_DisplayFormat(temp_screen);
+    game_screen = SDLL_DisplayFormat(temp_screen);
     SDL_FreeSurface(temp_screen);
 #endif
 
@@ -2225,7 +2229,7 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
             Uint32 pixel = original.get_pixel(x, y);
 
             //Copy pixel
-            if ((flip_mode == flip_type_both)) {
+            if (flip_mode == flip_type_both) {
                 res.put_pixel(rx, ry, pixel);
             } else if (flip_mode == flip_type_horizontal) {
                 res.put_pixel(rx, y, pixel );
@@ -2296,10 +2300,10 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
     SDL_Surface *rotozoom_picture;
 
-    SDL_Surface *alpha_surface = SDL_DisplayFormatAlpha(picture.get_surface());
+    SDL_Surface *alpha_surface = SDLL_DisplayFormatAlpha(picture.get_surface());
 
     if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
-        SDL_Surface *res_surface = SDL_DisplayFormatAlpha(rotozoom_picture);
+        SDL_Surface *res_surface = SDLL_DisplayFormatAlpha(rotozoom_picture);
         SDL_FreeSurface(rotozoom_picture);
         SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         picture.set_surface(res_surface);
@@ -2455,5 +2459,5 @@ void graphicsLib::restore_picker_bg(int x, int y, int w, int h, int dest_x, int 
 
 void graphicsLib::set_window_title(std::string name)
 {
-    SDL_WM_SetCaption(name.c_str(), "RockBot");
+    SDLL_WM_SetCaption(name.c_str(), "RockBot");
 }
