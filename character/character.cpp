@@ -2117,7 +2117,9 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_UNBLOCKED);
     }
 
-    if (_always_move_ahead == false && ((incx < 0 && position.x+incx) < 0 || (incx > 0 && position.x+incx > MAP_W*TILESIZE))) {
+    if (_always_move_ahead == false &&
+        ((incx < 0 && (position.x + incx < 0)) ||
+        (incx > 0 && (position.x + incx > MAP_W * TILESIZE)))) {
         if (map_block == BLOCK_UNBLOCKED) {
             map_block = BLOCK_X;
         } else {
@@ -2494,8 +2496,8 @@ st_rectangle character::get_hitbox(int anim_type)
         w = col_rect.w;
         h = col_rect.h;
     }
-
-    if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
+    
+    // if (!is_player()) std::cout << "NPC[" << name << "] - has-bg[" << _has_background << "], pos.x[" << position.x << "], hitbox[" << x << ", " << y << ", " << w << ", " << h << "]" << std::endl;
     return st_rectangle(x, y, w, h);
 }
 

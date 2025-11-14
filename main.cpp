@@ -18,17 +18,16 @@
 #include <kos.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 #include <iostream>
-#include <SDL/SDL.h>				//Include da SDL
-#include <SDL/SDL_main.h>
-#include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
-#include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_mixer.h>
 
 #include "strings_map.h"
+
+#include "sdl_layer.h"
+
 
 // ************** CODE AND DEBUG flags ************** //
 #define PS2LOADFROMFIXEDPOINT 1
@@ -305,6 +304,17 @@ void detect_language() {
 }
 
 
+void main_loop()
+{
+    timer.start_ticker();
+    gameControl.show_game(true, true);
+    draw_lib.update_screen();
+    if (input.p1_input[BTN_QUIT] == 1) {
+        std::fflush(stdout);
+        leave_game = true;
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -319,7 +329,6 @@ int main(int argc, char *argv[])
 
     string argvString = "";
     argvString = string(argv[0]);
-
 
     fflush(stdout);
 
@@ -515,20 +524,15 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
-
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(main_loop, 0, 1);
+#else
     while (run_game) {
-        timer.start_ticker();
-        gameControl.show_game(true, true);
-        draw_lib.update_screen();
-        if (input.p1_input[BTN_QUIT] == 1) {
-            std::fflush(stdout);
-            leave_game = true;
-        }
-
+        main_loop();
     }
-
-
     SDL_Quit();
+#endif
+    return 0;
 }
 
 

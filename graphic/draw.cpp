@@ -683,7 +683,7 @@ graphicsLib_gSurface *draw::get_object_graphic(int obj_id)
             objects_sprite_list.insert(std::pair<unsigned int, graphicsLib_gSurface>(obj_id, temp_sprite));
             it = objects_sprite_list.find(obj_id);
         } else {
-            std::cout << "ERROR: Invalid object graphic. Object_ID: '" + obj_id << "'" << std::endl;
+            std::cout << "ERROR: Invalid object graphic. Object_ID: '" << obj_id << "'" << std::endl;
             return NULL;
         }
     }

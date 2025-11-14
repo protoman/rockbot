@@ -9,8 +9,11 @@ CONFIG -= linux # qtcreator adds linux even if shouldn't, so we remove
 QT       -= core
 QT       -= gui
 
+CONFIG += debug
 
 CONFIG += linux
+
+#CONFIG += macosx
 
 #CONFIG += win32
 
@@ -55,10 +58,37 @@ TARGET = rockbot
 
 linux {
     DEFINES += LINUX
-    LIBS = -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
-    INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+    LIBS += -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
+    INCLUDES += -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
+
+    # SDL2
+    #DEFINES += LINUX SDL2
+    #LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
+    #INCLUDES += -I/usr/include -I. -I./include -L/usr/lib
+
     QMAKE_CCFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
     QMAKE_CXXFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
+}
+
+macosx {
+    DEFINES += OSX
+    LIBS += `sdl2-config --libs`
+    LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
+#    DESTDIR = ../
+
+#    LIBS += -framework OpenGL
+
+    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags` -I.
+
+    INCLUDEPATH += /opt/homebrew/include /opt/homebrew/opt/qt@5
+    
+    QMAKE_CCFLAGS += -DOSX -DPC
+    QMAKE_CXXFLAGS += -DOSX -DPC
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+    # xcodebuild -showsdks
+    # error: SDL for Mac OS X only supports deploying on 10.7 and above.
+    QMAKE_MAC_SDK = macosx15.5
+    CONFIG -= console
 }
 
 win32 {
@@ -346,7 +376,8 @@ SOURCES += main.cpp \
     character/character_animation.cpp \
     aux_tools/exception_manager.cpp \
     scenes/game_menu.cpp \
-    ports/android/android_game_services.cpp
+    ports/android/android_game_services.cpp \
+    sdl_layer.cpp
 
 
 HEADERS += \
@@ -412,7 +443,8 @@ HEADERS += \
     character/character_animation.h \
     aux_tools/exception_manager.h \
     scenes/game_menu.h \
-    ports/android/android_game_services.h
+    ports/android/android_game_services.h \
+    sdl_layer.h
 
 OTHER_FILES += \
     docs/RoadMap.txt \

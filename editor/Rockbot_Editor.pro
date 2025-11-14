@@ -16,22 +16,32 @@ macosx {
     QMAKE_LIBS_QT =
     QMAKE_LIBS_QT_THREAD =
 
-    QMAKE_CXX = /usr/local/bin/g++-4.8
-    QMAKE_LINK = /usr/local/bin/g++-4.8
-    QMAKE_CXXFLAGS += -I/usr/local/Trolltech/Qt-4.8.6/include -I/usr/local/Trolltech/Qt-4.8.6/include/QtGui -DMACOSX
+    #QMAKE_CXX = /usr/local/bin/g++-4.8
+    #QMAKE_LINK = /usr/local/bin/g++-4.8
+    QMAKE_CXXFLAGS += -I/opt/homebrew/opt/qt@5/include -I/opt/homebrew/opt/qt@5/include/QtGui -I/opt/homebrew/opt/qt@5/include/QtWidgets -DMACOSX
 
+    INCLUDEPATH += /opt/homebrew/opt/qt@5/include
+    INCLUDEPATH += /opt/homebrew/opt/qt@5/include/QtWidgets
+    INCLUDEPATH += /opt/homebrew/opt/qt@5/include/QtGui
+    INCLUDEPATH += /opt/homebrew/opt/qt@5/include/QtCore
 
-    QT = core gui
-    LIBS += -static-libgcc -static-libstdc++ /usr/local/Trolltech/Qt-4.8.6/lib/libQtCore.a /usr/local/Trolltech/Qt-4.8.6/lib/libQtGui.a -lz -framework Carbon
+    INCLUDEPATH += /opt/homebrew/include
+
+    QT = core gui widgets
+
+#    LIBS += -static-libgcc -static-libstdc++ /opt/homebrew/opt/qt@5/lib/libQtCore.a /opt/homebrew/opt/qt@5/lib/libQtGui.a -lz -framework Carbon
+    LIBS += -lz -framework Carbon
+    LIBS += -L/opt/homebrew/opt/qt@5/lib
     QMAKE_LFLAGS -= -framework QtGui
-    QMAKE_CFLAGS_PPC_64             -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5
-    QMAKE_OBJECTIVE_CFLAGS_PPC_64   -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5
-    QMAKE_CFLAGS_X86_64             -= -Xarch_x86_64 -mmacosx-version-min=10.5
-    QMAKE_OBJECTIVE_CFLAGS_X86_64   -= -Xarch_x86_64 -mmacosx-version-min=10.5
-    QMAKE_CXXFLAGS_PPC_64           -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5
-    QMAKE_CXXFLAGS_X86_64           -= -Xarch_x86_64 -mmacosx-version-min=10.5
-    QMAKE_LFLAGS_PPC_64             -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.5
-    QMAKE_LFLAGS_X86_64             -= -Xarch_x86_64 -mmacosx-version-min=10.5
+    QMAKE_CFLAGS_PPC_64             -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.7
+    QMAKE_OBJECTIVE_CFLAGS_PPC_64   -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.7
+    QMAKE_CFLAGS_X86_64             -= -Xarch_x86_64 -mmacosx-version-min=10.7
+    QMAKE_OBJECTIVE_CFLAGS_X86_64   -= -Xarch_x86_64 -mmacosx-version-min=10.7
+    QMAKE_CXXFLAGS_PPC_64           -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.7
+    QMAKE_CXXFLAGS_X86_64           -= -Xarch_x86_64 -mmacosx-version-min=10.7
+    QMAKE_LFLAGS_PPC_64             -= -arch ppc64 -Xarch_ppc64 -mmacosx-version-min=10.7
+    QMAKE_LFLAGS_X86_64             -= -Xarch_x86_64 -mmacosx-version-min=10.7
+    QMAKE_LFLAGS_ARM64_64           -= -Xarch_arm_64 -mmacosx-version-min=10.7
 }
 
 linux {

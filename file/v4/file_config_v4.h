@@ -374,6 +374,8 @@ namespace format_v4 {
             return PLATFORM_POCKETGO;
     #elif LINUX
             return PLATFORM_LINUX;
+    #elif OSX
+            return PLATFORM_OSX;
     #elif OPEN_PANDORA
             return PLATFORM_PANDORA;
     #elif PLAYSTATION2
