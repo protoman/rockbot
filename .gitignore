@@ -55,3 +55,4 @@ cov-int
 index.*
 
 aux_tools/PasswordGenerator/ui_*.h
+web

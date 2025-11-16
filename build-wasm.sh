@@ -74,9 +74,14 @@ main.cpp \
 --closure 1 -sEXPORTED_RUNTIME_METHODS=['allocate','ALLOC_NORMAL'] \
 -o index.html
 
-# Replace index template
-cp wasm.index.html index.html
+mkdir -p web
+mv index.* web
 
-echo "Serve files locally at http://localhost:8000"
-echo "Execute the following command to start up the server"
-echo "python -m http.server"
+# Replace index template
+cp wasm.index.html web/index.html
+
+echo "
+Serve files locally at http://localhost:8000
+Execute the following command to start up the server:
+python -m http.server -d web
+"
