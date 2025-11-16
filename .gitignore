@@ -53,3 +53,5 @@ cov-int
 .qtc_clangd
 .vscode
 index.*
+
+aux_tools/PasswordGenerator/ui_*.h
