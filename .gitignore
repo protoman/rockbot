@@ -47,6 +47,7 @@ cov-int
 *.so
 *.tar.gz
 *.dol
+*.map
 
 .qmake.stash
 .idea
