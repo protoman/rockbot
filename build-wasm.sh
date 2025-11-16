@@ -78,4 +78,5 @@ main.cpp \
 cp wasm.index.html index.html
 
 echo "Serve files locally at http://localhost:8000"
-python3 -m http.server
+echo "Execute the following command to start up the server"
+echo "python -m http.server"

@@ -1,0 +1,41 @@
+name: gh-pages
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+env:
+  EMSCRIPTEN_VERSION: "latest"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup emsdk
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: ${{ env.EMSCRIPTEN_VERSION }}
+    - name: Verify
+      run: emcc -v        
+
+    - name: Build WebAssembly
+      run: ./build-wasm.sh
+
+    - name: Upload site artifact
+      uses: actions/upload-pages-artifact@v4
+      with:
+        path: web
+
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: web
