@@ -79,3 +79,7 @@ Serve files locally at http://localhost:8000
 Execute the following command to start up the server:
 python -m http.server -d wasm
 "
+
+# How to identify used functions
+# llvm-nm --demangle --defined-only wasm/game.wasm > /tmp/funcs_raw.txt
+# grep " T " /tmp/funcs_raw.txt | awk '{print $3}' | jq -R -s -c 'split("\n")[:-1]' > funcs.json
