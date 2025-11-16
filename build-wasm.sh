@@ -72,16 +72,10 @@ main.cpp \
 -sTOTAL_MEMORY=128mb \
 --preload-file build/fonts/@fonts/ --preload-file build/games/@games/ --preload-file build/shared/@shared/ \
 --closure 1 -sEXPORTED_RUNTIME_METHODS=['allocate','ALLOC_NORMAL'] \
--o index.html
-
-mkdir -p web
-mv index.* web
-
-# Replace index template
-cp wasm.index.html web/index.html
+-o wasm/game.js
 
 echo "
 Serve files locally at http://localhost:8000
 Execute the following command to start up the server:
-python -m http.server -d web
+python -m http.server -d wasm
 "

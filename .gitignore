@@ -52,7 +52,10 @@ cov-int
 .idea
 .qtc_clangd
 .vscode
-index.*
 
 aux_tools/PasswordGenerator/ui_*.h
-web
+
+# wasm
+game.wasm
+game.data
+game.js
