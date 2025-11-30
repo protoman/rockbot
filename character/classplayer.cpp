@@ -699,9 +699,6 @@ void classPlayer::execute_projectiles()
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
-                if (gameControl.get_current_map_obj()->_npc_list.at(i).get_name() == "BIG FISH") {
-                    std::cout << ">>>>>>>> projectile-hit-npc" << std::endl;
-                }
                 // shielded NPC: reflects/finishes shot
                 if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
                     (*it).consume_projectile();
@@ -723,7 +720,6 @@ void classPlayer::execute_projectiles()
 
                 // check if have hit area, and if hit it
                 st_rectangle npc_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
-                int temp_x = Sint16(npc_vulnerable_area.x-gameControl.get_current_map_obj()->getMapScrolling().x);
 
                 if (npc_vulnerable_area.is_empty() == false && npc_vulnerable_area != npc_hitbox && (*it).check_collision(npc_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
                     (*it).reflect();        // HITAREA reflect
@@ -963,6 +959,7 @@ void classPlayer::death()
 	dead = true;
     _obj_jump.interrupt();
     _obj_jump.finish();
+    //std::cout << "### PLAYER::REMOVE PLATFORM #3" << std::endl;
     set_platform(nullptr);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
 

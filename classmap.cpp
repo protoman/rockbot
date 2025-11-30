@@ -1492,8 +1492,13 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
     if (charObj->get_platform() != NULL) {
         object* temp_obj = charObj->get_platform();
         if (temp_obj->is_hidden() == true) {
+            std::cout << "### PLATFORM IS HIDDEN, REMOVE IT" << std::endl;
+            charObj->set_platform(NULL);
+        } else if (temp_obj->finished()) {
+            std::cout << "### PLATFORM IS FINISHED, REMOVE IT" << std::endl;
             charObj->set_platform(NULL);
         } else if (temp_obj->get_type() == OBJ_TRACK_PLATFORM && temp_obj->get_state() != 0) {
+            std::cout << "### PLATFORM IS OBJ_TRACK_PLATFORM, REMOVE IT" << std::endl;
             charObj->set_platform(NULL);
         } else {
             blocked = collision_rect_player_obj(char_rect, temp_obj, x_inc, y_inc, 0, 0);
@@ -1538,6 +1543,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
         if (charObj->is_player() == true && no_move_blocked == BLOCK_XY) {
             if (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN) {
                 // need to change platform
+                std::cout << "CLASS_MAP::SET_PLATFORM OBJ #1" << std::endl;
                 charObj->set_platform(&temp_obj);
             } else if (temp_obj.get_type() == OBJ_FLY_PLATFORM) {
                 _obj_collision = object_collision(BLOCK_INSIDE_OBJ, &temp_obj);
@@ -1626,13 +1632,13 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
 
                     if (temp_obj.is_hidden() == false && (temp_obj.get_type() == OBJ_MOVING_PLATFORM_UPDOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_UP_LOOP || temp_obj.get_type() == OBJ_MOVING_PLATFORM_DOWN || temp_obj.get_type() == OBJ_MOVING_PLATFORM_LEFTRIGHT || temp_obj.get_type() == OBJ_DISAPPEARING_BLOCK)) {
                         if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3)) {
-                            //std::cout << "CLASSMAP::set_platfoprm #1" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #2" << std::endl;
                             charObj->set_platform(&temp_obj);
                             if (temp_obj.get_type() == OBJ_FALL_PLATFORM) {
                                 temp_obj.set_direction(ANIM_DIRECTION_LEFT);
                             }
                         } else if (charObj->get_platform() == NULL && temp_blocked == 1) {
-                            //std::cout << "CLASSMAP::set_platfoprm #2" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #3" << std::endl;
                             charObj->set_platform(&temp_obj);
                         }
                         if (temp_blocked != 0) {
@@ -1642,7 +1648,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     } else if (temp_obj.get_type() == OBJ_ITEM_FLY) {
                         if (charObj->get_platform() == NULL && (temp_blocked == 2 || temp_blocked == 3) && y_inc > 0) {
-                            //std::cout << "CLASSMAP::set_platfoprm #3" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #4" << std::endl;
                             charObj->set_platform(&temp_obj);
                             if (temp_obj.get_distance() == 0) {
                                 temp_obj.start();
@@ -1672,11 +1678,11 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     } else if (temp_obj.is_hidden() == false && temp_obj.is_started() == false && temp_obj.is_active_platform() == true) {
                         temp_obj.start();
-                        //std::cout << "CLASSMAP::set_platfoprm #4" << std::endl;
+                        std::cout << "CLASS_MAP::SET_PLATFORM OBJ #5" << std::endl;
                         charObj->set_platform(&temp_obj);
                     } else if (temp_obj.get_type() == OBJ_FALL_PLATFORM || temp_obj.get_type() == OBJ_FLY_PLATFORM) {
                         if (charObj->get_platform() == NULL) {
-                            //std::cout << "CLASSMAP::set_platfoprm #5" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #6" << std::endl;
                             charObj->set_platform(&temp_obj);
                             if (temp_obj.get_state() == OBJ_STATE_STAND) {
                                 temp_obj.set_state(OBJ_STATE_MOVE);
@@ -1689,7 +1695,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     } else if (temp_obj.get_type() == OBJ_TRACK_PLATFORM) {
                         if (charObj->get_platform() == NULL) {
-                            //std::cout << "CLASSMAP::set_platfoprm #6" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #7" << std::endl;
                             charObj->set_platform(&temp_obj);
                             _obj_collision = object_collision(temp_blocked, &(*it));
                             //std::cout << "MAP::collision_char_object - LEAVE #5" << std::endl;
@@ -1697,13 +1703,22 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                         }
                     } else if (temp_obj.get_type() == OBJ_DAMAGING_PLATFORM) {
                         if (charObj->get_platform() == NULL) {
-                            //std::cout << "CLASSMAP::set_platfoprm #7" << std::endl;
+                            std::cout << "CLASS_MAP::SET_PLATFORM OBJ #8" << std::endl;
                             charObj->set_platform(&temp_obj);
                             _obj_collision = object_collision(temp_blocked, &(*it));
                             //std::cout << "MAP::collision_char_object - LEAVE #6" << std::endl;
                             temp_obj.start();
                             return;
                         }
+                    } else if (temp_obj.get_type() == OBJ_PLATFORM_WALKER) {
+                        std::cout << "CLASS_MAP::SET_PLATFORM OBJ #9 [OBJ_PLATFORM_WALKER]" << std::endl;
+                        charObj->set_platform(&temp_obj);
+                        _obj_collision = object_collision(temp_blocked, &(*it));
+                        //std::cout << "MAP::collision_char_object - LEAVE #6" << std::endl;
+                        if (temp_obj.is_started() == false) {
+                            temp_obj.start();
+                        }
+                        return;
                     }
                 }
 
@@ -1743,6 +1758,7 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
         //  for player item, platform must only be removed only if the item was already adtivated
         if (charObj->get_platform()->get_type() == OBJ_ITEM_FLY || charObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
             if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
+                std::cout << "### CLASS_MAP::REMOVE PLATFORM #1" << std::endl;
                 charObj->set_platform(NULL);
             } else {
                 _obj_collision = object_collision(0, NULL);
@@ -1750,10 +1766,12 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
                 return;
             }
         } else if (charObj->get_platform()->is_hidden() == true) {
+            std::cout << "### CLASS_MAP::REMOVE PLATFORM #2" << std::endl;
             charObj->set_platform(NULL);
         } else {
             _platform_leave_counter++;
             if (_platform_leave_counter > 2) {
+                std::cout << "### CLASS_MAP::REMOVE PLATFORM #3" << std::endl;
                 charObj->set_platform(NULL);
                 _platform_leave_counter = 0;
             }

@@ -1,7 +1,7 @@
 #ifndef V1_H
 #define V1_H
 
-#include <SDL/SDL.h>
+#include "sdl_layer.h"
 
 #define V1_FS_COLORCYCLE_MAX_ITEMS 10
 #define V1_FS_CHAR_FILENAME_SIZE 30

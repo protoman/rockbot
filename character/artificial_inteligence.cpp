@@ -172,7 +172,7 @@ void artificial_inteligence::check_ai_reaction()
     }
 
     if (state.direction == ANIM_DIRECTION_LEFT && dist_players.pObj->get_direction() == ANIM_DIRECTION_RIGHT) {
-        abs((dist_players.pObj->getPosition().x+dist_players.pObj->get_size().width) - position.x);
+        diff_x = abs((dist_players.pObj->getPosition().x+dist_players.pObj->get_size().width) - position.x);
     }
 
     if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {
@@ -201,9 +201,11 @@ void artificial_inteligence::check_ai_reaction()
         _reaction_type = AI_REACTION_HIT;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
+        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_Y" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_Y;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_x < TILESIZE && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_X].action > 0) {
+        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_X" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_X;
         start_reaction = true;
     } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action > 0) {
@@ -215,7 +217,7 @@ void artificial_inteligence::check_ai_reaction()
     _was_hit = false; // reset flag
 
     if (start_reaction == true) {
-        std::cout << "AI::execute_ai::check_ai_reaction::start_reaction" << std::endl;
+        //std::cout << "AI::execute_ai::check_ai_reaction::start_reaction" << std::endl;
         // do not start a walk-reaction in middle air
         int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
         react_type--;
@@ -448,11 +450,9 @@ void artificial_inteligence::ia_action_jump_to_player()
 
 void artificial_inteligence::ia_action_jump_to_point(st_position point)
 {
-    int xinc = 0;
-    int xinx_multiplier = 1;
-    if (move_speed == 1) { // TODO: more adjusts to make jump faster or slower depending on distance and speed
-        xinx_multiplier = 4;
-    }
+    float xinc = 0;
+    float xinx_multiplier = 1;
+    xinx_multiplier = GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_x;
     if (state.direction == ANIM_DIRECTION_LEFT) {
         xinc = -move_speed*xinx_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
     } else {
@@ -471,10 +471,11 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
             set_direction(ANIM_DIRECTION_LEFT);
         }
         if (xinc <= 0) {
-            _trajectory_parabola = new trajectory_parabola(position.x - point.x);
+            jump_pos_x = position.x - point.x;
         } else {
-            _trajectory_parabola = new trajectory_parabola(point.x - position.x);
+            jump_pos_x = point.x - position.x;
         }
+        _trajectory_parabola = new trajectory_parabola(jump_pos_x);
         _ai_state.initial_position.x = position.x;
         _ai_state.initial_position.y = position.y;
         set_animation_type(ANIM_TYPE_JUMP);
@@ -489,8 +490,10 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
             xinc = 0;
         }
 
+        // TODO - add multiplier
+
         int new_x = abs((position.x + _origin_point.x) - _ai_state.initial_position.x);
-        int new_y = _ai_state.initial_position.y - _trajectory_parabola->get_y_point(new_x);
+        int new_y = _ai_state.initial_position.y - (_trajectory_parabola->get_y_point(new_x) * GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_y);
         int yinc = position.y - new_y;
 
         if (abs(yinc) >= TILESIZE) {
@@ -1615,7 +1618,7 @@ void artificial_inteligence::execute_ai_step_fly()
                 if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
                     if (dist_y > 0.2) {
 
-                        int move_adjust_y = 0.1;
+                        double move_adjust_y = 0.1;
                         if (dist_y > sin_value) {
                             move_adjust_y = sin_value;
                         } else {

@@ -68,7 +68,7 @@ void stage::load_stage() {
 		return;
 	}
     if (number >= MAX_STAGES) {
-        graphLib.show_debug_msg("ERROR::loadStage invalid number");
+        graphLib.show_debug_msg("ERROR::loadStage invalid number (greater than max)");
         return;
 	}
 
@@ -119,7 +119,7 @@ void stage::change_map_scroll(st_float_position pos, bool check_lock, bool ignor
     // debug for autoscrolling test
     bool map_autoscroll = static_cast<bool>(stage_data.autoscroll[currentMap]);
     // avoid data error (getting 66 as value from data file)
-    if (map_autoscroll > 1) {
+    if (map_autoscroll) {
         map_autoscroll = false;
     }
     if (ignore_auto_scroll == false && map_autoscroll == true) {
@@ -393,7 +393,7 @@ void stage::check_map_effect()
     if (number == -1 || stage_is_loaded == false) {
         return;
     }
-    if (currentMap == -1 || currentMap >= PRELOAD_MAP_N) {
+    if (currentMap >= PRELOAD_MAP_N) {
         return;
     }
     // no map effects unless config is set to high-end performance mode

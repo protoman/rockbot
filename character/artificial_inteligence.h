@@ -290,6 +290,7 @@ protected:
     bool move_blocked_x_axis = false;
     std::vector<int> reaction_loop_check;
     int first_unlocked_from_bottom = RES_H/2;
+    float jump_pos_x = 0;
 };
 
 #endif // ARTIFICIAL_INTELIGENCE_H

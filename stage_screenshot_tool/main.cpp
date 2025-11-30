@@ -1,11 +1,6 @@
 #include <iostream>
 
-#include <SDL/SDL.h>				//Include da SDL
-#include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL/SDL_mixer.h>	// Include da biblioteca SDL_Mixer
-#include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_mixer.h>
+#include "sdl_layer.h"
 
 // GLOBAL/EXTERN VARIABLES
 std::string FILEPATH;
@@ -224,7 +219,7 @@ int main(int argc, char *argv[])
     std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl; std::fflush(stdout);
 
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0  || (screen = SDL_SetVideoMode(MAP_W*TILESIZE, MAP_H*TILESIZE*3, 0, 0)) == 0) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0  || (screen = SDLL_SetVideoMode(MAP_W*TILESIZE, MAP_H*TILESIZE*3, 0, 0)) == 0) {
         std::cout << "SDL Error" << std::endl;
         std::cout << "Unable to init SDL. Error: " << SDL_GetError() << std::endl;
         std::fflush(stdout);

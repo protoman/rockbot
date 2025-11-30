@@ -23,7 +23,7 @@ classjump::classjump() : started(false)
 
 void classjump::start(bool bigjump_mode, int terrain_type)
 {
-    //std::cout << "### JUMP::START" << std::endl;
+    std::cout << "### JUMP::START - bigjump_mode[" << bigjump_mode << "]" << std::endl;
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -58,6 +58,8 @@ void classjump::execute(int terrain_type)
     if (!started) {
         return;
     }
+
+    // std::cout << "### JUMP::EXECUTE - bigjump_mode[" << is_bigjump << "]" << std::endl;
 
     // if big jump was caused only because of water, acceleration changes if you are still in water or not
     if (start_terrain_type == TERRAIN_WATER && start_big_jump == false) {

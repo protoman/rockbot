@@ -1,42 +1,79 @@
-﻿##########################################################################################################################
-FIREFLY
+﻿ROCKBOT
 ###########################################################################################################################
-1. tornar externs em singletons
-2. externalizar tudo que usa a SDL em classes do tipo interface
-    # estas classes devem ter apenas o que chama a SDL mesmo (abstraction layer)
-3. reorganização de classes
-4. importar coisas novas do firefly atual
-5. usar json como formato de arquivo para guardar dados
-    # vantagem é flexibilidade, pois não usa número limitado de dados (array)
-    # por exemplo, número de foregrounds e backgrounds de tela não precisa ser fixo
+- criar um novo file que são flags extras para um npc
+    # o arquivo pode não existir, e defaults serão usados
+    # criar um número grande de flags, mesmo que não usadas agora
+    # pode setar propriedades de pulo (velocidade, aceleração)
 
-- no firefly, cada anim-type deve ter sua vulnerable-area (opcional)
-    # poder setar "is-jump-frame", "is-turn-frame" (daí não precisa a imagem ter o mirror), etc. Pode chamar de key-frame.
 
-- não armazenar imagem dos sprites, só a posição lógica deles, assim não duplica se repetir frames
+
 
 ##########################################################################################################################
-MEGAMIX
-###########################################################################################################################
-- rockmix: colocar checkpoints nas fases
-- problema do restart da música ao morrer voltou (pelo menos no modo classic)
-- teleport-out do Eddie esta travado no mesmo lugar (parece q gravity esta agindo)
-    # eddie não pode voltar ao resetar a sala ou fase
-- pulo longo dos inimigos fica muito lento (Stone Man)
 
-- automatizar conversão de mod para mp3 no build Android
+- crash ao apertar esc (antes do menu aparecer) ?
+
+
+=============================================================================================
+ROCKMIX
+=============================================================================================
+DONE - [95] STONEMAN CANNON fica animando a poisçã do canhão sem parar
+DONE - [96] STONEMAN GROUND RUNNER ca da plataforma ao dar dash
+
+- melhorar posição de origem do tiro de inimigo bola do concreto
+    # elefante ou bird?
+
+- melhorar IA do pássaro com pedra
+
+- adicionar mais fases:
+    # metalman - https://www.vgmaps.com/Atlas/NES/MegaManII-MetalMan.png
+    # toadman - https://www.vgmaps.com/Atlas/NES/MegaManIV-ToadMan.png
+    # (backup) drillman - https://www.vgmaps.com/Atlas/NES/MegaManIV-DrillMan.png, magnetman - https://www.vgmaps.com/Atlas/NES/MegaManIII-MagnetMan.png
+- ao habilitar som, não está limpando a área do texto antes de escreverr "habilitado"
+
+Woodman:
+    - VER COMO FAZER APE FICAR PENDURADO E DEPOIS PERMANECER NA ANIMAÇÃO DE JUMP, ÚLTIMO FRAME.
+    - coelho tem que pular mais alto (ver como é o cálculo do pulo de npc)
+
+- Bubbleman entra para dentro do chão
+    # verificar se está acontecendo com ApeBot
+
+DONE - pontos de vida do peixão estão baixos
+DONE - bombas do bubbleman devem ser indestrutíveis (intangíveis)
+- bombas bubbleman devem explodir ao chegar perto
+
+- rockmix: colocar checkpoints nas fases
+- pulo longo dos inimigos fica muito lento (Stone Man)
 
 - terminar estagios em RockMix
     # Pharaoh Man
     # Tomahawk Man
-    # Wood Man
-    - implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
+    # implementar chefes em RockMix - só os gráficos, projeteis e uma IA básica, sem implementar coisas novas (chega né?)
 
-- ver como fazer um appImage e um snap (colocar na store)
+=============================================================================================
 
-40 x 53
+
+- ao usar menu sobre plataforma, perde ela
+    # às vezes subindo nela, aciona a plataforma mas não move player (tiro carregado aumenta chance)
+
+- crash penúltima fase rockbot2 (android)
+- dash aereo fica preso na parede ao invés de cair porque não pode mais avançar
+
+- EDITOR: impedir de colocar collision tipo porta, porque elas agora são objetos (marcar disabled)
+- jogo fica acelerado depois de passar por porta (alguma coisa nãoe stá descontando o tempo de pause)
+- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
+- objetos estão acima do efeito de tela
+- dash do darkbot passa pelo player sem causar dano (problemas de colisão)
+    # parece sersó no android, ou talvez só com a Candy
+
+APPS/popstarter/POPSLDR/PROFILES/MAIN
 
 ===========================================================================================================================
+- forçar opção de músicas antigas para false, para evitar quem setou ela.
+- setar nome do jogo na janela, depois de escolhê-lo
+
+
+===========================================================================================================================
+- removed option "use old music"
 - always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
 - fix friend npc teleport-out.
 - friend npc that teleports out should not come back when changing map or dying.
@@ -63,7 +100,7 @@ MEGAMIX
 - fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
 - improved hit_ground method to theck not only center, but left and right of the character's hitbox also
     # prevents jump not being finished if center is still on air
----
+---------------------------------------------------------------------------------------------------------------------------
 - classic in-game menu
 - fix classic hud weapon value
 - do not restart auto charging shot if dead

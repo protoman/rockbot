@@ -6,11 +6,7 @@
 #include <map>
 #include <climits>
 
-#include <SDL/SDL.h>				//Include da SDL
-#include <SDL/SDL_image.h>		//Include da biblioteca SDL_Image
-#include <SDL/SDL_ttf.h>		// Include da biblioteca SDL_ttf
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_rotozoom.h>
+#include "sdl_layer.h"
 
 #include "defines.h"
 #include "file/format/st_common.h"
@@ -256,6 +252,7 @@ public:
 
     void copy_picker_bg(int x, int y, int w, int h);
     void restore_picker_bg(int x, int y, int w, int h, int dest_x, int dest_y);
+    void set_window_title(std::string name);
 
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);

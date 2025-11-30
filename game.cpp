@@ -330,9 +330,9 @@ void game::show_player_teleport(int pos_x, int pos_y)
     draw_lib.update_screen();
     timer.delay(20);
 
+    player1.set_animation_type(ANIM_TYPE_STAND);
     show_ready();
     // force stand to avoid gravity not doing it for any reason
-    player1.set_animation_type(ANIM_TYPE_STAND);
     loaded_stage.show_stage();
     player1.show();
     loaded_stage.showAbove();
@@ -343,6 +343,15 @@ void game::show_player_teleport(int pos_x, int pos_y)
 
 void game::show_ready()
 {
+    for (int i=0; i<6; i++) {
+        show_stage(0, false);
+        draw_lib.show_ready();
+        draw_lib.update_screen();
+        timer.delay(200);
+        show_stage(0, false);
+        draw_lib.update_screen();
+        timer.delay(200);
+    }
     draw_lib.show_ready();
 }
 
@@ -1538,9 +1547,11 @@ void game::quick_load_game()
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         //currentStage = STAGE5;
-        currentStage = CASTLE1_STAGE5;
+        //currentStage = CASTLE1_STAGE1;
+        //currentStage = STAGE1;
+        currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 

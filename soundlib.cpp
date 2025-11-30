@@ -389,7 +389,9 @@ void soundLib::close_audio() {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::close_audio");
 #endif
-    Mix_FreeMusic(music);
+    if (music != nullptr) {
+        Mix_FreeMusic(music);
+    }
 	Mix_CloseAudio();
 }
 
