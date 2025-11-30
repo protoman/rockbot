@@ -76,6 +76,7 @@ SOURCES += main.cpp \
     loadgamepicker.cpp \
     dialognpcedit.cpp \
     dialogobjectedit.cpp \
+    npc_jump_preview_area.cpp \
     projectilepreviewarea.cpp \
     ../file/file_io.cpp \
     player_preview_area.cpp \
@@ -130,6 +131,7 @@ SOURCES += main.cpp \
     dialog_pick_color.cpp \
     files_editor/gametextcreditstab.cpp \
     ../aux_tools/exception_manager.cpp \
+    ../aux_tools/trajectory_parabola.cpp \
     widgets/parallaxpreviewarea.cpp
 
 HEADERS += mainwindow.h \
@@ -143,6 +145,7 @@ HEADERS += mainwindow.h \
     loadgamepicker.h \
     dialognpcedit.h \
     dialogobjectedit.h \
+    npc_jump_preview_area.h \
     projectilepreviewarea.h \
     ../file/file_io.h \
     ../file/format.h \
@@ -213,6 +216,7 @@ HEADERS += mainwindow.h \
     dialog_pick_color.h \
     files_editor/gametextcreditstab.h \
     ../aux_tools/exception_manager.h \
+    ../aux_tools/trajectory_parabola.h \
     widgets/parallaxpreviewarea.h
 
 FORMS += mainwindow.ui \

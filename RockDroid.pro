@@ -385,6 +385,7 @@ HEADERS += \
     character/character.h \
     data/datautil.h \
     file/v4/file_config_old.h \
+    file/v4/file_npc_extra_data.h \
     graphicslib.h \
     defines.h \
     inputlib.h \

@@ -1,4 +1,16 @@
-﻿- crash ao apertar esc (antes do menu aparecer) ?
+﻿ROCKBOT
+###########################################################################################################################
+- criar um novo file que são flags extras para um npc
+    # o arquivo pode não existir, e defaults serão usados
+    # criar um número grande de flags, mesmo que não usadas agora
+    # pode setar propriedades de pulo (velocidade, aceleração)
+
+
+
+
+##########################################################################################################################
+
+- crash ao apertar esc (antes do menu aparecer) ?
 
 
 =============================================================================================

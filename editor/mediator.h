@@ -1,6 +1,7 @@
 #ifndef MEDIATOR_H
 #define MEDIATOR_H
 #include <QString>
+#include <file/v4/file_npc_extra_data.h>
 #include "file/format.h"
 #include "file/file_io.h"
 #include "file/fio_scenes.h"
@@ -134,6 +135,7 @@ public:
 
     std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_2> enemy_list;
     std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_1> enemy_list_3_1_1;
+    std::vector<CURRENT_FILE_FORMAT::file_npc_extra_data> enemy_list_extra_data;
 
     std::vector<CURRENT_FILE_FORMAT::file_object> object_list;
     std::vector<CURRENT_FILE_FORMAT::file_artificial_inteligence> ai_list;

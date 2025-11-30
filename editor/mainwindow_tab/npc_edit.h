@@ -103,6 +103,14 @@ private slots:
 
     void on_npcBehaviorComboBox_currentIndexChanged(int index);
 
+    void on_npc_jump_accel_x_doubleSpinBox_valueChanged(double arg1);
+
+    void on_npc_jump_accel_y_doubleSpinBox_valueChanged(double arg1);
+
+    void on_npc_jump_speed_x_doubleSpinBox_valueChanged(double arg1);
+
+    void on_npc_jump_speed_y_doubleSpinBox_valueChanged(double arg1);
+
 private:
 	void fill_data();
     void init_form();

@@ -68,6 +68,10 @@ void npc_edit::fill_data()
         ui->npc_edit_tab_weakness_points->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).weakness[0].damage_multiplier);
         ui->respawn_time_spinBox->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).respawn_delay);
 
+        ui->npc_jump_accel_x_doubleSpinBox->setValue(Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_accel_x);
+        ui->npc_jump_accel_y_doubleSpinBox->setValue(Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_accel_y);
+        ui->npc_jump_speed_x_doubleSpinBox->setValue(Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_x);
+        ui->npc_jump_speed_y_doubleSpinBox->setValue(Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_y);
         /*
         // GRAPHIC FILE //
         std::string image_filename(Mediator::get_instance()->enemy_list.at(index).graphic_filename);
@@ -123,6 +127,7 @@ void npc_edit::fill_data()
         // GRAPHIC FILE //
         ui->npc_edit_tab_graphiccombo->setCurrentIndex(ui->npc_edit_tab_graphiccombo->findText(QString(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename)));
         ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+std::string(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename));
+        ui->jump_preview_widget->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+std::string(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename));
         // BACKGROUND //
         ui->backgroundFileComboBox->setCurrentIndex(ui->backgroundFileComboBox->findText(QString(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename)));
         ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+std::string(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename));
@@ -207,6 +212,7 @@ void npc_edit::on_npc_edit_tab_selectnpccombo_currentIndexChanged(int index)
     ui->npc_edit_tab_previewarea->set_grid_w(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width);
     ui->npc_edit_tab_previewarea->set_grid_h(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height);
     ui->npc_edit_tab_previewarea->update();
+    ui->jump_preview_widget->update();
 
     reload_frame_list(Mediator::get_instance()->current_sprite_type);
 	_data_loading = false;
@@ -219,8 +225,10 @@ void npc_edit::on_npc_edit_tab_graphiccombo_currentIndexChanged(const QString &a
     }
     sprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename, "%s", arg1.toStdString().c_str());
     ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
+    ui->jump_preview_widget->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
     add_frame_one();
     ui->npc_edit_tab_previewarea->repaint();
+    ui->jump_preview_widget->repaint();
 }
 
 void npc_edit::on_npc_edit_tab_graphicwidth_valueChanged(int arg1)
@@ -715,6 +723,7 @@ void npc_edit::on_addEnemy_pushButton_clicked()
     }
     _data_loading = true;
     Mediator::get_instance()->enemy_list.push_back(CURRENT_FILE_FORMAT::file_npc_v3_1_2());
+    Mediator::get_instance()->enemy_list_extra_data.push_back(CURRENT_FILE_FORMAT::file_npc_extra_data());
     // add equivalent AI for enemy
     Mediator::get_instance()->ai_list.push_back(CURRENT_FILE_FORMAT::file_artificial_inteligence());
     ui->npc_edit_tab_selectnpccombo->addItem(QString("[") + QString::number(Mediator::get_instance()->enemy_list.size()-1) + QString("] Enemy Name"));
@@ -778,5 +787,29 @@ void npc_edit::on_npcBehaviorComboBox_currentIndexChanged(int index)
         return;
     }
     Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).behavior = index;
+}
+
+
+void npc_edit::on_npc_jump_accel_x_doubleSpinBox_valueChanged(double arg1)
+{
+    Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_accel_x = arg1;
+}
+
+
+void npc_edit::on_npc_jump_accel_y_doubleSpinBox_valueChanged(double arg1)
+{
+    Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_accel_y = arg1;
+}
+
+
+void npc_edit::on_npc_jump_speed_x_doubleSpinBox_valueChanged(double arg1)
+{
+    Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_x = arg1;
+}
+
+
+void npc_edit::on_npc_jump_speed_y_doubleSpinBox_valueChanged(double arg1)
+{
+    Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_y = arg1;
 }
 

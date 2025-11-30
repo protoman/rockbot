@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "sdl_layer.h"
+#include <file/v4/file_npc_extra_data.h>
 
 #include "file/format.h"
 #include "file/fio_common.h"
@@ -20,6 +21,7 @@ public:
     int get_projectile_list_size();
 
     CURRENT_FILE_FORMAT::file_npc_v3_1_2* get_enemy(int n);
+    CURRENT_FILE_FORMAT::file_npc_extra_data* get_enemy_extra_data(int n);
     int get_enemy_list_size();
 #ifdef WII
     void short_to_little_endian(short &s);
@@ -59,6 +61,7 @@ private:
     fio_common fio_cmm;
 
     std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_2> enemy_list;
+    std::vector<CURRENT_FILE_FORMAT::file_npc_extra_data> enemy_extra_data_list;
 
 
 };

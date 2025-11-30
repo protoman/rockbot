@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1222</width>
+    <width>1226</width>
     <height>723</height>
    </rect>
   </property>
@@ -22,8 +22,8 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_6">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_12">
+   <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <property name="rightMargin">
       <number>0</number>
@@ -80,7 +80,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_3">
         <property name="geometry">
@@ -88,7 +88,7 @@
           <x>0</x>
           <y>0</y>
           <width>380</width>
-          <height>553</height>
+          <height>521</height>
          </rect>
         </property>
         <attribute name="label">
@@ -318,7 +318,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="label_62">
               <property name="text">
-               <string>Name:</string>
+               <string>Name: </string>
               </property>
              </widget>
             </item>
@@ -437,13 +437,129 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="npc_extra_properties_page">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>380</width>
+          <height>521</height>
+         </rect>
+        </property>
+        <attribute name="label">
+         <string>Extra Properties</string>
+        </attribute>
+        <widget class="QWidget" name="verticalLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>371</width>
+           <height>511</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="bottomMargin">
+           <number>10</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="npc_jump_accel_y_doubleSpinBox">
+              <property name="minimum">
+               <double>-99.989999999999995</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Jump Accel X:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="npc_jump_accel_x_doubleSpinBox">
+              <property name="minimum">
+               <double>-99.989999999999995</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="npc_jump_speed_y_doubleSpinBox">
+              <property name="minimum">
+               <double>-99.989999999999995</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_17">
+              <property name="text">
+               <string>Jump Speed Y:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Jump Accel Y:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Jump Speed X:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="npc_jump_speed_x_doubleSpinBox">
+              <property name="minimum">
+               <double>-99.989999999999995</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="npc_jump_preview_area" name="jump_preview_widget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>320</width>
+              <height>240</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
        <widget class="QWidget" name="page_4">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
           <width>380</width>
-          <height>553</height>
+          <height>521</height>
          </rect>
         </property>
         <attribute name="label">
@@ -744,7 +860,7 @@ If you want to set are that misses the shots, use hitarea instead.</string>
      </item>
     </layout>
    </item>
-   <item>
+   <item row="0" column="1">
     <widget class="QWidget" name="verticalWidget_2" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1476,9 +1592,14 @@ If you want to set are that misses the shots, use hitarea instead.</string>
    <header location="global">sprite_preview_area.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>npc_jump_preview_area</class>
+   <extends>QWidget</extends>
+   <header>npc_jump_preview_area.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>

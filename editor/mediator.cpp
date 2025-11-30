@@ -398,6 +398,12 @@ void Mediator::load_game() {
             }
         }
     }
+    enemy_list_extra_data = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_npc_extra_data>("game_enemy_extra_data_list_4.dat");
+    if (enemy_list_extra_data.size() == 0) {
+        for (unsigned int i=0; i<enemy_list.size(); i++) {
+            enemy_list_extra_data.push_back(CURRENT_FILE_FORMAT::file_npc_extra_data());
+        }
+    }
 
     // fix invalid ghost values
     for (int i=0; i<enemy_list.size(); i++) {
@@ -484,6 +490,7 @@ void Mediator::save_game()
     Mediator::get_instance()->fio.write_castle_data(castle_data);
 
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_v3_1_2>("game_enemy_list_3_1_2.dat", enemy_list);
+    fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_npc_extra_data>("game_enemy_extra_data_list_4.dat", enemy_list_extra_data);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_object>("game_object_list.dat", object_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_artificial_inteligence>("game_ai_list.dat", ai_list);
     fio_cmm.save_data_to_disk<CURRENT_FILE_FORMAT::file_projectilev3>("data/game_projectile_list_v3.dat", projectile_list_v3);
