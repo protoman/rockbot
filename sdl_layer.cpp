@@ -93,6 +93,7 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 
 SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 {
+    printf("SDL version: %s\n", SDLL_GetCompiledVersion());
     return SDL_SetVideoMode(width, height, bpp, flags);
 }
 
