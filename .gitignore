@@ -47,9 +47,16 @@ cov-int
 *.so
 *.tar.gz
 *.dol
+*.map
 
 .qmake.stash
 .idea
 .qtc_clangd
 .vscode
-index.*
+
+aux_tools/PasswordGenerator/ui_*.h
+
+# wasm
+game.wasm
+game.data
+game.js
