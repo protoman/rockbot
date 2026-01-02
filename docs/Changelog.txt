@@ -10,12 +10,13 @@
 - EDITOR: fix vulnerable-area not showing when changing x or y values.
 - EDITOR: disable terrain DOOR as it is not used anymore.
 - fix double jump.
-
-
-
 ---------------------------------------------------------------------------------------------------------------
+
+
+
+####################################################################################################################################
 Version 2.22.079
----------------------------------------------------------------------------------------------------------------
+####################################################################################################################################
 - removed option "use old music"
 - always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
 - fix friend npc teleport-out.

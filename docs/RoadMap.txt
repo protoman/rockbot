@@ -1,6 +1,8 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
+- lower HP of the eaghle in Rockbot 2's final stage
+
 - slowdown when showing "mission start" with GXF enabled
     # also there is a glitch in the portuguese text
 
