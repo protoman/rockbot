@@ -58,6 +58,7 @@ TARGET = rockbot
 
 linux {
     DEFINES += LINUX
+    DEFINES += PC
     LIBS += -L/usr/X11R6/lib -lX11 -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `sdl-config --libs` -ldl -lstdc++ -fstack-protector-all
     INCLUDES += -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
 
@@ -72,6 +73,7 @@ linux {
 
 macosx {
     DEFINES += OSX
+    DEFINES += PC
     LIBS += `sdl2-config --libs`
     LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
 #    DESTDIR = ../
@@ -93,6 +95,7 @@ macosx {
 
 win32 {
     DEFINES += WIN32
+    DEFINES += PC
     LIBS =  -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx -lmingw32 -lSDL -mwindows -LC:\Qt\5.15.2\mingw81_32\lib -LC:\Qt\5.15.2\mingw81_32\lib\x86 -L/usr/lib -L/usr/lib/x86 -LC:\MinGW\lib -LC:\MinGW\lib\x86
     INCLUDES = -I/usr/include/SDL -I/usr/include -I. -I./include -L/usr/lib
     QMAKE_CCFLAGS += -O2 -DWIN32 -DPC

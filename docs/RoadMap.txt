@@ -1,7 +1,6 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
-- lower HP of the eaghle in Rockbot 2's final stage
 
 - slowdown when showing "mission start" with GXF enabled
 
@@ -10,10 +9,9 @@ ROCKBOT
 
 - (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
 
-- dash do darkbot passa pelo player sem causar dano (problemas de colisão)
-    # parece sersó no android, ou talvez só com a Candy
+- Darkbot's dash passes through the player without making touch damage due to some issue in hit-area.
+    # seems to be only on android, or maybe only with Candy
 
-APPS/popstarter/POPSLDR/PROFILES/MAIN
 
 ===========================================================================================================================
 - setar nome do jogo na janela, depois de escolhê-lo
@@ -33,11 +31,13 @@ APPS/popstarter/POPSLDR/PROFILES/MAIN
 =============================================================================================
 ROCKMIX
 =============================================================================================
+- lower HP of the eaghle in Rockbot 2's final stage
+
 - tiro está pegando em inimigos que deveriam ser mais baixos (sapinhos bubble, pula-pula top)
 
 
 DONE - [95] STONEMAN CANNON fica animando a poisção do canhão sem parar
-DONE - [96] STONEMAN GROUND RUNNER ca da plataforma ao dar dash
+DONE - [96] STONEMAN GROUND RUNNER cai da plataforma ao dar dash
 
 - melhorar posição de origem do tiro de inimigo bola do concreto
     # elefante ou bird?
@@ -49,7 +49,6 @@ DONE - [96] STONEMAN GROUND RUNNER ca da plataforma ao dar dash
     # metalman - https://www.vgmaps.com/Atlas/NES/MegaManII-MetalMan.png
     # toadman - https://www.vgmaps.com/Atlas/NES/MegaManIV-ToadMan.png
     # (backup) drillman - https://www.vgmaps.com/Atlas/NES/MegaManIV-DrillMan.png, magnetman - https://www.vgmaps.com/Atlas/NES/MegaManIII-MagnetMan.png
-- ao habilitar som, não está limpando a área do texto antes de escreverr "habilitado"
 
 Woodman:
     - VER COMO FAZER APE FICAR PENDURADO E DEPOIS PERMANECER NA ANIMAÇÃO DE JUMP, ÚLTIMO FRAME.
@@ -58,11 +57,10 @@ Woodman:
 - Bubbleman entra para dentro do chão
     # verificar se está acontecendo com ApeBot
 
-DONE - pontos de vida do peixão estão baixos
-DONE - bombas do bubbleman devem ser indestrutíveis (intangíveis)
 - bombas bubbleman devem explodir ao chegar perto
 
 - rockmix: colocar checkpoints nas fases
+
 - pulo longo dos inimigos fica muito lento (Stone Man)
 
 - terminar estagios em RockMix

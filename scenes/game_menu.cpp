@@ -272,6 +272,7 @@ void game_menu::show_config_video()
             graphLib.clear_area(menu_pos.x-14, menu_pos.y, RES_W, 100, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             main_config_picker.draw();
         }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 }
 
@@ -381,8 +382,6 @@ void game_menu::show_config_audio()
     input.clean();
     timer.delay(300);
 
-
-
     short selected_option = 0;
     while (selected_option != -1) {
         std::vector<std::string> options;
@@ -416,6 +415,7 @@ void game_menu::show_config_audio()
             soundManager.update_volumes();
             fio.save_config(SharedData::get_instance()->game_config);
         }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 }
 
@@ -474,6 +474,7 @@ void game_menu::show_config_language()
             show_config_ask_restart();
             main_config_picker.draw();
         }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 }
 
@@ -501,8 +502,6 @@ void game_menu::show_config_performance()
         } else {
             options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_show_fps) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_off));
         }
-
-
 
         option_picker main_config_picker(false, config_text_pos, options, true);
 
@@ -593,6 +592,7 @@ void game_menu::show_config_extras()
         } else if (selected_option == 1) {
             sfx_player();
         }
+        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         config_extras_picker.draw();
     }
 }

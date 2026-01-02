@@ -13,6 +13,7 @@
 - fix objects not being on the ground when stage starts.
 - fix player "falling" at the start of a stage due to 1 pixel difference in Y position.
 - fix game being too fast after passing through a boss door.
+- fix menu showing text-over text when changing some options like enable audio.
 
 ---------------------------------------------------------------------------------------------------------------
 
