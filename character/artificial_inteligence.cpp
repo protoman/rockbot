@@ -451,12 +451,18 @@ void artificial_inteligence::ia_action_jump_to_player()
 void artificial_inteligence::ia_action_jump_to_point(st_position point)
 {
     float xinc = 0;
-    float xinx_multiplier = 1;
-    xinx_multiplier = GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_x;
+    float jump_xinc_multiplier = GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_x;
+    float jump_yinc_multiplier = GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_y;
+
+    // hack to keep the old behavior for enemies that have not set a custom value
+    if (move_speed == 1 && jump_xinc_multiplier == 1 && jump_yinc_multiplier == 1) {
+        jump_xinc_multiplier = 4;
+    }
+
     if (state.direction == ANIM_DIRECTION_LEFT) {
-        xinc = -move_speed*xinx_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
+        xinc = -move_speed*jump_xinc_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
     } else {
-        xinc = move_speed*xinx_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
+        xinc = move_speed*jump_xinc_multiplier; /// @TODO - check collision against walls (will have to "fake" the x position to continue jump movement)
     }
 
     if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_INITIAL) {
@@ -493,7 +499,7 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
         // TODO - add multiplier
 
         int new_x = abs((position.x + _origin_point.x) - _ai_state.initial_position.x);
-        int new_y = _ai_state.initial_position.y - (_trajectory_parabola->get_y_point(new_x) * GameMediator::get_instance()->get_enemy_extra_data(_number)->jump_speed_y);
+        int new_y = _ai_state.initial_position.y - (_trajectory_parabola->get_y_point(new_x) * jump_yinc_multiplier);
         int yinc = position.y - new_y;
 
         if (abs(yinc) >= TILESIZE) {

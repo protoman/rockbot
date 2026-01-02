@@ -303,7 +303,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
                     gSurface = NULL;
                 }
@@ -335,7 +335,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 if (original.width > 0) {
                     // copy surface
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = SDL_DisplayFormatAlpha(original.gSurface);
                 } else {
                     gSurface = NULL;
                 }

@@ -64,7 +64,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     last_execute_time = 0;
     _check_always_move_ahead = false;
     _dropped_from_stairs = false;
-    _jumps_number = 1;
+    character_max_jump_number = 1;
     _dash_button_released = true;
     _damage_modifier = 0;
     _hit_ground = false;
@@ -1780,16 +1780,17 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 }
             }
         } else {
-            if (_is_falling == false && (_obj_jump.is_started() == false || (_jumps_number > _obj_jump.get_jumps_number()))) {
+            if (_is_falling == false && (_obj_jump.is_started() == false || (character_max_jump_number > _obj_jump.get_max_jump_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
-                    std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
+                    //std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
                     set_platform(nullptr);
                     _obj_jump.start(true, water_lock);
                 } else {
-                    std::cout << "### CHARACTER::REMOVE PLATFORM #2" << std::endl;
+                    //std::cout << "### CHARACTER::REMOVE PLATFORM #2 - character_max_jump_number[" << character_max_jump_number << "], jump.count[" << _obj_jump.get_max_jump_number() << "]"<< std::endl;
                     set_platform(nullptr);
-                    if (_obj_jump.is_started() == false) { // fixed coil not jumping high (was starting a new jump)
+                    if (_obj_jump.is_started() == false || character_max_jump_number > _obj_jump.get_max_jump_number()) { // fixed coil not jumping high (was starting a new jump)
+                        //std::cout << "## CHARACTER::JUMP START #1" << std::endl;
                         _obj_jump.start(false, water_lock);
                     }
                 }

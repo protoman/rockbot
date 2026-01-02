@@ -1,22 +1,43 @@
-﻿ROCKBOT
+﻿###########################################################################################################################
+ROCKBOT
 ###########################################################################################################################
-- criar um novo file que são flags extras para um npc
-    # o arquivo pode não existir, e defaults serão usados
-    # criar um número grande de flags, mesmo que não usadas agora
-    # pode setar propriedades de pulo (velocidade, aceleração)
+- slowdown when showing "mission start" with GXF enabled
+    # also there is a glitch in the portuguese text
+
+- ao iniciar fase, objetos devem cair até o chão antes de mostrar o cenario
+    # vide fase final do Rockbot 1
+
+- crash penúltima fase rockbot2 (android)
+
+- jogo fica acelerado depois de passar por porta (alguma coisa não está descontando o tempo de pause)
+- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
+- dash do darkbot passa pelo player sem causar dano (problemas de colisão)
+    # parece sersó no android, ou talvez só com a Candy
+
+APPS/popstarter/POPSLDR/PROFILES/MAIN
+
+===========================================================================================================================
+- setar nome do jogo na janela, depois de escolhê-lo
 
 
+===========================================================================================================================
 
 
 ##########################################################################################################################
 
 - crash ao apertar esc (antes do menu aparecer) ?
-
+    # happened when trying to open the quit menu and pressing esc twice
+    if (music != nullptr) {
+        Mix_FreeMusic(music);
+    }
 
 =============================================================================================
 ROCKMIX
 =============================================================================================
-DONE - [95] STONEMAN CANNON fica animando a poisçã do canhão sem parar
+- tiro está pegando em inimigos que deveriam ser mais baixos (sapinhos bubble, pula-pula top)
+
+
+DONE - [95] STONEMAN CANNON fica animando a poisção do canhão sem parar
 DONE - [96] STONEMAN GROUND RUNNER ca da plataforma ao dar dash
 
 - melhorar posição de origem do tiro de inimigo bola do concreto
@@ -25,6 +46,7 @@ DONE - [96] STONEMAN GROUND RUNNER ca da plataforma ao dar dash
 - melhorar IA do pássaro com pedra
 
 - adicionar mais fases:
+    # Shade Man (pegar gráficos demake)
     # metalman - https://www.vgmaps.com/Atlas/NES/MegaManII-MetalMan.png
     # toadman - https://www.vgmaps.com/Atlas/NES/MegaManIV-ToadMan.png
     # (backup) drillman - https://www.vgmaps.com/Atlas/NES/MegaManIV-DrillMan.png, magnetman - https://www.vgmaps.com/Atlas/NES/MegaManIII-MagnetMan.png
@@ -51,127 +73,6 @@ DONE - bombas do bubbleman devem ser indestrutíveis (intangíveis)
 
 =============================================================================================
 
-
-- ao usar menu sobre plataforma, perde ela
-    # às vezes subindo nela, aciona a plataforma mas não move player (tiro carregado aumenta chance)
-
-- crash penúltima fase rockbot2 (android)
-- dash aereo fica preso na parede ao invés de cair porque não pode mais avançar
-
-- EDITOR: impedir de colocar collision tipo porta, porque elas agora são objetos (marcar disabled)
-- jogo fica acelerado depois de passar por porta (alguma coisa nãoe stá descontando o tempo de pause)
-- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
-- objetos estão acima do efeito de tela
-- dash do darkbot passa pelo player sem causar dano (problemas de colisão)
-    # parece sersó no android, ou talvez só com a Candy
-
-APPS/popstarter/POPSLDR/PROFILES/MAIN
-
-===========================================================================================================================
-- forçar opção de músicas antigas para false, para evitar quem setou ela.
-- setar nome do jogo na janela, depois de escolhê-lo
-
-
-===========================================================================================================================
-- removed option "use old music"
-- always reload stage music on stage-restart, fixed music playing a part from the middle before restarting.
-- fix friend npc teleport-out.
-- friend npc that teleports out should not come back when changing map or dying.
-- added sprites for Dragon Bot's teleporting.
-- fix projectile of type spiral, avoid inc of zero to the radius, fix Dragon Bot's weapon.
-- do not reused a RW for error font, causes problems in Windows.
-- EDITOR: use opened game in the window title.
-
-
----------------------------------------------------------------------------------------------------------------------------
-- convert boss hp to classic style also.
-- adjust object execution timer to make them faster
-- show beaten faces as darkned in stage select screen
-- show player celebrating victory after defeating boss even if is one that do not give you a weapon
-- AI: fix turn confition for zig-zag-ahead
-- pause game wqhen entering door to prevent rapid movement after it closes
-- improve Rockbot 1 castle 3 tileset with a anim-tile for magnets.
-- created new projectile trajectory, ahead-and-back, so that zig-zag won't stop when reaching initial-x.
-- ground-damage block player jump for a second
-- walk-on-roof should update direction to given destination
-- improved blinking animation when player or enemies are invulnerabvle after being hit
-- fixed chain projectile position for player and npcs
-- increase star-shield speed a bit
-- fixed auto-respawn for the second time (was not resetting the dead flag on revive method)
-- improved hit_ground method to theck not only center, but left and right of the character's hitbox also
-    # prevents jump not being finished if center is still on air
----------------------------------------------------------------------------------------------------------------------------
-- classic in-game menu
-- fix classic hud weapon value
-- do not restart auto charging shot if dead
-- music do not stop after dying
-- more fixes for hitarea and vulnerable-area when npc has background
-- added option in cheats menu to change between modern and classic styles
-- adicionar efeito sonoro em plataformas ativas quando acionar elas
-- adicionar som ao entrar em cápsula de teleporte
-- fixes for object platform:
-    # if player is inside object, adjust position when moving him
-    # update map scrolling when moving player
-- projectile appearing in position 0x0 for one frame (missing update-real-pos)
-- improved error display and add log message into file
-- EDITOR: fix vulnerable-area with bg in preview
-- fix hitting enemy outside hit-area if it has background
-- fix for npcs with background not showing when partially outside screen (use bg pos adjust and width)
-- add option for door animation if it has frames in image
-- fix jump interruption when hitting the head on solid
-- fix stairs transitioning back when moving from bottom to top
-- game-style option in editor can use used to bring back some mm-like presentation
-    # stage select
-    # player and boss death explosions
-    # got-weapon screen
-    # skull castle intro
-    # boss intro
-- implement timed-bombs
-- add sfx for shoot+jump destructible object
-- fix entering stairs pos x adjust for different player sprites sizes
-- player showing above overlay in teleport-in animation
-- decrease enemies intangible time after hit to 200ms
-- block that can be broken by shooting or jumping on it
-- fix projectile trajectories up and down
-- fix replace itself position
-# EDDIE:
-    - npc amigável via behavior flag
-    - nova IA: throw item
-    - nova IA: teleport out
-- EDITOR: should not be able to pick empty tile in anim selector
-- map gfx animated bg: splits image into half for frames
-- fix jump limits when inside quicksand
-- new IA para walk ou fly: up to ground, down to inside ground
-- fix projectile of type TARGET_EXACT
-- add support for setting goto-next into reactions
-- when changing between maps, keep scroll x position only if same image
-- EDITOR: ask if user wants to same data before loading another game
-- EDITOR: make easier to see the grid lines
-- active platform and no-drop destructible item, when out of screen must reset state and position
-- do not change to STAND from SLIDE when going through transition unless it has a door
-- use hitbox area defined in editor for players instead of hardcoded one
-- getting locked out if using frog in the top of the screen
-- new shield type: using shield (animation type) and back (as in opposite of front).
-- limit the max of spawned npcs from the origin point of the map-npc instead of the number of the main-npc data.
-- two new object types, destructible (with regular weapons) and same that drops item.
-- try to use ANIM_TYPE_STAND for hitbox if current anim-type is not used, avoiding falling to default frameSize.
-    # fix collision against npcs with background.
-- NPC death explosion being shown at start point when falling in hold/ground (should have no explision at all)
-- fly/to-player leaving shadow like dash
-- HIGH: reflected projectiles were not being consumed/finished.
-- AI: use move-speed to determine the range of the jump.
-- new AI: walk ahead even if falls from platform.
-- new AI: shoot projectile in several directions at same time.
-- new AI: fall down in diagonal.
-- new projectile types that fire multiple, 5 way up, 5 way down and 8 way.
-- moving platform up and down.
-- EDITOR: option "draw areas" that show objects and enemies rectangles, used when image has problems.
-- EDITOR: add option for FG auto-scroll.
-- EDITOR: npc with background was not being correctly shown when facing right direction.
-- EDITOR: show the movie preview in other languages
-- EDITOR: add option view->tileset.
-- EDITOR: map reset must include links, enemies and objects.
-- wave GFX in map background.
 
 ###########################################################################################################################
 0.7.0

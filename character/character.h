@@ -372,7 +372,7 @@ protected:
     bool _is_final_game_boss = false;                      // this enemy is the final game boss or spawns it
     bool _dropped_from_stairs;                              // used to avoid grabbing stairs again when dropped from it
     classjump _obj_jump;
-    short _jumps_number;                                    // used for double or triple jumping
+    short character_max_jump_number;                                    // used for double or triple jumping
     short _damage_modifier;                                 // used in players
     st_float_position _previous_position;                   // this is used so we can avoid calculating things like hit_gound() if position did not changed
     bool _hit_ground;

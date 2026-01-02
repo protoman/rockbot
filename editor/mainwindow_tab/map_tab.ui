@@ -190,7 +190,7 @@
             <enum>QFrame::NoFrame</enum>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="tabSpacing">
             <number>0</number>
@@ -201,7 +201,7 @@
               <x>0</x>
               <y>0</y>
               <width>362</width>
-              <height>623</height>
+              <height>604</height>
              </rect>
             </property>
             <attribute name="label">
@@ -595,7 +595,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -733,7 +733,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -773,6 +773,9 @@
                 <property name="icon">
                  <iconset resource="../resources/icons/icons.qrc">
                   <normaloff>:/toolbar_icons/object-order-lower.png</normaloff>:/toolbar_icons/object-order-lower.png</iconset>
+                </property>
+                <property name="flags">
+                 <set>ItemIsDragEnabled|ItemIsUserCheckable</set>
                 </property>
                </item>
                <item>
@@ -878,7 +881,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -961,7 +964,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1071,7 +1074,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1134,7 +1137,7 @@
               <x>0</x>
               <y>0</y>
               <width>376</width>
-              <height>281</height>
+              <height>290</height>
              </rect>
             </property>
             <attribute name="label">
@@ -1586,7 +1589,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
   <include location="../resources/icons/icons.qrc"/>
  </resources>

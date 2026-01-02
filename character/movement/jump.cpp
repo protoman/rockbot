@@ -17,13 +17,13 @@ classjump::classjump() : started(false)
     JUMP_LIMIT = TILESIZE*3.5;
     //JUMP_LIMIT = 240;
     state = NOJUMP;
-    jumps_number = 0;
+    max_jump_number = 0;
     start_terrain_type = TERRAIN_UNBLOCKED;
 }
 
 void classjump::start(bool bigjump_mode, int terrain_type)
 {
-    std::cout << "### JUMP::START - bigjump_mode[" << bigjump_mode << "]" << std::endl;
+    //std::cout << "### JUMP::START - bigjump_mode[" << bigjump_mode << "]" << std::endl;
     started = true;
     state = JUMPUP;
     is_bigjump = bigjump_mode;
@@ -44,8 +44,9 @@ void classjump::start(bool bigjump_mode, int terrain_type)
     } else {
         acceleration = JUMP_ACCELERATION;
     }
-    jumps_number++;
+    max_jump_number++;
     moved = 0;
+    //std::cout << "### JUMP::START - max_jump_number[" << max_jump_number << "]" << std::endl;
 }
 
 bool classjump::is_started()
@@ -115,7 +116,7 @@ void classjump::interrupt()
 void classjump::finish()
 {
     //std::cout << "### JUMP::finish" << std::endl;
-    jumps_number = 0;
+    max_jump_number = 0;
     state = NOJUMP;
     speed = 0;
     started = false;
@@ -126,9 +127,9 @@ float classjump::get_speed()
     return speed;
 }
 
-short classjump::get_jumps_number()
+short classjump::get_max_jump_number()
 {
-    return jumps_number;
+    return max_jump_number;
 }
 
 void classjump::set_jump_acceleration(double value)

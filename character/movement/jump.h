@@ -21,7 +21,7 @@ public:
     void interrupt(); // used to interrupt a jump-up by releasing the button
     void finish(); // hit ground, must stop all jumping
     float get_speed();
-    short get_jumps_number();
+    short get_max_jump_number();
     void set_jump_acceleration(double value);
     void set_jump_limit(int value);
     void set_speed_multiplier(float multi);
@@ -32,7 +32,7 @@ private:
     float acceleration;
     float speed;
     E_JUMP_STATE state;
-    short jumps_number;               // how many consecutive jumps used (for double/triple jumping)
+    short max_jump_number;               // how many consecutive jumps used (for double/triple jumping)
     float moved;                        // this is used to hardcode the number of pixels a jump should move in maximum
     bool is_bigjump;
     double JUMP_ACCELERATION;

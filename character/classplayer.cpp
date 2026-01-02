@@ -86,9 +86,9 @@ void classPlayer::initialize()
     _simultaneous_shots = GameMediator::get_instance()->player_list_v3_1[_number].simultaneous_shots;
 
     if (can_double_jump() == true) {
-        _jumps_number = 2;
+        character_max_jump_number = 2;
     } else {
-        _jumps_number = 1;
+        character_max_jump_number = 1;
     }
     _damage_modifier = GameMediator::get_instance()->player_list_v3_1[_number].damage_modifier;
     update_armor_properties();
@@ -1250,8 +1250,8 @@ bool classPlayer::have_shoryuken()
 
 void classPlayer::update_armor_properties()
 {
-    if (can_double_jump() == true && _jumps_number == 1) {
-        _jumps_number = 2;
+    if (can_double_jump() == true && character_max_jump_number == 1) {
+        character_max_jump_number = 2;
     }
     if (game_save.armor_pieces[ARMOR_TYPE_BODY] == true && game_data.armor_pieces[ARMOR_TYPE_BODY].special_ability[_number] == ARMOR_ABILITY_BODY_EXTENDEDIMMUNITY) {
         hit_duration = 4000;

@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <jni.h>
 #include <SDL_android.h>
 #include <android/log.h>
 #include <SDL_screenkeyboard.h>

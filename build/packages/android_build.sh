@@ -11,11 +11,11 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 
-export PELYA_ANDROID_SDK=/home/iuri/Devel/commandergenius
-export ANDROID_HOME=/home/iuri/Devel/Sdk/AndroidSdk/
-export ANDROID_NDK_HOME=/home/iuri/Devel/Sdk/android-ndk-r25c/
+export PELYA_ANDROID_SDK=/mnt/SamsungEXT4/development/SDK/Android/commandergenius
+export ANDROID_HOME=/mnt/SamsungEXT4/development/SDK/Android/SDK
+export ANDROID_NDK_HOME=/mnt/SamsungEXT4/development/SDK/Android/android-ndk-r20
 # add NDK to path
-export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/30.0.3/
+export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/29.0.3
 
 
 read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
@@ -37,12 +37,12 @@ case $response in
 		mkdir ./Android/data/games/RockDroid$version_number/music/mp3/
 
 		### Convert MOD music to MP3 ###
-		for filename in ../games/RockDroid$version_number/music/*; do
-			basename=${filename##*/}
-			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
-				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
-			fi
-		done
+#		for filename in ../games/RockDroid$version_number/music/*; do
+#			basename=${filename##*/}
+#			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
+#				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+#			fi
+#		done
 
 		mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot
 		cp -r ./files/android $PELYA_ANDROID_SDK/project/jni/application/rockbot

@@ -33,7 +33,7 @@ public:
     double scaleX;
     double scaleY;
     st_size scale_window_size;
-    bool changed_window_size;
+    bool changed_window_size = false;
     short current_language = LANGUAGE_AUTODETECT;
     bool is_showing_boss_intro = false;
     bool leave_stage_request = false;

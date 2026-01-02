@@ -37,7 +37,7 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
 
     CURRENT_FILE_FORMAT::file_npc_v3_1_2 temp_npc = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n);
 
-    std::string filename = FILEPATH + "/images/sprites/enemies/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename;
+    std::string filename = FILEPATH + "/images/sprites/enemies/" + temp_npc.graphic_filename;
 
     QPixmap fg_image(filename.c_str());
 
@@ -46,11 +46,11 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
         fg_image.setMask(mask);
     }
 
-    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename;
+    std::string _bg_graphic_filename = FILEPATH + "/images/sprites/enemies/backgrounds/" + temp_npc.bg_graphic_filename;
     QPixmap bg_image(_bg_graphic_filename.c_str());
 
-    int total_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width;
-    int total_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height;
+    int total_w = temp_npc.frame_size.width;
+    int total_h = temp_npc.frame_size.height;
     // calculate total image size of background exists
     if (!bg_image.isNull()) {
         total_w = bg_image.width();
@@ -58,11 +58,11 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     }
     int center_x = this->width()/2 - total_w;
     int center_y = this->height()/2 - total_h;
-    int adjust_x = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.x*2;
-    int adjust_y = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites_pos_bg.y*2;
+    int adjust_x = temp_npc.sprites_pos_bg.x*2;
+    int adjust_y = temp_npc.sprites_pos_bg.y*2;
 
-    int npc_w = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.width*2;
-    int npc_h = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frame_size.height*2;
+    int npc_w = temp_npc.frame_size.width*2;
+    int npc_h = temp_npc.frame_size.height*2;
 
     int bg_w = 0;
 
@@ -77,32 +77,44 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     if (fg_image.isNull() == false && fg_image.width() > 0) {
         fg_image = fg_image.scaled(fg_image.width()*2, fg_image.height()*2);
         QRectF target(QPoint(center_x+adjust_x, center_y+adjust_y), QSize(npc_w, npc_h));
-        QRectF source(QPoint(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).sprites[Mediator::get_instance()->current_sprite_type][_sprite_n].sprite_graphic_pos_x * npc_w, 0), QSize(npc_w, npc_h));
+        QRectF source(QPoint(temp_npc.sprites[Mediator::get_instance()->current_sprite_type][_sprite_n].sprite_graphic_pos_x * npc_w, 0), QSize(npc_w, npc_h));
         painter.drawPixmap(target, fg_image, source);
     }
 
     // draw vulnerable-area
     painter.setBrush(QColor(255, 0, 0, 50));
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w != 0 && Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h != 0) {
+
+
+
+    // TODO: improve logic, must draw it if any value (x, y, w, h) is non-default
+    int vulnerable_x = temp_npc.vulnerable_area.x;
+    int vulnerable_y = temp_npc.vulnerable_area.y;
+    int vulnerable_w = temp_npc.vulnerable_area.w;
+    int vulnerable_h = temp_npc.vulnerable_area.h;
+
+    if (vulnerable_x != 0 || vulnerable_y != 0 || vulnerable_w > 0 || vulnerable_h > 0) {
+        std::cout << "################### must draw vulnerable-area" << std::endl;
         int bg_w_diff = 0;
         if (bg_w > 0) {
-            bg_w_diff = bg_w*2 - Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w*2;
+            bg_w_diff = bg_w*2 - temp_npc.vulnerable_area.w*2;
         }
-        int hitx = center_x - Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.x*2 + bg_w_diff;
+        int hitx = center_x - temp_npc.vulnerable_area.x*2 + bg_w_diff;
 
-        std::cout << "center_x[" << center_x << "], total_w[" << total_w << "], x[" << Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.x << "], total_w[" << total_w << "], w[" << Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w << "], bg_w_diff[" << bg_w_diff << "], hitx[" << hitx << "]" << std::endl;
+        std::cout << "center_x[" << center_x << "], total_w[" << total_w << "], x[" << temp_npc.vulnerable_area.x << "], total_w[" << total_w << "], w[" << temp_npc.vulnerable_area.w << "], bg_w_diff[" << bg_w_diff << "], hitx[" << hitx << "]" << std::endl;
 
-        int hity = center_y+adjust_y+Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.y*2;
-        int hitw = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.w*2;
-        int hith = Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).vulnerable_area.h*2;
+        int hity = center_y+adjust_y+temp_npc.vulnerable_area.y*2;
+        int hitw = temp_npc.vulnerable_area.w*2;
+        int hith = temp_npc.vulnerable_area.h*2;
         painter.drawRect(hitx, hity, hitw, hith);
+    } else {
+        std::cout << "################### ignore vulnerable-area - current-npc[" << Mediator::get_instance()->current_npc_n << "], vulnerable_w[" << vulnerable_w << "], vulnerable_h[" << vulnerable_h << "]" << std::endl;
     }
 
     // draw attack_position, if set
-    if (Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x > 0 || Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y > 0) {
+    if (temp_npc.attack_arm_pos.x > 0 || temp_npc.attack_arm_pos.y > 0) {
         painter.setPen(QPen(QColor(0, 150, 0), 2, Qt::DashLine));
-        int attack_x = center_x + npc_w - (adjust_x + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.x*2);
-        int attack_y = center_y + adjust_y + Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).attack_arm_pos.y*2;
+        int attack_x = center_x + npc_w - (adjust_x + temp_npc.attack_arm_pos.x*2);
+        int attack_y = center_y + adjust_y + temp_npc.attack_arm_pos.y*2;
         // vertical line
         painter.drawLine(attack_x, (center_y + adjust_y), attack_x, (center_y + adjust_y + npc_h));
         // horizontal line

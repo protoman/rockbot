@@ -59,6 +59,10 @@ void npc_jump_preview_area::paintEvent(QPaintEvent *event)
     float speed_multi_x = Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_x;
     float speed_multi_y = Mediator::get_instance()->enemy_list_extra_data.at(Mediator::get_instance()->current_npc_n).jump_speed_y;
 
+    if (move_speed == 1 && speed_multi_x == 1 && speed_multi_y == 1) {
+        speed_multi_x = 4;
+    }
+
     position.x += move_speed;
     position.y = 100 - speed_multi_y*parabola_arc->get_y_point(position.x);
 

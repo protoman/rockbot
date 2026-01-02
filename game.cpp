@@ -1541,15 +1541,15 @@ void game::quick_load_game()
 
     //scenes.select_save(false);
     //scenes.select_player();
-    game_save.selected_player = PLAYER_1;
+    game_save.selected_player = PLAYER_2;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         //currentStage = STAGE5;
-        //currentStage = CASTLE1_STAGE1;
+        currentStage = CASTLE1_STAGE5;
         //currentStage = STAGE1;
-        currentStage = INTRO_STAGE;
+        //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
         //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
@@ -1560,7 +1560,7 @@ void game::quick_load_game()
     // DEBUG //
     //show_ending();
 
-    scenes.boss_intro(currentStage);
+    //scenes.boss_intro(currentStage);
 
     start_stage();
 

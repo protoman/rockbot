@@ -4,7 +4,7 @@
 #ifdef ANDROID
 
 extern CURRENT_FILE_FORMAT::file_io fio;
-extern jobject activity_ref;
+//extern jobject activity_ref;
 
 android_game_services::android_game_services()
 {
@@ -12,7 +12,7 @@ android_game_services::android_game_services()
     original_pos_a = {0, 0, 0, 0};
 
     //gpg::AndroidPlatformConfiguration platform_configuration;
-    //platform_configuration.SetActivity(activity_ref);
+    //platform_configuration.SetActivity('activity_ref');
 }
 
 void android_game_services::crash_handler(std::string log_msg)

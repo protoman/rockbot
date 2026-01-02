@@ -75,15 +75,19 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
+        std::cout << "#1 fio_strings::load_game_strings_from_file[" << filename << "]" << std::endl;
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
+            std::cout << "#2 fio_strings::load_game_strings_from_file[" << filename << "] opened" << std::endl;
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        } else {
+            std::cout << "#3 fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
         }
 
         std::string str;
@@ -115,6 +119,7 @@ namespace format_v4 {
 
         /*
         // removed because suddnely, it was not needed, don't know why //
+        // adding back breaks accented characters
         if (convert_symbols == true) {
             for (unsigned int i=0; i<res.size(); i++) {
                 res[i] = convert_text_symbols(res[i]);

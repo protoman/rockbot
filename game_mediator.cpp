@@ -46,6 +46,11 @@ int GameMediator::get_projectile_list_size()
 
 CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
 {
+    if (enemy_list.size() == 0) {
+        std::cout << "Error: Enemy_list is empty" << std::endl;
+        SDL_Quit();
+        exit(0);
+    }
     // boss not yet set
     if (n < 0 || n >= enemy_list.size()) {
         // return first NPC to avoid errors
@@ -56,11 +61,19 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
 
 format_v4::file_npc_extra_data *GameMediator::get_enemy_extra_data(int n)
 {
+    if (enemy_extra_data_list.size() == 0) {
+        std::cout << "Error: Enemy_extra_data_list is empty, filling with empty datas" << std::endl;
+        for (int i=0; i<enemy_list.size(); i++) {
+            enemy_extra_data_list.push_back(format_v4::file_npc_extra_data());
+        }
+
+    }
     // boss not yet set
     if (n < 0 || n >= enemy_extra_data_list.size()) {
         // return first NPC to avoid errors
         n = 0;
     }
+    //std::cout << "#GameMediator::get_enemy_extra_data - n[" << n << "], max[" << enemy_extra_data_list.size() << "]" << std::endl;
     return &enemy_extra_data_list.at(n);
 }
 
