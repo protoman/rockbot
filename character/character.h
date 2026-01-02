@@ -132,7 +132,7 @@ public:
     void interrupt_jump();
     void fall();								// falls until reaching ground or leaving screen /// @TODO
     void fall_to_ground();
-    void initialize_boss_position_to_ground();
+    void initialize_npc_position_to_ground();
     bool change_position(short int xinc, short int yinc);
     void change_position_x(short int xinc);
     int change_position_y(short int yinc);

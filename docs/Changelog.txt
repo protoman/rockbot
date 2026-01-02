@@ -10,6 +10,8 @@
 - EDITOR: fix vulnerable-area not showing when changing x or y values.
 - EDITOR: disable terrain DOOR as it is not used anymore.
 - fix double jump.
+- fix objects not being on the ground when stage starts.
+- fix player "falling" at the start of a stage due to 1 pixel difference in Y position.
 ---------------------------------------------------------------------------------------------------------------
 
 

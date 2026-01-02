@@ -271,7 +271,6 @@ void game::start_stage()
 
     loaded_stage.show_stage();
     loaded_stage.showAbove();
-    //draw_lib.update_screen();
     draw_lib.fade_in_screen(0, 0, 0, 1000);
 
     game_unpause();
@@ -291,8 +290,6 @@ void game::start_stage()
     show_game(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
-
-
 }
 
 void game::set_player_position_teleport_in(int initial_pos_x, int initial_pos_y)
@@ -310,6 +307,7 @@ void game::show_player_teleport(int pos_x, int pos_y)
     // find ground for player
     set_player_position_teleport_in(pos_x, pos_y);
     unsigned long end_time = timer.getTimer() + 1500;
+    player1.inc_position(0, 1);
 
     while (timer.getTimer() < end_time) {
         if (player1.animation_has_restarted()) {
@@ -331,6 +329,7 @@ void game::show_player_teleport(int pos_x, int pos_y)
     timer.delay(20);
 
     player1.set_animation_type(ANIM_TYPE_STAND);
+
     show_ready();
     // force stand to avoid gravity not doing it for any reason
     loaded_stage.show_stage();
@@ -415,6 +414,7 @@ void game::restart_stage()
         draw_lib.update_screen();
         timer.delay(20);
     }
+    player1.fall_to_ground();
 
 }
 

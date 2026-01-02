@@ -1788,3 +1788,13 @@ void object::inc_status()
     }
 }
 
+void object::initialize_object_position_to_ground()
+{
+    // RES_H is a good enough limit
+    for (int i=0; i<framesize_h; i++) {
+        gravity();
+    }
+}
+
+
+

@@ -331,7 +331,6 @@ void character::charMove() {
 
         if (moved == true) {
             if (moveCommands.right == 1) {
-                std::cout << "ICE MOVE" << std::endl;
                 st_map_collision map_col = map_collision(1, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
@@ -3194,7 +3193,7 @@ void character::fall_to_ground()
     }
 }
 
-void character::initialize_boss_position_to_ground()
+void character::initialize_npc_position_to_ground()
 {
     if (can_fly == true) {
         return;

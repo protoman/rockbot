@@ -4,10 +4,6 @@ ROCKBOT
 - lower HP of the eaghle in Rockbot 2's final stage
 
 - slowdown when showing "mission start" with GXF enabled
-    # also there is a glitch in the portuguese text
-
-- ao iniciar fase, objetos devem cair até o chão antes de mostrar o cenario
-    # vide fase final do Rockbot 1
 
 - crash penúltima fase rockbot2 (android)
 

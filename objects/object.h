@@ -126,6 +126,7 @@ public:
     void set_is_dropped(bool dropped);
     bool get_is_dropped();
     void inc_status();
+    void initialize_object_position_to_ground();
 
 
 private:

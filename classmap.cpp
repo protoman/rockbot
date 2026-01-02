@@ -532,7 +532,7 @@ void classMap::load_map_npcs()
                 new_npc.set_is_boss(true);
             // adjust NPC position to ground, if needed
             } else if (new_npc.is_able_to_fly() == false && new_npc.hit_ground() == false) {
-                new_npc.initialize_boss_position_to_ground();
+                new_npc.initialize_npc_position_to_ground();
             }
             new_npc.init_animation();
 
@@ -1301,6 +1301,7 @@ void classMap::load_map_objects() {
         if (GameMediator::get_instance()->map_object_data[i].id_object != -1 && GameMediator::get_instance()->map_object_data[i].stage_id == stage_number && GameMediator::get_instance()->map_object_data[i].map_id == number) {
             object temp_obj(GameMediator::get_instance()->map_object_data[i].id_object, this, GameMediator::get_instance()->map_object_data[i].start_point, GameMediator::get_instance()->map_object_data[i].link_dest, GameMediator::get_instance()->map_object_data[i].map_dest, GameMediator::get_instance()->map_object_data[i].direction);
             temp_obj.set_obj_map_id(i);
+            temp_obj.initialize_object_position_to_ground();
 			object_list.push_back(temp_obj);
 		}
 	}
