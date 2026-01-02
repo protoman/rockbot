@@ -1640,8 +1640,7 @@ void object::start()
     _obj_frame_timer = timer.getTimer() + _frame_duration;
     if (type == OBJ_ACTIVE_DISAPPEARING_BLOCK || type == OBJ_ACTIVE_OPENING_SLIM_PLATFORM || type == OBJ_DAMAGING_PLATFORM || type == OBJ_BOSS_DOOR) {
         if (type == OBJ_BOSS_DOOR && state == e_OBJECT_BOSS_DOOR_STATE_NONE) {
-            //std::cout << "DOOR - set to OPENING" << std::endl;
-            timer.pause();
+            std::cout << "DOOR - set to OPENING" << std::endl;
             state = e_OBJECT_BOSS_DOOR_STATE_OPENING;
             teleport_state = 0;
             if (game_data.game_style == GAME_STYLE_VINTAGE) {

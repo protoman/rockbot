@@ -1241,7 +1241,10 @@ void game::show_door_animation(object* obj_ref)
 {
     remove_players_slide();
     timer.delay(6);
-    game_unpause();
+    bool game_is_already_paused = timer.is_paused();
+    if (game_is_already_paused == false) {
+        game_pause();
+    }
     e_OBJECT_BOSS_DOOR_STATES expected_state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
     if (obj_ref->get_state() == e_OBJECT_BOSS_DOOR_STATE_CLOSING) {
         expected_state = e_OBJECT_BOSS_DOOR_STATE_CLOSED;
@@ -1258,6 +1261,9 @@ void game::show_door_animation(object* obj_ref)
         if (obj_ref->get_state() == expected_state) {
             break;
         }
+    }
+    if (game_is_already_paused == false) {
+        game_unpause();
     }
 }
 
@@ -1546,8 +1552,8 @@ void game::quick_load_game()
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
-        //currentStage = STAGE5;
-        currentStage = CASTLE1_STAGE5;
+        currentStage = STAGE1;
+        //currentStage = CASTLE1_STAGE5;
         //currentStage = STAGE1;
         //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;

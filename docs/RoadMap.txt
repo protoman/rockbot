@@ -7,8 +7,9 @@ ROCKBOT
 
 - crash penúltima fase rockbot2 (android)
 
-- jogo fica acelerado depois de passar por porta (alguma coisa não está descontando o tempo de pause)
+
 - (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
+
 - dash do darkbot passa pelo player sem causar dano (problemas de colisão)
     # parece sersó no android, ou talvez só com a Candy
 
