@@ -202,6 +202,9 @@ void graphicsLib::load_shared_graphics()
     std::string filename = GAMEPATH + "shared/images/config_bg.png";
     surfaceFromFile(filename, &config_menu);
 
+    std::string filename_got_weapon = GAMEPATH + "shared/images/got_weapon_bg.png";
+    surfaceFromFile(filename_got_weapon, &got_weapon_background);
+
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
     SDLL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
     _config_menu_pos.x = 0;
@@ -1661,6 +1664,11 @@ void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short 
 void graphicsLib::show_config_bg()
 {
     showSurface(&config_menu);
+}
+
+void graphicsLib::show_got_weapon_bg()
+{
+    showSurface(&got_weapon_background);
 }
 
 void graphicsLib::show_config_bg_animation()

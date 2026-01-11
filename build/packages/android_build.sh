@@ -37,12 +37,12 @@ case $response in
 		mkdir ./Android/data/games/RockDroid$version_number/music/mp3/
 
 		### Convert MOD music to MP3 ###
-#		for filename in ../games/RockDroid$version_number/music/*; do
-#			basename=${filename##*/}
-#			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
-#				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
-#			fi
-#		done
+		for filename in ../games/RockDroid$version_number/music/*; do
+			basename=${filename##*/}
+			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
+				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+			fi
+		done
 
 		mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot
 		cp -r ./files/android $PELYA_ANDROID_SDK/project/jni/application/rockbot
@@ -50,18 +50,18 @@ case $response in
         cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/rockbot/
 
 		#export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
-		### TEST ###
 		rm ./Android/data/games/RockDroid$version_number/music/ogg/*
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
+		if [ ! -d "$PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/" ]; then
+			mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
+		fi
 		rm $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/*.zip
 		cp ./data_$VERSIONNAME.zip $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
 		cd $PELYA_ANDROID_SDK
-
-		#read -p "Press any key to continue... " -n1 -s
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`
 		LINENUMBERVERSION=`grep -n "AppVersionName=" AndroidAppSettings.cfg | cut -f1 -d:`
@@ -110,6 +110,9 @@ case $response in
 
 		cp AndroidAppSettings.cfg AndroidAppSettings.cfg.old
 		cp AndroidAppSettings.cfg.new AndroidAppSettings.cfg
+
+		./changeAppSettings.sh rockbot -a
+
 		# build debug and copy library so we can track
 		./build.sh rockbot debug
 

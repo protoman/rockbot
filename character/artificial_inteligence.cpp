@@ -2465,10 +2465,12 @@ void artificial_inteligence::ia_action_teleport()
                 // find wall to the left
                 if (_parameter == AI_ACTION_TELEPORT_OPTION_LEFT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_LEFT)) {
                     st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_LEFT);
+                    std::cout << "AI::teleport[left] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
                     position.x = dest_pos.x;
                 // find wall to the right
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_RIGHT)) {
                     st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x+frameSize.width, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_RIGHT);
+                    std::cout << "AI::teleport[right] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
                     position.x = dest_pos.x-frameSize.width;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_TO_PLAYER) {
                     struct_player_dist dist_npc_player = dist_npc_players();

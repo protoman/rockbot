@@ -429,6 +429,7 @@ string soundLib::get_filename_for_music(string filename)
         std::size_t found = filename.find_last_of("/");
         if (found != std::string::npos) {
             std::string mp3_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
+            std::cout << "###ROCKBOT### - mp3_filename[" + mp3_filename + "]" << std::endl;
             if (fio.file_exists(mp3_filename)) {
                 filename = mp3_filename;
             }

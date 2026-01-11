@@ -97,6 +97,7 @@ public:
 
     void got_weapon();
     void classic_style_got_weapon();
+    void modern_style_got_weapon();
 
     void leave_stage();
 

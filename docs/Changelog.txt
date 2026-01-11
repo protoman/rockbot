@@ -384,3 +384,388 @@ Rockbot2:
 
 
 - [PC] change window icon
+
+###########################################################################################################################
+0.7.0
+###########################################################################################################################
+- EDITOR: não estava atualizando propriedades dos ncs ao mudar de npc
+
+###########################################################################################################################
+0.62
+###########################################################################################################################
+
+====================
+- #2: Zodiac e Dragon estão com arte antiga (pixel) na seleção de fases
+- Defect #138 - Projetil tipo circular (MageBot) não pode ser refletido pelo escudo do Rockbot
+- melhor ajuste na posição de Glue.H para grudar na parede
+- Fix hitboxes/vulçnerable-area when facing left.
+- #2: Adjust hitbox for Kurupira so player can jump over him.
+- Alguns efeitos sonoros tocavam mesmo com o audio desabilitado.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Novo tipo de item, crusher (tipo uma marreta que esmaga o player).
+- #2: Ajustes estagio Circo.
+- Adicionada reação de IA faltando, perto do jogador (1/4 distancia-movimento).
+- #2: Correção IA do beast Bot, faz dash até a frente do player antes de usar o dash.
+- #2: Correção nomes chefes final.
+- Editor: update frames when changing between enemies.
+- multiplicador zero para dano estava sendo ignorado.
+- projetil não deve ser consumido se inimigo esta no tempo de intangibilidade.
+- #2: adicionada Destrin Ship ao derrotar Machine.
+- Improve sfx delay by lowering buffer size.
+- #2: Novas músicas de Simone Bernacchia
+- Continuar mostrando "presented by upperland studios" when new characters message is shown.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Quando interromper a boss intro por timeout, precisa setar o anim_type para FLY/STAND senão o chefe fica congelado.
+- Fix HUD'1s boss text position.
+- Tanque de recarga de armas e especial não recarregam armas.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Limpar input antes de mostrar diálogos de chefes.
+- Melhorias sprites Daisie.
+
+
+====================
+#1
+====================
+<en-US>
+- Several bug fixes, please check site for details.
+- Lifes and continue/game-over are back.
+- Improved weapons menu with weapon list, lifes and armor pieces.
+- Improve sfx delay by lowering buffer size.
+- Show new characters warning only on first game completion.
+- Store up to 9 weapon and special tanks now.
+- Daisie sprites improvements.
+</en-US>
+<pt-BR>
+- Diversas correções de defeitos, veja mais informações no site para detalhes.
+- Vidas e continue/game-over de volta.
+- Menu de armas aprimorado com lista de armas, itens, vidas e partes de armadura.
+- Improve sfx delay by lowering buffer size.
+- Aviso de novos personagens só aparece a primeira vez que terminar o jogo.
+- Pode armazenar até 9 tanques tipo arma e especial.
+- Melhorias sprites Daisie.
+</pt-BR>
+
+###########################################################################################################################
+TODO:
+###########################################################################################################################
+
+- vulnerable-area do player esta não batendo com inimigos, dá para "entrar" em parte neles e não toma dano
+(TESTAR) - tentar trocar nome da app android
+
+
+- lag de audio: https://discourse.libsdl.org/t/sdl-mixer-sound-is-delayed/25609/5
+
+- finalizar Rockbot 2:
+    # kurupira: melhorar IA
+        # ao recuperar porco ele deve sumir ao encostar no Kurupira
+        # atirar o porco troca sprites por um instante
+
+
+- adicionar cutscene fim
+     # personagems olhando para o cidade ao longe (estilo ninja gaiden)
+        # so much effort, even building this whole castle
+        # using a parent grief
+        # I will make sure you won't leave prision, ever again, Dr. Destrin
+
+- gráfico do laser não esta certo (invertido) dependendo a direção que reflete
+
+###########################################################################################################################
+
+
+Fix crash with old-style energy bar.
+Fixes for drill-down AI.
+Improved clear of text selection in picker.
+Fix falling from jet when pressing down.
+Fix music stopping after killing sub-boss.
+Add license file.
+Fix projectile being stuck due to screen scrolling.
+Fix Lullaby projectile when enemy is away.
+Allow coil and jet to work over another object like savepoints.
+
+#1: Change giant fly to UFO and fix its behavior.
+#1: Fix for zig-zag in mines that are short of movement.
+
+
+###########################################################################################################################
+v3
+###########################################################################################################################
+- refatorar o código como eu fiz com a engine do project firefly,
+ou fazer um tipo de "rebase" do código dele para ter as últimas alterações e correções
+- rockbot sera um personagem jogavel no project firefly com fases em HD inspiradas no original
+- adicionar "centelhas" ao redor do personagem no tiro carregado - https://www.youtube.com/watch?v=z-bwxtXMnLM
+###########################################################################################################################
+
+
+###########################################################################################################################
+v 0.44
+###########################################################################################################################
+(ver issues do github e log)
+
+- EDITOR: bug no seletor de layer de parallax (duplicou os números de 0 a 10)
+
+===========================================================================================================================
+
+===========================================================================================================================
+
+- EDITOR:
+    # usar opção de game-type para ter Rockbot e Megaman (modern/vintage)
+        # em modo 8 bit vintage as barras de energia e seleção de armas ficam tipo mm
+    # salvar a seleção de theme dark/default
+
+===========================================================================================================================
+
+
+
+- criar forma de ataque que é um dash (mantém animação de ataque)
+- move file that have specific sizes and is common to games to shared folder:
+    # backgrounds: btn_a, config, dialog, menu, player_selection, save_selector_disabled, save_selector_enabled
+- fade teleport must change player to jump and set Y to the dest-point (it not in ground)
+- the confirmation dialog (yes/no) must be generic, with any number of text rows
+- add a check to avoid a button positioned out of the screen
+- allow different maps using same image for foreground with different alpha
+    # use a map with filename+alpha
+- things like teleport_out in player class must be moved to game class because it even uses showMap
+- review classmap public methods and decide witch ones should be turned private and "moved" to gameControl
+- criar fade-in e fade-out para música
+- create floating platform that starts returning to the origin once player leaves it
+- platform that rotates around an axis-point
+- ice terrain must have initial inertia when stopped
+- adicionar efeito "wave" a estágio
+- em modo de performance low, os fundos devem ser fixos, desenhados junto com os tiles
+- novo tipo de bomba, explode ao encontrar inimigo ou item-quebrável
+    # vai reto e depois quebra em 4 pedaços que voam nas diagonais
+    # quebra em paredes
+- criar projétil duplo-diagonal para roof e ground shooters (rockbot1)
+- criar final com editor de cenas
+- mover funções de configuração de sceneslib para class_config
+- PC: não consegue configurar up/down/left/right na configuração de botões, mistura as teclas
+- adicionar suporte à configuração de resolução do playstation 2
+- test and find a way to get directory files in PS2, PSP, Dingux, etc (stat) (PS2: https://github.com/AKuHAK/Fceumm-PS2/blob/master/src/drivers/ps2/browser.c)
+- remover da memória SFX usados apenas uma única vez, devem usar play from file e, onde for necessário, guardar na própria classe e depois descarregar o SFX
+- descobrir como usar mkspaces de android para build, ou criar um próprio
+- AI: criar nova action WALK DISTANCE(dist)
+- AI: criar nova action WALK RANDOM DISTANCE(max)
+- AI: novo type para action FLY: voar para cima na diagonal esquerda/direita
+- AI: action SHIELD, fica em escudo até a animação de shield acabar
+    # os inimigos com escudo tipo "stand" não ficarão mais em stand, mas em ANIM_TYPE_SHIELD
+    # se inimigo tiver escudo tipo "escudo", seu anim type inicial será ANIM_TYPE_SHIELD ao invés de STAND
+- tiro do player está saindo muito atrás (pelo menos para o beta, pode ser o segundo tiro)
+- melhorar implosão de ghost weapon (espiral)
+- jump-attack, special-attack, walk-attack, etc devem usar como attack-frame o do meio (se houver mais de um)
+- objeto que se move para esquerda/direita deve empurrar jogador.
+    # se jogador não puder ser empurrado, por estar bloqueado, e objeto entrar no jogador, deve matá-lo
+- melhorar animação das portas (piscam)
+- se pulo/teleporte tiver mais de um frame  de animação, os últimos deve ser usados como "aterrisagem" quando encostar no chão
+- incorporar efeitos sonoros do Aurelien
+
+
+=========================================================================================================================================
+VERSION 2.0.0 PRE-RELEASE #4
+=========================================================================================================================================
+- can't get energy capsule when it is in same position as checkpoint
+- refactor castle stage #5 and #6 to contain 4 bosses without teleporters
+- adicionar vozes do Nelson aos chefes
+- add option to leave game and return to intro screen to pick another save, start new game, read manual, etc
+- optimização:
+    # deve rodar a 60 fps no PSP, PS2 e Dingoo
+    # criar lista de npcs e objetos "on-screen"
+    # rodar optimização no qtcreator (clang)
+    # input deve ter um único loop para comandos ao invés de vários para cada tipo de evento
+    # procurar memory leaks
+- melhorar script de build incluindo ABI (x86/ARM)
+- gfx de mapa fixos como shadow-top e inferno devem aparecer na transição de tela (por cima dela)
+- substituir tiro carregado e voz por original (está girl hadouken)
+    # gravar vozes
+    # usar vozes do Nelson
+- ANDROID: new icon
+- criar um active disappearing block que não retorne após ser usado a menos que o mapa ou fase seja resetado seja resetada
+- modificar trajetório arc-down de projétil: começa com meio círculo e daí cai
+- GAME::PROJECTILE: projéteis devem usar key-colors setadas como as cores do jogador (se do inimigo também usar player[0])
+- EDITOR: usar mesmo widget para game-strings e common-strings (agora que ambos são lista simples)
+- as cores de charging devem ser definidas por cada jogador (mesmo que não venham a ser editáveis a princípio, mas devem estar no file-format)
+- revisar código da main.cpp
+- separar código de plataformas em arquivos especificos dentro do diretório "ports"
+- check how to create apps in Android that add stages or complete games that user can install and select
+- OPTIMIZAÇÃO:
+    # load tileset image in memory only when drawing the map, then release it. for 3rd level, create a std::map<x, y> of tiles containing only the needed ones
+    # a cada ciclo, criar uma lista de inimigos, projéteis e objetos que estão visíveis/próximos na tela
+    # quando tiver que verificar uma colisão, usar estas listas ao invpes de passar por todos novamente
+- substituir todos os efeitos sonoros por versões free
+- tentar implementar dash com duplo-esquerda/direita (se for o caso, separar o dash em classe, como foi com pulo)
+- ENDING: fazer uma tela para cada estágio com minions (estilo super mario world).
+
+
+=========================================================================================================================================
+VERSION 2.0.0 PRE-RELEASE #5
+=========================================================================================================================================
+- jump must change acceleration when entering or leaving water terrain
+- ver porque android tem mais de um joystick para selecionar
+- fazer cenários menos "chão", ter caminhos por cima de plataformas que seguem por um bom período
+    - usar mais disseppearing blocks
+    - usar mais plataformas move-left/right
+    - usar mais blocos explosivos
+    - ter dois caminhos paralelos que, no fim, levam saem no mesmo ponto
+- adicionar mais power-up items nas fases
+- fix charged-shot forcing position
+- MANUAL:
+    - colocar no manual que slide+pulo do rockbot não acelera pulo (explicar que para o dash sim)
+    - colocar comandos
+- fazer beta tirar o capacete (usar gráfico UNUSED do protoman como inspiração) no fim do jogo
+- revisar arquivos do template
+    * setar por padrão algumas coisas comuns do template:
+        # cores dos jogadores
+        # músicas do jogo
+        # nomes das fases
+    * criar uma fase do megaman 9 para testar template
+
+=========================================================================================================================================
+VERSION 2.0.0 PRE-RELEASE #6
+=========================================================================================================================================
+- atualizar template de novo jogo
+- tirar teleporte de debug das fases
+- inspirations: http://www23.atwiki.jp/rockmanforte/pages/21.html
+- se a versão do Wii tem problemas com isso, vamos achar outra forma de corrigir o problema no Wii
+- adicionar suporte à configuração de controle do wii
+    # The Wii controllers are mapped as SDL joysticks 0-3. The gamecube controller ports are mapped as SDL joysticks 4-7
+- WII: cores dos personagens não estão sendo setadas
+- WII: fazer saída "graciosa" para Wii (função da gameControl que faz o exit())
+
+=========================================================================================================================================
+VERSION 2.0.0 RELEASE
+=========================================================================================================================================
+- fix all critical and high bugs
+- get some free sound effects to replace Capcom ones
+- remove all copyrighted assets that remain
+
+=========================================================================================================================================
+VERSION 2.0.1 RELEASE
+=========================================================================================================================================
+- substituir exit() por saída graciosa em todos os lugares possíveis
+- EDITOR: gerar UI das actions da AI via código
+
+
+- separar GFX em sua própria classe que a draw usará
+    # rain
+    # snow
+    # underwater
+    # train
+    # flash-stopper
+    # lighthing-bolt
+
+- AI ACTIONS:
+    * add 4 types of jump in AI - short, medium, long, moonwalk
+    * add jump-up (and jump-down together) to AI (parameter for jump up is gravity level)
+- AI: when walk is blocked, check if hit a full-wall before jumping
+- quando projétil estiver por refletir, usar um redutor para que o ele reflita o mais próximo possível do alvo
+- metool shooting only when attack animation ends
+    * EDITOR: adicionar checkox para indicar que aquele frame dispara ataque (deve ser único para cada tipo)
+    * revisar lógica de ataque para, caso exista um frame de ataque definido, usar ele e não o fim da animação
+- AI ACTIONS:
+    - drop shell/shield (will loose protection, change graphics to another one)
+
+
+=========================================================================================================================================
+VERSION 2.0.2
+=========================================================================================================================================
+- ANDROID: implementar login play services (opção na configuração do jogo)
+- ANDROID: implementar save na nuvem
+- ANDROID: tentar remontar projeto com SDL para usar Android-Studio e gradle, ficando mais fácil debugar e implementar camadas Java.
+
+
+- some Megaman 2 features:
+    - 1/ballom item (slowly up)
+    - weapon that explodes releasing several NPCs (ave com ovo)
+    - dark room that is iluminated if a fire-NPC is on visible_screen (heat)
+    - object that cuases effect on room (snow, rain, darkness)
+    - napalm projectile (heat man)
+
+- colocar pacotes de fases no site, assim poderão ser baixados por usuários PC tb
+
+
+=========================================================================================================================================
+VERSION 2.0.3
+=========================================================================================================================================
+- some Megaman 3 features:
+    - guided projectile (hardman)
+    - AI: grab/release player (magnet)
+    - magnet projectile - fist follow horizontal, then vertical (magnet)
+    - NPC that darkens screen if visible (shadow)
+    - laser projectile (gemini)
+    - killing an NPC can activate/deactivate a list of objects (big-snake)
+
+- ANDROID: implementar In-app Billing - http://developer.android.com/google/play/billing/billing_integrate.html
+
+
+=========================================================================================================================================
+VERSION 2.0.4
+=========================================================================================================================================
+- projectile _target_position must take target width/heigth in account
+- optimizar hit_ground() -> tive que tirar a verificação de última posição, pois estava retornando false sempre
+- separate move and draw logic
+- different icons for items depending on player (change colors, etc)
+- tentar tornar o jogo independente de FPS. Calcular frames a serem movidos de acordo com o fps médio
+- ask dreamcast and xbox porters to update and merge back their changes
+- logic to allow showing player even if stage/map are NULL
+- fundo de tela que se move sozinho (sem depender do scroll do jogador)
+
+=========================================================================================================================================
+VERSION 2.0.5
+=========================================================================================================================================
+- implement bolts and shop (https://www.facebook.com/photo.php?fbid=432642990156602&set=a.114335308654040.27951.114325318655039&type=1&relevant_count=1&ref=nf)
+- EDITOR: clean editor code (find slots that aren't used anymore)
+- HP bars must not be drawn under 3rd level of tiles
+- move all drawing methods such as hp-bar, icons, path, etc to draw class; so graphlib only deals with SDL making easier to change it to other graphical library
+- add item that can spawn another item when destroyed (so we can create castlevania-like breakeable walls)
+
+=========================================================================================================================================
+VERSION 2.0.6
+=========================================================================================================================================
+- optimization:
+    # use coverity
+    # use cppcheck (plugin for qtcreator: http://qt-project.org/forums/viewthread/26113)
+    # Optimize editor: in editor_area, do not alloc pixmaps every time, only when changing beaten flag or stage
+    # check for ALL places in game that can use game_data directly instead of creating new instances
+            * refactor code, so that "game_npcs" do not replicate(copy) data from game_data
+            * refactor code, so npcs and players do not replicate(copy) CONST data from game_data, only DYNAMIC such as position, state and HP
+    # use optimization tricks for SDL (http://osdl.sourceforge.net/main/documentation/rendering/SDL-optimizing.html)
+- do not load unecessary graphics for the player
+    # only rockbot should load the shield graphic
+    # only candy should have up and diagonal firing graphics
+- determinar apenas uma vez por ciclo coisas como is_on_ground (flag interna, define antes do move)
+
+Tela you got faltando
+Texto utems, umn pulo duplo
+Inimigo fase mage que se teleporta, some no segundo telelorte
+Bilinear filtet
+Pulo duplo não funciona ainda
+Fazer correntezas arrastar na fase seahorse
+Adicionar item sala mummy que só tem um inimigo
+Aumentar multiplicador do pulo do Ape e Techno
+Frases corpo armadura incoerentes em pt-BR
+
+=========================================================================================================================================
+VERSION 2.0.7
+=========================================================================================================================================
+- PS2: add ISO/CD version
+- remove build warnings in PS2, PSP and Dingux
+- fix PSP build to use qmake
+- all Megaman 4 features (TBD)
+- all Megaman 5 features (TBD)
+
+=========================================================================================================================================
+VERSION 2.0.8
+=========================================================================================================================================
+- all Megaman 6 features (TBD)
+- all megaman 7 features (TBD)
+
+=========================================================================================================================================
+VERSION 2.0.9
+=========================================================================================================================================
+- megaman 9 features (TBD)
+
+=========================================================================================================================================
+VERSION 2.0.10
+=========================================================================================================================================
+- megaman 10 features (TBD)
+

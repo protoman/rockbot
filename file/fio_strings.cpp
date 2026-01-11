@@ -195,7 +195,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERRO SALVANDO JOGO,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "VERIFIQUE SE DISPOSITIVO OU");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "ARQUIVO ESTÁ PROTEGIDO PARA GRAVACAO.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "CONTROLE");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -259,14 +259,14 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_item], "%s", "ITEM");
             sprintf(lines[strings_ingame_coin], "%s", "MOEDAS");
             sprintf(lines[strings_ingame_gotarmor_type_ability], "%s", "CONCEDEM A HABILIDADE PARA");
-            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS IRAO");
+            sprintf(lines[strings_ingame_gotarmor_type_arms], "%s", "OS BRACOS MELHORADOS");
             sprintf(lines[strings_ingame_gotarmor_type_arms_msg], "%s", "DISPARAR");
             sprintf(lines[strings_ingame_gotarmor_type_legs], "%s", "ESTAS PERNAS MELHORADAS");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg1], "%s", "DASH NO AR.");
-            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTAR UMN PULO DUPLO");
+            sprintf(lines[strings_ingame_gotarmor_type_legs_msg2], "%s", "EXECUTAR UM PULO DUPLO");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg3], "%s", "SHOURUYKEN (CIMA+DASH)");
             sprintf(lines[strings_ingame_gotarmor_type_legs_msg4], "%s", " ");
-            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "O CORPO FORTIFICADO PERMITE");
+            sprintf(lines[strings_ingame_gotarmor_type_body], "%s", "OS REFORÇOS NA ARMADURA");
             sprintf(lines[strings_ingame_gotarmor_type_body_msg1], "%s", "FICAR INTANGIVEL MAIS TEMPO");
             sprintf(lines[strings_ingame_gotarmor_type_body_msg2], "%s", "TOMAR APENAS METADE DO DANO");
             sprintf(lines[strings_ingame_gotarmor_type_body_msg3], "%s", "NAO SER JOGADO PARA TRAS");
@@ -432,7 +432,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR AL GUARDAR PARTIDA,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "EVISE QUE EL DISPOSITIVO O");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "ARCHIVO NO ESTE PROTEGIDO.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "INPUT");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -669,7 +669,7 @@ namespace format_v4 {
             sprintf(lines[strings_ingame_savegameerror1], "%s", "ERROR WHILE SAVING GAME,");
             sprintf(lines[strings_ingame_savegameerror2], "%s", "PLEASE CHECK THAT THE DEVICE OR");
             sprintf(lines[strings_ingame_savegameerror3], "%s", "FILE IS NOT WRITE-PROTECTED.");
-            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2020 UPPERLAND STUDIOS");
+            sprintf(lines[strings_ingame_copyrightline], "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
             sprintf(lines[strings_ingame_audio], "%s", "AUDIO");
             sprintf(lines[strings_ingame_input], "%s", "INPUT");
             sprintf(lines[strings_ingame_video], "%s", "VIDEO");
@@ -1021,6 +1021,7 @@ namespace format_v4 {
         credits_list.push_back("");
 
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_music) + " -");
+        credits_list.push_back("SIMONE 'JMD' BERNACCHIA");
         credits_list.push_back("MODARCHIVE.ORG");
         credits_list.push_back("FIREAGE");
         credits_list.push_back("SOLARIS");
@@ -1048,17 +1049,18 @@ namespace format_v4 {
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_programming) + " -");
         credits_list.push_back("IURI FIEDORUK");
         credits_list.push_back("FARLEY KNIGHT");
+        credits_list.push_back("FELIPE ZACANI (FPS)");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
 
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_ports) + " -");
+        credits_list.push_back("ANDROID: PELYA");
         credits_list.push_back("DINGUX: SHIN-NIL");
         credits_list.push_back("PANDORA: SIGMA NL");
         credits_list.push_back("PS2: RAGNAROK2040");
         credits_list.push_back("PS2: WOON-YUNG LIU");
         credits_list.push_back("PS2: SP193");
-        credits_list.push_back("ANDROID: PELYA");
         credits_list.push_back("");
         credits_list.push_back("");
         credits_list.push_back("");
@@ -1077,7 +1079,6 @@ namespace format_v4 {
         credits_list.push_back("");
 
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_special_thanks) + " -");
-        credits_list.push_back("FELIPE ZACANI (FPS)");
         credits_list.push_back("FREE SDK DEVELOPERS");
         credits_list.push_back("DEVIANTART.COM");
         credits_list.push_back("PIXELJOINT.COM");
@@ -1090,13 +1091,14 @@ namespace format_v4 {
 
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_dev_tools) + " -");
         credits_list.push_back("LIBSDL");
-        credits_list.push_back("DIGIA QT");
+        credits_list.push_back("QT.IO");
         credits_list.push_back("GCC G+");
+        credits_list.push_back("CLANG/LLVM");
         credits_list.push_back("UBUNTU LINUX");
         credits_list.push_back("MINT LINUX");
+        credits_list.push_back("KDE NEON");
         credits_list.push_back("GIMP EDITOR");
         credits_list.push_back("PAINT TOOL SAI");
-        credits_list.push_back("COREL DRAW");
         credits_list.push_back("SIMPLE SCREEN RECORD");
         credits_list.push_back("AUDACIOUS PLAYER");
         credits_list.push_back("AUDACITY EDITOR");

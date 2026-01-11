@@ -131,7 +131,7 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     } else if (_move_type == TRAJECTORY_BOUNCING) {
         position0.x = position.x;
         position0.y = position.y;
-        _gravity = -0.2;
+        _gravity = -0.1;
         _dist_y = 0;
     } else if (_move_type == TRAJECTORY_INVERSE_LINEAR) {
         int map_scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
@@ -878,10 +878,10 @@ st_float_size projectile::move() {
             position.y -= abs(_dist_y);
             // first bounce must be stronger
             if (status == 0) {
-                _dist_y *= -1.5;
+                _dist_y *= -1.8;
                 status++;
             } else {
-                _dist_y *= -0.6;
+                _dist_y *= -0.8;
             }
 
             if (fabs(_dist_y) < 0.01) {

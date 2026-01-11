@@ -1322,11 +1322,17 @@ void game::got_weapon()
 
     player_victory();
 
+    std::cout << "GAME::got_weapon::must_show_got_weapon[" << must_show_got_weapon << "]" << std::endl;
+
     if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
         // TODO: create a modern got-weapon screen
         if (game_data.game_style == GAME_STYLE_VINTAGE) {
             classic_style_got_weapon();
+        } else {
+            modern_style_got_weapon();
         }
+    } else {
+        std::cout << "GAME::got_weapon::must_show_got_weapon - Ignored" << std::endl;
     }
     game_save.stages[currentStage] = 1;
     leave_stage();
@@ -1340,6 +1346,48 @@ void game::classic_style_got_weapon()
     graphLib.blank_screen();
 
     graphLib.show_config_bg();
+
+    player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
+    player1.set_animation_type(ANIM_TYPE_ATTACK);
+    loaded_stage.set_scrolling(st_float_position(0, 0));
+    player1.char_update_real_position();
+    player1.show();
+
+    std::string weapon_name(game_data.weapons[currentStage].name);
+    for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
+        *p = toupper(*p);
+    }
+
+    // line 1, weapon name; line 2 extra item; line 3 was acquired
+    std::string extra_name = "";
+    if (currentStage == COIL_GOT_STAGE) {
+        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
+        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+    } else if (currentStage == JET_GOT_STAGE) {
+        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
+        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+    }
+    std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular) + " ");
+    graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);
+    short line3_pos = RES_H * 0.5 + 8;
+    if (extra_name.length() > 0) {
+        graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 + 8), extra_name, false);
+        line3_pos = RES_H * 0.5 + 20;
+        phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_plural) + " ");
+    }
+    graphLib.draw_progressive_text((RES_W * 0.5 - 90), line3_pos, phrase, false);
+    player1.show();
+    graphLib.wait_and_update_screen(5000);
+}
+
+void game::modern_style_got_weapon()
+{
+    // show the "you got" screen
+    graphLib.blank_screen();
+    graphLib.blink_screen(255, 255, 255);
+    graphLib.blank_screen();
+
+    graphLib.show_got_weapon_bg();
 
     player1.set_position(st_position(20, (RES_H * 0.5 - player1.get_size().height/2)));
     player1.set_animation_type(ANIM_TYPE_ATTACK);
@@ -1547,15 +1595,15 @@ void game::quick_load_game()
 
     //scenes.select_save(false);
     //scenes.select_player();
-    game_save.selected_player = PLAYER_2;
+    game_save.selected_player = PLAYER_1;
 
     // TEST //
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
-        //currentStage = STAGE1;
+        currentStage = STAGE5;
         //currentStage = CASTLE1_STAGE5;
         //currentStage = STAGE1;
-        currentStage = INTRO_STAGE;
+        //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
         //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
@@ -1573,6 +1621,7 @@ void game::quick_load_game()
     // UNIT-TEST //
     //int lock_point = loaded_stage.get_current_map()->get_first_lock_on_bottom(1799, 178);
 
+    //game_save.stages[currentStage] = 0;
     //got_weapon();
 }
 

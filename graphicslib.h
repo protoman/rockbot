@@ -222,6 +222,7 @@ public:
     void clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
     void clear_surface_area_no_adjust(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const;
     void show_config_bg();
+    void show_got_weapon_bg();
     void show_config_bg_animation();
     void draw_weapon_cursor(st_position old_pos, short hp, short player_n, short max_hp);
     void show_dialog(Uint8 position);
@@ -329,6 +330,7 @@ private:
     std::vector<struct graphicsLib_gSurface> small_weapon_icons_disabled;		// weapon icons, used in menu and energy bars
 
     struct graphicsLib_gSurface config_menu;
+    struct graphicsLib_gSurface got_weapon_background;
     struct graphicsLib_gSurface dialog_surface;
     struct graphicsLib_gSurface _btn_a_surface;
     struct graphicsLib_gSurface _easymode_block;

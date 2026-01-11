@@ -821,16 +821,20 @@ st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_d
         res.y = pos.y;
         res.x = pos.x + max_dist.width;
         int scroll_lock_right = get_first_lock_on_right(pos.x/TILESIZE);
-        if (scroll_lock_right > pos.x+max_dist.width) {
+        if (scroll_lock_right == -1) { // could not find a lock
+            res.x = pos.x + max_dist.width;
+        } else if (scroll_lock_right > pos.x+max_dist.width) {
             for (int pos_i=pos.x; pos_i<(pos.x+max_dist.width); pos_i++) {
                 int map_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(pos_i/TILESIZE, pos.y/TILESIZE));
                 if (map_lock != TERRAIN_UNBLOCKED && map_lock != TERRAIN_WATER) {
+                    std::cout << "MAP::get_first_lock_in_direction[RIGHT] - found place[" << pos_i << "]" << std::endl;
                     res.x = pos_i-1;
                     break;
                 }
             }
         } else {
             res.x = scroll_lock_right-TILESIZE;
+            std::cout << "MAP::get_first_lock_in_direction[RIGHT] -  SKIPPED - scroll_lock_right[" << scroll_lock_right << "]" << std::endl;
         }
         break;
     }
