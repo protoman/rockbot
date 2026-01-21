@@ -1,6 +1,18 @@
 ####################################################################################################################################
 .08X+1
 ####################################################################################################################################
+- fix autoscroll stages not working.
+- adjusted MetalBot's jump speed.
+- re-generate in-game dialog files to get the fixes from code.
+- after picking a language, the menu disappears.
+- Replace SDL splash-screen with rockbot promo.
+- Enemies with background counting as out of screen incorrectly.
+- After killing the stage boss, kill all enemies to prevent them showing on got-weapon scene.
+- Improve credits.
+---------------------------------------------------------------------------------------------------------------
+- decrease wav files size
+- remove sd card access permission requirement, as it seems to be not needed anymore
+---------------------------------------------------------------------------------------------------------------
 - fix coil item jump being short.
 - fix position of hitbox and hitarea for enemies with background.
 - add new extra-data for NPCs, with flags that could be used later.

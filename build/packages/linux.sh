@@ -1,5 +1,8 @@
 #!/bin/sh
 
+set -x
+set -e
+
 read -r -p "What is the version number you are building? " version_number
 if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
 then
@@ -9,6 +12,14 @@ fi
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 GAME_DIR=rockbot$version_number
+
+cd ..
+make clean
+cd ..
+qmake RockDroid.pro CONFIG+=linux
+cd build
+make
+
 
 rm -r -f ./linux
 mkdir ./linux

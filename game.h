@@ -188,6 +188,7 @@ public:
 
     void reset_stage_maps();
     void remove_all_projectiles();
+    void kill_all_enemies();
 
     void reset_beam_objects();
 

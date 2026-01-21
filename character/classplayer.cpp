@@ -960,7 +960,7 @@ void classPlayer::death()
     _obj_jump.interrupt();
     _obj_jump.finish();
     //std::cout << "### PLAYER::REMOVE PLATFORM #3" << std::endl;
-    set_platform(nullptr);
+    set_platform(NULL);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
 
     last_hit_time = 0;

@@ -723,7 +723,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     gSurface->freeGraphic();
     SDL_Surface* temp_surface = NULL;
     SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
-    if (rgb_surface != nullptr) {
+    if (rgb_surface != NULL) {
         temp_surface = SDLL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
             show_debug_msg("EXIT #21.INIT #1");
@@ -1026,7 +1026,11 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
     font_color.b = color.b;
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
-    SDL_Rect text_pos={x, y, 0, 0};
+    SDL_Rect text_pos;
+    text_pos.x = x;
+    text_pos.y = y;
+    text_pos.w = 0;
+    text_pos.h = 0;
 
     if (!font) {
         printf("ERROR: could not load font, message: %s\n", TTF_GetError());
@@ -1053,7 +1057,10 @@ void graphicsLib::render_text(short x, short y, string text, st_color color, boo
             }
         }
     }
-    text_pos={x, y, 0, 0};
+    text_pos.x = x;
+    text_pos.y = y;
+    text_pos.w = 0;
+    text_pos.h = 0;
 #endif
 
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);

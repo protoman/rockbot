@@ -315,7 +315,7 @@ private:
     TTF_Font *font;
     TTF_Font *lowercase_font;
     TTF_Font *outline_font;
-    TTF_Font *error_font = nullptr;
+    TTF_Font *error_font = NULL;
 
     SDL_Surface *game_screen;									// we do not put this into a graphicsLib_gSurface because this is meant to be used only internally
     SDL_Surface *game_screen_scaled;

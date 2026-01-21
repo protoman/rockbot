@@ -472,9 +472,9 @@ void game_menu::show_config_language()
             SharedData::get_instance()->game_config.selected_language = selected_option;
             fio.save_config(SharedData::get_instance()->game_config);
             show_config_ask_restart();
+            graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
             main_config_picker.draw();
         }
-        graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
     }
 }
 

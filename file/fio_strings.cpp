@@ -1090,19 +1090,42 @@ namespace format_v4 {
         credits_list.push_back("");
 
         credits_list.push_back("- " + strings_map::get_instance()->get_ingame_string(strings_game_engine_credits_dev_tools) + " -");
+        credits_list.push_back("CODING:");
         credits_list.push_back("LIBSDL");
-        credits_list.push_back("QT.IO");
+        credits_list.push_back("QT LIB");
+        credits_list.push_back("ANDROID NDK");
         credits_list.push_back("GCC G+");
         credits_list.push_back("CLANG/LLVM");
+        credits_list.push_back("KATE EDITOR");
+        credits_list.push_back("");
+        credits_list.push_back("OPERATING SYSTEM:");
         credits_list.push_back("UBUNTU LINUX");
         credits_list.push_back("MINT LINUX");
         credits_list.push_back("KDE NEON");
+        credits_list.push_back("");
+        credits_list.push_back("GRAPHICS:");
         credits_list.push_back("GIMP EDITOR");
         credits_list.push_back("PAINT TOOL SAI");
         credits_list.push_back("SIMPLE SCREEN RECORD");
+        credits_list.push_back("");
+        credits_list.push_back("SOUND AND MUSIC:");
         credits_list.push_back("AUDACIOUS PLAYER");
         credits_list.push_back("AUDACITY EDITOR");
         credits_list.push_back("BFXR.NET");
+        credits_list.push_back("");
+        credits_list.push_back("OTHER TOOLS:");
+        credits_list.push_back("WINE");
+        credits_list.push_back("PLAYONLINUX");
+        credits_list.push_back("");
+        credits_list.push_back("HARDWARE:");
+        credits_list.push_back("ACER ASPIRE RYZEN7");
+        credits_list.push_back("PSP");
+        credits_list.push_back("PLAYSTATION 2");
+        credits_list.push_back("POCKET GO");
+        credits_list.push_back("DINGOO");
+        credits_list.push_back("NINTENDO DS");
+        credits_list.push_back("NINTENDO WII");
+        credits_list.push_back("RASPBERY PI");
 
         for (int i=0; i<20; i++) {
             credits_list.push_back("");
@@ -1116,7 +1139,8 @@ namespace format_v4 {
     void fio_strings::log_error(std::string error)
     {
         std::ofstream outfile;
-        outfile.open(FILEPATH + "/errors.log", std::ios_base::app); // append instead of overwrite
+        std::string filename = FILEPATH + "/errors.log";
+        outfile.open(filename.c_str(), std::ios_base::app); // append instead of overwrite
         outfile << error << std::endl;
         outfile.close();
     }

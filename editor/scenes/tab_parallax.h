@@ -18,7 +18,7 @@ class tab_parallax : public QWidget
     Q_OBJECT
 
 public:
-    explicit tab_parallax(QWidget *parent = nullptr);
+    explicit tab_parallax(QWidget *parent = NULL);
     ~tab_parallax();
     void save_data();
     void reload();

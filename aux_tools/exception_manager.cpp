@@ -1,4 +1,5 @@
 #include "exception_manager.h"
+#include <cstdio>
 
 exception_manager::exception_manager()
 {

@@ -1,23 +1,27 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
+- re-create the SDK environments for Dingux, Pocket-Go, etc.
+- add Readme.md.
+- Improve build, scripts should set all path for the SDKs itself.
+- move build scripts to a packages/scripts sub-folder
+- also, do not drop files at the packages folder itself, but on sub-directories
 
-- update credits to
-    # add music into engine part
-    # correct wasp boss graphics (Boberatu)
-    #
+=======================================================================================================================================
 
-- finish the config of the Android SDK
-    OK # keep aspect-ratio
-    OK # music not working (most likely due to the mp3 conversion/config)
-    # keen folders inside games (?)
-
-- crash penúltima fase rockbot2 (android)
-
-- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
 
 - Darkbot's dash passes through the player without making touch damage due to some issue in hit-area.
-    # seems to be only on android and with Candy
+    # maybe it is because of slide collision that is smaller
+
+- After Android releases:
+    # Rename games folders from RockDroid to Rockbot
+    # try porting to PS2 again
+    # get version from a text file, unify with android build
+
+=======================================================================================================================================
+
+
+- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
 
 - crash ao apertar esc (antes do menu aparecer) ?
     # happened when trying to open the quit menu and pressing esc twice
@@ -25,9 +29,6 @@ ROCKBOT
         Mix_FreeMusic(music);
     }
 
-
-
-- slowdown when showing "mission start" with GXF enabled
 
 
 =============================================================================================

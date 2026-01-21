@@ -1322,7 +1322,7 @@ bool character::gravity(bool boss_demo_mode=false)
 				mapLock = BLOCK_UNBLOCKED;
 			}
 
-            if (_platform == nullptr || (_platform != nullptr && _platform->get_type() != OBJ_MOVING_PLATFORM_UPDOWN && _platform->get_type() != OBJ_MOVING_PLATFORM_UP_LOOP && _platform->get_type() != OBJ_MOVING_PLATFORM_DOWN)) {
+            if (_platform == NULL || (_platform != NULL && _platform->get_type() != OBJ_MOVING_PLATFORM_UPDOWN && _platform->get_type() != OBJ_MOVING_PLATFORM_UP_LOOP && _platform->get_type() != OBJ_MOVING_PLATFORM_DOWN)) {
                 if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
                     if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
                         position.y += i;
@@ -1419,25 +1419,30 @@ bool character::will_hit_ground(int y_change) const
 
 bool character::is_on_screen()
 {
-    st_float_position scroll(0, 0);
     if (gameControl.get_current_map_obj() == NULL) {
         return false;
     }
+
+    st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
     float pos_x = position.x;
-    float pos_y = position.y;
+    //float pos_y = position.y; // TBD
+    int frame_w = pos_x+total_frame_size.width;
+
     if (!is_player()) {
         pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
-        pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
-        //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen[" << name << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
+        //pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+        if (_has_background) {
+            frame_w = graphLib.character_graphics_background_list.find(name)->second.width;
+        }
+        //if (name == "BULLDOZER") std::cout << "CHAR::is_on_screen[" << name << "], pos_x[" << pos_x << "], scroll.x[" << scroll.x << "]" << std::endl;
     }
 
-    scroll = gameControl.get_current_map_obj()->getMapScrolling();
-
     // is on screen plus a bit more on both sides
-    if (abs(pos_x+total_frame_size.width*2) >= scroll.x && abs(pos_x-total_frame_size.width*2) <= scroll.x+RES_W) {
+    if (abs(pos_x+frame_w*2) >= scroll.x && abs(pos_x-frame_w*2) <= scroll.x+RES_W) {
         //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - TRUE #1" << std::endl;
         return true;
     }
+
     // regular enemies work only on a limited screen
     if (is_stage_boss() == false) {
         //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen - FALSE #1" << std::endl;
@@ -1485,17 +1490,23 @@ bool character::is_on_visible_screen()
     if (gameControl.get_current_map_obj() == NULL) { // used ins scenes
         return true;
     }
+
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
     // entre scroll.x e scroll.x+RES_W
     float pos_x = position.x;
-    float pos_y = position.y;
+    //float pos_y = position.y; // TBD
+    int frame_w = pos_x+total_frame_size.width;
+
     if (!is_player()) {
         pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
-        pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
+        //pos_y -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.y;
         //if (name == "BIG FISH") std::cout << "CHAR::is_on_screen[" << name << "], pos_x[" << pos_x << "], pos_y[" << pos_y << "]" << std::endl;
+        if (_has_background) {
+            frame_w = graphLib.character_graphics_background_list.find(name)->second.width;
+        }
     }
 
-    if (abs(pos_x + total_frame_size.width) >= scroll.x && abs(pos_x) < scroll.x+RES_W) {
+    if (abs(pos_x + frame_w) >= scroll.x && abs(pos_x) < scroll.x+RES_W) {
         return true;
     }
     return false;
@@ -1783,11 +1794,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 if (_super_jump == true) {
                     _super_jump = false;
                     //std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
-                    set_platform(nullptr);
+                    set_platform(NULL);
                     _obj_jump.start(true, water_lock);
                 } else {
                     //std::cout << "### CHARACTER::REMOVE PLATFORM #2 - character_max_jump_number[" << character_max_jump_number << "], jump.count[" << _obj_jump.get_max_jump_number() << "]"<< std::endl;
-                    set_platform(nullptr);
+                    set_platform(NULL);
                     if (_obj_jump.is_started() == false || character_max_jump_number > _obj_jump.get_max_jump_number()) { // fixed coil not jumping high (was starting a new jump)
                         //std::cout << "## CHARACTER::JUMP START #1" << std::endl;
                         _obj_jump.start(false, water_lock);
@@ -2036,7 +2047,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
     bool is_on_moving_platform = false;
-    if (_platform != nullptr && _platform == res_collision_object._object && (_platform->get_type() == OBJ_MOVING_PLATFORM_UP_LOOP || _platform->get_type() == OBJ_MOVING_PLATFORM_DOWN)) {
+    if (_platform != NULL && _platform == res_collision_object._object && (_platform->get_type() == OBJ_MOVING_PLATFORM_UP_LOOP || _platform->get_type() == OBJ_MOVING_PLATFORM_DOWN)) {
         is_on_moving_platform = true;
     }
 
@@ -2898,11 +2909,11 @@ unsigned int character::get_projectile_count()
 // ********************************************************************************************** //
 void character::set_platform(object* obj)
 {
-    if (obj == nullptr && _platform == nullptr) {
+    if (obj == NULL && _platform == NULL) {
         return;
     }
     _obj_jump.finish();
-    if (obj != nullptr) {
+    if (obj != NULL) {
         std::cout << "### CHARACTER[" << name << "].set_platform[" << obj->get_name() << "]" << std::endl;
 		if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_STAND);
@@ -3051,8 +3062,6 @@ bool character::is_dead() const
 {
 	return (hitPoints.current <= 0);
 }
-
-
 
 
 st_hit_points character::get_hp() const
@@ -3214,7 +3223,7 @@ bool character::change_position(short xinc, short yinc)
     short int mapLock = map_col.block;
 
     int type = -1;
-    if (_platform != nullptr) {
+    if (_platform != NULL) {
         type = _platform->get_type();
     }
     bool is_on_fly_obj = (yinc > 0 && type == OBJ_ITEM_FLY);

@@ -11,7 +11,7 @@ class parallaxpreviewarea : public QWidget
 {
     Q_OBJECT
 public:
-    explicit parallaxpreviewarea(QWidget *parent = nullptr);
+    explicit parallaxpreviewarea(QWidget *parent = NULL);
     void set_filename(int layer_n, std::string new_filename);
     void set_y(int layer_n, int y);
     void set_h(int layer_n, int h);

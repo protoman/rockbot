@@ -13,9 +13,11 @@ VERSIONNAME=`cat version_name_v$version_number.txt`
 
 export PELYA_ANDROID_SDK=/mnt/SamsungEXT4/development/SDK/Android/commandergenius
 export ANDROID_HOME=/mnt/SamsungEXT4/development/SDK/Android/SDK
-export ANDROID_NDK_HOME=/mnt/SamsungEXT4/development/SDK/Android/android-ndk-r20
+export ANDROID_NDK_HOME=/mnt/SamsungEXT4/development/SDK/Android/android-ndk-r29
+#export ANDROID_NDK_HOME=/mnt/SamsungEXT4/development/SDK/Android/android-ndk-r25c
 # add NDK to path
-export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/29.0.3
+#export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/29.0.3
+export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/36.1.0
 
 
 read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
@@ -23,8 +25,10 @@ case $response in
 	[yY][eE][sS]|[yY])
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
+
 		#copy icon
 		cp ../packages/files/android/icon_v$version_number.png /home/iuri/Desenvolvimento/rockbot/icon.png
+
 		#read -p "Press any key to continue..." -n1 -s
 		#copy data
 		rm -r -f ./Android
@@ -41,10 +45,11 @@ case $response in
 			basename=${filename##*/}
 			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
 				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+				#ffmpeg -i "$filename" -vn -ar 22050 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
 			fi
 		done
 
-		mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot
+		#mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot
 		cp -r ./files/android $PELYA_ANDROID_SDK/project/jni/application/rockbot
 		cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/src/
         cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/rockbot/
@@ -56,11 +61,15 @@ case $response in
 		cd ./Android/data
 		zip -r ../data_$VERSIONNAME.zip ./fonts ./games ./shared
 		cd ..
+
 		if [ ! -d "$PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/" ]; then
 			mkdir $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
 		fi
 		rm $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/*.zip
 		cp ./data_$VERSIONNAME.zip $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
+		#copy splashscreen
+		cp ../../packages/files/android/logo_v$version_number.png $PELYA_ANDROID_SDK/project/jni/application/src/AndroidData/logo.png
+
 		cd $PELYA_ANDROID_SDK
 
 		LINENUMBER=`grep -n "AppDataDownloadUrl=" AndroidAppSettings.cfg | cut -f1 -d:`

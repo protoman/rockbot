@@ -1835,6 +1835,17 @@ void classMap::remove_temp_objects()
     clean_finished_objects();
 }
 
+void classMap::kill_all_enemies()
+{
+    std::vector<classnpc>::iterator npc_it;
+    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+        classnpc* npc_ref = &(*npc_it);
+        if (!npc_ref->is_stage_boss()) {
+            npc_ref->damage(999, true);
+        }
+    }
+}
+
 
 
 bool classMap::get_map_point_wall_lock(int x) const
@@ -2226,6 +2237,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     continue;
                 } else {
                     gameControl.remove_all_projectiles();
+                    kill_all_enemies();
                     graphLib.set_screen_adjust(st_position(0, 0));
                     /// @TODO - replace with game_data.final_boss_id
                     if (game_data.final_boss_id == npc_ref->get_number()) {
@@ -2270,6 +2282,7 @@ void classMap::show_npcs() /// @TODO - check out of screen
             draw_lib.set_boss_hp(npc_ref->get_current_hp());
 		}
         if (npc_ref->is_dead() == false) {
+            //std::cout << ">>> classMap::show_npcs - npc[" << npc_ref->get_name() << "], hp[" << npc_ref->get_hp().current << "], is_dead[" << npc_ref->is_dead() << "]" << std::endl;
             npc_ref->show();
         }
         npc_ref->show_projectiles();

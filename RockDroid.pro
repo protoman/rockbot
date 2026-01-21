@@ -55,6 +55,7 @@ CONFIG += linux
 CONFIG += console
 CONFIG -= app_bundle
 TARGET = rockbot
+dingux:TARGET = rockbot.dge
 
 linux {
     DEFINES += LINUX
@@ -67,8 +68,8 @@ linux {
     #LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
     #INCLUDES += -I/usr/include -I. -I./include -L/usr/lib
 
-    QMAKE_CCFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
-    QMAKE_CXXFLAGS += -std=c++17 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
+    QMAKE_CCFLAGS += -std=c++03 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
+    QMAKE_CXXFLAGS += -std=c++03 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
 }
 
 macosx {
@@ -116,19 +117,19 @@ dingux {
     DEFINES += DINGUX
     TARGET = rockbot.dge
 
-    QMAKE_CC = /media/iuri/SamsungEXT4/development/SDK/opendingux/usr/bin/mipsel-linux-gcc
-    QMAKE_CXX = /media/iuri/SamsungEXT4/development/SDK/opendingux/usr/bin/mipsel-linux-g++
-    QMAKE_LINK = /media/iuri/SamsungEXT4/development/SDK/opendingux/usr/bin/mipsel-linux-g++
+    QMAKE_CC = mipsel-linux-gcc
+    QMAKE_CXX = mipsel-linux-g++
+    QMAKE_LINK = mipsel-linux-g++
 
     QMAKE_CFLAGS += -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3
-    QMAKE_CXXFLAGS += -I/media/iuri/SamsungEXT4/development/SDK/opendingux/usr/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3 -L/media/iuri/SamsungEXT4/development/SDK/opendingux/usr/lib
+    QMAKE_CXXFLAGS += -I$$(OPEN_DINGUX_SDK)/usr/include -pipe -g -Wall -W -D_REENTRANT -DDINGUX -DHANDHELD -O3 -L$$(OPEN_DINGUX_SDK)/usr/lib
 
-    LIBS = $(SUBLIBS) -L/media/iuri/SamsungEXT4/development/SDK/opendingux/usr/lib/ -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `/media/iuri/SamsungEXT4/development/SDK/opendingux/usr/bin/sdl-config --libs` -lpthread
-    #-o /media/iuri/SamsungEXT4/development/SDK/opendingux/usr/lib/crt1.o
+    LIBS = $(SUBLIBS) $$(OPEN_DINGUX_SDK)/usr/lib/crt1.o -L$$(OPEN_DINGUX_SDK)/usr/lib/ -lSDL_mixer -lSDL_image -lSDL_ttf -lSDL_gfx `$$(OPEN_DINGUX_SDK)/usr/bin/sdl-config --libs` -lpthread
+    #-o $$(OPEN_DINGUX_SDK)/usr/lib/crt1.o
 
-    INCLUDES = -I/media/iuri/SamsungEXT4/development/SDK/opendingux/usr/include -I. -I../include -I.
+    INCLUDES = -I$$(OPEN_DINGUX_SDK)/usr/include -I. -I../include -I.
 
-    #QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/opendingux/usr/bin/mipsel-linux-strip --strip-all rockbot.dge
+    #QMAKE_POST_LINK += $$(OPEN_DINGUX_SDK)/usr/bin/mipsel-linux-strip --strip-all rockbot.dge
 }
 
 pocketgo {
@@ -136,19 +137,18 @@ pocketgo {
     DEFINES += HAVE_STDINT_H
     DEFINES += VERSION_BITTBOY
     TARGET = rockbot_pocketgo
-    POCKETGO_SDK = /media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host
 
-    QMAKE_CC = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-gcc
-    QMAKE_CXX = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-g++
-    QMAKE_LINK = $${POCKETGO_SDK}/bin/arm-buildroot-linux-musleabi-g++
+    QMAKE_CC = $$(POCKETGO_SDK)/bin/arm-buildroot-linux-musleabi-gcc
+    QMAKE_CXX = $$(POCKETGO_SDK)/bin/arm-buildroot-linux-musleabi-g++
+    QMAKE_LINK = $$(POCKETGO_SDK)/bin/arm-buildroot-linux-musleabi-g++
 
     QMAKE_CFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=cnu11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
     QMAKE_CXXFLAGS += $(INCLUDES) $(OPT_FLAGS) -std=c++11 -pipe -g -Wall -W -D_REENTRANT -DPOCKETGO -DHANDHELD -O3
     QMAKE_CXXFLAGS -= -ccc-gcc-name g++
 
-    LIBS = -L$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -lmikmod -logg -lvorbis -lvorbisfile -lmad -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
+    LIBS = -L$$(POCKETGO_SDK)/arm-buildroot-linux-musleabi/sysroot/usr/lib -Wl,--start-group -lSDL -lSDL_image -lpng -ljpeg -lSDL_mixer -lasound -lmikmod -logg -lvorbis -lvorbisfile -lmad -lfreetype -lSDL_ttf -lSDL_gfx -lm -pthread -lz -lstdc++ $(EXTRA_LDFLAGS) -Wl,--end-group
 
-    INCLUDES = -I$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I$${POCKETGO_SDK}/arm-buildroot-linux-musleabi/sysroot/include -I$${POCKETGO_SDK}/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
+    INCLUDES = -I$$(POCKETGO_SDK)/arm-buildroot-linux-musleabi/sysroot/usr/bin/../../usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -I$$(POCKETGO_SDK)/arm-buildroot-linux-musleabi/sysroot/include -I$$(POCKETGO_SDK)/include -I. -I../include -I. $(SDL_CFLAGS) -I/media/iuri/SamsungEXT4/development/SDK/PocketGo/output/host/arm-buildroot-linux-musleabi/sysroot/usr/include
 
 }
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -x
+set -e
 
 read -r -p "What is the version number you are building? " version_number
 if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
@@ -8,6 +9,9 @@ then
     echo "Invalid version number"
     exit
 fi
+
+export OPEN_DINGUX_SDK=/mnt/ExtraData/Devel/SDK/opendingux
+export PATH=$PATH:$OPEN_DINGUX_SDK/usr/bin/
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 GAME_DIR=rockbot$version_number
@@ -20,10 +24,13 @@ mkdir ./Dingux/$GAME_DIR/fonts
 mkdir ./Dingux/$GAME_DIR/shared
 
 cd ..
-make clean
+#make clean
 cd ..
-qmake ../RockDroid.pro CONFIG -=linux CONFIG+=dingux
+pwd
+
+qmake RockDroid.pro CONFIG-=linux CONFIG+=dingux
 cd build
+
 make
 cd packages
 

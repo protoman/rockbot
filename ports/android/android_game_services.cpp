@@ -8,8 +8,15 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 
 android_game_services::android_game_services()
 {
-    original_dpad_pos = {0, 0, 0, 0};
-    original_pos_a = {0, 0, 0, 0};
+    original_dpad_pos.x = 0;
+    original_dpad_pos.y = 0;
+    original_dpad_pos.w = 0;
+    original_dpad_pos.h = 0;
+
+    original_pos_a.x = 0;
+    original_pos_a.y = 0;
+    original_pos_a.w = 0;
+    original_pos_a.h = 0;
 
     //gpg::AndroidPlatformConfiguration platform_configuration;
     //platform_configuration.SetActivity('activity_ref');

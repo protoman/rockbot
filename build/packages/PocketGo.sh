@@ -1,6 +1,11 @@
 #!/bin/sh
 
 set -x
+set -e
+
+export POCKETGO_SDK=/mnt/SamsungEXT4/development/SDK/PocketGo/output/host/
+export PATH=$PATH:$POCKETGO_SDK/usr/bin/
+
 
 read -r -p "What is the version number you are building? " version_number
 if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
@@ -8,6 +13,8 @@ then
     echo "Invalid version number"
     exit
 fi
+
+
 
 VERSIONNAME=`cat version_name_v$version_number.txt`
 DIR=./pocketgo
@@ -21,10 +28,12 @@ mkdir $DIR/$GAME_DIR/fonts
 mkdir $DIR/$GAME_DIR/shared
 
 
+echo $POCKETGO_SDK
+
 cd ..
 make clean
 cd ..
-qmake ../RockDroid.pro CONFIG -=linux CONFIG+=pocketgo
+qmake RockDroid.pro CONFIG-=linux CONFIG+=pocketgo
 cd build
 make
 cd packages

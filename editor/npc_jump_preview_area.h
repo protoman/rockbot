@@ -12,7 +12,7 @@ class npc_jump_preview_area : public QWidget
 {
     Q_OBJECT
 public:
-    explicit npc_jump_preview_area(QWidget *parent = nullptr);
+    explicit npc_jump_preview_area(QWidget *parent = NULL);
     void set_graphicfile(std::string filename);
     std::string get_graphicfile();
 

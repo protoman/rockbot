@@ -12,7 +12,7 @@ class game_properties_tab : public QWidget
     Q_OBJECT
     
 public:
-    explicit game_properties_tab(QWidget *parent = nullptr);
+    explicit game_properties_tab(QWidget *parent = NULL);
     ~game_properties_tab();
     void reload();
 

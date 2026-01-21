@@ -621,3 +621,9 @@ void map_tab::on_FGScrollModeComboBox_currentIndexChanged(int index)
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].auto_scroll = index;
 }
 
+
+void map_tab::on_mapAutoScroll_checkBox_toggled(bool checked)
+{
+
+}
+

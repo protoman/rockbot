@@ -141,6 +141,8 @@ public:
 
     void remove_temp_objects();
 
+    void kill_all_enemies();
+
     void get_map_area_surface(graphicsLib_gSurface &mapSurface);
 
     void set_scrolling(st_float_position pos);

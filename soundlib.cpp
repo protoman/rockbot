@@ -391,7 +391,7 @@ void soundLib::close_audio() {
 #endif
     Mix_HaltMusic();
     SDL_Delay(300);
-    if (music != nullptr) {
+    if (music != NULL) {
         Mix_FreeMusic(music);
     }
     music = NULL;

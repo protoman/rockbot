@@ -1010,6 +1010,11 @@ void game::remove_all_projectiles()
     player1.remove_freeze_effect();
 }
 
+void game::kill_all_enemies()
+{
+    loaded_stage.get_current_map()->kill_all_enemies();
+}
+
 void game::reset_beam_objects()
 {
     loaded_stage.get_current_map()->reset_beam_objects();
@@ -1570,7 +1575,7 @@ void game::quick_load_game()
         game_save.stages[i] = 1;
     }
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
-        game_save.stages[i] = 0;
+        game_save.stages[i] = 1;
     }
     //*/
     //data_out.stages[STAGE1] = 1; // APE: coil
@@ -1605,7 +1610,7 @@ void game::quick_load_game()
         //currentStage = STAGE1;
         //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        //currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 

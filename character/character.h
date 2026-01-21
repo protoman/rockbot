@@ -90,7 +90,7 @@ public:
     virtual ~character();
     void setName(std::string);
     std::string get_name(void) const;
-    void setHitPoints(st_hit_points);
+    void set_dead();
     virtual void initFrames() = 0; // pure virtual
     virtual void execute() = 0; // pure virtual
     st_float_position getPosition() const;

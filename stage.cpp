@@ -116,12 +116,12 @@ Uint8 stage::getMapPointLock(st_position pos)
 
 void stage::change_map_scroll(st_float_position pos, bool check_lock, bool ignore_auto_scroll)
 {
+    bool map_autoscroll = false;
     // debug for autoscrolling test
-    bool map_autoscroll = static_cast<bool>(stage_data.autoscroll[currentMap]);
-    // avoid data error (getting 66 as value from data file)
-    if (map_autoscroll) {
-        map_autoscroll = false;
+    if ((int)stage_data.autoscroll[currentMap] <= 1) {
+        map_autoscroll = static_cast<bool>(stage_data.autoscroll[currentMap]);
     }
+    // avoid data error (getting 66 as value from data file)
     if (ignore_auto_scroll == false && map_autoscroll == true) {
         if (timer.is_paused() == false && autoscroll_timer < timer.getTimer()) {
             autoscroll_timer = timer.getTimer()+20;
