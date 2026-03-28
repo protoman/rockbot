@@ -107,29 +107,25 @@ struct st_char_sprite_data {
     // copy constructor //
     st_char_sprite_data (const st_char_sprite_data& other)
     {
-        fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    /// @TODO - copy surface
+                    frames[i][j][k] = other.frames[i][j][k];
                 }
             }
         }
-        fflush(stdout);
     }
 
     // assign copy constructor //
     st_char_sprite_data& operator= (const st_char_sprite_data& other)
     {
-        fflush(stdout);
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    /// @TODO - copy surface
+                    frames[i][j][k] = other.frames[i][j][k];
                 }
             }
         }
-        fflush(stdout);
         return *this;
     }
 };

@@ -61,7 +61,10 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
 
 artificial_inteligence::~artificial_inteligence()
 {
-
+    if (_trajectory_parabola != NULL) {
+        delete _trajectory_parabola;
+        _trajectory_parabola = NULL;
+    }
 }
 
 
