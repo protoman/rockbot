@@ -889,7 +889,7 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
 
     if (weapon_n != WEAPON_DEFAULT && weapon_n >= WEAPON_ITEM_ETANK) {
         //std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
-        char error_msg[10];
+        char error_msg[15]; // Increased buffer size for safety
         if (value < 10) {
             sprintf(error_msg, "[0%d]", value);
         } else {

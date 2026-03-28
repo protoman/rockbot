@@ -393,7 +393,11 @@ short stage_select::pick_stage_classic_style(int stage_n)
 
     graphicsLib_gSurface player_face_eyes_surface;
     char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
-    sprintf(eyes_filename_char, "images/faces/p%d_eyes.png", (game_save.selected_player+1));
+    int player_id = game_save.selected_player + 1;
+    if (player_id > 99) { // Cap player ID to prevent overflow in "p%d_eyes.png" with FS_CHAR_FILENAME_SIZE=30
+        player_id = 99;
+    }
+    sprintf(eyes_filename_char, "images/faces/p%d_eyes.png", player_id);
     std::string filename = FILEPATH + std::string(eyes_filename_char);
     graphLib.surfaceFromFile(filename, &player_face_eyes_surface);
 

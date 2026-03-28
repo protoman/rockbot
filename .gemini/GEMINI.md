@@ -10,6 +10,8 @@
 *   Always build the project to check it is working before and after starting doing changes.
 *   Always ask before removing existing functions.
 *   This is a multi platform project, so avoid using methods that only work on one operating system or architecture.
+*   Do not change any size for arrays that are stored in binary files.
+*   Do not change file paths.
 
 ## Coding Style
 *   Use tab for indentation.

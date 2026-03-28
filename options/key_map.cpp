@@ -132,7 +132,7 @@ Sint8 key_map::draw_config_input(short current_selection) const
         options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional) + std::string(": ") + strings_map::get_instance()->get_ingame_string(strings_ingame_config_key_directional_analog));
     }
 
-    char temp_char[2]; // lets hope no crazy guy with 100 joysticks connect appear...
+    char temp_char[10]; // Increased buffer size for safety
     sprintf(temp_char, "%d", (SharedData::get_instance()->game_config.selected_input_device+1)); // +1 because count start in zero
     std::string selected_joystick_str(temp_char);
 
