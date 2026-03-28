@@ -32,7 +32,7 @@ pkg_check_modules(SDL_GFX REQUIRED SDL_gfx)
 pkg_check_modules(X11 REQUIRED x11)
 
 # Definitions
-add_definitions(-DNES_RESOLUION -DLINUX -DPC)
+add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
 
 # Include Directories
 include_directories(
