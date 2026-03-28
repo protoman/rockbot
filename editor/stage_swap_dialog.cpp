@@ -79,14 +79,14 @@ void stage_swap_dialog::on_buttonBox_accepted()
 
     // ### SWAP FACES ### //
     char temp_face_name[FS_CHAR8_NAME_SIZE];
-    sprintf(temp_face_name, "%s", Mediator::get_instance()->game_data.stages_face_name[dest_n]);
-    sprintf(Mediator::get_instance()->game_data.stages_face_name[dest_n], "%s", Mediator::get_instance()->game_data.stages_face_name[origin_n]);
-    sprintf(Mediator::get_instance()->game_data.stages_face_name[origin_n], "%s", temp_face_name);
+    snprintf(temp_face_name, "%s", Mediator::get_instance()->game_data.stages_face_name[dest_n]);
+    snprintf(Mediator::get_instance()->game_data.stages_face_name[dest_n], "%s", Mediator::get_instance()->game_data.stages_face_name[origin_n]);
+    snprintf(Mediator::get_instance()->game_data.stages_face_name[origin_n], "%s", temp_face_name);
 
     char temp_face_filename[FS_FACE_FILENAME_MAX];
-    sprintf(temp_face_filename, "%s", Mediator::get_instance()->game_data.stage_face_filename[dest_n]);
-    sprintf(Mediator::get_instance()->game_data.stage_face_filename[dest_n], "%s", Mediator::get_instance()->game_data.stage_face_filename[origin_n]);
-    sprintf(Mediator::get_instance()->game_data.stage_face_filename[origin_n], "%s", temp_face_filename);
+    snprintf(temp_face_filename, "%s", Mediator::get_instance()->game_data.stage_face_filename[dest_n]);
+    snprintf(Mediator::get_instance()->game_data.stage_face_filename[dest_n], "%s", Mediator::get_instance()->game_data.stage_face_filename[origin_n]);
+    snprintf(Mediator::get_instance()->game_data.stage_face_filename[origin_n], "%s", temp_face_filename);
 
 
     // SWAP OBJECTS

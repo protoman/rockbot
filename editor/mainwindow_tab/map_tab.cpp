@@ -244,7 +244,7 @@ void map_tab::on_bg1_filename_currentIndexChanged(const QString &arg1)
     if (arg1.toStdString() == std::string("None")) {
         Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
     } else {
-        sprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
     }
     update_edit_area();
 }
@@ -461,7 +461,7 @@ void map_tab::on_stageTileset_comboBox_currentIndexChanged(const QString &arg1)
         Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename[0] = '\0';
         Mediator::get_instance()->setPallete(std::string("default.png"));
     } else {
-        sprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].tileset_filename, "%s", arg1.toStdString().c_str());
         Mediator::get_instance()->setPallete(arg1.toStdString());
     }
     ui->pallete->repaint();
@@ -553,7 +553,7 @@ void map_tab::on_fb_image_comboBox_currentIndexChanged(const QString &arg1)
     if (arg1.toStdString() == std::string("None")) {
         Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
     } else {
-        sprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
     }
     update_edit_area();
 }

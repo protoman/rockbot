@@ -99,7 +99,7 @@ void TabAnimation::change_h(int value)
 void TabAnimation::on_add_pushButton_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_show_animation new_animation;
-    sprintf(new_animation.name, "%s%d", "Show Animation #", ScenesMediator::get_instance()->animation_list.size()+1);
+    snprintf(new_animation.name, "%s%d", "Show Animation #", ScenesMediator::get_instance()->animation_list.size()+1);
     ScenesMediator::get_instance()->animation_list.push_back(new_animation);
     ui->select_comboBox->addItem(QString(new_animation.name));
     if (ScenesMediator::get_instance()->animation_list.size() == 1) {
@@ -120,13 +120,13 @@ void TabAnimation::on_select_comboBox_currentIndexChanged(int index)
 void TabAnimation::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 void TabAnimation::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
     ui->widget->set_filename(QString(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename));
     st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
     ui->width_spinBox->setValue(img_size.width);

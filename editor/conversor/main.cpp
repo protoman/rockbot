@@ -38,7 +38,7 @@ CURRENT_FILE_FORMAT::fio_strings fio_str;
 fio_common fio_cmm;
 
 void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_stage& stage_v2, short stage_id) {
-    sprintf(stage_v2.dialog_face_graphics_filename, "%s", stage_v1.intro_dialog.face_graphics_filename);
+    snprintf(stage_v2.dialog_face_graphics_filename, "%s", stage_v1.intro_dialog.face_graphics_filename);
     stage_v2.dialog_top_side = stage_v1.intro_dialog.top_side;
 
     std::vector<std::string> dialog_strings;
@@ -133,7 +133,7 @@ void convert_stage_maps(int stage_id, v1_file_stage& stage_v1) {
         for (int j=0; j<2; j++) {
             maps_data[stage_id][i].backgrounds[j].adjust_y = stage_v1.maps[i].backgrounds[j].adjust_y;
             maps_data[stage_id][i].backgrounds[j].auto_scroll = false;
-            sprintf(maps_data[stage_id][i].backgrounds[j].filename, "%s", stage_v1.maps[i].backgrounds[j].filename);
+            snprintf(maps_data[stage_id][i].backgrounds[j].filename, "%s", stage_v1.maps[i].backgrounds[j].filename);
             maps_data[stage_id][i].backgrounds[j].speed = stage_v1.maps[i].backgrounds[j].speed;
         }
         maps_data[stage_id][i].background_color = convert_color(stage_v1.maps[i].background_color);
@@ -179,10 +179,10 @@ void convert_stages_and_maps(v1_file_stages& stages) {
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             temp_v2.autoscroll[j] = false;
         }
-        sprintf(temp_v2.bgmusic_filename, "%s", temp_v1.bgmusic_filename);
+        snprintf(temp_v2.bgmusic_filename, "%s", temp_v1.bgmusic_filename);
         temp_v2.boss.id_npc = temp_v1.boss.id_npc;
         temp_v2.boss.id_weapon = temp_v1.boss.id_weapon;
-        sprintf(temp_v2.boss.name, "%s", temp_v1.boss.name);
+        snprintf(temp_v2.boss.name, "%s", temp_v1.boss.name);
 
         convert_dialog_strings(temp_v1, temp_v2, i);
 
@@ -200,8 +200,8 @@ void convert_stages_and_maps(v1_file_stages& stages) {
             temp_v2.links[i].size = temp_v1.links[i].size;
             temp_v2.links[i].type = temp_v1.links[i].type;
         }
-        sprintf(temp_v2.name, "%s", temp_v1.name);
-        sprintf(temp_v2.tileset_filename, "%s", "default.png");
+        snprintf(temp_v2.name, "%s", temp_v1.name);
+        snprintf(temp_v2.tileset_filename, "%s", "default.png");
 
         stage_data.stages[i] = temp_v2;
 
@@ -219,7 +219,7 @@ void convert_ai_types(v1_file_game& game_v1) {
             continue;
         }
         CURRENT_FILE_FORMAT::file_artificial_inteligence new_ai;
-        sprintf(new_ai.name, "%s",  game_v1.ai_types[i].name);
+        snprintf(new_ai.name, "%s",  game_v1.ai_types[i].name);
         for (int j=0; j<MAX_AI_REACTIONS; j++) {
             new_ai.reactions[j].action = game_v1.ai_types[i].reactions[j].action;
             new_ai.reactions[j].extra_parameter = game_v1.ai_types[i].reactions[j].extra_parameter;
@@ -250,13 +250,13 @@ void convert_game_npcs(v1_file_game& game_v1) {
         }
         CURRENT_FILE_FORMAT::file_npc new_enemy;
         new_enemy.attack_frame = 0;
-        sprintf(new_enemy.bg_graphic_filename, "%s", game_v1.game_npcs[i].bg_graphic_filename);
+        snprintf(new_enemy.bg_graphic_filename, "%s", game_v1.game_npcs[i].bg_graphic_filename);
         new_enemy.direction = game_v1.game_npcs[i].direction;
         new_enemy.facing = game_v1.game_npcs[i].facing;
         new_enemy.fly_flag = game_v1.game_npcs[i].fly_flag;
         new_enemy.frame_size.width = game_v1.game_npcs[i].frame_size.width;
         new_enemy.frame_size.height = game_v1.game_npcs[i].frame_size.height;
-        sprintf(new_enemy.graphic_filename, "%s", game_v1.game_npcs[i].graphic_filename);
+        snprintf(new_enemy.graphic_filename, "%s", game_v1.game_npcs[i].graphic_filename);
         new_enemy.hp.current = game_v1.game_npcs[i].hp.current;
         new_enemy.hp.total = game_v1.game_npcs[i].hp.total;
         new_enemy.IA_type = game_v1.game_npcs[i].IA_type;
@@ -264,7 +264,7 @@ void convert_game_npcs(v1_file_game& game_v1) {
         new_enemy.is_boss = game_v1.game_npcs[i].is_boss;
         new_enemy.is_ghost = game_v1.game_npcs[i].is_ghost;
         new_enemy.is_sub_boss = game_v1.game_npcs[i].is_sub_boss;
-        sprintf(new_enemy.name, "%s", game_v1.game_npcs[i].name);
+        snprintf(new_enemy.name, "%s", game_v1.game_npcs[i].name);
         new_enemy.projectile_id[0] = game_v1.game_npcs[i].projectile_id[0];
         new_enemy.projectile_id[1] = game_v1.game_npcs[i].projectile_id[1];
         new_enemy.respawn_delay = game_v1.game_npcs[i].respawn_delay;
@@ -307,9 +307,9 @@ void convert_game_objects(v1_file_game& game_v1) {
         new_object.direction = game_v1.objects[i].direction;
         new_object.distance = game_v1.objects[i].distance;
         new_object.frame_duration = game_v1.objects[i].frame_duration;
-        sprintf(new_object.graphic_filename, "%s", game_v1.objects[i].graphic_filename);
+        snprintf(new_object.graphic_filename, "%s", game_v1.objects[i].graphic_filename);
         new_object.limit = game_v1.objects[i].limit;
-        sprintf(new_object.name, "%s", game_v1.objects[i].name);
+        snprintf(new_object.name, "%s", game_v1.objects[i].name);
         new_object.size.width = game_v1.objects[i].size.width;
         new_object.size.height = game_v1.objects[i].size.height;
         new_object.speed = game_v1.objects[i].speed;
@@ -324,12 +324,12 @@ void convert_projectiles(v1_file_game& game_v1) {
         CURRENT_FILE_FORMAT::file_projectile new_projectile;
         new_projectile.can_be_reflected = game_v1.projectiles[i].can_be_reflected;
         new_projectile.damage = game_v1.projectiles[i].damage;
-        sprintf(new_projectile.graphic_filename, "%s", game_v1.projectiles[i].graphic_filename);
+        snprintf(new_projectile.graphic_filename, "%s", game_v1.projectiles[i].graphic_filename);
         new_projectile.hp = game_v1.projectiles[i].hp;
         new_projectile.is_destructible = game_v1.projectiles[i].is_destructible;
         new_projectile.max_shots = game_v1.projectiles[i].max_shots;
-        sprintf(new_projectile.name, "%s", game_v1.projectiles[i].name);
-        sprintf(new_projectile.sfx_filename, "%s", game_v1.projectiles[i].sfx_filename);
+        snprintf(new_projectile.name, "%s", game_v1.projectiles[i].name);
+        snprintf(new_projectile.sfx_filename, "%s", game_v1.projectiles[i].sfx_filename);
         new_projectile.size.width = game_v1.projectiles[i].size.width;
         new_projectile.size.height = game_v1.projectiles[i].size.height;
         new_projectile.spawn_npc_id = game_v1.projectiles[i].spawn_npc_id;
@@ -350,13 +350,13 @@ void convert_game_players(v1_file_game& game_v1) {
         temp.can_double_jump = game_v1.players[j].can_double_jump;
         temp.can_slide = game_v1.players[j].can_slide;
         temp.damage_modifier = game_v1.players[j].damage_modifier;
-        sprintf(temp.face_filename, "%s", game_v1.players[j].face_filename);
+        snprintf(temp.face_filename, "%s", game_v1.players[j].face_filename);
         temp.full_charged_projectile_id = game_v1.players[j].full_charged_projectile_id;
-        sprintf(temp.graphic_filename, "%s", game_v1.players[j].graphic_filename);
+        snprintf(temp.graphic_filename, "%s", game_v1.players[j].graphic_filename);
         temp.have_shield = game_v1.players[j].have_shield;
         temp.HP = game_v1.players[j].HP;
         temp.max_shots = game_v1.players[j].max_shots;
-        sprintf(temp.name, "%s", game_v1.players[j].name);
+        snprintf(temp.name, "%s", game_v1.players[j].name);
         temp.simultaneous_shots = game_v1.players[j].simultaneous_shots;
         for (int k=0; k<V1_ANIM_TYPE_COUNT; k++) {
             for (int l=0; l<V1_ANIM_FRAMES_COUNT; l++) {
@@ -398,25 +398,25 @@ void convert_game(v1_file_game& game_v1) {
         }
     }
     /// @TODO - add old hardcoded attacks like hadouken
-    sprintf(game_data.name, "%s", game_v1.name);
+    snprintf(game_data.name, "%s", game_v1.name);
 
     for (int k=0; k<V1_FS_PLATER_ITEMS_N; k++) {
         game_data.player_items[k] = game_v1.player_items[k];
     }
     game_data.semi_charged_projectile_id = game_v1.semi_charged_projectile_id;
     for (int k=0; k<V1_MAX_STAGES; k++) {
-        sprintf(game_data.stage_face_filename[k], "%s", game_v1.stage_face_filename[k]);
+        snprintf(game_data.stage_face_filename[k], "%s", game_v1.stage_face_filename[k]);
     }
     for (int k=0; k<V1_TROPHIES_MAX; k++) {
         game_data.trophies[k].condition = game_v1.trophies[k].condition;
-        sprintf(game_data.trophies[k].filename, "%s", game_v1.trophies[k].filename);
-        sprintf(game_data.trophies[k].name, "%s", game_v1.trophies[k].name);
+        snprintf(game_data.trophies[k].filename, "%s", game_v1.trophies[k].filename);
+        snprintf(game_data.trophies[k].name, "%s", game_v1.trophies[k].name);
     }
     game_data.version = game_v1.version;
     for (int k=0; k<V1_FS_MAX_WEAPONS; k++) {
         game_data.weapons[k].damage = game_v1.weapons[k].damage;
         game_data.weapons[k].id_projectile = game_v1.weapons[k].id_projectile;
-        sprintf(game_data.weapons[k].name, "%s", game_v1.weapons[k].name);
+        snprintf(game_data.weapons[k].name, "%s", game_v1.weapons[k].name);
     }
 
     convert_ai_types(game_v1);
@@ -435,24 +435,24 @@ void set_rockbot1_hardcoded() {
     /// @TODO: set the hardcoded parts:
     // ROCKBOT 1 HARDCODED PARTS //
     game_data.game_style = 0;
-    sprintf(game_data.stages_face_name[0], "%s", "INTRO");
-    sprintf(game_data.stages_face_name[1], "%s", "APE");
-    sprintf(game_data.stages_face_name[2], "%s", "DAISIE");
-    sprintf(game_data.stages_face_name[3], "%s", "SEAHORSE");
-    sprintf(game_data.stages_face_name[4], "%s", "MUMMY");
-    sprintf(game_data.stages_face_name[5], "%s", "MAGE");
-    sprintf(game_data.stages_face_name[6], "%s", "DYNAMITE");
-    sprintf(game_data.stages_face_name[7], "%s", "SPIKE");
-    sprintf(game_data.stages_face_name[8], "%s", "TECHNO");
-    sprintf(game_data.stages_face_name[9], "%s", "CASTLE");
+    snprintf(game_data.stages_face_name[0], "%s", "INTRO");
+    snprintf(game_data.stages_face_name[1], "%s", "APE");
+    snprintf(game_data.stages_face_name[2], "%s", "DAISIE");
+    snprintf(game_data.stages_face_name[3], "%s", "SEAHORSE");
+    snprintf(game_data.stages_face_name[4], "%s", "MUMMY");
+    snprintf(game_data.stages_face_name[5], "%s", "MAGE");
+    snprintf(game_data.stages_face_name[6], "%s", "DYNAMITE");
+    snprintf(game_data.stages_face_name[7], "%s", "SPIKE");
+    snprintf(game_data.stages_face_name[8], "%s", "TECHNO");
+    snprintf(game_data.stages_face_name[9], "%s", "CASTLE");
 
     /// music (boss battle, final boss, game_over, got_weapon)
-    sprintf(game_data.boss_music_filename, "%s", "boss_battle.mod");
-    sprintf(game_data.final_boss_music_filename, "%s", "final_boss.mod");
-    sprintf(game_data.got_weapon_music_filename, "%s", "got_weapon.mod");
-    sprintf(game_data.game_over_music_filename, "%s", "OTHER.xm");
-    sprintf(game_data.stage_select_music_filename, "%s", "menu.mod");
-    sprintf(game_data.game_start_screen_music_filename, "%s", "opening.mod");
+    snprintf(game_data.boss_music_filename, "%s", "boss_battle.mod");
+    snprintf(game_data.final_boss_music_filename, "%s", "final_boss.mod");
+    snprintf(game_data.got_weapon_music_filename, "%s", "got_weapon.mod");
+    snprintf(game_data.game_over_music_filename, "%s", "OTHER.xm");
+    snprintf(game_data.stage_select_music_filename, "%s", "menu.mod");
+    snprintf(game_data.game_start_screen_music_filename, "%s", "opening.mod");
 
 
     /// projectiles (see doc code-changes)

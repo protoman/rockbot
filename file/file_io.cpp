@@ -770,7 +770,7 @@ namespace format_v4 {
     {
         char numbered_file[50];
 
-        sprintf(numbered_file, "_0%d", save_n);
+        snprintf(numbered_file, sizeof(numbered_file), "_0%d", save_n);
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(numbered_file) + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
 

@@ -79,14 +79,14 @@ void projectile_edit::on_projectileList_combo_currentIndexChanged(int index)
 void projectile_edit::on_name_textChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).name, "%s", arg1.toStdString().c_str());
     ui->projectileList_combo->setItemText(Mediator::get_instance()->current_projectile, arg1);
 }
 
 void projectile_edit::on_graphic_filename_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).graphic_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).graphic_filename, "%s", arg1.toStdString().c_str());
 	ui->projectilePreviewAreaWidget->repaint();
 }
 
@@ -94,7 +94,7 @@ void projectile_edit::on_graphic_filename_currentIndexChanged(const QString &arg
 void projectile_edit::on_sfxFilename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).sfx_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->projectile_list_v3.at(Mediator::get_instance()->current_projectile).sfx_filename, "%s", arg1.toStdString().c_str());
 }
 
 void projectile_edit::on_trajectory_currentIndexChanged(int index)

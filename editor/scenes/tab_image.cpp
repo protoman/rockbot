@@ -116,7 +116,7 @@ void tab_image::update_preview_image(int index)
 void tab_image::on_add_Button_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_show_image new_image;
-    sprintf(new_image.name, "%s%d", "Show Image #", ScenesMediator::get_instance()->image_list.size()+1);
+    snprintf(new_image.name, "%s%d", "Show Image #", ScenesMediator::get_instance()->image_list.size()+1);
     ScenesMediator::get_instance()->image_list.push_back(new_image);
     ui->select_comboBox->addItem(QString(new_image.name));
     if (ScenesMediator::get_instance()->image_list.size() == 1) {
@@ -162,7 +162,7 @@ void tab_image::on_blocking_checkBox_toggled(bool checked)
 void tab_image::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
     std::string filename = ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).filename;
 
     if (filename.length() > 0) {
@@ -247,7 +247,7 @@ void tab_image::on_comboBox_currentIndexChanged(int index)
 void tab_image::on_name_textEdit_textChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->image_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 void tab_image::on_pushButton_clicked()

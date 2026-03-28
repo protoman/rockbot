@@ -10,8 +10,9 @@
 *   Always build the project to check it is working before and after starting doing changes.
 *   Always ask before removing existing functions.
 *   This is a multi platform project, so avoid using methods that only work on one operating system or architecture.
-*   Do not change any size for arrays that are stored in binary files.
-*   Do not change file paths.
+*   Do not change the size of arrays used as file.
+*   Replace instances of non-safe methods like sprintf, vsprintf, snprintf, vsstrcpy, strcat, strncpy, strncat, strtok,alloca and realpath for memory safe alternatives.
+*   When converting sprintf to snprintf, check that the parameters are correct. You might need to add size_t __maxlen.
 
 ## Coding Style
 *   Use tab for indentation.

@@ -37,7 +37,7 @@ struct st_map_background {
         adjust_y = 0;
         speed = 0;
         auto_scroll = 0;
-        sprintf(filename, "%s", "");
+        snprintf(filename, sizeof(filename), "%s", "");
         gfx = 0;
     }
 };

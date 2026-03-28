@@ -313,7 +313,7 @@ void MainWindow::on_bg1_filename_currentIndexChanged(const QString &arg1)
 	if (arg1.toStdString() == std::string("None")) {
         Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
 	} else {
-        sprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, "%s", arg1.toStdString().c_str());
 	}
     map_edit_tab->update_edit_area();
 }
@@ -342,7 +342,7 @@ void MainWindow::on_bg2_filename_currentIndexChanged(const QString &arg1)
 	if (arg1.toStdString() == std::string("None")) {
         Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
 	} else {
-        sprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, "%s", arg1.toStdString().c_str());
 	}
 }
 
@@ -470,7 +470,7 @@ void MainWindow::on_players_tab_name_textChanged(const QString &arg1)
     if (_data_loading == true) {
         return;
     }
-    sprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
 }
 
 void MainWindow::on_chargedshot_combo_currentIndexChanged(int index)

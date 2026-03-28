@@ -77,7 +77,7 @@ void TabClearArea::reload_button_color(int index)
 void TabClearArea::on_add_pushButton_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_clear_area new_cleararea;
-    sprintf(new_cleararea.name, "%s%d", "Clear Area #", ScenesMediator::get_instance()->cleararea_list.size()+1);
+    snprintf(new_cleararea.name, "%s%d", "Clear Area #", ScenesMediator::get_instance()->cleararea_list.size()+1);
     ScenesMediator::get_instance()->cleararea_list.push_back(new_cleararea);
     ui->select_comboBox->addItem(QString(new_cleararea.name));
     if (ScenesMediator::get_instance()->cleararea_list.size() == 1) {
@@ -117,7 +117,7 @@ void TabClearArea::pick_color_slot(QColor color)
 void TabClearArea::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->cleararea_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 void TabClearArea::on_x_spinBox_valueChanged(int arg1)

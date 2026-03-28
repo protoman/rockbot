@@ -83,7 +83,7 @@ void fps_control::fps_count()
     }
     fps_counter++;
     if (fps_timer <= timer.getTimer()) {
-        sprintf(_fps_buffer, "FPS: %d", fps_counter);
+        snprintf(_fps_buffer, sizeof(_fps_buffer), "FPS: %d", fps_counter);
         if (fps_counter <= fps_timer-4) {
             frame_drop_period = fps_timer/(fps_timer-fps_counter);
         } else {

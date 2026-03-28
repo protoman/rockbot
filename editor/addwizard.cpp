@@ -57,10 +57,10 @@ void addWizard::fillNPCGraphicsList() {
         QFileInfo fileInfo = list.at(i);
 		//printf("addWizard::fillNPCGraphicsList - fileName: %s\n", qPrintable(fileInfo.fileName()));
 		if (i == 0) {
-            sprintf(Mediator::get_instance()->addNpcFilename, "images/sprites/enemies/%s", qPrintable(fileInfo.fileName()));
+            snprintf(Mediator::get_instance()->addNpcFilename, "images/sprites/enemies/%s", qPrintable(fileInfo.fileName()));
 		}
         //Mediator::get_instance()->NpcPreviewFile = new QString(fileInfo.fileName());
-        //sprintf(Mediator::get_instance()->addNpcFilename, "%s", qPrintable(fileInfo.fileName()));
+        //snprintf(Mediator::get_instance()->addNpcFilename, "%s", qPrintable(fileInfo.fileName()));
         ui.npcListCombobox->addItem(fileInfo.fileName());
     }
     //printf(">> dataExchanger::fillNPCGraphicsList->addNpcFilename: '%s'\n", Mediator::get_instance()->addNpcFilename);
@@ -75,10 +75,10 @@ void addWizard::on_npcGraphicSizeSpin_valueChanged(int value)
 
 void addWizard::on_npcListCombobox_currentIndexChanged(QString item)
 {
-    //sprintf(Mediator::get_instance()->NpcPreviewFile, "images/sprites/enemies/%s", qPrintable(item));
+    //snprintf(Mediator::get_instance()->NpcPreviewFile, "images/sprites/enemies/%s", qPrintable(item));
     //Mediator::get_instance()->NpcPreviewFile = new QString("images/sprites/enemies/");
     //(*Mediator::get_instance()->NpcPreviewFile).append(item);
-    sprintf(Mediator::get_instance()->addNpcFilename, "images/sprites/enemies/%s", qPrintable(item));
+    snprintf(Mediator::get_instance()->addNpcFilename, "images/sprites/enemies/%s", qPrintable(item));
     //printf("DEBUG.addWizard::on_npcListCombobox_currentIndexChanged - fileName: %s\n", qPrintable(*Mediator::get_instance()->NpcPreviewFile));
 	ui.npcPreviewAreaWidget->repaint();
 }

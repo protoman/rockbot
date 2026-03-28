@@ -158,7 +158,7 @@ classMap *stage::get_current_map()
 {
     if (currentMap < 0 || currentMap >= PRELOAD_MAP_N) {
         char error_msg[255];
-        sprintf(error_msg, "(stage::get_current_map): Invalid currenct map value[%d]", currentMap);
+        snprintf(error_msg, sizeof(error_msg), "(stage::get_current_map): Invalid currenct map value[%d]", currentMap);
         //throw std::invalid_argument(error_msg);
     }
 

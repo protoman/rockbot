@@ -256,7 +256,7 @@ void scenesLib::show_cheats_menu()
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_ALLBEATEN) + ": " + allStagesStr));
 
         char char_n[50];
-        sprintf(char_n, "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
+        snprintf(char_n, sizeof(char_n), "%s", GameMediator::get_instance()->player_list_v3_1[current_player].name);
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_CHARACTER) + ": " + std::string(char_n)));
 
         std::string game_style_mode = "GAME STYLE: ";
@@ -656,7 +656,7 @@ void scenesLib::boss_intro(short stage_n)
         filename.append("0");
     }
     char filename_chr[256];
-    sprintf(filename_chr, "%d.png", stage_n);
+    snprintf(filename_chr, sizeof(filename_chr), "%d.png", stage_n);
     filename.append(std::string(filename_chr));
 
     if (!fio.file_exists(filename)) {
@@ -939,19 +939,19 @@ void scenesLib::draw_save_details(int n, CURRENT_FILE_FORMAT::st_save save)
     // e-tank
     st_position pos_etank(11*18+item_adjust_x, y_pos);
     graphLib.draw_weapon_tooltip_icon(11, pos_etank, true);
-    sprintf(buffer, "x%d", save.items.energy_tanks);
+    snprintf(buffer, sizeof(buffer), "x%d", save.items.energy_tanks);
     graphLib.draw_text(12*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // w-tank
     st_position pos_wtank(13*18+item_adjust_x, y_pos);
     graphLib.draw_weapon_tooltip_icon(12, pos_wtank, true);
-    sprintf(buffer, "x%d", save.items.weapon_tanks);
+    snprintf(buffer, sizeof(buffer), "x%d", save.items.weapon_tanks);
     graphLib.draw_text(14*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 
     // s-tank
     st_position pos_stank(15*18+item_adjust_x, y_pos);
     graphLib.draw_weapon_tooltip_icon(13, pos_stank, true);
-    sprintf(buffer, "x%d", save.items.special_tanks);
+    snprintf(buffer, sizeof(buffer), "x%d", save.items.special_tanks);
     graphLib.draw_text(16*18+item_adjust_x-1, y_pos+5, std::string(buffer));
 }
 

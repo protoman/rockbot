@@ -891,9 +891,9 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
         //std::cout << "TANK[" << weapon_n << "], value[" << value << "]" << std::endl;
         char error_msg[15]; // Increased buffer size for safety
         if (value < 10) {
-            sprintf(error_msg, "[0%d]", value);
+            snprintf(error_msg, 15, "[0%d]", value);
         } else {
-            sprintf(error_msg, "[%d]", value);
+            snprintf(error_msg, sizeof(error_msg), "[%d]", value);
         }
         graphLib.draw_text(x, y+1, std::string(error_msg));
         return;
@@ -998,15 +998,15 @@ string draw::get_selected_weapon_name(int selected_weapon_n)
         weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
     } else if (selected_weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (selected_weapon_n == WEAPON_ITEM_WTANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (selected_weapon_n == WEAPON_ITEM_STANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
         weapon_name = std::string(crystal_msg);
     }
     return weapon_name;
@@ -1016,7 +1016,7 @@ void draw::weapon_menu_show_player(graphicsLib_gSurface *character_sprite)
 {
     graphLib.copyArea(st_position(6, 157), character_sprite, &graphLib.gameScreen);
     char player_lifes[20];
-    sprintf(player_lifes, "x[%d]", game_save.items.lifes);
+    snprintf(player_lifes, 20, "x[%d]", game_save.items.lifes);
     graphLib.draw_text(38, 178, player_lifes);
 
     // show armor pieces

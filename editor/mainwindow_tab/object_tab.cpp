@@ -40,7 +40,7 @@ void object_tab::on_graphicfile_combo_currentIndexChanged(const QString &arg1)
 	if (_data_loaded == false) {
 		return;
 	}
-    sprintf(Mediator::get_instance()->object_list.at(_current_object).graphic_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->object_list.at(_current_object).graphic_filename, "%s", arg1.toStdString().c_str());
     ui->object_preview_area->set_graphicfile(FILEPATH+std::string("/images/sprites/objects/")+arg1.toStdString());
     ui->object_preview_area->repaint();
 }
@@ -70,7 +70,7 @@ void object_tab::on_objectlist_combo_currentIndexChanged(int index)
 void object_tab::on_name_textChanged(const QString &arg1)
 {
     if (_data_loaded == false) { return; }
-    sprintf(Mediator::get_instance()->object_list.at(_current_object).name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->object_list.at(_current_object).name, "%s", arg1.toStdString().c_str());
     ui->objectlist_combo->setItemText(_current_object, QString(Mediator::get_instance()->object_list.at(_current_object).name));
 }
 

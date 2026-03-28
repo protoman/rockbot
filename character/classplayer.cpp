@@ -65,7 +65,7 @@ void classPlayer::initialize()
 {
     _number = game_save.selected_player;
     char temp_name[30];
-    sprintf(temp_name, "PLAYER_%d", _number);
+    snprintf(temp_name, sizeof(temp_name), "PLAYER_%d", _number);
     name = std::string(temp_name);
     if (_number == 3 || _number == 0) {
         //_obj_jump.set_jump_acceleration(0.95);

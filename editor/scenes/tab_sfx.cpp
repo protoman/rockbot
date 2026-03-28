@@ -63,7 +63,7 @@ void TabSfx::reload()
 void TabSfx::on_add_pushButton_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_play_sfx new_sfx;
-    sprintf(new_sfx.name, "%s%d", "Play SFX #", ScenesMediator::get_instance()->playsfx_list.size()+1);
+    snprintf(new_sfx.name, "%s%d", "Play SFX #", ScenesMediator::get_instance()->playsfx_list.size()+1);
     ScenesMediator::get_instance()->playsfx_list.push_back(new_sfx);
     ui->select_comboBox->addItem(QString(new_sfx.name));
     if (ScenesMediator::get_instance()->playsfx_list.size() == 1) {
@@ -82,12 +82,12 @@ void TabSfx::on_select_comboBox_currentIndexChanged(int index)
 void TabSfx::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->playsfx_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->playsfx_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 void TabSfx::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->playsfx_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->playsfx_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
 
 }

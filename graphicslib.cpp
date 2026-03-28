@@ -554,7 +554,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     if (tile_ref->get_surface() == NULL) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
         char debug_msg[255];
-        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
+        snprintf(debug_msg, sizeof(debug_msg), "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
 #endif
@@ -1292,15 +1292,15 @@ void graphicsLib::draw_weapon_changed_tooltip(short weapon_n)
         weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
     } else if (weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_WTANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_STANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
         weapon_name = std::string(crystal_msg);
     }
     graphLib.draw_text(34, RES_H-22, weapon_name);
@@ -2255,7 +2255,7 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
             } else {
                 std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
                 char enum_str[20];
-                sprintf(enum_str, "%d", flip_mode);
+                snprintf(enum_str, 20, "%d", flip_mode);
                 exception_manager::throw_param_exception(std::string("graphicsLib::flip_image, invalid mode"), std::string(enum_str));
             }
         }

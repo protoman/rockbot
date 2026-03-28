@@ -64,9 +64,7 @@ struct st_spriteFrame {
     st_spriteFrame (const st_spriteFrame& other)
     {
         if (other.frameSurface.get_surface() != NULL) {
-
             frameSurface = other.frameSurface;
-
         }
         delay = other.delay;
     }
@@ -75,7 +73,6 @@ struct st_spriteFrame {
     st_spriteFrame& operator= (const st_spriteFrame& other)
     {
         setbuf(stdout, NULL);
-
         if (other.frameSurface.get_surface() != NULL) {
             frameSurface = other.frameSurface;
         }

@@ -124,7 +124,7 @@ void tab_viewpoint::update_preview_image(int index)
 void tab_viewpoint::on_filename_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).filename, "%s", arg1.toStdString().c_str());
     st_size img_size = common::calc_image_size(ScenesMediator::get_instance()->animation_list.at(ui->select_comboBox->currentIndex()).filename);
     ui->img_area_w->setValue(img_size.width);
     ui->img_area_h->setValue(img_size.height);
@@ -134,7 +134,7 @@ void tab_viewpoint::on_filename_comboBox_currentIndexChanged(const QString &arg1
 void tab_viewpoint::on_add_Button_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_show_viewpoint new_viewpoint;
-    sprintf(new_viewpoint.name, "%s%d", "Show Viewpoint #", ScenesMediator::get_instance()->viewpoint_list.size()+1);
+    snprintf(new_viewpoint.name, "%s%d", "Show Viewpoint #", ScenesMediator::get_instance()->viewpoint_list.size()+1);
     ScenesMediator::get_instance()->viewpoint_list.push_back(new_viewpoint);
     ui->select_comboBox->addItem(QString(new_viewpoint.name));
     if (ScenesMediator::get_instance()->viewpoint_list.size() == 1) {
@@ -152,7 +152,7 @@ void tab_viewpoint::on_select_comboBox_currentIndexChanged(int index)
 void tab_viewpoint::on_name_textEdit_textChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    sprintf(ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->viewpoint_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 void tab_viewpoint::on_init_x_spinBox_valueChanged(int arg1)

@@ -12,7 +12,7 @@ void exception_manager::throw_param_exception(std::string prefix, std::string pa
     std::cout << "### PARAM-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    sprintf(error_msg, "Exception: Invalid parameter [%s] - value[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
+    snprintf(error_msg, sizeof(error_msg), "Exception: Invalid parameter [%s] - value[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     //throw std::invalid_argument(error_msg);
 }
 
@@ -21,7 +21,7 @@ void exception_manager::throw_file_not_found_exception(std::string prefix, std::
     std::cout << "### FILE-NOT-FOUND-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    sprintf(error_msg, "Exception: file not found[%s] - file[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
+    snprintf(error_msg, sizeof(error_msg), "Exception: file not found[%s] - file[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     //throw std::invalid_argument(error_msg);
 }
 
@@ -30,7 +30,7 @@ void exception_manager::throw_general_exception(std::string prefix, std::string 
     std::cout << "### -GENERAL-EXCEPTION - prefix[" << prefix << "], param[" << param << "]" << std::endl;
     std::string backtrace = get_backtrace();
     char error_msg[512+backtrace.size()];
-    sprintf(error_msg, "Exception: runtime error[%s] - code[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
+    snprintf(error_msg, sizeof(error_msg), "Exception: runtime error[%s] - code[%s]\nBacktrace:\n[%s]", prefix.c_str(), param.c_str(), backtrace.c_str());
     //throw std::runtime_error(error_msg);
 }
 
@@ -86,7 +86,7 @@ std::string exception_manager::get_backtrace()
     std::ostringstream oss;
     getBacktrace(oss, 30);
     char str_msg[50000];
-    sprintf(str_msg, "%s", oss.str().c_str());
+    snprintf(str_msg, sizeof(str_msg), "%s", oss.str().c_str());
     std::string str(str_msg);
     return str;
 #else

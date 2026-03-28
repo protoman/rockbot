@@ -75,7 +75,7 @@ void anim_tiles_edit::on_graphic_combo_currentIndexChanged(const QString &arg1)
     ui->animTileFrames_widget->set_graphicfile(filename);
     ui->animTileFrames_widget->set_sprite_pos(st_position(0, 0));
     ui->animTileFrames_widget->repaint();
-    sprintf(Mediator::get_instance()->anim_block_list.at(ui->currentBlock_combo->currentIndex()).filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->anim_block_list.at(ui->currentBlock_combo->currentIndex()).filename, "%s", arg1.toStdString().c_str());
     ui->animTilePreview_widget->update_properties();
 }
 
