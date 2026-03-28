@@ -61,8 +61,14 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     animation_timer = timer.getTimer() + PROJECTILE_DEFAULT_ANIMATION_TIME; // used to control each frame duration
 
 	position.y -= _size.height/2;
-	_max_frames = get_surface()->width / _size.width;
-    max_frames_vertical = get_surface()->height / _size.height;
+
+    if (get_surface() != NULL && get_surface()->get_surface() != NULL) {
+        _max_frames = get_surface()->width / _size.width;
+        max_frames_vertical = get_surface()->height / _size.height;
+    } else {
+        _max_frames = 1;
+        max_frames_vertical = 1;
+    }
 
 	_move_type = get_trajectory();
     //std::cout << "NEW PROJECTILE, type[" << (int)_move_type << "]" << std::endl;
@@ -259,6 +265,9 @@ void projectile::move_ahead(st_float_size &moved)
 
 void projectile::position_to_ground()
 {
+    if (get_surface() == NULL || get_surface()->get_surface() == NULL) {
+        return;
+    }
     // change y until the projectile reachs ground
     while ((position.y + get_surface()->height/2) < RES_H) {
         int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y + get_surface()->height/2)/TILESIZE)); //map->map_tiles.tiles[position.x/TILESIZE][position.y/TILESIZE].locked;
@@ -1006,6 +1015,11 @@ void projectile::draw() {
     }
 
     update_real_position();
+
+    if (get_surface() == NULL || get_surface()->get_surface() == NULL) {
+        return;
+    }
+
     //std::cout << "PROJECTILE::DRAW[" << (int)_id << "] at[" << position.x << "][" << position.y << "]" << std::endl;
 
 	if (animation_pos >= _max_frames) {

@@ -332,7 +332,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         }
     }
     if (res->get_surface() == NULL) {
-        std::cout << "ERROR::surfaceFromFile - surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
+        std::cout << "ERROR::surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
         _debug_msg_pos = 1;
         show_debug_msg(filename);
         _debug_msg_pos = 0;
@@ -341,8 +341,10 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         show_debug_msg("EXIT #05");
         exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), filename);
     } else {
-        res->width = res->get_surface()->w;
-        res->height = res->get_surface()->h;
+        if (res->get_surface() != NULL) {
+            res->width = res->get_surface()->w;
+            res->height = res->get_surface()->h;
+        }
     }
 }
 

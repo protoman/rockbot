@@ -49,8 +49,7 @@ template <class T> T fio_common::load_struct_data(std::string file) {
         return res;
     }
 
-    T out;
-    int res_read = fread(&out, sizeof(T), 1, fp);
+    int res_read = fread(&res, sizeof(T), 1, fp);
 
     if (res_read == -1) {
         std::cout << "ERROR: file_io::load_struct_data - Error reading data from scenes_list file '" << filename << "'." << std::endl;
