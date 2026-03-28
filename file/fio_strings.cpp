@@ -58,7 +58,7 @@ namespace format_v4 {
         if (string_list.size() == 0) {
             string_list = load_game_strings(language, convert_symbols);
         }
-        if (n < 0 || n > string_list.size()) {
+        if (n < 0 || n >= string_list.size()) {
             return "";
         }
 

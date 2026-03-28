@@ -257,80 +257,80 @@ namespace format_v4 {
         if (unsigned int res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (unsigned int res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game - Error reading struct data [semi_charged_projectile_id] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != FS_PLATER_ITEMS_N) {
             std::cout << "ERROR: file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.stages_face_name, sizeof(char), (MAX_STAGES*FS_CHAR8_NAME_SIZE), fp) != MAX_STAGES*FS_CHAR8_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stages_face_name] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
 
         if (fread(&data_out.boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [boss_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.final_boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [final_boss_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.got_weapon_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [got_weapon_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.game_over_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [game_over_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.stage_select_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
 
         if (fread(&data_out.game_start_screen_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
 
         if (fread(&data_out.use_second_castle, sizeof(bool), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [use_second_castle] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.game_style, sizeof(Uint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [game_style] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         if (fread(&data_out.final_boss_id, sizeof(Uint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [final_boss_id] from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
 
         fclose(fp);
@@ -348,7 +348,7 @@ namespace format_v4 {
         if (fread(&data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
             std::cout << "ERROR: file_io::read_game[weapons] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         fclose(fp);
 
@@ -365,7 +365,7 @@ namespace format_v4 {
         if (fread(&data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
             std::cout << "ERROR: file_io::read_game[trophies] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         fclose(fp);
 
@@ -382,7 +382,7 @@ namespace format_v4 {
         if (fread(&data_out.armor_pieces, sizeof(st_armor_piece), FS_PLAYER_ARMOR_PIECES_MAX, fp) != FS_PLAYER_ARMOR_PIECES_MAX) {
             std::cout << "ERROR: file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         fclose(fp);
 
@@ -401,7 +401,7 @@ namespace format_v4 {
         if (fread(&data_out.weapon_menu_colors, sizeof(st_color), MAX_WEAPON_N, fp) != MAX_WEAPON_N) {
             std::cout << "ERROR: file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
-            exit(-1);
+            return;
         }
         fclose(fp);
     }
@@ -451,7 +451,7 @@ namespace format_v4 {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.read_stage:Error reading struct data from stage file ###");
 #endif
             fflush(stdout);
-            exit(-1);
+            return;
         }
         fclose(fp);
     }
@@ -712,7 +712,7 @@ namespace format_v4 {
                 if (read_result  == -1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
-                    exit(-1);
+                    return;
                 }
                 fclose(fp_old);
                 config = config_old;
@@ -726,7 +726,7 @@ namespace format_v4 {
                 if (read_result  == -1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
-                    exit(-1);
+                    return;
                 }
                 fclose(fp);
             }
@@ -759,7 +759,7 @@ namespace format_v4 {
         fp = fopen(filename.c_str(), "wb");
         if (!fp) {
             std::cout << "ERROR: Could not open config file '" << filename << "'." << std::endl;
-            exit(-1);
+            return;
         }
         fwrite(&config, sizeof(struct format_v4::st_game_config), 1, fp);
         fclose(fp);
@@ -934,14 +934,14 @@ namespace format_v4 {
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
             fflush(stdout);
-            exit(-1);
+            return -1;
         }
         fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
         int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
         if (read_result == -1) {
             printf("ERROR: reading struct data from stage file.\n");
             fflush(stdout);
-            exit(-1);
+            return -1;
         }
         fclose(fp);
         return stages_data_out.boss.id_npc;

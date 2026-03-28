@@ -173,7 +173,7 @@ namespace format_v4 {
             return;
         }
 
-        for (int i=0; i<data.size(); i++) {
+        for (size_t i=0; i<data.size(); i++) {
             int block_size = sizeof(T);
             T data_in = data.at(i);
             fwrite(&data_in, block_size, 1, fp);

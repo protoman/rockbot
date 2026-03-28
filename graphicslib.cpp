@@ -1240,6 +1240,9 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
 
 void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active)
 {
+    if (weapon_n < 0 || weapon_n >= small_weapon_icons.size()) {
+        return;
+    }
     int icon_size = small_weapon_icons.at(weapon_n).width;
     if (active) {
         showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);

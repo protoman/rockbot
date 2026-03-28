@@ -1358,19 +1358,26 @@ void game::classic_style_got_weapon()
     player1.char_update_real_position();
     player1.show();
 
-    std::string weapon_name(game_data.weapons[currentStage].name);
-    for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
-        *p = toupper(*p);
+    std::string weapon_name("");
+    if (currentStage >= 0 && currentStage < MAX_STAGES) {
+        weapon_name = std::string(game_data.weapons[currentStage].name);
+        for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
+            *p = toupper(*p);
+        }
     }
 
     // line 1, weapon name; line 2 extra item; line 3 was acquired
     std::string extra_name = "";
     if (currentStage == COIL_GOT_STAGE) {
-        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
-        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        if (game_data.player_items[0] >= 0 && game_data.player_items[0] < (int)GameMediator::get_instance()->object_list.size()) {
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        }
     } else if (currentStage == JET_GOT_STAGE) {
-        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
-        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        if (game_data.player_items[1] >= 0 && game_data.player_items[1] < (int)GameMediator::get_instance()->object_list.size()) {
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        }
     }
     std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular) + " ");
     graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);
@@ -1400,19 +1407,26 @@ void game::modern_style_got_weapon()
     player1.char_update_real_position();
     player1.show();
 
-    std::string weapon_name(game_data.weapons[currentStage].name);
-    for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
-        *p = toupper(*p);
+    std::string weapon_name("");
+    if (currentStage >= 0 && currentStage < MAX_STAGES) {
+        weapon_name = std::string(game_data.weapons[currentStage].name);
+        for (std::string::iterator p = weapon_name.begin(); weapon_name.end() != p; ++p) {
+            *p = toupper(*p);
+        }
     }
 
     // line 1, weapon name; line 2 extra item; line 3 was acquired
     std::string extra_name = "";
     if (currentStage == COIL_GOT_STAGE) {
-        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
-        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        if (game_data.player_items[0] >= 0 && game_data.player_items[0] < (int)GameMediator::get_instance()->object_list.size()) {
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[0]).name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        }
     } else if (currentStage == JET_GOT_STAGE) {
-        std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
-        extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        if (game_data.player_items[1] >= 0 && game_data.player_items[1] < (int)GameMediator::get_instance()->object_list.size()) {
+            std::string item_name = strings_map::get_instance()->toupper(std::string(GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name));
+            extra_name = strings_map::get_instance()->get_ingame_string(strings_ingame_and) + std::string(" ") + item_name;
+        }
     }
     std::string phrase = std::string(strings_map::get_instance()->get_ingame_string(strings_ingame_yougot_singular) + " ");
     graphLib.draw_progressive_text((RES_W * 0.5 - 90), (RES_H * 0.5 - 4), weapon_name, false);

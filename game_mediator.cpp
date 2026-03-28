@@ -83,8 +83,11 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
         exit(0);
     }
     // boss not yet set
-    if (n < 0 || n >= enemy_list.size()) {
+    if (n < 0 || n >= (int)enemy_list.size()) {
         // return first NPC to avoid errors
+        if (enemy_list.empty()) {
+            return nullptr;
+        }
         n = 0;
     }
     return &enemy_list.at(n);
