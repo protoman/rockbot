@@ -404,7 +404,7 @@ int classMap::getMapPointLock(st_position pos) const
 
 st_position_int8 classMap::get_map_point_tile1(st_position pos)
 {
-    if (pos.x < 0 || pos.y < 0 || pos.y > RES_H/TILESIZE || pos.x > MAP_W) {
+    if (pos.x < 0 || pos.y < 0 || pos.y >= MAP_H || pos.x >= MAP_W) {
         return st_position_int8(-1, -1);
     }
     return GameMediator::get_instance()->map_data[number].tiles[pos.x][pos.y].tile1;

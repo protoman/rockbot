@@ -118,13 +118,13 @@ void game_properties_tab::on_stagefaces_stage_combo_currentIndexChanged(int inde
 void game_properties_tab::on_stagefaces_face_combo_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.stage_face_filename[_current_stage], "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.stage_face_filename[_current_stage], "%s", arg1.toStdString().c_str());
 }
 
 void game_properties_tab::on_lineEdit_textChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.name, "%s", arg1.toStdString().c_str());
 
 }
 
@@ -137,39 +137,39 @@ void game_properties_tab::on_gameStyle_comboBox_currentIndexChanged(int index)
 void game_properties_tab::on_bossMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.boss_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.boss_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 void game_properties_tab::on_finalBossMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.final_boss_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.final_boss_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 
 void game_properties_tab::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 void game_properties_tab::on_gotWeaponMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.got_weapon_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.got_weapon_music_filename, "%s", arg1.toStdString().c_str());
 
 }
 
 void game_properties_tab::on_gameOverMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.game_over_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.game_over_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 void game_properties_tab::on_stageSelectMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.stage_select_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.stage_select_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 void game_properties_tab::on_stageNumber_comboBox_currentIndexChanged(int index)
@@ -185,7 +185,7 @@ void game_properties_tab::on_stageNumber_comboBox_currentIndexChanged(int index)
 void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.stages_face_name[_current_stage], "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.stages_face_name[_current_stage], "%s", arg1.toStdString().c_str());
 }
 
 
@@ -193,7 +193,7 @@ void game_properties_tab::on_bossName_lineEdit_textChanged(const QString &arg1)
 void game_properties_tab::on_gameStartMusic_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_data_loading == true) return;
-    sprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.game_start_screen_music_filename, "%s", arg1.toStdString().c_str());
 }
 
 

@@ -93,7 +93,7 @@ void TabText::set_fields(int index)
 void TabText::on_AddButton_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_show_text new_text;
-    sprintf(new_text.name, "%s%d", "Show Text #", ScenesMediator::get_instance()->text_list.size()+1);
+    snprintf(new_text.name, "%s%d", "Show Text #", ScenesMediator::get_instance()->text_list.size()+1);
     ScenesMediator::get_instance()->text_list.push_back(new_text);
     ui->select_comboBox->addItem(QString(new_text.name));
     if (ScenesMediator::get_instance()->text_list.size() == 1) {
@@ -173,7 +173,7 @@ void TabText::on_select_comboBox_currentIndexChanged(int index)
 void TabText::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading == true) { return; }
-    sprintf(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->text_list.at(ui->select_comboBox->currentIndex()).name, "%s", arg1.toStdString().c_str());
 }
 
 

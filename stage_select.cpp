@@ -142,11 +142,11 @@ void stage_select::build_stage_faces_surfaces(graphicsLib_gSurface face_list[])
         fio.read_stage(temp_stage_data, i);
         char face_filename[512];
         if (game_data.game_style == GAME_STYLE_VINTAGE && i <=8) {
-            sprintf(face_filename, "%s/images/faces/boss_%d.png", FILEPATH.c_str(), i);
+            snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/boss_%d.png", FILEPATH.c_str(), i);
         } else {
-            sprintf(face_filename, "%s/images/faces/%d.png", FILEPATH.c_str(), i);
+            snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/%d.png", FILEPATH.c_str(), i);
             if (i < 10)  {
-                sprintf(face_filename, "%s/images/faces/0%d.png", FILEPATH.c_str(), i);
+                snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/0%d.png", FILEPATH.c_str(), i);
             }
         }
         if (fio.file_exists(StringUtils::clean_filename(face_filename))) {
@@ -334,7 +334,7 @@ int stage_select::pick_stage(int stage_n)
 
         // draw boss info
         char bossname[512];
-        sprintf(bossname, "%s %s", strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).c_str(), boss_name_list.at(stage_n).c_str());
+        snprintf(bossname, sizeof(bossname), "%s %s", strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).c_str(), boss_name_list.at(stage_n).c_str());
         graphLib.clear_area(124, 140, 190, 44, 8, 25, 42);
         graphLib.draw_text(124, 140, std::string(bossname), graphLib.gameScreen);
         graphLib.draw_text(124, 160, stage_name_list.at(stage_n), graphLib.gameScreen);
@@ -386,14 +386,18 @@ short stage_select::pick_stage_classic_style(int stage_n)
     graphLib.surfaceFromFile(stage_selection_cursor_filename, &stage_selection_cursor_surface);
 
     char player_face_filename_char[FS_CHAR_FILENAME_SIZE];
-    sprintf(player_face_filename_char, "images/faces/p%d.png", (game_save.selected_player+1));
+    snprintf(player_face_filename_char, sizeof(player_face_filename_char), "images/faces/p%d.png", (game_save.selected_player+1));
     std::string stage_selection_player_filename = FILEPATH + player_face_filename_char;
     graphicsLib_gSurface stage_selection_player_surface;
     graphLib.surfaceFromFile(stage_selection_player_filename, &stage_selection_player_surface);
 
     graphicsLib_gSurface player_face_eyes_surface;
     char eyes_filename_char[FS_CHAR_FILENAME_SIZE];
-    sprintf(eyes_filename_char, "images/faces/p%d_eyes.png", (game_save.selected_player+1));
+    int player_id = game_save.selected_player + 1;
+    if (player_id > 99) { // Cap player ID to prevent overflow in "p%d_eyes.png" with FS_CHAR_FILENAME_SIZE=30
+        player_id = 99;
+    }
+    snprintf(eyes_filename_char, sizeof(eyes_filename_char), "images/faces/p%d_eyes.png", player_id);
     std::string filename = FILEPATH + std::string(eyes_filename_char);
     graphLib.surfaceFromFile(filename, &player_face_eyes_surface);
 
@@ -508,7 +512,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
 
         // draw boss info
         char bossname[512];
-        sprintf(bossname, "%s %s", strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).c_str(), boss_name_list.at(complete_stage_n).c_str());
+        snprintf(bossname, sizeof(bossname), "%s %s", strings_map::get_instance()->get_ingame_string(strings_stage_select_boss).c_str(), boss_name_list.at(complete_stage_n).c_str());
         std::string complete_stage_name = strings_map::get_instance()->get_ingame_string(string_stage_select_stage) + " " + stage_name_list.at(complete_stage_n);
         graphLib.showSurfaceRegionAt(&classic_style_stage_select_bg_surface, st_rectangle(0, 208, RES_W, 32), st_position(0, 208));
 

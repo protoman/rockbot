@@ -52,6 +52,8 @@ public:
     void play_shared_sfx(std::string filename);
     void play_sfx_from_chunk(Mix_Chunk* chunk, int repeat_n);
     Mix_Chunk *sfx_from_file(std::string filename);
+    Mix_Chunk *load_sfx_from_file(std::string filename);
+    Mix_Chunk *load_shared_sfx_from_file(std::string filename);
     bool get_is_playing_boss_music();
 
 private:

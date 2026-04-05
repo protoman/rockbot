@@ -332,7 +332,7 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         }
     }
     if (res->get_surface() == NULL) {
-        std::cout << "ERROR::surfaceFromFile - surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
+        std::cout << "ERROR::surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
         _debug_msg_pos = 1;
         show_debug_msg(filename);
         _debug_msg_pos = 0;
@@ -341,8 +341,10 @@ void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* 
         show_debug_msg("EXIT #05");
         exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), filename);
     } else {
-        res->width = res->get_surface()->w;
-        res->height = res->get_surface()->h;
+        if (res->get_surface() != NULL) {
+            res->width = res->get_surface()->w;
+            res->height = res->get_surface()->h;
+        }
     }
 }
 
@@ -552,7 +554,7 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     if (tile_ref->get_surface() == NULL) {
         std::cout << "place_anim_tile - ERROR surfaceDestiny is NULL for id " << anim_tile_id << " - ignoring..." << std::endl;
         char debug_msg[255];
-        sprintf(debug_msg, "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
+        snprintf(debug_msg, sizeof(debug_msg), "EXIT:place_anim_tile[%d][%ld]", anim_tile_id, ANIM_TILES_SURFACES.size());
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "place_anim_tile - ERROR surfaceDestiny is NULL for id[%d]", anim_tile_id);
 #endif
@@ -1238,6 +1240,9 @@ void graphicsLib::draw_weapon_icon(short wpn_n, st_position point, bool active)
 
 void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, bool active)
 {
+    if (weapon_n < 0 || weapon_n >= small_weapon_icons.size()) {
+        return;
+    }
     int icon_size = small_weapon_icons.at(weapon_n).width;
     if (active) {
         showSurfaceRegionAt(&small_weapon_icons.at(weapon_n), st_rectangle(0, 0, icon_size, icon_size), pos);
@@ -1290,15 +1295,15 @@ void graphicsLib::draw_weapon_changed_tooltip(short weapon_n)
         weapon_name = GameMediator::get_instance()->object_list.at(game_data.player_items[1]).name;
     } else if (weapon_n == WEAPON_ITEM_ETANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_ETANK).c_str(), game_save.items.energy_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_WTANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_WTANK).c_str(), game_save.items.weapon_tanks);
         weapon_name = std::string(crystal_msg);
     } else if (weapon_n == WEAPON_ITEM_STANK) {
         char crystal_msg[50];
-        sprintf(crystal_msg, "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
+        snprintf(crystal_msg, sizeof(crystal_msg), "%s [%d]", strings_map::get_instance()->get_ingame_string(strings_weapon_name_STANK).c_str(), game_save.items.special_tanks);
         weapon_name = std::string(crystal_msg);
     }
     graphLib.draw_text(34, RES_H-22, weapon_name);
@@ -2253,7 +2258,7 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
             } else {
                 std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
                 char enum_str[20];
-                sprintf(enum_str, "%d", flip_mode);
+                snprintf(enum_str, 20, "%d", flip_mode);
                 exception_manager::throw_param_exception(std::string("graphicsLib::flip_image, invalid mode"), std::string(enum_str));
             }
         }

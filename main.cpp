@@ -530,6 +530,7 @@ int main(int argc, char *argv[])
     while (run_game) {
         main_loop();
     }
+    GameMediator::release();
     SDL_Quit();
 #endif
     return 0;

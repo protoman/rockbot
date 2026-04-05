@@ -61,7 +61,10 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
 
 artificial_inteligence::~artificial_inteligence()
 {
-
+    if (_trajectory_parabola != NULL) {
+        delete _trajectory_parabola;
+        _trajectory_parabola = NULL;
+    }
 }
 
 
@@ -2560,13 +2563,13 @@ int artificial_inteligence::get_ai_type() {
     // check for error
     if (_number < 0 || _number >= GameMediator::get_instance()->ai_list.size()) {
         char int_to_str[256];
-        sprintf(int_to_str, "%d", _reaction_type);
+        snprintf(int_to_str, sizeof(int_to_str), "%d", _reaction_type);
         RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid number[").append(std::string(int_to_str)).append(std::string("]")));
         return 0;
     }
     if (_reaction_type < 0 || _reaction_type >= MAX_AI_REACTIONS) {
         char int_to_str[256];
-        sprintf(int_to_str, "%d", _reaction_type);
+        snprintf(int_to_str, sizeof(int_to_str), "%d", _reaction_type);
         RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid reaction_type[").append(std::string(int_to_str)).append(std::string("]")));
         _reaction_type = 0;
         return 0;
@@ -2574,7 +2577,7 @@ int artificial_inteligence::get_ai_type() {
 
     if (_ai_chain_n < 0 || _ai_chain_n >= AI_MAX_STATES) {
         char int_to_str[256];
-        sprintf(int_to_str, "%d", _ai_chain_n);
+        snprintf(int_to_str, sizeof(int_to_str), "%d", _ai_chain_n);
         RockbotLogger::get_instance()->write(std::string("AI::get_ai_type, invalid _ai_chain_n[").append(std::string(int_to_str)).append(std::string("]")));
         _ai_chain_n = 0;
         return 0;

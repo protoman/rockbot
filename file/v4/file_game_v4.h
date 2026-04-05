@@ -36,8 +36,8 @@ namespace format_v4 {
         Uint8 spawn_npc_id;                                     // will spawn NPCs (like bird egg in mm2)
         Uint8 spawn_npc_n;                                      // number of NPCs that will be spawned
         file_projectile() {
-            sprintf(name, "%s", "Projectile");
-            sprintf(graphic_filename, "%s", "projectile_normal.png");
+            snprintf(name, sizeof(name), "%s", "Projectile");
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", "projectile_normal.png");
             is_destructible = false;
             hp = 1;
             size.width = 6;
@@ -71,8 +71,8 @@ namespace format_v4 {
         bool is_explosive;
         // number of NPCs that will be spawned
         file_projectilev2() {
-            sprintf(name, "%s", "Projectile");
-            sprintf(graphic_filename, "%s", "projectile_normal.png");
+            snprintf(name, sizeof(name), "%s", "Projectile");
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", "projectile_normal.png");
             is_destructible = false;
             hp = 1;
             size.width = 6;
@@ -89,8 +89,8 @@ namespace format_v4 {
         }
 
         file_projectilev2(file_projectile v1) {
-            sprintf(name, "%s", v1.name);
-            sprintf(graphic_filename, "%s", v1.graphic_filename);
+            snprintf(name, sizeof(name), "%s", v1.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", v1.graphic_filename);
             size.width = v1.size.width;
             size.height = v1.size.height;
             is_destructible = v1.is_destructible;
@@ -99,7 +99,7 @@ namespace format_v4 {
             max_shots = v1.max_shots;
             speed = v1.speed;
             damage = v1.damage;
-            sprintf(sfx_filename, "%s", v1.sfx_filename);
+            snprintf(sfx_filename, sizeof(sfx_filename), "%s", v1.sfx_filename);
             can_be_reflected = v1.can_be_reflected;
             spawn_npc_id = v1.spawn_npc_id;
             spawn_npc_n = v1.spawn_npc_n;
@@ -129,8 +129,8 @@ namespace format_v4 {
         bool vanishes_on_hit;                                   // if false, projectile won't be removed once hitting an enemy
         // number of NPCs that will be spawned
         file_projectilev3() {
-            sprintf(name, "%s", "Projectile");
-            sprintf(graphic_filename, "%s", "projectile_normal.png");
+            snprintf(name, sizeof(name), "%s", "Projectile");
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", "projectile_normal.png");
             is_destructible = false;
             hp = 1;
             size.width = 6;
@@ -148,8 +148,8 @@ namespace format_v4 {
         }
 
         file_projectilev3(file_projectilev2 v2) {
-            sprintf(name, "%s", v2.name);
-            sprintf(graphic_filename, "%s", v2.graphic_filename);
+            snprintf(name, sizeof(name), "%s", v2.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", v2.graphic_filename);
             size.width = v2.size.width;
             size.height = v2.size.height;
             is_destructible = v2.is_destructible;
@@ -158,7 +158,7 @@ namespace format_v4 {
             max_shots = v2.max_shots;
             speed = v2.speed;
             damage = v2.damage;
-            sprintf(sfx_filename, "%s", v2.sfx_filename);
+            snprintf(sfx_filename, sizeof(sfx_filename), "%s", v2.sfx_filename);
             can_be_reflected = v2.can_be_reflected;
             spawn_npc_id = v2.spawn_npc_id;
             spawn_npc_n = v2.spawn_npc_n;
@@ -223,8 +223,8 @@ namespace format_v4 {
         bool double_shot;
 
         file_player(int n) {
-            sprintf(name, "PLAYER[%d]", n);
-            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
+            snprintf(name, sizeof(name), "PLAYER[%d]", n);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s%d%s", "p", (n+1), ".png");
             face_filename[0] = '\0';
             HP = 0;
             sprite_size.width = 29;
@@ -315,8 +315,8 @@ namespace format_v4 {
         Sint8 normal_shot_projectile_id;
 
         file_player_v3_1(int n) {
-            sprintf(name, "PLAYER[%d]", n);
-            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
+            snprintf(name, sizeof(name), "PLAYER[%d]", n);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s%d%s", "p", (n+1), ".png");
             face_filename[0] = '\0';
             HP = 0;
             sprite_size.width = 29;
@@ -379,9 +379,9 @@ namespace format_v4 {
         }
 
         file_player_v3_1(file_player obj) {
-            sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s", obj.graphic_filename);
-            sprintf(face_filename, "%s", obj.face_filename);
+            snprintf(name, sizeof(name), "%s", obj.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", obj.graphic_filename);
+            snprintf(face_filename, sizeof(face_filename), "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;
@@ -469,7 +469,7 @@ namespace format_v4 {
             id = -1;
             projectile_id[0] = -1;
             projectile_id[1] = -1;
-            sprintf(name, "%s", "Enemy Name");
+            snprintf(name, sizeof(name), "%s", "Enemy Name");
             graphic_filename[0] = '\0';
             direction = ANIM_DIRECTION_LEFT;
             speed = 3;
@@ -520,8 +520,8 @@ namespace format_v4 {
         Sint8 normal_shot_projectile_id;
 
         file_player_v3_1_1(int n) {
-            sprintf(name, "PLAYER[%d]", n);
-            sprintf(graphic_filename, "%s%d%s", "p", (n+1), ".png");
+            snprintf(name, sizeof(name), "PLAYER[%d]", n);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s%d%s", "p", (n+1), ".png");
             face_filename[0] = '\0';
             HP = 0;
             sprite_size.width = 29;
@@ -584,9 +584,9 @@ namespace format_v4 {
         }
 
         file_player_v3_1_1(file_player_v3_1 obj) {
-            sprintf(name, "%s", obj.name);
-            sprintf(graphic_filename, "%s", obj.graphic_filename);
-            sprintf(face_filename, "%s", obj.face_filename);
+            snprintf(name, sizeof(name), "%s", obj.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", obj.graphic_filename);
+            snprintf(face_filename, sizeof(face_filename), "%s", obj.face_filename);
             HP = obj.HP;
             sprite_size = obj.sprite_size;
             sprite_hit_area = obj.sprite_hit_area;
@@ -652,7 +652,7 @@ namespace format_v4 {
             id = -1;
             projectile_id[0] = -1;
             projectile_id[1] = -1;
-            sprintf(name, "%s", "Enemy Name");
+            snprintf(name, sizeof(name), "%s", "Enemy Name");
             graphic_filename[0] = '\0';
             direction = ANIM_DIRECTION_LEFT;
             speed = 3;
@@ -675,8 +675,8 @@ namespace format_v4 {
             id = old.id;
             projectile_id[0] = old.projectile_id[0];
             projectile_id[1] = old.projectile_id[1];
-            sprintf(name, "%s", old.name);
-            sprintf(graphic_filename, "%s", old.graphic_filename);
+            snprintf(name, sizeof(name), "%s", old.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", old.graphic_filename);
             hp = old.hp;
             direction = old.direction;
             speed = old.speed;
@@ -700,7 +700,7 @@ namespace format_v4 {
                 weakness[i].damage_multiplier = old.weakness[i].damage_multiplier;
                 weakness[i].weapon_id = old.weakness[i].weapon_id;
             }
-            sprintf(bg_graphic_filename, "%s", old.bg_graphic_filename);
+            snprintf(bg_graphic_filename,  sizeof(bg_graphic_filename), "%s", old.bg_graphic_filename);
             sprites_pos_bg = old.sprites_pos_bg;
             is_boss = old.is_boss;
             is_sub_boss = old.is_sub_boss;
@@ -748,7 +748,7 @@ namespace format_v4 {
             id = -1;
             projectile_id[0] = -1;
             projectile_id[1] = -1;
-            sprintf(name, "%s", "Enemy Name");
+            snprintf(name, sizeof(name), "%s", "Enemy Name");
             graphic_filename[0] = '\0';
             direction = ANIM_DIRECTION_LEFT;
             speed = 3;
@@ -772,8 +772,8 @@ namespace format_v4 {
             id = old.id;
             projectile_id[0] = old.projectile_id[0];
             projectile_id[1] = old.projectile_id[1];
-            sprintf(name, "%s", old.name);
-            sprintf(graphic_filename, "%s", old.graphic_filename);
+            snprintf(name, sizeof(name), "%s", old.name);
+            snprintf(graphic_filename, sizeof(graphic_filename), "%s", old.graphic_filename);
             hp = old.hp;
             direction = old.direction;
             speed = old.speed;
@@ -797,7 +797,7 @@ namespace format_v4 {
                 weakness[i].damage_multiplier = old.weakness[i].damage_multiplier;
                 weakness[i].weapon_id = old.weakness[i].weapon_id;
             }
-            sprintf(bg_graphic_filename, "%s", old.bg_graphic_filename);
+            snprintf(bg_graphic_filename, sizeof(bg_graphic_filename), "%s", old.bg_graphic_filename);
             sprites_pos_bg = old.sprites_pos_bg;
             is_boss = old.is_boss;
             is_sub_boss = old.is_sub_boss;
@@ -822,7 +822,7 @@ namespace format_v4 {
         Uint8 damage;
         Uint8 id_projectile_charged;
         file_weapon() {
-            sprintf(name, "%s", "Weapon");
+            snprintf(name, sizeof(name), "%s", "Weapon");
             damage = 1;
             id_projectile = 0;
             id_projectile_charged = 0;
@@ -844,7 +844,7 @@ namespace format_v4 {
         bool animation_reverse;                                     // start animating
         bool animation_loop;                                        // true = animation will loop, false = animation will run once
         file_object() {
-            sprintf(name, "%s", "Object");
+            snprintf(name, sizeof(name), "%s", "Object");
             graphic_filename[0] = '\0';
             animation_auto_start = true;
             animation_reverse = false;
@@ -896,7 +896,7 @@ namespace format_v4 {
         struct reaction reactions[MAX_AI_REACTIONS];                    // reactions near, hit and dead
 
         file_artificial_inteligence() {
-            sprintf(name, "%s", "A.I.");
+            snprintf(name, sizeof(name), "%s", "A.I.");
         }
     };
 
@@ -940,11 +940,11 @@ namespace format_v4 {
         struct file_ai_reaction_v3 reactions[MAX_AI_REACTIONS];                    // reactions near, hit and dead
 
         file_artificial_inteligence_v3() {
-            sprintf(name, "%s", "A.I.");
+            snprintf(name, sizeof(name), "%s", "A.I.");
         }
 
         file_artificial_inteligence_v3(file_artificial_inteligence origin) {
-            sprintf(name, "%s", origin.name);
+            snprintf(name, sizeof(name), "%s", origin.name);
             for (int i=0; i<AI_MAX_STATES; i++) {
                 states[i].chance = origin.states[i].chance;
                 states[i].action = origin.states[i].action;
@@ -1058,7 +1058,7 @@ namespace format_v4 {
         file_game() {
             /// *** hardcoded parts *** ///
             version = 4.00; // file-format version, not game
-            sprintf(name, "%s", "My Game");
+            snprintf(name, sizeof(name), "%s", "My Game");
             semi_charged_projectile_id = 0;
             player_items[0] = 0;
             player_items[1] = 0;
@@ -1079,7 +1079,7 @@ namespace format_v4 {
             }
 
             for (int i=0; i<FS_MAX_WEAPONS; i++) {
-                sprintf(weapons[i].name, "Weapon [%d]", i);
+                snprintf(weapons[i].name, sizeof(weapons[i].name), "Weapon [%d]", i);
             }
         }
 

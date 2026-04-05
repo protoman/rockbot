@@ -531,6 +531,9 @@ void character::clear_move_commands()
 // ********************************************************************************************** //
 void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change=true)
 {
+    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
+        return;
+    }
     if (full_change == false) {
         graphLib.change_surface_color(colorkey_n, new_color, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
@@ -1212,8 +1215,10 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-    if (is_player()  == false && (game_data.final_boss_id == _number || (GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action ==  AI_ACTION_REPLACE_NPC && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].extra_parameter == game_data.final_boss_id))) {
-        _is_final_game_boss = true;
+    if (is_player()  == false && (_number >= 0 && _number < (int)GameMediator::get_instance()->ai_list.size())) {
+        if (game_data.final_boss_id == _number || (GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action ==  AI_ACTION_REPLACE_NPC && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].extra_parameter == game_data.final_boss_id)) {
+            _is_final_game_boss = true;
+        }
     }
 
     int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();

@@ -16,7 +16,9 @@ class GameMediator
 {
 public:
     static GameMediator* get_instance();
+    static void release();
     Mix_Chunk *get_sfx(std::string filename);
+    Mix_Chunk *get_shared_sfx(std::string filename);
     CURRENT_FILE_FORMAT::file_projectilev3 get_projectile(int n);
     int get_projectile_list_size();
 
@@ -33,6 +35,7 @@ public:
 
 private:
     GameMediator();
+    ~GameMediator();
     GameMediator(GameMediator const&){};             // copy constructor is private
     GameMediator& operator=(GameMediator const&){return *this;};  // assignment operator is private
 #ifdef WII

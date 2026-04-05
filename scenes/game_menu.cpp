@@ -615,11 +615,11 @@ int game_menu::config_int_value(int initial_value_int, int min, int max, std::st
 
         char value[40]; // for now, we handle only 0-999
         if (initial_value < 10) {
-            sprintf(value, "00%d", initial_value);
+            snprintf(value, sizeof(value), "00%d", initial_value);
         } else if (initial_value < 100) {
-            sprintf(value, "0%d", initial_value);
+            snprintf(value, sizeof(value), "0%d", initial_value);
         } else {
-            sprintf(value, "%d", initial_value);
+            snprintf(value, sizeof(value), "%d", initial_value);
         }
         graphLib.clear_area(config_text_pos_x+11, config_text_pos_y-1, 30, 12, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x+12, config_text_pos_y, std::string(value));
@@ -667,11 +667,11 @@ void game_menu::music_player()
     while (true) {
         input.read_input();
         if (music_number < 10) {
-            sprintf(value, "00%d", music_number);
+            snprintf(value, sizeof(value), "00%d", music_number);
         } else if (music_number < 100) {
-            sprintf(value, "0%d", music_number);
+            snprintf(value, sizeof(value), "0%d", music_number);
         } else {
-            sprintf(value, "%d", music_number);
+            snprintf(value, sizeof(value), "%d", music_number);
         }
         graphLib.clear_area(config_text_pos_x, config_text_pos_y-1, RES_W, RES_H, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x, config_text_pos_y, std::string("MUSIC PLAYER"));
@@ -729,11 +729,11 @@ void game_menu::sfx_player()
         input.read_input();
 
         if (sfx_number < 10) {
-            sprintf(value, "00%d", sfx_number);
+            snprintf(value, sizeof(value), "00%d", sfx_number);
         } else if (sfx_number < 100) {
-            sprintf(value, "0%d", sfx_number);
+            snprintf(value, sizeof(value), "0%d", sfx_number);
         } else {
-            sprintf(value, "%d", sfx_number);
+            snprintf(value, 40, "%d", sfx_number);
         }
         graphLib.clear_area(config_text_pos_x, config_text_pos_y-1, RES_W, RES_H, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x, config_text_pos_y, std::string("SFX PLAYER"));

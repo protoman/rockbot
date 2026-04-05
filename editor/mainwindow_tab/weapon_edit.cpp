@@ -51,7 +51,7 @@ void weapon_edit::on_weapon_name_textChanged(const QString &arg1)
     if (_loaded == false) {
         return;
     }
-    sprintf(Mediator::get_instance()->game_data.weapons[_selected_weapon].name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->game_data.weapons[_selected_weapon].name, "%s", arg1.toStdString().c_str());
 }
 
 void weapon_edit::on_weapon_projectile_type_currentIndexChanged(int index)

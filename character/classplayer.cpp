@@ -65,7 +65,7 @@ void classPlayer::initialize()
 {
     _number = game_save.selected_player;
     char temp_name[30];
-    sprintf(temp_name, "PLAYER_%d", _number);
+    snprintf(temp_name, sizeof(temp_name), "PLAYER_%d", _number);
     name = std::string(temp_name);
     if (_number == 3 || _number == 0) {
         //_obj_jump.set_jump_acceleration(0.95);
@@ -1103,6 +1103,13 @@ void classPlayer::add_coil_object()
 		}
 
 
+        if (TILESIZE == 0 || !gameControl.get_current_map_obj()) {
+            return;
+        }
+        if (game_data.player_items[0] < 0 || game_data.player_items[0] >= (int)GameMediator::get_instance()->object_list.size()) {
+            return;
+        }
+
         object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
 
         int first_unlocked_from_bottom = gameControl.get_current_map_obj()->get_first_lock_on_bottom(obj_pos.x, getPosition().y+frameSize.height+4, temp_obj.get_size().width, temp_obj.get_size().height);
@@ -1128,6 +1135,14 @@ void classPlayer::add_jet_object()
         } else {
             obj_pos.x = position.x + frameSize.width + 2;
         }
+        
+        if (TILESIZE == 0 || !gameControl.get_current_map_obj()) {
+            return;
+        }
+        if (game_data.player_items[1] < 0 || game_data.player_items[1] >= (int)GameMediator::get_instance()->object_list.size()) {
+            return;
+        }
+        
         object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
         temp_obj.set_precise_position(obj_pos, state.direction);
         temp_obj.enable_teleport_animation();

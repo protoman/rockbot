@@ -19,11 +19,42 @@ GameMediator *GameMediator::get_instance()
 
 }
 
+void GameMediator::release()
+{
+    if (_instance) {
+        delete _instance;
+        _instance = NULL;
+    }
+}
+
+GameMediator::~GameMediator()
+{
+    for (std::map<std::string, Mix_Chunk*>::iterator it=sfx_map.begin(); it!=sfx_map.end(); ++it) {
+        if (it->second != NULL) {
+            Mix_FreeChunk(it->second);
+            it->second = NULL;
+        }
+    }
+    sfx_map.clear();
+}
+
 Mix_Chunk* GameMediator::get_sfx(std::string filename)
 {
     std::map<std::string, Mix_Chunk*>::iterator it = sfx_map.find(filename);
     if (it == sfx_map.end()) {
-        Mix_Chunk* sfx = soundManager.sfx_from_file(filename);
+        Mix_Chunk* sfx = soundManager.load_sfx_from_file(filename);
+        sfx_map.insert(std::pair<std::string, Mix_Chunk*>(filename, sfx));
+        return sfx;
+    } else {
+        return it->second;
+    }
+}
+
+Mix_Chunk *GameMediator::get_shared_sfx(string filename)
+{
+    std::map<std::string, Mix_Chunk*>::iterator it = sfx_map.find(filename);
+    if (it == sfx_map.end()) {
+        Mix_Chunk* sfx = soundManager.load_shared_sfx_from_file(filename);
         sfx_map.insert(std::pair<std::string, Mix_Chunk*>(filename, sfx));
         return sfx;
     } else {
@@ -52,8 +83,11 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
         exit(0);
     }
     // boss not yet set
-    if (n < 0 || n >= enemy_list.size()) {
+    if (n < 0 || n >= (int)enemy_list.size()) {
         // return first NPC to avoid errors
+        if (enemy_list.empty()) {
+            return nullptr;
+        }
         n = 0;
     }
     return &enemy_list.at(n);
