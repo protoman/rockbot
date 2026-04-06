@@ -236,11 +236,11 @@ Sint8 key_map::draw_config_buttons(CURRENT_FILE_FORMAT::st_game_config& game_con
 #else
     snprintf(btn_codes[BTN_JUMP], sizeof(btn_codes[BTN_JUMP]), "[%d]", game_config_copy.button_codes[BTN_JUMP].value);
     snprintf(btn_codes[BTN_ATTACK], sizeof(btn_codes[BTN_ATTACK]), "[%d]", game_config_copy.button_codes[BTN_ATTACK].value);
-    snprintf(btn_codes[BTN_DASH], sizeof(btn_codes[BTN_BTN_DASHJUMP]), "[%d]", game_config_copy.button_codes[BTN_DASH].value);
+    snprintf(btn_codes[BTN_DASH], sizeof(btn_codes[BTN_DASH]), "[%d]", game_config_copy.button_codes[BTN_DASH].value);
     snprintf(btn_codes[BTN_SHIELD], sizeof(btn_codes[BTN_SHIELD]), "[%d]", game_config_copy.button_codes[BTN_SHIELD].value);
     snprintf(btn_codes[BTN_L], sizeof(btn_codes[BTN_L]), "[%d]", game_config_copy.button_codes[BTN_L].value);
     snprintf(btn_codes[BTN_R], sizeof(btn_codes[BTN_R]), "[%d]", game_config_copy.button_codes[BTN_R].value);
-    snprintf(btn_codes[BTN_START], sizeof(btn_codes[BTN_BTN_STARTJUMP]), "[%d]", game_config_copy.button_codes[BTN_START].value);
+    snprintf(btn_codes[BTN_START], sizeof(btn_codes[BTN_START]), "[%d]", game_config_copy.button_codes[BTN_START].value);
     snprintf(btn_codes[BTN_UP], sizeof(btn_codes[BTN_UP]), "[%d]", game_config_copy.button_codes[BTN_UP].value);
     snprintf(btn_codes[BTN_DOWN], sizeof(btn_codes[BTN_DOWN]), "[%d]", game_config_copy.button_codes[BTN_DOWN].value);
     snprintf(btn_codes[BTN_LEFT], sizeof(btn_codes[BTN_LEFT]), "[%d]", game_config_copy.button_codes[BTN_LEFT].value);
