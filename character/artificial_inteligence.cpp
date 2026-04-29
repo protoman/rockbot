@@ -2201,7 +2201,7 @@ st_position artificial_inteligence::create_rand_point(int max_range)
         }
         loop_count++;
     }
-    return position;
+    return st_position(position.x, position.y);
 }
 
 void artificial_inteligence::execute_ai_step_jump()
