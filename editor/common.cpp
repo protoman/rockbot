@@ -336,7 +336,7 @@ void common::fill_map_list_combo(QComboBox *combo)
     for (int i=0; i<3; i++) {
         char buffer[512];
         Mediator::get_instance()->centNumberFormat(i);
-        snprintf(buffer, "%s", Mediator::get_instance()->centNumber);
+        snprintf(buffer, sizeof(buffer), "%s", Mediator::get_instance()->centNumber);
         combo->addItem(buffer);
     }
 }

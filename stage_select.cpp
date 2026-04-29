@@ -150,7 +150,6 @@ void stage_select::build_stage_faces_surfaces(graphicsLib_gSurface face_list[])
                 snprintf(face_filename, TEMP_FILENAME_SIZE, "%s/images/faces/0%d.png", FILEPATH.c_str(), i);
             }
         }
-        std::cout << "## stage_select::build_stage_faces_surfaces::face_filename[" << face_filename << "]" << std::endl;
         if (fio.file_exists(StringUtils::clean_filename(face_filename))) {
             graphLib.surfaceFromFile(StringUtils::clean_filename(face_filename), &face_list[i]);
         } else {

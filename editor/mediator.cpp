@@ -45,8 +45,8 @@ Mediator::Mediator() : stage_data(), stage_extra_data() {
 	currentStage = 1;
     currentDifficulty = DIFFICULTY_EASY;
     currentDifficultyMode = DIFFICULTY_MODE_GREATER;
-	snprintf(addNpcFilename, "%c", '\0');
-    snprintf(addProjectileFilename, "%c", '\0');
+	snprintf(addNpcFilename, sizeof(addNpcFilename), "%c", '\0');
+    snprintf(addProjectileFilename, sizeof(addProjectileFilename), "%c", '\0');
 
 	link_bidi = true;
 	link_is_door = false;
@@ -552,11 +552,11 @@ void Mediator::temp_fix_player_colors_order()
 
 void Mediator::centNumberFormat(int n) {
 	if (n >= 100) {
-		snprintf(centNumber, "%d\0", n);
+		snprintf(centNumber, sizeof(centNumber), "%d", n);
 	} else if (n >= 10) {
-		snprintf(centNumber, "0%d\0", n);
+		snprintf(centNumber, sizeof(centNumber), "0%d", n);
 	} else {
-		snprintf(centNumber, "00%d\0", n);
+		snprintf(centNumber, sizeof(centNumber), "00%d", n);
 	}
 	//printf("DEBUG.Mediator::centNumberFormat - centNumber: %s\n", centNumber);
 }
@@ -586,7 +586,7 @@ void Mediator::getGameName(int n) {
 	char filename[512];
 	centNumberFormat(n);
 	struct format_v1_0::file_game temp_game;
-    snprintf(filename, "%s/game/%s.gme", FILEPATH.c_str(), centNumber);
+    snprintf(filename, sizeof(filename), "%s/game/%s.gme", FILEPATH.c_str(), centNumber);
 	FILE *fp = fopen(filename, "rb");
 	if (fp) {
 		fseek (fp , 0 , SEEK_END);
@@ -595,10 +595,10 @@ void Mediator::getGameName(int n) {
 		fread(&temp_game, sizeof(temp_game), 1, fp);
 		fclose(fp);
 		printf("DEBUG;Mediator::getGameName - temp_game.name: %s\n", temp_game.name);
-		snprintf(gameName, "%s", temp_game.name);
+		snprintf(gameName, sizeof(gameName), "%s", temp_game.name);
 	} else {
 		printf("DEBUG.Mediator::getGameName - Error opening file '%s'.\n",filename);
-		snprintf(gameName, "");
+		snprintf(gameName, sizeof(gameName), "");
 	}
 }
 */
