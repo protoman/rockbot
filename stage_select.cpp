@@ -140,15 +140,17 @@ void stage_select::build_stage_faces_surfaces(graphicsLib_gSurface face_list[])
 {
     for (int i=0; i<STAGE_COUNT; i++) {
         fio.read_stage(temp_stage_data, i);
-        char face_filename[512];
+        int TEMP_FILENAME_SIZE = 512;
+        char face_filename[TEMP_FILENAME_SIZE];
         if (game_data.game_style == GAME_STYLE_VINTAGE && i <=8) {
-            snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/boss_%d.png", FILEPATH.c_str(), i);
+            snprintf(face_filename, TEMP_FILENAME_SIZE, "%s/images/faces/boss_%d.png", FILEPATH.c_str(), i);
         } else {
-            snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/%d.png", FILEPATH.c_str(), i);
+            snprintf(face_filename, TEMP_FILENAME_SIZE, "%s/images/faces/%d.png", FILEPATH.c_str(), i);
             if (i < 10)  {
-                snprintf(face_filename, FS_CHAR_FILENAME_SIZE, "%s/images/faces/0%d.png", FILEPATH.c_str(), i);
+                snprintf(face_filename, TEMP_FILENAME_SIZE, "%s/images/faces/0%d.png", FILEPATH.c_str(), i);
             }
         }
+        std::cout << "## stage_select::build_stage_faces_surfaces::face_filename[" << face_filename << "]" << std::endl;
         if (fio.file_exists(StringUtils::clean_filename(face_filename))) {
             graphLib.surfaceFromFile(StringUtils::clean_filename(face_filename), &face_list[i]);
         } else {
