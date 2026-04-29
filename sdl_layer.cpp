@@ -94,7 +94,19 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 {
     printf("SDL version: %s\n", SDLL_GetCompiledVersion());
-    return SDL_SetVideoMode(width, height, bpp, flags);
+    printf("SDLL_SetVideoMode - Requesting: width=%d, height=%d, bpp=%d, flags=0x%x\n", width, height, bpp, flags);
+    
+    SDL_Surface *screen = SDL_SetVideoMode(width, height, bpp, flags);
+    
+    if (screen == NULL) {
+        const char *error = SDL_GetError();
+        printf("SDLL_SetVideoMode - ERROR: Failed to set video mode. SDL_GetError: %s\n", error ? error : "(no error message)");
+    } else {
+        printf("SDLL_SetVideoMode - Success: screen=%p, w=%d, h=%d, bpp=%d\n", 
+               (void *)screen, screen->w, screen->h, screen->format->BitsPerPixel);
+    }
+    
+    return screen;
 }
 
 int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,

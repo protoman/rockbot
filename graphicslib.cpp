@@ -2064,7 +2064,27 @@ void graphicsLib::set_video_mode()
 #elif defined(OPEN_PANDORA)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(ANDROID)
-    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
+	// Try multiple video modes for Android - some devices/drivers have issues
+	// Try primary mode first
+	game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
+	
+	if (game_screen == NULL) {
+		printf("ANDROID: Primary video mode (SDL_SWSURFACE | SDL_DOUBLEBUF) failed, trying fallback...\n");
+		// Fallback 1: Try without SDL_DOUBLEBUF
+		game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
+		
+		if (game_screen == NULL) {
+			printf("ANDROID: Fallback 1 (SDL_SWSURFACE) failed, trying fallback 2...\n");
+			// Fallback 2: Try with SDL_ANYFORMAT to handle color depth mismatches
+			game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_ANYFORMAT);
+			
+			if (game_screen == NULL) {
+				printf("ANDROID: Fallback 2 (SDL_SWSURFACE | SDL_ANYFORMAT) failed, trying fallback 3...\n");
+				// Fallback 3: Try with default flags
+				game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, 0);
+			}
+		}
+	}
 #elif defined(WII)
     _video_filter = VIDEO_FILTER_NOSCALE;
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);

@@ -1,0 +1,3 @@
+/home/iuri/Desenvolvimento/rockbot/build_test/CMakeFiles/rockbot.dir
+/home/iuri/Desenvolvimento/rockbot/build_test/CMakeFiles/edit_cache.dir
+/home/iuri/Desenvolvimento/rockbot/build_test/CMakeFiles/rebuild_cache.dir
