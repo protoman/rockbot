@@ -79,7 +79,7 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
 {
     if (enemy_list.size() == 0) {
         std::cout << "Error: Enemy_list is empty" << std::endl;
-        SDL_Quit();
+        graphicsLib::safe_sdl_quit();
         exit(0);
     }
     // boss not yet set

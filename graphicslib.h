@@ -301,6 +301,9 @@ public:
     std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
     std::map<std::string, graphicsLib_gSurface> character_graphics_background_list_left;
 
+    // Static method to safely quit SDL (prevents multiple calls and destroyed mutex crashes)
+    static void safe_sdl_quit();
+
 private:
     std::vector<struct anim_tile_timer> ANIM_TILES_TIMERS;
 
@@ -360,6 +363,9 @@ private:
 
     graphicsLib_gSurface picker_bg;
 
+
+private:
+    static bool sdl_initialized;
 };
 
 #endif // GRAPHICSLIB_H

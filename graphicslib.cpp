@@ -57,6 +57,26 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 #define E2 tp[i*2 + tpitch]
 #define E3 tp[i*2 + 1 + tpitch]
 
+// Static member initialization
+bool graphicsLib::sdl_initialized = false;
+
+/**
+ * @brief Safely quit SDL, preventing multiple calls to SDL_Quit() which can cause
+ *        destroyed mutex crashes when threads are still running.
+ *        This is especially important on Android where libhwui render threads
+ *        may still be active during shutdown.
+ */
+void graphicsLib::safe_sdl_quit()
+{
+    if (sdl_initialized) {
+        printf("graphicsLib::safe_sdl_quit - Calling SDL_Quit()\n");
+        SDL_Quit();
+        sdl_initialized = false;
+    } else {
+        printf("graphicsLib::safe_sdl_quit - SDL_Quit() already called, skipping\n");
+    }
+}
+
 graphicsLib::graphicsLib() : _show_stars(false), game_screen(NULL), _explosion_animation_timer(0), _explosion_animation_pos(0), _timer(0), font(NULL)
 {
 
@@ -98,7 +118,7 @@ bool graphicsLib::initGraphics()
 #ifdef DREAMCAST
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) < 0 ) {
         std::cout << "ERROR: Unable to init SDL. Error: " << SDL_GetError() << std::endl;
-        SDL_Quit();
+        graphicsLib::safe_sdl_quit();
 		exit(-1);
     }
 #else
@@ -109,14 +129,14 @@ bool graphicsLib::initGraphics()
         exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDL_GetError());
     }
 #endif
-	atexit(SDL_Quit);
+	sdl_initialized = true;
 
 #if defined(PLAYSTATION2) || defined(WII)
     if (SDL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 
-        SDL_Quit();
+        graphicsLib::safe_sdl_quit();
         exit(-1);
     }
 #endif

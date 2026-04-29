@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
         graphLib.draw_text(20, 44, filename);
 
         input.wait_keypress();
-        SDL_Quit();
+        graphicsLib::safe_sdl_quit();
         return 0;
     }
     FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
         main_loop();
     }
     GameMediator::release();
-    SDL_Quit();
+    graphicsLib::safe_sdl_quit();
 #endif
     return 0;
 }
