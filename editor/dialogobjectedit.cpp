@@ -61,7 +61,7 @@ void DialogObjectEdit::fillObjectGraphicsList() {
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
 		if (i == 0) {
-            snprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(fileInfo.fileName()));
+            snprintf(Mediator::get_instance()->addNpcFilename, sizeof(Mediator::get_instance()->addNpcFilename), "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(fileInfo.fileName()));
 		}
 		ui->objectListCombobox->addItem(fileInfo.fileName());
 	}
@@ -82,7 +82,7 @@ void DialogObjectEdit::on_npcGraphicSizeSpin_h_valueChanged(int value)
 
 void DialogObjectEdit::on_objectListCombobox_currentIndexChanged(QString item)
 {
-    snprintf(Mediator::get_instance()->addNpcFilename, "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(item));
+    snprintf(Mediator::get_instance()->addNpcFilename, sizeof(Mediator::get_instance()->addNpcFilename), "%s/images/sprites/objects/%s", FILEPATH.c_str(), qPrintable(item));
 	ui->npcPreviewAreaWidget->repaint();
 }
 

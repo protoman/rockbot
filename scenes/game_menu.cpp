@@ -733,7 +733,7 @@ void game_menu::sfx_player()
         } else if (sfx_number < 100) {
             snprintf(value, sizeof(value), "0%d", sfx_number);
         } else {
-            snprintf(value, 40, "%d", sfx_number);
+            snprintf(value, sizeof(value), "%d", sfx_number);
         }
         graphLib.clear_area(config_text_pos_x, config_text_pos_y-1, RES_W, RES_H, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         graphLib.draw_text(config_text_pos_x, config_text_pos_y, std::string("SFX PLAYER"));
