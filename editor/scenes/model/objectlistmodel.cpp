@@ -154,23 +154,23 @@ bool ObjectListModel::setData(const QModelIndex &index, const QVariant &value, i
             int seek_n = ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).objects[row].seek_n;
 
             if (type == CURRENT_FILE_FORMAT::SCENETYPE_CLEAR_AREA) {
-                snprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_IMAGE) {
-                snprintf(ScenesMediator::get_instance()->image_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->image_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->image_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_MOVE_VIEWPOINT) {
-                snprintf(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->viewpoint_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_MUSIC) {
-                snprintf(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->playmusic_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_PLAY_SFX) {
-                snprintf(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->playsfx_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_ANIMATION) {
-                snprintf(ScenesMediator::get_instance()->animation_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->animation_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->animation_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SHOW_TEXT) {
-                snprintf(ScenesMediator::get_instance()->text_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->text_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->text_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_STOP_MUSIC) {
-                snprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->cleararea_list.at(seek_n).name), "%s", name.c_str());
             } else if (type == CURRENT_FILE_FORMAT::SCENETYPE_SUBSCENE) {
-                snprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, "%s", name.c_str());
+                snprintf(ScenesMediator::get_instance()->scenes_list.at(seek_n).name, sizeof(ScenesMediator::get_instance()->scenes_list.at(seek_n).name), "%s", name.c_str());
             } else {
                 // TODO: show error
                 return false;

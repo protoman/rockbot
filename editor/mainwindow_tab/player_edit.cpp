@@ -164,7 +164,7 @@ void player_edit::on_players_tab_list_combo_currentIndexChanged(int index)
 void player_edit::on_players_tab_name_textChanged(const QString &arg1)
 {
     if (_loading == true) { return; }
-    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, sizeof(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name), "%s", arg1.toStdString().c_str());
 }
 
 void player_edit::on_players_tab_hasshield_toggled(bool checked)
@@ -198,7 +198,7 @@ void player_edit::on_player_graphics_combo_currentIndexChanged(const QString &ar
     Mediator::get_instance()->player_graphics_data.graphics_filename = arg1.toStdString();
 
     if (_loading == false) {
-        snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].graphic_filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].graphic_filename, sizeof(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].graphic_filename), "%s", arg1.toStdString().c_str());
         ui->player_preview_widget->update_sprites();
     }
 }
@@ -336,7 +336,7 @@ void player_edit::on_canShotDiagonal_toggled(bool checked)
 void player_edit::on_playerFace_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (_loading == true) { return; }
-    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].face_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].face_filename, sizeof(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].face_filename), "%s", arg1.toStdString().c_str());
 }
 
 

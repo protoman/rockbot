@@ -223,7 +223,7 @@ void npc_edit::on_npc_edit_tab_graphiccombo_currentIndexChanged(const QString &a
     if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
         return;
     }
-    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename, sizeof(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).graphic_filename), "%s", arg1.toStdString().c_str());
     ui->npc_edit_tab_previewarea->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
     ui->jump_preview_widget->set_graphicfile(FILEPATH+std::string("/images/sprites/enemies/")+arg1.toStdString());
     add_frame_one();
@@ -289,7 +289,7 @@ void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
         msgBox.setInformativeText("Invalid name conflicts with player names.");
         int ret = msgBox.exec();
         char reset_name[50];
-        snprintf(reset_name, "NPC[%d]", Mediator::get_instance()->current_npc_n);
+        snprintf(reset_name, sizeof(reset_name), "NPC[%d]", Mediator::get_instance()->current_npc_n);
         ui->npc_edit_tab_NpcName->setText(reset_name);
         return;
     }
@@ -308,7 +308,7 @@ void npc_edit::on_npc_edit_tab_NpcName_textChanged(const QString &arg1)
     }
 
 
-    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).name, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).name, sizeof(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).name), "%s", arg1.toStdString().c_str());
     QString temp_str = QString("[");
     if (Mediator::get_instance()->current_npc_n < 10) {
         temp_str += QString("0");
@@ -378,10 +378,10 @@ void npc_edit::on_bg_graphic_combo_currentIndexChanged(const QString &arg1)
         return;
     }
     if (arg1.length() == 0) {
-        snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, "%s", "");
+        snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, sizeof(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename), "%s", "");
         ui->npc_edit_tab_previewarea->set_bg_graphicfile("");
     } else {
-        snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, "%s", arg1.toStdString().c_str());
+        snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, sizeof(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename), "%s", arg1.toStdString().c_str());
         ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+std::string(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename));
     }
 }
@@ -774,7 +774,7 @@ void npc_edit::on_backgroundFileComboBox_currentIndexChanged(const QString &arg1
     if (_data_loading || Mediator::get_instance()->enemy_list.size() == 0) {
         return;
     }
-    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, "%s", arg1.toStdString().c_str());
+    snprintf(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename, sizeof(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).bg_graphic_filename), "%s", arg1.toStdString().c_str());
     ui->npc_edit_tab_previewarea->set_bg_graphicfile(FILEPATH+std::string("/images/sprites/enemies/backgrounds/")+arg1.toStdString());
     add_frame_one();
     ui->npc_edit_tab_previewarea->repaint();

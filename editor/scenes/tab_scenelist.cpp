@@ -51,7 +51,7 @@ TabScenelist::~TabScenelist()
 void TabScenelist::on_addScene_button_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_list new_scene;
-    snprintf(new_scene.name, "%s%d", "Scene List #", ScenesMediator::get_instance()->scenes_list.size()+1);
+    snprintf(new_scene.name, sizeof(new_scene.name), "%s%d", "Scene List #", ScenesMediator::get_instance()->scenes_list.size()+1);
     ScenesMediator::get_instance()->scenes_list.push_back(new_scene);
     ui->sceneSelector->addItem(QString(new_scene.name));
     if (ScenesMediator::get_instance()->scenes_list.size() == 1) {
@@ -266,7 +266,7 @@ void TabScenelist::on_pushButton_clicked()
 void TabScenelist::on_name_lineEdit_textChanged(const QString &arg1)
 {
     if (data_loading) { return; }
-    snprintf(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).name, "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).name, sizeof(ScenesMediator::get_instance()->scenes_list.at(ScenesMediator::get_instance()->selected_scene).name), "%s", arg1.toStdString().c_str());
 }
 
 void TabScenelist::on_up_pushButton_clicked()

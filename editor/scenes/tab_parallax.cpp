@@ -118,7 +118,7 @@ void tab_parallax::on_parallax_select_comboBox_currentIndexChanged(int index)
 void tab_parallax::on_pushButton_clicked()
 {
     CURRENT_FILE_FORMAT::file_scene_show_parallax new_parallax;
-    snprintf(new_parallax.name, "%s%d", "Parallax #", ScenesMediator::get_instance()->parallax_list.size()+1);
+    snprintf(new_parallax.name, sizeof(new_parallax.name), "%s%d", "Parallax #", ScenesMediator::get_instance()->parallax_list.size()+1);
     ScenesMediator::get_instance()->parallax_list.push_back(new_parallax);
     ui->parallax_select_comboBox->addItem(QString(new_parallax.name));
     ui->parallax_select_comboBox->setCurrentIndex(ScenesMediator::get_instance()->parallax_list.size()-1);
@@ -138,7 +138,7 @@ void tab_parallax::on_parallax_layer_image_comboBox_currentIndexChanged(const QS
     if (data_loading) { return; }
     int current_parallax = ui->parallax_select_comboBox->currentIndex();
     int current_layer = ui->parallax_layer_comboBox->currentIndex();
-    snprintf(ScenesMediator::get_instance()->parallax_list.at(current_parallax).filename[current_layer], "%s", arg1.toStdString().c_str());
+    snprintf(ScenesMediator::get_instance()->parallax_list.at(current_parallax).filename[current_layer], sizeof(ScenesMediator::get_instance()->parallax_list.at(current_parallax).filename[current_layer]), "%s", arg1.toStdString().c_str());
     update_preview_image(current_parallax, current_layer);
     ui->image_preview_widget->repaint();
 }

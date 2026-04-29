@@ -901,7 +901,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
             int npc_id = Mediator::get_instance()->maps_data_npc_list[i].id_npc;
             if (npc_id != -1 && Mediator::get_instance()->maps_data_npc_list[i].start_point.x == editor_selectedTileX && Mediator::get_instance()->maps_data_npc_list[i].start_point.y == editor_selectedTileY) {
                 Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_npc = Mediator::get_instance()->maps_data_npc_list[i].id_npc;
-                snprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name, "%s", Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data_npc_list[i].id_npc).name);
+                snprintf(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name, sizeof(Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.name), "%s", Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->maps_data_npc_list[i].id_npc).name);
                 break;
             }
         }

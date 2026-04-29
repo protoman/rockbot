@@ -377,7 +377,7 @@ struct v1_file_projectile {
     Uint8 spawn_npc_id;                                     // will spawn NPCs (like bird egg in mm2)
     Uint8 spawn_npc_n;                                      // number of NPCs that will be spawned
     v1_file_projectile() {
-        snprintf(name, "%s", "Projectile");
+        snprintf(name, sizeof(name), "%s", "Projectile");
         graphic_filename[0] = '\0';
         is_destructible = false;
         hp = 1;
@@ -393,6 +393,7 @@ struct v1_file_projectile {
         spawn_npc_n = 0;
     }
 };
+
 
 
 
@@ -448,7 +449,7 @@ struct v1_file_player { // DONE -> Game
     bool can_shot_diagonal;
 
     v1_file_player() {
-        snprintf(name, "%s", "Player");
+        snprintf(name, sizeof(name), "%s", "Player");
         graphic_filename[0] = '\0';
         face_filename[0] = '\0';
         HP = 0;
@@ -477,7 +478,7 @@ struct v1_file_weapon { // DONE - Game
     char name[V1_CHAR_NAME_SIZE];
     Uint8 damage;
     v1_file_weapon() {
-        snprintf(name, "%s", "Weapon");
+        snprintf(name, sizeof(name), "%s", "Weapon");
         damage = 1;
         id_projectile = 0;
     }
@@ -498,7 +499,7 @@ struct v1_file_object { // DONE - Game
     bool animation_reverse;                                     // start animating
     bool animation_loop;                                        // true = animation will loop, false = animation will run once
     v1_file_object() {
-        snprintf(name, "%s", "Object");
+        snprintf(name, sizeof(name), "%s", "Object");
         graphic_filename[0] = '\0';
         animation_auto_start = true;
         animation_reverse = false;
@@ -547,7 +548,7 @@ struct v1_file_npc { // DONE - Game
 
     v1_file_npc() {
         id = -1;
-        snprintf(name, "%s", "NPC");
+        snprintf(name, sizeof(name), "%s", "NPC");
         graphic_filename[0] = '\0';
         projectile_id[0] = -1;
         projectile_id[1] = -1;
@@ -605,7 +606,7 @@ struct v1_file_artificial_inteligence {
     v1_reaction reactions[V1_MAX_AI_REACTIONS];                    // reactions near, hit and dead
 
     v1_file_artificial_inteligence() {
-        snprintf(name, "%s", "A.I.");
+        snprintf(name, sizeof(name), "%s", "A.I.");
     }
 };
 
@@ -694,7 +695,7 @@ struct v1_file_game {
     // CONSTRUCTOR //
     v1_file_game() {
         version = 3.00; // file-format version, not game
-        snprintf(name, "%s", "Rockbot");
+        snprintf(name, sizeof(name), "%s", "Rockbot");
         semi_charged_projectile_id = 0;
         player_items[0] = 0;
         player_items[1] = 0;
@@ -702,22 +703,22 @@ struct v1_file_game {
             stage_face_filename[i][0] = '\0';
         }
         for (int i=0; i<V1_FS_GAME_MAX_OBJS; i++) {
-            snprintf(game_npcs[i].name, "NPC [%d]", i);
+            snprintf(game_npcs[i].name, sizeof(game_npcs[i].name), "NPC [%d]", i);
         }
         for (int i=0; i<V1_FS_GAME_MAX_OBJS; i++) {
-            snprintf(objects[i].name, "Object [%d]", i);
+            snprintf(objects[i].name, sizeof(objects[i].name), "Object [%d]", i);
         }
         for (int i=0; i<V1_FS_MAX_PROJECTILES; i++) {
-            snprintf(projectiles[i].name, "Projectile [%d]", i);
+            snprintf(projectiles[i].name, sizeof(projectiles[i].name), "Projectile [%d]", i);
         }
         for (int i=0; i<V1_FS_MAX_WEAPONS; i++) {
-            snprintf(projectiles[i].name, "Projectile [%d]", i);
+            snprintf(projectiles[i].name, sizeof(projectiles[i].name), "Projectile [%d]", i);
         }
         for (int i=0; i<V1_FS_MAX_PLAYERS; i++) {
-            snprintf(players[i].name, "Player [%d]", i);
+            snprintf(players[i].name, sizeof(players[i].name), "Player [%d]", i);
         }
         for (int i=0; i<V1_FS_MAX_AI_TYPES; i++) {
-            snprintf(ai_types[i].name, "A.I. [%d]", i);
+            snprintf(ai_types[i].name, sizeof(ai_types[i].name), "A.I. [%d]", i);
         }
     }
 };
@@ -735,7 +736,7 @@ struct v1_st_map_background {
         adjust_y = 0;
         speed = 0;
         auto_scroll = false;
-        snprintf(filename, "%s", "");
+        snprintf(filename, sizeof(filename), "%s", "");
     }
 };
 
@@ -864,7 +865,7 @@ struct v1_file_boss { // DONE - Stage
     v1_file_boss() {
         id_npc = -1;
         id_weapon = -1;
-        snprintf(name, "%s", "Boss");
+        snprintf(name, sizeof(name), "%s", "Boss");
         face_graphics_filename[0] = '\0';
     }
 };
@@ -888,7 +889,7 @@ struct v1_file_stage {
     // CONSTRUCTOR //
     v1_file_stage() {
        boss = v1_file_boss();
-        snprintf(name, "%s", "Stage");
+        snprintf(name, sizeof(name), "%s", "Stage");
         bgmusic_filename[0] = '\0';
     }
 };
@@ -898,7 +899,7 @@ struct v1_file_stages {
     v1_file_stage stages[V1_FS_MAX_STAGES];
     v1_file_stages() {
         for (int i=0; i<V1_FS_MAX_STAGES; i++) {
-            snprintf(stages[i].name, "Stage [%d]", i);
+            snprintf(stages[i].name, sizeof(stages[i].name), "Stage [%d]", i);
         }
     }
 };
