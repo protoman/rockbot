@@ -350,8 +350,6 @@ void sceneShow::run_text(int n)
     }
 
     int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
-    std::cout << "font-size[" << FONT_SIZE << "], max_line_w[" << max_line_w << "], adjust_x[" << (max_line_w/2 * FONT_SIZE) << "], center_x[" << center_x << "]" << std::endl;
-    //int center_x = (RES_W * 0.5) - (max_line_w/2 * FONT_SIZE);
     int center_y = (RES_H * 0.5) - (lines_n * (SCENES_LINE_H_DIFF * 0.5));
 
 

@@ -544,7 +544,8 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                 int temp_yinc = 1;
                 int temp_pos_x = new_x;
 
-                while (true) { // search for the point when parabole changes signal
+                int loop_count = 0;
+                while (loop_count < 1000) { // search for the point when parabole changes signal
                     int temp_new_y = _ai_state.initial_position.y - _trajectory_parabola->get_y_point(temp_pos_x);
                     temp_yinc = position.y - temp_new_y;
 
@@ -554,6 +555,7 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                         break;
                     }
                     temp_pos_x += temp_xinc;
+                    loop_count++;
                 }
                 //std::cout << "AI::ia_action_jump_to_point - LEAVE #1" << std::endl;
                 return;
@@ -613,12 +615,14 @@ void artificial_inteligence::ia_action_jump_to_random()
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         _ai_state.sub_action_sub_status = IA_ACTION_STATE_INITIAL;
         int dist = 0;
-        int rand_x = 0;
-        while (dist < TILESIZE*4) {
+        int rand_x = position.x;
+        int loop_count = 0;
+        while (dist < TILESIZE*4 && loop_count < 100) {
             rand_x = rand() % RES_W;
             dist = abs(position.x - rand_x);
+            loop_count++;
         }
-        _dest_point.x = rand() % RES_W;
+        _dest_point.x = rand_x;
         _dest_point.y = position.y;
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else {
@@ -2134,63 +2138,70 @@ void artificial_inteligence::randomize_x_point(int max_adjust)
 
 int artificial_inteligence::create_rand_x_point(int max_range)
 {
-    bool keep_going = true;
-    int rand_x = 0;
+    int rand_x = position.x;
     int scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-    while (keep_going) {
+    int loop_count = 0;
+    while (loop_count < 100) {
         rand_x = position.x + rand() % max_range*2 - max_range;
         if (rand_x < scroll_x+TILESIZE || rand_x+frameSize.width > scroll_x+RES_W-TILESIZE) {
+            loop_count++;
             continue;
         }
         int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((rand_x+frameSize.width/2)/TILESIZE, (position.y+frameSize.height/2)/TILESIZE));
         if (point_lock == TERRAIN_WATER || point_lock == TERRAIN_UNBLOCKED) {
-            keep_going = false;
+            return rand_x;
         }
+        loop_count++;
     }
-    return rand_x;
+    return position.x;
 }
 
 int artificial_inteligence::create_rand_y_point(int max_range)
 {
-    bool keep_going = true;
-    int rand_y = 0;
-    while (keep_going) {
+    int rand_y = position.y;
+    int loop_count = 0;
+    while (loop_count < 100) {
         rand_y = position.y + rand() % max_range*2 - max_range;
         if (rand_y < 0 || rand_y+frameSize.height > RES_H-TILESIZE) {
+            loop_count++;
             continue;
         }
         int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (rand_y+frameSize.height/2)/TILESIZE));
         if (point_lock == TERRAIN_WATER || point_lock == TERRAIN_UNBLOCKED) {
-            keep_going = false;
+            return rand_y;
         }
+        loop_count++;
     }
-    return rand_y;
+    return position.y;
 }
 
 st_position artificial_inteligence::create_rand_point(int max_range)
 {
-    bool keep_going = true;
-    int rand_x = 0;
-    int rand_y = 0;
+    int rand_x = position.x;
+    int rand_y = position.y;
     int scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
-    while (keep_going) {
+    int loop_count = 0;
+    while (loop_count < 100) {
         rand_x = position.x + rand() % max_range*2 - max_range;
         rand_y = position.y + rand() % max_range*2 - max_range;
         // TODO: check if new position X is out of visible screen
         if (rand_x < scroll_x+TILESIZE || rand_x+frameSize.width > scroll_x+RES_W-TILESIZE) {
+            loop_count++;
             continue;
         }
 
         // check if new position Y is out of visible screen
         if (rand_y < 0 || rand_y+frameSize.height > RES_H-TILESIZE) {
+            loop_count++;
             continue;
         }
         int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((rand_x+frameSize.width/2)/TILESIZE, (rand_y+frameSize.height/2)/TILESIZE));
         if (point_lock == TERRAIN_WATER || point_lock == TERRAIN_UNBLOCKED) {
-            keep_going = false;
+            return st_position(rand_x, rand_y);
         }
+        loop_count++;
     }
-    return st_position(rand_x, rand_y);
+    return position;
 }
 
 void artificial_inteligence::execute_ai_step_jump()

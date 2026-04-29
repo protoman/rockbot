@@ -75,11 +75,9 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::cout << "#1 fio_strings::load_game_strings_from_file[" << filename << "]" << std::endl;
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
-            std::cout << "#2 fio_strings::load_game_strings_from_file[" << filename << "] opened" << std::endl;
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
@@ -87,7 +85,7 @@ namespace format_v4 {
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
         } else {
-            std::cout << "#3 fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
+            std::cout << "ERROR: fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
         }
 
         std::string str;
@@ -1253,7 +1251,6 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(SharedData::get_instance()->current_language) + "/" + std::string(file_chr);
-        std::cout << "FIO:_STRINGS::get_string_list_from_scene_text_file[" << filename << "]" << std::endl;
         filename = StringUtils::clean_filename(filename);
         // if does not have language, try default english
         if (!file_exists(filename) && SharedData::get_instance()->current_language != LANGUAGE_ENGLISH) {

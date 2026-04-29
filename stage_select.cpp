@@ -362,7 +362,6 @@ short stage_select::pick_stage_classic_style(int stage_n)
     // @TODO: use the max_stage to limit selection
     int max_stage = gameControl.get_last_castle_stage();
     int total_stages = fio.get_last_stage();
-    std::cout << "STAGE_SELECT::pick_stage_classic_style - total_stages[" << total_stages << "], max_stage[" << max_stage << "]" << std::endl;
 
     soundManager.load_music(game_data.stage_select_music_filename);
     soundManager.play_music();

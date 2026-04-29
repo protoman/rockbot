@@ -1,6 +1,12 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
+- esc is leaving the game without waiting for A press (android)
+
+- faces are now showing in stage select (modern)
+    # should show the grayed-out faces, even for mm-like version
+
+
 - re-create the SDK environments for Dingux, Pocket-Go, etc.
 - add Readme.md.
 - Improve build, scripts should set all path for the SDKs itself.

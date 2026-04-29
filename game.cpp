@@ -1905,10 +1905,11 @@ void game::set_player_direction(Uint8 direction)
 void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
 {
 	/// @TODO: jump obstacles
+    unsigned long end_timer = timer.getTimer() + 4000;
 	if (char_obj->get_real_position().x+char_obj->get_size().width/2 > pos_x) {
         char_obj->set_animation_type(ANIM_TYPE_WALK);
 		char_obj->set_direction(ANIM_DIRECTION_LEFT);
-		while (char_obj->get_real_position().x+char_obj->get_size().width/2 > pos_x) {
+		while (char_obj->get_real_position().x+char_obj->get_size().width/2 > pos_x && timer.getTimer() < end_timer) {
             char_obj->set_position(st_position(char_obj->getPosition().x-2, char_obj->getPosition().y));
             loaded_stage.show_stage();
             loaded_stage.showAbove();
@@ -1919,7 +1920,7 @@ void game::walk_character_to_screen_point_x(character *char_obj, short pos_x)
 	} else if (char_obj->get_real_position().x+char_obj->get_size().width/2 < pos_x) {
 		char_obj->set_direction(ANIM_DIRECTION_RIGHT);
         char_obj->set_animation_type(ANIM_TYPE_WALK);
-		while (char_obj->get_real_position().x+char_obj->get_size().width/2 < pos_x) {
+		while (char_obj->get_real_position().x+char_obj->get_size().width/2 < pos_x && timer.getTimer() < end_timer) {
             char_obj->set_position(st_position(char_obj->getPosition().x+2, char_obj->getPosition().y));
             loaded_stage.show_stage();
             loaded_stage.showAbove();

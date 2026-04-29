@@ -635,11 +635,9 @@ namespace format_v4 {
         DIR *dir = opendir(filename.c_str());
 
 #ifndef PLAYSTATION2
-        std::cout << "########## trying to load dir[" << filename << "]" << std::endl;
-        struct dirent *entry = readdir(dir);
+        dirent *entry = readdir(dir);
 
         while (entry != NULL) {
-
             std::string dir_name = std::string(entry->d_name);
             if (dir_name != "." && dir_name != "..") {
                 DIR *child_dir;

@@ -377,14 +377,11 @@ void inputLib::check_cheat_input()
     for (int i=0; i<BTN_COUNT; i++) {
         if (p1_input[i] == 1) {
             if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
-                std::cout << "RESET cheat input - expected-button[" << (int)cheat_input_sequence.at(cheat_input_count).key_n << "], pressed-button[" << i << "]" << std::endl;
                 reset_cheat_input_sequence();
                 return;
             } else {
-                std::cout << "CONTINUE cheat input" << std::endl;
                 cheat_input_count++;
                 if (cheat_input_count >= cheat_input_sequence.size()) {
-                    std::cout << "FINISHED cheat input" << std::endl;
                     cheat_input_is_active = true;
                 }
             }
@@ -535,10 +532,8 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                     }
                 }
             }
-
-
-            timer.delay(1);
         }
+        timer.delay(1);
     }
     return false;
 }
