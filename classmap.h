@@ -245,6 +245,8 @@ public:
     void set_foreground_postion(st_float_position pos);
     bool must_show_static_bg();                                 // method used to prevent showing enemies on transition if showing static-bg
 
+    void invalidate_visible_cache();                            // call when NPCs move or scroll changes significantly
+
 private:
     void load_map_npcs();
 
@@ -301,6 +303,8 @@ private:
     int bg_anim_pos = 0;
     unsigned long bg_anim_timer = 0;
     std::map<int, std::string> finished_friend_list;
+    std::vector<classnpc> _visible_npc_cache;                               // cache of NPCs currently visible on screen
+    bool _visible_npc_cache_valid = false;                                  // whether the visible NPC cache is still valid
 };
 
 

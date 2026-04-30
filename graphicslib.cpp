@@ -177,8 +177,11 @@ bool graphicsLib::initGraphics()
 
 
 	// GAME SCREEN
-	SDL_ShowCursor( SDL_DISABLE );
+    SDL_ShowCursor( SDL_DISABLE );
 #ifdef PC
+    // Hardware acceleration hints for SDL 1.2
+    SDL_putenv((char*)"SDL_VIDEO_ALLOW_SCREENSAVER=0");
+    SDL_putenv((char*)"SDL_VIDEO_X11_VISUALID=32");
     SDLL_WM_SetCaption("RockBot", "RockBot");
 #endif
     set_video_mode();
@@ -310,21 +313,21 @@ void graphicsLib::updateScreen()
 
 
 
-SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
+SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
 {
 	SDL_RWops *rwop;
 	SDL_Surface *spriteCopy;
 
-    filename = StringUtils::clean_filename(filename);
-    rwop = SDL_RWFromFile(filename.c_str(), "rb");
+    std::string clean_filename = StringUtils::clean_filename(filename);
+    rwop = SDL_RWFromFile(clean_filename.c_str(), "rb");
 
     if (!rwop) {
-        std::cout << "ERROR::SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << filename << "' not found\n";
+        std::cout << "ERROR::SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << clean_filename << "' not found\n";
         return NULL;
     }
     spriteCopy = IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
-        std::cout << "ERROR::::SDLSurfaceFromFile - Error on IMG_Load_RW, could not load image '" << filename << "'. Details: " << IMG_GetError() << std::endl;
+        std::cout << "ERROR::::SDLSurfaceFromFile - Error on IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << IMG_GetError() << std::endl;
     }
     if (game_screen == NULL || game_screen->format == NULL) {
         return NULL;
@@ -338,7 +341,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(string filename)
 }
 
 
-void graphicsLib::surfaceFromFile(string filename, struct graphicsLib_gSurface* res)
+void graphicsLib::surfaceFromFile(const std::string& filename, struct graphicsLib_gSurface* res)
 {
     if (res == NULL) {
         return;
@@ -924,11 +927,11 @@ void graphicsLib::draw_rectangle(st_rectangle area, int r, int g, int b, int alp
 }
 
 
-int graphicsLib::draw_progressive_text(short int x, short int y, string text, bool interrupt) {
+int graphicsLib::draw_progressive_text(short int x, short int y, const std::string &text, bool interrupt) {
     return draw_progressive_text(x, y, text, interrupt, 15);
 }
 
-int graphicsLib::draw_progressive_text(short x, short y, string text, bool interrupt, int delay)
+int graphicsLib::draw_progressive_text(short x, short y, const std::string &text, bool interrupt, int delay)
 {
     //SDL_Color font_color = {255,255,255};
     string temp_text;
@@ -972,11 +975,11 @@ int graphicsLib::draw_progressive_text(short x, short y, string text, bool inter
 
 
 
-void graphicsLib::draw_text(short int x, short int y, string text) {
+void graphicsLib::draw_text(short int x, short int y, const std::string &text) {
     draw_text(x, y, text, st_color(250, 250, 250));
 }
 
-void graphicsLib::draw_text(short x, short y, string text, st_color color)
+void graphicsLib::draw_text(short x, short y, const std::string &text, st_color color)
 {
     if (text.length() <= 0) {
         return;
@@ -986,12 +989,12 @@ void graphicsLib::draw_text(short x, short y, string text, st_color color)
 }
 
 
-void graphicsLib::draw_text(short x, short y, string text, graphicsLib_gSurface &surface)
+void graphicsLib::draw_text(short x, short y, const std::string &text, graphicsLib_gSurface &surface)
 {
     render_text(x, y, text, st_color(255, 255, 255), false);
 }
 
-void graphicsLib::draw_error_text(std::string text)
+void graphicsLib::draw_error_text(const std::string &text)
 {
     SDL_Color font_color = SDL_Color();
     font_color.r = 250;
@@ -1025,22 +1028,22 @@ void graphicsLib::draw_error_text(std::string text)
     }
 }
 
-void graphicsLib::draw_centered_text(short y, string text, st_color font_color)
+void graphicsLib::draw_centered_text(short y, const std::string &text, st_color font_color)
 {
     draw_centered_text(y, text, gameScreen, font_color);
 }
 
-void graphicsLib::draw_centered_text(short y, string text)
+void graphicsLib::draw_centered_text(short y, const std::string &text)
 {
     draw_centered_text(y, text, gameScreen, st_color(TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE, TEXT_DEFAUL_COLOR_VALUE));
 }
 
-void graphicsLib::draw_centered_text(short y, string text, graphicsLib_gSurface &surface, st_color temp_font_color)
+void graphicsLib::draw_centered_text(short y, const std::string &text, graphicsLib_gSurface &surface, st_color temp_font_color)
 {
     render_text(0, y, text, temp_font_color, true);
 }
 
-void graphicsLib::render_text(short x, short y, string text, st_color color, bool centered)
+void graphicsLib::render_text(short x, short y, const std::string &text, st_color color, bool centered)
 {
     SDL_Color font_color = SDL_Color();
     font_color.r = color.r;
@@ -2267,9 +2270,13 @@ void graphicsLib::preload_anim_tiles()
     }
 }
 
-void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface& res, e_flip_type flip_mode)
+void graphicsLib::flip_image(const graphicsLib_gSurface &original, graphicsLib_gSurface& res, e_flip_type flip_mode)
 {
     //std::cout << ">>>>>>>>>>>>>>>>>> GRAPHLIB::flip_image <<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+
+    if (original.get_surface() == NULL || original.width <= 0 || original.height <= 0) {
+        return;
+    }
 
     //Pointer to the soon to be flipped surface
     res = original;
@@ -2305,10 +2312,10 @@ void graphicsLib::flip_image(graphicsLib_gSurface original, graphicsLib_gSurface
     }
 }
 
-void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface)
+void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, const graphicsLib_gSurface &newSurface)
 {
     initSurface(st_size(newSurface.width, newSurface.height), &frame->frameSurface);
-    copyArea(st_position(0, 0), &newSurface, &frame->frameSurface);
+    copyArea(st_position(0, 0), const_cast<graphicsLib_gSurface*>(&newSurface), &frame->frameSurface);
 }
 
 void graphicsLib::place_water_tile(st_position dest)
@@ -2323,7 +2330,7 @@ void graphicsLib::place_water_tile(st_position dest)
 }
 
 // zoom from a small size to the picture size
-void graphicsLib::zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth)
+void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &picture, int smooth)
 {
     SDL_Surface *rotozoom_picture;
     st_position center(dest.x+picture.width/2, dest.y+picture.height/2);

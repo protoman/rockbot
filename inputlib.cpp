@@ -77,7 +77,6 @@ void inputLib::clean()
         }
 	}
     while (SDL_PollEvent(&event)) {
-        SDL_PumpEvents(); // check keyboard events
     }
 }
 
@@ -87,7 +86,6 @@ void inputLib::clean_all()
         p1_input[i] = 0;
     }
     while (SDL_PollEvent(&event)) {
-        SDL_PumpEvents(); // check keyboard events
     }
 }
 

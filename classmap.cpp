@@ -125,9 +125,13 @@ void classMap::loadMap()
     }
 
     object_list.clear();
+    object_list.reserve(MAP_W * MAP_H / 4);
     _npc_list.clear();
+    _npc_list.reserve(MAP_W * MAP_H / 8);
     animation_list.clear();
+    animation_list.reserve(64);
     _level3_tiles.clear();
+    _level3_tiles.reserve(MAP_W * MAP_H / 2);
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
@@ -186,8 +190,9 @@ void classMap::show_map()
     // and use those instead in the show-loop
     show_ghost_npcs();
 
-    // redraw screen, if needed
-    if (_show_map_pos_x == -1 || abs(_show_map_pos_x - scroll.x) > TILESIZE) {
+    // redraw screen if scroll changed significantly or map was not drawn yet
+    int scroll_diff = _show_map_pos_x == -1 ? TILESIZE + 1 : abs(_show_map_pos_x - scroll.x);
+    if (scroll_diff > TILESIZE) {
         draw_map_tiles();
     // use memory screen
     }
@@ -327,9 +332,14 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
 	if (end_point < MAP_W-1) { end_point++; }
 
 
-	// draw 3rd tile level
+	// draw 3rd tile level - only draw tiles within visible screen range
     std::vector<st_level3_tile>::iterator tile3_it;
     for (tile3_it = _level3_tiles.begin(); tile3_it != _level3_tiles.end(); tile3_it++) {
+        // Filter out off-screen tiles early
+        int screen_x = ((*tile3_it).map_position.x * TILESIZE) - scroll_x;
+        if (screen_x < -TILESIZE || screen_x > RES_W + TILESIZE) {
+            continue;
+        }
 
         if (_3rd_level_ignore_area.x != -1 && _3rd_level_ignore_area.w > 0 && ((*tile3_it).map_position.x >= _3rd_level_ignore_area.x && (*tile3_it).map_position.x < _3rd_level_ignore_area.x+_3rd_level_ignore_area.w && (*tile3_it).map_position.y >= _3rd_level_ignore_area.y && (*tile3_it).map_position.y < _3rd_level_ignore_area.y+_3rd_level_ignore_area.h)) {
             continue;
@@ -338,7 +348,7 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
         int pos_y = (*tile3_it).tileset_pos.y;
         // only show tile if it is on the screen range
 
-        graphLib.place_3rd_level_tile(pos_x, pos_y, ((*tile3_it).map_position.x*TILESIZE)-scroll_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
+        graphLib.place_3rd_level_tile(pos_x, pos_y, screen_x, ((*tile3_it).map_position.y*TILESIZE)+scroll_y);
     }
 
     if (_water_bubble.pos.x != -1) {
@@ -2265,7 +2275,13 @@ void classMap::move_npcs() /// @TODO - check out of screen
             _npc_list.push_back(*npc_it);
         }
         _npc_spawn_list.clear();
+        _visible_npc_cache_valid = false;
     }
+}
+
+void classMap::invalidate_visible_cache()
+{
+    _visible_npc_cache_valid = false;
 }
 
 void classMap::show_npcs() /// @TODO - check out of screen
@@ -2277,7 +2293,11 @@ void classMap::show_npcs() /// @TODO - check out of screen
         if (npc_ref->npc_is_ghost()) {
             continue;
         }
-        if (gameControl.must_show_boss_hp() && npc_ref->is_boss() && npc_ref->is_on_visible_screen() == true) {
+        // Early exit for off-screen NPCs
+        if (npc_ref->is_on_visible_screen() == false) {
+            continue;
+        }
+        if (gameControl.must_show_boss_hp() && npc_ref->is_boss()) {
             has_boss = true;
             draw_lib.set_boss_hp(npc_ref->get_current_hp());
 		}
@@ -2301,7 +2321,11 @@ void classMap::show_ghost_npcs()
         if (!npc_ref->npc_is_ghost()) {
             continue;
         }
-        if (gameControl.must_show_boss_hp() && npc_ref->is_boss() && npc_ref->is_on_visible_screen() == true) {
+        // Early exit for off-screen ghosts
+        if (npc_ref->is_on_visible_screen() == false) {
+            continue;
+        }
+        if (gameControl.must_show_boss_hp() && npc_ref->is_boss()) {
             has_boss = true;
             draw_lib.set_boss_hp(npc_ref->get_current_hp());
         }

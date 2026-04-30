@@ -281,7 +281,7 @@ struct graphicsLib_gSurface {
         graphicsLib_gSurface(const graphicsLib_gSurface &original)
         {
 
-            if (original.width == 0 || original.height == 0) {
+            if (original.width == 0 || original.height == 0 || original.gSurface == NULL) {
                 gSurface = NULL;
                 width = 0;
                 height = 0;
@@ -301,11 +301,13 @@ struct graphicsLib_gSurface {
                 colorkey2_points = original.colorkey2_points;
                 colorkey3_points = original.colorkey3_points;
                 show_debug = false;
-                if (original.width > 0) {
-                    // copy surface
+                gSurface = NULL;
+                if (original.width > 0 && original.gSurface != NULL) {
                     gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
-                } else {
-                    gSurface = NULL;
+                }
+                if (gSurface == NULL) {
+                    width = 0;
+                    height = 0;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
@@ -314,7 +316,13 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
-            if (original.width == 0 || original.height == 0) {
+            // Free existing surface first
+            if (gSurface != NULL && video_screen == false && persistent == false) {
+                SDL_FreeSurface(gSurface);
+            }
+            gSurface = NULL;
+
+            if (original.width == 0 || original.height == 0 || original.gSurface == NULL) {
                 gSurface = NULL;
                 width = 0;
                 height = 0;
@@ -333,11 +341,13 @@ struct graphicsLib_gSurface {
                 colorkey2_points = original.colorkey2_points;
                 colorkey3_points = original.colorkey3_points;
                 show_debug = false;
-                if (original.width > 0) {
-                    // copy surface
+                gSurface = NULL;
+                if (original.width > 0 && original.gSurface != NULL) {
                     gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
-                } else {
-                    gSurface = NULL;
+                }
+                if (gSurface == NULL) {
+                    width = 0;
+                    height = 0;
                 }
                 is_rle_enabled = original.is_rle_enabled;
             }
@@ -412,6 +422,8 @@ struct graphicsLib_gSurface {
                 height = gSurface->h;
             } else {
                 gSurface = NULL;
+                width = 0;
+                height = 0;
             }
         }
 
@@ -499,7 +511,7 @@ struct graphicsLib_gSurface {
 
 
 
-        Uint32 get_pixel(Sint16 x, Sint16 y)
+        Uint32 get_pixel(Sint16 x, Sint16 y) const
         {
             if (gSurface == NULL || gSurface->format == NULL) {
                 return 0;

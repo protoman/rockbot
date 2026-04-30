@@ -151,7 +151,7 @@ public:
     void copyArea(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
     void copyAreaWithAdjust(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*); // overload, use the whole width and height of given image
     void copyAreaWithAdjustAndAnimFrame(struct st_position, struct graphicsLib_gSurface*, struct graphicsLib_gSurface*, int frame); // overload, use the whole width and height of given image
-    void surfaceFromFile(std::string, graphicsLib_gSurface *);
+    void surfaceFromFile(const std::string&, graphicsLib_gSurface *);
     void showSurface(struct graphicsLib_gSurface*);
     void showSurfaceRegion(struct graphicsLib_gSurface*, const struct st_rectangle origin_rectangle);
     void showSurfaceRegionAt(struct graphicsLib_gSurface* surfaceOrigin, const struct st_rectangle origin_rectangle, struct st_position pos_destiny);
@@ -174,17 +174,17 @@ public:
 
     std::string utf8_substr2(const std::string &str,int start, int length=INT_MAX);
 
-    int draw_progressive_text(short int x, short int y, std::string text, bool interrupt);
-    int draw_progressive_text(short int x, short int y, std::string text, bool interrupt, int delay);
-    void draw_text(short int x, short int y, std::string text);
-    void draw_text(short int x, short int y, std::string text, st_color color);
-    void draw_text(short int x, short int y, std::string text, struct graphicsLib_gSurface& surface);
+    int draw_progressive_text(short int x, short int y, const std::string &text, bool interrupt);
+    int draw_progressive_text(short int x, short int y, const std::string &text, bool interrupt, int delay);
+    void draw_text(short int x, short int y, const std::string &text);
+    void draw_text(short int x, short int y, const std::string &text, st_color color);
+    void draw_text(short int x, short int y, const std::string &text, struct graphicsLib_gSurface& surface);
 
-    void draw_error_text(std::string text);
+    void draw_error_text(const std::string &text);
 
-    void draw_centered_text(short int y, std::string text, st_color font_color);
-    void draw_centered_text(short int y, std::string text);
-    void draw_centered_text(short int y, std::string text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
+    void draw_centered_text(short int y, const std::string &text, st_color font_color);
+    void draw_centered_text(short int y, const std::string &text);
+    void draw_centered_text(short int y, const std::string &text, struct graphicsLib_gSurface& surface, st_color temp_font_color);
 
 
     Uint8 getColorNumber(Uint8 r, Uint8 g, Uint8 b);
@@ -234,11 +234,11 @@ public:
     void draw_explosion(st_position pos);
     void show_debug_msg(std::string msg);
     void draw_path(st_position initial_point, st_position final_point, short duration);
-    void flip_image(graphicsLib_gSurface original, graphicsLib_gSurface &res, e_flip_type flip_mode);
-    void set_spriteframe_surface(st_spriteFrame *frame, graphicsLib_gSurface newSurface);
+    void flip_image(const graphicsLib_gSurface &original, graphicsLib_gSurface &res, e_flip_type flip_mode);
+    void set_spriteframe_surface(st_spriteFrame *frame, const graphicsLib_gSurface &newSurface);
     void place_water_tile(st_position dest);
 
-    void zoom_image(st_position dest, graphicsLib_gSurface picture, int smooth);
+    void zoom_image(st_position dest, const graphicsLib_gSurface &picture, int smooth);
     SDL_Surface *zoom_screen(int scale, SDL_Surface *origin);
     void rotate_image(graphicsLib_gSurface& picture, double angle);
     void rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface& dest, double angle);
@@ -251,7 +251,7 @@ public:
 private:
     void copySDLArea(struct st_rectangle, struct st_position, SDL_Surface*, SDL_Surface*, bool fix_colors);
     void copySDLPortion(struct st_rectangle, struct st_rectangle, SDL_Surface*, SDL_Surface*);
-    SDL_Surface *SDLSurfaceFromFile(std::string filename);
+    SDL_Surface *SDLSurfaceFromFile(const std::string& filename);
     void scale2x(SDL_Surface *src, SDL_Surface *dst, bool smooth_scale, int scale) const;
     void draw_horizontal_hp_bar(st_position pos, short int hp, short int player_n, short max_hp);
     void draw_star(short int x, short int y, int size);
@@ -263,7 +263,7 @@ private:
     void set_video_mode();
     void preload_images();
     void preload_anim_tiles();
-    void render_text(short int x, short int y, std::string text, st_color color, bool centered);
+    void render_text(short int x, short int y, const std::string &text, st_color color, bool centered);
 
 
 

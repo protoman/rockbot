@@ -625,6 +625,10 @@ bool game::test_teleport(classPlayer *test_player) {
 
 
     int j = 0;
+    // Pre-compute player tile position for early filtering
+    int player_tile_x = test_player->get_real_position().x / TILESIZE;
+    int player_tile_y = test_player->get_real_position().y / TILESIZE;
+
     for (j=0; j<STAGE_MAX_LINKS; j++) {
         if (stage_data.links[j].id_map_origin == -1 || stage_data.links[j].id_map_destiny == -1) {
             continue;
@@ -636,6 +640,17 @@ bool game::test_teleport(classPlayer *test_player) {
 				i++;
 				continue;
 			}
+
+            // Early exit: check if link is near player before expensive checks
+            int link_tile_x = stage_data.links[j].pos_origin.x / TILESIZE;
+            int link_tile_y = stage_data.links[j].pos_origin.y / TILESIZE;
+            int dx = link_tile_x - player_tile_x;
+            int dy = link_tile_y - player_tile_y;
+            if (dx < -3 || dx > 3 || dy < -3 || dy > 3) {
+                // Link is far from player, skip
+                i++;
+                continue;
+            }
 
             if (stage_data.links[j].id_map_origin == currentMap) {
                 temp_x = stage_data.links[j].pos_origin.x;

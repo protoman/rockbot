@@ -3,9 +3,7 @@ ROCKBOT
 ###########################################################################################################################
 - esc is leaving the game without waiting for A press (android)
 
-- faces are now showing in stage select (modern)
-    # should show the grayed-out faces, even for mm-like version
-
+- ERROR: fio_strings::load_game_strings_from_file[/home/iuri/Desenvolvimento/rockbot/build/shared/strings_ingame_pt.dat] could not be opened
 
 - re-create the SDK environments for Dingux, Pocket-Go, etc.
 - add Readme.md.
