@@ -932,15 +932,15 @@ namespace format_v4 {
     {
         char char_filename[100];
         if (language == LANGUAGE_FRENCH) {
-            sprintf(char_filename, "/dialogs/stage_dialogs_%d_fr.dat", stage_id);
+            snprintf(char_filename, sizeof(char_filename), "/dialogs/stage_dialogs_%d_fr.dat", stage_id);
         } else if (language == LANGUAGE_SPANISH) {
-            sprintf(char_filename, "/dialogs/stage_dialogs_%d_es.dat", stage_id);
+            snprintf(char_filename, sizeof(char_filename), "/dialogs/stage_dialogs_%d_es.dat", stage_id);
         } else if (language == LANGUAGE_ITALIAN) {
-            sprintf(char_filename, "/dialogs/stage_dialogs_%d_it.dat", stage_id);
+            snprintf(char_filename, sizeof(char_filename), "/dialogs/stage_dialogs_%d_it.dat", stage_id);
         } else if (language == LANGUAGE_PORTUGUESE) {
-            sprintf(char_filename, "/dialogs/stage_dialogs_%d_pt.dat", stage_id);
+            snprintf(char_filename, sizeof(char_filename), "/dialogs/stage_dialogs_%d_pt.dat", stage_id);
         } else {
-            sprintf(char_filename, "/dialogs/stage_dialogs_%d.dat", stage_id);
+            snprintf(char_filename, sizeof(char_filename), "/dialogs/stage_dialogs_%d.dat", stage_id);
         }
         std::string filename = FILEPATH + std::string(char_filename);
         return filename;
@@ -1157,27 +1157,27 @@ namespace format_v4 {
             char line_value[FS_CHAR_NAME_SIZE];
             // person dialogs
             for (int j=0; j<6; j++) {
-                sprintf(line_value, "START-STG[%d] DLG #%d", i, j);
+                snprintf(line_value, sizeof(line_value), "START-STG[%d] DLG #%d", i, j);
                 res.push_back(line_value);
             }
             // players dialogs
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // phrases
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "START-STG[%d] DLG P[%d] %d", i, (j+1), k);
+                    snprintf(player_line_value, sizeof(player_line_value), "START-STG[%d] DLG P[%d] %d", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }
             // person dialogs
             for (int j=0; j<6; j++) {
-                sprintf(line_value, "BOSS STG[%d] DLG #%d\n", i, j);
+                snprintf(line_value, sizeof(line_value), "BOSS STG[%d] DLG #%d\n", i, j);
                 res.push_back(line_value);
             }
             // players dialogs
             for (int j=0; j<4; j++) { // players
                 for (int k=0; k<6; k++) { // lines
                     char player_line_value[FS_COMMON_STRINGS_DIALOG];
-                    sprintf(player_line_value, "BOSS STG[%d] DLG P[%d] %d", i, (j+1), k);
+                    snprintf(player_line_value, sizeof(player_line_value), "BOSS STG[%d] DLG P[%d] %d", i, (j+1), k);
                     res.push_back(player_line_value);
                 }
             }

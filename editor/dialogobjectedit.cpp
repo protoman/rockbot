@@ -112,11 +112,13 @@ void DialogObjectEdit::loadObjectData(int object_n) {
 
 
 void DialogObjectEdit::saveObjectData(int object_n) {
-    strcpy (Mediator::get_instance()->object_list.at(object_n).name, ui->NpcName->text().toLatin1());
+    strncpy(Mediator::get_instance()->object_list.at(object_n).name, ui->NpcName->text().toLatin1(), CHAR_NAME_SIZE - 1);
+    Mediator::get_instance()->object_list.at(object_n).name[CHAR_NAME_SIZE - 1] = '\0';
     Mediator::get_instance()->object_list.at(object_n).type = ui->comboBoxType->currentIndex();
     Mediator::get_instance()->object_list.at(object_n).size.width = ui->npcGraphicSizeSpin_w->value();
     Mediator::get_instance()->object_list.at(object_n).size.height = ui->npcGraphicSizeSpin_h->value();
-    strcpy (Mediator::get_instance()->object_list.at(object_n).graphic_filename, ui->objectListCombobox->currentText().toLatin1());
+    strncpy(Mediator::get_instance()->object_list.at(object_n).graphic_filename, ui->objectListCombobox->currentText().toLatin1(), FS_CHAR_NAME_SIZE - 1);
+    Mediator::get_instance()->object_list.at(object_n).graphic_filename[FS_CHAR_NAME_SIZE - 1] = '\0';
     Mediator::get_instance()->object_list.at(object_n).timer = ui->spinBox_timer->value();
     Mediator::get_instance()->object_list.at(object_n).speed = ui->spinBox_speed->value();
     Mediator::get_instance()->object_list.at(object_n).limit = ui->spinBox_limit->value();

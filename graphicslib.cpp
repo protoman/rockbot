@@ -1292,7 +1292,7 @@ void graphicsLib::draw_small_weapon_icon_at(short weapon_n, st_position pos, boo
 
 void graphicsLib::draw_small_weapon_icon(short wpn_n, st_position pos, bool active)
 {
-    if (wpn_n >= small_weapon_icons.size()) {
+    if (wpn_n < 0 || wpn_n >= small_weapon_icons.size()) {
         //std::cout << "DEBUG wpn_n[" << wpn_n << "], small_weapon_icons.size[" << small_weapon_icons.size() << "]" << std::endl;
         return;
     }

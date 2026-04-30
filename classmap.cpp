@@ -125,13 +125,13 @@ void classMap::loadMap()
     }
 
     object_list.clear();
-    object_list.reserve(MAP_W * MAP_H / 4);
+    object_list.reserve((size_t)MAP_W * MAP_H / 4);
     _npc_list.clear();
-    _npc_list.reserve(MAP_W * MAP_H / 8);
+    _npc_list.reserve((size_t)MAP_W * MAP_H / 8);
     animation_list.clear();
     animation_list.reserve(64);
     _level3_tiles.clear();
-    _level3_tiles.reserve(MAP_W * MAP_H / 2);
+    _level3_tiles.reserve((size_t)MAP_W * MAP_H / 2);
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
