@@ -680,9 +680,11 @@ void classPlayer::execute_projectiles()
         }
 
         // check collision against enemies
+        bool projectile_erased = false;
         for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
                 projectile_list.erase(it);
+                projectile_erased = true;
                 break;
             }
             if (gameControl.get_current_map_obj()->_npc_list.at(i).is_on_visible_screen() == false) {

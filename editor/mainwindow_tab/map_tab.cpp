@@ -622,8 +622,3 @@ void map_tab::on_FGScrollModeComboBox_currentIndexChanged(int index)
 }
 
 
-void map_tab::on_mapAutoScroll_checkBox_toggled(bool checked)
-{
-
-}
-

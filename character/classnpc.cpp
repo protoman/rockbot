@@ -552,6 +552,7 @@ void classnpc::move_projectiles()
                 }
             }
         } else { // NPC attacking other NPCs
+            bool projectile_erased = false;
             for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
                 st_rectangle other_npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 				//classnpc* enemy = (*enemy_it);
@@ -569,10 +570,11 @@ void classnpc::move_projectiles()
 				}
                 if ((*it).is_finished == true) {
 					projectile_list.erase(it);
+					projectile_erased = true;
 					break;
 				}
 			}
-            if ((*it).is_finished == true) {
+            if (projectile_erased) {
                 continue;
             }
 		}
