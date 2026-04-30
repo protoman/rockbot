@@ -2294,9 +2294,8 @@ void graphicsLib::flip_image(const graphicsLib_gSurface &original, graphicsLib_g
         return;
     }
 
-    //Pointer to the soon to be flipped surface
-    res = original;
-    //initSurface(st_size(original.width, original.height), &res);
+    // Create a fresh surface for the result (must not have RLE enabled, or put_pixel will fail)
+    initSurface(st_size(original.width, original.height), &res);
 
     //If the surface must be locked
     if (SDL_MUSTLOCK( original.get_surface() )) {
