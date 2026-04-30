@@ -796,7 +796,6 @@ bool game::check_player_is_on_teleport(classPlayer *test_player, int currentMap,
             lim4 += TILESIZE * 1.5;
             lim3 += TILESIZE * 0.5;
         } else if (transition_type == TRANSITION_BOTTOM_TO_TOP) {
-            int add_lim3 = TILESIZE * 1.7;
             lim3 -= TILESIZE * 1.7;
         }
     }
