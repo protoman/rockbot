@@ -61,10 +61,6 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
 
 artificial_inteligence::~artificial_inteligence()
 {
-    if (_trajectory_parabola != NULL) {
-        delete _trajectory_parabola;
-        _trajectory_parabola = NULL;
-    }
 }
 
 
@@ -484,7 +480,7 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
         } else {
             jump_pos_x = point.x - position.x;
         }
-        _trajectory_parabola = new trajectory_parabola(jump_pos_x);
+        _trajectory_parabola = trajectory_parabola(jump_pos_x);
         _ai_state.initial_position.x = position.x;
         _ai_state.initial_position.y = position.y;
         set_animation_type(ANIM_TYPE_JUMP);
@@ -502,7 +498,7 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
         // TODO - add multiplier
 
         int new_x = abs((position.x + _origin_point.x) - _ai_state.initial_position.x);
-        int new_y = _ai_state.initial_position.y - (_trajectory_parabola->get_y_point(new_x) * jump_yinc_multiplier);
+        int new_y = _ai_state.initial_position.y - (_trajectory_parabola.get_y_point(new_x) * jump_yinc_multiplier);
         int yinc = position.y - new_y;
 
         if (abs(yinc) >= TILESIZE) {
@@ -546,7 +542,7 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
 
                 int loop_count = 0;
                 while (loop_count < 1000) { // search for the point when parabole changes signal
-                    int temp_new_y = _ai_state.initial_position.y - _trajectory_parabola->get_y_point(temp_pos_x);
+                    int temp_new_y = _ai_state.initial_position.y - _trajectory_parabola.get_y_point(temp_pos_x);
                     temp_yinc = position.y - temp_new_y;
 
                     if (temp_yinc >= 0) {
@@ -588,9 +584,6 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
                 }
             }
             if (found_point == false) {
-                if (_trajectory_parabola != NULL) {
-                    delete _trajectory_parabola;
-                }
                 _ignore_gravity = false; // enable gravity
                 _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
                 set_animation_type(ANIM_TYPE_STAND);

@@ -259,7 +259,7 @@ protected:
     struct st_position start_point;
     unsigned int _auto_respawn_timer;                            // used to check if enought time has passed to auto-respawn
 
-    trajectory_parabola *_trajectory_parabola;          // used for jumping to a specific point
+    trajectory_parabola _trajectory_parabola;          // used for jumping to a specific point
     bool _did_shot;                                         // used to avoid shooting multiple times
     double shot_timer = 0;                              // used to check if we need to keep the enemy in animation for a given period
     st_float_position _diagonal_speed;

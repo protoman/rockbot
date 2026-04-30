@@ -86,7 +86,7 @@ CURRENT_FILE_FORMAT::file_npc_v3_1_2* GameMediator::get_enemy(int n)
     if (n < 0 || n >= (int)enemy_list.size()) {
         // return first NPC to avoid errors
         if (enemy_list.empty()) {
-            return nullptr;
+            return NULL;
         }
         n = 0;
     }

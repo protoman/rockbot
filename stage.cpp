@@ -177,9 +177,7 @@ void stage::set_current_map(int new_map_n)
 {
 
     if (new_map_n < 0 || new_map_n >= PRELOAD_MAP_N) {
-        #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "Invalid value for set_current_map[%d]", new_map_n);
-        #endif
+        std::cout << "## stage::set_current_map - invalid map" << std::endl;
         return;
     }
 
@@ -188,6 +186,7 @@ void stage::set_current_map(int new_map_n)
     std::fflush(stdout);
 
     check_map_effect();
+    std::cout << "## stage::set_current_map::END" << std::endl;
     std::fflush(stdout);
 }
 
@@ -217,8 +216,11 @@ void stage::reset_current_map()
 
 void stage::reset_current_map_objects()
 {
+    std::cout << "## stage::reset_current_map_objects::START" << std::endl;
     get_current_map()->reset_map();
+    std::cout << "## stage::reset_current_map_objects #1" << std::endl;
     get_current_map()->reset_map_npcs();
+    std::cout << "## stage::reset_current_map_objects::END" << std::endl;
 }
 
 void stage::reset_stage_objects()
