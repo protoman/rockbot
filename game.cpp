@@ -1217,6 +1217,10 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         loaded_stage.show_stage();
 	}
 
+    if (scroll_move.x == 0) {
+        game_unpause();
+        return;
+    }
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);
     float player_move_x = (float)(TILESIZE*2.5)/(float)move_limit; // player should move two tilesize, to avoid doors
     if (scroll_move.x < 0) {

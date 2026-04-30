@@ -316,6 +316,10 @@ struct graphicsLib_gSurface {
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {
+            if (this == &original) {
+                return *this;
+            }
+
             // Free existing surface first
             if (gSurface != NULL && video_screen == false && persistent == false) {
                 SDL_FreeSurface(gSurface);
@@ -379,6 +383,10 @@ struct graphicsLib_gSurface {
 
         std::vector<st_position> get_color_points(int r, int g, int b) {
             std::vector<st_position> res;
+
+            if (gSurface == NULL) {
+                return res;
+            }
 
             for (int tolerance=0; tolerance<=6; tolerance++) {
                 for (Sint16 y=0; y<gSurface->h; y++) {
@@ -550,6 +558,9 @@ struct graphicsLib_gSurface {
                 return;
             }
             if (is_rle_enabled) {
+                return;
+            }
+            if (x < 0 || x >= gSurface->w || y < 0 || y >= gSurface->h) {
                 return;
             }
             int bpp = gSurface->format->BytesPerPixel;

@@ -572,6 +572,9 @@ void classnpc::move_projectiles()
 					break;
 				}
 			}
+            if ((*it).is_finished == true) {
+                continue;
+            }
 		}
 	}
     projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());

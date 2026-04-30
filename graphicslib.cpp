@@ -167,6 +167,12 @@ bool graphicsLib::initGraphics()
         // outline-font
         outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
         error_font = TTF_OpenFontRW(fileErrorRW, 1, FONT_SIZE_ERROR);
+        if (font == NULL || outline_font == NULL || error_font == NULL) {
+            printf("ERROR::initGraphics - TTF_OpenFont failed for '%s'\n", buffer);
+            fflush(stdout);
+            delete[] buffer;
+            return false;
+        }
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
         TTF_SetFontOutline(outline_font, 1);
 #endif
@@ -758,7 +764,9 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         SDL_FreeSurface(rgb_surface);
     }
 
-
+    if (temp_surface == NULL) {
+        return;
+    }
 
     SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
     SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
@@ -1089,13 +1097,13 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
 #endif
 
     SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
+    if (!textSF) {
+        return;
+    }
     if (centered == true && text.size() > 0) {
         text_pos.x = RES_W/2 - textSF->w/2;
     }
 
-    if (!textSF) {
-        return;
-    }
     SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
     SDL_FreeSurface(textSF);
 
@@ -1183,6 +1191,10 @@ void graphicsLib::load_icons()
 
 	// big icon
 	surfaceFromFile(filename, &tmp);
+    if (tmp.height == 0) {
+        std::cout << "WARNING: graphicsLib::load_icons - icons.png failed to load, skipping." << std::endl;
+        return;
+    }
     int icon_size = tmp.height/2;
     weapon_icons.clear();
     for (int i=0; i<(tmp.width/(icon_size)); i++) {
@@ -1196,17 +1208,21 @@ void graphicsLib::load_icons()
     filename = FILEPATH + "images/icons_small.png";
 	surfaceFromFile(filename, &tmp);
 
+    if (tmp.width > 0) {
     for (int i=0; i<(tmp.width/8); i++) {
 		small_weapon_icons.push_back(graphicsLib_gSurface());
 		initSurface(st_size(8, 8), &small_weapon_icons.at(small_weapon_icons.size()-1));
 		copyArea(st_rectangle(i*8, 0, 8, 8), st_position(0, 0), &tmp, &(small_weapon_icons.at(small_weapon_icons.size()-1)));
 	}
+    }
     filename = FILEPATH + "images/icons_small_disabled.png";
     surfaceFromFile(filename, &tmp);
+    if (tmp.width > 0) {
     for (int i=0; i<(tmp.width/8); i++) {
         small_weapon_icons_disabled.push_back(graphicsLib_gSurface());
         initSurface(st_size(8, 8), &small_weapon_icons_disabled.at(small_weapon_icons_disabled.size()-1));
         copyArea(st_rectangle(i*8, 0, 8, 8), st_position(0, 0), &tmp, &(small_weapon_icons_disabled.at(small_weapon_icons_disabled.size()-1)));
+    }
     }
 
 
@@ -1870,7 +1886,7 @@ void graphicsLib::draw_path(st_position initial_point, st_position final_point, 
         mode = 1;
     }
     // calculate time for each part, being  (move_step)2 pixels each
-    if (distance == 0) {
+    if (distance == 0 || move_step == 0) {
         return;
     }
     int part_duration = duration / (distance/move_step*2);

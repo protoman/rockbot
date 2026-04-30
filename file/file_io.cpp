@@ -232,7 +232,7 @@ namespace format_v4 {
                 return;
             }
             int read_result = fread(&data_out, sizeof(struct format_v4::file_game), 1, fp);
-            if (read_result  == -1) {
+            if (read_result < 1) {
                 std::cout << "ERROR: file_io::read_game - Error reading struct data from game file '" << filename << "'." << std::endl;
                 fflush(stdout);
                 exception_manager::throw_general_exception(std::string("file_io::read_game - Error reading data from file."), filename);
@@ -254,12 +254,15 @@ namespace format_v4 {
         }
 
 
-        if (unsigned int res = fread(&data_out.version, sizeof(float), 1, fp) != 1) {
+        unsigned int res;
+        res = fread(&data_out.version, sizeof(float), 1, fp);
+        if (res != 1) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (unsigned int res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp) != FS_CHAR_NAME_SIZE) {
+        res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp);
+        if (res != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -577,7 +580,7 @@ namespace format_v4 {
 
         for (unsigned int i=0; i<npc_list.size(); i++) {
             // TODO: check for spawns that are final boss but not in map-data
-            if (npc_list.at(i).stage_id >= CASTLE1_STAGE1 && temp_game_data.final_boss_id == npc_list.at(i).id_npc) {
+            if (npc_list.at(i).stage_id >= CASTLE1_STAGE1 && npc_list.at(i).id_npc >= 0 && (unsigned int)npc_list.at(i).id_npc < temp_enemy_list.size() && temp_game_data.final_boss_id == npc_list.at(i).id_npc) {
                 std::cout << "FOUND final boss[" << temp_enemy_list.at(npc_list.at(i).id_npc).name << "] in stage[" << (int)npc_list.at(i).stage_id << "] at position[" << npc_list.at(i).start_point.x << "][" << npc_list.at(i).start_point.y << "]" << std::endl;
                 return npc_list.at(i).stage_id;
             }
@@ -707,7 +710,7 @@ namespace format_v4 {
             } else {
                 format_v4_old::st_game_config config_old;
                 int read_result = fread(&config_old, sizeof(struct format_v4_old::st_game_config), 1, fp_old);
-                if (read_result  == -1) {
+                if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
                     return;
@@ -721,7 +724,7 @@ namespace format_v4 {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
                 int read_result = fread(&config, sizeof(struct format_v4::st_game_config), 1, fp);
-                if (read_result  == -1) {
+                if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
                     return;
@@ -787,7 +790,7 @@ namespace format_v4 {
             return false;
         }
         int read_result = fread(&data_out, sizeof(struct format_v4::st_save), 1, fp);
-        if (read_result  == -1) {
+        if (read_result < 1) {
             printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
             fflush(stdout);
             return false;
@@ -901,7 +904,7 @@ namespace format_v4 {
              // convert v301 save to CURRENT_FORMAT save
              CURRENT_FILE_FORMAT::st_save old_format_save;
              int read_result = fread(&old_format_save, sizeof(struct CURRENT_FILE_FORMAT::st_save), 1, old_format_fp);
-             if (read_result  == -1) { // could not read v1 save
+             if (read_result < 1) { // could not read v1 save
                  fclose(old_format_fp);
                  return false;
              }
@@ -936,7 +939,7 @@ namespace format_v4 {
         }
         fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
         int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
-        if (read_result == -1) {
+        if (read_result < 1) {
             printf("ERROR: reading struct data from stage file.\n");
             fflush(stdout);
             return -1;

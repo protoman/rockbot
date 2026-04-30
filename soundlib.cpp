@@ -114,67 +114,99 @@ void soundLib::load_all_sfx() {
 	string filename;
 
     filename = FILEPATH + "sfx/npc_hit.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/npc_killed.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/player_hit.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/player_shot.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/player_jump.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/cursor.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/stage_selected.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/got_energy_pill.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/got_item.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/shot_reflected.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/door_open.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/got_weapon.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/teleport.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/implosion.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/player_death.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/destrin_ship.wav";
-	sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	if (i < SFX_COUNT) {
+		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+	}
 	i++;
 
     filename = FILEPATH + "sfx/charged_shot.wav";
@@ -498,6 +530,9 @@ Mix_Chunk *soundLib::load_sfx_from_file(string filename)
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    if (sfx == NULL) {
+        std::cout << "WARNING: soundLib::load_sfx_from_file - could not load '" << filename << "': " << Mix_GetError() << std::endl;
+    }
     return sfx;
 }
 
@@ -509,6 +544,9 @@ Mix_Chunk *soundLib::load_shared_sfx_from_file(string filename)
     filename = GAMEPATH + "/shared/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
     Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    if (sfx == NULL) {
+        std::cout << "WARNING: soundLib::load_shared_sfx_from_file - could not load '" << filename << "': " << Mix_GetError() << std::endl;
+    }
     return sfx;
 }
 

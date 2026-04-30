@@ -3143,7 +3143,9 @@ void character::execute_jump()
     jump(0, gameControl.get_current_map_obj()->getMapScrolling());
     int initial_y = (int)position.y;
     jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-    while (position.y != initial_y) {
+    int max_iterations = 500;
+    int iterations = 0;
+    while (position.y != initial_y && iterations < max_iterations) {
         input.read_input();
 		char_update_real_position();
         bool resJump = jump(1, gameControl.get_current_map_obj()->getMapScrolling());
@@ -3155,6 +3157,7 @@ void character::execute_jump()
         gameControl.get_current_map_obj()->showAbove();
         draw_lib.update_screen();
         timer.delay(20);
+        iterations++;
     }
 }
 

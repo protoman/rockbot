@@ -49,9 +49,9 @@ template <class T> T fio_common::load_struct_data(std::string file) {
         return res;
     }
 
-    int res_read = fread(&res, sizeof(T), 1, fp);
+    size_t res_read = fread(&res, sizeof(T), 1, fp);
 
-    if (res_read == -1) {
+    if (res_read != 1) {
         std::cout << "ERROR: file_io::load_struct_data - Error reading data from scenes_list file '" << filename << "'." << std::endl;
         fclose(fp);
         exception_manager::throw_general_exception(std::string("fio_common::load_struct_data - Error reading data from file."), filename);
@@ -92,14 +92,12 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
     int n = 0;
     while (!feof(fp) && !ferror(fp)) {
         T out;
-        int res_read = fread(&out, sizeof(T), 1, fp);
+        size_t res_read = fread(&out, sizeof(T), 1, fp);
 
 
-        if (res_read == -1) {
-            std::cout << "ERROR: file_io::load_from_disk - Error reading data from scenes_list file '" << filename << "'." << std::endl;
-            fclose(fp);
-            exception_manager::throw_general_exception(std::string("fio_common::load_from_disk - Error reading data from file."), filename);
-        } else if (res_read == 1) {
+        if (res_read != 1) {
+            break;
+        } else {
             res.push_back(out);
         }
 
