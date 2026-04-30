@@ -520,6 +520,13 @@ void projectile::play_sfx(bool called_from_npc)
 
 
     if (projectile_sfx.length() > 0) {
+        bool valid_extension = (projectile_sfx.find(".wav") != std::string::npos ||
+                               projectile_sfx.find(".mp3") != std::string::npos ||
+                               projectile_sfx.find(".ogg") != std::string::npos ||
+                               projectile_sfx.find(".aiff") != std::string::npos);
+        if (!valid_extension) {
+            return;
+        }
         Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
         soundManager.play_sfx_from_chunk(sfx, 1);
     } else if (called_from_npc == false) { // game enemies should not play default fire sound
