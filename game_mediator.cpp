@@ -29,7 +29,7 @@ void GameMediator::release()
 
 GameMediator::~GameMediator()
 {
-	for (std::map<std::string, Mix_Chunk*>::iterator it=sfx_map.begin(); it!=sfx_map.end(); ++it) {
+	for (std::map<std::string, SoundChunk*>::iterator it=sfx_map.begin(); it!=sfx_map.end(); ++it) {
 		if (it->second != NULL) {
 			SDLL_Mix_FreeChunk(it->second);
 			it->second = NULL;
@@ -38,24 +38,24 @@ GameMediator::~GameMediator()
     sfx_map.clear();
 }
 
-Mix_Chunk* GameMediator::get_sfx(std::string filename)
+SoundChunk* GameMediator::get_sfx(std::string filename)
 {
-    std::map<std::string, Mix_Chunk*>::iterator it = sfx_map.find(filename);
+    std::map<std::string, SoundChunk*>::iterator it = sfx_map.find(filename);
     if (it == sfx_map.end()) {
-        Mix_Chunk* sfx = soundManager.load_sfx_from_file(filename);
-        sfx_map.insert(std::pair<std::string, Mix_Chunk*>(filename, sfx));
+        SoundChunk* sfx = soundManager.load_sfx_from_file(filename);
+        sfx_map.insert(std::pair<std::string, SoundChunk*>(filename, sfx));
         return sfx;
     } else {
         return it->second;
     }
 }
 
-Mix_Chunk *GameMediator::get_shared_sfx(string filename)
+SoundChunk *GameMediator::get_shared_sfx(string filename)
 {
-    std::map<std::string, Mix_Chunk*>::iterator it = sfx_map.find(filename);
+    std::map<std::string, SoundChunk*>::iterator it = sfx_map.find(filename);
     if (it == sfx_map.end()) {
-        Mix_Chunk* sfx = soundManager.load_shared_sfx_from_file(filename);
-        sfx_map.insert(std::pair<std::string, Mix_Chunk*>(filename, sfx));
+        SoundChunk* sfx = soundManager.load_shared_sfx_from_file(filename);
+        sfx_map.insert(std::pair<std::string, SoundChunk*>(filename, sfx));
         return sfx;
     } else {
         return it->second;

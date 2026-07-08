@@ -10,6 +10,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Output Directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
+# SDL Version Selection (set to 1, 2 or 3)
+#set(USE_SDL_VERSION 1 CACHE STRING "SDL version to use (1, 2 or 3)")
+set(USE_SDL_VERSION 1)
+if(USE_SDL_VERSION EQUAL 3)
+    # will find sdl3, sdl3-image, sdl3-mixer, sdl3-ttf, sdl3-gfx
+elseif(USE_SDL_VERSION EQUAL 2)
+    # will find sdl2, SDL2_mixer, SDL2_image, SDL2_ttf, SDL2_gfx
+elseif(USE_SDL_VERSION EQUAL 1)
+    # will find sdl, SDL_mixer, SDL_image, SDL_ttf, SDL_gfx
+else()
+    message(FATAL_ERROR "USE_SDL_VERSION must be 1, 2 or 3")
+endif()
+
 # Add compiler flags from RockDroid.pro
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
@@ -24,11 +37,34 @@ endif()
 
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL REQUIRED sdl)
-pkg_check_modules(SDL_MIXER REQUIRED SDL_mixer)
-pkg_check_modules(SDL_IMAGE REQUIRED SDL_image)
-pkg_check_modules(SDL_TTF REQUIRED SDL_ttf)
-pkg_check_modules(SDL_GFX REQUIRED SDL_gfx)
+
+if(USE_SDL_VERSION EQUAL 3)
+    pkg_check_modules(SDL REQUIRED sdl3)
+    pkg_check_modules(SDL_MIXER REQUIRED sdl3-mixer)
+    pkg_check_modules(SDL_IMAGE REQUIRED sdl3-image)
+    pkg_check_modules(SDL_TTF REQUIRED sdl3-ttf)
+    pkg_check_modules(SDL_GFX sdl3-gfx)
+    if(SDL_GFX_FOUND)
+        add_definitions(-DHAS_SDL3_GFX)
+    else()
+        message(STATUS "sdl3-gfx not found - zoom/rotate functions unavailable")
+    endif()
+    add_definitions(-DSDL3)
+elseif(USE_SDL_VERSION EQUAL 2)
+    pkg_check_modules(SDL REQUIRED sdl2)
+    pkg_check_modules(SDL_MIXER REQUIRED SDL2_mixer)
+    pkg_check_modules(SDL_IMAGE REQUIRED SDL2_image)
+    pkg_check_modules(SDL_TTF REQUIRED SDL2_ttf)
+    pkg_check_modules(SDL_GFX REQUIRED SDL2_gfx)
+    add_definitions(-DSDL2)
+else()
+    pkg_check_modules(SDL REQUIRED sdl)
+    pkg_check_modules(SDL_MIXER REQUIRED SDL_mixer)
+    pkg_check_modules(SDL_IMAGE REQUIRED SDL_image)
+    pkg_check_modules(SDL_TTF REQUIRED SDL_ttf)
+    pkg_check_modules(SDL_GFX REQUIRED SDL_gfx)
+endif()
+
 pkg_check_modules(X11 REQUIRED x11)
 
 # Definitions

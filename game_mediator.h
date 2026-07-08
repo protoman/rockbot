@@ -17,8 +17,8 @@ class GameMediator
 public:
     static GameMediator* get_instance();
     static void release();
-    Mix_Chunk *get_sfx(std::string filename);
-    Mix_Chunk *get_shared_sfx(std::string filename);
+    SoundChunk *get_sfx(std::string filename);
+    SoundChunk *get_shared_sfx(std::string filename);
     CURRENT_FILE_FORMAT::file_projectilev3 get_projectile(int n);
     int get_projectile_list_size();
 
@@ -60,7 +60,7 @@ public:
 
 private:
     static GameMediator* _instance;
-    std::map<std::string, Mix_Chunk*> sfx_map;                                               // map of sfx files loaded, used in projectiles to avoid loading from disk every time
+    std::map<std::string, SoundChunk*> sfx_map;                                               // map of sfx files loaded, used in projectiles to avoid loading from disk every time
     fio_common fio_cmm;
 
     std::vector<CURRENT_FILE_FORMAT::file_npc_v3_1_2> enemy_list;

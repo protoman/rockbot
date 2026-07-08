@@ -152,9 +152,9 @@ bool graphicsLib::initGraphics()
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
-    SDL_RWops *fileRW = SDLL_RWFromFile(buffer, "rb");
-    SDL_RWops *fileOutlineRW = SDLL_RWFromFile(buffer, "rb");
-    SDL_RWops *fileErrorRW = SDLL_RWFromFile(buffer, "rb");
+    RWopsPtr *fileRW = SDLL_RWFromFile(buffer, "rb");
+    RWopsPtr *fileOutlineRW = SDLL_RWFromFile(buffer, "rb");
+    RWopsPtr *fileErrorRW = SDLL_RWFromFile(buffer, "rb");
 
     if (!fileRW || !fileOutlineRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
@@ -202,7 +202,7 @@ bool graphicsLib::initGraphics()
 void graphicsLib::set_window_icon()
 {
     std::string icon_filename = FILEPATH + "/images/icon_32px.png";
-    SDL_RWops *rwop = SDLL_RWFromFile(icon_filename.c_str(), "rb");
+    RWopsPtr *rwop = SDLL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
         SDL_Surface* icon_img = SDLL_IMG_Load_RW(rwop, 1);
         if (icon_img != NULL) {
@@ -321,7 +321,7 @@ void graphicsLib::updateScreen()
 
 SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
 {
-	SDL_RWops *rwop;
+	RWopsPtr *rwop;
 	SDL_Surface *spriteCopy;
 
     std::string clean_filename = StringUtils::clean_filename(filename);
@@ -335,13 +335,13 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
     if (spriteCopy == NULL) {
         std::cout << "ERROR::::SDLSurfaceFromFile - Error on SDLL_IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << SDLL_IMG_GetError() << std::endl;
     }
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return NULL;
     }
 
     SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
     SDLL_FreeSurface(spriteCopy);
-    SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
 }
@@ -747,7 +747,7 @@ void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_
 
 void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* gSurface)
 {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
@@ -768,8 +768,8 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         return;
     }
 
-    SDLL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDLL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_FillRect(temp_surface, NULL, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     gSurface->set_surface(temp_surface);
 
@@ -784,12 +784,12 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
 void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
 {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
-    SDLL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDLL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_FillRect(surface.get_surface(), NULL, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 }
 
 
@@ -799,7 +799,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
         return;
     }
     if (surface.is_rle_enabled == false) {
-        SDLL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface.is_rle_enabled = true;
     }
     SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -811,7 +811,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
         return;
     }
     if (surface->is_rle_enabled == false) {
-        SDLL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface->is_rle_enabled = true;
     }
     SDLL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -853,20 +853,20 @@ void graphicsLib::blank_screen() {
 
 void graphicsLib::blank_screen(int r, int g, int b)
 {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
-    SDLL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, NULL, SDLL_MapRGB(game_screen, r, g, b));
 }
 
 void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
 {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
-    SDLL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
+    SDLL_FillRect(surface.get_surface(), NULL, SDLL_MapRGB(game_screen, 0, 0, 0));
 }
 /*
  * http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
@@ -1118,11 +1118,11 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
 
 
 Uint8 graphicsLib::getColorNumber(Uint8 r, Uint8 g, Uint8 b) {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return 0;
     }
 
-    return SDL_MapRGB(game_screen->format, r, g, b);
+    return SDLL_MapRGB(game_screen, r, g, b);
 }
 
 
@@ -1145,7 +1145,7 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 	int i;
     struct graphicsLib_gSurface screen_copy;
 
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
@@ -1153,7 +1153,7 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 	copyArea(st_position(0, 0), &gameScreen, &screen_copy);
 
 	for (i=0; i<4; i++) {
-        SDLL_FillRect(game_screen, 0, SDL_MapRGB(game_screen->format, r, g, b));
+        SDLL_FillRect(game_screen, 0, SDLL_MapRGB(game_screen, r, g, b));
 
 		updateScreen();
         timer.delay(80);
@@ -1169,11 +1169,11 @@ void graphicsLib::blink_surface_into_screen(struct graphicsLib_gSurface &surface
     st_color color_white(235, 235, 235);
     st_color color_black(0, 0, 0);
 
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
-    Uint32 key_n = SDL_MapRGB(game_screen->format, color_black.r, color_black.g, color_black.b);
+    Uint32 key_n = SDLL_MapRGB(game_screen, color_black.r, color_black.g, color_black.b);
     for (int i=0; i<5; i++) {
         change_surface_color(key_n, color_white, &surface);
         showSurface(&surface);
@@ -1454,7 +1454,12 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 {
     int i, j;
     int b, h;
-    int bpp = surface->format->BytesPerPixel;
+    int bpp =
+#ifdef SDL3
+        SDL_GetPixelFormatDetails(surface->format)->bytes_per_pixel;
+#else
+        surface->format->BytesPerPixel;
+#endif
     if (SDLL_MUSTLOCK(dest) != 0) {
         if (SDLL_LockSurface(dest) < 0) {
             fprintf(stderr, "dest locking failedn");
@@ -1637,7 +1642,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 
 
 void graphicsLib::clear_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b) {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
     //std::cout << ">> graphicsLib::clear_area - x: " << x << ", w: " << w << std::endl;
@@ -1646,7 +1651,7 @@ void graphicsLib::clear_area(short int x, short int y, short int w, short int h,
     dest.y = y + _screen_resolution_adjust.y;
 	dest.w = w;
 	dest.h = h;
-    SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDLL_MapRGB(game_screen, r, g, b));
 }
 
 void graphicsLib::clear_area_alpha(short x, short y, short w, short h)
@@ -1659,13 +1664,13 @@ void graphicsLib::clear_area_alpha(short x, short y, short w, short h)
     dest.y = y + _screen_resolution_adjust.y;
     dest.w = w;
     dest.h = h;
-    SDLL_FillRect(game_screen, &dest, SDL_MapRGBA(game_screen->format, 0xff, 0xff, 0x00, 0xff));
-    //SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDLL_MapRGBA(game_screen, 0xff, 0xff, 0x00, 0xff));
+    //SDLL_FillRect(game_screen, &dest, SDLL_MapRGB(game_screen, r, g, b));
 }
 
 void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short r, short g, short b)
 {
-    if (game_screen == NULL || game_screen->format == NULL) {
+    if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
         return;
     }
 
@@ -1675,13 +1680,13 @@ void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short
     dest.y = y;
     dest.w = w;
     dest.h = h;
-    SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDLL_MapRGB(game_screen, r, g, b));
 }
 
 void graphicsLib::clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const {
 	SDL_Rect dest;
 
-    if (surface.get_surface() == NULL || surface.get_surface()->format == NULL) {
+    if (surface.get_surface() == NULL || SDLL_FormatIsNull(surface.get_surface())) {
         return;
     }
 
@@ -1695,12 +1700,12 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
 	dest.w = w;
 	dest.h = h;
     //int color_n = SDL_MapRGB(surface.gSurface->format, r, g, b);
-    SDLL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
+    SDLL_FillRect(surface.get_surface(), &dest, SDLL_MapRGB(surface.get_surface(), r, g, b));
 }
 
 void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short h, short r, short g, short b, graphicsLib_gSurface &surface) const
 {
-    if (surface.get_surface() == NULL || surface.get_surface()->format == NULL) {
+    if (surface.get_surface() == NULL || SDLL_FormatIsNull(surface.get_surface())) {
         return;
     }
     SDL_Rect dest;
@@ -1708,7 +1713,7 @@ void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short 
     dest.y = y;
     dest.w = w;
     dest.h = h;
-    SDLL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
+    SDLL_FillRect(surface.get_surface(), &dest, SDLL_MapRGB(surface.get_surface(), r, g, b));
 }
 
 
@@ -2387,7 +2392,7 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
     if ((rotozoom_picture = SDLL_rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
         SDL_Surface *res_surface = SDLL_DisplayFormatAlpha(rotozoom_picture);
         SDLL_FreeSurface(rotozoom_picture);
-        SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         picture.set_surface(res_surface);
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;

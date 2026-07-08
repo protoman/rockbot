@@ -1,20 +1,24 @@
 #pragma once
 
-#ifdef SDL2
+#ifdef SDL3
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_main.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_endian.h>
-#include <SDL2/SDL2_rotozoom.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#ifdef HAS_SDL3_GFX
+#include <SDL3_gfx/SDL3_rotozoom.h>
+#endif
+
+typedef MIX_Audio SoundChunk;
+typedef MIX_Audio SoundMusic;
 
 // global
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
-// fallback sdl1
+// fallback sdl1 compat defines
 #define SDL_HWSURFACE 0x00000001
 #define SDL_ASYNCBLIT 0x00000004
 #define SDL_ANYFORMAT 0x10000000
@@ -27,6 +31,99 @@ extern SDL_Renderer *renderer;
 #define SDL_SRCALPHA 0x00010000
 #define SDL_SRCCOLORKEY 0x00001000
 
+// SDL3 renamed lowercase keycodes to uppercase
+#undef SDLK_a
+#undef SDLK_x
+#undef SDLK_c
+#undef SDLK_z
+#undef SDLK_q
+#undef SDLK_w
+#define SDLK_a SDLK_A
+#define SDLK_x SDLK_X
+#define SDLK_c SDLK_C
+#define SDLK_z SDLK_Z
+#define SDLK_q SDLK_Q
+#define SDLK_w SDLK_W
+
+// SDL3 removed these
+#define SDL_INIT_TIMER 0
+#define SDL_DISABLE 0
+#define SDL_SWSURFACE 0
+#define SDL_RLEACCEL 0
+#define SDL_ENABLE 1
+#define MIX_DEFAULT_FREQUENCY 44100
+#define MIX_DEFAULT_CHANNELS 2
+#define MIX_DEFAULT_FORMAT SDL_AUDIO_S16
+
+// SDL3 format is a Uint32, not a pointer
+#define SDLL_FormatIsNull(surface) (false)
+
+typedef SDL_IOStream RWopsPtr;
+
+/**
+ * @brief Opens a data stream from a file.
+ */
+RWopsPtr *SDLL_RWFromFile(const char *file, const char *mode);
+
+/**
+ * @brief Loads a image from a stream.
+ */
+SDL_Surface *SDLL_IMG_Load_RW(RWopsPtr *src, bool closeio);
+
+/**
+ * @brief Opens a font from stream.
+ */
+TTF_Font *SDLL_TTF_OpenFontRW(RWopsPtr *src, bool freesrc, int size);
+
+#elif defined(SDL2)
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_main.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_endian.h>
+#include <SDL2/SDL2_rotozoom.h>
+
+typedef Mix_Chunk SoundChunk;
+typedef Mix_Music SoundMusic;
+
+// global
+extern SDL_Window *window;
+extern SDL_Renderer *renderer;
+
+// fallback sdl1 compat defines
+#define SDL_HWSURFACE 0x00000001
+#define SDL_ASYNCBLIT 0x00000004
+#define SDL_ANYFORMAT 0x10000000
+#define SDL_HWPALETTE 0x20000000
+#define SDL_DOUBLEBUF 0x40000000
+#define SDL_FULLSCREEN 0x80000000
+#define SDL_RESIZABLE 0x00000010
+#define SDL_NOFRAME 0x00000020
+
+#define SDL_SRCALPHA 0x00010000
+#define SDL_SRCCOLORKEY 0x00001000
+
+typedef SDL_RWops RWopsPtr;
+
+/**
+ * @brief Opens a data stream from a file.
+ */
+RWopsPtr *SDLL_RWFromFile(const char *file, const char *mode);
+
+/**
+ * @brief Loads a image from a stream.
+ */
+SDL_Surface *SDLL_IMG_Load_RW(RWopsPtr *src, int freesrc);
+
+/**
+ * @brief Opens a font from stream.
+ */
+TTF_Font *SDLL_TTF_OpenFontRW(RWopsPtr *src, int freesrc, int size);
+
+#define SDLL_FormatIsNull(surface) ((surface)->format == NULL)
+
 #else
 
 #include <SDL/SDL.h>
@@ -35,6 +132,28 @@ extern SDL_Renderer *renderer;
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_endian.h>
 #include <SDL/SDL_rotozoom.h>
+
+typedef Mix_Chunk SoundChunk;
+typedef Mix_Music SoundMusic;
+
+typedef SDL_RWops RWopsPtr;
+
+/**
+ * @brief Opens a data stream from a file.
+ */
+RWopsPtr *SDLL_RWFromFile(const char *file, const char *mode);
+
+/**
+ * @brief Loads a image from a stream.
+ */
+SDL_Surface *SDLL_IMG_Load_RW(RWopsPtr *src, int freesrc);
+
+/**
+ * @brief Opens a font from stream.
+ */
+TTF_Font *SDLL_TTF_OpenFontRW(RWopsPtr *src, int freesrc, int size);
+
+#define SDLL_FormatIsNull(surface) ((surface)->format == NULL)
 
 #endif
 
@@ -124,11 +243,6 @@ int SDLL_ShowCursor(int toggle);
 int SDLL_putenv(const char *variable);
 
 /**
- * @brief Opens a data stream from a file.
- */
-SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode);
-
-/**
  * @brief Frees a surface.
  */
 void SDLL_FreeSurface(SDL_Surface *surface);
@@ -204,11 +318,6 @@ void SDLL_JoystickClose(SDL_Joystick *joystick);
 int SDLL_JoystickEventState(int state);
 
 /**
- * @brief Loads a image from a stream.
- */
-SDL_Surface *SDLL_IMG_Load_RW(SDL_RWops *src, int freesrc);
-
-/**
  * @brief Gets last SDL_image error.
  */
 const char *SDLL_IMG_GetError();
@@ -222,11 +331,6 @@ int SDLL_TTF_Init();
  * @brief Opens a font file.
  */
 TTF_Font *SDLL_TTF_OpenFont(const char *file, int size);
-
-/**
- * @brief Opens a font from stream.
- */
-TTF_Font *SDLL_TTF_OpenFontRW(SDL_RWops *src, int freesrc, int size);
 
 /**
  * @brief Sets outline width of a font.
@@ -271,17 +375,17 @@ int SDLL_Mix_VolumeMusic(int volume);
 /**
  * @brief Plays music.
  */
-int SDLL_Mix_PlayMusic(Mix_Music *music, int loops);
+int SDLL_Mix_PlayMusic(SoundMusic *music, int loops);
 
 /**
  * @brief Plays a sound chunk on a channel.
  */
-int SDLL_Mix_PlayChannel(int channel, Mix_Chunk *chunk, int loops);
+int SDLL_Mix_PlayChannel(int channel, SoundChunk *chunk, int loops);
 
 /**
  * @brief Plays a sound chunk on a channel with time limit.
  */
-int SDLL_Mix_PlayChannelTimed(int channel, Mix_Chunk *chunk, int loops, int ticks);
+int SDLL_Mix_PlayChannelTimed(int channel, SoundChunk *chunk, int loops, int ticks);
 
 /**
  * @brief Halts a channel.
@@ -296,22 +400,22 @@ int SDLL_Mix_HaltMusic();
 /**
  * @brief Loads a WAV/SFX chunk from file.
  */
-Mix_Chunk *SDLL_Mix_LoadWAV(const char *file);
+SoundChunk *SDLL_Mix_LoadWAV(const char *file);
 
 /**
  * @brief Loads music from file.
  */
-Mix_Music *SDLL_Mix_LoadMUS(const char *file);
+SoundMusic *SDLL_Mix_LoadMUS(const char *file);
 
 /**
  * @brief Frees music.
  */
-void SDLL_Mix_FreeMusic(Mix_Music *music);
+void SDLL_Mix_FreeMusic(SoundMusic *music);
 
 /**
  * @brief Frees a sound chunk.
  */
-void SDLL_Mix_FreeChunk(Mix_Chunk *chunk);
+void SDLL_Mix_FreeChunk(SoundChunk *chunk);
 
 /**
  * @brief Closes the mixer audio.
@@ -327,3 +431,18 @@ void SDLL_Mix_Quit();
  * @brief Gets last mixer error.
  */
 const char *SDLL_Mix_GetError();
+
+/**
+ * @brief Gets RGB values from a pixel.
+ */
+void SDLL_GetRGB(Uint32 pixel, SDL_Surface *surface, Uint8 *r, Uint8 *g, Uint8 *b);
+
+/**
+ * @brief Maps RGB values to a pixel color.
+ */
+Uint32 SDLL_MapRGB(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b);
+
+/**
+ * @brief Maps RGBA values to a pixel color.
+ */
+Uint32 SDLL_MapRGBA(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a);

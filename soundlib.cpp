@@ -493,17 +493,17 @@ void soundLib::update_volumes()
 
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
 {
-    Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(filename);
+    SoundChunk* sfx = GameMediator::get_instance()->get_sfx(filename);
     play_sfx_from_chunk(sfx, repeat_n);
 }
 
 void soundLib::play_shared_sfx(string filename)
 {
-    Mix_Chunk* sfx = GameMediator::get_instance()->get_shared_sfx(filename);
+    SoundChunk* sfx = GameMediator::get_instance()->get_shared_sfx(filename);
     play_sfx_from_chunk(sfx, 1);
 }
 
-void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
+void soundLib::play_sfx_from_chunk(SoundChunk *chunk, int repeat_n)
 {
     if (SharedData::get_instance()->game_config.sound_enabled == false) {
         return;
@@ -517,33 +517,33 @@ void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
     SDLL_Mix_PlayChannel(-1, chunk, repeat_n-1);
 }
 
-Mix_Chunk* soundLib::sfx_from_file(string filename)
+SoundChunk* soundLib::sfx_from_file(string filename)
 {
     return GameMediator::get_instance()->get_sfx(filename);
 }
 
-Mix_Chunk *soundLib::load_sfx_from_file(string filename)
+SoundChunk *soundLib::load_sfx_from_file(string filename)
 {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_sfx_from_file[%s] ###", filename.c_str());
 #endif
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
-    Mix_Chunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
+    SoundChunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
         std::cout << "WARNING: soundLib::load_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
     }
     return sfx;
 }
 
-Mix_Chunk *soundLib::load_shared_sfx_from_file(string filename)
+SoundChunk *soundLib::load_shared_sfx_from_file(string filename)
 {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_shared_sfx_from_file[%s] ###", filename.c_str());
 #endif
     filename = GAMEPATH + "/shared/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
-    Mix_Chunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
+    SoundChunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
         std::cout << "WARNING: soundLib::load_shared_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
     }

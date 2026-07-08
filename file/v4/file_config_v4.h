@@ -36,7 +36,7 @@ namespace format_v4 {
         Sint8 old_old_style_music = 0;
         Sint8 android_use_mod_music = 0;
         Sint8 scale_int = 0;
-        Sint8 CONFIG_PLACEHOLDER_004 = 0;
+        Sint8 sdl_version = 0;
         Sint8 CONFIG_PLACEHOLDER_005 = 0;
         Sint8 CONFIG_PLACEHOLDER_006 = 0;
         Sint8 CONFIG_PLACEHOLDER_007 = 0;
@@ -418,15 +418,14 @@ namespace format_v4 {
             old_old_style_music = 0;
             android_use_mod_music = 0;
             scale_int = 0;
-            CONFIG_PLACEHOLDER_004 = 0;
+            sdl_version = SDL_MAJOR_VERSION;
             CONFIG_PLACEHOLDER_005 = 0;
             CONFIG_PLACEHOLDER_006 = 0;
             CONFIG_PLACEHOLDER_007 = 0;
             CONFIG_PLACEHOLDER_008 = 0;
-            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_009 = 0;
             CONFIG_PLACEHOLDER_010 = 0;
         }
-
 
         st_game_config() {
             game_finished = false;
@@ -464,12 +463,12 @@ namespace format_v4 {
             old_old_style_music = 0;
             android_use_mod_music = 0;
             scale_int = 0;
-            CONFIG_PLACEHOLDER_004 = 0;
+            sdl_version = SDL_MAJOR_VERSION;
             CONFIG_PLACEHOLDER_005 = 0;
             CONFIG_PLACEHOLDER_006 = 0;
             CONFIG_PLACEHOLDER_007 = 0;
             CONFIG_PLACEHOLDER_008 = 0;
-            CONFIG_PLACEHOLDER_008 = 0;
+            CONFIG_PLACEHOLDER_009 = 0;
             CONFIG_PLACEHOLDER_010 = 0;
             return *this;
         }

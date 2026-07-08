@@ -1627,7 +1627,7 @@ void game::quick_load_game()
         //currentStage = STAGE1;
         //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        //currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 
@@ -1658,7 +1658,7 @@ void game::update_stage_scrolling()
         return;
     }
     loaded_stage.change_map_scroll(checkScrolling(), true, false);
-    st_position p_pos = player1.get_real_position();
+    const st_position p_pos = player1.get_real_position();
     if (p_pos.x < 0.0) {
         player1.change_position_x(1);
         // out of screen, probably because was pushed out on a autoscroll stage

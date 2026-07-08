@@ -17,6 +17,23 @@ extern game gameControl;
 
 extern bool leave_game;
 
+#ifdef SDL3
+#undef SDL_KEYDOWN
+#undef SDL_KEYUP
+#undef SDL_QUIT
+#undef SDL_JOYBUTTONDOWN
+#undef SDL_JOYBUTTONUP
+#undef SDL_JOYAXISMOTION
+#undef SDL_JOYHATMOTION
+#define SDL_KEYDOWN SDL_EVENT_KEY_DOWN
+#define SDL_KEYUP   SDL_EVENT_KEY_UP
+#define SDL_QUIT    SDL_EVENT_QUIT
+#define SDL_JOYBUTTONDOWN  SDL_EVENT_JOYSTICK_BUTTON_DOWN
+#define SDL_JOYBUTTONUP    SDL_EVENT_JOYSTICK_BUTTON_UP
+#define SDL_JOYAXISMOTION  SDL_EVENT_JOYSTICK_AXIS_MOTION
+#define SDL_JOYHATMOTION   SDL_EVENT_JOYSTICK_HAT_MOTION
+#endif
+
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
@@ -121,7 +138,13 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
 
     while (SDLL_PollEvent(&event)) {
 
-        #ifdef SDL2
+        #if defined(SDL3)
+            if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+                newWidth = event.window.data1;
+                newHeight = event.window.data2;
+                resized = true;
+            }
+        #elif defined(SDL2)
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
                 newWidth = event.window.data1;
                 newHeight = event.window.data2;
@@ -165,17 +188,30 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
             }
             if (event.type == SDL_KEYDOWN) {
                 for (int i=0; i<BTN_COUNT; i++) {
-                    if (key_config_tmp[i] != -1 && key_config_tmp[i] == event.key.keysym.sym) {
+                    if (key_config_tmp[i] != -1 && key_config_tmp[i] ==
+#ifdef SDL3
+                        event.key.key
+#else
+                        event.key.keysym.sym
+#endif
+                    ) {
                         p1_input[i] = 1;
                         _used_keyboard = true;
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = timer.getTimer();
                         }
+
                     }
                 }
             } else if (event.type == SDL_KEYUP) {
                 for (int i=0; i<BTN_COUNT; i++) {
-                    if (key_config_tmp[i] != -1 && key_config_tmp[i] == event.key.keysym.sym) {
+                    if (key_config_tmp[i] != -1 && key_config_tmp[i] ==
+#ifdef SDL3
+                        event.key.key
+#else
+                        event.key.keysym.sym
+#endif
+                    ) {
                         p1_input[i] = 0;
                         _used_keyboard = true;
                         if (i == BTN_JUMP) {
@@ -497,10 +533,22 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                 if (event.type == SDL_KEYDOWN) {
 
                     // do not allow user to reassign ESCAPE key
-                    if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    if (
+#ifdef SDL3
+                        event.key.key
+#else
+                        event.key.keysym.sym
+#endif
+                        == SDLK_ESCAPE) {
                         return false;
                     }
-                    game_config_copy.keys_codes[key] = (int)event.key.keysym.sym;
+                    game_config_copy.keys_codes[key] = (int)
+#ifdef SDL3
+                        event.key.key
+#else
+                        event.key.keysym.sym
+#endif
+                    ;
                     return false;
                 }
                 SDLL_PumpEvents();

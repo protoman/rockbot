@@ -234,7 +234,7 @@ struct graphicsLib_gSurface {
 
             SDL_Color theKey;
             //Uint32 pixel = ((Uint32*)gSurface->pixels)[y * gSurface->pitch/4 + x];
-            SDL_GetRGB(pixel, gSurface->format, &theKey.r, &theKey.g, &theKey.b);
+            SDLL_GetRGB(pixel, gSurface, &theKey.r, &theKey.g, &theKey.b);
 
             return theKey;
         }
@@ -247,10 +247,10 @@ struct graphicsLib_gSurface {
         }
 
         void set_point_color(int set_x, int set_y, int set_r, int set_g, int set_b) {
-            if (gSurface == NULL || gSurface->format == NULL) {
+            if (gSurface == NULL) {
                 return;
             }
-            Uint32 new_color_n = SDL_MapRGB(gSurface->format, set_r, set_g, set_b);
+            Uint32 new_color_n = SDLL_MapRGB(gSurface, set_r, set_g, set_b);
             put_pixel(set_x, set_y, new_color_n);
         }
 
@@ -436,7 +436,7 @@ struct graphicsLib_gSurface {
         }
 
         void change_colorkey_color(Sint8 key_n, st_color new_color) {
-            if (gSurface == NULL || gSurface->format == NULL) {
+            if (gSurface == NULL) {
                 return;
             }
 
@@ -444,7 +444,7 @@ struct graphicsLib_gSurface {
                 return;
             }
 
-            Uint32 new_color_n = SDL_MapRGB(gSurface->format, new_color.r, new_color.g, new_color.b);
+            Uint32 new_color_n = SDLL_MapRGB(gSurface, new_color.r, new_color.g, new_color.b);
 
             if (key_n == 0) {
                 for (unsigned int i=0; i<colorkey1_points.size(); i++) {
@@ -495,7 +495,7 @@ struct graphicsLib_gSurface {
 
 
         Uint8 get_pixel_8bpp(Sint16 x, Sint16 y) {
-            if (gSurface == NULL || gSurface->format == NULL) {
+            if (gSurface == NULL) {
                 return 0;
             }
             if (x >= gSurface->w || y >= gSurface->h) {
@@ -505,7 +505,12 @@ struct graphicsLib_gSurface {
                 return 0;
             }
 
-            int bpp = gSurface->format->BytesPerPixel;
+            int bpp =
+#ifdef SDL3
+                SDL_GetPixelFormatDetails(gSurface->format)->bytes_per_pixel;
+#else
+                gSurface->format->BytesPerPixel;
+#endif
 
             /* Here p is the address to the pixel we want to retrieve */
             Uint8 *p = (Uint8 *) gSurface->pixels + y * gSurface->pitch + x * bpp;
@@ -521,7 +526,7 @@ struct graphicsLib_gSurface {
 
         Uint32 get_pixel(Sint16 x, Sint16 y) const
         {
-            if (gSurface == NULL || gSurface->format == NULL) {
+            if (gSurface == NULL) {
                 return 0;
             }
             if (x >= gSurface->w || y >= gSurface->h) {
@@ -531,7 +536,12 @@ struct graphicsLib_gSurface {
                 return 0;
             }
 
-            int bpp = gSurface->format->BytesPerPixel;
+            int bpp =
+#ifdef SDL3
+                SDL_GetPixelFormatDetails(gSurface->format)->bytes_per_pixel;
+#else
+                gSurface->format->BytesPerPixel;
+#endif
 
             /* Here p is the address to the pixel we want to retrieve */
             Uint8 *p = (Uint8 *) gSurface->pixels + y * gSurface->pitch + x * bpp;
@@ -554,7 +564,7 @@ struct graphicsLib_gSurface {
 
         void put_pixel(int x, int y, Uint32 pixel)
         {
-            if (gSurface == NULL || gSurface->format == NULL) {
+            if (gSurface == NULL) {
                 return;
             }
             if (is_rle_enabled) {
@@ -563,7 +573,12 @@ struct graphicsLib_gSurface {
             if (x < 0 || x >= gSurface->w || y < 0 || y >= gSurface->h) {
                 return;
             }
-            int bpp = gSurface->format->BytesPerPixel;
+            int bpp =
+#ifdef SDL3
+                SDL_GetPixelFormatDetails(gSurface->format)->bytes_per_pixel;
+#else
+                gSurface->format->BytesPerPixel;
+#endif
             // Here p is the address to the pixel we want to set //
             Uint8 *p = (Uint8 *)gSurface->pixels + y * gSurface->pitch + x * bpp;
 

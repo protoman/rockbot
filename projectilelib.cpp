@@ -527,7 +527,7 @@ void projectile::play_sfx(bool called_from_npc)
         if (!valid_extension) {
             return;
         }
-        Mix_Chunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
+        SoundChunk* sfx = GameMediator::get_instance()->get_sfx(projectile_sfx);
         soundManager.play_sfx_from_chunk(sfx, 1);
     } else if (called_from_npc == false) { // game enemies should not play default fire sound
         soundManager.play_sfx(SFX_PLAYER_SHOT);

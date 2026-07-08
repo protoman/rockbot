@@ -50,10 +50,10 @@ public:
 
     void play_sfx_from_file(std::string filename, int repeat_n);
     void play_shared_sfx(std::string filename);
-    void play_sfx_from_chunk(Mix_Chunk* chunk, int repeat_n);
-    Mix_Chunk *sfx_from_file(std::string filename);
-    Mix_Chunk *load_sfx_from_file(std::string filename);
-    Mix_Chunk *load_shared_sfx_from_file(std::string filename);
+    void play_sfx_from_chunk(SoundChunk* chunk, int repeat_n);
+    SoundChunk *sfx_from_file(std::string filename);
+    SoundChunk *load_sfx_from_file(std::string filename);
+    SoundChunk *load_shared_sfx_from_file(std::string filename);
     bool get_is_playing_boss_music();
 
 private:
@@ -62,9 +62,9 @@ private:
 public:
 
 private:
-    Mix_Chunk *sfx_list[SFX_COUNT]; /**< TODO */
-    Mix_Music *music; /**< TODO */
-    Mix_Music *boss_music; /**< TODO */
+    SoundChunk *sfx_list[SFX_COUNT]; /**< TODO */
+    SoundMusic *music; /**< TODO */
+    SoundMusic *boss_music; /**< TODO */
     Sint8 _repeated_sfx_channel; /**< TODO */
     Uint8 _repeated_sfx; /**< TODO */
     bool is_playing_boss_music;
