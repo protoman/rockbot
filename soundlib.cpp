@@ -36,14 +36,14 @@ void soundLib::init_audio_system()
     //bitrate = 11000;
     //channels = 1;
 #endif
-    if (Mix_OpenAudio(bitrate, MIX_DEFAULT_FORMAT, channels, 1024) < 0) {
-        std::cout << "Couldn't open audio. Error: " << SDL_GetError() << std::endl;
+    if (SDLL_Mix_OpenAudio(bitrate, MIX_DEFAULT_FORMAT, channels, 1024) < 0) {
+        std::cout << "Couldn't open audio. Error: " << SDLL_GetError() << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB[Couldn't open audio.] ###");
 #endif
     }
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
-    Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
+    SDLL_Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
+    SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	load_all_sfx();
 }
 
@@ -54,7 +54,7 @@ void soundLib::play_sfx(Uint8 sfx) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
-        Mix_PlayChannel(-1, sfx_list[sfx], 0);
+        SDLL_Mix_PlayChannel(-1, sfx_list[sfx], 0);
 	}
 }
 
@@ -68,7 +68,7 @@ void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 			stop_repeated_sfx();
 		}
 		_repeated_sfx = sfx;
-		_repeated_sfx_channel = Mix_PlayChannel(-1, sfx_list[sfx], loops);
+		_repeated_sfx_channel = SDLL_Mix_PlayChannel(-1, sfx_list[sfx], loops);
     } else {
         cout << "Error: soundLib::play_sfx - null sfx\n";
 	}
@@ -79,7 +79,7 @@ void soundLib::stop_repeated_sfx()
     if (_repeated_sfx_channel == -1) {
         return;
     }
-	Mix_HaltChannel(_repeated_sfx_channel);
+	SDLL_Mix_HaltChannel(_repeated_sfx_channel);
 	_repeated_sfx = -1;
 	_repeated_sfx_channel = -1;
 }
@@ -104,7 +104,7 @@ void soundLib::play_timed_sfx(Uint8 sfx, int time) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
-		Mix_PlayChannelTimed(-1, sfx_list[sfx], -1 , time);
+		SDLL_Mix_PlayChannelTimed(-1, sfx_list[sfx], -1 , time);
 	}
 }
 
@@ -115,148 +115,148 @@ void soundLib::load_all_sfx() {
 
     filename = FILEPATH + "sfx/npc_hit.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/npc_killed.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_hit.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_shot.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_jump.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/cursor.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/stage_selected.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_energy_pill.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_item.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/shot_reflected.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/door_open.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_weapon.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/teleport.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/implosion.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_death.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/destrin_ship.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
 	}
 	i++;
 
     filename = FILEPATH + "sfx/charged_shot.wav";
-	sfx_list[SFX_PLAYER_CHARGED_SHOT] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_PLAYER_CHARGED_SHOT] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
     filename = FILEPATH + "sfx/charging1.wav";
-	sfx_list[SFX_CHARGING1] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_CHARGING1] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
     filename = FILEPATH + "sfx/charging2.wav";
-	sfx_list[SFX_CHARGING2] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_CHARGING2] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
     filename = FILEPATH + "sfx/big_explosion.wav";
-	sfx_list[SFX_BIG_EXPLOSION] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_BIG_EXPLOSION] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
     filename = FILEPATH + "sfx/water_enter.wav";
-	sfx_list[SFX_WATER_ENTER] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_WATER_ENTER] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
     filename = FILEPATH + "sfx/water_leave.wav";
-	sfx_list[SFX_WATER_LEAVE] = Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_WATER_LEAVE] = SDLL_Mix_LoadWAV(filename.c_str());
 	i++;
 
 
     filename = FILEPATH + "sfx/disappearning_block.wav";
-    sfx_list[SFX_DISAPPEARING_BLOCK] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_DISAPPEARING_BLOCK] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
     filename = FILEPATH + "sfx/shoryuken_girl.wav";
-    sfx_list[SFX_SHORYUKEN_GIRL] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_SHORYUKEN_GIRL] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
     filename = FILEPATH + "sfx/beam.wav";
-    sfx_list[SFX_BEAM] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_BEAM] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
 
     filename = FILEPATH + "sfx/recharge.wav";
-    sfx_list[SFX_GOT_ENERGY_BIG] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_GOT_ENERGY_BIG] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
     filename = FILEPATH + "sfx/timed_bomb_count.wav";
-    sfx_list[SFX_TIMED_BOMB_TICK] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_TIMED_BOMB_TICK] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
     filename = FILEPATH + "sfx/object_break.wav";
-    sfx_list[SFX_OBJECT_BREAK] = Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_OBJECT_BREAK] = SDLL_Mix_LoadWAV(filename.c_str());
     i++;
 
 }
@@ -269,9 +269,9 @@ void soundLib::load_music(std::string music_file) {
     unload_music();
     filename = FILEPATH + "music/" + music_file;
     filename = get_filename_for_music(filename);
-	music = Mix_LoadMUS(filename.c_str());
+	music = SDLL_Mix_LoadMUS(filename.c_str());
 	if (!music) {
-        std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
+        std::cout << "Error in soundLib::load_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_music - not found[%s] ###", music_file.c_str());
 #endif
@@ -285,9 +285,9 @@ void soundLib::load_shared_music(string music_file)
     unload_music();
     filename = GAMEPATH + "/shared/music/" + music_file;
     filename = get_filename_for_music(filename);
-    music = Mix_LoadMUS(filename.c_str());
+    music = SDLL_Mix_LoadMUS(filename.c_str());
     if (!music) {
-        std::cout << "Error in soundLib::load_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
+        std::cout << "Error in soundLib::load_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_music - not found[%s] ###", music_file.c_str());
 #endif
@@ -298,15 +298,15 @@ void soundLib::load_boss_music(string music_file) {
 	string filename;
 
 	if (boss_music != NULL) {
-		Mix_HaltMusic();
-		Mix_FreeMusic(boss_music);
+		SDLL_Mix_HaltMusic();
+		SDLL_Mix_FreeMusic(boss_music);
         boss_music = NULL;
 	}
     filename = FILEPATH + "music/" + music_file;
     filename = get_filename_for_music(filename);
-	boss_music = Mix_LoadMUS(filename.c_str());
+	boss_music = SDLL_Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
-        std::cout << "Error in soundLib::load_boss_music::Mix_LoadMUS('" << filename << "': '" << Mix_GetError() << "'\n";
+        std::cout << "Error in soundLib::load_boss_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_boss_music - not found[%s] ###", music_file.c_str());
 #endif
@@ -316,8 +316,8 @@ void soundLib::load_boss_music(string music_file) {
 void soundLib::unload_music()
 {
 	if (music != NULL) {
-        Mix_HaltMusic();
-        Mix_FreeMusic(music);
+        SDLL_Mix_HaltMusic();
+        SDLL_Mix_FreeMusic(music);
 		music = NULL;
 	}
     is_playing_boss_music = false;
@@ -333,14 +333,14 @@ void soundLib::play_music() {
     int res = -1;
 	// toca a música
 	if (music) {
-        res = Mix_PlayMusic(music, -1);
+        res = SDLL_Mix_PlayMusic(music, -1);
         if (res == -1) {
-            std::cout << "ERROR: Mix_PlayMusic Error: " << Mix_GetError() << std::endl;
+            std::cout << "ERROR: SDLL_Mix_PlayMusic Error: " << SDLL_Mix_GetError() << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### Mix_PlayMusic Error[%s] ###", Mix_GetError());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### Mix_PlayMusic Error[%s] ###", SDLL_Mix_GetError());
 #endif
 		}
-        Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
+        SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	} else {
         std::cout << "ERROR: play_music, music is null" << std::endl;
 #ifdef ANDROID
@@ -356,8 +356,8 @@ void soundLib::play_music_once()
     }
     int res = -1;
     if (music) {
-        res = Mix_PlayMusic(music, 1);
-        Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
+        res = SDLL_Mix_PlayMusic(music, 1);
+        SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
     } else {
         std::cout << ">> soundLib::play_music_once: music is null" << std::endl;
     }
@@ -370,13 +370,13 @@ void soundLib::play_boss_music() {
 	}
 	// toca a música
 	if (boss_music) {
-		if (Mix_PlayMusic(boss_music, -1) == -1) {
-            std::cout << "<<<<<<<<<<<<< Mix_PlayMusic, Error: " << Mix_GetError() << std::endl;
+		if (SDLL_Mix_PlayMusic(boss_music, -1) == -1) {
+            std::cout << "<<<<<<<<<<<<< SDLL_Mix_PlayMusic, Error: " << SDLL_Mix_GetError() << std::endl;
 #ifdef ANDROID
-        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_boss_music Error[%s] ###", Mix_GetError());
+        __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::play_boss_music Error[%s] ###", SDLL_Mix_GetError());
 #endif
 		}
-        Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
+        SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
 	} else {
 		printf(">> play_boss_music ERROR: boss_music is null\n");
 #ifdef ANDROID
@@ -390,7 +390,7 @@ void soundLib::load_stage_music(std::string filename) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_stage_music[%s] ###", filename.c_str());
 #endif
-    Mix_HaltMusic();
+    SDLL_Mix_HaltMusic();
     if (filename.length() > 0) {
         load_music(filename);
 	} else {
@@ -406,7 +406,7 @@ void soundLib::restart_music()
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::restart_music");
 #endif
-    Mix_HaltMusic();
+    SDLL_Mix_HaltMusic();
     play_music();
 }
 
@@ -415,34 +415,34 @@ void soundLib::stop_music() const {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::stop_music");
 #endif
-    Mix_HaltMusic();
+    SDLL_Mix_HaltMusic();
 }
 
 void soundLib::close_audio() {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::close_audio");
 #endif
-    Mix_HaltMusic();
-    SDL_Delay(300);
+    SDLL_Mix_HaltMusic();
+    SDLL_Delay(300);
     if (music != NULL) {
-        Mix_FreeMusic(music);
+        SDLL_Mix_FreeMusic(music);
         music = NULL;
     }
     if (boss_music != NULL) {
-        Mix_FreeMusic(boss_music);
+        SDLL_Mix_FreeMusic(boss_music);
         boss_music = NULL;
     }
 
     for (int i=0; i<SFX_COUNT; i++) {
         if (sfx_list[i] != NULL) {
-            Mix_FreeChunk(sfx_list[i]);
+            SDLL_Mix_FreeChunk(sfx_list[i]);
             sfx_list[i] = NULL;
         }
     }
 
-	Mix_CloseAudio();
-    SDL_Delay(300);
-    Mix_Quit();
+	SDLL_Mix_CloseAudio();
+    SDLL_Delay(300);
+    SDLL_Mix_Quit();
 }
 
 void sound_loop() {}
@@ -487,8 +487,8 @@ string soundLib::get_filename_for_music(string filename)
 
 void soundLib::update_volumes()
 {
-    Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
-    Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
+    SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
+    SDLL_Mix_Volume(-1, SharedData::get_instance()->game_config.volume_sfx);
 }
 
 void soundLib::play_sfx_from_file(string filename, int repeat_n)
@@ -514,7 +514,7 @@ void soundLib::play_sfx_from_chunk(Mix_Chunk *chunk, int repeat_n)
 #endif
         return;
     }
-    Mix_PlayChannel(-1, chunk, repeat_n-1);
+    SDLL_Mix_PlayChannel(-1, chunk, repeat_n-1);
 }
 
 Mix_Chunk* soundLib::sfx_from_file(string filename)
@@ -529,9 +529,9 @@ Mix_Chunk *soundLib::load_sfx_from_file(string filename)
 #endif
     filename = FILEPATH + "/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
-    Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    Mix_Chunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
-        std::cout << "WARNING: soundLib::load_sfx_from_file - could not load '" << filename << "': " << Mix_GetError() << std::endl;
+        std::cout << "WARNING: soundLib::load_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
     }
     return sfx;
 }
@@ -543,9 +543,9 @@ Mix_Chunk *soundLib::load_shared_sfx_from_file(string filename)
 #endif
     filename = GAMEPATH + "/shared/sfx/" + filename;
     filename = StringUtils::clean_filename(filename);
-    Mix_Chunk *sfx = Mix_LoadWAV(filename.c_str());
+    Mix_Chunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
-        std::cout << "WARNING: soundLib::load_shared_sfx_from_file - could not load '" << filename << "': " << Mix_GetError() << std::endl;
+        std::cout << "WARNING: soundLib::load_shared_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
     }
     return sfx;
 }

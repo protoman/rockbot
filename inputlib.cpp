@@ -50,20 +50,20 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
 void inputLib::init_joystick()
 {
 #ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - %i joysticks were found.", SDL_NumJoysticks() );
+    __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - %i joysticks were found.", SDLL_NumJoysticks() );
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - The names of the joysticks are:");
-        for(int i=0; i < SDL_NumJoysticks(); i++ ) {
-            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - joy[%d][%s]", i, SDL_JoystickName(i));
+        for(int i=0; i < SDLL_NumJoysticks(); i++ ) {
+            __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - joy[%d][%s]", i, SDLL_JoystickName(i));
         }
 #endif
-    SDL_JoystickEventState(SDL_ENABLE);
-    joystick1 = SDL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
+    SDLL_JoystickEventState(SDL_ENABLE);
+    joystick1 = SDLL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
 }
 
 void inputLib::change_joystick()
 {
-    SDL_JoystickClose(joystick1);
-    joystick1 = SDL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
+    SDLL_JoystickClose(joystick1);
+    joystick1 = SDLL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
 }
 
 // ********************************************************************************************** //
@@ -76,7 +76,7 @@ void inputLib::clean()
             p1_input[i] = 0;
         }
 	}
-    while (SDL_PollEvent(&event)) {
+    while (SDLL_PollEvent(&event)) {
     }
 }
 
@@ -85,7 +85,7 @@ void inputLib::clean_all()
     for (int i=0; i<BTN_COUNT; i++) {
         p1_input[i] = 0;
     }
-    while (SDL_PollEvent(&event)) {
+    while (SDLL_PollEvent(&event)) {
     }
 }
 
@@ -119,7 +119,7 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
     int newWidth = 0, newHeight = 0;
     bool resized = false;
 
-    while (SDL_PollEvent(&event)) {
+    while (SDLL_PollEvent(&event)) {
 
         #ifdef SDL2
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -184,7 +184,7 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                     }
                 }
             }
-            SDL_PumpEvents(); // check keyboard events
+            SDLL_PumpEvents(); // check keyboard events
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             if (event.type == SDL_QUIT) {
                 leave_game = true;
@@ -416,8 +416,8 @@ bool inputLib::is_check_input_cheat_command_activated()
 
 void inputLib::clean_event_queue()
 {
-    while (SDL_PollEvent(&event)) {
-        SDL_PumpEvents();
+    while (SDLL_PollEvent(&event)) {
+        SDLL_PumpEvents();
     }
 }
 
@@ -439,7 +439,7 @@ int inputLib::wait_scape_time(int wait_period) {
             /*
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                SDL_Quit();
+                SDLL_Quit();
                 exit(0);
             }
             */
@@ -490,7 +490,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
     timer.delay(50);
 
     while (true) { // keep reading until a key is found
-        while (SDL_PollEvent(&event)) {
+        while (SDLL_PollEvent(&event)) {
 
 
             if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE || SharedData::get_instance()->game_config.input_type == INPUT_TYPE_KEYBOARD) {
@@ -503,7 +503,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
                     game_config_copy.keys_codes[key] = (int)event.key.keysym.sym;
                     return false;
                 }
-                SDL_PumpEvents();
+                SDLL_PumpEvents();
             }
             if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE || SharedData::get_instance()->game_config.input_type == INPUT_TYPE_JOYSTICK) {
                 if (event.type == SDL_JOYBUTTONDOWN) {
@@ -538,7 +538,7 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 
 int inputLib::get_joysticks_number()
 {
-    return SDL_NumJoysticks();
+    return SDLL_NumJoysticks();
 }
 
 string inputLib::get_joystick_name(int n)

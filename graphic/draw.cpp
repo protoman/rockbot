@@ -214,11 +214,11 @@ void draw::set_gfx(Uint8 gfx, short mode)
 {
     screen_gfx = gfx;
     screen_gfx_mode = mode;
-    // free train sfx if not using it
-    if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
-        Mix_FreeChunk(_train_sfx);
-        _train_sfx = NULL;
-    }
+	// free train sfx if not using it
+	if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
+		SDLL_Mix_FreeChunk(_train_sfx);
+		_train_sfx = NULL;
+	}
     if (screen_gfx == SCREEN_GFX_INFERNO) {
         if (_inferno_surface.is_null()) {
             graphLib.initSurface(st_size(RES_W, RES_H), &_inferno_surface);

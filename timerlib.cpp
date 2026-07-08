@@ -14,13 +14,13 @@ timerLib::timerLib()
 
 void timerLib::delay(int waitMS) const
 {
-    SDL_Delay(waitMS);
+	SDLL_Delay(waitMS);
 }
 
 void timerLib::udelay(int useconds)
 {
 #ifndef PC
-    SDL_Delay(useconds);
+	SDLL_Delay(useconds);
 #else
     usleep(useconds);
 #endif
@@ -28,7 +28,7 @@ void timerLib::udelay(int useconds)
 
 unsigned long timerLib::getTimer() const
 {
-    return SDL_GetTicks() - _paused_ticks;
+	return SDLL_GetTicks() - _paused_ticks;
 }
 
 void timerLib::start_ticker()

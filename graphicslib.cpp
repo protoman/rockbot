@@ -61,7 +61,7 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 bool graphicsLib::sdl_initialized = false;
 
 /**
- * @brief Safely quit SDL, preventing multiple calls to SDL_Quit() which can cause
+ * @brief Safely quit SDL, preventing multiple calls to SDLL_Quit() which can cause
  *        destroyed mutex crashes when threads are still running.
  *        This is especially important on Android where libhwui render threads
  *        may still be active during shutdown.
@@ -69,11 +69,11 @@ bool graphicsLib::sdl_initialized = false;
 void graphicsLib::safe_sdl_quit()
 {
     if (sdl_initialized) {
-        printf("graphicsLib::safe_sdl_quit - Calling SDL_Quit()\n");
-        SDL_Quit();
+        printf("graphicsLib::safe_sdl_quit - Calling SDLL_Quit()\n");
+        SDLL_Quit();
         sdl_initialized = false;
     } else {
-        printf("graphicsLib::safe_sdl_quit - SDL_Quit() already called, skipping\n");
+        printf("graphicsLib::safe_sdl_quit - SDLL_Quit() already called, skipping\n");
     }
 }
 
@@ -116,23 +116,23 @@ bool graphicsLib::initGraphics()
 
 
 #ifdef DREAMCAST
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) < 0 ) {
-        std::cout << "ERROR: Unable to init SDL. Error: " << SDL_GetError() << std::endl;
+    if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER) < 0 ) {
+        std::cout << "ERROR: Unable to init SDL. Error: " << SDLL_GetError() << std::endl;
         graphicsLib::safe_sdl_quit();
 		exit(-1);
     }
 #else
 	// GRAPHIC LIB
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
-        std::cout << "ERROR: Unable to init SDL. Error: " << SDL_GetError() << std::endl;
+    if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
+        std::cout << "ERROR: Unable to init SDL. Error: " << SDLL_GetError() << std::endl;
         std::fflush(stdout);
-        exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDL_GetError());
+        exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDLL_GetError());
     }
 #endif
 	sdl_initialized = true;
 
 #if defined(PLAYSTATION2) || defined(WII)
-    if (SDL_NumJoysticks() <= 0) {
+    if (SDLL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 
@@ -145,16 +145,16 @@ bool graphicsLib::initGraphics()
     fflush(stdout);
 
     // FONT
-    TTF_Init();
+    SDLL_TTF_Init();
 
     filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
     filename = StringUtils::clean_filename(filename);
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
-    SDL_RWops *fileRW = SDL_RWFromFile(buffer, "rb");
-    SDL_RWops *fileOutlineRW = SDL_RWFromFile(buffer, "rb");
-    SDL_RWops *fileErrorRW = SDL_RWFromFile(buffer, "rb");
+    SDL_RWops *fileRW = SDLL_RWFromFile(buffer, "rb");
+    SDL_RWops *fileOutlineRW = SDLL_RWFromFile(buffer, "rb");
+    SDL_RWops *fileErrorRW = SDLL_RWFromFile(buffer, "rb");
 
     if (!fileRW || !fileOutlineRW) {
 		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
@@ -163,18 +163,18 @@ bool graphicsLib::initGraphics()
 		return false;
     } else {
 
-        font = TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
+        font = SDLL_TTF_OpenFontRW(fileRW, 1, FONT_SIZE);
         // outline-font
-        outline_font = TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
-        error_font = TTF_OpenFontRW(fileErrorRW, 1, FONT_SIZE_ERROR);
+        outline_font = SDLL_TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
+        error_font = SDLL_TTF_OpenFontRW(fileErrorRW, 1, FONT_SIZE_ERROR);
         if (font == NULL || outline_font == NULL || error_font == NULL) {
-            printf("ERROR::initGraphics - TTF_OpenFont failed for '%s'\n", buffer);
+            printf("ERROR::initGraphics - SDLL_TTF_OpenFont failed for '%s'\n", buffer);
             fflush(stdout);
             delete[] buffer;
             return false;
         }
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
-        TTF_SetFontOutline(outline_font, 1);
+        SDLL_TTF_SetFontOutline(outline_font, 1);
 #endif
     }
     delete[] buffer;
@@ -183,11 +183,11 @@ bool graphicsLib::initGraphics()
 
 
 	// GAME SCREEN
-    SDL_ShowCursor( SDL_DISABLE );
+    SDLL_ShowCursor( SDL_DISABLE );
 #ifdef PC
     // Hardware acceleration hints for SDL 1.2
-    SDL_putenv((char*)"SDL_VIDEO_ALLOW_SCREENSAVER=0");
-    SDL_putenv((char*)"SDL_VIDEO_X11_VISUALID=32");
+    SDLL_putenv((char*)"SDL_VIDEO_ALLOW_SCREENSAVER=0");
+    SDLL_putenv((char*)"SDL_VIDEO_X11_VISUALID=32");
     SDLL_WM_SetCaption("RockBot", "RockBot");
 #endif
     set_video_mode();
@@ -202,9 +202,9 @@ bool graphicsLib::initGraphics()
 void graphicsLib::set_window_icon()
 {
     std::string icon_filename = FILEPATH + "/images/icon_32px.png";
-    SDL_RWops *rwop = SDL_RWFromFile(icon_filename.c_str(), "rb");
+    SDL_RWops *rwop = SDLL_RWFromFile(icon_filename.c_str(), "rb");
     if (rwop) {
-        SDL_Surface* icon_img = IMG_Load_RW(rwop, 1);
+        SDL_Surface* icon_img = SDLL_IMG_Load_RW(rwop, 1);
         if (icon_img != NULL) {
             SDLL_WM_SetIcon(icon_img, NULL);
         }
@@ -325,23 +325,23 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
 	SDL_Surface *spriteCopy;
 
     std::string clean_filename = StringUtils::clean_filename(filename);
-    rwop = SDL_RWFromFile(clean_filename.c_str(), "rb");
+    rwop = SDLL_RWFromFile(clean_filename.c_str(), "rb");
 
     if (!rwop) {
         std::cout << "ERROR::SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << clean_filename << "' not found\n";
         return NULL;
     }
-    spriteCopy = IMG_Load_RW(rwop, 1);
+    spriteCopy = SDLL_IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
-        std::cout << "ERROR::::SDLSurfaceFromFile - Error on IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << IMG_GetError() << std::endl;
+        std::cout << "ERROR::::SDLSurfaceFromFile - Error on SDLL_IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << SDLL_IMG_GetError() << std::endl;
     }
     if (game_screen == NULL || game_screen->format == NULL) {
         return NULL;
     }
 
     SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
-    SDL_FreeSurface(spriteCopy);
-    SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_FreeSurface(spriteCopy);
+    SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
 }
@@ -382,7 +382,7 @@ void graphicsLib::loadTileset(std::string file)
     string filename = FILEPATH + "images/tilesets/" + file;
 
     if (tileset != NULL) {
-        SDL_FreeSurface(tileset);
+        SDLL_FreeSurface(tileset);
     }
 
 	tileset = SDLSurfaceFromFile(filename);
@@ -459,7 +459,7 @@ void graphicsLib::copySDLPortion(st_rectangle original_rect, st_rectangle destin
         dest.y += _screen_resolution_adjust.y;
     }
 
-    SDL_BlitSurface(surfaceOrigin, &src, surfaceDestiny, &dest);
+    SDLL_BlitSurface(surfaceOrigin, &src, surfaceDestiny, &dest);
 }
 
 void graphicsLib::copy_gamescreen_area(st_rectangle origin_rectangle, st_position pos, graphicsLib_gSurface *surfaceDestiny)
@@ -753,7 +753,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
     gSurface->freeGraphic();
     SDL_Surface* temp_surface = NULL;
-    SDL_Surface* rgb_surface = SDL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
+    SDL_Surface* rgb_surface = SDLL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != NULL) {
         temp_surface = SDLL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
@@ -761,15 +761,15 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
             show_debug_msg("EXIT #41.2");
             exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
         }
-        SDL_FreeSurface(rgb_surface);
+        SDLL_FreeSurface(rgb_surface);
     }
 
     if (temp_surface == NULL) {
         return;
     }
 
-    SDL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_FillRect(temp_surface, NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetColorKey(temp_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     gSurface->set_surface(temp_surface);
 
@@ -788,8 +788,8 @@ void graphicsLib::clear_surface(graphicsLib_gSurface &surface)
         return;
     }
 
-    SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
-    SDL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 }
 
 
@@ -799,7 +799,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface& surface)
         return;
     }
     if (surface.is_rle_enabled == false) {
-        SDL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_SetColorKey(surface.get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface.is_rle_enabled = true;
     }
     SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -811,7 +811,7 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
         return;
     }
     if (surface->is_rle_enabled == false) {
-        SDL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_SetColorKey(surface->get_surface(), SDL_RLEACCEL|SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         surface->is_rle_enabled = true;
     }
     SDLL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
@@ -857,7 +857,7 @@ void graphicsLib::blank_screen(int r, int g, int b)
         return;
     }
 
-    SDL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, NULL, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
 void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
@@ -866,7 +866,7 @@ void graphicsLib::blank_surface(graphicsLib_gSurface &surface)
         return;
     }
 
-    SDL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
+    SDLL_FillRect(surface.get_surface(), NULL, SDL_MapRGB(game_screen->format, 0, 0, 0));
 }
 /*
  * http://www.zedwood.com/article/cpp-utf-8-mb_substr-function
@@ -949,9 +949,9 @@ int graphicsLib::draw_progressive_text(short x, short y, const std::string &text
     unsigned int i;
 
     if (!font) {
-        printf("ERROR: no fount found - TTF_OpenFont: %s\n", TTF_GetError());
+        printf("ERROR: no fount found - SDLL_TTF_OpenFont: %s\n", SDLL_TTF_GetError());
         show_debug_msg("EXIT #09");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_progressive_text, fount is NULL"), std::string(TTF_GetError()));
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_progressive_text, fount is NULL"), std::string(SDLL_TTF_GetError()));
     }
 
     for (i=0; i<text.size(); i++) {
@@ -1013,25 +1013,25 @@ void graphicsLib::draw_error_text(const std::string &text)
     int parts_n = text.length() / max_len;
 
     if (!error_font) {
-        printf("ERROR: could not load font, message: %s\n", TTF_GetError());
+        printf("ERROR: could not load font, message: %s\n", SDLL_TTF_GetError());
         show_debug_msg("EXIT #10");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(SDLL_TTF_GetError()));
     }
 
     for (int i=0; i<=parts_n; i++) {
         std::string sub_text = text.substr(i*max_len, max_len);
         std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
-        SDL_Surface* textSF = TTF_RenderUTF8_Solid(error_font, sub_text.c_str(), font_color);
+        SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(error_font, sub_text.c_str(), font_color);
         if (!textSF) {
             continue;
         }
         SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
-        SDL_FreeSurface(textSF);
+        SDLL_FreeSurface(textSF);
         if (!textSF_format) {
             continue;
         }
-        SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
-        SDL_FreeSurface(textSF_format);
+        SDLL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
+        SDLL_FreeSurface(textSF_format);
         text_pos.y += 10;
     }
 }
@@ -1066,27 +1066,27 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
     text_pos.h = 0;
 
     if (!font) {
-        printf("ERROR: could not load font, message: %s\n", TTF_GetError());
+        printf("ERROR: could not load font, message: %s\n", SDLL_TTF_GetError());
         show_debug_msg("EXIT #10");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(TTF_GetError()));
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::draw_text, fount is NULL"), std::string(SDLL_TTF_GetError()));
         // handle error
     }
 
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
     if (outline_font) {
         SDL_Color black = {0, 0, 0};
-        SDL_Surface* text_outlineSF = TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
+        SDL_Surface* text_outlineSF = SDLL_TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
 
         if (text_outlineSF) {
             SDL_Surface* text_outlineSF_format = SDLL_DisplayFormat(text_outlineSF);
-            SDL_FreeSurface(text_outlineSF);
+            SDLL_FreeSurface(text_outlineSF);
 
             if (text_outlineSF_format) {
                 if (centered == true && text.size() > 0) {
                     text_pos.x = RES_W/2 - text_outlineSF_format->w/2;
                 }
-                SDL_BlitSurface(text_outlineSF_format, 0, game_screen, &text_pos);
-                SDL_FreeSurface(text_outlineSF_format);
+                SDLL_BlitSurface(text_outlineSF_format, 0, game_screen, &text_pos);
+                SDLL_FreeSurface(text_outlineSF_format);
             }
         }
     }
@@ -1096,7 +1096,7 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
     text_pos.h = 0;
 #endif
 
-    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
+    SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
     if (!textSF) {
         return;
     }
@@ -1105,14 +1105,14 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
     }
 
     SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
-    SDL_FreeSurface(textSF);
+    SDLL_FreeSurface(textSF);
 
     if (!textSF_format) {
         return;
     }
 
-    SDL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
-    SDL_FreeSurface(textSF_format);
+    SDLL_BlitSurface(textSF_format, 0, game_screen, &text_pos);
+    SDLL_FreeSurface(textSF_format);
 }
 
 
@@ -1153,12 +1153,12 @@ void graphicsLib::blink_screen(Uint8 r, Uint8 g, Uint8 b) {
 	copyArea(st_position(0, 0), &gameScreen, &screen_copy);
 
 	for (i=0; i<4; i++) {
-        SDL_FillRect(game_screen, 0, SDL_MapRGB(game_screen->format, r, g, b));
+        SDLL_FillRect(game_screen, 0, SDL_MapRGB(game_screen->format, r, g, b));
 
 		updateScreen();
         timer.delay(80);
 
-        SDL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
+        SDLL_BlitSurface(screen_copy.get_surface(), 0, game_screen, 0);
 		updateScreen();
         timer.delay(80);
     }
@@ -1455,8 +1455,8 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
     int i, j;
     int b, h;
     int bpp = surface->format->BytesPerPixel;
-    if (SDL_MUSTLOCK(dest) != 0) {
-        if (SDL_LockSurface(dest) < 0) {
+    if (SDLL_MUSTLOCK(dest) != 0) {
+        if (SDLL_LockSurface(dest) < 0) {
             fprintf(stderr, "dest locking failedn");
             return;
         }
@@ -1629,9 +1629,9 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 	}
 
 
-	if (SDL_MUSTLOCK(dest) != 0)
+	if (SDLL_MUSTLOCK(dest) != 0)
 	{
-	 SDL_UnlockSurface(dest);
+	 SDLL_UnlockSurface(dest);
 	}
 }
 
@@ -1646,7 +1646,7 @@ void graphicsLib::clear_area(short int x, short int y, short int w, short int h,
     dest.y = y + _screen_resolution_adjust.y;
 	dest.w = w;
 	dest.h = h;
-    SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
 void graphicsLib::clear_area_alpha(short x, short y, short w, short h)
@@ -1659,8 +1659,8 @@ void graphicsLib::clear_area_alpha(short x, short y, short w, short h)
     dest.y = y + _screen_resolution_adjust.y;
     dest.w = w;
     dest.h = h;
-    SDL_FillRect(game_screen, &dest, SDL_MapRGBA(game_screen->format, 0xff, 0xff, 0x00, 0xff));
-    //SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDL_MapRGBA(game_screen->format, 0xff, 0xff, 0x00, 0xff));
+    //SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
 void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short r, short g, short b)
@@ -1675,7 +1675,7 @@ void graphicsLib::clear_area_no_adjust(short x, short y, short w, short h, short
     dest.y = y;
     dest.w = w;
     dest.h = h;
-    SDL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
+    SDLL_FillRect(game_screen, &dest, SDL_MapRGB(game_screen->format, r, g, b));
 }
 
 void graphicsLib::clear_surface_area(short int x, short int y, short int w, short int h, short int r, short int g, short int b, struct graphicsLib_gSurface& surface) const {
@@ -1695,7 +1695,7 @@ void graphicsLib::clear_surface_area(short int x, short int y, short int w, shor
 	dest.w = w;
 	dest.h = h;
     //int color_n = SDL_MapRGB(surface.gSurface->format, r, g, b);
-    SDL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
+    SDLL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
 }
 
 void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short h, short r, short g, short b, graphicsLib_gSurface &surface) const
@@ -1708,7 +1708,7 @@ void graphicsLib::clear_surface_area_no_adjust(short x, short y, short w, short 
     dest.y = y;
     dest.w = w;
     dest.h = h;
-    SDL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
+    SDLL_FillRect(surface.get_surface(), &dest, SDL_MapRGB(surface.get_surface()->format, r, g, b));
 }
 
 
@@ -2162,11 +2162,11 @@ void graphicsLib::set_video_mode()
         game_screen_scaled = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
     }
     if (game_screen != NULL) {
-        SDL_FreeSurface(game_screen);
+        SDLL_FreeSurface(game_screen);
     }
-    SDL_Surface *temp_screen = SDL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    SDL_Surface *temp_screen = SDLL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
     game_screen = SDLL_DisplayFormat(temp_screen);
-    SDL_FreeSurface(temp_screen);
+    SDLL_FreeSurface(temp_screen);
 #endif
 
 	if (!game_screen) {
@@ -2298,9 +2298,9 @@ void graphicsLib::flip_image(const graphicsLib_gSurface &original, graphicsLib_g
     initSurface(st_size(original.width, original.height), &res);
 
     //If the surface must be locked
-    if (SDL_MUSTLOCK( original.get_surface() )) {
+    if (SDLL_MUSTLOCK( original.get_surface() )) {
         //Lock the surface
-        SDL_LockSurface( original.get_surface() );
+        SDLL_LockSurface( original.get_surface() );
     }
 
     //Go through columns
@@ -2351,7 +2351,7 @@ void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &pictu
     st_position center(dest.x+picture.width/2, dest.y+picture.height/2);
 
     for (float i=0.1; i<1.0; i+=0.03) {
-        if ((rotozoom_picture = zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
+        if ((rotozoom_picture = SDLL_zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
             struct st_rectangle origin_rectangle(0, 0, rotozoom_picture->w, rotozoom_picture->h);
 
             st_position dest_zoom(center.x-rotozoom_picture->w/2, center.y-rotozoom_picture->h/2);
@@ -2362,19 +2362,19 @@ void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &pictu
             copySDLArea(origin_rectangle, dest_zoom, rotozoom_picture, game_screen, false);
             updateScreen();
             timer.delay(20);
-            SDL_FreeSurface(rotozoom_picture);
+            SDLL_FreeSurface(rotozoom_picture);
         } else {
             std::cout << "Error creating zoomed surface" << std::endl;
         }
     }
 
     /* Pause for a sec */
-    SDL_Delay(100);
+    SDLL_Delay(100);
 }
 
 SDL_Surface* graphicsLib::zoom_screen(int scale, SDL_Surface *origin)
 {
-    SDL_Surface *rotozoom_picture = zoomSurface(origin, scale, scale, false);
+    SDL_Surface *rotozoom_picture = SDLL_zoomSurface(origin, scale, scale, false);
     return rotozoom_picture;
 }
 
@@ -2384,21 +2384,21 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 
     SDL_Surface *alpha_surface = SDLL_DisplayFormatAlpha(picture.get_surface());
 
-    if ((rotozoom_picture = rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
+    if ((rotozoom_picture = SDLL_rotozoomSurface(alpha_surface, angle, 1.0, true)) != NULL) {
         SDL_Surface *res_surface = SDLL_DisplayFormatAlpha(rotozoom_picture);
-        SDL_FreeSurface(rotozoom_picture);
-        SDL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+        SDLL_FreeSurface(rotozoom_picture);
+        SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDL_MapRGB(game_screen->format, COLORKEY_R, COLORKEY_G, COLORKEY_B));
         picture.set_surface(res_surface);
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;
     }
-    SDL_FreeSurface(alpha_surface);
+    SDLL_FreeSurface(alpha_surface);
 }
 
 void graphicsLib::rotated_from_image(graphicsLib_gSurface *picture, graphicsLib_gSurface &dest, double angle)
 {
     SDL_Surface *rotozoom_picture;
-    if ((rotozoom_picture = rotozoomSurface(picture->get_surface(), angle, 1.0, true)) != NULL) {
+    if ((rotozoom_picture = SDLL_rotozoomSurface(picture->get_surface(), angle, 1.0, true)) != NULL) {
         dest.set_surface(rotozoom_picture);
     } else {
         std::cout << "GRAPHLIB::rotate_image - Error generating rotated image" << std::endl;

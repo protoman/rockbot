@@ -29,12 +29,12 @@ void GameMediator::release()
 
 GameMediator::~GameMediator()
 {
-    for (std::map<std::string, Mix_Chunk*>::iterator it=sfx_map.begin(); it!=sfx_map.end(); ++it) {
-        if (it->second != NULL) {
-            Mix_FreeChunk(it->second);
-            it->second = NULL;
-        }
-    }
+	for (std::map<std::string, Mix_Chunk*>::iterator it=sfx_map.begin(); it!=sfx_map.end(); ++it) {
+		if (it->second != NULL) {
+			SDLL_Mix_FreeChunk(it->second);
+			it->second = NULL;
+		}
+	}
     sfx_map.clear();
 }
 

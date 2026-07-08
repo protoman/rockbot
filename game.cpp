@@ -1611,7 +1611,7 @@ void game::quick_load_game()
 
     /*
     show_notice();
-    SDL_Quit();
+    SDLL_Quit();
     exit(0);
     */
 

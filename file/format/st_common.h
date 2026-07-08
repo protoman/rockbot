@@ -320,10 +320,10 @@ struct graphicsLib_gSurface {
                 return *this;
             }
 
-            // Free existing surface first
-            if (gSurface != NULL && video_screen == false && persistent == false) {
-                SDL_FreeSurface(gSurface);
-            }
+			// Free existing surface first
+			if (gSurface != NULL && video_screen == false && persistent == false) {
+				SDLL_FreeSurface(gSurface);
+			}
             gSurface = NULL;
 
             if (original.width == 0 || original.height == 0 || original.gSurface == NULL) {
@@ -409,21 +409,21 @@ struct graphicsLib_gSurface {
 
         void init_colorkeys() {
 
-            SDL_LockSurface(gSurface);
+			SDLL_LockSurface(gSurface);
 
             colorkey1_points = get_color_points(COLORKEY1_R, COLORKEY1_G, COLORKEY1_B);
             colorkey2_points = get_color_points(COLORKEY2_R, COLORKEY2_G, COLORKEY2_B);
             colorkey3_points = get_color_points(COLORKEY3_R, COLORKEY3_G, COLORKEY3_B);
 
-            SDL_UnlockSurface(gSurface);
+			SDLL_UnlockSurface(gSurface);
 
         }
 
         void set_surface(SDL_Surface *surface) {
-            // free old surface memory
-            if (gSurface != NULL) {
-                SDL_FreeSurface(gSurface);
-            }
+			// free old surface memory
+			if (gSurface != NULL) {
+				SDLL_FreeSurface(gSurface);
+			}
             if (surface != NULL) {
                 gSurface = surface;
                 width = gSurface->w;
@@ -472,13 +472,13 @@ struct graphicsLib_gSurface {
 
         void freeGraphic()
         {
-            if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
-                if (video_screen == false && gSurface != NULL) {
-                    width = -1;
-                    height = -1;
-                    SDL_FreeSurface(gSurface);
-                }
-            }
+			if (width > 0 && width <= 3200) { // 3200 check is to handle invalid projectiles (trash in memory)
+				if (video_screen == false && gSurface != NULL) {
+					width = -1;
+					height = -1;
+					SDLL_FreeSurface(gSurface);
+				}
+			}
             gSurface = NULL;
         }
 
