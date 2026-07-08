@@ -12,7 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # SDL Version Selection (set to 1, 2 or 3)
 #set(USE_SDL_VERSION 1 CACHE STRING "SDL version to use (1, 2 or 3)")
-set(USE_SDL_VERSION 1)
+set(USE_SDL_VERSION 3)
 if(USE_SDL_VERSION EQUAL 3)
     # will find sdl3, sdl3-image, sdl3-mixer, sdl3-ttf, sdl3-gfx
 elseif(USE_SDL_VERSION EQUAL 2)
@@ -37,6 +37,9 @@ endif()
 
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
+
+# Prefer /usr/local prefix for SDL3 (self-built 3.4.0) over system packages (3.2.30)
+set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 
 if(USE_SDL_VERSION EQUAL 3)
     pkg_check_modules(SDL REQUIRED sdl3)
@@ -202,11 +205,11 @@ add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
 target_link_libraries(rockbot
-    ${SDL_LIBRARIES}
-    ${SDL_MIXER_LIBRARIES}
-    ${SDL_IMAGE_LIBRARIES}
-    ${SDL_TTF_LIBRARIES}
-    ${SDL_GFX_LIBRARIES}
+    ${SDL_LDFLAGS}
+    ${SDL_MIXER_LDFLAGS}
+    ${SDL_IMAGE_LDFLAGS}
+    ${SDL_TTF_LDFLAGS}
+    ${SDL_GFX_LDFLAGS}
     ${X11_LIBRARIES}
     dl
 )

@@ -21,24 +21,36 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 	return SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 }
 
+static SDL_Surface *sdl3_screen_surface = NULL;
+
 SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 {
-	window = SDL_CreateWindow(
-		"RockBot",
-		width,
-		height,
-		SDL_WINDOW_RESIZABLE);
-	renderer = SDL_CreateRenderer(window, NULL);
+	if (window == NULL) {
+		window = SDL_CreateWindow(
+			"RockBot",
+			width,
+			height,
+			SDL_WINDOW_RESIZABLE);
+		renderer = SDL_CreateRenderer(window, NULL);
+		printf("Renderer backend: %s\n", SDL_GetRendererName(renderer));
+		printf("SDL version: %s\n", SDLL_GetCompiledVersion());
+	} else {
+		SDL_SetWindowSize(window, width, height);
+	}
 
-	printf("Renderer backend: %s\n", SDL_GetRendererName(renderer));
-	printf("SDL version: %s\n", SDLL_GetCompiledVersion());
-
+	if (texture) {
+		SDL_DestroyTexture(texture);
+	}
 	texture = SDL_CreateTexture(renderer,
 								SDL_PIXELFORMAT_ARGB8888,
 								SDL_TEXTUREACCESS_STREAMING,
 								width, height);
 
-	return SDL_GetWindowSurface(window);
+	if (sdl3_screen_surface) {
+		SDL_DestroySurface(sdl3_screen_surface);
+	}
+	sdl3_screen_surface = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_ARGB8888);
+	return sdl3_screen_surface;
 }
 
 int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
@@ -283,6 +295,10 @@ SDL_Surface *SDLL_rotozoomSurface(SDL_Surface *src, double angle, double zoom, i
 
 int SDLL_Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 {
+	if (!MIX_Init()) {
+		printf("WARNING: MIX_Init failed.\n");
+	}
+
 	SDL_AudioSpec spec;
 	SDL_zerop(&spec);
 	spec.freq = frequency;
@@ -426,6 +442,7 @@ void SDLL_Mix_CloseAudio()
 
 void SDLL_Mix_Quit()
 {
+	MIX_Quit();
 }
 
 const char *SDLL_Mix_GetError()
