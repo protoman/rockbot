@@ -186,7 +186,6 @@ void stage::set_current_map(int new_map_n)
     std::fflush(stdout);
 
     check_map_effect();
-    std::cout << "## stage::set_current_map::END" << std::endl;
     std::fflush(stdout);
 }
 

@@ -162,6 +162,7 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
         } else if (selected_option == 7) { // QUIT GAME //
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
+                soundManager.close_audio();
                 graphicsLib::safe_sdl_quit();
                 exit(0);
             }

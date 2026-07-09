@@ -581,7 +581,6 @@ namespace format_v4 {
         for (unsigned int i=0; i<npc_list.size(); i++) {
             // TODO: check for spawns that are final boss but not in map-data
             if (npc_list.at(i).stage_id >= CASTLE1_STAGE1 && npc_list.at(i).id_npc >= 0 && (unsigned int)npc_list.at(i).id_npc < temp_enemy_list.size() && temp_game_data.final_boss_id == npc_list.at(i).id_npc) {
-                std::cout << "FOUND final boss[" << temp_enemy_list.at(npc_list.at(i).id_npc).name << "] in stage[" << (int)npc_list.at(i).stage_id << "] at position[" << npc_list.at(i).start_point.x << "][" << npc_list.at(i).start_point.y << "]" << std::endl;
                 return npc_list.at(i).stage_id;
             }
         }

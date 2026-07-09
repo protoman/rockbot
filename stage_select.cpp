@@ -286,7 +286,7 @@ int stage_select::pick_stage(int stage_n)
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                soundManager.stop_music();
+                soundManager.close_audio();
                 graphicsLib::safe_sdl_quit();
                 exit(0);
             }
@@ -442,7 +442,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
-                soundManager.stop_music();
+                soundManager.close_audio();
                 graphicsLib::safe_sdl_quit();
                 exit(0);
             }

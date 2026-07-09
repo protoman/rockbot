@@ -531,6 +531,7 @@ int main(int argc, char *argv[])
         main_loop();
     }
     GameMediator::release();
+    soundManager.close_audio();
     graphicsLib::safe_sdl_quit();
 #endif
     return 0;
