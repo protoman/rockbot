@@ -1773,20 +1773,16 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
         //  for player item, platform must only be removed only if the item was already adtivated
         if (charObj->get_platform()->get_type() == OBJ_ITEM_FLY || charObj->get_platform()->get_type() == OBJ_ITEM_JUMP) {
             if (charObj->get_platform()->get_distance() > 0 && y_inc != 0) {
-                std::cout << "### CLASS_MAP::REMOVE PLATFORM #1" << std::endl;
                 charObj->set_platform(NULL);
             } else {
                 _obj_collision = object_collision(0, NULL);
-                std::cout << "MAP::collision_char_object - LEAVE #7" << std::endl;
                 return;
             }
         } else if (charObj->get_platform()->is_hidden() == true) {
-            std::cout << "### CLASS_MAP::REMOVE PLATFORM #2" << std::endl;
             charObj->set_platform(NULL);
         } else {
             _platform_leave_counter++;
             if (_platform_leave_counter > 2) {
-                std::cout << "### CLASS_MAP::REMOVE PLATFORM #3" << std::endl;
                 charObj->set_platform(NULL);
                 _platform_leave_counter = 0;
             }
@@ -1795,22 +1791,16 @@ void classMap::collision_char_object(character* charObj, const float x_inc, cons
         _platform_leave_counter = 0;
     }
 
-    //std::cout << "MAP::collision_char_object - END #1" << std::endl;
     _obj_collision = object_collision(blocked, res_obj);
 }
 
-object_collision classMap::get_obj_collision()
-{
+object_collision classMap::get_obj_collision() const {
     return _obj_collision;
 }
 
-
-
-
 void classMap::clean_map_npcs_projectiles()
 {
-    std::vector<classnpc>::iterator npc_it;
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+    for (std::vector<classnpc>::iterator npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         npc_ref->clean_projectiles();
     }
@@ -1880,8 +1870,7 @@ classnpc* classMap::collision_player_npcs(character* playerObj, const short int 
 
     p_rect = playerObj->get_hitbox();
 
-    std::vector<classnpc>::iterator npc_it;
-    for (npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
+    for (std::vector<classnpc>::iterator npc_it = _npc_list.begin(); npc_it != _npc_list.end(); npc_it++) {
         classnpc* npc_ref = &(*npc_it);
         if (npc_ref->is_player_friend() == true) {
 			continue;
@@ -1900,7 +1889,6 @@ classnpc* classMap::collision_player_npcs(character* playerObj, const short int 
         if (npc_ref->is_intangible() == true) {
             continue;
         }
-
 
         npc_rect = npc_ref->get_hitbox();
 

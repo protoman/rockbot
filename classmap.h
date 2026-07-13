@@ -125,7 +125,7 @@ public:
 
     void collision_char_object(character*, const float, const short int);
 
-    object_collision get_obj_collision();
+    object_collision get_obj_collision() const;
 
     classnpc* collision_player_npcs(character*, const short int, const short int);
 

@@ -77,10 +77,6 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, int id) : _is_player_f
     position.x = start_point.x;
     position.y = start_point.y;
 
-    if (name == "BUBBLEMAN BIG FISH" || name == "OCTOPUS") {
-        std::cout << ">>>>> CLASSNPC.BUILD[" << name << "] - start_point[" << GameMediator::get_instance()->map_npc_data[id].start_point.x << "][" << GameMediator::get_instance()->map_npc_data[id].start_point.y << "], pos[" << position.x << "][" << position.y << "], bg_pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "]" << std::endl;
-    }
-
     _is_spawn = false;
     _initialized = 0;
     _screen_blinked = false;
@@ -276,8 +272,6 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     if (_is_player_friend == false && GameMediator::get_instance()->get_enemy(main_id)->behavior == NPC_BEHAVIOR_PLAYER_FRIEND) {
         _is_player_friend = true;
     }
-
-    if (name == "BUBBLEMAN BIG FISH") std::cout << "### NPC::BUILD_BASIC::1 (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
 }
 
 
