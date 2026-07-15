@@ -11,15 +11,15 @@ set -o pipefail
 MODE="$(printf '%s' "${1:-sdl1}" | tr '[:upper:]' '[:lower:]')"
 case "$MODE" in
     sdl1)
-        SDL_MODE=sdl1
+        USE_SDL_VERSION=1
         echo ">> SDL1 mode enabled"
         ;;
     sdl2)
-        SDL_MODE=sdl2
+        USE_SDL_VERSION=2
         echo ">> SDL2 mode enabled"
         ;;
     sdl3)
-        SDL_MODE=sdl3
+        USE_SDL_VERSION=3
         echo ">> SDL3 mode enabled"
         ;;
     *)
@@ -27,6 +27,9 @@ case "$MODE" in
         exit 1
         ;;
 esac
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
 # Set non-interactive mode for apt
 export DEBIAN_FRONTEND=noninteractive
@@ -42,6 +45,7 @@ sudo apt update && sudo apt install -y \
     qttools5-dev-tools \
     libgl1-mesa-dev \
     pkg-config \
+    libx11-dev \
     zip
 
 # libsdl3-mixer-dev is not yet in Ubuntu 26.04; build from source if missing.
@@ -70,8 +74,8 @@ install_sdl3_mixer_from_source() {
     export LD_LIBRARY_PATH="${prefix}/lib:${prefix}/lib/x86_64-linux-gnu:${prefix}/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH:-}"
 }
 
-case "$SDL_MODE" in
-    sdl3)
+case "$USE_SDL_VERSION" in
+    3)
         sudo apt install -y \
             libsdl3-dev \
             libsdl3-image-dev \
@@ -81,7 +85,7 @@ case "$SDL_MODE" in
             install_sdl3_mixer_from_source
         fi
         ;;
-    sdl2)
+    2)
         sudo apt install -y \
             libsdl2-dev \
             libsdl2-image-dev \
@@ -101,50 +105,27 @@ esac
 
 export QT_SELECT=qt5
 
-echo "📁 Building rockbot the project..."
-case "$SDL_MODE" in
-    sdl3)
-        SDL3_LIBS="$(pkg-config --libs sdl3 sdl3-image sdl3-ttf)"
-        if pkg-config --exists sdl3-mixer; then
-            SDL3_LIBS="$(pkg-config --libs sdl3 sdl3-image sdl3-ttf sdl3-mixer)"
-        else
-            SDL3_LIBS="${SDL3_LIBS} -lSDL3_mixer"
-        fi
-        qmake RockDroid.pro \
-            CONFIG=linux \
-            DESTDIR=build \
-            DEFINES+=SDL3 \
-            QMAKE_CCFLAGS+=-DSDL3 \
-            QMAKE_CXXFLAGS+=-DSDL3 \
-            "LIBS=${SDL3_LIBS} -ldl -lstdc++"
-        ;;
-    sdl2)
-        qmake RockDroid.pro \
-            CONFIG=linux \
-            DESTDIR=build \
-            DEFINES+=SDL2 \
-            QMAKE_CCFLAGS+=-DSDL2 \
-            QMAKE_CXXFLAGS+=-DSDL2 \
-            LIBS="-lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx $(sdl2-config --libs)"
-        ;;
-    *)
-        qmake RockDroid.pro CONFIG=linux DESTDIR=build
-        ;;
-esac
-make clean build/rockbot
+CMAKE_BUILD_DIR="${SCRIPT_DIR}/build/cmake"
+echo "📁 Building rockbot with CMake (SDL${USE_SDL_VERSION})..."
+rm -rf "$CMAKE_BUILD_DIR"
+cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DUSE_SDL_VERSION="${USE_SDL_VERSION}"
 
-echo "📁 Building rockbot-editor the project..."
-cd editor
+cmake --build "$CMAKE_BUILD_DIR" -j"$(nproc)"
 
-case "$SDL_MODE" in
-    sdl3)
+echo "📁 Building rockbot-editor the project (qmake)..."
+cd "${SCRIPT_DIR}/editor"
+
+case "$USE_SDL_VERSION" in
+    3)
         qmake Rockbot_Editor.pro \
             CONFIG+=linux \
             QMAKE_CCFLAGS+=-DSDL3 \
             QMAKE_CXXFLAGS+=-DSDL3 \
             DEFINES+=SDL3
         ;;
-    sdl2)
+    2)
         qmake Rockbot_Editor.pro \
             CONFIG+=linux \
             QMAKE_CCFLAGS+=-DSDL2 \

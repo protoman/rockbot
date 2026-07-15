@@ -10,11 +10,11 @@ set -o pipefail
 MODE="$(printf '%s' "${1:-sdl2}" | tr '[:upper:]' '[:lower:]')"
 case "$MODE" in
     sdl2)
-        USE_SDL3=false
+        USE_SDL_VERSION=2
         echo ">> SDL2 mode enabled"
         ;;
     sdl3)
-        USE_SDL3=true
+        USE_SDL_VERSION=3
         echo ">> SDL3 mode enabled"
         ;;
     *)
@@ -23,13 +23,17 @@ case "$MODE" in
         ;;
 esac
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
 echo "🛠️ Installing dependencies with Homebrew..."
 brew update
 brew install \
-    qt@5 \
-    gnu-sed
+    cmake \
+    pkg-config \
+    qt@5
 
-if $USE_SDL3; then
+if [ "$USE_SDL_VERSION" -eq 3 ]; then
     brew install \
         sdl3 \
         sdl3_image \
@@ -44,72 +48,97 @@ else
         sdl2_gfx
 fi
 
-export PATH="$(brew --prefix)/opt/qt@5/bin:$PATH"
+# Homebrew pkg-config files (Apple Silicon and Intel)
+BREW_PREFIX="$(brew --prefix)"
+QT5_PREFIX="$(brew --prefix qt@5 2>/dev/null || true)"
+if [ ! -d "${QT5_PREFIX}/bin" ]; then
+    for candidate in "${BREW_PREFIX}/opt/qt@5" /opt/homebrew/opt/qt@5 /usr/local/opt/qt@5; do
+        if [ -d "${candidate}/bin" ]; then
+            QT5_PREFIX="$candidate"
+            break
+        fi
+    done
+fi
+if [ ! -x "${QT5_PREFIX}/bin/qmake" ]; then
+    echo "❌ Qt5 qmake not found. Install with: brew install qt@5" >&2
+    exit 1
+fi
+export PATH="${QT5_PREFIX}/bin:${PATH}"
+export PKG_CONFIG_PATH="${BREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
 export QT_SELECT=qt5
 
-# Resolve the macOS SDK actually installed (e.g. macosx26.5).
-# RockDroid.pro may hardcode an older QMAKE_MAC_SDK that Xcode no longer ships.
+# Resolve the macOS SDK actually installed (e.g. macosx26.2).
 MAC_SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version)"
 MAC_SDK="macosx${MAC_SDK_VERSION}"
 echo "📦 Using macOS SDK: ${MAC_SDK}"
 
-echo "📁 Building rockbot the project..."
-gsed -i 's/^CONFIG += linux/#CONFIG += linux/g' RockDroid.pro
-gsed -i "s/^[[:space:]]*QMAKE_MAC_SDK *= *.*/    QMAKE_MAC_SDK = ${MAC_SDK}/" RockDroid.pro
+CMAKE_BUILD_DIR="${SCRIPT_DIR}/build/cmake"
+echo "📁 Building rockbot with CMake (SDL${USE_SDL_VERSION})..."
+rm -rf "$CMAKE_BUILD_DIR"
+cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DUSE_SDL_VERSION="${USE_SDL_VERSION}"
 
-# RockDroid.pro macosx block hardcodes SDL linkage; normalize for the selected mode.
-if $USE_SDL3; then
+NPROC="$(sysctl -n hw.ncpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
+cmake --build "$CMAKE_BUILD_DIR" -j"$NPROC"
+
+echo "📁 Building rockbot-editor with qmake..."
+cd "${SCRIPT_DIR}/editor"
+
+EDITOR_PRO="Rockbot_Editor.pro"
+# Rockbot_Editor.pro hardcodes CONFIG += linux; flip to macosx for this build only.
+cp "$EDITOR_PRO" "${EDITOR_PRO}.bak"
+restore_editor_pro() {
+    if [ -f "${SCRIPT_DIR}/editor/${EDITOR_PRO}.bak" ]; then
+        mv -f "${SCRIPT_DIR}/editor/${EDITOR_PRO}.bak" "${SCRIPT_DIR}/editor/${EDITOR_PRO}"
+    fi
+}
+trap restore_editor_pro EXIT
+
+if command -v gsed >/dev/null 2>&1; then
     gsed -i \
-        -e 's/LIBS += `\(sdl2-config --libs\|pkg-config --libs sdl3\)`/LIBS += `pkg-config --libs sdl3`/' \
-        -e 's/LIBS += -lSDL[23]_mixer -lSDL[23]_image -lSDL[23]_ttf\( -lSDL2_gfx\)\?/LIBS += -lSDL3_mixer -lSDL3_image -lSDL3_ttf/' \
-        -e 's/INCLUDES = -I\/opt\/homebrew\/include -I\/opt\/homebrew\/opt\/qt@5 `[^`]*` -I\./INCLUDES = -I\/opt\/homebrew\/include -I\/opt\/homebrew\/opt\/qt@5 `pkg-config --cflags sdl3` -I./' \
-        RockDroid.pro
-
-    SDL_DEFINES="DEFINES+=SDL3"
-    SDL_CFLAGS="QMAKE_CCFLAGS+=-DSDL3"
-    SDL_CXXFLAGS="QMAKE_CXXFLAGS+=-DSDL3"
-    SDL_LIBS="-lSDL3_mixer -lSDL3_image -lSDL3_ttf $(pkg-config --libs sdl3)"
+        -e 's/^CONFIG += linux/#CONFIG += linux/' \
+        -e 's/^#CONFIG += macosx/CONFIG += macosx/' \
+        "$EDITOR_PRO"
 else
-    gsed -i \
-        -e 's/LIBS += `\(sdl2-config --libs\|pkg-config --libs sdl3\)`/LIBS += `sdl2-config --libs`/' \
-        -e 's/LIBS += -lSDL[23]_mixer -lSDL[23]_image -lSDL[23]_ttf\( -lSDL2_gfx\)\?/LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx/' \
-        -e 's/INCLUDES = -I\/opt\/homebrew\/include -I\/opt\/homebrew\/opt\/qt@5 `[^`]*` -I\./INCLUDES = -I\/opt\/homebrew\/include -I\/opt\/homebrew\/opt\/qt@5 `sdl2-config --cflags` -I./' \
-        RockDroid.pro
-
-    SDL_DEFINES="DEFINES+=SDL2"
-    SDL_CFLAGS="QMAKE_CCFLAGS+=-DSDL2"
-    SDL_CXXFLAGS="QMAKE_CXXFLAGS+=-DSDL2"
-    SDL_LIBS="-lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx $(sdl2-config --libs)"
+    sed -i.bak2 \
+        -e 's/^CONFIG += linux/#CONFIG += linux/' \
+        -e 's/^#CONFIG += macosx/CONFIG += macosx/' \
+        "$EDITOR_PRO"
+    rm -f "${EDITOR_PRO}.bak2"
 fi
 
-qmake RockDroid.pro \
-    CONFIG=macosx \
+qmake "$EDITOR_PRO" \
+    CONFIG+=macosx \
+    CONFIG-=app_bundle \
     CONFIG+=sdk_no_version_check \
-    DESTDIR=build \
-    ${SDL_DEFINES} \
-    ${SDL_CFLAGS} \
-    ${SDL_CXXFLAGS} \
-    "QMAKE_MAC_SDK=${MAC_SDK}" \
-    "LIBS=${SDL_LIBS}"
+    DEFINES+=SDL${USE_SDL_VERSION} \
+    QMAKE_CCFLAGS+=-DSDL${USE_SDL_VERSION} \
+    QMAKE_CXXFLAGS+=-DSDL${USE_SDL_VERSION} \
+    "QMAKE_MAC_SDK=${MAC_SDK}"
 
-gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
-rm -f build/rockbot
-make clean build/rockbot
+# Align deploy target with the RockDroid macOS convention / SDL requirements.
+if command -v gsed >/dev/null 2>&1; then
+    gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
+else
+    sed -i.bak 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
+    rm -f Makefile.bak
+fi
 
-# echo "📁 Building rockbot-editor the project..."
-# cd editor
-# qmake Rockbot_Editor.pro CONFIG=macosx DEFINES+=SDL2
-# gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
-# for f in $(find . -name '*.ui'); do
-#   base=$(basename "$f" .ui);
-#   echo "Generating ui_${base}.h from $f"; 
-#   uic "$f" -o "ui_${base}.h";
-# done
-# rm -f build/editor
-# make
+# Generate ui_*.h next to sources (qmake FORMS + nested dirs can miss these).
+while IFS= read -r -d '' f; do
+    base="$(basename "$f" .ui)"
+    echo "Generating ui_${base}.h from $f"
+    uic "$f" -o "ui_${base}.h"
+done < <(find . -name '*.ui' -print0)
+
+rm -rf "${SCRIPT_DIR}/build/editor" "${SCRIPT_DIR}/build/editor.app"
+make -j"$NPROC"
+
+restore_editor_pro
+trap - EXIT
 
 echo "✅ Build completed successfully"
-
 
 echo "Usage Instructions:"
 echo
