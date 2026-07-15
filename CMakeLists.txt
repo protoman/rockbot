@@ -50,8 +50,25 @@ endif()
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
 
-# Prefer /usr/local prefix for SDL3 (self-built) over older system packages
-set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+# Prefer the right pkg-config prefix per platform.
+# Putting /usr/local first on macOS can pick an old FreeType that fails
+# sdl3-ttf's Requires.private (freetype2 >= 20), hiding Homebrew packages.
+if(APPLE)
+    execute_process(
+        COMMAND brew --prefix
+        OUTPUT_VARIABLE BREW_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+    if(BREW_PREFIX)
+        set(ENV{PKG_CONFIG_PATH}
+            "${BREW_PREFIX}/lib/pkgconfig:${BREW_PREFIX}/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+    endif()
+else()
+    # Prefer /usr/local for self-built SDL3 over older system packages (Linux)
+    set(ENV{PKG_CONFIG_PATH}
+        "/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+endif()
 
 # Drop cached pkg-config results so switching USE_SDL_VERSION does not leak
 # libraries from a previous configure (e.g. SDL2_gfx into an SDL3 build).
