@@ -4,6 +4,7 @@
 #include <QPaintEvent>
 #include <QString>
 #include <QFontDatabase>
+#include <QDir>
 
 #include "mediator.h"
 #include "file/fio_strings.h"
@@ -14,10 +15,16 @@ extern std::string GAMEPATH;
 TextPreviewArea::TextPreviewArea(QWidget *parent) : QWidget(parent)
 {
     selected_n = 0;
-    const QString font_filename = QString(GAMEPATH.c_str()) + QString("/fonts/pressstart2p.ttf");
-    int id = QFontDatabase::addApplicationFont(font_filename);
-    QString font_family = QFontDatabase::applicationFontFamilies(id).at(0);
-    monospace = QFont(font_family);
+    // Qt on macOS fails to load fonts via relative paths (e.g. "./fonts/...").
+    const QString font_filename = QDir(QString::fromStdString(GAMEPATH)).absoluteFilePath("fonts/pressstart2p.ttf");
+    const int id = QFontDatabase::addApplicationFont(font_filename);
+    const QStringList families = QFontDatabase::applicationFontFamilies(id);
+    if (!families.isEmpty()) {
+        monospace = QFont(families.at(0));
+    } else {
+        std::cerr << "TextPreviewArea: failed to load font: " << font_filename.toStdString() << std::endl;
+        monospace = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    }
     monospace.setPixelSize(FONT_SIZE);
 }
 

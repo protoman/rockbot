@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QCoreApplication>
 #include <dirent.h>
 #include <assert.h>
 
@@ -55,25 +56,14 @@ void assert_enum_items() {
 #undef main
 int main(int argc, char *argv[])
 {
-	std::string EXEC_NAME;
-	#ifndef WIN32
-		EXEC_NAME = "editor";
-    #else
-		EXEC_NAME = "editor.exe";
-	#endif
-
-	std::string argvString = std::string(argv[0]);
-
-
-    GAMEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
-
     FILEPATH = "";
 
     init_enum_names();
     assert_enum_items(); // check that stringfy variables are OK
 
-
     QApplication a(argc, argv);
+    // Absolute path required: Qt (especially on macOS) cannot load resources via "./..."
+    GAMEPATH = (QCoreApplication::applicationDirPath() + "/").toStdString();
 
     std::vector<std::string> game_list = Mediator::get_instance()->fio.read_game_list();
 
@@ -83,17 +73,17 @@ int main(int argc, char *argv[])
 
     if (game_list.size() < 1) {
         NewGameDialog *new_game_dialog = new NewGameDialog();
-        QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(on_new_game_accepted(QString)));
+        QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), &w, SLOT(new_game_accepted(QString)));
         new_game_dialog->show();
     } else if (game_list.size() == 1) {
-        FILEPATH = GAMEPATH + std::string("/games/") + game_list.at(0) + std::string("/");
+        FILEPATH = GAMEPATH + std::string("games/") + game_list.at(0) + std::string("/");
         GAMENAME = game_list.at(0);
         Mediator::get_instance()->load_game();
         w.reload();
         w.show();
     } else {
         QDialog *open = new loadGamePicker();
-        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(on_load_game_accepted()));
+        QObject::connect(open, SIGNAL(game_picked()), &w, SLOT(load_game_accepted()));
         open->show();
     }
 

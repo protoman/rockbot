@@ -46,8 +46,6 @@ private slots:
 
     void on_bossName_lineEdit_textChanged(const QString &arg1);
 
-    void on_comboBox_currentIndexChanged(const QString &arg1);
-
     void on_gameStartMusic_comboBox_currentIndexChanged(const QString &arg1);
 
     void on_finalBoss_comboBox_currentIndexChanged(int index);

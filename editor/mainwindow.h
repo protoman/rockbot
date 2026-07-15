@@ -56,67 +56,20 @@ private:
 
 public slots:
     void reload();
-    void on_new_game_accepted(QString);
-    void on_load_game_accepted();
+    // Manual connections (must not use on_<object>_<signal> auto-connect names)
+    void new_game_accepted(QString);
+    void load_game_accepted();
+    void scenes_editor_window_closed();
+    void swap_stages_window_closed();
 
-
- void on_npc_direction_combo_currentIndexChanged(int index);
-	void on_link_orientation_combobox_currentIndexChanged(int index);
-	void on_spinBox_valueChanged(int );
-	void on_listWidget_2_currentRowChanged(int currentRow);
-	void on_toolBox_currentChanged(int index);
-    void on_editNPCButton_clicked();
-    void on_listWidget_currentRowChanged(int currentRow);
-    void on_MainWindow_iconSizeChanged(QSize iconSize);
     void on_actionNew_triggered();
-    void on_pallete_signalPalleteChanged();
     void on_actionOpen_triggered();
     void on_actionSave_triggered();
     void on_actionQuit_triggered();
 
-	void on_comboBox_6_currentIndexChanged(int index);
+    void on_tabWidget_currentChanged(int index);
 
-	void on_tabWidget_currentChanged(int index);
-
-	void on_bg1_filename_currentIndexChanged(const QString &arg1);
-
-	void on_checkBox_clicked(bool checked);
-
-	void on_bg1_y_pos_valueChanged(int arg1);
-
-	void on_bg2_filename_currentIndexChanged(const QString &arg1);
-
-	void on_bg2_y_pos_valueChanged(int arg1);
-
-	void on_bg1_speed_valueChanged(int arg1);
-
-	void on_bg2_speed_valueChanged(int arg1);
-
-	void on_checkBox_2_clicked(bool checked);
-
-	void on_checkBox_3_clicked(bool checked);
-
-	void on_stage_boss_weapon_combo_currentIndexChanged(int index);
-
-	void on_bg1_speed_valueChanged(double arg1);
-
-	void on_bg2_speed_valueChanged(double arg1);
-
-	void on_actionReset_Map_triggered();
-
-	void on_players_tab_maxshots_valueChanged(int arg1);
-
-	void on_can_slide_checkbox_toggled(bool checked);
-
-    void on_players_tab_movespeed_valueChanged(int arg1);
-
-    void on_players_tab_hasshield_toggled(bool checked);
-
-    void on_players_tab_name_textChanged(const QString &arg1);
-
-    void on_chargedshot_combo_currentIndexChanged(int index);
-
-    void on_players_tab_list_combo_2_currentIndexChanged(int index);
+    void on_actionReset_Map_triggered();
 
     void on_actionSwap_Maps_triggered();
 
@@ -132,10 +85,6 @@ public slots:
 
     void on_actionImage_Browser_triggered();
 
-    void on_scenes_editor_window_closed();
-
-
-
 private slots:
     void on_actionMovie_Editor_triggered();
 
@@ -149,8 +98,6 @@ private slots:
 
     void on_actionZoomThree_triggered();
 
-
-
     void on_actionGRID_toggled(bool arg1);
 
     void on_actionRun_Stage_2_triggered();
@@ -158,9 +105,6 @@ private slots:
     void on_actionDark_triggered();
 
     void on_actionDefault_triggered();
-
-    void on_swap_stages_window_closed();
-
 
     void on_actionShowTileset_toggled(bool arg1);
 
