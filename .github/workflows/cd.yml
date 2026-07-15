@@ -26,12 +26,11 @@ permissions:
 jobs:
 
   Linux:
-    # build-ubuntu.sh supports SDL1/SDL2 only
-    if: ${{ github.event.inputs.sdl != 'sdl3' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: [ ubuntu-24.04, ubuntu-24.04-arm ]
+        # ubuntu-26.04 ships libsdl3-*; 24.04 does not
+        runner: [ ubuntu-26.04, ubuntu-26.04-arm ]
     env:
       SDL_VERSION: ${{ github.event.inputs.sdl || 'sdl2' }}
     steps:
