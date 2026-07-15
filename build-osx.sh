@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -o pipefail
 
 # Usage:
 #   ./build-osx.sh          → SDL2 (default)
