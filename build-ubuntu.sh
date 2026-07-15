@@ -33,6 +33,9 @@ export DEBIAN_FRONTEND=noninteractive
 echo "🛠️ Updating packages and installing dependencies..."
 sudo apt update && sudo apt install -y \
     build-essential \
+    cmake \
+    curl \
+    ca-certificates \
     qtbase5-dev \
     qttools5-dev \
     qttools5-dev-tools \
@@ -40,13 +43,42 @@ sudo apt update && sudo apt install -y \
     pkg-config \
     zip
 
+# libsdl3-mixer-dev is not yet in Ubuntu 26.04; build from source if missing.
+install_sdl3_mixer_from_source() {
+    local version="3.2.4"
+    local prefix="/usr/local"
+    local srcdir
+    srcdir="$(mktemp -d)"
+    echo "📦 libsdl3-mixer-dev not in apt; building SDL3_mixer ${version} from source..."
+    sudo apt install -y \
+        libflac-dev \
+        libmpg123-dev \
+        libogg-dev \
+        libopusfile-dev \
+        libvorbis-dev
+    curl -fsSL "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${version}/SDL3_mixer-${version}.tar.gz" \
+        | tar -xz -C "$srcdir"
+    cmake -S "$srcdir/SDL3_mixer-${version}" -B "$srcdir/build" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$prefix" \
+        -DSDLMIXER_VENDORED=OFF
+    cmake --build "$srcdir/build" -j"$(nproc)"
+    sudo cmake --install "$srcdir/build"
+    rm -rf "$srcdir"
+    export PKG_CONFIG_PATH="${prefix}/lib/pkgconfig:${prefix}/lib/x86_64-linux-gnu/pkgconfig:${prefix}/lib/aarch64-linux-gnu/pkgconfig:${PKG_CONFIG_PATH:-}"
+    export LD_LIBRARY_PATH="${prefix}/lib:${prefix}/lib/x86_64-linux-gnu:${prefix}/lib/aarch64-linux-gnu:${LD_LIBRARY_PATH:-}"
+}
+
 case "$SDL_MODE" in
     sdl3)
         sudo apt install -y \
             libsdl3-dev \
             libsdl3-image-dev \
-            libsdl3-ttf-dev \
-            libsdl3-mixer-dev
+            libsdl3-ttf-dev
+        if ! sudo apt install -y libsdl3-mixer-dev; then
+            echo "⚠️ apt libsdl3-mixer-dev unavailable; falling back to source build"
+            install_sdl3_mixer_from_source
+        fi
         ;;
     sdl2)
         sudo apt install -y \
@@ -71,13 +103,19 @@ export QT_SELECT=qt5
 echo "📁 Building rockbot the project..."
 case "$SDL_MODE" in
     sdl3)
+        SDL3_LIBS="$(pkg-config --libs sdl3 sdl3-image sdl3-ttf)"
+        if pkg-config --exists sdl3-mixer; then
+            SDL3_LIBS="$(pkg-config --libs sdl3 sdl3-image sdl3-ttf sdl3-mixer)"
+        else
+            SDL3_LIBS="${SDL3_LIBS} -lSDL3_mixer"
+        fi
         qmake RockDroid.pro \
             CONFIG=linux \
             DESTDIR=build \
             DEFINES+=SDL3 \
             QMAKE_CCFLAGS+=-DSDL3 \
             QMAKE_CXXFLAGS+=-DSDL3 \
-            LIBS="-lSDL3_mixer -lSDL3_image -lSDL3_ttf $(pkg-config --libs sdl3) -ldl -lstdc++"
+            "LIBS=${SDL3_LIBS} -ldl -lstdc++"
         ;;
     sdl2)
         qmake RockDroid.pro \
