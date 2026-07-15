@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -o pipefail
 
 # Usage:
 #   ./build-ubuntu.sh          → SDL1 (default)
