@@ -32,7 +32,7 @@ private slots:
     void on_playerSelect_comboBox_currentIndexChanged(int index);
 
 public slots:
-    void string_selected(int string_id);
+    void on_string_selected(int string_id);
 
 private:
     void fill_armor_abilities();

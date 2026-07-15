@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "defines.h"
+#include "addwizard.h"
+#include "dialognpcedit.h"
+#include "dialogobjectedit.h"
 #include "loadgamepicker.h"
 #include "stage_swap_dialog.h"
 #include "newgamedialog.h"
@@ -25,6 +28,8 @@ extern std::string GAMENAME;
 
 #define CONFIG_THEME_KEY "theme"
 #define CONFIG_FILE "configs/config.ini"
+
+bool background_filled = false;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), _npcedit_tab_selectednpc(0), _data_loading(false)
 {
@@ -80,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->anim_tab_scrollArea->setWidget(anim_tiles_edit_tab);
 
     scenes_window = new SceneEditorWindow;
-    QObject::connect(scenes_window, SIGNAL(scenes_editor_window_closed()), this, SLOT(scenes_editor_window_closed()));
+    QObject::connect(scenes_window, SIGNAL(scenes_editor_window_closed()), this, SLOT(on_scenes_editor_window_closed()));
     scenes_window->hide();
 
     QSettings settings(QDir::currentPath() + CONFIG_FILE, QSettings::IniFormat);
@@ -219,17 +224,175 @@ void MainWindow::on_actionOpen_triggered()
 	open->show();
 }
 
+void MainWindow::on_pallete_signalPalleteChanged()
+{
+	printf("DEBUG on_pallete_signalPalleteChanged\n");
+}
+
+
+
 void MainWindow::on_actionNew_triggered()
 {
     NewGameDialog *new_game_dialog = new NewGameDialog();
-    QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), this, SLOT(new_game_accepted(QString)));
+    QObject::connect(new_game_dialog, SIGNAL(on_accepted(QString)), this, SLOT(on_new_game_accepted(QString)));
     new_game_dialog->show();
+}
+
+
+// ------------------- EDIT BUTTONS --------------------- //
+
+void MainWindow::on_MainWindow_iconSizeChanged(QSize iconSize)
+{
+	Q_UNUSED (iconSize);
+	saveGeometry();
+}
+
+void MainWindow::on_listWidget_currentRowChanged(int currentRow)
+{
+	printf(">>>> MainWindow::on_listWidget_currentRowChanged, row: %d\n", currentRow);
+    Mediator::get_instance()->selectedNPC = currentRow;
+}
+
+void MainWindow::on_editNPCButton_clicked()
+{
+    Mediator::get_instance()->editModeNPC = 1;
+	QDialog *npc_editor = new DialogNPCEdit;
+	npc_editor->show();
+	QObject::connect(npc_editor, SIGNAL(finishedNPCEditor()), this, SLOT(reloadComboItems()));
+}
+
+
+void MainWindow::on_toolBox_currentChanged(int index)
+{
+	Q_UNUSED (index);
+    Mediator::get_instance()->selectedNPC = -1;
+}
+
+
+void MainWindow::on_listWidget_2_currentRowChanged(int currentRow)
+{
+    Mediator::get_instance()->terrainType = currentRow+1;
+}
+
+void MainWindow::on_spinBox_valueChanged(int value)
+{
+        Mediator::get_instance()->zoom = value;
+}
+
+void MainWindow::on_link_orientation_combobox_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->link_type = index;
+}
+
+void MainWindow::on_npc_direction_combo_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->npc_direction = index;
+}
+
+
+
+
+
+
+
+
+void MainWindow::on_comboBox_6_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->current_player = index;
 }
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-    Q_UNUSED(index);
     reload();
+}
+
+
+
+void MainWindow::on_bg1_filename_currentIndexChanged(const QString &arg1)
+{
+	if (arg1.toStdString() == std::string("None")) {
+        Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename[0] = '\0';
+	} else {
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename, sizeof(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename), "%s", arg1.toStdString().c_str());
+	}
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_checkBox_clicked(bool checked)
+{
+    Mediator::get_instance()->show_background_color = checked;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_bg1_y_pos_valueChanged(int arg1)
+{
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].adjust_y = arg1;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_bg1_speed_valueChanged(int arg1)
+{
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
+    map_edit_tab->update_edit_area();
+}
+
+
+void MainWindow::on_bg2_filename_currentIndexChanged(const QString &arg1)
+{
+	if (arg1.toStdString() == std::string("None")) {
+        Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename[0] = '\0';
+	} else {
+        snprintf(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename, sizeof(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].filename), "%s", arg1.toStdString().c_str());
+	}
+}
+
+void MainWindow::on_bg2_y_pos_valueChanged(int arg1)
+{
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].adjust_y = arg1;
+    map_edit_tab->update_edit_area();
+}
+
+
+void MainWindow::on_bg2_speed_valueChanged(int arg1)
+{
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    map_edit_tab->update_edit_area();
+}
+
+
+void MainWindow::on_checkBox_2_clicked(bool checked)
+{
+    Mediator::get_instance()->show_bg1 = checked;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_checkBox_3_clicked(bool checked)
+{
+    Mediator::get_instance()->show_fg_layer = checked;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_stage_boss_weapon_combo_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->stage_data.stages[Mediator::get_instance()->currentStage].boss.id_weapon = index;
+}
+
+void MainWindow::on_bg1_speed_valueChanged(double arg1)
+{
+    if (background_filled == false) {
+		return;
+	}
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].speed = arg1*10;
+    map_edit_tab->update_edit_area();
+}
+
+void MainWindow::on_bg2_speed_valueChanged(double arg1)
+{
+    if (background_filled == false) {
+		return;
+	}
+    Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[1].speed = arg1*10;
+    map_edit_tab->update_edit_area();
 }
 
 void MainWindow::on_actionReset_Map_triggered()
@@ -270,11 +433,64 @@ void MainWindow::on_actionReset_Map_triggered()
 
 }
 
+void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
+{
+    if (_data_loading == true) {
+		return;
+	}
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].max_shots = arg1;
+}
+
+void MainWindow::on_can_slide_checkbox_toggled(bool checked)
+{
+    if (_data_loading == true) {
+        return;
+    }
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].can_slide = checked;
+}
+
+void MainWindow::on_players_tab_movespeed_valueChanged(int arg1)
+{
+    if (_data_loading == true) {
+        return;
+    }
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].move_speed = arg1;
+}
+
+void MainWindow::on_players_tab_hasshield_toggled(bool checked)
+{
+    if (_data_loading == true) {
+        return;
+    }
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].have_shield = checked;
+}
+
+void MainWindow::on_players_tab_name_textChanged(const QString &arg1)
+{
+    if (_data_loading == true) {
+        return;
+    }
+    snprintf(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name, sizeof(Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].name), "%s", arg1.toStdString().c_str());
+}
+
+void MainWindow::on_chargedshot_combo_currentIndexChanged(int index)
+{
+    if (_data_loading == true) {
+        return;
+    }
+    Mediator::get_instance()->player_list_v3_1[Mediator::get_instance()->current_player].full_charged_projectile_id = index;
+}
+
+void MainWindow::on_players_tab_list_combo_2_currentIndexChanged(int index)
+{
+    Mediator::get_instance()->current_player = index;
+}
+
 void MainWindow::on_actionSwap_Maps_triggered()
 {
     // open swap maps dialog
     QDialog *stage_swap = new stage_swap_dialog;
-    QObject::connect(stage_swap, SIGNAL(finished_swap_stages()), this, SLOT(swap_stages_window_closed()));
+    QObject::connect(stage_swap, SIGNAL(finished_swap_stages()), this, SLOT(on_swap_stages_window_closed()));
     stage_swap->show();
 }
 
@@ -316,7 +532,7 @@ void MainWindow::on_actionImage_Browser_triggered()
 }
 
 
-void MainWindow::new_game_accepted(QString name)
+void MainWindow::on_new_game_accepted(QString name)
 {
     /// @TODO: create game files
     QString games_folder_path = QString(GAMEPATH.c_str()) + QString("/games/");
@@ -338,7 +554,7 @@ void MainWindow::new_game_accepted(QString name)
     QString template_path = QString(GAMEPATH.c_str()) + QString("/template/");
     copy_path(template_path, filepath);
 
-    FILEPATH = GAMEPATH + std::string("games/") + name.toStdString() + std::string("/");
+    FILEPATH = GAMEPATH + std::string("/games/") + name.toStdString() + std::string("/");
 
     // generate empty/default game files
     CURRENT_FILE_FORMAT::file_io fio;
@@ -367,7 +583,7 @@ void MainWindow::new_game_accepted(QString name)
     this->show();
 }
 
-void MainWindow::load_game_accepted()
+void MainWindow::on_load_game_accepted()
 {
     Mediator::get_instance()->load_game();
     reload();
@@ -419,14 +635,14 @@ void MainWindow::on_actionZoomThree_triggered()
     map_edit_tab->update_edit_area();
 }
 
-void MainWindow::scenes_editor_window_closed()
+void MainWindow::on_scenes_editor_window_closed()
 {
     game_scenes_tab->reload();
 }
 
-void MainWindow::swap_stages_window_closed()
+void MainWindow::on_swap_stages_window_closed()
 {
-    std::cout << ">>>>>> swap_stages_window_closed" << std::endl;
+    std::cout << ">>>>>> on_swap_stages_window_closed" << std::endl;
     map_edit_tab->update_edit_area();
 }
 

@@ -22,9 +22,9 @@ public:
 
 public slots:
     void pick_bg_color();
-    void color_selected1(const QColor & color);
-    void color_selected2(const QColor & color);
-    void color_selected3(const QColor & color);
+    void on_color_selected1(const QColor & color);
+    void on_color_selected2(const QColor & color);
+    void on_color_selected3(const QColor & color);
     void pick_player_color1(QColor color);
     void pick_player_color2(QColor color);
     void pick_player_color3(QColor color);
@@ -66,6 +66,8 @@ private slots:
 
     void on_weaponlist_combo_currentIndexChanged(int index);
 
+    void on_players_tab_movespeed_valueChanged(double arg1);
+
     void on_damageModSpinBox_valueChanged(int arg1);
 
     void on_canDoubleJumpCheckBox_toggled(bool checked);
@@ -75,6 +77,9 @@ private slots:
     void on_canShotDiagonal_toggled(bool checked);
 
     void on_playerFace_comboBox_currentIndexChanged(const QString &arg1);
+
+
+    void on_weaponColor_picker_clicked();
 
     void on_simultaneousShots_spinBox_valueChanged(int arg1);
 

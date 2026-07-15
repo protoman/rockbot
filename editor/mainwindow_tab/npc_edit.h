@@ -37,6 +37,10 @@ private slots:
 
 	void on_npc_edit_tab_range_valueChanged(int arg1);
 
+	void on_npc_edit_tab_frametype_currentIndexChanged(int index);
+
+	void on_bg_graphic_combo_currentIndexChanged(const QString &arg1);
+
 	void on_npc_edit_tab_weakness_list_currentIndexChanged(int index);
 
 	void on_npc_edit_tab_weakness_points_valueChanged(int arg1);

@@ -47,7 +47,7 @@ void map_tab::update_edit_area()
     ui->editArea->repaint();
 }
 
-void map_tab::color_selected1(QColor color)
+void map_tab::on_color_selected1(QColor color)
 {
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r = color.red();
     Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g = color.green();
@@ -234,7 +234,7 @@ void map_tab::on_objectListWidget_currentRowChanged(int currentRow)
 void map_tab::on_bg_color_pick_clicked()
 {
     QColorDialog *colorDialog = new QColorDialog(this);
-    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(color_selected1(QColor)));
+    QObject::connect(colorDialog, SIGNAL(colorSelected(QColor)), this, SLOT(on_color_selected1(QColor)));
     colorDialog->show();
 }
 

@@ -247,7 +247,7 @@ void stage_edit::on_dialogs_line1_face_combo_currentIndexChanged(const QString &
 
 
 
-void stage_edit::string_selected(int string_id)
+void stage_edit::on_string_selected(int string_id)
 {
     StringsEditor* strings_editor_window = (StringsEditor*)sender();
     int* value_property = strings_editor_window->get_target_property();
@@ -259,7 +259,7 @@ void stage_edit::string_selected(int string_id)
 void stage_edit::string_tooltip_click(int *property, QLineEdit *qline)
 {
     StringsEditor* strings_editor_window = new StringsEditor(this, 1);
-    QObject::connect(strings_editor_window, SIGNAL(on_accepted(int)), this, SLOT(string_selected(int)));
+    QObject::connect(strings_editor_window, SIGNAL(on_accepted(int)), this, SLOT(on_string_selected(int)));
     strings_editor_window->set_target_property(property);
     strings_editor_window->set_target_qline(qline);
     strings_editor_window->show();
@@ -452,4 +452,14 @@ void stage_edit::on_language_comboBox_currentIndexChanged(int index)
     if (_data_loading) { return; }
     Mediator::get_instance()->save_dialogs();
     update_stage_data(index);
+}
+
+void stage_edit::on_checkBox_stateChanged(int arg1)
+{
+    if (_data_loading) { return; }
+    bool active = false;
+    if (arg1 == Qt::Checked) {
+        active = true;
+    }
+    Mediator::get_instance()->stage_extra_data.extra_data[Mediator::get_instance()->currentStage].active = active;
 }

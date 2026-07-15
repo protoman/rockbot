@@ -73,8 +73,10 @@ private slots:
 
     void on_language_comboBox_currentIndexChanged(int index);
 
+    void on_checkBox_stateChanged(int arg1);
+
 public slots:
-    void string_selected(int string_id);
+    void on_string_selected(int string_id);
 
 private:
     void fill_stage_tab_data(int language_n);

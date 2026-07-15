@@ -21,7 +21,7 @@ public:
     void update_edit_area();
 
 public slots:
-    void color_selected1(QColor);
+    void on_color_selected1(QColor);
 
 private slots:
     void on_stageListCombo_currentIndexChanged(int index);

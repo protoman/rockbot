@@ -47,7 +47,7 @@ void loadGamePicker::changeEvent(QEvent *e)
 
 void loadGamePicker::on_buttonBox_accepted()
 {
-    FILEPATH = GAMEPATH + std::string("games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
+    FILEPATH = GAMEPATH + std::string("/games/") + ui->gameList->currentItem()->text().toStdString() + std::string("/");
     GAMENAME = ui->gameList->currentItem()->text().toStdString();
     Mediator::get_instance()->load_game();
     emit game_picked();
