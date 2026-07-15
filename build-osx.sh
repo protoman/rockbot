@@ -44,7 +44,7 @@ else
         sdl2_gfx
 fi
 
-export PATH="/opt/homebrew/opt/qt@5/bin:$PATH"
+export PATH="$(brew --prefix)/opt/qt@5/bin:$PATH"
 export QT_SELECT=qt5
 
 # Resolve the macOS SDK actually installed (e.g. macosx26.5).
