@@ -11,7 +11,7 @@ QT       -= gui
 
 CONFIG += debug
 
-CONFIG += linux
+#CONFIG += linux
 
 #CONFIG += macosx
 
@@ -65,7 +65,7 @@ linux {
 
     # SDL2
     #DEFINES += LINUX SDL2
-    #LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
+    #LIBS += -lSDL3_mixer -lSDL3_image -lSDL3_ttf `sdl2-config --libs` -ldl -lstdc++ -fstack-protector-all
     #INCLUDES += -I/usr/include -I. -I./include -L/usr/lib
 
     QMAKE_CCFLAGS += -std=c++03 -DLINUX -DPC -Wno-reorder -Wno-ignored-qualifiers -fpermissive -Werror=return-type -fstack-protector-all -fstack-protector
@@ -75,13 +75,13 @@ linux {
 macosx {
     DEFINES += OSX
     DEFINES += PC
-    LIBS += `sdl2-config --libs`
-    LIBS += -lSDL2_mixer -lSDL2_image -lSDL2_ttf -lSDL2_gfx
+    LIBS += `pkg-config --libs sdl3`
+    LIBS += -lSDL3_mixer -lSDL3_image -lSDL3_ttf
 #    DESTDIR = ../
 
 #    LIBS += -framework OpenGL
 
-    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `sdl2-config --cflags` -I.
+    INCLUDES = -I/opt/homebrew/include -I/opt/homebrew/opt/qt@5 `pkg-config --cflags sdl3` -I.
 
     INCLUDEPATH += /opt/homebrew/include /opt/homebrew/opt/qt@5
     
@@ -90,7 +90,7 @@ macosx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
     # xcodebuild -showsdks
     # error: SDL for Mac OS X only supports deploying on 10.7 and above.
-    QMAKE_MAC_SDK = macosx15.5
+    QMAKE_MAC_SDK = macosx26.5
     CONFIG -= console
 }
 
