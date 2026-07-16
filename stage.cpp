@@ -215,11 +215,8 @@ void stage::reset_current_map()
 
 void stage::reset_current_map_objects()
 {
-    std::cout << "## stage::reset_current_map_objects::START" << std::endl;
     get_current_map()->reset_map();
-    std::cout << "## stage::reset_current_map_objects #1" << std::endl;
     get_current_map()->reset_map_npcs();
-    std::cout << "## stage::reset_current_map_objects::END" << std::endl;
 }
 
 void stage::reset_stage_objects()

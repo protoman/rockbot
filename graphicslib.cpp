@@ -1237,18 +1237,6 @@ void graphicsLib::load_icons()
 
     filename = FILEPATH + "images/tilesets/blocks/hardmode.png";
     surfaceFromFile(filename, &_hardmode_block);
-
-    filename = FILEPATH + "images/p1.png";
-    surfaceFromFile(filename, &player_image_big[0]);
-
-    filename = FILEPATH + "images/p2.png";
-    surfaceFromFile(filename, &player_image_big[1]);
-
-    filename = FILEPATH + "images/p3.png";
-    surfaceFromFile(filename, &player_image_big[2]);
-
-    filename = FILEPATH + "images/p4.png";
-    surfaceFromFile(filename, &player_image_big[3]);
 }
 
 

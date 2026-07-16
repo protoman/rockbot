@@ -333,8 +333,6 @@ private:
     struct graphicsLib_gSurface _hardmode_block;
     struct graphicsLib_gSurface _weapn_tooltip_bg;
 
-    struct graphicsLib_gSurface player_image_big[4];
-
     st_position _dialog_pos;
     st_position _config_menu_pos;
 

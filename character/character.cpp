@@ -2990,7 +2990,7 @@ void character::clean_effect_projectiles()
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
 {
     UNUSED(ignore_hit_timer);
-	if (is_player() && GAME_FLAGS[FLAG_INVENCIBLE] == true) {
+	if (is_player() && GAME_FLAGS[FLAG_INVINCIBLE] == true) {
 		return;
 	}
     if (game_save.difficulty == DIFFICULTY_HARD && is_player() == false) {
