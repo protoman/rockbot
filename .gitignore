@@ -5,6 +5,18 @@
 Makefile
 *.o
 
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+CMakeUserPresets.json
+Testing/
+install_manifest.txt
+build/cmake/
+
 # Game artifiacts
 rockbot
 PSP/
@@ -60,3 +72,5 @@ aux_tools/PasswordGenerator/ui_*.h
 game.wasm
 game.data
 game.js
+
+.DS_Store
