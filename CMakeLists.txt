@@ -4,12 +4,12 @@ project(rockbot)
 # Compiler Settings
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# set(CMAKE_CXX_EXTENSIONS OFF)
 
-
-# Output Directory
+# Output Directory (same location as DESTDIR=build used by the old qmake scripts)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
+# SDL Version Selection (override with: cmake -DUSE_SDL_VERSION=2 ...)
+set(USE_SDL_VERSION "3" CACHE STRING "SDL version to use (1, 2 or 3)")
 # SDL Version Selection (set to 1, 2 or 3)
 #set(USE_SDL_VERSION 1 CACHE STRING "SDL version to use (1, 2 or 3)")
 set(USE_SDL_VERSION 3)
@@ -22,6 +22,13 @@ elseif(USE_SDL_VERSION EQUAL 1)
 else()
     message(FATAL_ERROR "USE_SDL_VERSION must be 1, 2 or 3")
 endif()
+set_property(CACHE USE_SDL_VERSION PROPERTY STRINGS 1 2 3)
+
+if(NOT USE_SDL_VERSION MATCHES "^[123]$")
+    message(FATAL_ERROR "USE_SDL_VERSION must be 1, 2 or 3 (got '${USE_SDL_VERSION}')")
+endif()
+
+message(STATUS "Building rockbot with SDL${USE_SDL_VERSION}")
 
 # Add compiler flags from RockDroid.pro
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -35,11 +42,42 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     )
 endif()
 
+if(APPLE)
+    # Match RockDroid.pro macosx deploy target (SDL macOS requires 10.7+)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "macOS deployment target")
+endif()
+
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
 
-# Prefer /usr/local prefix for SDL3 (self-built 3.4.0) over system packages (3.2.30)
-set(ENV{PKG_CONFIG_PATH} "/usr/local/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+# Prefer the right pkg-config prefix per platform.
+# Putting /usr/local first on macOS can pick an old FreeType that fails
+# sdl3-ttf's Requires.private (freetype2 >= 20), hiding Homebrew packages.
+if(APPLE)
+    execute_process(
+        COMMAND brew --prefix
+        OUTPUT_VARIABLE BREW_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+    if(BREW_PREFIX)
+        set(ENV{PKG_CONFIG_PATH}
+            "${BREW_PREFIX}/lib/pkgconfig:${BREW_PREFIX}/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+    endif()
+else()
+    # Prefer /usr/local for self-built SDL3 over older system packages (Linux)
+    set(ENV{PKG_CONFIG_PATH}
+        "/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+endif()
+
+# Drop cached pkg-config results so switching USE_SDL_VERSION does not leak
+# libraries from a previous configure (e.g. SDL2_gfx into an SDL3 build).
+foreach(_pkg_prefix SDL SDL_MIXER SDL_IMAGE SDL_TTF SDL_GFX X11)
+    foreach(_pkg_suffix FOUND INCLUDE_DIRS LIBRARIES LIBRARY_DIRS LDFLAGS CFLAGS CFLAGS_OTHER VERSION)
+        unset(${_pkg_prefix}_${_pkg_suffix} CACHE)
+        unset(${_pkg_prefix}_${_pkg_suffix})
+    endforeach()
+endforeach()
 
 if(USE_SDL_VERSION EQUAL 3)
     pkg_check_modules(SDL REQUIRED sdl3)
@@ -68,10 +106,18 @@ else()
     pkg_check_modules(SDL_GFX REQUIRED SDL_gfx)
 endif()
 
-pkg_check_modules(X11 REQUIRED x11)
-
-# Definitions
-add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
+# Platform defines / optional X11 (Linux only; RockDroid.pro links X11 on linux)
+set(ROCKBOT_EXTRA_LIBS "")
+if(APPLE)
+    add_definitions(-DOSX -DPC)
+elseif(UNIX)
+    add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
+    pkg_check_modules(X11 REQUIRED x11)
+    list(APPEND ROCKBOT_EXTRA_LIBS ${X11_LIBRARIES})
+    list(APPEND ROCKBOT_EXTRA_LIBS dl)
+else()
+    add_definitions(-DPC)
+endif()
 
 # Include Directories
 include_directories(
@@ -80,9 +126,13 @@ include_directories(
     ${SDL_MIXER_INCLUDE_DIRS}
     ${SDL_IMAGE_INCLUDE_DIRS}
     ${SDL_TTF_INCLUDE_DIRS}
-    ${SDL_GFX_INCLUDE_DIRS}
-    ${X11_INCLUDE_DIRS}
 )
+if(SDL_GFX_FOUND)
+    include_directories(${SDL_GFX_INCLUDE_DIRS})
+endif()
+if(X11_FOUND)
+    include_directories(${X11_INCLUDE_DIRS})
+endif()
 
 # Source Files
 set(SOURCES
@@ -204,12 +254,17 @@ set(HEADERS
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-target_link_libraries(rockbot
+set(ROCKBOT_SDL_LIBS
     ${SDL_LDFLAGS}
     ${SDL_MIXER_LDFLAGS}
     ${SDL_IMAGE_LDFLAGS}
     ${SDL_TTF_LDFLAGS}
-    ${SDL_GFX_LDFLAGS}
-    ${X11_LIBRARIES}
-    dl
+)
+if(SDL_GFX_FOUND)
+    list(APPEND ROCKBOT_SDL_LIBS ${SDL_GFX_LDFLAGS})
+endif()
+
+target_link_libraries(rockbot
+    ${ROCKBOT_SDL_LIBS}
+    ${ROCKBOT_EXTRA_LIBS}
 )

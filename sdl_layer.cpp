@@ -295,6 +295,7 @@ SDL_Surface *SDLL_rotozoomSurface(SDL_Surface *src, double angle, double zoom, i
 
 int SDLL_Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 {
+	(void)chunksize;
 	if (!MIX_Init()) {
 		printf("WARNING: MIX_Init failed.\n");
 	}
@@ -302,8 +303,8 @@ int SDLL_Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize
 	SDL_AudioSpec spec;
 	SDL_zerop(&spec);
 	spec.freq = frequency;
-	spec.format = format;
-	spec.channels = channels;
+	spec.format = (SDL_AudioFormat)format;
+	spec.channels = (Uint8)channels;
 
 	sdl3_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec);
 	if (!sdl3_mixer) return -1;
