@@ -38,9 +38,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-ignored-qualifiers
         -fpermissive
         -Werror=return-type
-        -fstack-protector-all
-        -fstack-protector
     )
+    # MinGW often lacks libssp; keep stack protector for native Unix builds only.
+    if(NOT WIN32)
+        add_compile_options(-fstack-protector-all -fstack-protector)
+    endif()
 endif()
 
 if(APPLE)
@@ -109,7 +111,10 @@ endif()
 
 # Platform defines / optional X11 (Linux only; RockDroid.pro links X11 on linux)
 set(ROCKBOT_EXTRA_LIBS "")
-if(APPLE)
+if(WIN32)
+    # Codebase uses WIN32 (not only the compiler's _WIN32).
+    add_definitions(-DWIN32 -DPC)
+elseif(APPLE)
     add_definitions(-DOSX -DPC)
 elseif(UNIX)
     add_definitions(-DNES_RESOLUTION -DLINUX -DPC)

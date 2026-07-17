@@ -79,3 +79,26 @@ jobs:
         with:
           files: |
             *.zip
+
+  Windows:
+    runs-on: ubuntu-24.04
+    env:
+      SDL_VERSION: ${{ github.event.inputs.sdl || 'sdl2' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build
+        run: ./build-windows.sh "${SDL_VERSION}"
+
+      - name: Compress
+        run: |
+          zip -9 -r rockbox-windows-${SDL_VERSION}-x86_64.zip build
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            *.zip
