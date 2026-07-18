@@ -24,6 +24,7 @@ on:
           - linux
           - macos
           - windows
+          - android
 
 defaults:
   run:
@@ -115,3 +116,39 @@ jobs:
         with:
           files: |
             *.zip
+
+  Android:
+    # Uses Pelya SDL 1.2 via Docker; ignores the sdl workflow input.
+    if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'android' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          docker system prune -af || true
+          df -h
+
+      - name: Build RockDroid 1 APK
+        env:
+          ANDROID_ABIS: arm64-v8a
+          NCPU: 2
+        run: ./build-android.sh 1 release --no-sign
+
+      - name: Build RockDroid 2 APK
+        env:
+          ANDROID_ABIS: arm64-v8a
+          NCPU: 2
+        run: ./build-android.sh 2 release --no-sign
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            build/packages/RockBot_Android_*.apk
