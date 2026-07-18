@@ -24,7 +24,8 @@ build/*.dll
 
 # Game artifiacts
 rockbot
-PSP/
+# Note: do not ignore bare "PSP/" — on macOS that also hides psp/ (case-insensitive FS).
+# Unpackaged PSP output lives under build/packages/PSP/ (ignored below).
 editor/moc_*.cpp
 editor/moc_*.h
 editor/ui_*.h
@@ -42,6 +43,7 @@ build/packages/Android/
 build/packages/Dingux/
 build/packages/PS2/
 build/packages/PSP/
+build/packages/psp_dist/
 build/packages/linux/
 build/packages/pocketgo/
 build/packages/Rockbot1/
@@ -84,3 +86,4 @@ game.js
 build/packages/RockBot_Android_*/
 
 build/packages/android-build.log
+build/packages/psp-build.log

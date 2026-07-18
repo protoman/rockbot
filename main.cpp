@@ -71,6 +71,11 @@ jobject activity_ref;
     #undef main // to build on win32
 #endif
 
+#if defined(PSP)
+    // PSP crt0 calls main(); do not let SDL2 rename it to SDL_main.
+    #undef main
+#endif
+
 #if defined(WIN32)
     std::string EXEC_NAME = std::string("rockbot.exe");
 #elif defined(ANDROID)
@@ -244,6 +249,16 @@ void get_filepath()
         FILEPATH = std::string(path);
         FILEPATH = FILEPATH.substr(0, FILEPATH.length()-7);
     }
+#elif defined(PSP)
+    // Under PPSSPP/real PSP, cwd should be the folder that contains EBOOT.PBP.
+    char *buffer = new char[MAXPATHLEN];
+    if (getcwd(buffer, MAXPATHLEN) != NULL) {
+        FILEPATH = std::string(buffer);
+        if (!FILEPATH.empty() && FILEPATH[FILEPATH.size()-1] != '/') {
+            FILEPATH += "/";
+        }
+    }
+    delete[] buffer;
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
