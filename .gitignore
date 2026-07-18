@@ -16,6 +16,11 @@ CMakeUserPresets.json
 Testing/
 install_manifest.txt
 build/cmake/
+build/cmake-windows-*/
+build/deps/
+build/windows-dlls-*/
+build/rockbot.exe
+build/*.dll
 
 # Game artifiacts
 rockbot
@@ -74,3 +79,8 @@ game.data
 game.js
 
 .DS_Store
+
+# Unpacked Android package trees (case-colliding filenames on macOS)
+build/packages/RockBot_Android_*/
+
+build/packages/android-build.log
