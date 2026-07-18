@@ -90,7 +90,7 @@ short stage_select::finished_stages() const
 {
     short total_stages = 0;
     for (int i=0; i<MAX_STAGES; i++) {
-        if (game_save.stages[i] == 1 || GAME_FLAGS[FLAG_ALLWEAPONS]) {
+        if (game_save.stages[i] == 1 || GAME_FLAGS[FLAG_ALL_WEAPONS]) {
             total_stages++;
         }
     }
@@ -212,7 +212,7 @@ int stage_select::pick_stage(int stage_n)
     bool can_access_castle = fio.can_access_castle(game_save);
     bool blink_state = false;
     long blink_timer = timer.getTimer() + 300;
-    if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
+    if (GAME_FLAGS[FLAG_ALL_WEAPONS]) {
         can_access_castle = true;
     }
     int max_stage = gameControl.get_last_castle_stage();
@@ -357,7 +357,7 @@ int stage_select::pick_stage(int stage_n)
 short stage_select::pick_stage_classic_style(int stage_n)
 {
     bool can_access_castle = fio.can_access_castle(game_save);
-    if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
+    if (GAME_FLAGS[FLAG_ALL_WEAPONS]) {
         can_access_castle = true;
     }
     // @TODO: use the max_stage to limit selection

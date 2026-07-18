@@ -117,7 +117,7 @@ void game::initGame()
     player1.reset_hp();
     config_manager.set_player_ref(&player1);
 
-    invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE];
+    invencible_old_value = GAME_FLAGS[FLAG_INVINCIBLE];
 
     fps_manager.initialize();
 #if defined(DINGUX) || defined(PLAYSTATION2) || defined (PSP)
@@ -1277,8 +1277,8 @@ void game::show_door_animation(object* obj_ref)
 
 void game::player_victory()
 {
-    invencible_old_value = GAME_FLAGS[FLAG_INVENCIBLE]; // store old value in order to not set the flag to false if it is on my command-line parameter
-    GAME_FLAGS[FLAG_INVENCIBLE] = true;
+    invencible_old_value = GAME_FLAGS[FLAG_INVINCIBLE]; // store old value in order to not set the flag to false if it is on my command-line parameter
+    GAME_FLAGS[FLAG_INVINCIBLE] = true;
 
     // remove any projectiles, charged shots, slides, etc
     player1.clean_projectiles();
@@ -1449,7 +1449,7 @@ void game::leave_stage()
     save_game();
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
-    GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
+    GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
 
     input.clean();
     timer.delay(200);
@@ -1478,7 +1478,7 @@ void game::return_to_intro_screen()
 
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
-    GAME_FLAGS[FLAG_INVENCIBLE] = invencible_old_value;
+    GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
 
     input.clean();
     timer.delay(200);
@@ -1491,7 +1491,7 @@ void game::return_to_intro_screen()
     currentStage = INTRO_STAGE;
     leave_game = false;
 
-    if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
+    if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALL_WEAPONS]) {
         currentStage = INTRO_STAGE;
         player1.initialize();
         loaded_stage = stage(currentStage, &player1);
@@ -1616,7 +1616,8 @@ void game::quick_load_game()
     */
 
     //scenes.select_save(false);
-    //scenes.select_player();
+    SharedData::get_instance()->game_config.game_finished = true;
+    scenes.select_player();
     game_save.selected_player = PLAYER_1;
 
     // TEST //
@@ -1957,7 +1958,7 @@ unsigned short game::get_next_stage()
 {
     unsigned short pos_n = INTRO_STAGE;
     for (unsigned short i=INTRO_STAGE; i<=CASTLE1_STAGE5; i++) {
-        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
+        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALL_WEAPONS]) {
             break;
         }
         pos_n = i+1;
@@ -1971,12 +1972,12 @@ unsigned short game::get_next_stage()
 short game::get_last_castle_stage()
 {
     int last_staghe_available = fio.get_last_stage();
-    if (fio.can_access_castle(game_save) == false && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
+    if (fio.can_access_castle(game_save) == false && !GAME_FLAGS[FLAG_ALL_WEAPONS]) {
         return STAGE8;
     }
     int pos_n = CASTLE1_STAGE1; // stage 1 is accessible when all initial stages are completed
     for (int i=CASTLE1_STAGE1; i<last_staghe_available; i++) {
-        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALLWEAPONS]) {
+        if (game_save.stages[i] == 0 && !GAME_FLAGS[FLAG_ALL_WEAPONS]) {
             break;
         }
         pos_n = i+1;

@@ -245,13 +245,13 @@ void scenesLib::show_cheats_menu()
         options.clear();
 
         std::string invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
-        if (GAME_FLAGS[FLAG_INVENCIBLE]) {
+        if (GAME_FLAGS[FLAG_INVINCIBLE]) {
             invencibleStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_INVENCIBLE) + ": " + invencibleStr));
 
         std::string allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_off);
-        if (GAME_FLAGS[FLAG_ALLWEAPONS]) {
+        if (GAME_FLAGS[FLAG_ALL_WEAPONS]) {
             allStagesStr = strings_map::get_instance()->get_ingame_string(strings_ingame_config_on);
         }
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS_ALLBEATEN) + ": " + allStagesStr));
@@ -273,9 +273,9 @@ void scenesLib::show_cheats_menu()
         cheat_config_picker.draw();
         selected_option = cheat_config_picker.pick(selected_option+1);
         if (selected_option == 0) {
-            GAME_FLAGS[FLAG_INVENCIBLE] = !GAME_FLAGS[FLAG_INVENCIBLE];
+            GAME_FLAGS[FLAG_INVINCIBLE] = !GAME_FLAGS[FLAG_INVINCIBLE];
         } else if (selected_option == 1) {
-            GAME_FLAGS[FLAG_ALLWEAPONS] = !GAME_FLAGS[FLAG_ALLWEAPONS];
+            GAME_FLAGS[FLAG_ALL_WEAPONS] = !GAME_FLAGS[FLAG_ALL_WEAPONS];
         } else if (selected_option == 2) {
             current_player++;
             if (current_player >= 4) {

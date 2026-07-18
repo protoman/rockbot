@@ -65,7 +65,7 @@ private:
     SoundChunk *sfx_list[SFX_COUNT]; /**< TODO */
     SoundMusic *music; /**< TODO */
     SoundMusic *boss_music; /**< TODO */
-    Sint8 _repeated_sfx_channel; /**< TODO */
+    int _repeated_sfx_channel; /**< TODO */
     Uint8 _repeated_sfx; /**< TODO */
     bool is_playing_boss_music;
     CURRENT_FILE_FORMAT::file_io fio;
