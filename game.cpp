@@ -1589,10 +1589,10 @@ void game::quick_load_game()
     //game_save.stages[STAGE1] = 1;
     //game_save.stages[STAGE2] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
-        game_save.stages[i] = 1;
+        game_save.stages[i] = 0;
     }
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
-        game_save.stages[i] = 1;
+        game_save.stages[i] = 0;
     }
     //*/
     //data_out.stages[STAGE1] = 1; // APE: coil

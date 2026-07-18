@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
 # SDL Version Selection (override with: cmake -DUSE_SDL_VERSION=2 ...)
-set(USE_SDL_VERSION "3" CACHE STRING "SDL version to use (1, 2 or 3)")
+#set(USE_SDL_VERSION "3" CACHE STRING "SDL version to use (1, 2 or 3)")
 # SDL Version Selection (set to 1, 2 or 3)
 #set(USE_SDL_VERSION 1 CACHE STRING "SDL version to use (1, 2 or 3)")
 set(USE_SDL_VERSION 1)
