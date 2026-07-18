@@ -14,6 +14,16 @@ on:
         options:
           - sdl2
           - sdl3
+      platform:
+        description: Platform to build
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - linux
+          - macos
+          - windows
 
 defaults:
   run:
@@ -26,6 +36,7 @@ permissions:
 jobs:
 
   Linux:
+    if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'linux' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -54,6 +65,7 @@ jobs:
             *.zip
 
   macOS:
+    if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'macos' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
@@ -81,6 +93,7 @@ jobs:
             *.zip
 
   Windows:
+    if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'windows' }}
     runs-on: ubuntu-24.04
     env:
       SDL_VERSION: ${{ github.event.inputs.sdl || 'sdl2' }}
