@@ -244,7 +244,9 @@ fi
 
 # Keep a stable path at build/rockbot.exe
 mkdir -p "${SCRIPT_DIR}/build"
-cp -f "$EXE_SRC" "${SCRIPT_DIR}/build/rockbot.exe"
+if [[ "$EXE_SRC" != "${SCRIPT_DIR}/build/rockbot.exe" ]]; then
+    cp -f "$EXE_SRC" "${SCRIPT_DIR}/build/rockbot.exe"
+fi
 EXE_SRC="${SCRIPT_DIR}/build/rockbot.exe"
 
 echo "📦 Collecting runtime DLLs..."
