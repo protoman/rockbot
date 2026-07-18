@@ -9,7 +9,7 @@ See [manual](docs/manual.pdf) or [manual\_famicom](docs/manual_famicom.pdf)
 
 ## Requirements
 
-* SDL 1.2 / 2
+* SDL 1.2 / 2 / 3
 * Qt5
 
 ## Build

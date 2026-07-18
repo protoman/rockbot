@@ -368,9 +368,9 @@ int main(int argc, char *argv[])
             } else if (temp_argv == "--quickload") {
                 GAME_FLAGS[FLAG_QUICKLOAD] = true;
             } else if (temp_argv == "--invencible") { // player is not hit by enemies
-                GAME_FLAGS[FLAG_INVENCIBLE] = true;
+                GAME_FLAGS[FLAG_INVINCIBLE] = true;
             } else if (temp_argv == "--allweapons") { // player have all weapons available even if
-                GAME_FLAGS[FLAG_ALLWEAPONS] = true;
+                GAME_FLAGS[FLAG_ALL_WEAPONS] = true;
             } else if (temp_argv == "--infinitejump") { // player can jump again and again
                 GAME_FLAGS[FLAG_INFINITE_JUMP] = true;
             } else if (temp_argv == "--player1") {
