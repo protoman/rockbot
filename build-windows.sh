@@ -70,6 +70,8 @@ SDL3_MIXER_VERSION="3.2.4"
 SDL3_TTF_VERSION="3.2.2"
 
 export DEBIAN_FRONTEND=noninteractive
+export MINGW_TARGET_TRIPLET="$TRIPLET"
+export MINGW_SDL_PREFIX="$DEPS_PREFIX"
 
 echo ">> Windows cross-build: SDL${USE_SDL_VERSION}, ${ARCH} (${TRIPLET})"
 

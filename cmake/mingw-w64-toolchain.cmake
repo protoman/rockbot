@@ -5,7 +5,17 @@
 #   MINGW_SDL_PREFIX      absolute path to installed SDL mingw root
 
 if(NOT MINGW_TARGET_TRIPLET)
-    set(MINGW_TARGET_TRIPLET "x86_64-w64-mingw32" CACHE STRING "MinGW target triplet")
+    if(DEFINED ENV{MINGW_TARGET_TRIPLET} AND NOT "$ENV{MINGW_TARGET_TRIPLET}" STREQUAL "")
+        set(MINGW_TARGET_TRIPLET "$ENV{MINGW_TARGET_TRIPLET}" CACHE STRING "MinGW target triplet")
+    else()
+        set(MINGW_TARGET_TRIPLET "x86_64-w64-mingw32" CACHE STRING "MinGW target triplet")
+    endif()
+endif()
+
+if(NOT MINGW_SDL_PREFIX)
+    if(DEFINED ENV{MINGW_SDL_PREFIX} AND NOT "$ENV{MINGW_SDL_PREFIX}" STREQUAL "")
+        set(MINGW_SDL_PREFIX "$ENV{MINGW_SDL_PREFIX}" CACHE PATH "MinGW SDL install prefix")
+    endif()
 endif()
 
 if(NOT MINGW_SDL_PREFIX)
