@@ -8,7 +8,7 @@ set -o pipefail
 #   ./build-ubuntu.sh sdl2     → SDL2
 #   ./build-ubuntu.sh sdl3     → SDL3
 
-MODE="$(printf '%s' "${1:-sdl1}" | tr '[:upper:]' '[:lower:]')"
+MODE="$(printf '%s' "${1:-sdl2}" | tr '[:upper:]' '[:lower:]')"
 case "$MODE" in
     sdl1)
         USE_SDL_VERSION=1

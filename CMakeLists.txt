@@ -8,11 +8,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
+# Default to SDL1 if not specified
+if(NOT DEFINED USE_SDL_VERSION)
+    set(USE_SDL_VERSION 1)
+endif()
+
 # SDL Version Selection (override with: cmake -DUSE_SDL_VERSION=2 ...)
-#set(USE_SDL_VERSION "3" CACHE STRING "SDL version to use (1, 2 or 3)")
-# SDL Version Selection (set to 1, 2 or 3)
-#set(USE_SDL_VERSION 1 CACHE STRING "SDL version to use (1, 2 or 3)")
-set(USE_SDL_VERSION 1)
 if(USE_SDL_VERSION EQUAL 3)
     # will find sdl3, sdl3-image, sdl3-mixer, sdl3-ttf, sdl3-gfx
 elseif(USE_SDL_VERSION EQUAL 2)
@@ -37,9 +38,11 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-ignored-qualifiers
         -fpermissive
         -Werror=return-type
-        -fstack-protector-all
-        -fstack-protector
     )
+    # MinGW often lacks libssp; keep stack protector for native Unix builds only.
+    if(NOT WIN32)
+        add_compile_options(-fstack-protector-all -fstack-protector)
+    endif()
 endif()
 
 if(APPLE)
@@ -108,7 +111,10 @@ endif()
 
 # Platform defines / optional X11 (Linux only; RockDroid.pro links X11 on linux)
 set(ROCKBOT_EXTRA_LIBS "")
-if(APPLE)
+if(WIN32)
+    # Codebase uses WIN32 (not only the compiler's _WIN32).
+    add_definitions(-DWIN32 -DPC)
+elseif(APPLE)
     add_definitions(-DOSX -DPC)
 elseif(UNIX)
     add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
