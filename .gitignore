@@ -82,3 +82,5 @@ game.js
 
 # Unpacked Android package trees (case-colliding filenames on macOS)
 build/packages/RockBot_Android_*/
+
+build/packages/android-build.log
