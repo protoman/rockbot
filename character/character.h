@@ -88,6 +88,11 @@ class character
 public:
 	character();
     virtual ~character();
+    character(character&&) = default;
+    character& operator=(character&&) = default;
+    // keep copy for existing call sites; surfaces still deep-copied
+    character(const character&) = default;
+    character& operator=(const character&) = default;
     void setName(std::string);
     std::string get_name(void) const;
     void set_dead();

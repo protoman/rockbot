@@ -4,6 +4,9 @@
 
 #include "logger.h"
 #include "file_io.h"
+#ifdef PSP
+#include <pspiofilemgr.h>
+#endif
 #include "convert.h"
 #include "../aux_tools/stringutils.h"
 #include "../aux_tools/exception_manager.h"
@@ -633,10 +636,29 @@ namespace format_v4 {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
 
+#ifdef PSP
+        // opendir/readdir via newlib can wedge PPSSPP (mutex storm). Probe known games via sceIo.
+        (void)dir_only;
+        if (filename.find("/games") != std::string::npos) {
+            const char *candidates[] = { "RockDroid1", "RockDroid2", NULL };
+            for (int i = 0; candidates[i] != NULL; ++i) {
+                std::string probe = filename + "/" + candidates[i] + "/game_enemy_list.dat";
+                SceUID fd = sceIoOpen(probe.c_str(), PSP_O_RDONLY, 0777);
+                if (fd >= 0) {
+                    sceIoClose(fd);
+                    res.push_back(std::string(candidates[i]));
+                }
+            }
+        }
+        return res;
+#endif
 
         DIR *dir = opendir(filename.c_str());
+        if (dir == NULL) {
+            return res;
+        }
 
-#ifndef PLAYSTATION2
+#if !defined(PLAYSTATION2)
         dirent *entry = readdir(dir);
 
         while (entry != NULL) {
@@ -650,6 +672,9 @@ namespace format_v4 {
                     res.push_back(dir_name);
                 } else if (dir_only == false && child_dir == NULL) {
                     res.push_back(dir_name);
+                }
+                if (child_dir != NULL) {
+                    closedir(child_dir);
                 }
             }
             entry = readdir(dir);

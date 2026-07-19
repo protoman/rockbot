@@ -440,10 +440,12 @@ bool game::show_game_intro()
     scenes.game_scenes_show_unbeaten_intro();
 
     scenes.main_screen();
-	initGame();
 
+    // Pick stage before loading maps — avoids constructing two full stages
+    // back-to-back (OOM / EXIT #21 on PSP).
     currentStage = scenes.pick_stage(INTRO_STAGE);
-    loaded_stage = stage(currentStage, &player1);
+    initGame();
+
     // show boss intro with stars, if needed
     soundManager.stop_music();
     scenes.boss_intro(currentStage);

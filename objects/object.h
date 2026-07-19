@@ -57,6 +57,10 @@ public:
     //object(Uint8 id, struct CURRENT_FILE_FORMAT::file_object temp_obj); // game object constructor
     object(short _id, classMap *set_map, st_position map_pos, st_position teleporter_dest, short map_dest, short set_direction); // map object constructor
     ~object();
+    object(const object&) = default;
+    object& operator=(const object&) = default;
+    object(object&&) = default;
+    object& operator=(object&&) = default;
     void reset();
     void reset_timer();
     void reset_obj_anim_timer();

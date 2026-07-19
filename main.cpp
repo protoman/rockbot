@@ -192,8 +192,9 @@ void PS2_create_save_icons()
 
 #ifdef PSP
 PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
-PSP_HEAP_SIZE_KB(-1024);
-//PSP_HEAP_SIZE_MAX();
+// Explicit heap: negative "all-but-N" can leave almost nothing under PPSSPP after SDL_Init.
+PSP_HEAP_SIZE_KB(20 * 1024);
+PSP_MAIN_THREAD_STACK_SIZE_KB(64);
 
 
 /* Exit callback */
@@ -334,7 +335,7 @@ int main(int argc, char *argv[])
 {
 
 #ifdef PSP
-    SetupCallbacks();
+        SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
@@ -439,8 +440,6 @@ int main(int argc, char *argv[])
         fflush(stdout);
         return -1;
     }
-
-    fflush(stdout);
 
 #ifdef ANDROID
     game_services.init_android_button_size();

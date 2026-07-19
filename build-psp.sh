@@ -14,7 +14,7 @@ set -o pipefail
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 PSP_SCRIPT_DIR="$REPO_ROOT/ports/psp"
 PACKAGES_DIR="$REPO_ROOT/build/packages"
-IMAGE="${ROCKBOT_PSP_IMAGE:-pspdev/pspdev:latest}"
+IMAGE="${ROCKBOT_PSP_IMAGE:-rockbot-psp:latest}"
 
 VERSION_NUMBER=""
 PULL_IMAGE=false
@@ -73,8 +73,8 @@ case "$(uname -m)" in
 esac
 
 if $PULL_IMAGE || ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-    echo "⬇️  Pulling $IMAGE ${PLATFORM_ARGS[*]}"
-    docker pull "${PLATFORM_ARGS[@]}" "$IMAGE"
+    echo "🛠️ Building local PSP image: $IMAGE"
+    docker build -t "$IMAGE" -f "$PSP_SCRIPT_DIR/Dockerfile" "$PSP_SCRIPT_DIR"
 else
     echo "📦 Using local image: $IMAGE"
 fi
@@ -121,6 +121,8 @@ fi
 
 VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
 OUT_ZIP="$PACKAGES_DIR/RockBot_PSP_${VERSION_NAME}.zip"
+GAME_DIR="Rockbot${VERSION_NUMBER}"
+STAGE_DIR="$PACKAGES_DIR/psp_dist/$GAME_DIR"
 
 if [[ ! -f "$OUT_ZIP" ]]; then
     echo "Error: expected zip was not produced:"
@@ -129,10 +131,25 @@ if [[ ! -f "$OUT_ZIP" ]]; then
     exit 1
 fi
 
+# Install into PPSSPP memstick on this machine (macOS/Linux host).
+PPSSPP_GAME="${HOME}/.config/ppsspp/PSP/GAME/${GAME_DIR}"
+if [[ -d "${HOME}/.config/ppsspp/PSP/GAME" ]]; then
+    echo "📦 Installing into PPSSPP memstick: $PPSSPP_GAME"
+    rm -rf "$PPSSPP_GAME"
+    mkdir -p "$PPSSPP_GAME"
+    if [[ -d "$STAGE_DIR" ]]; then
+        cp -a "$STAGE_DIR/" "$PPSSPP_GAME/"
+    else
+        unzip -qo "$OUT_ZIP" -d "${HOME}/.config/ppsspp/PSP/GAME"
+    fi
+    echo "Open with:"
+    echo "  open -a PPSSPPSDL \"$PPSSPP_GAME/EBOOT.PBP\""
+fi
+
 echo "✅ Build completed successfully"
 echo
 echo "ZIP:"
 echo "  $OUT_ZIP"
 echo
-echo "Install on PSP:"
-echo "  unzip and copy Rockbot${VERSION_NUMBER}/ to ms0:/PSP/GAME/"
+echo "Install on PSP / PPSSPP:"
+echo "  copy ${GAME_DIR}/ to ms0:/PSP/GAME/ (must include fonts/, shared/, games/)"
