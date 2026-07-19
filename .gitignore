@@ -87,3 +87,8 @@ build/packages/RockBot_Android_*/
 
 build/packages/android-build.log
 build/packages/psp-build.log
+
+# psp
+rockbot_psp.elf
+rockbot_psp.prx
+rockbot.prx
