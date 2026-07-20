@@ -1090,10 +1090,12 @@ void graphicsLib::draw_centered_text(short y, const std::string &text, graphicsL
 
 void graphicsLib::render_text(short x, short y, const std::string &text, st_color color, bool centered)
 {
-    SDL_Color font_color = SDL_Color();
-    font_color.r = color.r;
-    font_color.g = color.g;
-    font_color.b = color.b;
+    SDL_Color font_color = {
+        static_cast<Uint8>(color.r),
+        static_cast<Uint8>(color.g),
+        static_cast<Uint8>(color.b),
+        255
+    };
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
     SDL_Rect text_pos;
