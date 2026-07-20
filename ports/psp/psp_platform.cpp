@@ -138,9 +138,9 @@ bool load_fonts(const char *path,
         fflush(stdout);
         return false;
     }
-    *font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, font_size);
-    *outline_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, font_size);
-    *error_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, error_font_size);
+    *font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 1, font_size);
+    *outline_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 1, font_size);
+    *error_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 1, error_font_size);
     if (*font == NULL || *outline_font == NULL || *error_font == NULL) {
         printf("ERROR::initGraphics - TTF_OpenFontRW failed for '%s' (ttf='%s')\n",
                path, TTF_GetError());
