@@ -1090,7 +1090,10 @@ void graphicsLib::draw_centered_text(short y, const std::string &text, graphicsL
 
 void graphicsLib::render_text(short x, short y, const std::string &text, st_color color, bool centered)
 {
-    SDL_Color font_color = {color.r, color.g, color.b, 255};
+    SDL_Color font_color = SDL_Color();
+    font_color.r = color.r;
+    font_color.g = color.g;
+    font_color.b = color.b;
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
     SDL_Rect text_pos;
@@ -2154,17 +2157,17 @@ void graphicsLib::set_video_mode()
 	// Try multiple video modes for Android - some devices/drivers have issues
 	// Try primary mode first
 	game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
-	
+
 	if (game_screen == NULL) {
 		printf("ANDROID: Primary video mode (SDL_SWSURFACE | SDL_DOUBLEBUF) failed, trying fallback...\n");
 		// Fallback 1: Try without SDL_DOUBLEBUF
 		game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
-		
+
 		if (game_screen == NULL) {
 			printf("ANDROID: Fallback 1 (SDL_SWSURFACE) failed, trying fallback 2...\n");
 			// Fallback 2: Try with SDL_ANYFORMAT to handle color depth mismatches
 			game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_ANYFORMAT);
-			
+
 			if (game_screen == NULL) {
 				printf("ANDROID: Fallback 2 (SDL_SWSURFACE | SDL_ANYFORMAT) failed, trying fallback 3...\n");
 				// Fallback 3: Try with default flags
