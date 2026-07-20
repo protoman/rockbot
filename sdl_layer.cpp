@@ -489,6 +489,19 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
 #endif
 
+	if (texture != NULL) {
+		SDL_DestroyTexture(texture);
+		texture = NULL;
+	}
+	if (renderer != NULL) {
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+	}
+	if (window != NULL) {
+		SDL_DestroyWindow(window);
+		window = NULL;
+	}
+
 	window = SDL_CreateWindow(
 		"RockBot",
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
