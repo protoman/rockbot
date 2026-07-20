@@ -5,10 +5,10 @@ set -o pipefail
 # Usage:
 #   ./build-psp.sh 1                 → RockDroid 1 (Docker / pspdev)
 #   ./build-psp.sh 2                 → RockDroid 2
-#   ./build-psp.sh 1 --pull          → force docker pull of pspdev image
+#   ./build-psp.sh 1 --pull          → rebuild local image (refresh base + packages)
 #
 # Optional env:
-#   ROCKBOT_PSP_IMAGE   Image tag (default: pspdev/pspdev:latest)
+#   ROCKBOT_PSP_IMAGE   Image tag (default: rockbot-psp:latest)
 #   NCPU                make parallelism (default: 2)
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -73,10 +73,13 @@ case "$(uname -m)" in
 esac
 
 if $PULL_IMAGE || ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
-    echo "🛠️ Building local PSP image: $IMAGE"
-    docker build -t "$IMAGE" -f "$PSP_SCRIPT_DIR/Dockerfile" "$PSP_SCRIPT_DIR"
+    echo "🛠️ Building local PSP image: $IMAGE (SDL2 packages baked in Dockerfile)"
+    if $PULL_IMAGE; then
+        docker pull "${PLATFORM_ARGS[@]}" pspdev/pspdev:latest || true
+    fi
+    docker build "${PLATFORM_ARGS[@]}" -t "$IMAGE" -f "$PSP_SCRIPT_DIR/Dockerfile" "$PSP_SCRIPT_DIR"
 else
-    echo "📦 Using local image: $IMAGE"
+    echo "📦 Using local image: $IMAGE (rebuild with --pull to refresh packages)"
 fi
 
 DOCKER_ARGS=(
