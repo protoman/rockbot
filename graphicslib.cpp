@@ -1059,7 +1059,7 @@ void graphicsLib::draw_error_text(const std::string &text)
             continue;
         }
 #ifdef PSP
-        SDL_Surface* textSF_format = textSF;
+        SDL_Surface* textSF_format = psp_platform::format_text_for_blit(textSF);
 #else
         SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
         SDLL_FreeSurface(textSF);

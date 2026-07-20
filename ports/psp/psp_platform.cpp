@@ -172,7 +172,7 @@ SDL_Surface *set_video_mode(int res_w, int res_h, int colors)
 
 SDL_Surface *render_error_text(TTF_Font *error_font, const char *text, SDL_Color color)
 {
-    return SDLL_TTF_RenderUTF8_Blended(error_font, text, color);
+    return TTF_RenderUTF8_Solid(error_font, text, color);
 }
 
 SDL_Surface *format_text_for_blit(SDL_Surface *text_sf)
@@ -185,21 +185,42 @@ SDL_Surface *format_text_for_blit(SDL_Surface *text_sf)
     if (!formatted) {
         return NULL;
     }
-    // Force opaque alpha on every non-black pixel (Convert can leave A=0).
+
     if (SDL_MUSTLOCK(formatted)) {
         SDL_LockSurface(formatted);
     }
+
     Uint32 *px = (Uint32 *)formatted->pixels;
     const int n = (formatted->pitch / 4) * formatted->h;
-    const Uint32 amask = formatted->format->Amask;
-    const Uint32 rgbmask = formatted->format->Rmask | formatted->format->Gmask | formatted->format->Bmask;
+    const SDL_PixelFormat *fmt = formatted->format;
+    const Uint32 amask = fmt->Amask;
+    const Uint32 rmask = fmt->Rmask;
+    const Uint32 gmask = fmt->Gmask;
+    const Uint32 bmask = fmt->Bmask;
+    const int rshift = fmt->Rshift;
+    const int gshift = fmt->Gshift;
+    const int bshift = fmt->Bshift;
+    const int ashift = fmt->Ashift;
+
     for (int i = 0; i < n; i++) {
-        const Uint32 rgb = px[i] & rgbmask;
-        px[i] = rgb ? (rgb | amask) : 0;
+        const Uint32 pixel = px[i];
+        const Uint8 a = amask ? (Uint8)((pixel & amask) >> ashift) : 255;
+        const Uint8 r = (Uint8)((pixel & rmask) >> rshift);
+        const Uint8 g = (Uint8)((pixel & gmask) >> gshift);
+        const Uint8 b = (Uint8)((pixel & bmask) >> bshift);
+
+        // Transparent background: alpha 0 (Blended) or solid-font backdrop (rgb 0).
+        if (a < 16 || (r == 0 && g == 0 && b == 0)) {
+            px[i] = 0;
+        } else {
+            px[i] = SDL_MapRGBA(fmt, r, g, b, 255);
+        }
     }
+
     if (SDL_MUSTLOCK(formatted)) {
         SDL_UnlockSurface(formatted);
     }
+
     SDL_SetSurfaceBlendMode(formatted, SDL_BLENDMODE_NONE);
     SDL_SetColorKey(formatted, SDL_TRUE, SDL_MapRGBA(formatted->format, 0, 0, 0, 0));
     return formatted;
@@ -207,16 +228,8 @@ SDL_Surface *format_text_for_blit(SDL_Surface *text_sf)
 
 SDL_Surface *render_utf8_text(TTF_Font *font, const char *text, SDL_Color color)
 {
-    // Prefer Solid (palette) then convert; Blended/Shaded often leave A=0 on ARGB blit.
-    SDL_Surface *textSF = TTF_RenderUTF8_Solid(font, text, color);
-    if (!textSF) {
-        SDL_Color bg = {0, 0, 0, 255};
-        textSF = TTF_RenderUTF8_Shaded(font, text, color, bg);
-    }
-    if (!textSF) {
-        textSF = TTF_RenderUTF8_Blended(font, text, color);
-    }
-    return textSF;
+    // Solid palette text only: Blended/Shaded leave opaque RGB in the background bbox.
+    return TTF_RenderUTF8_Solid(font, text, color);
 }
 
 std::vector<std::string> read_games_directory(const std::string &games_path)
