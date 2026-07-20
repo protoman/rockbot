@@ -345,6 +345,7 @@ RWopsPtr *rw_from_file(const char *file, const char *mode)
         }
         SDL_RWops *rw = SDL_RWFromFP(fp, SDL_TRUE);
         if (!rw) {
+            std::fclose(fp);
             SDL_SetError("psp_platform::rw_from_file: SDL_RWFromFP failed for %s", file ? file : "(null)");
         }
         return rw;
