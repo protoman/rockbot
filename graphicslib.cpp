@@ -1149,7 +1149,7 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
         static int zero_w_logs = 0;
         if (zero_w_logs < 5) {
             printf("ERROR: TTF surface zero size for '%s' (w=%d h=%d err='%s')\n",
-                   text.c_str(), textSF->w, textSF->h, TTF_GetError());
+                   text.c_str(), textSF->w, textSF->h, SDLL_TTF_GetError());
             fflush(stdout);
             zero_w_logs++;
         }
