@@ -3,8 +3,9 @@
 #endif
 
 #ifdef PSP
-#include <pspkernel.h>
-#include <psppower.h>
+#include "ports/psp/psp_platform.h"
+// PSP crt0 calls main(); do not let SDL2 rename it to SDL_main.
+#undef main
 #endif
 
 #ifdef ANDROID
@@ -69,11 +70,6 @@ jobject activity_ref;
 #elif defined(WIN32)
     #include <direct.h>
     #undef main // to build on win32
-#endif
-
-#if defined(PSP)
-    // PSP crt0 calls main(); do not let SDL2 rename it to SDL_main.
-    #undef main
 #endif
 
 #if defined(WIN32)
@@ -190,50 +186,6 @@ void PS2_create_save_icons()
 #endif
 
 
-#ifdef PSP
-PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
-// Explicit heap: negative "all-but-N" can leave almost nothing under PPSSPP after SDL_Init.
-PSP_HEAP_SIZE_KB(20 * 1024);
-PSP_MAIN_THREAD_STACK_SIZE_KB(64);
-
-
-/* Exit callback */
-int exit_callback(int arg1, int arg2, void *common) {
-    sceKernelExitGame();
-    return 0;
-}
-
-/* Callback thread */
-int CallbackThread(SceSize args, void *argp) {
-    int cbid;
-    cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    sceKernelRegisterExitCallback(cbid);
-    sceKernelSleepThreadCB();
-    return 0;
-}
-
-/* Sets up the callback thread and returns its thread id */
-int SetupCallbacks(void) {
-    int thid = 0;
-    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-    if(thid >= 0) {
-        sceKernelStartThread(thid, 0, 0);
-    }
-    return thid;
-}
-
-
-// LINKER PATCH
-/*
-extern "C" {
-void *__dso_handle = NULL;
-}
-*/
-
-// ram counter object
-#endif
-
-
 void get_filepath()
 {
 #ifdef WIN32
@@ -251,15 +203,7 @@ void get_filepath()
         FILEPATH = FILEPATH.substr(0, FILEPATH.length()-7);
     }
 #elif defined(PSP)
-    // Under PPSSPP/real PSP, cwd should be the folder that contains EBOOT.PBP.
-    char *buffer = new char[MAXPATHLEN];
-    if (getcwd(buffer, MAXPATHLEN) != NULL) {
-        FILEPATH = std::string(buffer);
-        if (!FILEPATH.empty() && FILEPATH[FILEPATH.size()-1] != '/') {
-            FILEPATH += "/";
-        }
-    }
-    delete[] buffer;
+    psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -335,8 +279,7 @@ int main(int argc, char *argv[])
 {
 
 #ifdef PSP
-        SetupCallbacks();
-    scePowerSetClockFrequency(333, 333, 166);
+    psp_platform::setup();
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;

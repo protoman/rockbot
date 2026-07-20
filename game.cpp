@@ -5,13 +5,6 @@
 #include <iostream>
 #include <algorithm>
 
-#ifdef PSP
-	#include <pspkernel.h>
-	#include <pspdebug.h>
-	#include <pspctrl.h>
-	#include <pspdebug.h>
-#endif
-
 #ifdef ANDROID
 #include <android/log.h>
 #endif

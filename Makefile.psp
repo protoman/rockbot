@@ -56,8 +56,7 @@ OBJS = \
 	aux_tools/stringutils.o \
 	aux_tools/fps_control.o \
 	aux_tools/exception_manager.o \
-	ports/psp/psp_ram.o \
-	ports/psp/sdl_layer_psp.o \
+	ports/psp/psp_platform.o \
 	ports/android/android_game_services.o
 
 # Modern pspdev ships SDL2; rockbot's sdl_layer supports it via -DSDL2.

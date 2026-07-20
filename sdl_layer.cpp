@@ -1,6 +1,6 @@
 #include "sdl_layer.h"
 #ifdef PSP
-#include "ports/psp/sdl_layer_psp.h"
+#include "ports/psp/psp_platform.h"
 #endif
 #include <string>
 #include <map>
@@ -486,7 +486,7 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	int win_h = height;
 	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 #ifdef PSP
-	SDLL_PSP_AdjustWindowSize(width, height, &win_w, &win_h, &window_flags);
+	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
 #endif
 
 	window = SDL_CreateWindow(
@@ -561,7 +561,7 @@ SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #ifdef PSP
-	SDLL_PSP_AdjustDisplayFormatAlpha(out);
+	psp_platform::adjust_display_format_alpha(out);
 #endif
 	return out;
 }
@@ -634,7 +634,7 @@ int SDLL_putenv(const char *variable)
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
 {
 #ifdef PSP
-	return SDLL_PSP_RWFromFile(file, mode);
+	return psp_platform::rw_from_file(file, mode);
 #else
 	return SDL_RWFromFile(file, mode);
 #endif
@@ -653,7 +653,7 @@ int SDLL_SetColorKey(SDL_Surface *surface, int flag, Uint32 key)
 		SDL_SetSurfaceRLE(surface, 1);
 	}
 #ifdef PSP
-	SDLL_PSP_PrepareColorKey(surface, sdl2_flag);
+	psp_platform::prepare_color_key(surface, sdl2_flag);
 #endif
 	return res;
 }
@@ -821,7 +821,7 @@ int SDLL_Mix_HaltMusic()
 SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 {
 #ifdef PSP
-	return SDLL_PSP_LoadWAV(file);
+	return psp_platform::load_wav(file);
 #else
 	return Mix_LoadWAV(file);
 #endif
@@ -830,7 +830,7 @@ SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 {
 #ifdef PSP
-	return SDLL_PSP_LoadMUS(file);
+	return psp_platform::load_mus(file);
 #else
 	return Mix_LoadMUS(file);
 #endif
@@ -959,7 +959,7 @@ int SDLL_putenv(const char *variable)
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
 {
 #ifdef PSP
-	return SDLL_PSP_RWFromFile(file, mode);
+	return psp_platform::rw_from_file(file, mode);
 #else
 	return SDL_RWFromFile(file, mode);
 #endif
@@ -1133,7 +1133,7 @@ int SDLL_Mix_HaltMusic()
 SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 {
 #ifdef PSP
-	return SDLL_PSP_LoadWAV(file);
+	return psp_platform::load_wav(file);
 #else
 	return Mix_LoadWAV(file);
 #endif
@@ -1142,7 +1142,7 @@ SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 {
 #ifdef PSP
-	return SDLL_PSP_LoadMUS(file);
+	return psp_platform::load_mus(file);
 #else
 	return Mix_LoadMUS(file);
 #endif

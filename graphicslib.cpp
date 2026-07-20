@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #ifdef PSP
-#include <pspiofilemgr.h>
+#include "ports/psp/psp_platform.h"
 #endif
 #include <iostream>
 #include <cstring>
@@ -157,60 +157,10 @@ bool graphicsLib::initGraphics()
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
 #ifdef PSP
-    // Load font via sceIo (newlib ftell/fread can fail under PPSSPP).
-    SceUID font_fd = sceIoOpen(buffer, PSP_O_RDONLY, 0777);
-    if (font_fd < 0) {
-        printf("ERROR::initGraphics - sceIoOpen failed for '%s' (%d)\n", buffer, (int)font_fd);
-        fflush(stdout);
+    if (!psp_platform::load_fonts(buffer, &font, &outline_font, &error_font, FONT_SIZE, FONT_SIZE_ERROR)) {
         delete[] buffer;
         return false;
     }
-    const SceOff font_sz = sceIoLseek(font_fd, 0, PSP_SEEK_END);
-    sceIoLseek(font_fd, 0, PSP_SEEK_SET);
-    if (font_sz <= 0 || font_sz > 2 * 1024 * 1024) {
-        sceIoClose(font_fd);
-        printf("ERROR::initGraphics - bad font size for '%s' (%ld)\n", buffer, (long)font_sz);
-        fflush(stdout);
-        delete[] buffer;
-        return false;
-    }
-    // Keep buffer for process life: some SDL_ttf/FreeType builds reference the
-    // memory face without copying; freeing caused "Text has zero width".
-    static char *psp_font_blob = NULL;
-    if (psp_font_blob) {
-        free(psp_font_blob);
-        psp_font_blob = NULL;
-    }
-    psp_font_blob = (char*)malloc((size_t)font_sz);
-    if (!psp_font_blob) {
-        sceIoClose(font_fd);
-        printf("ERROR::initGraphics - malloc(%ld) failed for font\n", (long)font_sz);
-        fflush(stdout);
-        delete[] buffer;
-        return false;
-    }
-    const int nread = sceIoRead(font_fd, psp_font_blob, (size_t)font_sz);
-    sceIoClose(font_fd);
-    if (nread != (int)font_sz) {
-        free(psp_font_blob);
-        psp_font_blob = NULL;
-        printf("ERROR::initGraphics - sceIoRead got %d/%ld for '%s'\n", nread, (long)font_sz, buffer);
-        fflush(stdout);
-        delete[] buffer;
-        return false;
-    }
-    font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, FONT_SIZE);
-    outline_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, FONT_SIZE);
-    error_font = TTF_OpenFontRW(SDL_RWFromConstMem(psp_font_blob, (int)font_sz), 0, FONT_SIZE_ERROR);
-    if (font == NULL || outline_font == NULL || error_font == NULL) {
-        printf("ERROR::initGraphics - TTF_OpenFontRW failed for '%s' (ttf='%s')\n",
-               buffer, TTF_GetError());
-        fflush(stdout);
-        delete[] buffer;
-        return false;
-    }
-    printf("PSP font ok height=%d ascent=%d\n", TTF_FontHeight(font), TTF_FontAscent(font));
-    fflush(stdout);
 #else
     RWopsPtr *fileRW = SDLL_RWFromFile(buffer, "rb");
     RWopsPtr *fileOutlineRW = SDLL_RWFromFile(buffer, "rb");
@@ -827,16 +777,12 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     gSurface->freeGraphic();
     SDL_Surface* temp_surface = NULL;
 #ifdef PSP
-    // Direct ARGB8888: CreateRGB(16)+DisplayFormat doubles peak RAM and OOMs on stage start.
-    temp_surface = SDL_CreateRGBSurfaceWithFormat(0, size.width, size.height, 32, SDL_PIXELFORMAT_ARGB8888);
+    temp_surface = psp_platform::create_surface(size.width, size.height);
     if (!temp_surface) {
-        printf("initSurface OOM %dx%d\n", size.width, size.height);
-        fflush(stdout);
         show_debug_msg("EXIT #21.INIT #1");
         show_debug_msg("EXIT #41.2");
         exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
     }
-    SDL_SetSurfaceBlendMode(temp_surface, SDL_BLENDMODE_NONE);
 #else
     SDL_Surface* rgb_surface = SDLL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != NULL) {
@@ -1105,7 +1051,7 @@ void graphicsLib::draw_error_text(const std::string &text)
         std::string sub_text = text.substr(i*max_len, max_len);
         std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
 #ifdef PSP
-        SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Blended(error_font, sub_text.c_str(), font_color);
+        SDL_Surface* textSF = psp_platform::render_error_text(error_font, sub_text.c_str(), font_color);
 #else
         SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(error_font, sub_text.c_str(), font_color);
 #endif
@@ -1185,15 +1131,7 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
 #endif
 
 #ifdef PSP
-    // Prefer Solid (palette) then convert; Blended/Shaded often leave A=0 on ARGB blit.
-    SDL_Surface* textSF = TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
-    if (!textSF) {
-        SDL_Color bg = {0, 0, 0, 255};
-        textSF = TTF_RenderUTF8_Shaded(font, text.c_str(), font_color, bg);
-    }
-    if (!textSF) {
-        textSF = TTF_RenderUTF8_Blended(font, text.c_str(), font_color);
-    }
+    SDL_Surface* textSF = psp_platform::render_utf8_text(font, text.c_str(), font_color);
 #else
     SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
 #endif
@@ -1218,28 +1156,7 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
     }
 
 #ifdef PSP
-    SDL_Surface* textSF_format = SDL_ConvertSurfaceFormat(textSF, SDL_PIXELFORMAT_ARGB8888, 0);
-    SDLL_FreeSurface(textSF);
-    if (!textSF_format) {
-        return;
-    }
-    // Force opaque alpha on every non-black pixel (Convert can leave A=0).
-    if (SDL_MUSTLOCK(textSF_format)) {
-        SDL_LockSurface(textSF_format);
-    }
-    Uint32 *px = (Uint32*)textSF_format->pixels;
-    const int n = (textSF_format->pitch / 4) * textSF_format->h;
-    const Uint32 amask = textSF_format->format->Amask;
-    const Uint32 rgbmask = textSF_format->format->Rmask | textSF_format->format->Gmask | textSF_format->format->Bmask;
-    for (int i = 0; i < n; i++) {
-        const Uint32 rgb = px[i] & rgbmask;
-        px[i] = rgb ? (rgb | amask) : 0;
-    }
-    if (SDL_MUSTLOCK(textSF_format)) {
-        SDL_UnlockSurface(textSF_format);
-    }
-    SDL_SetSurfaceBlendMode(textSF_format, SDL_BLENDMODE_NONE);
-    SDL_SetColorKey(textSF_format, SDL_TRUE, SDL_MapRGBA(textSF_format->format, 0, 0, 0, 0));
+    SDL_Surface* textSF_format = psp_platform::format_text_for_blit(textSF);
 #else
     SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
     SDLL_FreeSurface(textSF);
@@ -2260,7 +2177,7 @@ void graphicsLib::set_video_mode()
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
+    game_screen = psp_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
 #elif defined(DREAMCAST)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)

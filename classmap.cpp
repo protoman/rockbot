@@ -15,6 +15,9 @@ using namespace std;
 #include "file/file_io.h"
 #include "game_mediator.h"
 #include "aux_tools/exception_manager.h"
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#endif
 
 extern string FILEPATH;
 extern graphicsLib graphLib;
@@ -138,11 +141,12 @@ void classMap::loadMap()
     animation_list.clear();
     _level3_tiles.clear();
 #ifdef PSP
-    // Huge reserves of classnpc/object blew the 20MB heap (std::bad_alloc).
-    object_list.reserve(48);
-    _npc_list.reserve(48);
-    animation_list.reserve(32);
-    _level3_tiles.reserve(128);
+    size_t obj_reserve = 0, npc_reserve = 0, anim_reserve = 0, lvl3_reserve = 0;
+    psp_platform::map_list_reserves(&obj_reserve, &npc_reserve, &anim_reserve, &lvl3_reserve);
+    object_list.reserve(obj_reserve);
+    _npc_list.reserve(npc_reserve);
+    animation_list.reserve(anim_reserve);
+    _level3_tiles.reserve(lvl3_reserve);
 #else
     object_list.reserve((size_t)MAP_W * MAP_H / 4);
     _npc_list.reserve((size_t)MAP_W * MAP_H / 8);
@@ -190,7 +194,7 @@ void classMap::loadMap()
     init_animated_tiles();
 
 
-#if defined(HANDHELD) || defined(PSP) // portable consoles aren't strong enough for two dynamic backgrounds
+#if defined(HANDHELD) // portable consoles aren't strong enough for two dynamic backgrounds
 GameMediator::get_instance()->map_data[number].backgrounds[0].speed = 0;
 #endif
 

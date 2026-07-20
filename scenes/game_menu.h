@@ -24,7 +24,6 @@ public:
     // platform dependant configs
     void show_config_android();
     void show_config_video();
-    void show_config_video_PSP();
     void show_config_wii();
     void show_config_PS2();
     void show_config_ask_restart();
