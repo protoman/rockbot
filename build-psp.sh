@@ -141,12 +141,13 @@ if [[ -d "${HOME}/.config/ppsspp/PSP/GAME" ]]; then
     rm -rf "$PPSSPP_GAME"
     mkdir -p "$PPSSPP_GAME"
     if [[ -d "$STAGE_DIR" ]]; then
-        cp -a "$STAGE_DIR/" "$PPSSPP_GAME/"
+        cp -a "$STAGE_DIR"/. "$PPSSPP_GAME"/
     else
         unzip -qo "$OUT_ZIP" -d "${HOME}/.config/ppsspp/PSP/GAME"
     fi
     echo "Open with:"
     echo "  open -a PPSSPPSDL \"$PPSSPP_GAME/EBOOT.PBP\""
+
 fi
 
 echo "✅ Build completed successfully"
