@@ -12,7 +12,7 @@ USE_KERNEL_LIBC = 1
 USE_KERNEL_LIBS = 1 
 
 TARGET = rockbot
-OBJS   = ports/psp/psp_ram.o main.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o \
+OBJS   = ports/psp/psp_platform.o main.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o \
 collision_detection.o graphicslib.o \
 sceneslib.o stage_select.o graphic/option_picker.o classmap.o objects/object.o character/character.o projectilelib.o \
 graphic/animation.o stage.o stage_select.o class_config.o scenes/dialogs.o game.o character/classplayer.o \
