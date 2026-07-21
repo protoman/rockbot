@@ -1,35 +1,93 @@
-PSPSDK=/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/
-export PATH=$PATH:/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin
+# Rockbot PSP build (pspdev toolchain / Docker).
+# Usage (inside pspdev environment):
+#   make -f Makefile.psp VERSION_NUMBER=1 VERSIONNAME=1.22.100
+#
+# Paths come from psp-config (set by pspdev Docker / local install).
+
+PSPSDK := $(shell psp-config --pspsdk-path)
+PSPDEV := $(shell psp-config --pspdev-path)
+
+VERSION_NUMBER ?= 1
+VERSIONNAME ?= 0.0.0
 
 TARGET = rockbot_psp
-OBJS   = main.o data/datautil.o options/key_map.o inputlib.o timerlib.o soundlib.o file/file_io.o collision_detection.o graphicslib.o \
-sceneslib.o stage_select.o graphic/option_picker.o classmap.o objects/object.o character/character.o projectilelib.o \
-graphic/animation.o stage.o stage_select.o class_config.o scenes/dialogs.o game.o character/classplayer.o \
-character/classnpc.o character/artificial_inteligence.o aux_tools/trajectory_parabola.o file/convert.o \
-graphic/draw.o graphic/gfx_sin_wave.o character/movement/jump.o character/movement/inertia.o scenes/sceneshow.o \
-game_mediator.o ports/psp/psp_ram.o strings_map.o file/fio_strings.o file/fio_common.o \
-file/fio_scenes.o aux_tools/stringutils.o aux_tools/fps_control.o aux_tools/exception_manager.o \
-character/character_animation.o scenes/game_menu.o shareddata.o logger.o
+OBJS = \
+	main.o \
+	shareddata.o \
+	logger.o \
+	strings_map.o \
+	sdl_layer.o \
+	data/datautil.o \
+	options/key_map.o \
+	inputlib.o \
+	timerlib.o \
+	soundlib.o \
+	file/file_io.o \
+	file/convert.o \
+	file/fio_strings.o \
+	file/fio_common.o \
+	file/fio_scenes.o \
+	collision_detection.o \
+	graphicslib.o \
+	sceneslib.o \
+	stage_select.o \
+	graphic/option_picker.o \
+	graphic/animation.o \
+	graphic/draw.o \
+	graphic/gfx_sin_wave.o \
+	classmap.o \
+	objects/object.o \
+	character/character.o \
+	character/classplayer.o \
+	character/classnpc.o \
+	character/artificial_inteligence.o \
+	character/character_animation.o \
+	character/movement/jump.o \
+	character/movement/inertia.o \
+	projectilelib.o \
+	stage.o \
+	class_config.o \
+	scenes/dialogs.o \
+	scenes/sceneshow.o \
+	scenes/game_menu.o \
+	game.o \
+	game_mediator.o \
+	aux_tools/trajectory_parabola.o \
+	aux_tools/stringutils.o \
+	aux_tools/fps_control.o \
+	aux_tools/exception_manager.o \
+	ports/psp/psp_platform.o \
+	ports/android/android_game_services.o
 
- 
-INCDIR   = /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/
-CFLAGS   = -G0 -Wall -O3 -DPSP -DHANDHELD -g -fexceptions
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -g -fexceptions -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/include -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/ -I/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/include/SDL/
-ASFLAGS  = $(CFLAGS)
- 
-LIBDIR  =
-LDFLAGS =
-LIBS    = -lm -lc -lstdc++ -lc -lSDL_gfx -lSDL_mixer -logg -lmikmod -lsmpeg -lSDL_ttf -lfreetype -lSDL_image -ljpeg -lpng -lz \
-    -lSDLmain -lSDL -lm -lGL -lm -L/usr/local/pspdev/psp/sdk/lib -L/usr/local/pspdev/psp -lpspirkeyb -lpsppower -lpspvfpu -lpspdebug \
-    -lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio \
-    -L$(PSPSDK)/sdk/lib -L/media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib
- 
-BUILD_PRX=1 
-PSP_LARGE_MEMORY = 1 
-EXTRA_TARGETS   = EBOOT.PBP
+# Modern pspdev ships SDL2; rockbot's sdl_layer supports it via -DSDL2.
+# SDL_MAIN_HANDLED: keep real main() for PSP crt0 (avoid SDL renaming it to SDL_main).
+CFLAGS = -G0 -Wall -O2 -DPSP -DHANDHELD -DSDL2 -DSDL_MAIN_HANDLED -g
+CXXFLAGS = $(CFLAGS) -std=c++11 -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS)
+
+# Order matters: dependents before providers (SDL_ttf → harfbuzz/freetype → bz2).
+LIBS = \
+	-lSDL2_gfx -lSDL2_mixer -lSDL2_ttf -lSDL2_image -lSDL2 \
+	-lmodplug \
+	-lvorbisfile -lvorbis -logg -lFLAC -lmpg123 -lopusfile -lopus \
+	-lharfbuzz -lfreetype -lpng -ljpeg -lbz2 -lz \
+	-lGL -lpspvram \
+	-lm -lstdc++ -lc \
+	-lpspirkeyb -lpsppower -lpspvfpu -lpspdebug \
+	-lpspgu -lpspctrl -lpspge -lpspdisplay -lpsphprm -lpspaudio -lpsprtc -lpspuser
+
+BUILD_PRX = 1
+PSP_LARGE_MEMORY = 1
+EXTRA_TARGETS = EBOOT.PBP
 
 PSP_EBOOT_TITLE = Rockbot $(VERSIONNAME)
-PSP_EBOOT_ICON= ./build/packages/files/psp_icon$($version_number).png
-PSP_EBOOT_PIC1= ./build/packages/files/psp_background$($version_number).png
 
-include /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/psp/sdk/lib/build.mak
+ifeq ($(VERSION_NUMBER),1)
+PSP_EBOOT_ICON = ./build/packages/files/psp_icon1.png
+PSP_EBOOT_PIC1 = ./build/packages/files/psp_background1.png
+else
+PSP_EBOOT_ICON = ./build/packages/files/psp_icon.png
+PSP_EBOOT_PIC1 = ./build/packages/files/psp_background.png
+endif
+
+include $(PSPSDK)/lib/build.mak

@@ -313,6 +313,48 @@ struct graphicsLib_gSurface {
             }
         }
 
+        // move CONSTRUCTOR — avoid DisplayFormatAlpha duplicates (OOM on PSP map load)
+        graphicsLib_gSurface(graphicsLib_gSurface&& other) noexcept
+        {
+            gSurface = other.gSurface;
+            other.gSurface = NULL;
+            width = other.width;
+            height = other.height;
+            other.width = 0;
+            other.height = 0;
+            persistent = other.persistent;
+            video_screen = other.video_screen;
+            colorkey1_points = std::move(other.colorkey1_points);
+            colorkey2_points = std::move(other.colorkey2_points);
+            colorkey3_points = std::move(other.colorkey3_points);
+            show_debug = other.show_debug;
+            is_rle_enabled = other.is_rle_enabled;
+        }
+
+        graphicsLib_gSurface& operator=(graphicsLib_gSurface&& other) noexcept
+        {
+            if (this == &other) {
+                return *this;
+            }
+            if (gSurface != NULL && video_screen == false && persistent == false) {
+                SDLL_FreeSurface(gSurface);
+            }
+            gSurface = other.gSurface;
+            other.gSurface = NULL;
+            width = other.width;
+            height = other.height;
+            other.width = 0;
+            other.height = 0;
+            persistent = other.persistent;
+            video_screen = other.video_screen;
+            colorkey1_points = std::move(other.colorkey1_points);
+            colorkey2_points = std::move(other.colorkey2_points);
+            colorkey3_points = std::move(other.colorkey3_points);
+            show_debug = other.show_debug;
+            is_rle_enabled = other.is_rle_enabled;
+            return *this;
+        }
+
         // assign constructor
         graphicsLib_gSurface& operator=(const graphicsLib_gSurface& original)
         {

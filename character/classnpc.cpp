@@ -245,12 +245,12 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
                 return;
             }
             graphicsLib_gSurface gsurface_flip;
-            graphLib.character_graphics_background_list.insert(std::pair<std::string, graphicsLib_gSurface>(name, bg_surface));
-            graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
-            graphLib.character_graphics_background_list_left.insert(std::pair<std::string, graphicsLib_gSurface>(name, gsurface_flip));
-            _has_background = true;
             total_frame_size.width = bg_surface.width;
             total_frame_size.height = bg_surface.height;
+            graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
+            graphLib.character_graphics_background_list.insert(std::make_pair(name, std::move(bg_surface)));
+            graphLib.character_graphics_background_list_left.insert(std::make_pair(name, std::move(gsurface_flip)));
+            _has_background = true;
         } else {
             static std::map<std::string, graphicsLib_gSurface>::iterator it;
             it = graphLib.character_graphics_background_list.find(name);

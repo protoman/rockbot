@@ -3,8 +3,9 @@
 #endif
 
 #ifdef PSP
-#include <pspkernel.h>
-#include <psppower.h>
+#include "ports/psp/psp_platform.h"
+// PSP crt0 calls main(); do not let SDL2 rename it to SDL_main.
+#undef main
 #endif
 
 #ifdef ANDROID
@@ -185,49 +186,6 @@ void PS2_create_save_icons()
 #endif
 
 
-#ifdef PSP
-PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
-PSP_HEAP_SIZE_KB(-1024);
-//PSP_HEAP_SIZE_MAX();
-
-
-/* Exit callback */
-int exit_callback(int arg1, int arg2, void *common) {
-    sceKernelExitGame();
-    return 0;
-}
-
-/* Callback thread */
-int CallbackThread(SceSize args, void *argp) {
-    int cbid;
-    cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
-    sceKernelRegisterExitCallback(cbid);
-    sceKernelSleepThreadCB();
-    return 0;
-}
-
-/* Sets up the callback thread and returns its thread id */
-int SetupCallbacks(void) {
-    int thid = 0;
-    thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
-    if(thid >= 0) {
-        sceKernelStartThread(thid, 0, 0);
-    }
-    return thid;
-}
-
-
-// LINKER PATCH
-/*
-extern "C" {
-void *__dso_handle = NULL;
-}
-*/
-
-// ram counter object
-#endif
-
-
 void get_filepath()
 {
 #ifdef WIN32
@@ -244,6 +202,8 @@ void get_filepath()
         FILEPATH = std::string(path);
         FILEPATH = FILEPATH.substr(0, FILEPATH.length()-7);
     }
+#elif defined(PSP)
+    psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -319,8 +279,7 @@ int main(int argc, char *argv[])
 {
 
 #ifdef PSP
-    SetupCallbacks();
-    scePowerSetClockFrequency(333, 333, 166);
+    psp_platform::setup();
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
@@ -424,8 +383,6 @@ int main(int argc, char *argv[])
         fflush(stdout);
         return -1;
     }
-
-    fflush(stdout);
 
 #ifdef ANDROID
     game_services.init_android_button_size();

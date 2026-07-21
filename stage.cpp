@@ -76,10 +76,8 @@ void stage::load_stage() {
 
     stage_is_loaded = true;
 
-	// load stage maps
+	// load stage maps (do not assign a fresh classMap — copy would clone surfaces)
     for (int i=0; i<STAGE_MAX_MAPS; i++) {
-        classMap new_map;
-        maps[i] = new_map;
         maps[i].setMapNumber(i);
         maps[i].setStageNumber(number);
         maps[i].loadMap();

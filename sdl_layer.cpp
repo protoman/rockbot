@@ -1,6 +1,12 @@
 #include "sdl_layer.h"
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#endif
 #include <string>
 #include <map>
+#include <cstdio>
+#include <cerrno>
+#include <cstring>
 
 // =============================================
 // SDL3
@@ -268,6 +274,11 @@ SDL_Surface *SDLL_TTF_RenderUTF8_Solid(TTF_Font *font, const char *text, SDL_Col
 	return TTF_RenderText_Solid(font, text, SDL_strlen(text), fg);
 }
 
+SDL_Surface *SDLL_TTF_RenderUTF8_Blended(TTF_Font *font, const char *text, SDL_Color fg)
+{
+	return TTF_RenderText_Blended(font, text, SDL_strlen(text), fg);
+}
+
 const char *SDLL_TTF_GetError()
 {
 	return SDL_GetError();
@@ -468,26 +479,78 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 
 SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 {
+	(void)bpp;
+	(void)flags;
+
+	int win_w = width;
+	int win_h = height;
+	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+#ifdef PSP
+	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
+#endif
+
+	if (texture != NULL) {
+		SDL_DestroyTexture(texture);
+		texture = NULL;
+	}
+	if (renderer != NULL) {
+		SDL_DestroyRenderer(renderer);
+		renderer = NULL;
+	}
+	if (window != NULL) {
+		SDL_DestroyWindow(window);
+		window = NULL;
+	}
+
 	window = SDL_CreateWindow(
 		"RockBot",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		width,
-		height,
-		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		win_w,
+		win_h,
+		window_flags);
+	if (window == NULL) {
+		printf("SDLL_SetVideoMode: SDL_CreateWindow failed: %s\n", SDL_GetError());
+		return NULL;
+	}
+
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (renderer == NULL) {
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	}
+	if (renderer == NULL) {
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+	}
+	if (renderer == NULL) {
+		printf("SDLL_SetVideoMode: SDL_CreateRenderer failed: %s\n", SDL_GetError());
+		return NULL;
+	}
 
 	SDL_RendererInfo info;
-	SDL_GetRendererInfo(renderer, &info);
-	printf("Renderer backend: %s\n", info.name);
-
-	printf("SDL version: %s\n", SDLL_GetCompiledVersion());
+	if (SDL_GetRendererInfo(renderer, &info) == 0) {
+		printf("Renderer backend: %s\n", info.name);
+	}
+	printf("SDL version: %s window=%dx%d game=%dx%d\n",
+		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
 
 	texture = SDL_CreateTexture(renderer,
 								SDL_PIXELFORMAT_ARGB8888,
 								SDL_TEXTUREACCESS_STREAMING,
 								width, height);
+	if (texture == NULL) {
+		printf("SDLL_SetVideoMode: SDL_CreateTexture failed: %s\n", SDL_GetError());
+		return NULL;
+	}
 
-	return SDL_GetWindowSurface(window);
+	// SDL2 forbids combining SDL_GetWindowSurface() with a Renderer.
+	// Software backbuffer (game res) + present via texture (scaled to window).
+	SDL_Surface *screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+	if (screen == NULL) {
+		printf("SDLL_SetVideoMode: SDL_CreateRGBSurfaceWithFormat failed: %s\n", SDL_GetError());
+		return NULL;
+	}
+	SDL_SetSurfaceBlendMode(screen, SDL_BLENDMODE_NONE);
+	SDL_FillRect(screen, NULL, SDL_MapRGBA(screen->format, 0, 0, 0, 255));
+	return screen;
 }
 
 int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
@@ -498,7 +561,8 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
-	return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+	return out;
 }
 
 void SDLL_WM_SetCaption(const char *title, const char *icon)
@@ -508,7 +572,11 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
-	return SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+#ifdef PSP
+	psp_platform::adjust_display_format_alpha(out);
+#endif
+	return out;
 }
 
 void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
@@ -518,7 +586,15 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
-	SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
+	if (screen == NULL || texture == NULL || renderer == NULL) {
+		return -1;
+	}
+	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
+		return -1;
+	}
+	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
@@ -570,7 +646,11 @@ int SDLL_putenv(const char *variable)
 
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
 {
+#ifdef PSP
+	return psp_platform::rw_from_file(file, mode);
+#else
 	return SDL_RWFromFile(file, mode);
+#endif
 }
 
 void SDLL_FreeSurface(SDL_Surface *surface)
@@ -585,6 +665,9 @@ int SDLL_SetColorKey(SDL_Surface *surface, int flag, Uint32 key)
 	if (flag & SDL_RLEACCEL) {
 		SDL_SetSurfaceRLE(surface, 1);
 	}
+#ifdef PSP
+	psp_platform::prepare_color_key(surface, sdl2_flag);
+#endif
 	return res;
 }
 
@@ -688,6 +771,11 @@ SDL_Surface *SDLL_TTF_RenderUTF8_Solid(TTF_Font *font, const char *text, SDL_Col
 	return TTF_RenderUTF8_Solid(font, text, fg);
 }
 
+SDL_Surface *SDLL_TTF_RenderUTF8_Blended(TTF_Font *font, const char *text, SDL_Color fg)
+{
+	return TTF_RenderUTF8_Blended(font, text, fg);
+}
+
 const char *SDLL_TTF_GetError()
 {
 	return TTF_GetError();
@@ -745,12 +833,20 @@ int SDLL_Mix_HaltMusic()
 
 SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 {
+#ifdef PSP
+	return psp_platform::load_wav(file);
+#else
 	return Mix_LoadWAV(file);
+#endif
 }
 
 SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 {
+#ifdef PSP
+	return psp_platform::load_mus(file);
+#else
 	return Mix_LoadMUS(file);
+#endif
 }
 
 void SDLL_Mix_FreeMusic(SoundMusic *music)
@@ -875,7 +971,11 @@ int SDLL_putenv(const char *variable)
 
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
 {
+#ifdef PSP
+	return psp_platform::rw_from_file(file, mode);
+#else
 	return SDL_RWFromFile(file, mode);
+#endif
 }
 
 void SDLL_FreeSurface(SDL_Surface *surface)
@@ -1045,12 +1145,20 @@ int SDLL_Mix_HaltMusic()
 
 SoundChunk *SDLL_Mix_LoadWAV(const char *file)
 {
+#ifdef PSP
+	return psp_platform::load_wav(file);
+#else
 	return Mix_LoadWAV(file);
+#endif
 }
 
 SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 {
+#ifdef PSP
+	return psp_platform::load_mus(file);
+#else
 	return Mix_LoadMUS(file);
+#endif
 }
 
 void SDLL_Mix_FreeMusic(SoundMusic *music)
@@ -1114,8 +1222,12 @@ Uint32 SDLL_MapRGB(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
 {
 #ifdef SDL3
 	const SDL_PixelFormatDetails *details = SDL_GetPixelFormatDetails(surface->format);
-	return SDL_MapRGB(details, NULL, r, g, b);
+	return SDL_MapRGBA(details, NULL, r, g, b, 255);
 #else
+	// SDL2 MapRGB sets A=0 on ARGB8888 → transparent fills → black Flip / invisible text.
+	if (surface != NULL && surface->format != NULL && surface->format->Amask != 0) {
+		return SDL_MapRGBA(surface->format, r, g, b, 255);
+	}
 	return SDL_MapRGB(surface->format, r, g, b);
 #endif
 }

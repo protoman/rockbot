@@ -4,6 +4,9 @@
 
 #include "logger.h"
 #include "file_io.h"
+#ifdef PSP
+#include "../ports/psp/psp_platform.h"
+#endif
 #include "convert.h"
 #include "../aux_tools/stringutils.h"
 #include "../aux_tools/exception_manager.h"
@@ -633,10 +636,17 @@ namespace format_v4 {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
 
+#ifdef PSP
+        (void)dir_only;
+        return psp_platform::read_games_directory(filename);
+#endif
 
         DIR *dir = opendir(filename.c_str());
+        if (dir == NULL) {
+            return res;
+        }
 
-#ifndef PLAYSTATION2
+#if !defined(PLAYSTATION2)
         dirent *entry = readdir(dir);
 
         while (entry != NULL) {
@@ -650,6 +660,9 @@ namespace format_v4 {
                     res.push_back(dir_name);
                 } else if (dir_only == false && child_dir == NULL) {
                     res.push_back(dir_name);
+                }
+                if (child_dir != NULL) {
+                    closedir(child_dir);
                 }
             }
             entry = readdir(dir);
