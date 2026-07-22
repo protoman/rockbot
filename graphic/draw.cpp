@@ -207,7 +207,9 @@ void draw::update_screen()
             graphLib.showSurface(&current_alpha_surface);
         }
     }
-    graphLib.request_redraw();
+    // This function historically performed an immediate present; keep that behavior
+    // for callers that expect the screen to update right away.
+    graphLib.flush_redraw(true);
 }
 
 void draw::set_gfx(Uint8 gfx, short mode)
