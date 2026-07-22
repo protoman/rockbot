@@ -1,0 +1,134 @@
+# Rockbot Nintendo Switch (libnx / Docker).
+# Usage (inside devkitA64 environment):
+#   make -f Makefile.switch VERSION_NUMBER=1 VERSIONNAME=1.22.100
+#
+# Requires DEVKITPRO and Switch SDL2 portlibs (switch-sdl2*).
+
+ifeq ($(strip $(DEVKITPRO)),)
+$(error "Please set DEVKITPRO in your environment. export DEVKITPRO=/opt/devkitpro")
+endif
+
+include $(DEVKITPRO)/libnx/switch_rules
+
+VERSION_NUMBER ?= 1
+VERSIONNAME ?= 0.0.0
+
+TARGET := rockbot
+BUILD := build_switch
+
+APP_TITLE := Rockbot $(VERSIONNAME)
+APP_AUTHOR := Rockbot
+APP_VERSION := $(VERSIONNAME)
+
+LIBDIRS := $(PORTLIBS) $(LIBNX)
+INCLUDE := $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+	-I. -Idata -Ioptions -Ifile -Igraphic -Icharacter -Iobjects -Iscenes -Iaux_tools -Iports/switch -Iports/android
+LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+SDL2_CONFIG := $(firstword $(wildcard $(PORTLIBS)/bin/sdl2-config) $(shell which sdl2-config 2>/dev/null))
+
+ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
+
+# SDL_MAIN_HANDLED: keep real main() (hbmenu / crt0); avoid SDL renaming to SDL_main.
+CFLAGS := -g -Wall -O2 -ffunction-sections $(ARCH) \
+	-DSWITCH -D__SWITCH__ -DHANDHELD -DSDL2 -DSDL_MAIN_HANDLED \
+	$(INCLUDE)
+ifneq ($(SDL2_CONFIG),)
+CFLAGS += $(shell $(SDL2_CONFIG) --cflags)
+endif
+CXXFLAGS := $(CFLAGS) -std=c++11 -fno-exceptions -fno-rtti
+ASFLAGS := -g $(ARCH)
+LDFLAGS := -specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map
+
+LIBS := -lSDL2_mixer -lSDL2_ttf -lSDL2_image -lSDL2_gfx
+ifneq ($(SDL2_CONFIG),)
+LIBS += $(shell $(SDL2_CONFIG) --libs)
+else
+LIBS += -lSDL2
+endif
+# Static portlibs: dependents before providers; harfbuzz twice covers ttf+freetype.
+LIBS += \
+	-lmodplug -lvorbisfile -lvorbis -logg -lmpg123 -lopusfile -lopus -lFLAC \
+	-lharfbuzz -lfreetype -lharfbuzz -lpng -ljpeg -lwebp -lbz2 -lz \
+	-lstdc++ -lm -lnx
+
+SRC_CPP := \
+	main.cpp \
+	shareddata.cpp \
+	logger.cpp \
+	strings_map.cpp \
+	sdl_layer.cpp \
+	data/datautil.cpp \
+	options/key_map.cpp \
+	inputlib.cpp \
+	timerlib.cpp \
+	soundlib.cpp \
+	file/file_io.cpp \
+	file/convert.cpp \
+	file/fio_strings.cpp \
+	file/fio_common.cpp \
+	file/fio_scenes.cpp \
+	collision_detection.cpp \
+	graphicslib.cpp \
+	sceneslib.cpp \
+	stage_select.cpp \
+	graphic/option_picker.cpp \
+	graphic/animation.cpp \
+	graphic/draw.cpp \
+	graphic/gfx_sin_wave.cpp \
+	classmap.cpp \
+	objects/object.cpp \
+	character/character.cpp \
+	character/classplayer.cpp \
+	character/classnpc.cpp \
+	character/artificial_inteligence.cpp \
+	character/character_animation.cpp \
+	character/movement/jump.cpp \
+	character/movement/inertia.cpp \
+	projectilelib.cpp \
+	stage.cpp \
+	class_config.cpp \
+	scenes/dialogs.cpp \
+	scenes/sceneshow.cpp \
+	scenes/game_menu.cpp \
+	game.cpp \
+	game_mediator.cpp \
+	aux_tools/trajectory_parabola.cpp \
+	aux_tools/stringutils.cpp \
+	aux_tools/fps_control.cpp \
+	aux_tools/exception_manager.cpp \
+	ports/switch/switch_platform.cpp \
+	ports/android/android_game_services.cpp
+
+OFILES := $(addprefix $(BUILD)/,$(SRC_CPP:.cpp=.o))
+DEPS := $(OFILES:.o=.d)
+
+.PHONY: all clean
+
+all: $(TARGET).nro
+
+$(BUILD):
+	@mkdir -p $@
+
+$(BUILD)/%.o: %.cpp | $(BUILD)
+	@mkdir -p $(dir $@)
+	$(CXX) -MMD -MP -MF $(BUILD)/$*.d $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/$(TARGET).elf: $(OFILES)
+	@mkdir -p $(dir $@)
+	$(CXX) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
+
+$(TARGET).nacp:
+	@echo "nacptool --create \"$(APP_TITLE)\" \"$(APP_AUTHOR)\" \"$(APP_VERSION)\" $@"
+	@nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@
+
+$(TARGET).nro: $(BUILD)/$(TARGET).elf $(TARGET).nacp
+	@echo "elf2nro $< $@"
+	@elf2nro $< $@ --nacp=$(TARGET).nacp
+	@echo "built ... $@"
+
+clean:
+	@echo clean ...
+	@rm -rf $(BUILD) $(TARGET).nro $(TARGET).nacp $(TARGET).elf
+
+-include $(DEPS)

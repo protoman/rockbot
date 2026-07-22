@@ -44,6 +44,7 @@ build/packages/Dingux/
 build/packages/PS2/
 build/packages/PSP/
 build/packages/psp_dist/
+build/packages/switch_dist/
 build/packages/linux/
 build/packages/pocketgo/
 build/packages/Rockbot1/
@@ -92,3 +93,9 @@ build/packages/psp-build.log
 rockbot_psp.elf
 rockbot_psp.prx
 rockbot.prx
+build/packages/switch-build.log
+
+# switch
+build_switch/
+rockbot.nro
+rockbot.nacp
