@@ -203,6 +203,9 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     }
     fps_manager.limit();
 
+    // Ensure we present at most once per frame: flush deferred redraws now
+    graphLib.flush_redraw();
+
     /*
     // REMOVED BECAUSE IT IS NOT USER FRIENDLY //
     if (fps_manager.get_failed_min_fps() == true) {

@@ -207,7 +207,7 @@ void draw::update_screen()
             graphLib.showSurface(&current_alpha_surface);
         }
     }
-    graphLib.updateScreen();
+    graphLib.request_redraw();
 }
 
 void draw::set_gfx(Uint8 gfx, short mode)

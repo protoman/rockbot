@@ -2536,3 +2536,22 @@ void graphicsLib::set_window_title(std::string name)
 {
     SDLL_WM_SetCaption(name.c_str(), "RockBot");
 }
+
+// Deferred redraw API
+
+void graphicsLib::request_redraw()
+{
+    // mark a redraw request; do not perform heavy SDL calls here
+    request_counter++;
+    redraw_requested = true;
+}
+
+void graphicsLib::flush_redraw(bool force)
+{
+    if (redraw_requested || force) {
+        // perform the actual update
+        updateScreen();
+        present_counter++;
+        redraw_requested = false;
+    }
+}
