@@ -33,6 +33,12 @@ do
     [[ -e "$required" ]] || { echo "Error: missing $required"; exit 1; }
 done
 
+ICON_CANDIDATE="$PACKAGES_DIR/files/switch_icon${VERSION_NUMBER}.jpg"
+ICON_FALLBACK="$PACKAGES_DIR/files/switch_icon.jpg"
+if [[ ! -f "$ICON_CANDIDATE" && ! -f "$ICON_FALLBACK" ]]; then
+    echo "Warning: no Switch icon JPEG under build/packages/files/switch_icon*.jpg (hbmenu will show blank)"
+fi
+
 cd "$REPO_ROOT"
 mkdir -p "$PACKAGES_DIR"
 : > "$BUILD_LOG"

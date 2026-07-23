@@ -20,6 +20,15 @@ APP_TITLE := Rockbot $(VERSIONNAME)
 APP_AUTHOR := Rockbot
 APP_VERSION := $(VERSIONNAME)
 
+# hbmenu icon (JPEG, typically 256x256). VERSION_NUMBER selects per-game art.
+ifeq ($(VERSION_NUMBER),1)
+APP_ICON := ./build/packages/files/switch_icon1.jpg
+else ifeq ($(VERSION_NUMBER),2)
+APP_ICON := ./build/packages/files/switch_icon2.jpg
+else
+APP_ICON := ./build/packages/files/switch_icon.jpg
+endif
+
 LIBDIRS := $(PORTLIBS) $(LIBNX)
 INCLUDE := $(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 	-I. -Idata -Ioptions -Ifile -Igraphic -Icharacter -Iobjects -Iscenes -Iaux_tools -Iports/switch -Iports/android
@@ -123,8 +132,13 @@ $(TARGET).nacp:
 	@nacptool --create "$(APP_TITLE)" "$(APP_AUTHOR)" "$(APP_VERSION)" $@
 
 $(TARGET).nro: $(BUILD)/$(TARGET).elf $(TARGET).nacp
-	@echo "elf2nro $< $@"
+	@echo "elf2nro $< $@ (icon=$(APP_ICON))"
+ifeq ($(wildcard $(APP_ICON)),)
+	@echo "WARNING: missing $(APP_ICON) — building without icon"
 	@elf2nro $< $@ --nacp=$(TARGET).nacp
+else
+	@elf2nro $< $@ --nacp=$(TARGET).nacp --icon=$(APP_ICON)
+endif
 	@echo "built ... $@"
 
 clean:
