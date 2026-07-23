@@ -6,6 +6,9 @@
 #ifdef PSP
 #include "../ports/psp/psp_platform.h"
 #endif
+#ifdef SWITCH
+#include "../ports/switch/switch_platform.h"
+#endif
 
 
 extern std::string FILEPATH;
@@ -92,6 +95,8 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
     options.push_back(st_menu_option("PC"));
 #elif PSP
     options.push_back(st_menu_option("PSP"));
+#elif SWITCH
+    options.push_back(st_menu_option("SWITCH"));
 #elif WII
     options.push_back(st_menu_option("WII"));
 #elif ANDROID
@@ -147,6 +152,8 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
             show_config_android();
 #elif PSP
             psp_platform::show_config_video();
+#elif SWITCH
+            switch_platform::show_config_video();
 #elif WII
             show_config_wii();
 #elif PLAYSTATION2
