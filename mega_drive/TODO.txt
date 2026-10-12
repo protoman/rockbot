@@ -1,0 +1,10 @@
+- no need for quit game menu
+- settings should be simplified
+    # Audio: keep
+    # Input: remove Directional analog/digital and selected joystick.
+    # No PC, android or other
+    # No language
+    # No Performance
+    # extras: keep
+    # lave stage: keep
+    # quit game> remove
