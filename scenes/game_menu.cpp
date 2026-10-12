@@ -3,6 +3,9 @@
 #ifdef ANDROID
 #include <android/log.h>
 #endif
+#ifdef PSP
+#include "../ports/psp/psp_platform.h"
+#endif
 
 
 extern std::string FILEPATH;
@@ -143,8 +146,7 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
 #elif ANDROID
             show_config_android();
 #elif PSP
-            show_config_video_PSP();
-
+            psp_platform::show_config_video();
 #elif WII
             show_config_wii();
 #elif PLAYSTATION2
@@ -274,36 +276,6 @@ void game_menu::show_config_video()
             main_config_picker.draw();
         }
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    }
-}
-
-void game_menu::show_config_video_PSP()
-{
-    st_position config_text_pos;
-    config_text_pos.x = graphLib.get_config_menu_pos().x + 24;
-    config_text_pos.y = graphLib.get_config_menu_pos().y + 40;
-    input.clean();
-    timer.delay(300);
-
-    short selected_option = 0;
-
-    while (selected_option != -1) {
-        std::vector<std::string> options;
-        if (SharedData::get_instance()->game_config.video_fullscreen == true) {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_windowed));
-        } else {
-            options.push_back(strings_map::get_instance()->get_ingame_string(strings_ingame_video_fullscreen));
-        }
-        option_picker main_config_picker(false, config_text_pos, options, true);
-        selected_option = main_config_picker.pick(selected_option+1);
-        if (selected_option == 0) {
-            SharedData::get_instance()->game_config.video_fullscreen = !SharedData::get_instance()->game_config.video_fullscreen;
-        }
-        if (selected_option != -1) {
-            fio.save_config(SharedData::get_instance()->game_config);
-            show_config_ask_restart();
-            main_config_picker.draw();
-        }
     }
 }
 

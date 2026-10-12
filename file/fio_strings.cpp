@@ -78,14 +78,13 @@ namespace format_v4 {
         std::ifstream fp(filename.c_str());
 
         if (!fp.is_open()) {
+            std::cout << "ERROR: fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
             fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
-        } else {
-            std::cout << "ERROR: fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
         }
 
         std::string str;

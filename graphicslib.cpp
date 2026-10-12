@@ -1,4 +1,8 @@
 #include <cstdlib>
+#include <cstdio>
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#endif
 #include <iostream>
 #include <cstring>
 #include <vector>
@@ -152,12 +156,19 @@ bool graphicsLib::initGraphics()
 
 	char *buffer = new char[filename.size()+1];
 	std::strcpy(buffer, filename.c_str());
+#ifdef PSP
+    if (!psp_platform::load_fonts(buffer, &font, &outline_font, &error_font, FONT_SIZE, FONT_SIZE_ERROR)) {
+        delete[] buffer;
+        return false;
+    }
+#else
     RWopsPtr *fileRW = SDLL_RWFromFile(buffer, "rb");
     RWopsPtr *fileOutlineRW = SDLL_RWFromFile(buffer, "rb");
     RWopsPtr *fileErrorRW = SDLL_RWFromFile(buffer, "rb");
 
-    if (!fileRW || !fileOutlineRW) {
-		printf("ERROR::initGraphics - could not open '%s' font\n", buffer);
+    if (!fileRW || !fileOutlineRW || !fileErrorRW) {
+		printf("ERROR::initGraphics - could not open '%s' font (rw=%p outline=%p error=%p sdl='%s')\n",
+               buffer, (void*)fileRW, (void*)fileOutlineRW, (void*)fileErrorRW, SDLL_GetError());
         fflush(stdout);
         delete[] buffer;
 		return false;
@@ -168,7 +179,8 @@ bool graphicsLib::initGraphics()
         outline_font = SDLL_TTF_OpenFontRW(fileOutlineRW, 1, FONT_SIZE);
         error_font = SDLL_TTF_OpenFontRW(fileErrorRW, 1, FONT_SIZE_ERROR);
         if (font == NULL || outline_font == NULL || error_font == NULL) {
-            printf("ERROR::initGraphics - SDLL_TTF_OpenFont failed for '%s'\n", buffer);
+            printf("ERROR::initGraphics - SDLL_TTF_OpenFont failed for '%s' (ttf='%s')\n",
+                   buffer, SDLL_TTF_GetError());
             fflush(stdout);
             delete[] buffer;
             return false;
@@ -177,6 +189,7 @@ bool graphicsLib::initGraphics()
         SDLL_TTF_SetFontOutline(outline_font, 1);
 #endif
     }
+#endif
     delete[] buffer;
 
     fflush(stdout);
@@ -235,7 +248,9 @@ void graphicsLib::load_shared_graphics()
     surfaceFromFile(filename_got_weapon, &got_weapon_background);
 
     water_tile = SDLSurfaceFromFile(GAMEPATH + "/shared/images/water_tile.png");
-    SDLL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+    if (water_tile) {
+        SDLL_SetAlpha(water_tile, SDL_SRCALPHA, 120);
+    }
     _config_menu_pos.x = 0;
 
     filename = GAMEPATH + "shared/images/backgrounds/weapon_tooltip.png";
@@ -334,13 +349,21 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
     spriteCopy = SDLL_IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
         std::cout << "ERROR::::SDLSurfaceFromFile - Error on SDLL_IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << SDLL_IMG_GetError() << std::endl;
+        fflush(stdout);
+        return NULL;
     }
     if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
+        SDLL_FreeSurface(spriteCopy);
         return NULL;
     }
 
     SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
     SDLL_FreeSurface(spriteCopy);
+    if (res_surface == NULL) {
+        std::cout << "ERROR::::SDLSurfaceFromFile - DisplayFormat failed for '" << clean_filename << "'\n";
+        fflush(stdout);
+        return NULL;
+    }
     SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
@@ -753,6 +776,14 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 
     gSurface->freeGraphic();
     SDL_Surface* temp_surface = NULL;
+#ifdef PSP
+    temp_surface = psp_platform::create_surface(size.width, size.height);
+    if (!temp_surface) {
+        show_debug_msg("EXIT #21.INIT #1");
+        show_debug_msg("EXIT #41.2");
+        exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
+    }
+#else
     SDL_Surface* rgb_surface = SDLL_CreateRGBSurface(SDL_SWSURFACE , size.width, size.height, VIDEO_MODE_COLORS, 0, 0, 0, 0);
     if (rgb_surface != NULL) {
         temp_surface = SDLL_DisplayFormat(rgb_surface);
@@ -763,6 +794,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
         }
         SDLL_FreeSurface(rgb_surface);
     }
+#endif
 
     if (temp_surface == NULL) {
         return;
@@ -1004,10 +1036,7 @@ void graphicsLib::draw_text(short x, short y, const std::string &text, graphicsL
 
 void graphicsLib::draw_error_text(const std::string &text)
 {
-    SDL_Color font_color = SDL_Color();
-    font_color.r = 250;
-    font_color.g = 250;
-    font_color.b = 250;
+    SDL_Color font_color = {250, 250, 250, 255};
     SDL_Rect text_pos = {5, 10, 0, 0};
     int max_len = 42;
     int parts_n = text.length() / max_len;
@@ -1021,12 +1050,20 @@ void graphicsLib::draw_error_text(const std::string &text)
     for (int i=0; i<=parts_n; i++) {
         std::string sub_text = text.substr(i*max_len, max_len);
         std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
+#ifdef PSP
+        SDL_Surface* textSF = psp_platform::render_error_text(error_font, sub_text.c_str(), font_color);
+#else
         SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(error_font, sub_text.c_str(), font_color);
+#endif
         if (!textSF) {
             continue;
         }
+#ifdef PSP
+        SDL_Surface* textSF_format = psp_platform::format_text_for_blit(textSF);
+#else
         SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
         SDLL_FreeSurface(textSF);
+#endif
         if (!textSF_format) {
             continue;
         }
@@ -1053,10 +1090,12 @@ void graphicsLib::draw_centered_text(short y, const std::string &text, graphicsL
 
 void graphicsLib::render_text(short x, short y, const std::string &text, st_color color, bool centered)
 {
-    SDL_Color font_color = SDL_Color();
-    font_color.r = color.r;
-    font_color.g = color.g;
-    font_color.b = color.b;
+    SDL_Color font_color = {
+        static_cast<Uint8>(color.r),
+        static_cast<Uint8>(color.g),
+        static_cast<Uint8>(color.b),
+        255
+    };
     x += _screen_resolution_adjust.x;
     y += _screen_resolution_adjust.y;
     SDL_Rect text_pos;
@@ -1074,7 +1113,7 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
 
 #if !defined(DINGUX) && !defined(PSP) && !defined(POCKETGO)
     if (outline_font) {
-        SDL_Color black = {0, 0, 0};
+        SDL_Color black = {0, 0, 0, 255};
         SDL_Surface* text_outlineSF = SDLL_TTF_RenderUTF8_Solid(outline_font, text.c_str(), black);
 
         if (text_outlineSF) {
@@ -1096,16 +1135,37 @@ void graphicsLib::render_text(short x, short y, const std::string &text, st_colo
     text_pos.h = 0;
 #endif
 
+#ifdef PSP
+    SDL_Surface* textSF = psp_platform::render_utf8_text(font, text.c_str(), font_color);
+#else
     SDL_Surface* textSF = SDLL_TTF_RenderUTF8_Solid(font, text.c_str(), font_color);
+#endif
     if (!textSF) {
+        printf("ERROR: TTF render failed for '%s': %s\n", text.c_str(), SDLL_TTF_GetError());
+        fflush(stdout);
+        return;
+    }
+    if (textSF->w <= 0 || textSF->h <= 0) {
+        static int zero_w_logs = 0;
+        if (zero_w_logs < 5) {
+            printf("ERROR: TTF surface zero size for '%s' (w=%d h=%d err='%s')\n",
+                   text.c_str(), textSF->w, textSF->h, SDLL_TTF_GetError());
+            fflush(stdout);
+            zero_w_logs++;
+        }
+        SDLL_FreeSurface(textSF);
         return;
     }
     if (centered == true && text.size() > 0) {
         text_pos.x = RES_W/2 - textSF->w/2;
     }
 
+#ifdef PSP
+    SDL_Surface* textSF_format = psp_platform::format_text_for_blit(textSF);
+#else
     SDL_Surface* textSF_format = SDLL_DisplayFormat(textSF);
     SDLL_FreeSurface(textSF);
+#endif
 
     if (!textSF_format) {
         return;
@@ -2099,17 +2159,17 @@ void graphicsLib::set_video_mode()
 	// Try multiple video modes for Android - some devices/drivers have issues
 	// Try primary mode first
 	game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF);
-	
+
 	if (game_screen == NULL) {
 		printf("ANDROID: Primary video mode (SDL_SWSURFACE | SDL_DOUBLEBUF) failed, trying fallback...\n");
 		// Fallback 1: Try without SDL_DOUBLEBUF
 		game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE);
-		
+
 		if (game_screen == NULL) {
 			printf("ANDROID: Fallback 1 (SDL_SWSURFACE) failed, trying fallback 2...\n");
 			// Fallback 2: Try with SDL_ANYFORMAT to handle color depth mismatches
 			game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_ANYFORMAT);
-			
+
 			if (game_screen == NULL) {
 				printf("ANDROID: Fallback 2 (SDL_SWSURFACE | SDL_ANYFORMAT) failed, trying fallback 3...\n");
 				// Fallback 3: Try with default flags
@@ -2122,7 +2182,7 @@ void graphicsLib::set_video_mode()
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_SWSURFACE|SDL_ANYFORMAT|SDL_NOFRAME);
+    game_screen = psp_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
 #elif defined(DREAMCAST)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)

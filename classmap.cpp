@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cmath>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 
@@ -14,6 +15,9 @@ using namespace std;
 #include "file/file_io.h"
 #include "game_mediator.h"
 #include "aux_tools/exception_manager.h"
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#endif
 
 extern string FILEPATH;
 extern graphicsLib graphLib;
@@ -60,8 +64,8 @@ classMap::classMap() : stage_number(-1), number(-1), bg_scroll(st_float_position
     _3rd_level_ignore_area = st_rectangle(-1, -1, -1, -1);
     _level3_tiles = std::vector<struct st_level3_tile>();
     _show_map_pos_x = -1;
-
-    graphLib.initSurface(st_size(RES_W+(TILESIZE*2), RES_H), &map_screen);
+    // map_screen allocated in loadMap() — constructing stage twice at menu
+    // start used to create 6 ARGB buffers and OOM (EXIT #21) on PSP.
 }
 
 
@@ -124,14 +128,31 @@ void classMap::loadMap()
 		return;
     }
 
+    if (!map_screen.get_surface()) {
+        graphLib.initSurface(st_size(RES_W+(TILESIZE*2), RES_H), &map_screen);
+        if (!map_screen.get_surface()) {
+            graphLib.show_debug_msg("EXIT #21.MALLOC");
+            exception_manager::throw_general_exception(std::string("classMap::loadMap"), "Could not init map_screen");
+        }
+    }
+
     object_list.clear();
-    object_list.reserve((size_t)MAP_W * MAP_H / 4);
     _npc_list.clear();
-    _npc_list.reserve((size_t)MAP_W * MAP_H / 8);
     animation_list.clear();
-    animation_list.reserve(64);
     _level3_tiles.clear();
+#ifdef PSP
+    size_t obj_reserve = 0, npc_reserve = 0, anim_reserve = 0, lvl3_reserve = 0;
+    psp_platform::map_list_reserves(&obj_reserve, &npc_reserve, &anim_reserve, &lvl3_reserve);
+    object_list.reserve(obj_reserve);
+    _npc_list.reserve(npc_reserve);
+    animation_list.reserve(anim_reserve);
+    _level3_tiles.reserve(lvl3_reserve);
+#else
+    object_list.reserve((size_t)MAP_W * MAP_H / 4);
+    _npc_list.reserve((size_t)MAP_W * MAP_H / 8);
+    animation_list.reserve(64);
     _level3_tiles.reserve((size_t)MAP_W * MAP_H / 2);
+#endif
 
     for (int i=0; i<MAP_W; i++) {
         for (int j=0; j<MAP_H; j++) {
@@ -173,7 +194,7 @@ void classMap::loadMap()
     init_animated_tiles();
 
 
-#ifdef HANDLELD // portable consoles aren't strong enought for two dynamic backgrounds
+#if defined(HANDHELD) // portable consoles aren't strong enough for two dynamic backgrounds
 GameMediator::get_instance()->map_data[number].backgrounds[0].speed = 0;
 #endif
 
@@ -546,7 +567,7 @@ void classMap::load_map_npcs()
             }
             new_npc.init_animation();
 
-            _npc_list.push_back(new_npc); // insert new npc at the list-end
+            _npc_list.push_back(std::move(new_npc)); // move — copy would DisplayFormatAlpha every sprite
         }
 	}
 }
@@ -797,7 +818,7 @@ void classMap::draw_dynamic_backgrounds_into_surface(graphicsLib_gSurface &surfa
 
 void classMap::add_object(object& obj)
 {
-    object_list.push_back(obj);
+    object_list.push_back(std::move(obj));
 }
 
 st_position classMap::get_first_lock_in_direction(st_position pos, st_size max_dist, int direction)
@@ -1316,7 +1337,7 @@ void classMap::load_map_objects() {
             object temp_obj(GameMediator::get_instance()->map_object_data[i].id_object, this, GameMediator::get_instance()->map_object_data[i].start_point, GameMediator::get_instance()->map_object_data[i].link_dest, GameMediator::get_instance()->map_object_data[i].map_dest, GameMediator::get_instance()->map_object_data[i].direction);
             temp_obj.set_obj_map_id(i);
             temp_obj.initialize_object_position_to_ground();
-			object_list.push_back(temp_obj);
+			object_list.push_back(std::move(temp_obj));
 		}
 	}
 }
@@ -2132,7 +2153,7 @@ classnpc* classMap::spawn_map_npc(short npc_id, st_position npc_pos, short int d
     if (progressive_span == true) {
         new_npc.set_progressive_appear_pos(new_npc.get_size().height);
     }
-    _npc_spawn_list.push_back(new_npc); // insert new npc at the list-end
+    _npc_spawn_list.push_back(std::move(new_npc));
     //std::cout << "MAP::spawn_map_npc - spawn_list.size[" << _npc_spawn_list.size() << "], direction[" << direction << "]" << std::endl;
 
     classnpc* npc_ref = &(_npc_spawn_list.back());

@@ -341,6 +341,7 @@ void SDLL_TTF_SetFontOutline(TTF_Font *font, int outline);
  * @brief Renders UTF-8 text to surface.
  */
 SDL_Surface *SDLL_TTF_RenderUTF8_Solid(TTF_Font *font, const char *text, SDL_Color fg);
+SDL_Surface *SDLL_TTF_RenderUTF8_Blended(TTF_Font *font, const char *text, SDL_Color fg);
 
 /**
  * @brief Gets last SDL_ttf error.

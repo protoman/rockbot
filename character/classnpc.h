@@ -31,6 +31,10 @@ class classnpc : public artificial_inteligence
 public:
 	classnpc();
     ~classnpc();
+    classnpc(const classnpc&) = default;
+    classnpc& operator=(const classnpc&) = default;
+    classnpc(classnpc&&) = default;
+    classnpc& operator=(classnpc&&) = default;
     classnpc(std::string set_name);
     classnpc(int stage_id, int map_id, int main_id, int id); // load data from game_data and create a new npc
     classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, short int direction, bool player_friend); // spawned npc

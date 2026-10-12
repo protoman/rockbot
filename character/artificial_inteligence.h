@@ -87,6 +87,10 @@ public:
      */
     artificial_inteligence();
     ~artificial_inteligence();
+    artificial_inteligence(const artificial_inteligence&) = default;
+    artificial_inteligence& operator=(const artificial_inteligence&) = default;
+    artificial_inteligence(artificial_inteligence&&) = default;
+    artificial_inteligence& operator=(artificial_inteligence&&) = default;
 
     // AI methods @TODO: deprecated, must be replaced by AI chain system
 
