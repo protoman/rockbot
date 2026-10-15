@@ -156,3 +156,9 @@ MD has no second scolling plane over sprites →:
 - Sprite VRAM: `SPR_initEx(512)` (need ≈491 tiles; default 420 too small).
 - HP reduced to PC value 28, contact damage 2, invuln 90f blink.
 - Debug `M5DBG` kprintf probes all removed; clean build 131072B.
+- **Enemy wrap bug (user-reported)**: sprites got raw world X (>1023) written
+  to the SAT unmasked (SGDK `sprite_eng.c` writes `vdpSprite->x = sprite->x`)
+  → hardware wrap made far-away enemies appear on-screen. Fix: one call
+  `SPR_setVisibility(spr, AUTO_FAST)` at spawn — SGDK hides by X vs screen
+  width and skips the SAT write; recomputed on every `SPR_setPosition`.
+  Verified: spawn screen shows 0 enemies (all map0 spawns ≥544px).

@@ -62,6 +62,10 @@ void enemies_reset(void)
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         e->alive = (e->spr != NULL);
         if (e->spr) {
+            // World X can exceed the 10-bit VDP sprite field (1184 wraps to
+            // 160 on-screen). AUTO_FAST hides by X against screen width and
+            // skips the SAT write; recomputed on every SPR_setPosition.
+            SPR_setVisibility(e->spr, AUTO_FAST);
             // rows: 0 = ANIM_STAND, 1 = ANIM_WALK (converter contract)
             SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
             SPR_setHFlip(e->spr, e->dir < 0);
