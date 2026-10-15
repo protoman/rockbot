@@ -42,4 +42,4 @@ or
 
 ## Supported Platforms
 
-Linux, Windows, OSX, Raspberry Pi, Dingux, PocketGo, PS2, PS3, PSP, OpenPandora, Wii, Dreamcast
+Linux, Windows, OSX, Raspberry Pi, Dingux, PocketGo, PS2, PS3, PSP, OpenPandora, Wii, Dreamcast, Switch
