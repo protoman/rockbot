@@ -9,11 +9,13 @@ Reads:
 
 Writes:
   res/stage0_map<N>.png     full map rendered with the stage tileset
-  src/stage0_data.h/.c      terrain grids, links, map metadata
+  res/stage0_bg<N>.png      parallax backgrounds baked to 512px (plane width)
+  src/stage0_data.h/.c      terrain grids, links, background info
 
-Stage 0 progression (from stages_v301.dat links, positions are Uint8):
-  link2: map 0 (136,14) -> map 1 (198,0)   climb down the ladder at x=136
-  link3: map 1 (1,0)    -> map 0 (139,14)  climb up the ladder at x=1
+Stage 0 progression (from stages_v301.dat links, positions are Uint8;
+y values after the top-row crop, see crop_top_row):
+  link2: map 0 (136,13) -> map 1 (198,0)  climb down the ladder at x=136
+  link3: map 1 (1,0)    -> map 0 (139,13) climb up the ladder at x=1
 
 Usage: python3 tools/convert_stage.py
 """
@@ -33,7 +35,8 @@ STAGE_STRUCT = 438
 MAP_STRUCT = 15078
 MAP_TILES_OFF = 78
 TILE_STRUCT = 5
-MAP_W, MAP_H = 200, 15
+MAP_W, MAP_H = 200, 14   # output size: 320x224 NTSC (top PC row cropped)
+MAP_H_SRC = 15           # PC maps are 15 rows (240px)
 TILE = 16
 STAGE_INDEX = 0
 MAPS_PER_STAGE = 3
@@ -88,17 +91,23 @@ def read_map(stage_n, map_n):
         f.seek(MAP_STRUCT * (stage_n * MAPS_PER_STAGE + map_n))
         raw = f.read(MAP_STRUCT)
     bg = struct.unpack("<hhh", raw[72:78])
-    t = raw[MAP_TILES_OFF:MAP_TILES_OFF + MAP_W * MAP_H * TILE_STRUCT]
+    # st_map_background: char filename[30], s16 adjust_y, s8 speed, u8 auto_scroll,
+    # u8 gfx, pad -> 36 bytes (C++ alignment); two of them, bg0 at offset 0.
+    rec = raw[0:36]
+    bg0_name = rec[0:30].split(b"\0")[0].decode("latin1")
+    bg0_adjust_y, = struct.unpack("<h", rec[30:32])
+    bg0_speed = struct.unpack("<b", rec[32:33])[0]
+    t = raw[MAP_TILES_OFF:MAP_TILES_OFF + MAP_W * MAP_H_SRC * TILE_STRUCT]
     cells = []
     for x in range(MAP_W):
         col = []
-        for y in range(MAP_H):
-            v = t[(x * MAP_H + y) * TILE_STRUCT:(x * MAP_H + y) * TILE_STRUCT + TILE_STRUCT]
+        for y in range(MAP_H_SRC):
+            v = t[(x * MAP_H_SRC + y) * TILE_STRUCT:(x * MAP_H_SRC + y) * TILE_STRUCT + TILE_STRUCT]
             locked = v[0]
             t1x, t1y, t3x, t3y = struct.unpack("bbbb", v[1:5])
             col.append((locked, t1x, t1y, t3x, t3y))
         cells.append(col)
-    return bg, cells
+    return bg, (bg0_name, bg0_adjust_y, bg0_speed), cells
 
 
 def build_palette(rgbs):
@@ -136,10 +145,10 @@ def build_palette(rgbs):
 
 def collect_map(map_n):
     """Return (cells, used-tile coords) for one map."""
-    bg, cells = read_map(STAGE_INDEX, map_n)
+    _, _, cells = read_map(STAGE_INDEX, map_n)
     used, seen = [], set()
     for x in range(MAP_W):
-        for y in range(MAP_H):
+        for y in range(MAP_H_SRC):
             _, t1x, t1y, t3x, t3y = cells[x][y]
             for (cx, cy) in ((t1x, t1y), (t3x, t3y)):
                 if cx < 0 or cy < 0:
@@ -148,6 +157,19 @@ def collect_map(map_n):
                     seen.add((cx, cy))
                     used.append((cx, cy))
     return cells, used
+
+
+def crop_top_row(cells, links, map_n):
+    """Drop the top row so the map fits 14 rows (224px, no vertical scroll).
+    If any link touches this map at row 0, copy the top row onto row 1
+    first so its tiles/links stay reachable. Link rows: 0 stays 0,
+    everything else shifts up by one."""
+    touches = any((frm == map_n and oy == 0) or (to == map_n and dy == 0)
+                  for (_, frm, to, ox, oy, dx, dy) in links)
+    if touches:
+        for x in range(MAP_W):
+            cells[x][1] = cells[x][0]
+    return [col[1:] for col in cells]
 
 
 def collect_colors(used, ts_px):
@@ -205,6 +227,32 @@ def convert_map(map_n, ts_px, cells, used, palette, lut):
     return img, terrain
 
 
+BG_PLANE_W = 512  # BG_B plane is 64 tiles wide; art is baked to this width
+
+
+def convert_background(map_n, name, adjust_y, speed):
+    """Bake one parallax background to 512px wide (art + first 192 cols
+    appended) so the plane wraps naturally at its own width — no runtime
+    seam handling. Own palette (PAL3 at runtime)."""
+    src = Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA")
+    h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
+    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 255))
+    bg.paste(src, (0, 0))
+    bg.paste(src.crop((0, 0, BG_PLANE_W - src.width, src.height)), (src.width, 0))
+    px = bg.load()
+    rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
+            for y in range(bg.height) for x in range(bg.width)]
+    pal, lut = build_palette(rgbs)
+    img = Image.new("P", (BG_PLANE_W, bg.height))
+    img.putpalette([v for c in pal for v in c])
+    img.putdata([lut.get(c, 1) for c in rgbs])
+    out = os.path.join(RES, f"stage0_bg{map_n}.png")
+    img.save(out)
+    print(f"  bg{map_n}: {name} {src.size} -> {img.size} "
+          f"(adjust_y={adjust_y} speed={speed}) -> res/stage0_bg{map_n}.png")
+    return {"present": 1, "adjust_y": adjust_y, "speed": speed}
+
+
 def main():
     stage = read_stage(STAGE_INDEX)
     links = read_links(STAGE_INDEX)
@@ -226,6 +274,8 @@ def main():
         rgbs = collect_colors(used, ts_px)
         all_rgbs += rgbs
         maps_data.append((cells, used))
+    maps_data = [(crop_top_row(cells, links, m), used)
+                 for m, (cells, used) in enumerate(maps_data)]
     palette, lut = build_palette(all_rgbs)
     print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
 
@@ -236,6 +286,15 @@ def main():
         print(f"    -> res/stage0_map{m}.png {img.size}")
         terrains.append(terrain)
         used_maps.append(m)
+
+    bg_infos = []
+    for m in range(MAPS_PER_STAGE):
+        _, bg0, _ = read_map(STAGE_INDEX, m)
+        name, adj, spd = bg0
+        if name:
+            bg_infos.append(convert_background(m, name, adj, spd))
+        else:
+            bg_infos.append({"present": 0, "adjust_y": 0, "speed": 0})
 
     n = len(used_maps)
     with open(os.path.join(SRC, "stage0_data.h"), "w") as f:
@@ -265,8 +324,10 @@ def main():
             "                           (t) != TERRAIN_EASYBLOCK && \\\n"
             "                           (t) != TERRAIN_HARDBLOCK)\n\n"
             "typedef struct { u8 map_from, tile_x, tile_y; u8 map_to, dst_x, dst_y; } StageLink;\n\n"
+            "typedef struct { u8 present; s16 adjust_y; s8 speed; } StageBgInfo;\n\n"
             f"extern const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H];\n"
             f"extern const StageLink stage0_links[{len(links)}];\n"
+            f"extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];\n"
             f"#define STAGE0_LINK_COUNT {len(links)}\n\n"
             "u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);\n\n"
             "#endif\n"
@@ -284,7 +345,15 @@ def main():
 
     lines.append(f"const StageLink stage0_links[STAGE0_LINK_COUNT] = {{\n")
     for (i, frm, to, ox, oy, dx, dy) in links:
+        oy = 0 if oy == 0 else oy - 1   # top PC row cropped
+        dy = 0 if dy == 0 else dy - 1
         lines.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy} }}, // link{i}\n")
+    lines.append("};\n\n")
+
+    lines.append("const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT] = {\n")
+    for m, info in enumerate(bg_infos):
+        comment = "map %d" % m
+        lines.append(f"    {{ {info['present']}, {info['adjust_y']}, {info['speed']} }}, // {comment}\n")
     lines.append("};\n\n")
 
     lines.append(

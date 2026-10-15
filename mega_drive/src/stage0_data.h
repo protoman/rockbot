@@ -8,7 +8,7 @@
 
 #define STAGE0_MAP_COUNT 3
 #define STAGE0_MAP_W 200
-#define STAGE0_MAP_H 15
+#define STAGE0_MAP_H 14
 #define STAGE0_TILE 16
 #define STAGE0_PIXEL_W (STAGE0_MAP_W * STAGE0_TILE)
 #define STAGE0_PIXEL_H (STAGE0_MAP_H * STAGE0_TILE)
@@ -29,8 +29,11 @@
 
 typedef struct { u8 map_from, tile_x, tile_y; u8 map_to, dst_x, dst_y; } StageLink;
 
+typedef struct { u8 present; s16 adjust_y; s8 speed; } StageBgInfo;
+
 extern const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H];
 extern const StageLink stage0_links[2];
+extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];
 #define STAGE0_LINK_COUNT 2
 
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);

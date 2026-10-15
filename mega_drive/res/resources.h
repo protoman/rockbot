@@ -16,6 +16,14 @@ extern const MapDefinition stage0_map1;
 extern const TileSet stage0_tiles2;
 extern const Palette stage0_pal2;
 extern const MapDefinition stage0_map2;
+extern const Image stage0_bg0;
+extern const Image stage0_bg1;
 extern const SpriteDefinition player_sprite;
+extern const SpriteDefinition enemy_shield_sprite;
+extern const SpriteDefinition enemy_spinner_ball_red_sprite;
+extern const SpriteDefinition enemy_spinner_ball_sprite;
+extern const SpriteDefinition enemy_classic_metool_sprite;
+extern const SpriteDefinition enemy_cannon_ball_sprite;
+extern const SpriteDefinition shot_sprite;
 
 #endif // _RES_RESOURCES_H_

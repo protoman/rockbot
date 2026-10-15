@@ -1,6 +1,7 @@
 #include "player.h"
 
 #include "stage.h"
+#include "shot.h"
 #include "resources.h"
 
 // Physics, tuned for 60fps. The original normalises movement by
@@ -16,16 +17,22 @@
 #define COYOTE_FRAMES    6
 #define JUMP_BUFFER_FRAMES 6
 
-#define JUMP_BUTTONS (BUTTON_A | BUTTON_B | BUTTON_C)
+#define JUMP_BUTTONS (BUTTON_A | BUTTON_C)
 
-// spawn point: on the ground. Ground top is row 11 -> pixel 176.
+// B fires (fire frame shows for the whole cooldown; ANIM_ATTACK row).
+#define FIRE_BUTTON  BUTTON_B
+#define ATTACK_FRAMES 12
+
+// spawn point: on the ground. Ground top is row 10 -> pixel 160
+// (PC row 11; the top PC row is cropped in convert_stage.py).
 #define SPAWN_X 144
-#define SPAWN_Y (176 - PLAYER_BOX_B)
+#define SPAWN_Y (160 - PLAYER_BOX_B)
 
 Player player;
 
 static s16 coyote_timer;
 static s16 jump_timer;
+static s16 attack_timer;
 static u16 prev_pad;
 static u16 current_anim;
 
@@ -74,8 +81,11 @@ void player_init(void)
     player.on_ground = TRUE;
     player.on_ladder = FALSE;
     player.facing = 1;
+    player.hp = PLAYER_INITIAL_HP;
+    player.invuln = 0;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
+    attack_timer = 0;
     prev_pad = 0;
     current_anim = ANIM_STAND;
 
@@ -97,12 +107,16 @@ void player_update(u16 pad)
     s16 cty = (bt + bb) >> 5;   // centre tile Y
 
     // ---- ladder ------------------------------------------------------------
+    // Grab leaves the ground state: while on_ground is set, the sideways
+    // let-go below is ignored and the player gets stuck on the ladder.
     if (!player.on_ladder) {
         if ((pad & BUTTON_UP) && stage_terrain_at(stage_current_map, ctx, cty) == TERRAIN_STAIR) {
             player.on_ladder = TRUE;
+            player.on_ground = FALSE;
         } else if ((pad & BUTTON_DOWN) &&
                    stage_terrain_at(stage_current_map, ctx, bb >> 4) == TERRAIN_STAIR) {
             player.on_ladder = TRUE;
+            player.on_ground = FALSE;
         }
     }
 
@@ -130,7 +144,8 @@ void player_update(u16 pad)
                 } else if (climb < 0 && over == TERRAIN_SOLID) {
                     player.on_ladder = FALSE;                       // hit a ceiling
                     iy = ((nTop >> 4) << 4) + 16 - PLAYER_BOX_T;
-                } else if (centreNew != TERRAIN_STAIR) {
+                } else if (centreNew != TERRAIN_STAIR &&
+                           stage_terrain_at(stage_current_map, ctx, nBottom >> 4) != TERRAIN_STAIR) {
                     player.on_ladder = FALSE;                       // walked off the ladder
                 } else {
                     iy = ny;
@@ -291,14 +306,26 @@ void player_update(u16 pad)
     if (iy > STAGE0_PIXEL_H + 32) {
         player_place(SPAWN_X, SPAWN_Y);
         player.on_ground = TRUE;
+        player.invuln = PLAYER_INVULN_FRAMES;
         ix = SPAWN_X;
         iy = SPAWN_Y;
-        stage_force_redraw();   // camera jumps back; force a full MAP refresh
+        camera.x = 0;   // respawn is at the stage start; jump the camera back
+        camera.y = 0;   // first so force_redraw paints the right area
+        stage_force_redraw();
     }
+
+    // ---- fire (B) -----------------------------------------------------------
+    if ((pad & FIRE_BUTTON) && attack_timer == 0) {
+        s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R : ix + PLAYER_BOX_L - 8;
+        shot_fire(sx, iy + 10, player.facing);
+        attack_timer = ATTACK_FRAMES;
+    }
+    if (attack_timer > 0) attack_timer--;
 
     // ---- animation + screen position ----------------------------------------
     u16 want;
     if (!player.on_ground)      want = ANIM_JUMP;
+    else if (attack_timer > 0)  want = ANIM_ATTACK;
     else if (player.vx != 0)    want = ANIM_WALK;
     else                        want = ANIM_STAND;
 
@@ -309,4 +336,27 @@ void player_update(u16 pad)
 
     SPR_setHFlip(player.spr, player.facing < 0);
     SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
+
+    // ---- invulnerability blink -----------------------------------------------
+    if (player.invuln > 0) {
+        player.invuln--;
+        SPR_setVisibility(player.spr, (player.invuln & 4) ? HIDDEN : VISIBLE);
+    }
+}
+
+void player_take_damage(u8 amount)
+{
+    if (player.invuln > 0) return;
+
+    player.hp = (amount >= player.hp) ? 0 : player.hp - amount;
+    player.invuln = PLAYER_INVULN_FRAMES;
+
+    if (player.hp == 0) {              // death: respawn at the stage start
+        player_place(SPAWN_X, SPAWN_Y);
+        player.on_ground = TRUE;
+        player.hp = PLAYER_INITIAL_HP;
+        camera.x = 0;
+        camera.y = 0;
+        stage_force_redraw();
+    }
 }

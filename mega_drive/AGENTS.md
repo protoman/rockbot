@@ -113,6 +113,10 @@ Kega Fusion 3.63x (flatpak). RetroArch + Genesis Plus GX also works but needs `-
 - Milestone 1: intro logos (`src/main.c` `showIntro()`).
 - Milestone 2: title screen (`showTitle()`). Menu **not** done — START skips straight to the stage.
 - Milestone 3: **intro stage CHAOS CITY** — map scroll, player walk/jump/collision.
+- Stage 0 milestone table + session notes: **`stage0_plan.md`** (single source
+  of truth). Current: M0 maps/links/collision, M1 parallax bg, M2 tile3 baked,
+  M3 text HP debug overlay, M4 attack + shots, M5 enemies (5 types) DONE;
+  M6 objects, M7 boss pending.
 
 Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStage()`.
 
@@ -123,10 +127,14 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `src/main.c` | boot, intro, title, stage loop |
 | `src/stage.{c,h}` | `stage_load`, `stage_terrain(x,y)`, `stage_update_camera` |
 | `src/stage0_data.{c,h}` | generated `u8 terrain[200*15]` + `STAGE0_TERRAIN(x,y)` |
-| `src/player.{c,h}` | physics, AABB collision, sprite. `PLAYER_BOX_*`, `ANIM_*` |
+| `src/player.{c,h}` | physics, AABB collision, sprite, ladder grab. `PLAYER_BOX_*`, `ANIM_*` |
+| `src/enemy.{c,h}` | enemy spawn/patrol/contact/kill |
+| `src/shot.{c,h}` | player buster shots |
+| `src/stage0_enemies.{c,h}` | generated: defs, spawns, `palette_ui_enemies` |
 | `tools/convert_assets.py` | logos → indexed PNG |
-| `tools/convert_stage.py` | stage/map data → `res/stage0_map.png` + `src/stage0_data.*` |
+| `tools/convert_stage.py` | stage/map data → `res/stage0_map*.png` + `src/stage0_data.*` + parallax `res/stage0_bg*.png` |
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
+| `tools/convert_enemies.py` | enemy .dat/.png → `res/enemy_*.png`, `res/shot.png`, `src/stage0_enemies.*` |
 | `res/resources.res` | rescomp manifest |
 
 **Rebuild assets then ROM**
@@ -134,15 +142,15 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 /home/iuri/python3/bin/python3 tools/convert_assets.py
 /home/iuri/python3/bin/python3 tools/convert_stage.py
 /home/iuri/python3/bin/python3 tools/convert_player.py
+/home/iuri/python3/bin/python3 tools/convert_enemies.py
 make
 ```
 
 **Controls in Kega** (`Fusion.ini` `Player1Keys`): arrows = D-pad, **C/X/Z** = A/B/C, **Return** = Start.
 
-**Not implemented**: stairs (terrain 2) beyond basic ladder climbing, doors, spikes,
-water, ice, enemies, projectiles, tile3 layer drawn over the player (baked into the
-map for now), animated tiles, the parallax `city_night.png` plane (baked into map
-tiles), HUD, audio, menu, saves.
+**Not implemented**: doors, spikes, water, ice, animated tiles, enemy
+projectiles, bosses/objects (M6/M7), real HUD (score/lives/bar — only text
+debug overlay), audio, menu, saves.
 
 **Stage 0 progression (verified from data, NOT guesswork)**
 ```

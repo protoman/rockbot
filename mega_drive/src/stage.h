@@ -5,9 +5,18 @@
 
 #include "stage0_data.h"
 
-// The stage tilemap lives on BG_A. BG_B is left free for parallax later.
+// The stage tilemap lives on BG_A. BG_B carries the parallax background.
 #define STAGE_PLANE BG_A
 #define STAGE_PAL   PAL1
+
+// Parallax background: own palette (PAL3, reloaded on stage_load) and a
+// fixed VRAM block. VRAM layout (SGDK defaults): tiles 0..1535, system
+// 0..15, stage tilesets from TILE_USER_INDEX (biggest stage-0 tileset =
+// 127 tiles -> ends 143), bg tiles at 144 (bg0 = 768 tiles -> ends 911),
+// sprite engine from TILE_SPRITE_INDEX = 928 (SPR_initEx(512): player +
+// enemy sheets + shots need ~491 tiles), font at 1440..1535.
+#define BG_PAL        PAL3
+#define TILE_BG_INDEX 144
 
 extern Map *stage_map;
 extern Vect2D_s16 camera;

@@ -92,3 +92,6 @@ build/packages/psp-build.log
 rockbot_psp.elf
 rockbot_psp.prx
 rockbot.prx
+# Mega Drive (SGDK) build output
+mega_drive/out/
+mega_drive/screenshots/

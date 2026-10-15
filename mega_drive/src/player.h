@@ -12,6 +12,10 @@
 
 #define PLAYER_PAL PAL2
 
+// PC shareddata: PLAYER_INITIAL_HP, invulnerability window after a hit.
+#define PLAYER_INITIAL_HP    28
+#define PLAYER_INVULN_FRAMES 90
+
 // Animation rows in res/player.png -- order must match tools/convert_player.py
 #define ANIM_STAND    0
 #define ANIM_WALK     1
@@ -30,6 +34,8 @@ typedef struct {
     bool on_ground;
     bool on_ladder;
     s16 facing;   // 1 = right, -1 = left
+    u8 hp;        // 0 = death (respawns with full hp)
+    u16 invuln;   // frames of damage immunity + blink
 } Player;
 
 extern Player player;
@@ -45,5 +51,9 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom);
 // Drop the player at a pixel position, grabbing a ladder if one is there.
 // Used when a map link warps between maps.
 void player_place(s16 worldX, s16 worldY);
+
+// Contact/projectile damage. Respects the invulnerability window; at hp 0
+// respawns at the stage start with full hp.
+void player_take_damage(u8 amount);
 
 #endif

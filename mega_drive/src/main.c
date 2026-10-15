@@ -4,6 +4,8 @@
 
 #include "stage.h"
 #include "player.h"
+#include "enemy.h"
+#include "shot.h"
 
 // Layout derived from the original game, adapted from 320x240 to 320x224.
 //   show_notice()  = game.cpp:506  -> intro logos (sprites)
@@ -143,7 +145,9 @@ static void dbgNum(u16 tileX, u16 tileY, s32 v)
 // (198,0), the only way past the full-height wall at x=137..138.
 static void runStage(void)
 {
-    SPR_init(); // released again by showTitle()
+    // 512 sprite tiles (928..1439): player + enemy sheets + shots need ~491,
+    // the default 420 is not enough (see stage.h VRAM layout).
+    SPR_initEx(512); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
     // sprite claims it (player_init loads the player palette over this).
@@ -153,18 +157,9 @@ static void runStage(void)
     stage_load(0);
     player_init();
 
-    // Clear BG_B with the display off. A mid-frame CPU clear is dropped by
-    // accurate emulators (BlastEm, GPGX), leaving the title-screen tilemap
-    // on BG_B visible through the stage's transparent sky tiles. With the
-    // display disabled the VDP accepts CPU VRAM writes unconditionally.
-    {
-        bool on = VDP_isEnable();
-        VDP_setEnable(FALSE);
-        VDP_clearPlane(BG_B, FALSE);
-        VDP_setReg(17, 0); // DMA clobbers the window registers — restore
-        VDP_setReg(18, 0);
-        VDP_setEnable(on);
-    }
+    // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
+    // the parallax background on BG_B, and clearing it afterwards wiped the
+    // tilemap (sky showed stale/garbage tiles).
 
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);
@@ -187,13 +182,16 @@ static void runStage(void)
         // camera focus = centre of the player hitbox
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
 
+        enemies_update();   // patrol/contact first, shots test fresh positions
+        shot_update();
+
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0); // see above — DMA clobbers window regs
         VDP_setReg(18, 0);
 
-        // DEBUG overlay:
-        // Tile-position number on BG_A with VDP_drawText.
+        // DEBUG overlay: tile-position + HP on BG_A with VDP_drawText
+        // (camera-compensated so it stays screen-anchored). Real HUD = M3.
         {
             char s[5];
             s16 v = (bl + br) / 32;
@@ -203,6 +201,13 @@ static void runStage(void)
             s[3] = '0' + (v % 10);
             s[4] = '\0';
             VDP_drawText(s, 1 + camera.x / 8, 1 + camera.y / 8);
+
+            char h[4];
+            h[0] = 'H';
+            h[1] = '0' + player.hp / 10;
+            h[2] = '0' + player.hp % 10;
+            h[3] = '\0';
+            VDP_drawText(h, 1 + camera.x / 8, 3 + camera.y / 8);
         }
     }
 }
@@ -214,7 +219,7 @@ int main(bool hardReset)
     VDP_setScreenWidth320();
     VDP_setScreenHeight224();
     JOY_init();
-    SPR_init();
+    SPR_initEx(512);
 
     // The default DMA queue (80 entries) overflows during stage_load's force
     // map redraw, silently dropping queued tileset/palette transfers — the
