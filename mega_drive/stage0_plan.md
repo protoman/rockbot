@@ -262,3 +262,48 @@ MD has no second scolling plane over sprites →:
   1885; map1 (198,0) → 2880 (right-edge on divider col199, player at
   screen 296); map1 (1,0) → 0. Vertical always clamps to 0 (map height =
   screen height).
+
+## Animated tiles + tile3 over-player layer (2026-10-15)
+
+Both implemented via ONE SGDK mechanism: `MAP_setDataPatchCallback`
+(stage.c `stage_map_patch`). The callback rewrites every tilemap buffer
+(full draw + scroll rows/columns) before it reaches the VDP:
+
+- **tile3**: cells flagged in `stage0_tile3_mask` get `TILE_ATTR_PRIORITY`
+  (0x8000) — the VDP draws priority tiles over sprites (player, enemies,
+  shots). Zero runtime cost. PC equivalent: `showAbove()` redraw pass.
+- **animated tiles**: stage 0 uses one block — global id 18
+  `lightbulb_small.png` (4 frames, delays 2000/100/100/100 ms). Frames
+  baked to 4bpp by tools/convert_stage.py into `stage0_anim_frames`
+  (4 tiles/frame TL,TR,BL,BR). Anim cells are rewritten to point at a
+  fixed VRAM slot (`TILE_ANIM_BASE` 912 + slot*24). `stage_anim_update()`
+  (once per frame) advances timers (ms→60fps frames), DMAs the new frame
+  (32 bytes) and rewrites visible cells via `VDP_setTileMapXY`.
+
+VRAM layout correction (old stage.h comment was wrong for this SGDK):
+system 0..15, tilesets 16..143, bg 144..911, **anim 912..935**,
+sprites **1440..1951** (`TILE_SPRITE_INDEX = 1952-512`), font 1952..2047.
+First anim version used 1536 = inside the sprite pool -> sprite garbage
+near the player; moved to 912.
+
+## Parallax bg vertical position fix (2026-10-15)
+
+The floating purple "window" fragments at player height were the city
+skyline of `city_night.png` (PAL3 colors) — the whole bg art sat ~149px
+too high. Two bugs in `VDP_setVerticalScroll(BG_B, adjust_y)`:
+1. PC draws bg at screen y = +adjust_y (classmap.cpp:614); MD vsram =
+   the plane row at screen top, so pushing the image DOWN requires
+   **negative** vsram (-149).
+2. The write ran inside stage_load's VDP-disabled window and was lost
+   (vsram stayed 0 → art at y=0).
+Fix: vsram written after `VDP_setEnable`, value `-adjust_y`. Moon now
+sits low behind the walkway = PC framing.
+
+## Notes / conventions
+
+- TERRAIN EASYBLOCK (12) and HARDBLOCK (13) are difficulty pass-through
+  blocks — ignore them as geometry (TERRAIN_BLOCKS already excludes them).
+- Debug text overlay (tile pos + HP) and `dbgNum()` removed — kprintf
+  debug builds are enough.
+- KNOWN (deferred by user): a small artifact on the right side of some
+  tileset pillars — likely fixed by the upcoming asset rebuild.

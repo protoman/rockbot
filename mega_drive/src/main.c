@@ -127,27 +127,13 @@ static void showTitle(void)
     }
 }
 
-// DEBUG helper: print a 5-digit value (SGDK sprintf cannot be relied on for %3d)
-static void dbgNum(u16 tileX, u16 tileY, s32 v)
-{
-    char s[6];
-    s[5] = 0;
-    u32 n = (v < 0) ? -v : v;
-    if (v < 0) s[0] = '-';
-    for (s16 i = 4; i >= (v < 0 ? 1 : 0); i--) {
-        s[i] = '0' + (n % 10);
-        n /= 10;
-    }
-    VDP_drawText(s, tileX, tileY);
-}
-
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
 // Stage 0 crosses two maps through ladders: link 0 is map 0 (136,14) -> map 1
 // (198,0), the only way past the full-height wall at x=137..138.
 static void runStage(void)
 {
-    // 512 sprite tiles (928..1439): player + enemy sheets + shots need ~491,
-    // the default 420 is not enough (see stage.h VRAM layout).
+    // SPR_initEx(512): sprite VRAM = TILE_SPRITE_INDEX = 1952-512 = 1440..1951
+    // (player + enemy sheets + shots need ~491 tiles).
     SPR_initEx(512); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
@@ -186,6 +172,8 @@ static void runStage(void)
         // camera focus = centre of the player hitbox
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
 
+        stage_anim_update();
+
         enemies_update();   // patrol/contact first, shots test fresh positions
         shot_update();
 
@@ -193,26 +181,6 @@ static void runStage(void)
         SYS_doVBlankProcess();
         VDP_setReg(17, 0); // see above — DMA clobbers window regs
         VDP_setReg(18, 0);
-
-        // DEBUG overlay: tile-position + HP on BG_A with VDP_drawText
-        // (camera-compensated so it stays screen-anchored). Real HUD = M3.
-        {
-            char s[5];
-            s16 v = (bl + br) / 32;
-            s[0] = '0' + ((v / 1000) % 10);
-            s[1] = '0' + ((v / 100) % 10);
-            s[2] = '0' + ((v / 10) % 10);
-            s[3] = '0' + (v % 10);
-            s[4] = '\0';
-            VDP_drawText(s, 1 + camera.x / 8, 1 + camera.y / 8);
-
-            char h[4];
-            h[0] = 'H';
-            h[1] = '0' + player.hp / 10;
-            h[2] = '0' + player.hp % 10;
-            h[3] = '\0';
-            VDP_drawText(h, 1 + camera.x / 8, 3 + camera.y / 8);
-        }
     }
 }
 

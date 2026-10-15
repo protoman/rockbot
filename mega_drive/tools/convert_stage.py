@@ -45,6 +45,17 @@ COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 MAX_COLORS = 15  # index 0 stays reserved for transparency
 
+# Animated tiles: file_anim_block is char filename[30] + int frame_delay[6]
+# with C++ alignment (56 bytes), stored as a raw array in anim_block_list.dat.
+ANIM_BLOCK_SIZE = 56
+ANIM_MAX_FRAMES = 6
+# Fixed VRAM region for animated frames. Free zone: bg tiles end at 911
+# (TILE_BG_INDEX 144 + 768), sprite engine starts at TILE_SPRITE_INDEX =
+# TILE_FONT_INDEX - spriteVramSize = 1952 - 512 = 1440. One slot per
+# animation: 6 frames x 4 tiles (a 16x16 frame = 2x2 tiles).
+TILE_ANIM_BASE = 912
+TILE_ANIM_STRIDE = 24
+
 TERRAIN_NAMES = {
     0: "UNBLOCKED", 1: "SOLID", 2: "STAIR", 3: "DOOR", 4: "SPIKE",
     5: "WATER", 6: "ICE", 7: "MOVE_LEFT", 8: "MOVE_RIGHT", 9: "QUICKSAND",
@@ -84,6 +95,19 @@ def read_links(n):
             continue  # unused slot
         links.append((i, frm & 0xFF, to & 0xFF, ox & 0xFF, oy & 0xFF, dx & 0xFF, dy & 0xFF))
     return links
+
+
+def read_anim_blocks():
+    """anim_block_list.dat: raw array of file_anim_block (no count prefix)."""
+    with open(os.path.join(DATA, "anim_block_list.dat"), "rb") as f:
+        raw = f.read()
+    blocks = []
+    for off in range(0, len(raw) - ANIM_BLOCK_SIZE + 1, ANIM_BLOCK_SIZE):
+        rec = raw[off:off + ANIM_BLOCK_SIZE]
+        name = rec[:30].split(b"\0")[0].decode("latin1")
+        delays = struct.unpack("<6i", rec[32:56])
+        blocks.append((name, delays))
+    return blocks
 
 
 def read_map(stage_n, map_n):
@@ -184,7 +208,7 @@ def collect_colors(used, ts_px):
     return rgbs
 
 
-def convert_map(map_n, ts_px, cells, used, palette, lut):
+def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of):
     def tile_indexed(cx, cy):
         out = []
         for yy in range(TILE):
@@ -196,6 +220,10 @@ def convert_map(map_n, ts_px, cells, used, palette, lut):
                     c = (md_round(r), md_round(g), md_round(b))
                     out.append(lut.get(c, 1))
         return out
+
+    def anim_frame0(gid):
+        # marker: x < -1 (tile1 also needs y == 0) -> anim id = -x - 2
+        return frame0_px[slot_of[gid]] if gid in slot_of else None
 
     tiles = [tile_indexed(cx, cy) for (cx, cy) in used]
     idx_of = {coord: i for i, coord in enumerate(used)}
@@ -209,8 +237,12 @@ def convert_map(map_n, ts_px, cells, used, palette, lut):
             src = None
             if t1x >= 0 and t1y >= 0:
                 src = tiles[idx_of[(t1x, t1y)]]
+            elif t1x < -1 and t1y == 0:
+                src = anim_frame0((-t1x) - 2)
             if t3x >= 0 and t3y >= 0:
                 src = tiles[idx_of[(t3x, t3y)]]
+            elif t3x < -1:
+                src = anim_frame0((-t3x) - 2)
             if src is None:
                 continue
             for yy in range(TILE):
@@ -285,16 +317,116 @@ def main():
         ])
     maps_data = [(crop_top_row(cells, links, m), used)
                  for m, (cells, used) in enumerate(maps_data)]
+
+    # ---- animated tiles + tile3 (drawn above the player) ----
+    # tile3: PC showAbove() redraws these over the player; the MD patch
+    # callback (stage.c) sets the per-tile priority bit instead (zero cost).
+    # anim markers: tile1.x < -1 && y == 0, or tile3.x < -1
+    # (graphicslib place_3rd_level_tile) -> id = -x - 2 into anim_block_list.dat.
+    anim_blocks = read_anim_blocks()
+    tile3_masks, anim_masks, anim_cell_lists = [], [], []
+    anim_ids = set()
+    mask_bytes = (MAP_W * MAP_H + 7) // 8
+    for cells, _ in maps_data:
+        mask3 = bytearray(mask_bytes)
+        maska = bytearray(mask_bytes)
+        cell_list = []
+        for x in range(MAP_W):
+            for y in range(MAP_H):
+                _, t1x, t1y, t3x, t3y = cells[x][y]
+                n = y * MAP_W + x
+                if t3x >= 0 and t3y >= 0:
+                    mask3[n >> 3] |= 1 << (n & 7)
+                gid, t3flag = None, 0
+                if t1x < -1 and t1y == 0:
+                    gid = (-t1x) - 2
+                if t3x < -1:
+                    gid = (-t3x) - 2
+                    t3flag = 1
+                    mask3[n >> 3] |= 1 << (n & 7)   # anim on tile3 = above player
+                if gid is None or gid >= len(anim_blocks):
+                    continue
+                maska[n >> 3] |= 1 << (n & 7)
+                anim_ids.add(gid)
+                cell_list.append([x, y, gid, t3flag])
+        tile3_masks.append(mask3)
+        anim_masks.append(maska)
+        anim_cell_lists.append(cell_list)
+
+    # compact slot per used global anim id
+    slots = sorted(anim_ids)
+    slot_of = {gid: s for s, gid in enumerate(slots)}
+    for cell_list in anim_cell_lists:
+        for c in cell_list:
+            c[2] = slot_of[c[2]]
+
+    # strip art joins the master palette so anim frames share it
+    strips = {}
+    for gid in slots:
+        fn = anim_blocks[gid][0]
+        im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+        strips[gid] = im
+        nf = max(1, im.width // TILE)
+        all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load())
+
     palette, lut = build_palette(all_rgbs)
     print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
 
+    def frame_tiles(im, frame):
+        """16x16 strip frame -> 4 8x8 tiles (TL,TR,BL,BR), 16 4bpp words each."""
+        px = im.load()
+        out = []
+        for qx, qy in ((0, 0), (8, 0), (0, 8), (8, 8)):
+            words = []
+            for yy in range(8):
+                for k in (0, 4):
+                    w = 0
+                    for p in range(4):
+                        r, g, b, a = px[frame * TILE + qx + k + p, qy + yy]
+                        if a == 0 or (r, g, b) == COLORKEY:
+                            idx = 0
+                        else:
+                            idx = lut.get((md_round(r), md_round(g), md_round(b)), 1)
+                        w = (w << 4) | idx
+                    words.append(w)
+            out.append(words)
+        return out
+
+    def tiles_pixels(t4):
+        """4 8x8 tiles (TL,TR,BL,BR) -> flat 16x16 indexed pixels."""
+        px = [0] * (TILE * TILE)
+        for q, words in enumerate(t4):
+            qx, qy = (q & 1) * 8, (q >> 1) * 8
+            for yy in range(8):
+                for xi in range(8):
+                    w = words[yy * 2 + (xi >> 2)]
+                    shift = 12 - (xi & 3) * 4
+                    px[(qy + yy) * TILE + qx + xi] = (w >> shift) & 0xF
+        return px
+
+    anim_frames, frame0_px = [], {}
+    for s, gid in enumerate(slots):
+        im = strips[gid]
+        nf = max(1, im.width // TILE)
+        f0 = frame_tiles(im, 0)
+        frames = []
+        for f in range(ANIM_MAX_FRAMES):
+            t = frame_tiles(im, f) if f < nf else f0
+            frames.append([w for tile in t for w in tile])
+        anim_frames.append(frames)
+        frame0_px[s] = tiles_pixels(f0)
+
     terrains, used_maps = [], []
     for m, (cells, used) in enumerate(maps_data):
-        img, terrain = convert_map(m, ts_px, cells, used, palette, lut)
+        img, terrain = convert_map(m, ts_px, cells, used, palette, lut,
+                                   frame0_px, slot_of)
         img.save(os.path.join(RES, f"stage0_map{m}.png"))
         print(f"    -> res/stage0_map{m}.png {img.size}")
         terrains.append(terrain)
         used_maps.append(m)
+    for m, cl in enumerate(anim_cell_lists):
+        print(f"  map {m}: tile3={sum(bin(b).count('1') for b in tile3_masks[m])} "
+              f"anim_cells={len(cl)}")
 
     bg_infos = []
     for m in range(MAPS_PER_STAGE):
@@ -347,6 +479,23 @@ def main():
             "extern const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT];\n"
             "extern const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX];\n\n"
             "u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);\n\n"
+            "// ---- animated tiles + tile3 (above-player layer) ----\n"
+            "// tile3 cells get TILE_ATTR_PRIORITY via the SGDK map patch\n"
+            "// callback (stage.c) so the VDP draws them over sprites.\n"
+            "// Anim cells point at a fixed VRAM slot (one per animation,\n"
+            "// 6 frames x 4 tiles); frame changes DMA 32 bytes per slot.\n"
+            f"#define TILE_ANIM_BASE {TILE_ANIM_BASE}\n"
+            f"#define TILE_ANIM_STRIDE {TILE_ANIM_STRIDE}\n"
+            f"#define STAGE0_ANIM_SLOT_COUNT {max(1, len(slots))}\n"
+            f"#define STAGE0_ANIM_CELL_MAX {max(1, max((len(c) for c in anim_cell_lists), default=1))}\n\n"
+            "typedef struct { u8 x, y, slot, tile3; } StageAnimCell;\n"
+            "typedef struct { u8 frames; u16 delay[6]; } StageAnimSlot; // delay in frames\n\n"
+            "extern const u8 stage0_tile3_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];\n"
+            "extern const u8 stage0_anim_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];\n"
+            "extern const StageAnimCell stage0_anim_cells[STAGE0_MAP_COUNT][STAGE0_ANIM_CELL_MAX];\n"
+            "extern const u16 stage0_anim_cell_n[STAGE0_MAP_COUNT];\n"
+            "extern const StageAnimSlot stage0_anim_slots[STAGE0_ANIM_SLOT_COUNT];\n"
+            "extern const u16 stage0_anim_frames[STAGE0_ANIM_SLOT_COUNT][6][64];\n"
             "#endif\n"
         )
 
@@ -381,6 +530,56 @@ def main():
     for m, locks in enumerate(scroll_locks):
         padded = locks + [0] * (lock_max - len(locks))
         lines.append("    { " + ", ".join(str(v) for v in padded) + f" }}, // map {m}\n")
+    lines.append("};\n\n")
+
+    def emit_mask(name, masks):
+        lines.append(f"const u8 {name}[STAGE0_MAP_COUNT]"
+                     "[(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8] = {\n")
+        for m, mask in enumerate(masks):
+            lines.append("    { // map %d\n" % m)
+            for i in range(0, len(mask), 16):
+                chunk = ", ".join("0x%02X" % b for b in mask[i:i + 16])
+                lines.append("        " + chunk + ",\n")
+            lines.append("    },\n")
+        lines.append("};\n\n")
+
+    emit_mask("stage0_tile3_mask", tile3_masks)
+    emit_mask("stage0_anim_mask", anim_masks)
+
+    cell_max = max(1, max((len(c) for c in anim_cell_lists), default=1))
+    lines.append("const StageAnimCell stage0_anim_cells[STAGE0_MAP_COUNT][STAGE0_ANIM_CELL_MAX] = {\n")
+    for m, cl in enumerate(anim_cell_lists):
+        rows = ["{ %d, %d, %d, %d }" % tuple(c) for c in cl]
+        rows += ["{ 0, 0, 0, 0 }"] * (cell_max - len(rows))
+        lines.append("    { " + ", ".join(rows) + " }, // map %d\n" % m)
+    lines.append("};\n\n")
+
+    lines.append("const u16 stage0_anim_cell_n[STAGE0_MAP_COUNT] = {\n")
+    lines.append("    " + ", ".join(str(len(c)) for c in anim_cell_lists) + "\n};\n\n")
+
+    lines.append("const StageAnimSlot stage0_anim_slots[STAGE0_ANIM_SLOT_COUNT] = {\n")
+    if not slots:
+        lines.append("    { 1, { 1, 1, 1, 1, 1, 1 } }, // dummy (no anims)\n")
+    for s, gid in enumerate(slots):
+        fn, delays = anim_blocks[gid]
+        nf = max(1, strips[gid].width // TILE)
+        dfs = []
+        for f in range(ANIM_MAX_FRAMES):
+            ms = delays[f] if f < len(delays) else 200
+            dfs.append(min(65535, max(1, (ms * 60 + 500) // 1000)))
+        lines.append("    { %d, { %s } }, // %d: %s\n"
+                     % (nf, ", ".join(str(d) for d in dfs), s, fn))
+    lines.append("};\n\n")
+
+    lines.append("const u16 stage0_anim_frames[STAGE0_ANIM_SLOT_COUNT][6][64] = {\n")
+    if not slots:
+        lines.append("    { { 0 } }, // dummy\n")
+    for s, frames in enumerate(anim_frames):
+        lines.append("    { // slot %d (%s)\n" % (s, anim_blocks[slots[s]][0]))
+        for words in frames:
+            hexs = ", ".join("0x%04X" % w for w in words)
+            lines.append("        { " + hexs + " },\n")
+        lines.append("    },\n")
     lines.append("};\n\n")
 
     lines.append(

@@ -25,6 +25,8 @@ static const Image *const bg_images[STAGE0_MAP_COUNT] = {
 
 static s32 bg_scroll_fx;   // 16.16 fixed parallax scroll, wraps at plane width
 static s16 bg_last_cam_x;
+static u8 anim_frame[STAGE0_ANIM_SLOT_COUNT];
+static u16 anim_timer[STAGE0_ANIM_SLOT_COUNT];
 
 // Draw the parallax background of the given map on BG_B. Art is baked 512px
 // wide (= plane width) by the converter, so the plane wrap is seamless with
@@ -37,7 +39,6 @@ static void bg_load(u8 map_index)
 
     VDP_clearPlane(BG_B, TRUE);
     VDP_setHorizontalScroll(BG_B, 0);
-    VDP_setVerticalScroll(BG_B, 0);
 
     const StageBgInfo *info = &stage0_bg_info[map_index];
     const Image *img = bg_images[map_index];
@@ -64,8 +65,6 @@ static void bg_load(u8 map_index)
     const u16 rows = img->tileset->numTile / 64;   // image is 64 tiles wide
     for (u16 y = rows; y < 32; y++)
         VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
-
-    VDP_setVerticalScroll(BG_B, info->adjust_y);
 }
 
 static void clamp_camera(void)
@@ -144,6 +143,77 @@ static void scroll_lock_span(s16 focus_x)
     }
 }
 
+// ---- animated tiles + above-player tile3 ------------------------------
+// tile3 cells carry TILE_ATTR_PRIORITY so the VDP draws them above sprites
+// (the player, enemies, shots). Anim cells point at a fixed VRAM slot per
+// animation; the SGDK map patch callback rewrites every tilemap buffer
+// (full draw and scroll columns) so stale entries never reach the VDP.
+static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
+                            MapUpdateType type, u16 size)
+{
+    for (u16 i = 0; i < size; i++) {
+        u16 tx = (type == COLUMN_UPDATE) ? x : x + i;
+        u16 ty = (type == COLUMN_UPDATE) ? y + i : y;
+        u16 cx = tx >> 1, cy = ty >> 1;    // 16px cells
+        if (cx >= STAGE0_MAP_W || cy >= STAGE0_MAP_H) continue;
+        u16 n = cy * STAGE0_MAP_W + cx;
+        bool t3 = stage0_tile3_mask[stage_current_map][n >> 3] & (1 << (n & 7));
+        bool an = stage0_anim_mask[stage_current_map][n >> 3] & (1 << (n & 7));
+        if (an) {
+            // one anim slot per stage today; multi-slot needs a per-cell slot map
+            u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
+                       (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
+            u16 quad = (tx & 1) | ((ty & 1) << 1);
+            buf[i] = attr | (TILE_ANIM_BASE + anim_frame[0] * 4 + quad);
+        } else if (t3) {
+            buf[i] |= TILE_ATTR_PRIORITY_MASK;
+        }
+    }
+}
+
+static void stage_anim_reset(void)
+{
+    for (u8 s = 0; s < STAGE0_ANIM_SLOT_COUNT; s++) {
+        anim_frame[s] = 0;
+        anim_timer[s] = stage0_anim_slots[s].delay[0];
+        VDP_loadTileData((const u32 *)stage0_anim_frames[s][0],
+                         TILE_ANIM_BASE + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
+    }
+}
+
+void stage_anim_update(void)
+{
+    for (u8 s = 0; s < STAGE0_ANIM_SLOT_COUNT; s++) {
+        const StageAnimSlot *slot = &stage0_anim_slots[s];
+        if (slot->frames < 2) continue;
+        if (anim_timer[s] > 1) { anim_timer[s]--; continue; }
+        anim_frame[s]++;
+        if (anim_frame[s] >= slot->frames) anim_frame[s] = 0;
+        anim_timer[s] = slot->delay[anim_frame[s]];
+        u16 base = TILE_ANIM_BASE + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
+        VDP_loadTileData((const u32 *)stage0_anim_frames[s][anim_frame[s]],
+                         base, 4, DMA_QUEUE);
+        // rewrite visible cells of this slot; scroll columns are kept
+        // correct by stage_map_patch
+        const StageAnimCell *cells = stage0_anim_cells[stage_current_map];
+        u16 n = stage0_anim_cell_n[stage_current_map];
+        u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
+        for (u16 i = 0; i < n; i++) {
+            if (cells[i].slot != s) continue;
+            s16 sx = (s16)cells[i].x * STAGE0_TILE - camera.x;
+            s16 sy = (s16)cells[i].y * STAGE0_TILE - camera.y;
+            if (sx < -STAGE0_TILE || sx >= 320 ||
+                sy < -STAGE0_TILE || sy >= 224) continue;
+            u16 a = pal | (cells[i].tile3 ? TILE_ATTR_PRIORITY_MASK : 0);
+            u16 tx = cells[i].x * 2, ty = cells[i].y * 2;
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
+        }
+    }
+}
+
 void stage_load(u8 map_index)
 {
     if (map_index >= STAGE0_MAP_COUNT) map_index = 0;
@@ -161,6 +231,7 @@ void stage_load(u8 map_index)
 
     stage_map = MAP_create(map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
+    MAP_setDataPatchCallback(stage_map, stage_map_patch);
 
     camera.x = 0;
     camera.y = 0;
@@ -177,9 +248,20 @@ void stage_load(u8 map_index)
     shots_reset();
     enemies_reset();
 
+    // animated-tile frame 0 must be in VRAM before the first full draw
+    stage_anim_reset();
+
     // Flush any pending transfers and restore display
     SYS_doVBlankProcess();
     VDP_setEnable(wasEnabled);
+
+    // BG vertical scroll (PC draws the bg at screen y = adjust_y, classmap
+    // .cpp:614). VSRAM = the plane row at screen top, so pushing the image
+    // DOWN by adjust_y means vsram = -adjust_y. Must be written with the
+    // VDP enabled — the bg_load write landed inside the disabled window
+    // and was lost (art sat at y=0: moon at top, skyline mid-screen).
+    VDP_setVerticalScroll(BG_B, stage0_bg_info[map_index].present
+                          ? -stage0_bg_info[map_index].adjust_y : 0);
 }
 
 // PC test_teleport/check_player_is_on_teleport (game.cpp:638-661, 771-835).

@@ -47,4 +47,23 @@ extern const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX];
 
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
 
+// ---- animated tiles + tile3 (above-player layer) ----
+// tile3 cells get TILE_ATTR_PRIORITY via the SGDK map patch
+// callback (stage.c) so the VDP draws them over sprites.
+// Anim cells point at a fixed VRAM slot (one per animation,
+// 6 frames x 4 tiles); frame changes DMA 32 bytes per slot.
+#define TILE_ANIM_BASE 912
+#define TILE_ANIM_STRIDE 24
+#define STAGE0_ANIM_SLOT_COUNT 1
+#define STAGE0_ANIM_CELL_MAX 20
+
+typedef struct { u8 x, y, slot, tile3; } StageAnimCell;
+typedef struct { u8 frames; u16 delay[6]; } StageAnimSlot; // delay in frames
+
+extern const u8 stage0_tile3_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];
+extern const u8 stage0_anim_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];
+extern const StageAnimCell stage0_anim_cells[STAGE0_MAP_COUNT][STAGE0_ANIM_CELL_MAX];
+extern const u16 stage0_anim_cell_n[STAGE0_MAP_COUNT];
+extern const StageAnimSlot stage0_anim_slots[STAGE0_ANIM_SLOT_COUNT];
+extern const u16 stage0_anim_frames[STAGE0_ANIM_SLOT_COUNT][6][64];
 #endif
