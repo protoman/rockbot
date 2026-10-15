@@ -62,6 +62,16 @@ const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT] = {
     { 0, 0, 0 }, // map 2
 };
 
+const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT] = {
+    5, 2, 0
+};
+
+const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX] = {
+    { 137, 138, 179, 180, 199 }, // map 0
+    { 0, 199, 0, 0, 0 }, // map 1
+    { 0, 0, 0, 0, 0 }, // map 2
+};
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
     if (map >= STAGE0_MAP_COUNT) return TERRAIN_SOLID;

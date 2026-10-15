@@ -36,6 +36,15 @@ extern const StageLink stage0_links[2];
 extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];
 #define STAGE0_LINK_COUNT 2
 
+// Full-wall columns: every one of the 15 PC data rows is
+// SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK (PC classmap.cpp:184-193).
+// The camera edge may never sit on one (PC changeScrolling
+// classmap.cpp:459/475): the view never shows what is behind a
+// map divider.
+#define STAGE0_SCROLL_LOCK_MAX 5
+extern const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT];
+extern const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX];
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
 
 #endif

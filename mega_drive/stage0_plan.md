@@ -162,3 +162,26 @@ MD has no second scolling plane over sprites →:
   `SPR_setVisibility(spr, AUTO_FAST)` at spawn — SGDK hides by X vs screen
   width and skips the SAT write; recomputed on every `SPR_setPosition`.
   Verified: spawn screen shows 0 enemies (all map0 spawns ≥544px).
+- **Scroll lock (PC parity)**: converter precomputes full-wall columns
+  (all 15 PC rows in {SOLID,DOOR,SPIKE,ICE,SCROLL_LOCK} — PC
+  `classmap.cpp:184-193`) into `stage0_scroll_lock[]`: map0
+  {137,138,179,180,199}, map1 {0,199}, map2 none. `stage.c`
+  `scroll_lock_camera()` replicates PC `changeScrolling` edge-tile checks
+  (direction-aware, right edge `x+306`, left edge `x+14`): the camera stops
+  with the divider at the screen edge; never shows what is behind it.
+  Verified in emulator (spawn warp 1900, camera trace): camera held at 1885
+  while player pushed against the wall; left walk unaffected. Note: mid-run
+  `import -window` captures sometimes return byte-identical stale frames —
+  trust kprintf traces over screenshots for motion questions.
+- **Scroll lock (user request, port of PC `wall_scroll_lock`)**: converter
+  precomputes full-wall columns per map (all 15 PC data rows
+  SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK — `classmap.cpp:184-193`) into
+  `stage0_scroll_lock[]` ROM arrays. `stage.c scroll_lock_camera()` blocks
+  the advancing screen edge from sitting on such a column (direction-aware,
+  `prev_x`-based, like PC `changeScrolling` `:459/:475`), so the view never
+  shows what is behind a divider. Stage 0 data: map0 = cols 137,138,179,180,199;
+  map1 = cols 0,199; map2 = none. Verified in emulator (camera held at 1885
+  = col137 lock while player pushed to the wall at 2167; walked away left
+  normally).
+- **User rule (standing)**: never launch or kill BlastEm without asking —
+  the user may have their own instance running.

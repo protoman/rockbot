@@ -75,6 +75,57 @@ static void clamp_camera(void)
     if (camera.y > STAGE0_PIXEL_H - 224) camera.y = STAGE0_PIXEL_H - 224;
 }
 
+// ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
+// A full-wall column (map divider; list precomputed by convert_stage.py)
+// may not sit at the screen edge the camera is moving toward, so the view
+// never shows what is behind the wall. Like PC, the check is directional
+// (it only guards the advancing edge) and a jump spanning several columns
+// is clamped to the first wall it would cross.
+static bool column_locked(s16 tile_x)
+{
+    if (tile_x < 0 || tile_x >= STAGE0_MAP_W) return FALSE;
+    const u8 *cols = stage0_scroll_lock[stage_current_map];
+    const u8 n = stage0_scroll_lock_n[stage_current_map];
+    for (u8 i = 0; i < n; i++)
+        if (cols[i] == tile_x) return TRUE;
+    return FALSE;
+}
+
+static void scroll_lock_camera(s16 prev_x)
+{
+    if (camera.x == prev_x) return;
+
+    if (camera.x > prev_x) {
+        // right-edge tile: scroll.x + RES_W - TILESIZE + 2 (classmap.cpp:459)
+        s16 c0 = (prev_x + 320 - 16 + 2) >> 4;
+        s16 c1 = (camera.x + 320 - 16 + 2) >> 4;
+        if (column_locked(c0)) {
+            camera.x = prev_x;                      // edge already on a wall
+        } else {
+            for (s16 c = c0 + 1; c <= c1; c++) {
+                if (column_locked(c)) {
+                    camera.x = (c << 4) - (320 - 16 + 2) - 1;
+                    break;
+                }
+            }
+        }
+    } else {
+        // left-edge tile: scroll.x + TILESIZE - 2 (classmap.cpp:475)
+        s16 c0 = (prev_x + 16 - 2) >> 4;
+        s16 c1 = (camera.x + 16 - 2) >> 4;
+        if (column_locked(c0)) {
+            camera.x = prev_x;
+        } else {
+            for (s16 c = c0 - 1; c >= c1; c--) {
+                if (column_locked(c)) {
+                    camera.x = (c << 4) + 2;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void stage_load(u8 map_index)
 {
     if (map_index >= STAGE0_MAP_COUNT) map_index = 0;
@@ -142,6 +193,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
     const s16 cy = 112;
     const s16 dzx = 12; // horizontal deadzone
     const s16 dzy = 8;  // vertical deadzone
+    const s16 prev_x = camera.x;
 
     if (focusX > camera.x + cx + dzx)       camera.x = focusX - cx - dzx;
     else if (focusX < camera.x + cx - dzx)  camera.x = focusX - cx + dzx;
@@ -150,6 +202,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
     else if (focusY < camera.y + cy - dzy)  camera.y = focusY - cy + dzy;
 
     clamp_camera();
+    scroll_lock_camera(prev_x);
     MAP_scrollTo(stage_map, camera.x, camera.y);
 
     // Parallax: PC does bg_scroll.x -= camera_dx * speed/10 (classmap.cpp:462)

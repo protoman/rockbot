@@ -268,12 +268,21 @@ def main():
     # One master palette for the whole stage: collect every map's colors
     # first, then render all maps against the same palette/lut. Per-map
     # palettes differ in color order, which flashed on map transitions.
-    maps_data, all_rgbs = [], []
+    maps_data, all_rgbs, scroll_locks = [], [], []
+    # PC scroll-lock columns: every one of the 15 data rows is
+    # SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK (classmap.cpp:184-193). The camera
+    # edge may never sit on such a column (changeScrolling), so the player
+    # never sees past a map divider.
+    lock_terrain = {1, 3, 4, 6, 10}
     for m in range(MAPS_PER_STAGE):
         cells, used = collect_map(m)
         rgbs = collect_colors(used, ts_px)
         all_rgbs += rgbs
         maps_data.append((cells, used))
+        scroll_locks.append([
+            x for x in range(MAP_W)
+            if all(cells[x][y][0] in lock_terrain for y in range(MAP_H_SRC))
+        ])
     maps_data = [(crop_top_row(cells, links, m), used)
                  for m, (cells, used) in enumerate(maps_data)]
     palette, lut = build_palette(all_rgbs)
@@ -329,6 +338,14 @@ def main():
             f"extern const StageLink stage0_links[{len(links)}];\n"
             f"extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];\n"
             f"#define STAGE0_LINK_COUNT {len(links)}\n\n"
+            "// Full-wall columns: every one of the 15 PC data rows is\n"
+            "// SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK (PC classmap.cpp:184-193).\n"
+            "// The camera edge may never sit on one (PC changeScrolling\n"
+            "// classmap.cpp:459/475): the view never shows what is behind a\n"
+            "// map divider.\n"
+            f"#define STAGE0_SCROLL_LOCK_MAX {max(len(l) for l in scroll_locks)}\n"
+            "extern const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT];\n"
+            "extern const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX];\n\n"
             "u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);\n\n"
             "#endif\n"
         )
@@ -354,6 +371,16 @@ def main():
     for m, info in enumerate(bg_infos):
         comment = "map %d" % m
         lines.append(f"    {{ {info['present']}, {info['adjust_y']}, {info['speed']} }}, // {comment}\n")
+    lines.append("};\n\n")
+
+    lines.append("const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT] = {\n")
+    lines.append("    " + ", ".join(str(len(l)) for l in scroll_locks) + "\n};\n\n")
+
+    lines.append("const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX] = {\n")
+    lock_max = max(len(l) for l in scroll_locks)
+    for m, locks in enumerate(scroll_locks):
+        padded = locks + [0] * (lock_max - len(locks))
+        lines.append("    { " + ", ".join(str(v) for v in padded) + f" }}, // map {m}\n")
     lines.append("};\n\n")
 
     lines.append(
