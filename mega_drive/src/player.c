@@ -50,6 +50,23 @@ static bool column_hits_solid(s16 col, s16 t, s16 b)
     return FALSE;
 }
 
+// PC hit_ground ladder-edge pairs (character.cpp:1377-1412) for the fall
+// scan and the standing check: a STAIR tile is ground only when the tile
+// above is not STAIR (stand on the ladder top); an UNBLOCKED tile is ground
+// when the tile above is STAIR (rest on the ladder's bottom rung, e.g. the
+// link arrival spot at map0 (139,13)). SOLID is always ground. The other PC
+// pairs are skipped on purpose: p1=UNBLOCKED with p2=SOLID would freeze the
+// scan-based landing on ledges.
+static bool ground_row(s16 tx, s16 row)
+{
+    u16 p1 = stage_terrain_at(stage_current_map, tx, row);
+    if (p1 == TERRAIN_SOLID) return TRUE;
+    u16 above = stage_terrain_at(stage_current_map, tx, row - 1);
+    if (p1 == TERRAIN_STAIR) return above != TERRAIN_STAIR;
+    if (p1 == TERRAIN_UNBLOCKED) return above == TERRAIN_STAIR;
+    return FALSE;
+}
+
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 {
     s16 ix = player.x;
@@ -107,65 +124,81 @@ void player_update(u16 pad)
     s16 cty = (bt + bb) >> 5;   // centre tile Y
 
     // ---- ladder ------------------------------------------------------------
-    // Grab leaves the ground state: while on_ground is set, the sideways
-    // let-go below is ignored and the player gets stuck on the ladder.
+    // Grab clears on_ground so gravity cannot re-latch while climbing.
+    // PC has no sideways let-go: horizontal input is gated while the ladder
+    // anim plays (character.cpp:218/266), which is also what lets the
+    // per-frame X centring below stick (the old same-frame let-go fired
+    // before player.x = ix ran, leaving the player beside the stair).
     if (!player.on_ladder) {
         if ((pad & BUTTON_UP) && stage_terrain_at(stage_current_map, ctx, cty) == TERRAIN_STAIR) {
             player.on_ladder = TRUE;
             player.on_ground = FALSE;
+            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;   // centre on ladder (character.cpp:396)
         } else if ((pad & BUTTON_DOWN) &&
                    stage_terrain_at(stage_current_map, ctx, bb >> 4) == TERRAIN_STAIR) {
             player.on_ladder = TRUE;
             player.on_ground = FALSE;
+            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
         }
     }
 
     if (player.on_ladder) {
-        if ((pad & (BUTTON_LEFT | BUTTON_RIGHT)) && !player.on_ground) {
-            player.on_ladder = FALSE;   // let go sideways
-        } else {
-            player.vx = 0;
-            s16 climb = 0;
-            if (pad & BUTTON_UP)   climb = -1;
-            if (pad & BUTTON_DOWN) climb =  1;
+        player.vx = 0;
+        s16 climb = 0;
+        if (pad & BUTTON_UP)   climb = -1;
+        if (pad & BUTTON_DOWN) climb =  1;
 
-            if (climb != 0) {
-                s16 ny = iy + climb * F16_toInt(CLIMB_SPEED);
-                s16 nBottom = ny + PLAYER_BOX_B;
-                s16 nTop    = ny + PLAYER_BOX_T;
-                u16 under = stage_terrain_at(stage_current_map, ctx, nBottom >> 4);
-                u16 over  = stage_terrain_at(stage_current_map, ctx, nTop >> 4);
-                u16 centreNew = stage_terrain_at(stage_current_map, ctx,
-                                                 ((ny + PLAYER_BOX_T) + (ny + PLAYER_BOX_B)) >> 5);
+        if (climb != 0) {
+            s16 ny = iy + climb * F16_toInt(CLIMB_SPEED);
+            s16 nBottom = ny + PLAYER_BOX_B;
+            s16 nTop    = ny + PLAYER_BOX_T;
+            u16 under = stage_terrain_at(stage_current_map, ctx, nBottom >> 4);
+            u16 over  = stage_terrain_at(stage_current_map, ctx, nTop >> 4);
+            u16 centreNew = stage_terrain_at(stage_current_map, ctx,
+                                             ((ny + PLAYER_BOX_T) + (ny + PLAYER_BOX_B)) >> 5);
 
-                if (climb > 0 && under == TERRAIN_SOLID) {
-                    player.on_ladder = FALSE;                       // reached the floor
-                    iy = ((nBottom >> 4) << 4) - PLAYER_BOX_B;
-                } else if (climb < 0 && over == TERRAIN_SOLID) {
-                    player.on_ladder = FALSE;                       // hit a ceiling
-                    iy = ((nTop >> 4) << 4) + 16 - PLAYER_BOX_T;
-                } else if (centreNew != TERRAIN_STAIR &&
-                           stage_terrain_at(stage_current_map, ctx, nBottom >> 4) != TERRAIN_STAIR) {
-                    player.on_ladder = FALSE;                       // walked off the ladder
-                } else {
-                    iy = ny;
-                }
+            if (climb > 0 && under == TERRAIN_SOLID) {
+                player.on_ladder = FALSE;                       // reached the floor
+                iy = ((nBottom >> 4) << 4) - PLAYER_BOX_B;
+            } else if (climb < 0 && over == TERRAIN_SOLID) {
+                player.on_ladder = FALSE;                       // hit a ceiling
+                iy = ((nTop >> 4) << 4) + 16 - PLAYER_BOX_T;
+            } else if (centreNew != TERRAIN_STAIR &&
+                       stage_terrain_at(stage_current_map, ctx, nBottom >> 4) != TERRAIN_STAIR) {
+                player.on_ladder = FALSE;                       // walked off the ladder
+            } else {
+                iy = ny;
             }
 
-            if (player.on_ladder) {
-                player.x = ix;
-                player.y = iy;
-                if (current_anim != ANIM_STAIRS) {
-                    current_anim = ANIM_STAIRS;
-                    SPR_setAnim(player.spr, ANIM_STAIRS);
-                }
-                SPR_setHFlip(player.spr, player.facing < 0);
-                SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
-                prev_pad = pad;
-                return;
+            if (!player.on_ladder) {
+                // A box wider than one tile can overlap a side wall when
+                // centred on the ladder column (e.g. the right-edge divider
+                // at map1 col 199). The feet-row ground check would then
+                // latch on the wall and freeze the player mid-air. Shift X
+                // clear of the wall so the fall scan misses it.
+                s16 row = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
+                s16 rc = (ix + PLAYER_BOX_R - 1) >> 4;
+                if (stage_terrain_at(stage_current_map, rc, row) == TERRAIN_SOLID)
+                    ix = (rc << 4) - PLAYER_BOX_R;
+                s16 lc = (ix + PLAYER_BOX_L) >> 4;
+                if (stage_terrain_at(stage_current_map, lc, row) == TERRAIN_SOLID)
+                    ix = ((lc + 1) << 4) - PLAYER_BOX_L;
             }
-            player.vy = 0;
         }
+
+        if (player.on_ladder) {
+            player.x = ix;
+            player.y = iy;
+            if (current_anim != ANIM_STAIRS) {
+                current_anim = ANIM_STAIRS;
+                SPR_setAnim(player.spr, ANIM_STAIRS);
+            }
+            SPR_setHFlip(player.spr, player.facing < 0);
+            SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
+            prev_pad = pad;
+            return;
+        }
+        player.vy = 0;
     }
 
     // ---- horizontal --------------------------------------------------------
@@ -259,7 +292,7 @@ void player_update(u16 pad)
             for (s16 row = (iy + PLAYER_BOX_B) >> 4;
                  row <= ((ny + PLAYER_BOX_B) >> 4) && !blocked; row++) {
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+                    if (ground_row(tx, row)) {
                         ny = (row << 4) - PLAYER_BOX_B;
                         player.on_ground = TRUE;
                         player.vy = 0;
@@ -289,7 +322,7 @@ void player_update(u16 pad)
         s16 r = ix + PLAYER_BOX_R;
         s16 row = (iy + PLAYER_BOX_B) >> 4;
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+            if (ground_row(tx, row)) {
                 player.on_ground = TRUE;
                 break;
             }

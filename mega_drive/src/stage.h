@@ -31,6 +31,9 @@ void stage_update_camera(s16 focusX, s16 focusY);
 // Force a complete MAP redraw. Call after the camera jumps (respawn, map link).
 void stage_force_redraw(void);
 
+// Direct camera set for a link arrival (PC set_scrolling), divider-safe.
+void stage_arrival_camera(s16 focusX, s16 focusY);
+
 // TRUE when the given world-space box overlaps a link origin tile of the
 // current map. Fills the destination map index and pixel position.
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,

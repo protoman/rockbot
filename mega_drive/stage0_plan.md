@@ -185,3 +185,80 @@ MD has no second scolling plane over sprites →:
   normally).
 - **User rule (standing)**: never launch or kill BlastEm without asking —
   the user may have their own instance running.
+
+## Bug A + Bug B fixes (2026-10-15, user-reported)
+
+- **Bug A (stair grab from the right left the player uncentered)**: root cause
+  was the same-frame sideways let-go — grab sets `on_ground=FALSE`, so
+  `pad & L/R` cancelled the ladder branch on the grab frame and
+  `player.x = ix` never ran. PC has NO sideways let-go: horizontal input is
+  gated while the ladder anim plays (`character.cpp:218/266`); PC's
+  `_dropped_from_stairs` only fires when hit. Fix: removed the let-go block
+  from `player.c` ladder branch (no side-release at all, PC-style). Grab
+  still clears `on_ground`.
+- **Bug B (reverse map link never fired)**: `stage_check_link` only tested
+  `map_from == current` with a box-overlaps-origin-tile check. Ported PC
+  `test_teleport`/`check_player_is_on_teleport` (`game.cpp:638-661,771-835`):
+  - test point `px = (left+right)>>1` (PC `x+w*0.5`), `py = bottom-8`
+    (PC `y+h*0.75 = y+21`); column `tx*16 <= px <= tx*16+16` inclusive.
+  - bands: base `lim3=ty*16+8`, `lim4=ty*16+16`; T2B `+8/+24`
+    (`lim3=ty*16+16`, `lim4=ty*16+40`), B2T `lim3-=27` (PC `-27.2`
+    truncated; only ty=0 bands use it → -19).
+  - transition: forward `oy>dy→T2B`, reverse swapped (`game.cpp:643/655`).
+    Stage 0: link2 fwd = T2B @ (136,13), link2 rev = B2T @ (198,0),
+    link3 fwd = B2T @ (1,0), link3 rev = T2B @ (139,13).
+  - windows with `py=y+21`, climb 1px/f: descend fires at `iy 204..207`
+    (ladder-off at 208), ascend at `iy -16..-6` (ladder-off at -17).
+  - off-screen + partial-screen gates (`game.cpp:781,810`) intentionally
+    not ported: with MD's cropped 224px rows they never change the result
+    for these four bands.
+  - **latch**: `static s8 link_latch=-1` in `stage_check_link`; set on
+    fire, cleared only when that link's own band misses — survives
+    `stage_load`, so the arrival frame (still inside the band, e.g.
+    map1 (198,0) y=-8 → py=13 ∈ (-19,16)) cannot ping-pong; cleared as
+    soon as the player falls/climbs out. Arrival placement unchanged.
+- **Ground rule = PC `hit_ground` ladder pairs** (`character.cpp:1377-1412`),
+  new `ground_row()` in `player.c`, used by fall scan + standing check:
+  SOLID → ground; STAIR → ground iff tile above not STAIR (ladder-top
+  stand); UNBLOCKED → ground iff tile above STAIR (ladder-bottom rest —
+  needed so link arrivals (198,0)/(139,13) rest on the rung instead of
+  falling out). Other PC pairs skipped on purpose (p1=0,p2=SOLID would
+  freeze scan-based landing on ledges). Easy/hard blocks still fall
+  through (documented deviation, PC branch1 differs).
+- Verified by derivation (CLIMB_SPEED=1px/f hits every window value);
+  awaiting user test in emulator: down at map0 col136, up at map1 col198
+  and col1, up again at map0 col139.
+
+## Arrival scroll fix (2026-10-15, user-reported)
+
+- **Symptom**: climbing the map1 left stairs (col1) returned the player to
+  map0 (139,13) at the right spot, but the camera sat wrong — stuck at
+  x=1885 with the 137/138 divider at the screen edge and the player
+  off-screen right.
+- **Root cause**: `stage_load` resets camera to (0,0); the next
+  `stage_update_camera` jump (0 → ~2072) is treated as a normal rightward
+  walk, so `scroll_lock_camera` clamps the *advancing right edge* at the
+  first divider (c=137 → camera 1885). Every later frame the deadzone
+  re-requests the centre, the right-edge check sees the edge already on
+  the wall and freezes. PC never does this: on link arrival it
+  `set_scrolling`s the new scroll **directly** (game.cpp:750) computed by
+  `teleporter_dist`; the incremental edge lock only applies to walking.
+  (User theory 2 confirmed; theory 1 not quite — scroll was set, just to
+  a lock-frozen position.)
+- **Fix**: `stage_arrival_camera(focusX, focusY)` in `stage.c` — direct
+  centre on the player, then `scroll_lock_span()`: if any locked divider
+  sits strictly inside the view after a jump, push the camera so the
+  divider ends at a screen edge **on the player's side** (arrival at
+  (139,13): divider to the left edge → camera 2210, player visible at
+  screen x≈22; arrival at (136,13) from the col198 climb-up: divider to
+  the right edge → camera 1885). Then `stage_force_redraw` (full plane
+  redraw across the jump). Called from `main.c` right after
+  `player_place`; the same-frame `stage_update_camera` may re-request the
+  centre but the directional edge lock (now with the correct prev_x on
+  the arrival side) restores the arrival camera in that same frame.
+  Walking behaviour is unchanged: `scroll_lock_span` is a no-op whenever
+  the view does not span a divider (incremental steps can never make it).
+- Derivation for all 4 arrivals: map0 (139,13) → 2210; map0 (136,13) →
+  1885; map1 (198,0) → 2880 (right-edge on divider col199, player at
+  screen 296); map1 (1,0) → 0. Vertical always clamps to 0 (map height =
+  screen height).

@@ -5,6 +5,7 @@
 #include "enemy.h"
 #include "shot.h"
 
+
 Map *stage_map;
 Vect2D_s16 camera;
 u8 stage_current_map;
@@ -126,6 +127,23 @@ static void scroll_lock_camera(s16 prev_x)
     }
 }
 
+// After a camera jump (link arrival) the view can span a divider that
+// incremental walking could never cross. Push the camera so the divider
+// sits at a screen edge, on the focus's side of it.
+static void scroll_lock_span(s16 focus_x)
+{
+    s16 cl = (camera.x + 14) >> 4;
+    s16 cr = (camera.x + 306) >> 4;
+    for (s16 c = cl + 1; c < cr; c++) {
+        if (!column_locked(c)) continue;
+        if (focus_x >= ((s16)c << 4) + 8) {
+            if (camera.x < ((c << 4) + 2)) camera.x = (c << 4) + 2;   // wall to left edge
+        } else {
+            if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307; // wall to right edge
+        }
+    }
+}
+
 void stage_load(u8 map_index)
 {
     if (map_index >= STAGE0_MAP_COUNT) map_index = 0;
@@ -164,23 +182,73 @@ void stage_load(u8 map_index)
     VDP_setEnable(wasEnabled);
 }
 
+// PC test_teleport/check_player_is_on_teleport (game.cpp:638-661, 771-835).
+// Transition bands are in pixels: base lim3/lim4 = ty*16+8 / ty*16+16,
+// widened per transition (PC game.cpp:793-798, float factors truncated).
+// MD ty/py are the cropped-row equivalents of PC's, so the same constants
+// land on the same windows (down: py > ty*16+16, up: py < ty*16+16 at
+// ty=0 with lim3 = -19). Fires only while the player actually crosses the
+// band (on-ladder iy 204..207 descending, -16..-6 ascending for stage 0).
+#define LINK_TRANS_T2B 0
+#define LINK_TRANS_B2T 1
+
+static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
+{
+    if (px < (s16)tx * STAGE0_TILE || px > (s16)tx * STAGE0_TILE + STAGE0_TILE)
+        return FALSE;
+    s16 lim3 = (s16)ty * STAGE0_TILE + 8;
+    s16 lim4 = (s16)ty * STAGE0_TILE + STAGE0_TILE;
+    if (trans == LINK_TRANS_T2B) {
+        lim3 += 8;      // PC lim3 += TILESIZE * 0.5
+        lim4 += 24;     // PC lim4 += TILESIZE * 1.5
+    } else {
+        lim3 -= 27;     // PC lim3 -= 27.2 truncated (only ty=0 bands fire)
+    }
+    return py > lim3 && py < lim4;
+}
+
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y)
 {
+    // Same link may not re-fire until the player leaves its band
+    // (PC set_teleporter/get_teleporter, game.cpp:802-832). Survives
+    // stage_load: on arrival the band still hits and would ping-pong.
+    static s8 link_latch = -1;
+
+    s16 px = (left + right) >> 1;   // PC px = x + width * 0.5 (game.cpp:778)
+    s16 py = bottom - 8;            // PC py = y + h * 0.75 = y + 21 (game.cpp:779)
+
     for (u8 i = 0; i < STAGE0_LINK_COUNT; i++) {
         const StageLink *lk = &stage0_links[i];
+        u8 tx, ty, dst_map, dst_x, dst_y;
+        u8 trans;
+        bool hit;
 
-        if (lk->map_from != stage_current_map) continue;
+        if (lk->map_from == stage_current_map) {
+            // forward (game.cpp:638-649)
+            tx = lk->tile_x;  ty = lk->tile_y;
+            dst_map = lk->map_to;  dst_x = lk->dst_x;  dst_y = lk->dst_y;
+            trans = (lk->tile_y > lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else if (lk->map_to == stage_current_map) {
+            // reverse: both stage 0 links are bidirectional (game.cpp:650-661)
+            tx = lk->dst_x;  ty = lk->dst_y;
+            dst_map = lk->map_from;  dst_x = lk->tile_x;  dst_y = lk->tile_y;
+            trans = (lk->tile_y < lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else {
+            continue;
+        }
 
-        s16 tx0 = (s16)lk->tile_x * STAGE0_TILE;
-        s16 ty0 = (s16)lk->tile_y * STAGE0_TILE;
+        hit = link_region(px, py, tx, ty, trans);
 
-        // box overlaps the origin tile
-        if (left <= tx0 + STAGE0_TILE - 1 && right >= tx0 &&
-            top  <= ty0 + STAGE0_TILE - 1 && bottom >= ty0) {
-            *to_map = lk->map_to;
-            *to_x   = (s16)lk->dst_x * STAGE0_TILE;
-            *to_y   = (s16)lk->dst_y * STAGE0_TILE;
+        if (link_latch == (s8)i) {
+            if (!hit) link_latch = -1;   // cleared on region miss only
+            continue;
+        }
+        if (hit) {
+            link_latch = (s8)i;
+            *to_map = dst_map;
+            *to_x   = (s16)dst_x * STAGE0_TILE;
+            *to_y   = (s16)dst_y * STAGE0_TILE;
             return TRUE;
         }
     }
@@ -212,9 +280,12 @@ void stage_update_camera(s16 focusX, s16 focusY)
     bg_last_cam_x = camera.x;
     const StageBgInfo *info = &stage0_bg_info[stage_current_map];
     if (info->present && info->speed) {
+        const s32 W = (s32)512 << 16;
         bg_scroll_fx -= ((s32)dx * info->speed * 65536) / 10;
-        while (bg_scroll_fx <= -((s32)512 << 16)) bg_scroll_fx += (s32)512 << 16;
-        while (bg_scroll_fx > 0) bg_scroll_fx += (s32)512 << 16;
+        // wrap into (-W, 0]; the old "while (fx > 0) fx += W" relied on
+        // signed overflow (UB — gcc turns it into an infinite loop)
+        bg_scroll_fx %= W;
+        if (bg_scroll_fx > 0) bg_scroll_fx -= W;
         VDP_setHorizontalScroll(BG_B, (s16)(-(bg_scroll_fx >> 16)));
     }
 }
@@ -228,4 +299,17 @@ void stage_force_redraw(void)
     clamp_camera();
     MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);
     bg_last_cam_x = camera.x;   // no parallax delta across camera jumps
+}
+
+// Link arrival: PC sets the new map scroll directly instead of walking the
+// camera there (game.cpp:750 set_scrolling). Centre on the player, then
+// keep any divider at a screen edge on the player's side — e.g. arriving at
+// map0 (139,13) the view must not span the 137/138 divider.
+void stage_arrival_camera(s16 focusX, s16 focusY)
+{
+    camera.x = focusX - 160;
+    camera.y = focusY - 112;
+    clamp_camera();
+    scroll_lock_span(focusX);
+    stage_force_redraw();
 }

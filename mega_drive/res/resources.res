@@ -33,6 +33,9 @@ MAP     stage0_map2   "stage0_map2.png"  stage0_tiles2 FAST 0
 IMAGE stage0_bg0 "stage0_bg0.png" NONE 1
 IMAGE stage0_bg1 "stage0_bg1.png" NONE 1
 
+# ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
+XGM2 stage_music "music.vgm"
+
 # ---- PLAYER (RockBot) ----
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped
 # to weapon_colors[0] by tools/convert_player.py.

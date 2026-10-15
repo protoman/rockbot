@@ -3,6 +3,7 @@
 #ifndef _RES_RESOURCES_H_
 #define _RES_RESOURCES_H_
 
+extern const u8 stage_music[2816];
 extern const SpriteDefinition upperland_sprite;
 extern const SpriteDefinition boberatu_sprite;
 extern const SpriteDefinition jmd_sprite;

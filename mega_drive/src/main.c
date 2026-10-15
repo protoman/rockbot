@@ -1,5 +1,6 @@
 #include <genesis.h>
 
+
 #include "resources.h"
 
 #include "stage.h"
@@ -157,6 +158,8 @@ static void runStage(void)
     stage_load(0);
     player_init();
 
+    XGM2_play(stage_music);   // stage only — intro/title stay silent
+
     // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
     // the parallax background on BG_B, and clearing it afterwards wiped the
     // tilemap (sky showed stale/garbage tiles).
@@ -177,6 +180,7 @@ static void runStage(void)
             player_place(to_x + STAGE0_TILE / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
                          to_y + STAGE0_TILE / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
             player_get_box(&bl, &bt, &br, &bb);
+            stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
         }
 
         // camera focus = centre of the player hitbox
