@@ -7,7 +7,7 @@
 
 // The stage tilemap lives on BG_A. BG_B is left free for parallax later.
 #define STAGE_PLANE BG_A
-#define STAGE_PAL   PAL0
+#define STAGE_PAL   PAL1
 
 extern Map *stage_map;
 extern Vect2D_s16 camera;

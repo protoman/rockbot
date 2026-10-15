@@ -34,26 +34,19 @@ static bool tile_blocks(s16 px, s16 py)
     return stage_terrain_at(stage_current_map, px >> 4, py >> 4) == TERRAIN_SOLID;
 }
 
-// Any blocking tile inside the box. Used for horizontal only.
-static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
+// TRUE if any tile in the column, spanning rows [t..b), is solid.
+static bool column_hits_solid(s16 col, s16 t, s16 b)
 {
-    s16 x0 = l >> 4;
-    s16 x1 = (r - 1) >> 4;
-    s16 y0 = t >> 4;
-    s16 y1 = (b - 1) >> 4;
-
-    for (s16 ty = y0; ty <= y1; ty++) {
-        for (s16 tx = x0; tx <= x1; tx++) {
-            if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SOLID) return TRUE;
-        }
+    for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
+        if (stage_terrain_at(stage_current_map, col, ty) == TERRAIN_SOLID) return TRUE;
     }
     return FALSE;
 }
 
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 {
-    s16 ix = F16_toInt(player.x);
-    s16 iy = F16_toInt(player.y);
+    s16 ix = player.x;
+    s16 iy = player.y;
     *left   = ix + PLAYER_BOX_L;
     *top    = iy + PLAYER_BOX_T;
     *right  = ix + PLAYER_BOX_R;
@@ -62,8 +55,8 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 
 void player_place(s16 px, s16 py)
 {
-    player.x = FIX16(px);
-    player.y = FIX16(py);
+    player.x = px;
+    player.y = py;
     player.vx = 0;
     player.vy = 0;
     player.on_ground = FALSE;
@@ -74,8 +67,8 @@ void player_place(s16 px, s16 py)
 
 void player_init(void)
 {
-    player.x = FIX16(SPAWN_X);
-    player.y = FIX16(SPAWN_Y);
+    player.x = SPAWN_X;
+    player.y = SPAWN_Y;
     player.vx = 0;
     player.vy = 0;
     player.on_ground = TRUE;
@@ -94,8 +87,8 @@ void player_init(void)
 
 void player_update(u16 pad)
 {
-    s16 ix = F16_toInt(player.x);
-    s16 iy = F16_toInt(player.y);
+    s16 ix = player.x;
+    s16 iy = player.y;
     s16 bl = ix + PLAYER_BOX_L;
     s16 bt = iy + PLAYER_BOX_T;
     s16 br = ix + PLAYER_BOX_R;
@@ -145,8 +138,8 @@ void player_update(u16 pad)
             }
 
             if (player.on_ladder) {
-                player.x = FIX16(ix);
-                player.y = FIX16(iy);
+                player.x = ix;
+                player.y = iy;
                 if (current_anim != ANIM_STAIRS) {
                     current_anim = ANIM_STAIRS;
                     SPR_setAnim(player.spr, ANIM_STAIRS);
@@ -204,17 +197,27 @@ void player_update(u16 pad)
     s16 dy = F16_toInt(player.vy);
 
     // ---- horizontal move + resolve -----------------------------------------
+    // Test only the column the leading edge enters and snap flush against its
+    // face. The old whole-box test snapped by the rightmost/leftmost column
+    // even when the overlap was in the far one, yanking the player up to a
+    // full box-width backward ("bounce back"). See findings.md FIND-09.
     if (dx != 0) {
         s16 nx = ix + dx;
-        s16 l = nx + PLAYER_BOX_L;
-        s16 r = nx + PLAYER_BOX_R;
         s16 t = iy + PLAYER_BOX_T;
         s16 b = iy + PLAYER_BOX_B;
 
-        if (box_hits_solid(l, t, r, b)) {
-            if (dx > 0) nx = ((r >> 4) << 4) - PLAYER_BOX_R;
-            else        nx = ((l >> 4) << 4) + 16 - PLAYER_BOX_L;
-            player.vx = 0;
+        if (dx > 0) {
+            s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
+            if (column_hits_solid(col, t, b)) {
+                nx = (col << 4) - PLAYER_BOX_R;   // exact edge contact
+                player.vx = 0;
+            }
+        } else {
+            s16 col = (nx + PLAYER_BOX_L) >> 4;
+            if (column_hits_solid(col, t, b)) {
+                nx = ((col + 1) << 4) - PLAYER_BOX_L;
+                player.vx = 0;
+            }
         }
         ix = nx;
     }
@@ -235,8 +238,10 @@ void player_update(u16 pad)
         bool blocked = FALSE;
 
         if (dy > 0) {
-            // falling: scan the rows the feet would cross
-            for (s16 row = ((iy + PLAYER_BOX_B) >> 4) + 1;
+            // falling: scan from the row the feet are in (a resting foot is
+            // exactly on a tile boundary; +1 would skip that row and drop the
+            // player through the floor) down to the row the feet enter.
+            for (s16 row = (iy + PLAYER_BOX_B) >> 4;
                  row <= ((ny + PLAYER_BOX_B) >> 4) && !blocked; row++) {
                 for (s16 tx = x0; tx <= x1; tx++) {
                     if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
@@ -279,8 +284,8 @@ void player_update(u16 pad)
     if (player.on_ground) coyote_timer = COYOTE_FRAMES;
     else if (coyote_timer > 0) coyote_timer--;
 
-    player.x = FIX16(ix);
-    player.y = FIX16(iy);
+    player.x = ix;
+    player.y = iy;
 
     // ---- fell out of the level ---------------------------------------------
     if (iy > STAGE0_PIXEL_H + 32) {

@@ -102,32 +102,55 @@ def read_map(stage_n, map_n):
 
 
 def build_palette(rgbs):
+    """One master palette shared by every map of the stage.
+
+    Colors beyond MAX_COLORS are merged into their nearest neighbour
+    (squared RGB distance) instead of being truncated, so no art color
+    silently collapses to palette index 1."""
     uniq = []
     for c in rgbs:
         if c not in uniq:
             uniq.append(c)
-    if len(uniq) > MAX_COLORS:
-        uniq = uniq[:MAX_COLORS]
+    while len(uniq) > MAX_COLORS:
+        bi, bj, bd = 0, 1, 1 << 30
+        for i in range(len(uniq)):
+            for j in range(i + 1, len(uniq)):
+                a, b = uniq[i], uniq[j]
+                d = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
+                if d < bd:
+                    bd, bi, bj = d, i, j
+        del uniq[bj]
     pal = [(0, 0, 0)] + uniq
     while len(pal) < 16:
         pal.append((0, 0, 0))
-    return pal, {c: i + 1 for i, c in enumerate(uniq)}
+    lut = {}
+    for c in set(rgbs):
+        best, bd = 1, 1 << 30
+        for i, p in enumerate(uniq):
+            d = (c[0] - p[0]) ** 2 + (c[1] - p[1]) ** 2 + (c[2] - p[2]) ** 2
+            if d < bd:
+                bd, best = d, i + 1
+        lut[c] = best
+    return pal, lut
 
 
-def convert_map(stage, map_n, ts_px):
+def collect_map(map_n):
+    """Return (cells, used-tile coords) for one map."""
     bg, cells = read_map(STAGE_INDEX, map_n)
-
-    used, used_set = [], set()
+    used, seen = [], set()
     for x in range(MAP_W):
         for y in range(MAP_H):
             _, t1x, t1y, t3x, t3y = cells[x][y]
             for (cx, cy) in ((t1x, t1y), (t3x, t3y)):
                 if cx < 0 or cy < 0:
                     continue
-                if (cx, cy) not in used_set:
-                    used_set.add((cx, cy))
+                if (cx, cy) not in seen:
+                    seen.add((cx, cy))
                     used.append((cx, cy))
+    return cells, used
 
+
+def collect_colors(used, ts_px):
     rgbs = []
     for (cx, cy) in used:
         for yy in range(TILE):
@@ -136,9 +159,10 @@ def convert_map(stage, map_n, ts_px):
                 if a == 0 or (r, g, b) == COLORKEY:
                     continue
                 rgbs.append((md_round(r), md_round(g), md_round(b)))
+    return rgbs
 
-    palette, lut = build_palette(rgbs)
 
+def convert_map(map_n, ts_px, cells, used, palette, lut):
     def tile_indexed(cx, cy):
         out = []
         for yy in range(TILE):
@@ -176,7 +200,7 @@ def convert_map(stage, map_n, ts_px):
     hist = {}
     for v in terrain:
         hist[v] = hist.get(v, 0) + 1
-    print(f"  map {map_n}: bg={bg}, {len(used)} tiles, {len(set(rgbs))} colors, "
+    print(f"  map {map_n}: {len(used)} tiles, "
           f"{ {TERRAIN_NAMES.get(k, k): v for k, v in sorted(hist.items())} }")
     return img, terrain
 
@@ -193,9 +217,21 @@ def main():
     os.makedirs(RES, exist_ok=True)
     os.makedirs(SRC, exist_ok=True)
 
-    terrains, used_maps = [], []
+    # One master palette for the whole stage: collect every map's colors
+    # first, then render all maps against the same palette/lut. Per-map
+    # palettes differ in color order, which flashed on map transitions.
+    maps_data, all_rgbs = [], []
     for m in range(MAPS_PER_STAGE):
-        img, terrain = convert_map(stage, m, ts_px)
+        cells, used = collect_map(m)
+        rgbs = collect_colors(used, ts_px)
+        all_rgbs += rgbs
+        maps_data.append((cells, used))
+    palette, lut = build_palette(all_rgbs)
+    print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
+
+    terrains, used_maps = [], []
+    for m, (cells, used) in enumerate(maps_data):
+        img, terrain = convert_map(m, ts_px, cells, used, palette, lut)
         img.save(os.path.join(RES, f"stage0_map{m}.png"))
         print(f"    -> res/stage0_map{m}.png {img.size}")
         terrains.append(terrain)

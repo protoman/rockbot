@@ -10,7 +10,7 @@
 #define PLAYER_BOX_R 25
 #define PLAYER_BOX_B 29
 
-#define PLAYER_PAL PAL1
+#define PLAYER_PAL PAL2
 
 // Animation rows in res/player.png -- order must match tools/convert_player.py
 #define ANIM_STAND    0
@@ -23,8 +23,10 @@
 
 typedef struct {
     Sprite *spr;
-    fix16 x, y;   // sprite top-left in world pixels (sub-pixel)
-    fix16 vx, vy;
+    // World pixel position as plain s16. NOT fix16: SGDK fix16 is 10.6
+    // format (integer range only ±512) and the stage is 3200px wide.
+    s16 x, y;
+    fix16 vx, vy;   // speeds (|v| <= 6, fits fix16 ±512 fine)
     bool on_ground;
     bool on_ladder;
     s16 facing;   // 1 = right, -1 = left

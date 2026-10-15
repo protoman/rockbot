@@ -1,4 +1,5 @@
 - no need for quit game menu
+
 - settings should be simplified
     # Audio: keep
     # Input: remove Directional analog/digital and selected joystick.
@@ -8,3 +9,19 @@
     # extras: keep
     # lave stage: keep
     # quit game> remove
+
+
+Findings and fix plan are written.
+
+  5 root causes found, 3 are palette:
+
+   #                           │ Bug                                                             │ Impact
+  ─────────────────────────────┼─────────────────────────────────────────────────────────────────┼────────────────────────────────────────────
+   FIND-01                     │ STAGE_PAL = PAL0 = same as font → stage overwrites font palette │ HUD/debug text invisible
+   FIND-02                     │ Debug solid tile uses PAL0 attr but dbg_pal is in PAL3          │ Debug block wrong color
+   FIND-03                     │ PAL2 never initialized in game loop                             │ Stale intro garbage colors
+   FIND-04                     │ Player palette index 1 = (0,0,0) duplicate                      │ Low — black outlines work but waste a slot
+   FIND-05                     │ Each map generates its own palette independently                │ Color flash on map transition
+
+  Highest priority fix: stage.h → STAGE_PAL PAL1, player.h → PLAYER_PAL PAL2. That resolves the PAL0 conflict in one edit, no asset rebuild
+  needed.

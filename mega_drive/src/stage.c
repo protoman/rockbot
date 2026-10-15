@@ -29,16 +29,15 @@ void stage_load(u8 map_index)
     if (map_index >= STAGE0_MAP_COUNT) map_index = 0;
     stage_current_map = map_index;
 
-    VDP_clearPlane(BG_A, FALSE);
-    VDP_clearPlane(BG_B, FALSE);
+    bool wasEnabled = VDP_isEnable();
+    VDP_setEnable(FALSE);
 
-    SYS_disableInts();
-    // DMA_QUEUE, not DMA: immediate DMA during active display is dropped or
-    // corrupts VRAM/CRAM on accurate hardware (BlastEm, Genesis Plus GX).
-    // The queue flushes at the next vblank via SYS_doVBlankProcess.
-    PAL_setPalette(STAGE_PAL, palettes[map_index]->data, DMA_QUEUE);
-    VDP_loadTileSet(tile_sets[map_index], TILE_USER_INDEX, DMA_QUEUE);
-    SYS_enableInts();
+    VDP_clearPlane(BG_A, TRUE);
+    VDP_clearPlane(BG_B, TRUE);
+
+    // Load tileset and palette
+    PAL_setPalette(STAGE_PAL, palettes[map_index]->data, CPU);
+    VDP_loadTileSet(tile_sets[map_index], TILE_USER_INDEX, DMA);
 
     stage_map = MAP_create(map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
@@ -46,6 +45,10 @@ void stage_load(u8 map_index)
     camera.x = 0;
     camera.y = 0;
     MAP_scrollToEx(stage_map, 0, 0, TRUE);   // full draw on first load
+
+    // Flush any pending transfers and restore display
+    SYS_doVBlankProcess();
+    VDP_setEnable(wasEnabled);
 }
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
