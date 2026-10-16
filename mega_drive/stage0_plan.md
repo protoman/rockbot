@@ -413,6 +413,12 @@ explicit timeout; never block/poll indefinitely; check liveness with pgrep.
 
 - TERRAIN EASYBLOCK (12) and HARDBLOCK (13) are difficulty pass-through
   blocks — ignore them as geometry (TERRAIN_BLOCKS already excludes them).
+  The port has NO difficulty setting: convert_stage.py now normalises both
+  values to UNBLOCKED so the runtime only ever sees 0/1/2 (no difficulty
+  blocks, no difficulty spikes).
+- NO difficulty setting also for spawns: enemies/objects are kept unless
+  hard-only (difficulty_level >= 2; 0=easy, 1=normal, 2=hard). Stage 0 has
+  a single hard-only spawn (enemy id 47, map0) which stays skipped.
 - Debug text overlay (tile pos + HP) and `dbgNum()` removed — kprintf
   debug builds are enough.
 - KNOWN (deferred by user): a small artifact on the right side of some

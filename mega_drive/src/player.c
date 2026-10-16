@@ -120,21 +120,34 @@ static bool column_hits_solid(s16 col, s16 t, s16 b)
     return FALSE;
 }
 
-// PC hit_ground ladder-edge pairs (character.cpp:1377-1412) for the fall
-// scan and the standing check: a STAIR tile is ground only when the tile
-// above is not STAIR (stand on the ladder top); an UNBLOCKED tile is ground
-// when the tile above is STAIR (rest on the ladder's bottom rung, e.g. the
-// link arrival spot at map0 (139,13)). SOLID is always ground. The other PC
-// pairs are skipped on purpose: p1=UNBLOCKED with p2=SOLID would freeze the
-// scan-based landing on ledges.
-static bool ground_row(s16 tx, s16 row)
+// PC hit_ground (character.cpp:1377-1412): feet tile vs CENTRE tile pair.
+// SOLID (not UNBLOCKED/WATER/STAIR) at the feet is ground; otherwise ground
+// when the feet tile differs from the centre tile (standing on a ledge edge,
+// resting on a ladder's bottom rung). The pair must use the box CENTRE, not
+// the tile above the feet: the map1 shaft ladder (col 198, ends at row 2
+// with a 9-row pit below) releases the player with feet and centre both in
+// row 3 — "above" would compare against the rung (STAIR) and freeze him in
+// mid-air, while the PC centre compare lets him fall.
+static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row)
 {
-    u16 p1 = stage_terrain_at(stage_current_map, tx, row);
-    if (p1 == TERRAIN_SOLID) return TRUE;
-    u16 above = stage_terrain_at(stage_current_map, tx, row - 1);
-    if (p1 == TERRAIN_STAIR) return above != TERRAIN_STAIR;
-    if (p1 == TERRAIN_UNBLOCKED) return above == TERRAIN_STAIR;
-    return FALSE;
+    u16 lock1 = stage_terrain_at(stage_current_map, tx, feet_row);
+    if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR)
+        return TRUE;
+    return lock1 != stage_terrain_at(stage_current_map, tx, centre_row);
+}
+
+// A column solid across the WHOLE box height is a SIDE WALL (map border,
+// divider), not floor: pressing against it mid-air must not latch
+// on_ground (player_stuck_wall.png: left border at col1; the same rule
+// freezes the player on the map1 ladder, boxed in by the col199 border).
+// The full span matters: a 2-tile corridor has solid feet and head rows
+// with open air between — that floor must still count.
+static bool support_col(s16 tx, s16 top_row, s16 feet_row)
+{
+    for (s16 r = top_row; r <= feet_row; r++)
+        if (stage_terrain_at(stage_current_map, tx, r) != TERRAIN_SOLID)
+            return TRUE;                // some open row: a real floor column
+    return FALSE;                       // solid for the full height: a wall
 }
 
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
@@ -191,6 +204,44 @@ void player_init(void)
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
     PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
     SPR_setAnim(player.spr, ANIM_STAND);
+}
+
+// Fire (B) + charge shot, shared by the ground and ladder paths.
+// Edge-triggered like the PC (one shot per press); holding charges and
+// the release fires the semi/full charge shot (character.cpp:597).
+static void handle_fire(u16 pad, s16 ix, s16 iy)
+{
+    bool fire_raw = (pad & FIRE_BUTTON) != 0;
+    bool fire_ok = fire_raw && !player.sliding;
+    if (fire_ok && !player.fire_prev) {
+        if (attack_timer == 0) {
+            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R : ix + PLAYER_BOX_L - 8;
+            shot_fire(sx, iy + 10, player.facing);
+            attack_timer = ATTACK_FRAMES;
+        }
+        player.charge_frames = 0;
+    } else if (fire_ok) {
+        if (player.charge_frames < 60000) player.charge_frames++;
+        if ((player.charge_frames & 7) == 0) {
+            PAL_setPalette(PLAYER_PAL,
+                           flash_pal[(player.charge_frames >> 3) & 1], DMA_QUEUE);
+        }
+    } else if (player.fire_prev && !fire_raw) {
+        if (!player.sliding) {
+            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R - 4 : ix + PLAYER_BOX_L - 12;
+            if (player.charge_frames >= CHARGE_FULL_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 2);
+                attack_timer = ATTACK_FRAMES;
+            } else if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 1);
+                attack_timer = ATTACK_FRAMES;
+            }
+        }
+        player.charge_frames = 0;
+        PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
+    }
+    player.fire_prev = fire_raw;
+    if (attack_timer > 0) attack_timer--;
 }
 
 void player_update(u16 pad)
@@ -261,6 +312,13 @@ void player_update(u16 pad)
                 iy = ((nTop >> 4) << 4) + 16 - PLAYER_BOX_T;
             } else if (centreNew != TERRAIN_STAIR &&
                        stage_terrain_at(stage_current_map, ctx, nBottom >> 4) != TERRAIN_STAIR) {
+                // Apply the pending step before releasing: skipping it left
+                // the player one pixel high — centre still in the stair row,
+                // feet already below — and the feet-vs-centre ground pair
+                // then latched him in mid-air wherever a ladder ends above
+                // open space (map1 col 1). With iy = ny both rows are off
+                // the stair, the pair sees no ground and he falls.
+                iy = ny;
                 player.on_ladder = FALSE;                       // walked off the ladder
             } else {
                 iy = ny;
@@ -290,18 +348,30 @@ void player_update(u16 pad)
         if (player.on_ladder) {
             player.x = ix;
             player.y = iy;
+            handle_fire(pad, ix, iy);   // can shoot while climbing (PC)
+            // PC keeps the stairs pose; firing mid-climb uses
+            // ANIM_TYPE_STAIRS_ATTACK (classplayer.cpp:482).
+            u16 stair_anim = (attack_timer > 0) ? ANIM_STAIRS_ATTACK : ANIM_STAIRS;
             // Rebuild the sprite when the pose changes: the VRAM tiles are
-            // (re)built on anim changes and the stairs anim is static
-            // (time 0) so it never advances on its own.
-            if (current_anim != ANIM_STAIRS || ladder_flip != ladder_shown) {
-                current_anim = ANIM_STAIRS;
+            // (re)built on anim changes and both rows are static (time 0)
+            // so they never advance on their own.
+            if (current_anim != stair_anim || ladder_flip != ladder_shown) {
+                current_anim = stair_anim;
                 ladder_shown = ladder_flip;
                 SPR_setHFlip(player.spr, ladder_flip);
-                SPR_setAnim(player.spr, ANIM_STAIRS);
+                SPR_setAnim(player.spr, stair_anim);
             }
             SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
-            prev_pad = pad;
-            return;
+            // JUMP press on a ladder = let go and fall in place (the press
+            // is consumed so it cannot double as a ground jump).
+            if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
+                player.on_ladder = FALSE;
+                player.vy = 0;
+                prev_pad = pad;
+            } else {
+                prev_pad = pad;
+                return;
+            }
         }
         player.vy = 0;
     }
@@ -426,11 +496,18 @@ void player_update(u16 pad)
                                               ny + PLAYER_BOX_B);
             // falling: scan from the row the feet are in (a resting foot is
             // exactly on a tile boundary; +1 would skip that row and drop the
-            // player through the floor) down to the row the feet enter.
+            // player through the floor) down to the row the feet enter. The
+            // current (unsnapped) pose keeps its real centre row; deeper
+            // candidate rows use the snapped-pose centre (row - 1).
+            s16 centre_now = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
+            s16 top_now = (iy + PLAYER_BOX_T) >> 4;
             for (s16 row = (iy + PLAYER_BOX_B) >> 4;
                  row <= ((ny + PLAYER_BOX_B) >> 4) && !blocked; row++) {
+                s16 centre_row = (row == ((iy + PLAYER_BOX_B) >> 4))
+                                     ? centre_now : row - 1;
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (ground_row(tx, row)) {
+                    if (ground_pair(tx, row, centre_row) &&
+                        support_col(tx, top_now, row)) {
                         ny = (row << 4) - PLAYER_BOX_B;
                         player.on_ground = TRUE;
                         player.vy = 0;
@@ -475,8 +552,11 @@ void player_update(u16 pad)
         s16 l = ix + PLAYER_BOX_L;
         s16 r = ix + PLAYER_BOX_R;
         s16 row = (iy + PLAYER_BOX_B) >> 4;
+        s16 centre_row = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
+        s16 top_row = (iy + PLAYER_BOX_T) >> 4;
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            if (ground_row(tx, row)) {
+            if (ground_pair(tx, row, centre_row) &&
+                support_col(tx, top_row, row)) {
                 player.on_ground = TRUE;
                 break;
             }
@@ -514,39 +594,7 @@ void player_update(u16 pad)
     }
 
     // ---- fire (B) + charge shot ---------------------------------------------
-    // Edge-triggered like the PC (one shot per press); holding charges and
-    // the release fires the semi/full charge shot (character.cpp:597).
-    bool fire_raw = (pad & FIRE_BUTTON) != 0;
-    bool fire_ok = fire_raw && !player.sliding;
-    if (fire_ok && !player.fire_prev) {
-        if (attack_timer == 0) {
-            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R : ix + PLAYER_BOX_L - 8;
-            shot_fire(sx, iy + 10, player.facing);
-            attack_timer = ATTACK_FRAMES;
-        }
-        player.charge_frames = 0;
-    } else if (fire_ok) {
-        if (player.charge_frames < 60000) player.charge_frames++;
-        if ((player.charge_frames & 7) == 0) {
-            PAL_setPalette(PLAYER_PAL,
-                           flash_pal[(player.charge_frames >> 3) & 1], DMA_QUEUE);
-        }
-    } else if (player.fire_prev && !fire_raw) {
-        if (!player.sliding) {
-            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R - 4 : ix + PLAYER_BOX_L - 12;
-            if (player.charge_frames >= CHARGE_FULL_FRAMES) {
-                shot_charge_fire(sx, iy + 8, player.facing, 2);
-                attack_timer = ATTACK_FRAMES;
-            } else if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
-                shot_charge_fire(sx, iy + 8, player.facing, 1);
-                attack_timer = ATTACK_FRAMES;
-            }
-        }
-        player.charge_frames = 0;
-        PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
-    }
-    player.fire_prev = fire_raw;
-    if (attack_timer > 0) attack_timer--;
+    handle_fire(pad, ix, iy);
 
     // ---- animation + screen position ----------------------------------------
     u16 want;

@@ -60,6 +60,7 @@ typedef struct {
     s16 dest_x, dest_y;
     u8 jumping;       // JUMP action in the air
     u8 moving;        // walk anim while the action moves the enemy
+    s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
 } Enemy;
 
 static Enemy enemies[ENEMY_MAX];
@@ -80,10 +81,36 @@ static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
     return FALSE;
 }
 
+// Floor probe for landing/standing, inset 2px per side. A column solid
+// across the whole box height is a SIDE WALL (map divider, right map edge),
+// not floor: the boss used to "land" on the divider mid-air and re-launch,
+// stair-stepping up out of the screen jump by jump.
+static bool feet_solid(const Enemy *e, s16 row)
+{
+    const EnemyDef *d = e->def;
+    s16 top = (e->y + d->box_t) >> 4;
+    s16 l = e->x + d->box_l + 2;
+    s16 r = e->x + d->box_l + d->box_w - 3;
+    for (s16 tx = l >> 4; tx <= r >> 4; tx++) {
+        if (stage_terrain_at(stage_current_map, tx, row) != TERRAIN_SOLID)
+            continue;
+        // side wall? solid for the full box height (some open row = floor)
+        bool wall = TRUE;
+        for (s16 ry = top; ry <= row; ry++) {
+            if (stage_terrain_at(stage_current_map, tx, ry) != TERRAIN_SOLID) {
+                wall = FALSE;
+                break;
+            }
+        }
+        if (wall) continue;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static bool on_ground(const Enemy *e, const EnemyDef *d)
 {
-    s16 b = e->y + d->box_t + d->box_h;
-    return box_hits_solid(e->x + d->box_l, b, e->x + d->box_l + d->box_w, b + 1);
+    return feet_solid(e, (e->y + d->box_t + d->box_h) >> 4);
 }
 
 static s16 sign16(s16 v)
@@ -107,10 +134,10 @@ static void ai_action_init(Enemy *e)
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR) {
             if (st->param == AI_WALK_TURN) {
                 e->dir = -e->dir;
-            } else if (player.x + 14 > e->x + half) {
-                e->dir = 1;
             } else {
-                e->dir = -1;
+                // PC TURN_TO_PLAYER (artificial_inteligence.cpp:1121-1129):
+                // raw position compare, facing set instantly
+                e->dir = (player.x > e->x) ? 1 : -1;
             }
         } else if (st->param == AI_WALK_TO_PLAYER) {
             e->dest_x = player.x;
@@ -146,12 +173,18 @@ static void ai_action_init(Enemy *e)
     }
 }
 
-// Move one axis toward dest at speed; TRUE when reached or blocked.
+// Move one axis toward dest; TRUE when reached or blocked. The PC runs the
+// AI step every 20ms (50Hz, artificial_inteligence.cpp:276) so one "speed"
+// pixel lands every 20ms — moving speed px per 60fps frame would be 20%
+// faster than the PC. The accumulator reproduces speed*50 px/s exactly.
 static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal)
 {
     const EnemyDef *d = e->def;
-    s16 step = (s16)d->speed;
+    e->move_acc += (s16)d->speed * 5;
+    s16 step = e->move_acc / 6;
+    e->move_acc %= 6;
     if (*pos == dest) return TRUE;
+    if (step == 0) return FALSE;
     s16 dir = sign16(dest - *pos);
     s16 n = *pos + dir * step;
     if ((dir > 0 && n > dest) || (dir < 0 && n < dest)) n = dest;
@@ -218,19 +251,13 @@ static bool ai_action_run(Enemy *e)
         if (dy > 0) {
             for (s16 row = (e->y + bottom) >> 4; row <= ((ny + bottom) >> 4);
                  row++) {
-                bool blocked = FALSE;
-                for (s16 tx = (e->x + d->box_l) >> 4;
-                     tx <= (e->x + d->box_l + d->box_w - 1) >> 4; tx++) {
-                    if (stage_terrain_at(stage_current_map, tx, row) ==
-                        TERRAIN_SOLID) {
-                        ny = (row << 4) - bottom;
-                        e->vy = 0;
-                        e->jumping = 0;
-                        e->moving = 0;
-                        return TRUE;                    // landed
-                    }
+                if (feet_solid(e, row)) {
+                    ny = (row << 4) - bottom;
+                    e->vy = 0;
+                    e->jumping = 0;
+                    e->moving = 0;
+                    return TRUE;                    // landed
                 }
-                (void)blocked;
             }
         }
         e->y = ny;
@@ -349,6 +376,7 @@ void enemies_reset(void)
         e->dest_y = sp->y;
         e->jumping = 0;
         e->moving = 0;
+        e->move_acc = 0;
         if (d->is_boss && boss_i < 0) boss_i = idx;
         e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -399,21 +427,14 @@ void enemies_update(void)
             s16 dy = F16_toInt(e->vy);
             if (dy > 0) {
                 s16 ny = e->y + dy;
-                s16 l = e->x + d->box_l;
-                s16 r = e->x + d->box_l + d->box_w;
                 s16 bottom = d->box_t + d->box_h;
                 for (s16 row = (e->y + bottom) >> 4;
                      row <= ((ny + bottom) >> 4); row++) {
-                    bool blocked = FALSE;
-                    for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-                        if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
-                            ny = (row << 4) - bottom;
-                            e->vy = 0;
-                            blocked = TRUE;
-                            break;
-                        }
+                    if (feet_solid(e, row)) {
+                        ny = (row << 4) - bottom;
+                        e->vy = 0;
+                        break;
                     }
-                    if (blocked) break;
                 }
                 e->y = ny;
                 if (e->y > STAGE0_PIXEL_H + 32) {   // fell out of the level

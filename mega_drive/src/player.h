@@ -25,6 +25,7 @@
 #define ANIM_TELEPORT 5
 #define ANIM_STAIRS   6
 #define ANIM_SLIDE    7
+#define ANIM_STAIRS_ATTACK 8
 
 typedef struct {
     Sprite *spr;

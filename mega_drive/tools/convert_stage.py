@@ -251,7 +251,19 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of):
                 data[base:base + TILE] = src[yy * TILE:(yy + 1) * TILE]
     img.putdata(data)
 
-    terrain = [cells[x][y][0] for y in range(MAP_H) for x in range(MAP_W)]
+    # Difficulty-mode blocks are NOT part of this port: the game has no
+    # Easy/Hard difficulty, so BOTH variants are ignored as geometry
+    # (standing rule, stage0_plan.md: TERRAIN EASYBLOCK/HARDBLOCK are
+    # pass-through). PC only materialises 12 in Easy and 13 in Hard
+    # (classmap.cpp:284-289). Emitting the raw values made the player land
+    # on the phantom 13s under the map1 left ladder.
+    terrain = []
+    for y in range(MAP_H):
+        for x in range(MAP_W):
+            v = cells[x][y][0]
+            if v == 12 or v == 13:
+                v = 0
+            terrain.append(v)
     hist = {}
     for v in terrain:
         hist[v] = hist.get(v, 0) + 1

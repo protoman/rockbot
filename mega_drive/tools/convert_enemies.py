@@ -16,8 +16,9 @@ Emits:
   a SPRITE block to paste into res/resources.res (printed)
 
 Simplifications (per user: precompute in converter, simple runtime AI):
-  - difficulty: only spawns with difficulty_level <= 0 are emitted
-    (PC rule classmap.cpp:545, game_save.difficulty = EASY).
+  - difficulty: the port has no difficulty setting, so spawns are kept
+    unless they are hard-only (difficulty_level >= 2; 0=easy, 1=normal,
+    2=hard, defines.h:1314). PC rule classmap.cpp:541-546 (mode+level).
   - boss (is_boss) hp is overridden to BOSS_INITIAL_HP = 36 (PC
     classnpc.cpp:707 set_stage_boss() ignores file_npc.hp.total).
   - AI state tables come from game_ai_list.dat (528B records, loaded by
@@ -302,8 +303,8 @@ def main():
     for s in spawns_all:
         if s["id"] < 0 or s["id"] * NPC_SZ >= len(blob):
             continue
-        if s["diffL"] > 0:                    # PC classmap.cpp:545, easy mode
-            print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): difficulty_level {s['diffL']} > 0")
+        if s["diffL"] >= 2:                   # hard-only spawn: skip
+            print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): difficulty_level {s['diffL']} (hard-only)")
             continue
         used_ids.append(s["id"])
 

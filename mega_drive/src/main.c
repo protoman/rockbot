@@ -166,6 +166,24 @@ static void runStage(void)
         hud_update(player.hp);
 #ifdef DEBUG_OBJECTS
         objects_debug_text(25, player.x, player.y, camera.x);
+        {
+            // TEMP ladder debug (revert): row 26 = ladder/ground/vy/rows
+            char d[32];
+            u8 n = 0;
+            s16 v = F16_toInt(player.vy);
+            d[n++] = 'L'; d[n++] = player.on_ladder ? '1' : '0';
+            d[n++] = ' '; d[n++] = player.on_ground ? '1' : '0';
+            d[n++] = ' ';
+            if (v < 0) { d[n++] = '-'; v = -v; }
+            d[n++] = '0' + (v > 9 ? 9 : v);
+            d[n++] = ' ';
+            d[n++] = 'F'; d[n++] = '0' + (((player.y + PLAYER_BOX_B) >> 4) % 10);
+            d[n++] = ' ';
+            d[n++] = 'C';
+            d[n++] = '0' + (((player.y + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4) % 10);
+            d[n] = 0;
+            VDP_drawText(d, 0, 26);
+        }
 #endif
 
         s16 bl, bt, br, bb;

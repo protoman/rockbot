@@ -39,8 +39,8 @@ XGM2 stage_music "music.vgm"
 # ---- PLAYER (RockBot) ----
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped
 # to weapon_colors[0] by tools/convert_player.py.
-# rows: STAND, WALK, JUMP, ATTACK, HIT, TELEPORT, STAIRS
-SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0]]
+# rows: STAND, WALK, JUMP, ATTACK, HIT, TELEPORT, STAIRS, SLIDE, STAIRS_ATTACK
+SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
 
 # ---- STAGE 0 ENEMIES + PLAYER SHOT (tools/convert_enemies.py) ----
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded
